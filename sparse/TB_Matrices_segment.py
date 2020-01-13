@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 from scipy.linalg import eig
+from scipy.sparse.linalg import eigsh
 from math import pi, sqrt, sin, cos
 from scipy import sparse
 
@@ -235,6 +236,9 @@ def Elementar_matrices(npel,ngln,e,mat,tube):
 
     return ke, me, T_tild_e
 
+def symmetrize(a):
+    return a + a.T - np.diag(a.diagonal())
+
 
 def assembly(Segm,npel,ngln):
 
@@ -250,7 +254,7 @@ def assembly(Segm,npel,ngln):
     # DOF connectivity matrix
     Connect_DOF = np.zeros((ne,npel*ngln)).astype(int)
 
-    #
+    # Memory alocation
     N_DOF = 6*nnode
     K     = np.zeros((N_DOF,N_DOF))
     M     = np.zeros((N_DOF,N_DOF))
@@ -275,9 +279,12 @@ def assembly(Segm,npel,ngln):
     K = np.delete(K,fixeddof-1,axis=1)
     K = np.delete(K,fixeddof-1,axis=0)
 
+    K       = symmetrize(K)
+    M       = symmetrize(M)
+
     return K, M
 
-def assembly(Segm,npel,ngln):
+def sparse_assembly(Segm,npel,ngln):
 
     # Initiate
     nnode    = Segm.nnode
@@ -286,7 +293,7 @@ def assembly(Segm,npel,ngln):
     ne       = Segm.ne
     mat      = Segm.mat
     tube     = Segm.tube
-    fixeddof = Segm.fixeddof
+    fixeddof = Segm.fixeddof - 1
 
     # DOF connectivity matrix
     Connect_DOF = np.zeros((ne,npel*ngln)).astype(int)
@@ -312,43 +319,15 @@ def assembly(Segm,npel,ngln):
                     K[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Ke[ngln*i + k,p]
                     M[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Me[ngln*i + k,p]
 
-    # Como deletar linhas de matriz esparsa!!!
-    M = np.delete(M,fixeddof-1,axis=1)
-    M = np.delete(M,fixeddof-1,axis=0)
-    K = np.delete(K,fixeddof-1,axis=1)
-    K = np.delete(K,fixeddof-1,axis=0)
+    # Defining symmetric matrices
+    K = K.tocsr() + K.tocsr().T - sparse.diags(K.tocsr().diagonal())
+    M = M.tocsr() + M.tocsr().T - sparse.diags(M.tocsr().diagonal())
 
-    return K.tocsr(), M.tocsr()
-
-
-def symmetrize(a):
-    return a + a.T - np.diag(a.diagonal())
-
-
-# def modal_analysis(k,ngln,nnode,fixeddof,K,M):
-
-#     eigvals,eigvects = eig(K, M)
-#     eigvals=np.absolute(np.real(eigvals))
-#     omega=np.sqrt(eigvals)
-#     fn=omega/(2.*np.pi)
-#     eigvects=np.real(eigvects)
-
-#     idx = fn.argsort()[::1]
-#     fn= fn[idx]
-#     eigvects = eigvects[:,idx]
-#     eigvects = eigvects.real
-
-#     t=0
-#     alldof = list(range(1,ngln*nnode+1))
-#     eigvects_ = np.zeros((len(alldof),k))
-#     for i in alldof:
-#         if i in fixeddof:
-#             eigvects_[i-1,:] = 0.*eigvects[0,0:k]
-#         else:
-#             t +=1
-#             eigvects_[i-1,:] = eigvects[t-1,0:k]
-
-#     return fn, eigvects_
+    # Wipping fixed DOFs
+    mask = np.ones(N_DOF, dtype=bool)
+    mask[fixeddof] = False
+    
+    return K[mask][:,mask], M[mask][:,mask]
 
 def modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
@@ -375,85 +354,95 @@ def modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
     return fn, eigvects_
 
+def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
-def plot_mode(modo, fn, eigvects, coord, connectivity, scale):
-    # Initialize
-    le = 0.4
-    fact = 0.5*le
-    nnode = coord.shape[0]
+    eigvals,eigvects = eigsh(K, k, M, which='SM')
+    eigvals=np.real(eigvals)
+    omega=np.sqrt(eigvals)
+    fn=omega/(2 * pi)
+    eigvects=np.real(eigvects)
 
-    # Deformation
-    x = np.array([ eigvects[0 + 6*i, modo-1] for i in range(nnode) ])
-    y = np.array([ eigvects[1 + 6*i, modo-1] for i in range(nnode) ])
-    z = np.array([ eigvects[2 + 6*i, modo-1] for i in range(nnode) ])
+    return fn, eigvects
+
+
+# def plot_mode(modo, fn, eigvects, coord, connectivity, scale):
+#     # Initialize
+#     le = 0.4
+#     fact = 0.5*le
+#     nnode = coord.shape[0]
+
+#     # Deformation
+#     x = np.array([ eigvects[0 + 6*i, modo-1] for i in range(nnode) ])
+#     y = np.array([ eigvects[1 + 6*i, modo-1] for i in range(nnode) ])
+#     z = np.array([ eigvects[2 + 6*i, modo-1] for i in range(nnode) ])
     
-    # Scale Fator definition and normalization
-    r = (x**2 + y**2 + z**2)**(1/2)
-    fact = scale * le/ r.max()
+#     # Scale Fator definition and normalization
+#     r = (x**2 + y**2 + z**2)**(1/2)
+#     fact = scale * le/ r.max()
 
-    # Adding deformation
-    coord_def        = np.empty_like(coord)
-    coord_def[:,0]   = coord[:,0] + fact*x
-    coord_def[:,1]   = coord[:,1] + fact*y
-    coord_def[:,2]   = coord[:,2] + fact*z
+#     # Adding deformation
+#     coord_def        = np.empty_like(coord)
+#     coord_def[:,0]   = coord[:,0] + fact*x
+#     coord_def[:,1]   = coord[:,1] + fact*y
+#     coord_def[:,2]   = coord[:,2] + fact*z
 
-    fig = plt.figure(figsize=(15,10))
-    ax = fig.add_subplot(1,1,1,projection='3d')
+#     fig = plt.figure(figsize=(15,10))
+#     ax = fig.add_subplot(1,1,1,projection='3d')
 
-    fontsize_label = 14
-    fontsize_title = 18
+#     fontsize_label = 14
+#     fontsize_title = 18
 
-    ax.set_title(('Forma modal - '+str(modo)+'º modo: '+str(round(fn[modo-1], 2))+' Hz'),fontsize=fontsize_title,fontweight='bold')
-    ax.set_xlabel(('Posição x[m]'),fontsize=fontsize_label,fontweight='bold')
-    ax.set_ylabel(('Posição y[m]'),fontsize=fontsize_label,fontweight='bold')
-    ax.set_zlabel(('Posição z[m]'),fontsize=fontsize_label,fontweight='bold')
-    plt.grid(axis='both')
+#     ax.set_title(('Forma modal - '+str(modo)+'º modo: '+str(round(fn[modo-1], 2))+' Hz'),fontsize=fontsize_title,fontweight='bold')
+#     ax.set_xlabel(('Posição x[m]'),fontsize=fontsize_label,fontweight='bold')
+#     ax.set_ylabel(('Posição y[m]'),fontsize=fontsize_label,fontweight='bold')
+#     ax.set_zlabel(('Posição z[m]'),fontsize=fontsize_label,fontweight='bold')
+#     plt.grid(axis='both')
 
-    # Undeformed
-    show_lines(ax, coord, connectivity,'blue')
-    for point in coord:
-        ax.scatter(*point, color='blue')
-    # Deformed
-    show_lines(ax, coord_def, connectivity,'red')
-    for point in coord_def:
-        ax.scatter(*point, color='red')
+#     # Undeformed
+#     show_lines(ax, coord, connectivity,'blue')
+#     for point in coord:
+#         ax.scatter(*point, color='blue')
+#     # Deformed
+#     show_lines(ax, coord_def, connectivity,'red')
+#     for point in coord_def:
+#         ax.scatter(*point, color='red')
     
-    plt.show()
+#     plt.show()
 
-def show_lines(ax, coordinates, connectivity, color):
-    for start, end in connectivity:
-        # [start - 1] é uma gambiarra temporária porque o arquivo de conectividade não tá indexado em zero.
-        # funciona, só não é muito elegante 
-        # outra opção seria colocar o 'nome' do vértice no arquivo
-        start_x = coordinates[start-1][0]
-        start_y = coordinates[start-1][1]
-        start_z = coordinates[start-1][2]
+# def show_lines(ax, coordinates, connectivity, color):
+#     for start, end in connectivity:
+#         # [start - 1] é uma gambiarra temporária porque o arquivo de conectividade não tá indexado em zero.
+#         # funciona, só não é muito elegante 
+#         # outra opção seria colocar o 'nome' do vértice no arquivo
+#         start_x = coordinates[start-1][0]
+#         start_y = coordinates[start-1][1]
+#         start_z = coordinates[start-1][2]
 
-        end_x = coordinates[end-1][0]
-        end_y = coordinates[end-1][1]
-        end_z = coordinates[end-1][2]
+#         end_x = coordinates[end-1][0]
+#         end_y = coordinates[end-1][1]
+#         end_z = coordinates[end-1][2]
 
-        ax.plot([start_x, end_x], [start_y, end_y], [start_z, end_z], color=color)
+#         ax.plot([start_x, end_x], [start_y, end_y], [start_z, end_z], color=color)
 
-def show_points(coordinates):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
+# def show_points(coordinates):
+#     fig = plt.figure()
+#     ax = fig.add_subplot(111, projection='3d')
 
-    for point in coordinates:
-        ax.scatter(*point, color='red')
+#     for point in coordinates:
+#         ax.scatter(*point, color='red')
 
-def get_conectivity(file):
-    connect = []
-    with open(file) as file:
-        lines = file.readlines()
-        for line in lines:
-            print(line)
-            pos, start, end, rest = line.split('.')
-            pos = int(pos)
-            start = int(start)
-            end = int(end)
-            connect.append((start, end))
-    return connect
+# def get_conectivity(file):
+#     connect = []
+#     with open(file) as file:
+#         lines = file.readlines()
+#         for line in lines:
+#             print(line)
+#             pos, start, end, rest = line.split('.')
+#             pos = int(pos)
+#             start = int(start)
+#             end = int(end)
+#             connect.append((start, end))
+#     return connect
 
 
 def example():
@@ -492,20 +481,20 @@ def example():
 
     # Global Assembly
     K, M    = assembly(Segm,npel,ngln)
-    K       = symmetrize(K)
-    M       = symmetrize(M)
 
-    # Modal Analysis - Full Matrix process
-    k = 25
-    nnode = Segm.nnode
-    fn, eigvects = modal_analysis(k,ngln,nnode,fixeddof,K,M)
+    sK, sM    = sparse_assembly(Segm,npel,ngln)
 
-    # Plot
-    modo = 23
-    scale = 0.5
-    connectivity = get_conectivity('connect.dat')
+    # # Modal Analysis - Full Matrix process
+    # k = 25
+    # nnode = Segm.nnode
+    # fn, eigvects = modal_analysis(k,ngln,nnode,fixeddof,K,M)
 
-    plot_mode(modo, fn, eigvects, coord, connectivity, scale)
+    # # Plot
+    # modo = 23
+    # scale = 0.5
+    # connectivity = get_conectivity('connect.dat')
+
+    # plot_mode(modo, fn, eigvects, coord, connectivity, scale)
 
 if __name__ == '__main__':
     example()
