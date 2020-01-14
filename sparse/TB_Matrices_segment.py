@@ -383,7 +383,7 @@ def plot_mode(modo, fn, eigvects, coord, connectivity, scale):
     r = (x**2 + y**2 + z**2)**(1/2)
     fact = scale * le/ r.max()
 
-    # Adding deformation
+    # Adding deformations
     coord_def        = np.empty_like(coord)
     coord_def[:,0]   = coord[:,0] + fact*x
     coord_def[:,1]   = coord[:,1] + fact*y
