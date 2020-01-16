@@ -8,3 +8,4 @@ f = FemMesh(path, 10, 10)
 print(f.edges_matrix, '\n')
 print(f.vertices_matrix, '\n')
 print(time()-start)
+#
