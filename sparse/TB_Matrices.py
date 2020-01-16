@@ -339,15 +339,12 @@ def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
     # todo: eigsh function is messing up!!
     eigvals,eigvects = eigs(sK, k, sM, sigma = 0, which='LR')
-    eigvals=np.absolute( np.real( eigvals ) )
-    omega=np.sqrt(eigvals)
-    fn=omega/(2 * pi)
+    fn=np.sqrt( np.absolute( np.real(eigvals) ) ) /(2. * pi)
     eigvects=np.real(eigvects)
 
     idx = fn.argsort()[::1]
     fn= fn[idx]
     eigvects = eigvects[:,idx]
-    eigvects = eigvects.real
 
     t=0
     alldof = list(range(1,ngln*nnode+1))
