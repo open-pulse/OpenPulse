@@ -1,15 +1,12 @@
 import numpy as np
-import scipy
+
 from scipy.linalg import eig, eigh
 from scipy.sparse.linalg import eigs, eigsh
-from math import pi, sqrt, sin, cos
 from scipy import sparse
 
+from math import pi, sqrt, sin, cos
+
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib import animation
-from matplotlib.collections import LineCollection
-from matplotlib.colors import ListedColormap, BoundaryNorm
 
 
 class Node(object):
@@ -319,15 +316,12 @@ def sparse_assembly(Segm,npel,ngln):
 def modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
     eigvals,eigvects = eig(K, M)
-    eigvals=np.absolute(np.real(eigvals))
-    omega=np.sqrt(eigvals)
-    fn=omega/(2.*np.pi)
+    fn=np.sqrt( np.absolute( np.real(eigvals) ) ) /(2. * pi)
     eigvects=np.real(eigvects)
 
     idx = fn.argsort()[::1]
     fn= fn[idx]
     eigvects = eigvects[:,idx]
-    eigvects = eigvects.real
 
     t=0
     alldof = list(range(1,ngln*nnode+1))
@@ -366,86 +360,6 @@ def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
             eigvects_[i-1,:] = eigvects[t-1,0:k]
 
     return fn, eigvects_
-
-
-def plot_mode(modo, fn, eigvects, coord, connectivity, scale):
-    # Initialize
-    le = 0.4
-    fact = 0.5*le
-    nnode = coord.shape[0]
-
-    # Deformation
-    x = np.array([ eigvects[0 + 6*i, modo-1] for i in range(nnode) ])
-    y = np.array([ eigvects[1 + 6*i, modo-1] for i in range(nnode) ])
-    z = np.array([ eigvects[2 + 6*i, modo-1] for i in range(nnode) ])
-    
-    # Scale Fator definition and normalization
-    r = (x**2 + y**2 + z**2)**(1/2)
-    fact = scale * le/ r.max()
-
-    # Adding deformations
-    coord_def        = np.empty_like(coord)
-    coord_def[:,0]   = coord[:,0] + fact*x
-    coord_def[:,1]   = coord[:,1] + fact*y
-    coord_def[:,2]   = coord[:,2] + fact*z
-
-    fig = plt.figure(figsize=(15,10))
-    ax = fig.add_subplot(1,1,1,projection='3d')
-
-    fontsize_label = 14
-    fontsize_title = 18
-
-    ax.set_title(('Forma modal - '+str(modo)+'º modo: '+str(round(fn[modo-1], 2))+' Hz'),fontsize=fontsize_title,fontweight='bold')
-    ax.set_xlabel(('Posição x[m]'),fontsize=fontsize_label,fontweight='bold')
-    ax.set_ylabel(('Posição y[m]'),fontsize=fontsize_label,fontweight='bold')
-    ax.set_zlabel(('Posição z[m]'),fontsize=fontsize_label,fontweight='bold')
-    plt.grid(axis='both')
-
-    # Undeformed
-    show_lines(ax, coord, connectivity,'blue')
-    for point in coord:
-        ax.scatter(*point, color='blue')
-    # Deformed
-    show_lines(ax, coord_def, connectivity,'red')
-    for point in coord_def:
-        ax.scatter(*point, color='red')
-    
-    plt.show()
-
-def show_lines(ax, coordinates, connectivity, color):
-    for start, end in connectivity:
-        # [start - 1] é uma gambiarra temporária porque o arquivo de conectividade não tá indexado em zero.
-        # funciona, só não é muito elegante 
-        # outra opção seria colocar o 'nome' do vértice no arquivo
-        start_x = coordinates[start-1][0]
-        start_y = coordinates[start-1][1]
-        start_z = coordinates[start-1][2]
-
-        end_x = coordinates[end-1][0]
-        end_y = coordinates[end-1][1]
-        end_z = coordinates[end-1][2]
-
-        ax.plot([start_x, end_x], [start_y, end_y], [start_z, end_z], color=color)
-
-def show_points(coordinates):
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-
-    for point in coordinates:
-        ax.scatter(*point, color='red')
-
-def get_conectivity(file):
-    connect = []
-    with open(file) as file:
-        lines = file.readlines()
-        for line in lines:
-            print(line)
-            pos, start, end, rest = line.split('.')
-            pos = int(pos)
-            start = int(start)
-            end = int(end)
-            connect.append((start, end))
-    return connect
 
 if __name__ == '__main__':
     # Finite Elements Parameters
@@ -491,13 +405,6 @@ if __name__ == '__main__':
 
     sK, sM    = sparse_assembly(Segm,npel,ngln)
     sfn, seigvects = sparse_modal_analysis(k,ngln,nnode,fixeddof,sK,sM)
-
-    # Plot
-    modo = 1
-    scale = 0.5
-    connectivity = get_conectivity('connect.dat')
-
-    plot_mode(modo, sfn, seigvects, coord, connectivity, scale)
 
 
 
