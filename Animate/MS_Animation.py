@@ -8,8 +8,16 @@ from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
+""" 
+----------------------------------------------------------------------------------------------------------------------------------
+|    This fucntion loads nodal coordinates (x_p, y_p, z_p), nodal displacements (u_x, u_y, u_z) and plots or animate results in  |
+|    graph figures for both deformed or undeformed shapes.                                                                       |
+----------------------------------------------------------------------------------------------------------------------------------
+
+"""
+
 def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
-    
+
     u_x, u_y, u_z = u_def[:,0], u_def[:,1], u_def[:,2]
 
     r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
@@ -64,7 +72,7 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True,
         line.set_segments(segments_p)
         line.set_color([0,0,0])
         # ax.add_collection3d(line)
-        # plt.draw()
+     
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
         
         if Show_nodes:
@@ -79,7 +87,6 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True,
         segments = segments_p + segments_u*(scf/r_max)
         line.set_segments(segments)
         line.set_array(r_m)
-        # plt.draw()
     
         if Show_nodes:
    
@@ -145,15 +152,16 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True,
 
 if __name__ == "__main__":
 
-    # Exemplo       
+    # Load nodal results from different files      
     connectivity = np.array(np.loadtxt('connect.dat')[:,-2:],int)
     coordinates = np.loadtxt('coord.dat')
     u_def = np.loadtxt('u_def.dat')
    
-    # Scalling amplitude factor
-    scf=0.4
+    # Choose the information to plot/animate
+    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, False, True, False
 
-    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, True, True, False
+     # Scalling amplitude factor
+    scf=0.4
     
-    # Call function to plot Deformed models [dynamic]
+    # Call function to plot nodal results [dynamic]
     MS_animation(coordinates, connectivity, u_def, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
