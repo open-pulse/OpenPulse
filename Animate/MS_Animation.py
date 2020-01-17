@@ -56,7 +56,7 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
 
-    ax.set_title(('Forma modal - ' + str('??') + 'º modo'),fontsize=18,fontweight='bold')
+    ax.set_title(('Forma modal - ' + str(mode) + 'º modo'),fontsize=18,fontweight='bold')
     ax.set_xlabel(('Posição x[m]'),fontsize=14,fontweight='bold')
     ax.set_ylabel(('Posição y[m]'),fontsize=14,fontweight='bold')
     ax.set_zlabel(('Posição z[m]'),fontsize=14,fontweight='bold')
