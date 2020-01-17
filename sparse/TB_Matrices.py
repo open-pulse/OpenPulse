@@ -338,7 +338,7 @@ def modal_analysis(k,ngln,nnode,fixeddof,K,M):
 def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
     # todo: eigsh function is messing up!!
-    eigvals,eigvects = eigs(sK, k, sM, sigma = 0, which='LR')
+    eigvals,eigvects = eigs(K, k, M, sigma = 0, which='LR')
     fn=np.sqrt( np.absolute( np.real(eigvals) ) ) /(2. * pi)
     eigvects=np.real(eigvects)
 
@@ -359,49 +359,4 @@ def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
     return fn, eigvects_
 
 if __name__ == '__main__':
-    # Finite Elements Parameters
-    npel = 2
-    ngln = 6
-
-    # Material definition: steel
-    E   = 210e9 #Pa
-    nu  = 0.3   #[-]
-    rho = 7860  #[kg/m^3]
-    mat = Material_isotropic(rho,E,nu)
-
-    # Section definition: 
-    do      = 0.1
-    t       = 0.005
-    tube    = Tube(do, t)
-
-    # Nodal coordenates
-    coord = np.loadtxt('coord.dat')
-
-    # Connectivity
-    connect = np.loadtxt('connect.dat')
-    connect = connect.astype(int)
-
-    # Boundary conditions
-    fixednodes = np.array([58,68])
-    fixeddof = np.zeros(6*len(fixednodes))
-    for i in range(6):
-        fixeddof[i] = 6*(fixednodes[0]-1) + i+1
-        fixeddof[i+6] = 6*(fixednodes[1]-1) + i+1
-    fixeddof = fixeddof.astype(int)
-
-    # Tube Segment  is totally define
-    Segm = Segment(coord,connect,fixeddof,mat,tube)
-
-    # Global Assembly
-    K, M    = assembly(Segm,npel,ngln)
-
-    # Modal Analysis - Full Matrix process
-    k = 25
-    nnode = Segm.nnode
-    fn, eigvects = modal_analysis(k,ngln,nnode,fixeddof,K,M)
-
-    sK, sM    = sparse_assembly(Segm,npel,ngln)
-    sfn, seigvects = sparse_modal_analysis(k,ngln,nnode,fixeddof,sK,sM)
-
-
-
+    print('')
