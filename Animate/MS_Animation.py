@@ -8,7 +8,7 @@ from matplotlib.collections import LineCollection
 from matplotlib.colors import ListedColormap, BoundaryNorm
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
-def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
     
     u_x, u_y, u_z = u_def[:,0], u_def[:,1], u_def[:,2]
 
@@ -16,21 +16,26 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Undeformed = True,
     r_max = max(r)
 
     x_p, y_p, z_p = coordinates[:,0], coordinates[:,1], coordinates[:,2]
-    Coord_dn = np.array([x_p + u_x*scf/max(r), y_p + u_y*scf/max(r), z_p + u_z*scf/max(r)])
+    Coord_dn = np.transpose(np.array([x_p, y_p, z_p]) + np.array([u_x, u_y, u_z])*scf/r_max)
+    x_def,y_def,z_def = Coord_dn[:,0], Coord_dn[:,1],Coord_dn[:,2] 
     
     ax_lim = np.zeros((2,3))
-    ax_lim[0,:] = Coord_dn.min(axis=1) 
-    ax_lim[1,:] = Coord_dn.max(axis=1) 
+    ax_lim[0,:] = Coord_dn.min(axis=0) 
+    ax_lim[1,:] = Coord_dn.max(axis=0) 
+
+    norm = plt.Normalize(min(r), max(r),clip=True)
+    cmap = matplotlib.cm.get_cmap('jet')
+    line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
 
     fig = plt.figure(figsize=[12,8])
     ax = fig.add_subplot(1,1,1, projection='3d')
+    ax.add_collection(line)
 
-    norm = plt.Normalize(min(r), max(r))
-    cmap = matplotlib.cm.get_cmap('jet')
-
-    line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
-
+    if Show_nodes:
+        graph = ax.scatter3D(x_p*0,y_p*0,z_p*0,zdir='z',zorder=1,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face')
+    
     a = 1.1
+    lw = 1
     ax.set_xlim3d(round(a*ax_lim[0,0],1), round(a*ax_lim[1,0],1))
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
@@ -51,58 +56,78 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Undeformed = True,
 
         ind += 1
         segments_p[ind-1:ind,:,:] = np.array([[x_p[start-1], y_p[start-1], z_p[start-1]],[x_p[end-1], y_p[end-1], z_p[end-1]]])
-
-    if Undeformed:
-        
-        line.set_segments(segments_p)
-        line.set_color([0,0,0])
-        ax.add_collection3d(line)
-        plt.draw()
-        line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
-        
-    ind = int(0)
-
-    for start, end in connectivity:
-
-        ind += 1
+        segments_u[ind-1:ind,:,:] = np.array([[u_x[start-1], u_y[start-1], u_z[start-1]],[u_x[end-1], u_y[end-1], u_z[end-1]]])
         r_m[ind-1] = (r[start-1]+r[end-1])/2
 
-        segments_u[ind-1:ind,:,:] = np.array([[u_x[start-1], u_y[start-1], u_z[start-1]],[u_x[end-1], u_y[end-1], u_z[end-1]]])
-        segments_p[ind-1:ind,:,:] = np.array([[x_p[start-1], y_p[start-1], z_p[start-1]],[x_p[end-1], y_p[end-1], z_p[end-1]]])
+    if Undeformed:
 
+        line.set_segments(segments_p)
+        line.set_color([0,0,0])
+        # ax.add_collection3d(line)
+        # plt.draw()
+        line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
+        
+        if Show_nodes:
+   
+            ax.scatter3D(x_p,y_p,z_p,zdir='z',zorder=2,marker='s',color=[0,0,0],norm='none',alpha=1,edgecolors='face',lw=lw)
+            
+        plt.draw()
+       
     if Deformed:
-                
+ 
+        ax.add_collection3d(line)
         segments = segments_p + segments_u*(scf/r_max)
         line.set_segments(segments)
         line.set_array(r_m)
-        ax.add_collection3d(line)
-        plt.draw()
-        line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
+        # plt.draw()
     
+        if Show_nodes:
+   
+            ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=lw)
+            
+        plt.draw()
+
     if Animate_Mode:
 
-        frames = 200
+        frames = 180
         delay_ms = 1000/60
-
-        cmap = 'jet'
-        norm = plt.Normalize(min(r_m), max(r_m))
-
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
-        ax.add_collection(line)
+        ax.add_collection3d(line)
 
         # initialization function: plot the background of each frame
 
         def init():
-            line.set_segments([])
+
+            # graph._offsets3d = [],[],[]
+            # line.set_segments([])
             return
 
         # animation function.  This is called sequentially
-
+        t=1
         def animate(i):
-            segments_i = segments_p + segments_u*(scf/r_max)*np.cos(2 * np.pi * (i*4/frames))
-            r_i = r_m*np.abs(np.cos(2 * np.pi * (i*4/frames)))
+
+            segments_i = segments_p + segments_u*(scf/r_max)*np.cos(2 * np.pi * (i*4/frames)*t)
+            r_i = r_m*np.abs(np.cos(2 * np.pi * (i*4/frames)*t))
+
             line.set_segments(segments_i)
             line.set_array(r_i)
+            line.set_zorder(2)
+
+            if Show_nodes:
+
+                r_ii = r*np.abs(np.cos(2 * np.pi * (i*4/frames)*t))
+                Coord_anima = np.transpose(np.array([x_p, y_p, z_p]) + np.array([u_x, u_y, u_z])*(scf/r_max)*np.cos(2 * np.pi * (i*4/frames)*t))
+                x_i, y_i, z_i = Coord_anima[:,0],Coord_anima[:,1],Coord_anima[:,2]
+    
+                graph._offsets3d = x_i, y_i, z_i
+                graph.set_array(r_ii)
+                graph.set_zorder(1)
+                # graph._facecolor3d = [0,0,0] 
+                graph._edgecolor3d = graph.get_facecolor()
+                graph.set_linewidths(lw=lw)
+             
+                plt.draw()
+                        
             return
               
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=frames, interval=delay_ms, blit=False)
@@ -113,14 +138,10 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Undeformed = True,
         plt.show()
     
     else:
+        
         plt.show()
     
     return
-
-# def show_points(coordinates):
-#     for point in coordinates:
-#         ax.scatter(*point, color='red')
-
 
 if __name__ == "__main__":
 
@@ -132,8 +153,7 @@ if __name__ == "__main__":
     # Scalling amplitude factor
     scf=0.4
 
-    Undeformed, Deformed, Animate_Mode, Save = True, False, True, False
+    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, True, True, False
     
     # Call function to plot Deformed models [dynamic]
-    MS_animation(coordinates, connectivity, u_def)
-    
+    MS_animation(coordinates, connectivity, u_def, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
