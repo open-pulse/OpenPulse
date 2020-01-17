@@ -16,9 +16,15 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 """
 
-def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
 
-    u_x, u_y, u_z = u_def[:,0], u_def[:,1], u_def[:,2]
+    u_def = eigvects[:,mode-1]
+    
+    u_x = np.array( [ u_def[6*i    ] for i in range(int( u_def.shape[0] / 6 )) ])
+    u_y = np.array( [ u_def[6*i + 1] for i in range(int( u_def.shape[0] / 6 )) ])
+    u_z = np.array( [ u_def[6*i + 2] for i in range(int( u_def.shape[0] / 6 )) ])
+
+    # u_x, u_y, u_z = u_def[:,0], u_def[:,1], u_def[:,2]
 
     r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     r_max = max(r)
@@ -53,6 +59,7 @@ def MS_animation(coordinates, connectivity, u_def, scf = 0.4, Show_nodes = True,
     ax.set_ylabel(('Posição y[m]'),fontsize=14,fontweight='bold')
     ax.set_zlabel(('Posição z[m]'),fontsize=14,fontweight='bold')
 
+    connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
     segments_p = np.zeros((n_el,2,3))
     segments_u = np.zeros((n_el,2,3))
