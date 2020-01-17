@@ -1,6 +1,6 @@
 import numpy as np
-import TB_Matrices as TB
-import MS_Animation as MS
+import sparse.TB_Matrices as TB
+import Animate.MS_Animation as Anima
 
 
 # Finite Elements Parameters
@@ -19,10 +19,10 @@ t       = 0.005 # Thickness [m]
 tube    = TB.Tube(do, t) 
 
 # Nodal coordinates
-coord = np.loadtxt('coord.dat') 
+coord = np.loadtxt('sparse/coord.dat') 
 
 # Connectivity
-connect = np.loadtxt('connect.dat')
+connect = np.loadtxt('sparse/connect.dat')
 connect = connect.astype(int)
 
 # Boundary conditions
@@ -46,4 +46,4 @@ fn, eigvects = TB.modal_analysis(k,ngln,nnode,fixeddof,K,M)
 
 # Modal Shape Animation
 mode = 10 # Mode to be animated
-MS.anima(coord, connect, eigvects, mode)
+Anima.MS_animation(coord, connect, eigvects, mode)
