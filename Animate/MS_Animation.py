@@ -45,11 +45,13 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
     ax = fig.add_subplot(1,1,1, projection='3d')
     ax.add_collection(line)
 
+    a, lw, marker_size = 1.1, 0, 50
+
     if Show_nodes:
-        graph = ax.scatter3D(x_p*0,y_p*0,z_p*0,zdir='z',zorder=1,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face')
+
+        graph = ax.scatter3D(x_p*0,y_p*0,z_p*0,zdir='z',zorder=1,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',s=marker_size)
     
-    a = 1.1
-    lw = 1
+ 
     ax.set_xlim3d(round(a*ax_lim[0,0],1), round(a*ax_lim[1,0],1))
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
@@ -84,7 +86,7 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
         
         if Show_nodes:
    
-            ax.scatter3D(x_p,y_p,z_p,zdir='z',zorder=2,marker='s',color=[0,0,0],norm='none',alpha=1,edgecolors='face',lw=lw)
+            ax.scatter3D(x_p,y_p,z_p,zdir='z',zorder=2,marker='s',color=[0,0,0],norm='none',alpha=1,edgecolors='face',lw=lw,s=marker_size)
             
         plt.draw()
        
@@ -97,13 +99,13 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
     
         if Show_nodes:
    
-            ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=lw)
+            ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=lw,s=marker_size)
             
         plt.draw()
 
     if Animate_Mode:
 
-        frames = 180
+        frames = 300
         delay_ms = 1000/60
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=2)
         ax.add_collection3d(line)
@@ -112,8 +114,8 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
 
         def init():
 
-            # graph._offsets3d = [],[],[]
-            # line.set_segments([])
+            graph._offsets3d = [],[],[]
+            line.set_segments([])
             return
 
         # animation function.  This is called sequentially
@@ -137,16 +139,17 @@ def MS_animation(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_node
                 graph.set_array(r_ii)
                 graph.set_zorder(1)
                 # graph._facecolor3d = [0,0,0] 
-                graph._edgecolor3d = graph.get_facecolor()
+                # graph._edgecolor3d = graph.get_facecolor()
                 graph.set_linewidths(lw=lw)
              
-                plt.draw()
+                # plt.draw()
                         
             return
               
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=frames, interval=delay_ms, blit=False)
         
         if Save:
+
             anim.save('Modal_shape_3d.gif', writer='pillow')
         
         plt.show()
@@ -169,6 +172,6 @@ if __name__ == "__main__":
 
      # Scalling amplitude factor
     scf=0.4
-    
+
     # Call function to plot nodal results [dynamic]
     MS_animation(coordinates, connectivity, u_def, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
