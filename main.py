@@ -47,3 +47,12 @@ fn, eigvects = TB.modal_analysis(k,ngln,nnode,fixeddof,K,M)
 # Modal Shape Animation
 mode = 10 # Mode to be animated
 Anima.MS_animation(coord, connect, eigvects, mode)
+
+# Direct solver
+frequencies = range(100)
+F = np.zeros([ K.shape[0],1 ])
+F[6*15] = 1 
+
+x = TB.solver_direct(frequencies, F, K, M)
+
+print(x) 

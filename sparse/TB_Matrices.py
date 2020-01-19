@@ -358,5 +358,18 @@ def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
 
     return fn, eigvects_
 
+def solver_direct(frequencies, F, K, M):
+
+    frequencies = np.sort( np.array(frequencies) )
+
+    x = np.zeros([ K.shape[0], frequencies.shape[0] ])
+
+    for freq in frequencies:
+        i = np.where(frequencies == freq)
+        A = K - (2 * pi * freq)**2 * M
+        x[:,i[0]] = np.linalg.solve(A, F)
+
+    return x
+
 if __name__ == '__main__':
     print('')
