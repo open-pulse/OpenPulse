@@ -319,6 +319,10 @@ def modal_analysis(k,ngln,nnode,fixeddof,K,M):
     fn=np.sqrt( np.absolute( np.real(eigvals) ) ) /(2. * pi)
     eigvects=np.real(eigvects)
 
+    # Normalizing eigen vector
+    aux = eigvects.T @ M @ eigvects
+    eigvects = np.diag( np.divide(1, aux.diagonal() ) ) @ eigvects
+
     idx = fn.argsort()[::1]
     fn= fn[idx]
     eigvects = eigvects[:,idx]
@@ -351,25 +355,62 @@ def sparse_modal_analysis(k,ngln,nnode,fixeddof,K,M):
     eigvects_ = np.zeros((len(alldof),k))
     for i in alldof:
         if i in fixeddof:
-            eigvects_[i-1,:] = 0.*eigvects[0,0:k]
+            eigvects_[i-1,:] = np.zeros(k)
         else:
             t +=1
             eigvects_[i-1,:] = eigvects[t-1,0:k]
 
     return fn, eigvects_
 
-def solver_direct(frequencies, F, K, M):
+def solver_direct(frequencies, F, ngln,nnode,fixeddof, K, M):
 
     frequencies = np.sort( np.array(frequencies) )
-
-    x = np.zeros([ K.shape[0], frequencies.shape[0] ])
+    num_f = frequencies.shape[0]
+    x = np.zeros([ K.shape[0], num_f ])
 
     for freq in frequencies:
         i = np.where(frequencies == freq)
         A = K - (2 * pi * freq)**2 * M
         x[:,i[0]] = np.linalg.solve(A, F)
+    
+    t=0
+    alldof = list(range(1,ngln*nnode+1))
+    x_ = np.zeros( [len(alldof), num_f] )
+    for i in alldof:
+        if i in fixeddof:
+            x_[i-1,:] = np.zeros(num_f)
+        else:
+            t +=1
+            x_[i-1,:] = x[t-1,0:num_f]
 
-    return x
+    return x_
+
+def solver_modal(k, frequencies, F, ngln , nnode ,fixeddof ,K ,M, eta = 0):
+
+    frequencies = np.sort( np.array(frequencies) )
+    num_f = frequencies.shape[0]
+    x = np.zeros([ K.shape[0], num_f ])
+
+    fn, eigvects = modal_analysis(k,ngln,nnode,fixeddof,K,M)
+
+    for freq in frequencies:
+        i = np.where(frequencies == freq)
+        aux = np.diag( np.divide(1, (2 * pi * fn)**2 - (2 * pi * freq)**2 + 1j * eta * 2 * pi * freq) )
+        x[:,i[0]] = eigvects @ aux @ eigvects.T @ F
+    
+    x = np.array(x)
+
+    t=0
+    alldof = list(range(1,ngln*nnode+1))
+    x_ = np.zeros( [len(alldof), num_f] )
+    for i in alldof:
+        if i in fixeddof:
+            x_[i-1,:] = np.zeros(num_f)
+        else:
+            t +=1
+            x_[i-1,:] = x[t-1,0:num_f]
+
+    return x_, fn, eigvects
 
 if __name__ == '__main__':
     print('')
