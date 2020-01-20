@@ -8,6 +8,13 @@ from math import pi, sqrt, sin, cos
 
 import matplotlib.pyplot as plt
 
+from numpy import ndarray
+
+class myarray(ndarray):    
+    @property
+    def H(self):
+        return self.conj().T
+
 
 class Node(object):
     def __init__(self, coord, index):
@@ -319,13 +326,14 @@ def modal_analysis(k,ngln,nnode,fixeddof,K,M):
     fn=np.sqrt( np.absolute( np.real(eigvals) ) ) /(2. * pi)
     eigvects=np.real(eigvects)
 
-    # Normalizing eigen vector
-    aux = eigvects.T @ M @ eigvects
-    eigvects = np.diag( np.divide(1, aux.diagonal() ) ) @ eigvects
-
     idx = fn.argsort()[::1]
     fn= fn[idx]
     eigvects = eigvects[:,idx]
+
+    # Normalizing eigen vector
+    aux = np.abs( eigvects.conj().T @ M @ eigvects )
+    eigvects = np.diag( np.divide(1, np.sqrt( aux.diagonal() ) ) ) @ eigvects
+
 
     t=0
     alldof = list(range(1,ngln*nnode+1))
