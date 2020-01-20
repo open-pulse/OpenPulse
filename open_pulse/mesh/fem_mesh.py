@@ -1,9 +1,9 @@
-from .unv_reader import UnvReader
+from open_pulse.mesh.unv_reader import UnvReader
 
 from os.path import abspath
 from tempfile import mkdtemp
 from platform import system 
-from subprocess import call, PIPE
+from subprocess import PIPE, run
 
 class FemMesh:
     def __init__(self, file_path, min_len=0, max_len='1e+06'):
@@ -31,7 +31,6 @@ class FemMesh:
         self.temp_dir = mkdtemp(prefix='fem_mesh')
         self.temp_geo = self.temp_dir + '\\geometry.geo'
         self.temp_unv = self.temp_dir + '\\geometry.unv'
-        print(self.temp_unv)
 
     def create_geo_file(self):
         with open(self.temp_geo, 'w') as file:
@@ -63,7 +62,7 @@ class FemMesh:
             
     def run_gmsh(self):
         commandlist = [self.gmsh_command, '-', self.temp_geo]
-        call(commandlist, shell=False, stdout=PIPE, stderr=PIPE)
+        run(commandlist, shell=False, stdout=PIPE, stderr=PIPE)
 
     def read_unv(self):
         unv = UnvReader(self.temp_unv)
