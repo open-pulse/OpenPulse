@@ -1,0 +1,9 @@
+Authors & Contributors of OpenPulse
+===================================
+
+Core Developers
+-----------------------------------
+
+ * André Filipe da Silva Fernandes <fpf.andre@gmail.com>
+ * José Luiz de Souza <joseloolo@hotmail.com>
+ 

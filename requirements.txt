@@ -1,0 +1,5 @@
+scipy
+matplotlib
+numpy
+PyQt5
+vtk
