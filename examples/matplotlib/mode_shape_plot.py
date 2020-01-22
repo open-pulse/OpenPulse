@@ -16,7 +16,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 """
 
-def ms_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
 
     # u_def = eigvects[:,mode-1]
     
@@ -47,9 +47,6 @@ def ms_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = T
     fig = plt.figure(figsize=[12,8])
     ax = fig.add_subplot(1,1,1, projection='3d')
     ax.add_collection(line)
-
-    #Pre-allocating of coordinates
-    p = np.zeros((len(x_p[:]),1))
       
     ax.set_xlim3d(round(a*ax_lim[0,0],1), round(a*ax_lim[1,0],1))
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
@@ -63,7 +60,6 @@ def ms_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = T
         ordinary = 'th'
 
     ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'),fontsize=18,fontweight='bold')
-
     ax.set_xlabel(('Position x[m]'),fontsize=14,fontweight='bold')
     ax.set_ylabel(('Position y[m]'),fontsize=14,fontweight='bold')
     ax.set_zlabel(('Position z[m]'),fontsize=14,fontweight='bold')
@@ -87,7 +83,6 @@ def ms_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = T
 
         line.set_segments(segments_p)
         line.set_color([0,0,0])
-        # ax.add_collection3d(line)
      
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
         
@@ -148,10 +143,7 @@ def ms_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = T
                 # graph._facecolor3d = [0,0,0] 
                 # graph._edgecolor3d = graph.get_facecolor()
                 # graph.set_linewidths(lw=lw)
-                # plt.draw()
-                        
-            return
-              
+                            
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=frames, interval=delay_ms, blit=False)
         
         if Save:
@@ -172,12 +164,13 @@ if __name__ == "__main__":
     connectivity = np.array(np.loadtxt('connect.dat')[:,-2:],int)
     coordinates = np.loadtxt('coord.dat')
     u_def = np.loadtxt('u_def.dat')
+    mode = 1
    
     # Choose the information to plot/animate
-    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, True, True, False
+    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, False, True, False
 
      # Scalling amplitude factor
     scf=0.4
 
     # Call function to plot nodal results [dynamic]
-    ms_plot(coordinates, connectivity, u_def, 4 , scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+    modeshape_plot(coordinates, connectivity, u_def, mode, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
