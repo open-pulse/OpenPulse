@@ -6,20 +6,12 @@ from scipy import sparse
 
 from math import pi, sqrt, sin, cos
 
-import matplotlib.pyplot as plt
-
-from numpy import ndarray
-
-class myarray(ndarray):    
-    @property
-    def H(self):
-        return self.conj().T
-
 
 class Node(object):
-    def __init__(self, coord, index):
-        self.coord = coord
-        self.index = index
+    def __init__(self, coord, index_user, index):
+        self.coord          = coord
+        self.index_user     = index_user
+        self.index          = index
 
 
 class Material_isotropic(object):
@@ -41,10 +33,11 @@ class Tube(object):
 
 
 class Element(object):
-    def __init__(self, node_a, node_b, index):
+    def __init__(self, node_a, node_b, index_user ,index):
         self.node_a = node_a
         self.node_b = node_b
         self.le     = np.linalg.norm(node_a.coord - node_b.coord)
+        self.index_user  = index_user
         self.index  = index
 
 
@@ -56,10 +49,34 @@ class Segment(object):
         self.fixeddof   = fixeddof # Verificar mais tarde
         self.tube       = tube
         self.nnode      = coord.shape[0]
-        self.AssembNd   = [ Node(coord[i,],i+1) for i in range(self.nnode ) ]
+        self.node_internal_index = range(self.nnode)
+
+        self.node_user_index = coord[:,0].astype(int)
+        self.node_internal_to_user_index   = { i:self.node_user_index[i] for i in self.node_internal_index }
+        self.node_user_to_internal_index   = { v:k for k, v in self.node_internal_to_user_index.items() }
+
+        self.AssembNd   = [ Node(coord[i,1:], coord[i,0], i) for i in self.node_internal_index ]
+        self.map_nodes  = { i:self.AssembNd[i] for i in self.node_internal_index }
+
         self.ne         = connect.shape[0]
-        self.AssembEl   = [ Element( self.AssembNd[ connect[i,1]-1 ], self.AssembNd[ connect[i,2]-1 ], connect[ i,0 ] )
-                            for i in range(self.ne) ]
+        self.element_internal_index = range(self.ne)
+        self.element_user_index = connect[:,0].astype(int)
+
+        self.element_internal_to_user_index   = { i:self.element_user_index[i] for i in self.element_internal_index }
+        self.element_user_to_internal_index   = { v:k for k, v in self.element_internal_to_user_index.items() }
+
+        AssembEl   = []
+
+        for i in self.element_internal_index:
+            node_a_internal_index = self.node_user_to_internal_index[ self.connect[i,1] ]
+            node_a = self.map_nodes[node_a_internal_index]
+
+            node_b_internal_index = self.node_user_to_internal_index[ self.connect[i,2] ]
+            node_b = self.map_nodes[ node_b_internal_index ]
+
+            AssembEl.append( Element( node_a, node_b, connect[i,0], i ) )
+
+        self.AssembEl = AssembEl
 
 
 def Elementar_matrices(npel,ngln,e,mat,tube):
@@ -259,23 +276,30 @@ def assembly(Segm,npel,ngln):
 
     # Global Matrix Assemble
     for e in Segm.AssembEl:
-        index = e.index - 1
+        index      = e.index
 
         Ke, Me, T = Elementar_matrices(npel,ngln,e,Segm.mat,Segm.tube)
         Ke  = np.matmul(np.transpose(T),np.matmul(Ke,T))
         Me  = np.matmul(np.transpose(T),np.matmul(Me,T))
 
         for i in range(npel):
+            if i == 1:
+                node_index = e.node_a.index
+            else:
+                node_index = e.node_b.index
+
             for k in range(ngln):
-                Connect_DOF[index,ngln*i + k] = ngln*(Segm.connect[index,i+1]-1) + k+1
+                Connect_DOF[index,ngln*i + k] = ngln*node_index + k+1
                 for p in range(int(ngln*i + k) + 1):
                     K[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Ke[ngln*i + k,p]
                     M[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Me[ngln*i + k,p]
 
-    M = np.delete(M,fixeddof-1,axis=1)
-    M = np.delete(M,fixeddof-1,axis=0)
-    K = np.delete(K,fixeddof-1,axis=1)
-    K = np.delete(K,fixeddof-1,axis=0)
+    internal_fixeddof = [ Segm.node_user_to_internal_index[i] for i in fixeddof ]
+
+    M = np.delete(M,internal_fixeddof,axis=1)
+    M = np.delete(M,internal_fixeddof,axis=0)
+    K = np.delete(K,internal_fixeddof,axis=1)
+    K = np.delete(K,internal_fixeddof,axis=0)
 
     K       = symmetrize(K)
     M       = symmetrize(M)
@@ -297,15 +321,20 @@ def sparse_assembly(Segm,npel,ngln):
 
     # Global Matrix Assemble
     for e in Segm.AssembEl:
-        index = e.index - 1
+        index      = e.index
 
         Ke, Me, T = Elementar_matrices(npel,ngln,e,Segm.mat,Segm.tube)
         Ke  = np.matmul(np.transpose(T),np.matmul(Ke,T))
         Me  = np.matmul(np.transpose(T),np.matmul(Me,T))
 
         for i in range(npel):
+            if i == 1:
+                node_index = e.node_a.index
+            else:
+                node_index = e.node_b.index
+
             for k in range(ngln):
-                Connect_DOF[index,ngln*i + k] = ngln*(Segm.connect[index,i+1]-1) + k+1
+                Connect_DOF[index,ngln*i + k] = ngln*node_index + k+1
                 for p in range(int(ngln*i + k) + 1):
                     K[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Ke[ngln*i + k,p]
                     M[Connect_DOF[index,ngln*i + k]-1,Connect_DOF[index,p]-1]+=Me[ngln*i + k,p]
@@ -314,9 +343,10 @@ def sparse_assembly(Segm,npel,ngln):
     K = K.tocsr() + K.tocsr().T - sparse.diags(K.tocsr().diagonal())
     M = M.tocsr() + M.tocsr().T - sparse.diags(M.tocsr().diagonal())
 
+    internal_fixeddof = [ Segm.node_user_to_internal_index[i] for i in fixeddof ]
     # Wipping fixed DOFs
     mask = np.ones(N_DOF, dtype=bool)
-    mask[fixeddof] = False
+    mask[internal_fixeddof] = False
     
     return K[mask][:,mask], M[mask][:,mask]
 

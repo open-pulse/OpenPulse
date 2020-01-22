@@ -14,20 +14,20 @@ rho = 7860  # Density[kg/m^3]
 mat = TB.Material_isotropic(rho,E,nu)
 
 # Section definition: 
-do      = 0.1   # External diameter [m]
-t       = 0.005 # Thickness [m]
+do      = 0.05   # External diameter [m]
+t       = 0.008 # Thickness [m]
 tube    = TB.Tube(do, t) 
 
 # Nodal coordinates
-coord = np.loadtxt('sparse/coord.dat') 
+coord = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\coord_ord_OK.dat') 
 
 # Connectivity
-connect = np.loadtxt('sparse/connect.dat')
-connect = connect.astype(int)
+connect = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\connect_ord_OK.dat', dtype=int)
 
 # Boundary conditions
-fixednodes = np.array([58,68])
+fixednodes = np.array([1,1200,1325])
 fixeddof = np.zeros(6*len(fixednodes))
+
 for i in range(6):
     fixeddof[i] = 6*(fixednodes[0]-1) + i+1
     fixeddof[i+6] = 6*(fixednodes[1]-1) + i+1
@@ -53,6 +53,6 @@ frequencies = range(100)
 F = np.zeros([ K.shape[0],1 ])
 F[6*15] = 1 
 
-x = TB.solver_direct(frequencies, F, K, M)
+x = TB.solver_direct(frequencies, F, ngln,nnode,fixeddof, K, M)
 
 print(x) 
