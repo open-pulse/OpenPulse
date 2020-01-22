@@ -29,19 +29,79 @@ class MainWindow(Qt.QMainWindow):
 
     def __init__(self, parent = None):
         Qt.QMainWindow.__init__(self, parent)
-        self.setMinimumSize(QSize(800, 600))    
-        self.setWindowTitle("OpenPulse")
-
-        #a = MenuBar(self)
-        self.createMenuBar()
-        self.createToolBar()
-        self.newCall()
-
-        #self.l1 = Qt.QHBoxLayout()
-
+        self.__init()
         self.show()
 
+    def __init(self):
+        self.setMinimumSize(QSize(800, 600))
+        self.changeWindowTitle()
+        self.__createMenuBar()
+        self.__createToolBar()
+
+    def changeWindowTitle(self, msg = ""):
+        title = "OpenPulse"
+        if (msg != ""):
+            title += " - " + msg
+        self.setWindowTitle(title)
+
+    def __createMenuBar(self):
+        icons_path = "data/icons/"
+
+        newAction = QAction(QIcon(icons_path + 'new.png'), '&New', self)        
+        newAction.setShortcut('Ctrl+N')
+        newAction.setStatusTip('New document')
+        newAction.triggered.connect(self.newCall)
+
+        openAction = QAction(QIcon(icons_path + 'open.png'), '&Open', self)        
+        openAction.setShortcut('Ctrl+O')
+        openAction.setStatusTip('Open document')
+        openAction.triggered.connect(self.openCall)
+
+        exitAction = QAction(QIcon(icons_path + 'exit.png'), '&Exit', self)        
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.exitCall)
+
+        menuBar = self.menuBar()
+
+        fileMenu = menuBar.addMenu('&File')
+        helpMenu = menuBar.addMenu("&Help")
+
+        fileMenu.addAction(newAction)
+        fileMenu.addAction(openAction)
+        fileMenu.addAction(exitAction)
+
+    def __createToolBar(self):
+        self.toolbar = QToolBar("Enable Toolbar")
+        self.toolbar.setIconSize(QSize(26,26))
+        self.toolbar.setMovable(False)
+        self.addToolBar(self.toolbar)
+
+        icons_path = "data/icons/"
+
+        newAction = QAction(QIcon(icons_path + 'new.png'), '&New', self)        
+        newAction.setShortcut('Ctrl+N')
+        newAction.setStatusTip('New document')
+        newAction.triggered.connect(self.newCall)
+
+        openAction = QAction(QIcon(icons_path + 'open.png'), '&Open', self)        
+        openAction.setShortcut('Ctrl+O')
+        openAction.setStatusTip('Open document')
+        openAction.triggered.connect(self.openCall)
+
+        exitAction = QAction(QIcon(icons_path + 'exit.png'), '&Exit', self)        
+        exitAction.setShortcut('Ctrl+Q')
+        exitAction.setStatusTip('Exit application')
+        exitAction.triggered.connect(self.exitCall)
+
+        self.toolbar.addAction(newAction)
+        self.toolbar.addAction(openAction)
+        
+        
+        self.toolbar.addSeparator()
+
     def openCall(self):
+        self.changeWindowTitle("T")
         print('Open')
 
     def newCall(self):
@@ -92,12 +152,7 @@ class MainWindow(Qt.QMainWindow):
         self.iren.Initialize()
 
     def exitCall(self):
-        newAction = QAction(QIcon('interface/icons/open.png'), '&New', self)        
-        newAction.setShortcut('Ctrl+N')
-        newAction.setStatusTip('New document')
-        newAction.triggered.connect(self.newCall)
-
-        self.toolbar.addAction(newAction)
+        pass
 
     def clickMethod(self):
         print('PyQt')
@@ -129,25 +184,5 @@ class MainWindow(Qt.QMainWindow):
         self.toolbar.addAction(newAction)
 
     def createMenuBar(self):
+        pass
         
-        newAction = QAction(QIcon('objects/icons/new.png'), '&New', self)        
-        newAction.setShortcut('Ctrl+N')
-        newAction.setStatusTip('New document')
-        newAction.triggered.connect(self.newCall)
-
-        openAction = QAction(QIcon('interface/icons/open.png'), '&Open', self)        
-        openAction.setShortcut('Ctrl+O')
-        openAction.setStatusTip('Open document')
-        openAction.triggered.connect(self.openCall)
-
-        exitAction = QAction(QIcon('exit.png'), '&Exit', self)        
-        exitAction.setShortcut('Ctrl+Q')
-        exitAction.setStatusTip('Exit application')
-        exitAction.triggered.connect(self.exitCall)
-
-        menuBar = self.menuBar()
-        fileMenu = menuBar.addMenu('&File')
-        menuBar.addMenu("&Help")
-        fileMenu.addAction(newAction)
-        fileMenu.addAction(openAction)
-        fileMenu.addAction(exitAction)
