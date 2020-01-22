@@ -1,11 +1,7 @@
 import numpy as np
 import matplotlib
-from matplotlib import cm
 from matplotlib import animation
 import matplotlib.pyplot as plt 
-from mpl_toolkits.mplot3d import Axes3D
-from matplotlib.collections import LineCollection
-from matplotlib.colors import ListedColormap, BoundaryNorm
 from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 """ 
