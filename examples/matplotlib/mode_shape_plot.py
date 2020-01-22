@@ -60,6 +60,13 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
     ax.set_ylabel(('Position y[m]'),fontsize=14,fontweight='bold')
     ax.set_zlabel(('Position z[m]'),fontsize=14,fontweight='bold')
 
+    m = matplotlib.cm.ScalarMappable(cmap=matplotlib.cm.jet)
+    m.set_array([])
+    m.set_array(r)
+
+    cb = fig.colorbar(m, shrink=0.8)
+    cb.set_label('Amplitude [-]', fontsize=12, fontweight='bold')
+
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
     segments_p = np.zeros((n_el,2,3))
