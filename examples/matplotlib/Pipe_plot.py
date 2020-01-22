@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib
 from matplotlib import cm, colors
-
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.linalg import norm
@@ -10,7 +9,7 @@ fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(111, projection='3d',)
 origin = np.array([0, 0, 0])
 
-def Cylinder_plot(coordinates, connectivity, u_def, scf, radius, thickness, n_div_theta, n_div_t):
+def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_div_theta, n_div_t):
 
     # u_def = eigvects[:,mode-1]
     
@@ -37,17 +36,21 @@ def Cylinder_plot(coordinates, connectivity, u_def, scf, radius, thickness, n_di
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
 
-    ax.set_title(('Forma modal - ' + str('??') + 'º modo'),fontsize=18,fontweight='bold')
-    ax.set_xlabel(('Posição x[m]'),fontsize=14,fontweight='bold')
-    ax.set_ylabel(('Posição y[m]'),fontsize=14,fontweight='bold')
-    ax.set_zlabel(('Posição z[m]'),fontsize=14,fontweight='bold')
+    str_ord = ['st','nd','rd']
+
+    if mode-1 <= 2:
+        ordinary = str_ord[mode-1]
+    else:
+        ordinary = 'th'
+
+    ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'), fontsize=18, fontweight='bold')
+    ax.set_xlabel(('Position x[m]'), fontsize=14, fontweight='bold')
+    ax.set_ylabel(('Position y[m]'), fontsize=14, fontweight='bold')
+    ax.set_zlabel(('Position z[m]'), fontsize=14, fontweight='bold')
 
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
     n_nodes = len(coordinates[:,1])
-    # segments_p = np.zeros((n_el,2,3))
-    # segments_u = np.zeros((n_el,2,3))
-    # r_m = np.zeros(n_el) 
 
     r_out = np.ones((n_el,1))*radius
     p_res = []
@@ -118,24 +121,19 @@ def Cylinder_plot(coordinates, connectivity, u_def, scf, radius, thickness, n_di
 
     m = cm.ScalarMappable(cmap=cm.jet)
     m.set_array([])
-    
     m.set_array(r)
-    fig.colorbar(m, shrink=0.8)
+
+    cb = fig.colorbar(m, shrink=0.8)
+    cb.set_label('Amplitude [-]', fontsize=14, fontweight='bold')
+
     plt.show()
 
 if __name__ == "__main__":
 
-    # Exemplo       
-    # points = np.array([[0,0,0],[1,0,0],[2,1,0],[2,2,0],[3,2,1],[3,2,2],[2,2,3]])
-    # connect = np.array([[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]])
-    # p_res = [0,2,4,6,8,10,12]
-
-    # color_results = np.transpose(np.array([p_res,p_res]))
-
-    # r = [0.2,0.2,0.2,0.1,0.2,0.2]
+    # Example       
 
     radius = 0.05
-    thickness = 0.02
+    thickness = 0.01
 
     n_div_theta = 10
     n_div_t = 3
@@ -144,9 +142,10 @@ if __name__ == "__main__":
     connectivity = np.array(np.loadtxt('connect.dat')[:,-2:],int)
     coordinates = np.loadtxt('coord.dat')
     u_def = np.loadtxt('u_def.dat')
+    mode = 1
    
     # Scalling amplitude factor
     scf=0.4
 
     # Call function to plot cylinders
-    Cylinder_plot(coordinates, connectivity, u_def, scf, radius, thickness, n_div_theta,n_div_t)
+    pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_div_theta,n_div_t)
