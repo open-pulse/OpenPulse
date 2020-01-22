@@ -48,6 +48,13 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
     ax.set_ylabel(('Position y[m]'), fontsize=14, fontweight='bold')
     ax.set_zlabel(('Position z[m]'), fontsize=14, fontweight='bold')
 
+    m = cm.ScalarMappable(cmap=cm.jet)
+    m.set_array([])
+    m.set_array(r)
+
+    cb = fig.colorbar(m, shrink=0.8)
+    cb.set_label('Amplitude [-]', fontsize=14, fontweight='bold')
+
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
     n_nodes = len(coordinates[:,1])
@@ -118,13 +125,6 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
             graph[i].set_linewidths(0.0)
 
         ax.plot(*zip(p0, p1), color = 'red')
-
-    m = cm.ScalarMappable(cmap=cm.jet)
-    m.set_array([])
-    m.set_array(r)
-
-    cb = fig.colorbar(m, shrink=0.8)
-    cb.set_label('Amplitude [-]', fontsize=14, fontweight='bold')
 
     plt.show()
 
