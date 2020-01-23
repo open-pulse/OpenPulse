@@ -182,7 +182,7 @@ def Elementar_matrices(npel,ngln,e,mat,tube):
 
     me = np.zeros((npel*ngln, npel*ngln))
 
-    # ke diagonal definition
+    # me diagonal definition
     rows, cols = np.diag_indices(npel*ngln)
     me[[rows], [cols]] = np.array([ rho * A * L / 3,
                                     gamma_12 * (A * a_12u_1 / 420 + I_3 * a_12t_1 / 30),
