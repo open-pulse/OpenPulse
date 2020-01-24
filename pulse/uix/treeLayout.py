@@ -5,22 +5,34 @@ from os.path import expanduser
 from PyQt5.QtWidgets import *
 
 class TreeLayout(Qt.QVBoxLayout):
-    def __init__(self):
+    def __init__(self, parent):
         super().__init__()
+        self.parent = parent
+        self.magic = Qt.QWidget()
+        self.layout = Qt.QVBoxLayout()
+        self.magic.setLayout(self.layout)
+
         self.tabWidget = Qt.QTabWidget()
-        self.__addTabs()
+        self.tabWidget.addTab(self.magic, "Import")
         self.addWidget(self.tabWidget)
+        self.add_import_button()
 
-    def __addTabs(self):
+    def clearLayout(self):
+        for i in range(self.layout.count()):
+            self.layout.itemAt(i).widget().close()
 
-        btn1 = Qt.QPushButton("Import <test>")
-        btn1.clicked.connect(self.getfiles)
-        self.tabWidget.addTab(btn1, "Tab 2")
+    def add_import_button(self):
+        space = Qt.QWidget()
+        widget = Qt.QPushButton("Import <test>")
+        widget.clicked.connect(self.getfiles)
+        self.layout.addWidget(widget, 1)
+        self.layout.addWidget(space, 100)
 
-        label2 = Qt.QLabel("Apenas um teste aleatorio")
-        self.tabWidget.addTab(label2, "Tab 2")
-        
     def getfiles(self):
         fileName = Qt.QFileDialog.getOpenFileName(None, 'Open file', '')
-        if fileName:
-            print(fileName[0])
+        self.clearLayout()
+        txt = Qt.QLabel(fileName[0])
+        self.layout.addWidget(txt)
+        space = Qt.QWidget()
+        self.layout.addWidget(space, 100)
+        self.parent._import()
