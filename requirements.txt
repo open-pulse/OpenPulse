@@ -3,3 +3,4 @@ matplotlib
 numpy
 PyQt5
 vtk
+gmsh-sdk
