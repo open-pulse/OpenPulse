@@ -44,7 +44,8 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
     else:
         ordinary = 'th'
 
-    ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'), fontsize=18, fontweight='bold')
+    # ax.set_title(('Displacement - ' + str(mode) + ordinary + ' mode'), fontsize=18, fontweight='bold')
+    # fig.suptitle(('Displacement - ' + str(mode) + ordinary + ' mode'), fontsize=18, fontweight='bold')
     ax.set_xlabel(('Position x[m]'), fontsize=14, fontweight='bold')
     ax.set_ylabel(('Position y[m]'), fontsize=14, fontweight='bold')
     ax.set_zlabel(('Position z[m]'), fontsize=14, fontweight='bold')
@@ -53,7 +54,7 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
     m.set_array([])
     m.set_array(r)
 
-    cb = fig.colorbar(m, shrink=0.8)
+    cb = fig.colorbar(m, shrink=0.5)
     cb.set_label('Amplitude [-]', fontsize=14, fontweight='bold')
 
     connectivity = np.array(connectivity[:,-2:],int)
@@ -127,6 +128,7 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
 
         ax.plot(*zip(p0, p1), color = 'red')
 
+    plt.tight_layout()
     plt.show()
 
 if __name__ == "__main__":
