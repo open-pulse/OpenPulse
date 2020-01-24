@@ -1,13 +1,15 @@
 from PyQt5 import Qt
 
 #Temp
-from os.path import expanduser
+from os.path import expanduser, basename
 from PyQt5.QtWidgets import *
 
 class TreeLayout(Qt.QVBoxLayout):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
+        self.currentFilePath = ""
+        self.currentFileName = ""
         self.magic = Qt.QWidget()
         self.layout = Qt.QVBoxLayout()
         self.magic.setLayout(self.layout)
@@ -18,6 +20,9 @@ class TreeLayout(Qt.QVBoxLayout):
         self.add_import_button()
 
     def clearLayout(self):
+        self.tabWidget.setTabText(0,"Import")
+        self.currentFilePath = ""
+        self.currentFileName = ""
         for i in range(self.layout.count()):
             self.layout.itemAt(i).widget().close()
 
@@ -29,24 +34,42 @@ class TreeLayout(Qt.QVBoxLayout):
         self.layout.addWidget(space, 100)
 
     def getfiles(self):
-        fileName = Qt.QFileDialog.getOpenFileName(None, 'Open file', '')
+        fileName, _type = Qt.QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
         self.clearLayout()
-        self.create_tree(fileName[0])
+        self.currentFilePath = fileName
+        self.tabWidget.setTabText(0,basename(fileName))
+        self.parent._data_hidden()
+        self.create_tree()
 
-    def create_tree(self, txt):
+    def create_tree(self):
         tw = Qt.QTreeWidget()
         tw.setColumnCount(1)
-        tw.setHeaderLabels([txt])
+        tw.setHeaderLabels(["OpenPulse"])
 
-        l1 = Qt.QTreeWidgetItem(["Mesh"])
-        l2 = Qt.QTreeWidgetItem(["Gerar Mesh"])
-        l1.addChild(l2)
-        tw.itemClicked.connect(self.onClickItem)
+        hidden_data = Qt.QTreeWidgetItem(["Hidden Data"])
+
+        mesh = Qt.QTreeWidgetItem(["Mesh"])
+        g_mesh = Qt.QTreeWidgetItem(["Generate"])
+        nodes = Qt.QTreeWidgetItem(["List the Nodes"])
+        edges = Qt.QTreeWidgetItem(["List Connections"])
+        mesh.addChild(g_mesh)
+        mesh.addChild(nodes)
+        mesh.addChild(edges)
+
+        opv = Qt.QTreeWidgetItem(["Graphic"])
+        plot_opv = Qt.QTreeWidgetItem(["Plot"])
+        opv.addChild(plot_opv)
         
-        tw.addTopLevelItem(l1)
+        tw.addTopLevelItem(hidden_data)
+        tw.addTopLevelItem(mesh)
+        tw.addTopLevelItem(opv)
+
+        tw.itemClicked.connect(self.onClickItem)
         self.layout.addWidget(tw)
 
     def onClickItem(self, item, column):
-        if item.text(0) == "Gerar Mesh":
+        if item.text(0) == "Generate":
             self.parent._import()
+        elif item.text(0) == "Hidden Data":
+            self.parent._data_hidden()
         print(item.text(0), item, column)
