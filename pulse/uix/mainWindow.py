@@ -60,10 +60,10 @@ class MainWindow(Qt.QMainWindow):
         newAction.setStatusTip('New document')
         newAction.triggered.connect(self.newCall)
 
-        openAction = QAction(QIcon(icons_path + 'open.png'), '&Open', self)        
+        openAction = QAction(QIcon(icons_path + 'open.png'), '&Import Geometry', self)        
         openAction.setShortcut('Ctrl+O')
-        openAction.setStatusTip('Open document')
-        openAction.triggered.connect(self.openCall)
+        openAction.setStatusTip('Import Geometry')
+        openAction.triggered.connect(self.importCall)
 
         exitAction = QAction(QIcon(icons_path + 'exit.png'), '&Exit', self)        
         exitAction.setShortcut('Ctrl+Q')
@@ -165,10 +165,12 @@ class MainWindow(Qt.QMainWindow):
         temp.getRenderer().ResetCamera()
         self.iren.Initialize()
 
-
     def openCall(self):
-        self.changeWindowTitle("T")
-        print('Open')
+        pass
+
+
+    def importCall(self):
+        self.info_layer.import_from_main()
 
     def newCall(self):
 
