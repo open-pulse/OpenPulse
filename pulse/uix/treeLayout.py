@@ -31,8 +31,22 @@ class TreeLayout(Qt.QVBoxLayout):
     def getfiles(self):
         fileName = Qt.QFileDialog.getOpenFileName(None, 'Open file', '')
         self.clearLayout()
-        txt = Qt.QLabel(fileName[0])
-        self.layout.addWidget(txt)
-        space = Qt.QWidget()
-        self.layout.addWidget(space, 100)
-        self.parent._import()
+        self.create_tree(fileName[0])
+
+    def create_tree(self, txt):
+        tw = Qt.QTreeWidget()
+        tw.setColumnCount(1)
+        tw.setHeaderLabels([txt])
+
+        l1 = Qt.QTreeWidgetItem(["Mesh"])
+        l2 = Qt.QTreeWidgetItem(["Gerar Mesh"])
+        l1.addChild(l2)
+        tw.itemClicked.connect(self.onClickItem)
+        
+        tw.addTopLevelItem(l1)
+        self.layout.addWidget(tw)
+
+    def onClickItem(self, item, column):
+        if item.text(0) == "Gerar Mesh":
+            self.parent._import()
+        print(item.text(0), item, column)
