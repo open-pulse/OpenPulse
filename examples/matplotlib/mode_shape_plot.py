@@ -164,13 +164,13 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
 if __name__ == "__main__":
 
     # Load nodal results from different files      
-    connectivity = np.array(np.loadtxt('connect.dat')[:,-2:],int)
-    coordinates = np.loadtxt('coord.dat')
-    u_def = np.loadtxt('u_def.dat')
+    connectivity = np.array(np.loadtxt('Ex_02/connect.dat')[:,1:],int)
+    coordinates = np.array(np.loadtxt('Ex_02/coord.dat')[:,1:])
+    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1:])
     mode = 1
    
     # Choose the information to plot/animate
-    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, True, False, True, False
+    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
      # Scalling amplitude factor
     scf=0.4
