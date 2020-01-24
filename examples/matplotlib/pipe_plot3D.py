@@ -132,16 +132,16 @@ if __name__ == "__main__":
 
     # Example       
 
-    radius = 0.05
-    thickness = 0.01
+    radius = 0.025
+    thickness = 0.008
 
     n_div_theta = 10
     n_div_t = 3
 
     # Load nodal results from different files      
-    connectivity = np.array(np.loadtxt('connect.dat')[:,-2:],int)
-    coordinates = np.loadtxt('coord.dat')
-    u_def = np.loadtxt('u_def.dat')
+    connectivity = np.array(np.loadtxt('Ex_02/connect.dat')[:,1:],int)
+    coordinates = np.array(np.loadtxt('Ex_02/coord.dat')[:,1:])
+    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1:])
     mode = 1
    
     # Scalling amplitude factor
