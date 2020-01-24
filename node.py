@@ -28,6 +28,7 @@ class Node:
         self.user_index = user_index
 
         self.index = kwargs.get("index", None)
+        #Todo: define how ot construct
         self.boundary = kwargs.get("boundary", None)
 
     def coordinates(self):

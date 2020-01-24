@@ -26,7 +26,7 @@ class TubeCrossSection(object):
     --------
     """
     def __init__(self, D_external, **kwargs):
-
+        #Todo: review this warning
         assert (
             sum([1 if i in ["D_internal", "thickness"] else 0 for i in kwargs]) > 0
         ), "At least 1 arguments from young_modulus and thickness should be provided"
@@ -34,6 +34,7 @@ class TubeCrossSection(object):
         self.D_external = D_external
         self.D_internal = kwargs.get("D_internal", None)
         self.thickness = kwargs.get("thickness", None)
+        self.index = kwargs.get("index", None)
 
         if self.D_internal is None:
             self.D_internal = self.D_external - 2 * self.thickness

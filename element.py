@@ -36,15 +36,15 @@ class Element:
                  node_final,
                  material,
                  cross_section,
-                 e_type,
-                 index_user,
+                 element_type,
+                 user_index,
                  **kwargs):
         self.node_initial = node_initial
         self.node_final = node_final
         self.material = material
         self.cross_section = cross_section
-        self.e_type = e_type
-        self.index_user = index_user
+        self.element_type = element_type
+        self.user_index = user_index
         self.index = kwargs.get("index", None)
 
     def length(self):
@@ -66,7 +66,7 @@ class Element:
         J   = self.cross_section.polar_moment_area()
         k_2 = self.cross_section.shear_form_factor( self.material.poisson_ratio )
 
-        # Others constitutive constants
+        # Others constitutive properties
         I_3     = I_2
         k_3     = k_2
 

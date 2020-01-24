@@ -39,6 +39,7 @@ class Material:
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
         self.color = kwargs.get("color", "#525252")
+        self.index = kwargs.get("index", None)
 
         if self.young_modulus is None:
             self.young_modulus = self.shear_modulus * (2 * (1 + self.poisson_ratio))
