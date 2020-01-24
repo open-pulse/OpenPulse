@@ -35,6 +35,7 @@ def pipe_plot(coordinates, connectivity, u_def, mode, scf, radius, thickness, n_
     ax.set_xlim3d(round(a*ax_lim[0,0],1), round(a*ax_lim[1,0],1))
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
+    ax.view_init(elev=30, azim=-38)
 
     str_ord = ['st','nd','rd']
 
@@ -138,11 +139,11 @@ if __name__ == "__main__":
     n_div_theta = 10
     n_div_t = 3
 
-    # Load nodal results from different files      
+    # Load nodal results from different files 
+    mode = 30    
     connectivity = np.array(np.loadtxt('Ex_02/connect.dat')[:,1:],int)
     coordinates = np.array(np.loadtxt('Ex_02/coord.dat')[:,1:])
-    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1:])
-    mode = 1
+    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1+(mode-1)*3:3+(mode-1)*3+1])
    
     # Scalling amplitude factor
     scf=0.4

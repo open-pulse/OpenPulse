@@ -36,7 +36,8 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
 
     a, lw, e_lw, marker_size = 1.1, 2, 0, 50
     
-    norm = plt.Normalize(min(r), max(r),clip=True)
+    norm = plt.Normalize(-0.0, max(r),clip=False)
+    # norm = plt.Normalize(min(r), max(r),clip=True)
     cmap = matplotlib.cm.get_cmap('jet')
     line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
 
@@ -47,6 +48,8 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
     ax.set_xlim3d(round(a*ax_lim[0,0],1), round(a*ax_lim[1,0],1))
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
+
+    ax.view_init(elev=30, azim=-38)
     
     str_ord = ['st','nd','rd']
 
@@ -55,7 +58,7 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
     else:
         ordinary = 'th'
 
-    ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'),fontsize=18,fontweight='bold')
+    # ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'),fontsize=18,fontweight='bold')
     ax.set_xlabel(('Position x[m]'),fontsize=14,fontweight='bold')
     ax.set_ylabel(('Position y[m]'),fontsize=14,fontweight='bold')
     ax.set_zlabel(('Position z[m]'),fontsize=14,fontweight='bold')
@@ -106,7 +109,7 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
 
     if Animate_Mode:
 
-        frames = 300
+        frames = 250
         delay_ms = 1000/60
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
         ax.add_collection3d(line)
@@ -163,14 +166,15 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
 
 if __name__ == "__main__":
 
-    # Load nodal results from different files      
+    # Load nodal results from different files 
+    mode = 32 
     connectivity = np.array(np.loadtxt('Ex_02/connect.dat')[:,1:],int)
     coordinates = np.array(np.loadtxt('Ex_02/coord.dat')[:,1:])
-    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1:])
-    mode = 1
+    u_def = np.array(np.loadtxt('Ex_02/u_def.dat')[:,1+(mode-1)*3:3+(mode-1)*3+1])
+
    
     # Choose the information to plot/animate
-    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
+    Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, True
 
      # Scalling amplitude factor
     scf=0.4
