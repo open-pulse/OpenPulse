@@ -2,29 +2,31 @@ from pulse.utils import split_sequence
 import gmsh 
 
 class Mesh:
-    def __init__(self, min_len=0, max_len=1e+022):
-        self.min_len = min_len
-        self.max_len = max_len 
-
+    def __init__(self):
         self.nodes = []
         self.edges = []
 
-    def generate(self, path):
+    def generate(self, path, min_element_size=0, max_element_size=1e+019):
+        self.reset_variables()
         self.__initialize_gmsh(path)
-        self.__set_gmsh_options()
+        self.__set_gmsh_options(min_element_size, max_element_size)
         self.__generate_meshes()
         self.__read_nodes()
         self.__read_edges()
         self.__finalize()
+
+    def reset_variables(self):
+        self.nodes = []
+        self.edges = []
 
     def __initialize_gmsh(self, path):
         gmsh.initialize('', False)
         gmsh.logger.stop()
         gmsh.merge(path)
 
-    def __set_gmsh_options(self):
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', 0)
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', 100)
+    def __set_gmsh_options(self, min_element_size, max_element_size):
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', min_element_size * 1000)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', max_element_size * 1000)
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
