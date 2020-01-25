@@ -1,3 +1,6 @@
+import numpy as np
+
+
 from node import Node
 from tube import TubeCrossSection
 from material import Material
@@ -100,4 +103,32 @@ class Assembly:
             elements_list.update( {i : Element(node_initial,node_final,material,cross_section,element_type,user_index)} )
 
         return elements_list
+    
+    @staticmethod
+    def symmetrize(a):
+        """ Take a matrix a and symmetrize it."""
+        return a + a.T - np.diag(a.diagonal())
+    
+    def global_matrices(self):        
+        # Memory alocation
+        total_dof = Node.degree_freedom * self.number_nodes()
+        K = sparse.lil_matrix((N_DOF,N_DOF))
+        M = sparse.lil_matrix((N_DOF,N_DOF))
+
+        # For each element.
+        for e in self.map_elements():
+            element = self.map_elements()[e]
+
+            # Elementar matrices on the global coordinate system
+            Ke = element.stiffness_matrix_global()
+            Me = element.mass_matrix_global()
+
+            # Element global degree of freedom indeces
+            global_dof = element.global_degree_freedom()
+
+            # Assembly on the global matrices
+            ## Não funciona!
+            K[global_dof,:][:,global_dof] = Ke
+            M[global_dof,:][:,global_dof] = Me
+        return K, M
     

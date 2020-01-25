@@ -28,8 +28,7 @@ class Element:
 
     """
     nodes_per_element = 2
-    degree_freedom_nodes = 6
-    total_degree_freedom = nodes_per_element * degree_freedom_nodes
+    total_degree_freedom = nodes_per_element * Node.degree_freedom
 
     def __init__(self,
                  node_initial, 
@@ -49,6 +48,56 @@ class Element:
 
     def length(self):
         return self.node_initial.distance(self.node_final)
+
+    def global_degree_freedom(self):
+        node_local_dof = np.arange( Node.degree_freedom ).astype(int)
+        index_global_initial = self.node_initial.global_dof()
+        index_global_final = self.node_final.global_dof()
+        return np.concatenate((index_global_initial,index_global_final), axis=None)
+
+    def rotation_matrix(self):
+        # Rotation Matrix
+        gamma = 0
+        delta_x = self.node_final.x - self.node_initial.x
+        delta_y = self.node_final.y - self.node_initial.y
+        delta_z = self.node_final.z - self.node_initial.z
+
+        L_ = sqrt(delta_x**2 + delta_y**2)
+        L  = sqrt(delta_x**2 + delta_y**2 + delta_z**2)
+
+        C = np.zeros((3,3))
+        if L_ != 0.:
+            C[0,] = np.array([ [delta_x / L, delta_y / L, delta_z / L] ])
+
+            C[1,] = np.array([ [-delta_x*delta_z * sin(gamma) / (L_ * L) - delta_y * cos(gamma) / L_,
+                                -delta_y*delta_z * sin(gamma) / (L_ * L) + delta_x * cos(gamma) / L_,
+                                L_ * sin(gamma) / L] ])
+
+            C[2,] = np.array([ [-delta_x*delta_z * cos(gamma) / (L_ * L) + delta_y * sin(gamma) / L_,
+                                -delta_y*delta_z * cos(gamma) / (L_ * L) - delta_x * sin(gamma) / L_,
+                                L_ * cos(gamma) / L] ])
+        else:
+            C[0,0] = 0.
+            C[0,1] = 0.
+            C[0,2] = delta_z/np.abs(delta_z)
+            #
+            C[1,0] = -(delta_z/np.abs(delta_z)) * sin(gamma)
+            C[1,1] = cos(gamma)
+            C[1,2] = 0.
+            #
+            C[2,0] = -(delta_z/np.abs(delta_z)) * cos(gamma)
+            C[2,1] = -sin(gamma)
+            C[2,2] = 0.
+
+
+        T_tild_e = np.zeros((self.total_degree_freedom, self.total_degree_freedom))
+
+        T_tild_e[0:3, 0:3]      = C
+        T_tild_e[3:6, 3:6]      = C
+        T_tild_e[6:9, 6:9]      = C
+        T_tild_e[9:12, 9:12]    = C
+
+        return T_tild_e
 
     def stiffness_matrix(self):
 
@@ -113,6 +162,10 @@ class Element:
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
         return ke
+
+    def stiffness_matrix_global(self):
+        T = self.rotation_matrix()
+        return T.T @ self.stiffness_matrix() @ T
 
     def mass_matrix(self):
 
@@ -208,48 +261,9 @@ class Element:
 
         return me
     
-    def rotation_matrix(self):
+    def mass_matrix_global(self):
+        T = self.rotation_matrix()
+        return T.T @ self.mass_matrix() @ T
+    
 
-        # Rotation Matrix
-        gamma = 0
-        delta_x = self.node_final.x - self.node_initial.x
-        delta_y = self.node_final.y - self.node_initial.y
-        delta_z = self.node_final.z - self.node_initial.z
-
-        L_ = sqrt(delta_x**2 + delta_y**2)
-        L  = sqrt(delta_x**2 + delta_y**2 + delta_z**2)
-
-        C = np.zeros((3,3))
-        if L_ != 0.:
-            C[0,] = np.array([ [delta_x / L, delta_y / L, delta_z / L] ])
-
-            C[1,] = np.array([ [-delta_x*delta_z * sin(gamma) / (L_ * L) - delta_y * cos(gamma) / L_,
-                                -delta_y*delta_z * sin(gamma) / (L_ * L) + delta_x * cos(gamma) / L_,
-                                L_ * sin(gamma) / L] ])
-
-            C[2,] = np.array([ [-delta_x*delta_z * cos(gamma) / (L_ * L) + delta_y * sin(gamma) / L_,
-                                -delta_y*delta_z * cos(gamma) / (L_ * L) - delta_x * sin(gamma) / L_,
-                                L_ * cos(gamma) / L] ])
-        else:
-            C[0,0] = 0.
-            C[0,1] = 0.
-            C[0,2] = delta_z/np.abs(delta_z)
-            #
-            C[1,0] = -(delta_z/np.abs(delta_z)) * sin(gamma)
-            C[1,1] = cos(gamma)
-            C[1,2] = 0.
-            #
-            C[2,0] = -(delta_z/np.abs(delta_z)) * cos(gamma)
-            C[2,1] = -sin(gamma)
-            C[2,2] = 0.
-
-
-        T_tild_e = np.zeros((self.total_degree_freedom, self.total_degree_freedom))
-
-        T_tild_e[0:3, 0:3]      = C
-        T_tild_e[3:6, 3:6]      = C
-        T_tild_e[6:9, 6:9]      = C
-        T_tild_e[9:12, 9:12]    = C
-
-        return T_tild_e
 
