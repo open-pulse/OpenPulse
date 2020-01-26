@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.sparse import coo_matrix
 
 
 from node import Node
@@ -109,11 +110,16 @@ class Assembly:
         """ Take a matrix a and symmetrize it."""
         return a + a.T - np.diag(a.diagonal())
     
-    def global_matrices(self):        
-        # Memory alocation
+    def global_matrices(self):
         total_dof = Node.degree_freedom * self.number_nodes()
-        K = sparse.lil_matrix((N_DOF,N_DOF))
-        M = sparse.lil_matrix((N_DOF,N_DOF))
+
+        # Row, Collumn indeces to be used on Coo_matrix format
+        I = []
+        J = []
+
+        # Data for the Coo_matrix format
+        coo_K = []
+        coo_M = []
 
         # For each element.
         for e in self.map_elements():
@@ -126,9 +132,16 @@ class Assembly:
             # Element global degree of freedom indeces
             global_dof = element.global_degree_freedom()
 
-            # Assembly on the global matrices
-            ## Não funciona!
-            K[global_dof,:][:,global_dof] = Ke
-            M[global_dof,:][:,global_dof] = Me
+            # Construct vectors row by row
+            for i in range(global_dof.shape[0]):
+                row_index = global_dof[i]
+                I = np.concatenate(I, row_index * np.ones_like(global_dof))
+                J = np.concatenate(J, global_dof)
+                coo_K = np.concatenate(coo_K, Ke[i,:])
+                coo_M = np.concatenate(coo_M, Me[i,:])
+        
+        K = coo_matrix( (coo_K, (I, J)), [shape=(total_dof, total_dof)] )
+        M = coo_matrix( (coo_M, (I, J)), [shape=(total_dof, total_dof)] )
+        
         return K, M
     
