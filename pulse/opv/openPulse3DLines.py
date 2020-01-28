@@ -192,13 +192,13 @@ class OpenPulse3DLines():
 
     def __add_points(self):
         for points in self.__vertex:
-            self.__points.InsertNextPoint(points[0], points[1], points[2])
+            self.__points.InsertPoint(int(points[0]), points[1]/1000, points[2]/1000, points[3]/1000)
 
     def __add_edges(self):
         for edges in self.__edges:
             line = vtk.vtkLine()
-            line.GetPointIds().SetId(0, edges[0]-1)
-            line.GetPointIds().SetId(1, edges[1]-1)
+            line.GetPointIds().SetId(0, edges[1])
+            line.GetPointIds().SetId(1, edges[2])
             self.__lines.InsertNextCell(line)
             self.__set_line_color() #Create one color for every edge
 

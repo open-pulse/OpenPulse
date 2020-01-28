@@ -1,15 +1,3 @@
-"""
-* OpenPulse Project - LVA UFSC
-* Multidisciplinary Optimization Group
-*
-* mainWindow.py
-* <file description>
-*
-*
-* Written by José Luiz de Souza <joseloolo@hotmail.com>
-* Modified by <>
-"""
-
 import sys
 import os
 from pathlib import Path
@@ -25,7 +13,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 
 from .infoLayout import InfoLayout
 from .opvLayout import OPVLayer
-from opv.openPulse3DLines import OpenPulse3DLines
+from pulse.opv.openPulse3DLines import OpenPulse3DLines
 
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 
@@ -158,3 +146,6 @@ class MainWindow(Qt.QMainWindow):
 
     def getExamplesPath(self):
         return str(Path(__file__).parent.parent.parent) + "/examples/"
+
+    def change_plot(self, a,b):
+        self.OPVLayout.change_line_plot(a,b)

@@ -1,10 +1,11 @@
 import sys
 from PyQt5 import Qt
 
-from uix.mainWindow import MainWindow
+from pulse.uix.mainWindow import MainWindow
 
-if __name__ == "__main__":
+def init():
     app = Qt.QApplication(sys.argv)
     window = MainWindow()
     sys.exit(app.exec_())
     
+init()

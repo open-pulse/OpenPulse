@@ -1,7 +1,7 @@
 from PyQt5 import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
-from opv.openPulse3DLines import OpenPulse3DLines
+from pulse.opv.openPulse3DLines import OpenPulse3DLines
 
 class OPVLayer(Qt.QHBoxLayout):
     def __init__(self, parent):
@@ -24,11 +24,11 @@ class OPVLayer(Qt.QHBoxLayout):
         self.iren.SetInteractorStyle(self.style)
         self.vtkWidget.GetRenderWindow().AddRenderer(self.plot.getRenderer())
         self.plot.getRenderer().ResetCamera()
-        self.iren.Initialize()
         self.addWidget(self.vtkWidget)
+        self.iren.Initialize()
 
     def change_line_plot(self, a,b):
-        self.removeWidget(self.vtkWidget)
         self.plot = OpenPulse3DLines(a,b)
         self.plot.start()
-        self.generic_init()
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.plot.getRenderer())
+        self.vtkWidget.update()

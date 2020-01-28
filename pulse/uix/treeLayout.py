@@ -8,7 +8,6 @@ class TreeLayout(Qt.QVBoxLayout):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
-        self.currentFilePath = ""
         self.currentFileName = ""
         self.magic = Qt.QWidget()
         self.layout = Qt.QVBoxLayout()
@@ -21,7 +20,6 @@ class TreeLayout(Qt.QVBoxLayout):
 
     def clearLayout(self):
         self.tabWidget.setTabText(0,"Import")
-        self.currentFilePath = ""
         self.currentFileName = ""
         for i in range(self.layout.count()):
             self.layout.itemAt(i).widget().close()
@@ -36,7 +34,7 @@ class TreeLayout(Qt.QVBoxLayout):
     def getfiles(self):
         fileName, _type = Qt.QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
         self.clearLayout()
-        self.currentFilePath = fileName
+        self.parent.setImportPath(fileName)
         self.tabWidget.setTabText(0,basename(fileName))
         self.parent._data_hidden()
         self.create_tree()
@@ -50,7 +48,7 @@ class TreeLayout(Qt.QVBoxLayout):
 
         mesh = Qt.QTreeWidgetItem(["Mesh"])
         g_mesh = Qt.QTreeWidgetItem(["Generate"])
-        nodes = Qt.QTreeWidgetItem(["List the Nodes"])
+        nodes = Qt.QTreeWidgetItem(["List of Nodes"])
         edges = Qt.QTreeWidgetItem(["List Connections"])
         mesh.addChild(g_mesh)
         mesh.addChild(nodes)
@@ -72,4 +70,10 @@ class TreeLayout(Qt.QVBoxLayout):
             self.parent._import()
         elif item.text(0) == "Hidden Data":
             self.parent._data_hidden()
+        elif item.text(0) == "Plot":
+            self.parent.plot()
+        elif item.text(0) == "List of Nodes":
+            self.parent.list_nodes()
+        elif item.text(0) == "List Connections":
+            self.parent.list_edges()
         print(item.text(0), item, column)
