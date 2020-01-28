@@ -80,10 +80,10 @@ class MainWindow(Qt.QMainWindow):
         newAction.setStatusTip('New document')
         newAction.triggered.connect(self.newCall)
 
-        openAction = QAction(QIcon(icons_path + 'open.png'), '&Open', self)        
+        openAction = QAction(QIcon(icons_path + 'open.png'), '&Import Geometry', self)        
         openAction.setShortcut('Ctrl+O')
-        openAction.setStatusTip('Open document')
-        openAction.triggered.connect(self.openCall)
+        openAction.setStatusTip('Import Geometry')
+        openAction.triggered.connect(self.importCall)
 
         exitAction = QAction(QIcon(icons_path + 'exit.png'), '&Exit', self)        
         exitAction.setShortcut('Ctrl+Q')
@@ -109,20 +109,12 @@ class MainWindow(Qt.QMainWindow):
         generalFrame.setLayout(generalLayout)
         self.setCentralWidget(generalFrame)
 
-    def openCall(self):
-        pass
-
-
     def importCall(self):
-        self.info_layer.import_from_main()
+        self.infoLayout.import_from_main()
 
     def newCall(self):
-
-        examples_path = self.getExamplesPath()
-
-        coordinates = np.array(np.loadtxt(examples_path+'coord.dat'))
-        connectivity = np.array(np.loadtxt(examples_path+'connect.dat'), int)
-        self.OPVLayout.change_line_plot(coordinates, connectivity)
+        self.change_plot(None, None)
+        self.infoLayout.reset()
 
     def closeEvent(self, event):
         close = QtWidgets.QMessageBox.question(self,

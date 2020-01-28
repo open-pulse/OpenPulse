@@ -18,6 +18,10 @@ class TreeLayout(Qt.QVBoxLayout):
         self.addWidget(self.tabWidget)
         self.add_import_button()
 
+    def reset(self):
+        self.clearLayout()
+        self.add_import_button()
+
     def clearLayout(self):
         self.tabWidget.setTabText(0,"Import")
         self.currentFileName = ""
@@ -26,7 +30,7 @@ class TreeLayout(Qt.QVBoxLayout):
 
     def add_import_button(self):
         space = Qt.QWidget()
-        widget = Qt.QPushButton("Import <test>")
+        widget = Qt.QPushButton("Import Geometry")
         widget.clicked.connect(self.getfiles)
         self.layout.addWidget(widget, 1)
         self.layout.addWidget(space, 100)

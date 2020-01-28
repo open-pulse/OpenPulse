@@ -14,6 +14,12 @@ class InfoLayout(Qt.QVBoxLayout):
 
         self.importPath = ""
 
+    def reset(self):
+        self.importPath = ""
+        self.treeLayout.reset()
+        self.dataLayout.clearLayout()
+        self.dataLayout.hidden()
+
     def _import(self):
         self.dataLayout.add_mesh_input()
 
