@@ -1,22 +1,24 @@
 import numpy as np
-import sparse.TB_Matrices as TB
+
+from material import Material
+from node import Node
+from tube import TubeCrossSection as TCS
+from element import Element
+from assembly import Assembly
+
 import Animate.MS_Animation as Anima
 
 
-# Finite Elements Parameters
-npel = 2 # Nodes Per ELements
-ngln = 6 # Numero de Graus de Liberdade por Nó
-
 # Material definition: steel
-E   = 210e9 # Young modulus [Pa]
-nu  = 0.3   # Poisson ratio[-]
-rho = 7860  # Density[kg/m^3]
-mat = TB.Material_isotropic(rho,E,nu)
+young_modulus = 210e9 # Young modulus [Pa]
+poisson_ratio = 0.3   # Poisson ratio[-]
+density = 7860  # Density[kg/m^3]
+mat1 = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
 
-# Section definition: 
-do      = 0.05   # External diameter [m]
-t       = 0.008 # Thickness [m]
-tube    = TB.Tube(do, t) 
+# Cross section definition:
+do = 0.05   # External diameter [m]
+t  = 0.008 # Thickness [m]
+cross_section = TCS(do, t) 
 
 # Nodal coordinates
 coord = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\coord_ord_OK.dat') 
