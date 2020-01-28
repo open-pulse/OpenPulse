@@ -59,7 +59,7 @@ class DataLayout(Qt.QVBoxLayout):
         buttons_layout.addWidget(cancel_button)
         buttons_layout.addWidget(ok_button)
 
-        label = Qt.QLabel("Insert min value")
+        label = Qt.QLabel("Element Size")
 
         self.layout.addWidget(label)
         self.layout.addWidget(text)

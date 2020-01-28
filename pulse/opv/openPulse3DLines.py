@@ -19,9 +19,16 @@ class OpenPulse3DLines():
     def __init__(self, vertex = None, edges = None):
         self.__vertex = []
         self.__edges = []
+        self.__colors_r = []#np.array(np.loadtxt('u_sum.dat'))
+        self.teste_cor = vtk.vtkScalarsToColors()
+        self.teste_cor.SetRange(0,0.5)
+        self.teste_cor.Build()
 
         self.__check_vertex(vertex)
         self.__check_edges(edges)
+
+        self.colors = vtk.vtkFloatArray()
+        self.colors.SetNumberOfComponents(3)
 
         #VTK Variables
         self.__points = vtk.vtkPoints()
@@ -29,7 +36,6 @@ class OpenPulse3DLines():
         self.__linesPolyData = vtk.vtkPolyData()
         self.__mapper = vtk.vtkPolyDataMapper()
         self.__actor = vtk.vtkActor()
-        self.__renderer = vtk.vtkRenderer()
         self.__colors = vtk.vtkUnsignedCharArray()
         self.__colors.SetNumberOfComponents(3)
         self.__namedColors = vtk.vtkNamedColors()
@@ -135,8 +141,23 @@ class OpenPulse3DLines():
         color_temp = [randint(0,255),randint(0,255),randint(0,255)]
         self.__colors.InsertNextTypedTuple(color_temp)
 
-    def __create_gradient_color(self):
-        pass
+    def __create_gradient_color(self, a, b):
+        
+        #colors.InsertNextTypedTuple(self.teste_cor.GetColor(1))
+        #colors = vtk.vtkFloatArray()
+        #colors.SetNumberOfComponents(3)
+        # Add the colors we created to the colors array
+        if a >= 1543:
+            self.colors.InsertNextTypedTuple(self.teste_cor.GetColor(0.5))
+            return
+        #print(len(self.__colors_r))
+        print(self.teste_cor.GetColor(self.__colors_r[a-1][1]))
+        #print(a)
+        #print(self.teste_cor.GetColor(self.__colors_r[a-1][1]))
+        self.colors.InsertNextTypedTuple(self.teste_cor.GetColor(self.__colors_r[a-1][1]))
+        #self.colors.InsertNextTypedTuple(self.teste_cor.GetColor(b))
+        #self.__linesPolyData.GetPointData().SetScalars(colors)
+        #print(a,b)
 
     def __create_single_color(self, color):
         self.__colors.InsertNextTypedTuple(color)
@@ -148,15 +169,15 @@ class OpenPulse3DLines():
         elif self.__show_random_colors:
             self.__create_random_colors()
 
-        elif self.__show_gradient_color:
-            self.__create_gradient_color()
+        #elif self.__show_gradient_color:
+        #    self.__create_gradient_color()
 
     def __paint_lines(self):
-        self.__linesPolyData.GetCellData().SetScalars(self.__colors)
-
-    def __paint_background(self):
-        self.__renderer.SetBackground(self.__background_color)
-
+        if self.__show_gradient_color:
+            self.__linesPolyData.GetCellData().SetScalars(self.colors)
+        else:
+            self.__linesPolyData.GetCellData().SetScalars(self.__colors)
+        #print(self.__linesPolyData.GetCellData())
 
 
     #=======================
@@ -166,7 +187,6 @@ class OpenPulse3DLines():
     def start(self):
         self.__data_settings()
         self.__vtk_settings()
-        self.__camera_settings()
 
     def __data_settings(self):
         self.__add_points()   #Create vertex
@@ -179,11 +199,6 @@ class OpenPulse3DLines():
         self.__init_mapper()
         self.__init_axe()
         self.__init_actor()
-        self.__renderer_add_actors()
-        self.__paint_background()
-
-    def __camera_settings(self):
-        self.__reset_camera()
 
 
     #=============
@@ -200,7 +215,10 @@ class OpenPulse3DLines():
             line.GetPointIds().SetId(0, edges[1])
             line.GetPointIds().SetId(1, edges[2])
             self.__lines.InsertNextCell(line)
-            self.__set_line_color() #Create one color for every edge
+            if self.__show_gradient_color:
+                self.__create_gradient_color(edges[1], edges[2])
+            else:
+                self.__set_line_color() #Create one color for every edge
 
 
     #============
@@ -247,26 +265,13 @@ class OpenPulse3DLines():
     def __init_actor(self):
         self.__actor.SetMapper(self.__mapper)
 
-    def __renderer_add_actors(self):
-        if self.__create_axe3D:
-            self.__renderer.AddActor(self.__axe)
-        self.__renderer.AddActor(self.__actor)
-
-
-    #===============
-    #camera Settings
-    #===============
-
-    def __reset_camera(self):
-        self.__renderer.ResetCamera()
-
 
     #===================
     #Getters and Setters
     #===================
 
-    def getRenderer(self):
-        return self.__renderer
+    def getActor(self):
+        return self.__actor
 
     def setSingleLineColor(self, value):
         self.__default_color = value
