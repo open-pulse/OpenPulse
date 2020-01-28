@@ -1,5 +1,5 @@
 import numpy as np
-from math import pi, sqrt, sin, cos
+from math import pi, sqrt
 
 class TubeCrossSection(object):
     """ Tube cross section.
@@ -18,18 +18,14 @@ class TubeCrossSection(object):
     --------
     poisson_ratio : float
         Poisson's ratio [ ]
-    shear_modulus : float
-        Shear modulus [N/m**2].
-    color : str
-        Can be used on plots.
     Examples
     --------
     """
     def __init__(self, D_external, **kwargs):
-        #Todo: review this warning
+        #TODO: review this warning
         assert (
             sum([1 if i in ["D_internal", "thickness"] else 0 for i in kwargs]) > 0
-        ), "At least 1 arguments from young_modulus and thickness should be provided"
+        ), "At least 1 arguments from D_internal and thickness should be provided."
 
         self.D_external = D_external
         self.D_internal = kwargs.get("D_internal", None)
@@ -54,5 +50,12 @@ class TubeCrossSection(object):
         return 2 * self.moment_area()
 
     def shear_form_factor(self,poisson_ratio):
+        """Shear form factor for a tube.
+        Parameter
+        ---------
+        poisson_ratio : float
+            Poisson's ratio [ ]"""
         alpha   = self.D_internal / self.D_external
         return 6. * (1 + poisson_ratio) * (1 + alpha**2)**2 / ((7 + 6*poisson_ratio) * (1 + alpha**2)**2  + (20 + 12*poisson_ratio) * alpha**2)
+
+#TODO: organizar a forma como o PRINT é usado para a classe.

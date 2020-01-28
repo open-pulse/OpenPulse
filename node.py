@@ -31,16 +31,24 @@ class Node:
         self.user_index = user_index
 
         self.index = kwargs.get("index", None)
-        #Todo: define how ot construct
+        #TODO: define how to use the boundary conditions.
         self.boundary = kwargs.get("boundary", None)
 
     def global_dof(self):
-        if self.index == None:
-            #Todo: warning, self.index must be defined
-            pass 
-        node_local_dof = np.arange( degree_freedom )
-        return node_global_dof = degree_freedom * self.index + node_local_dof
+        """ For a node, define its global degree of freedom.
 
+        Parameter
+        ---------
+        Node
+        
+        output: array with 6 integers."""
+        if self.index == None:
+            #TODO: warning, self.index must be defined
+            pass 
+        node_local_dof = np.arange( Node.degree_freedom )
+        return Node.degree_freedom * self.index + node_local_dof
+
+    #TODO: define a boundary function to take the boundary conditions.
     
     def coordinates(self):
         """ Give coordinates as array."""
@@ -49,5 +57,6 @@ class Node:
     def distance(self, other):
         """ Give the distance between the actual node and other one."""
         if type(other) != Node:
+            #TODO: define the warning. 'other' must be a node.
             return
         return np.linalg.norm( self.coordinates() - other.coordinates() )

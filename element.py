@@ -38,24 +38,34 @@ class Element:
                  element_type,
                  user_index,
                  **kwargs):
+        
         self.node_initial = node_initial
         self.node_final = node_final
         self.material = material
         self.cross_section = cross_section
         self.element_type = element_type
         self.user_index = user_index
-        self.index = kwargs.get("index", None)
 
     def length(self):
+        """Define the element length."""
         return self.node_initial.distance(self.node_final)
 
-    def global_degree_freedom(self):
-        node_local_dof = np.arange( Node.degree_freedom ).astype(int)
-        index_global_initial = self.node_initial.global_dof()
-        index_global_final = self.node_final.global_dof()
-        return np.concatenate((index_global_initial,index_global_final), axis=None)
+    def global_degree_freedom(self, fixed_nodes):
+        """Return the degrees of freedom related to the element in a array with 12 integers.
+        If the index of the initial node or final node are in 'fixed_nodes', its degree of
+        freedom are not considered."""
+        if self.node_initial.user_index in fixed_nodes:
+            index_global_initial = []
+        elif self.node_final.user_index in fixed_nodes:
+            index_global_final = []
+        else:
+            index_global_initial = self.node_initial.global_dof()
+            index_global_final = self.node_final.global_dof()
+            
+        return index_global_initial.tolist() + index_global_final.tolist()
 
     def rotation_matrix(self):
+        """ Make the rotation from the element coordinate system to the global doordinate system."""
         # Rotation Matrix
         gamma = 0
         delta_x = self.node_final.x - self.node_initial.x
@@ -98,8 +108,14 @@ class Element:
         T_tild_e[9:12, 9:12]    = C
 
         return T_tild_e
+    
+    @staticmethod
+    def symmetrize(a):
+        """ Take a matrix a and symmetrize it."""
+        return a + a.T - np.diag(a.diagonal())
 
     def stiffness_matrix(self):
+        """ Element striffness matrix in the element coordinate system."""
 
         # Element length
         L   = self.length()
@@ -161,13 +177,15 @@ class Element:
         ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
-        return ke
+        return Element.symmetrize(ke)
 
     def stiffness_matrix_global(self):
+        """ Element striffness matrix in the global coordinate system."""
         T = self.rotation_matrix()
         return T.T @ self.stiffness_matrix() @ T
 
     def mass_matrix(self):
+        """ Element mass matrix in the element coordinate system."""
 
         # Element length
         L   = self.length()
@@ -259,9 +277,10 @@ class Element:
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
 
-        return me
+        return Element.symmetrize(me)
     
     def mass_matrix_global(self):
+        """ Element mass matrix in the global coordinate system."""
         T = self.rotation_matrix()
         return T.T @ self.mass_matrix() @ T
     

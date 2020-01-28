@@ -16,27 +16,28 @@ density = 7860  # Density[kg/m^3]
 mat1 = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
 
 # Cross section definition:
-do = 0.05   # External diameter [m]
-t  = 0.008 # Thickness [m]
-cross_section = TCS(do, t) 
+D_external = 0.05   # External diameter [m]
+thickness  = 0.008 # Thickness [m]
+cross_section = TCS(D_external, thickness = thickness) 
 
 # Nodal coordinates
-coord = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\coord_ord_OK.dat') 
+nodal_coordinates = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\coord_ord_OK.dat') 
 
 # Connectivity
-connect = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\connect_ord_OK.dat', dtype=int)
+connectivity = np.loadtxt('C:\Kula\Atividades\Petrobras\Out-Git-open-pulse\connect_ord_OK.dat', dtype=int)
 
 # Boundary conditions
-fixednodes = np.array([1,1200,1325])
-fixeddof = np.zeros(6*len(fixednodes))
-
-for i in range(6):
-    fixeddof[i] = 6*(fixednodes[0]-1) + i+1
-    fixeddof[i+6] = 6*(fixednodes[1]-1) + i+1
-fixeddof = fixeddof.astype(int)
+fixed_nodes = np.array([1,1200,1325])
 
 # Tube Segment  is totally define
-Segm = TB.Segment(coord,connect,fixeddof,mat,tube)
+Segm = Assembly(nodal_coordinates,
+                connectivity,
+                fixed_nodes,
+                material_list,
+                material_dictionary,
+                cross_section_list,
+                cross_section_dictionary,
+                element_type_dictionary)
 
 # Global Assembly
 K, M    = TB.assembly(Segm,npel,ngln)

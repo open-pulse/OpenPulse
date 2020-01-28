@@ -17,7 +17,7 @@ class Assembly:
         
     connectivity : 
         
-    fixed_degree_freedom : 
+    fixed_nodes : 
         
     material_list : 
 
@@ -29,18 +29,18 @@ class Assembly:
     def __init__(   self,
                     nodal_coordinates,
                     connectivity,
-                    fixed_degree_freedom,
-                    material_list,
+                    fixed_nodes,
+                    # material_list,
                     material_dictionary,
-                    cross_section_list,
+                    # cross_section_list,
                     cross_section_dictionary,
                     element_type_dictionary):
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
-        self.fixed_degree_freedom = fixed_degree_freedom
-        self.material_list = material_list 
+        self.fixed_nodes = fixed_nodes
+        # self.material_list = material_list 
         self.material_dictionary = material_dictionary 
-        self.cross_section_list = cross_section_list
+        # self.cross_section_list = cross_section_list
         self.cross_section_dictionary = cross_section_dictionary
         self.element_type_dictionary = element_type_dictionary
 
@@ -76,6 +76,14 @@ class Assembly:
             nodes_list.update( {i : Node(x, y, z, user_index, index = i)} )
         return nodes_list
     
+    #TODO: adapt this function to receive not all dof
+    def fixed_degree_freedom(self):
+        fixed_degree_freedom = []
+
+        for node in self.fixed_nodes:
+            fixed_degree_freedom = np.concatenate(fixed_degree_freedom, node.global_dof())
+        return fixed_degree_freedom
+    
     #TODO: determinate the structure and type of material_list and material_dictionary.
     #TODO: determinate the structure and type of cross_section_list and cross_section_dictionary
     #TODO: determinate the structure and type of element_type_dictionary
@@ -97,6 +105,7 @@ class Assembly:
             index_node_final = nodes_dictionary[ self.connectivity[i,2] ]
             node_final = map_nodes[ index_node_final ]
 
+            #TODO: define how to access the material and cross_section data.
             material = self.material_dictionary[i]
             cross_section = self.cross_section_dictionary[i]
             element_type = self.element_type_dictionary[i]
@@ -130,12 +139,13 @@ class Assembly:
             Me = element.mass_matrix_global()
 
             # Element global degree of freedom indeces
-            global_dof = element.global_degree_freedom()
+            #TODO: code is limited to all degree of freedom of a node fixed.
+            global_dof = element.global_degree_freedom( self.fixed_nodes )
 
             # Construct vectors row by row
-            for i in range(global_dof.shape[0]):
+            for i in range( len(global_dof) ):
                 row_index = global_dof[i]
-                I = np.concatenate(I, row_index * np.ones_like(global_dof))
+                I = np.concatenate( (I, row_index * np.ones_like(global_dof)) )
                 J = np.concatenate(J, global_dof)
                 coo_K = np.concatenate(coo_K, Ke[i,:])
                 coo_M = np.concatenate(coo_M, Me[i,:])
