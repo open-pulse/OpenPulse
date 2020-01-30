@@ -50,19 +50,34 @@ class Element:
         """Define the element length."""
         return self.node_initial.distance(self.node_final)
 
+    #TODO: Make it more general. Considere degree of freedom fixed.
     def global_degree_freedom(self, fixed_nodes):
         """Return the degrees of freedom related to the element in a array with 12 integers.
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
+        
         if self.node_initial.user_index in fixed_nodes:
-            index_global_initial = []
-        elif self.node_final.user_index in fixed_nodes:
-            index_global_final = []
+            index_global_initial = np.array([])
+            index_local_initial = np.array([])
         else:
             index_global_initial = self.node_initial.global_dof()
+            index_local_initial = np.arange( Node.degree_freedom )
+        
+        if self.node_final.user_index in fixed_nodes:
+            index_global_final = np.array([])
+            index_local_final = np.array([])
+        else:
             index_global_final = self.node_final.global_dof()
-            
-        return index_global_initial.tolist() + index_global_final.tolist()
+            index_local_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )
+        
+        a, b = len( index_global_initial ), len( index_global_final )
+        global_dof = np.zeros(a+b,dtype = int)
+        local_dof = np.zeros(a+b,dtype = int)
+
+        global_dof[0:a],global_dof[a:a+b] = index_global_initial, index_global_final
+        local_dof[0:a],local_dof[a:a+b] = index_local_initial, index_local_final
+
+        return global_dof, local_dof
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
