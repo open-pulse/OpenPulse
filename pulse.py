@@ -1,7 +1,7 @@
 import sys
 from PyQt5 import Qt
 
-from pulse.uix.mainWindow import MainWindow
+from pulse.uix.main_window import MainWindow
 
 def init():
     app = Qt.QApplication(sys.argv)

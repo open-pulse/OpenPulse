@@ -1,32 +1,37 @@
+from os.path import isfile
 from pulse.utils import split_sequence
 import gmsh 
 
 class Mesh:
-    def __init__(self):
+    def __init__(self, path=''):
+        self.path = path
         self.nodes = []
         self.edges = []
 
-    def generate(self, path, min_element_size=0, max_element_size=1e+019):
-        self.reset_variables()
-        self.__initialize_gmsh(path)
-        self.__set_gmsh_options(min_element_size, max_element_size)
-        self.__generate_meshes()
-        self.__read_nodes()
-        self.__read_edges()
-        self.__finalize()
+    def generate(self, min_element_size=0, max_element_size=1e+019):
+        if isfile(self.path):
+            self.reset_variables()
+            self.__initialize_gmsh()
+            self.__set_gmsh_options(min_element_size, max_element_size)
+            self.__generate_meshes()
+            self.__read_nodes()
+            self.__read_edges()
+            self.__finalize()
+        else:
+            return FileNotFoundError
 
     def reset_variables(self):
         self.nodes = []
         self.edges = []
 
-    def __initialize_gmsh(self, path):
+    def __initialize_gmsh(self):
         gmsh.initialize('', False)
         gmsh.logger.stop()
-        gmsh.merge(path)
+        gmsh.merge(self.path)
 
     def __set_gmsh_options(self, min_element_size, max_element_size):
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', min_element_size * 1000)
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', max_element_size * 1000)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', float(min_element_size) * 1000)
+        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', float(max_element_size) * 1000)
         gmsh.option.setNumber('Mesh.Optimize', 1)
         gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
         gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)

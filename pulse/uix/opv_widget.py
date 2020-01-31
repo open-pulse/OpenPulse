@@ -3,50 +3,47 @@ from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 from pulse.opv.openPulse3DLines import OpenPulse3DLines
 
-class OPVLayer(Qt.QHBoxLayout):
+class OPVWidget(QVTKRenderWindowInteractor):
     def __init__(self, parent):
         super().__init__()
         self.parent = parent
         self.renderer = vtk.vtkRenderer()
         self.plot = OpenPulse3DLines()
-        self.plot.start()
-        self.generic_init()
 
-    def resetCamera(self):
-        self.renderer.ResetCamera()
+        self.setup_camera()
+        self.setup_renderer()
+        self.plot.start()
+        self.show_axes()
+        self.Initialize()
 
     def reset(self):
-        self.removeWidget(self.vtkWidget)
         self.plot = OpenPulse3DLines()
         self.plot.start()
         self.generic_init()
-        
-    def generic_init(self):
-        self.vtkWidget = QVTKRenderWindowInteractor()
-        self.iren = self.vtkWidget.GetRenderWindow().GetInteractor()
+    
+    def setup_camera(self):
         self.style = vtk.vtkInteractorStyleTrackballCamera()
-        self.iren.SetInteractorStyle(self.style)
-        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
-        self.resetCamera()
+        self.SetInteractorStyle(self.style)
 
+    def setup_renderer(self):
+        self.GetRenderWindow().AddRenderer(self.renderer)
+        self.renderer.ResetCamera()
+        
+    def show_axes(self):
         axesActor = vtk.vtkAxesActor()
         self.axes = vtk.vtkOrientationMarkerWidget()
         self.axes.SetOrientationMarker(axesActor)
-        self.axes.SetInteractor(self.iren)
+        self.axes.SetInteractor(self)
         self.axes.EnabledOn()
         self.axes.InteractiveOff()
-
-        self.addWidget(self.vtkWidget)
-        self.iren.Initialize()
 
     def addActor(self):
         self.renderer.AddActor(self.plot.getActor())
 
-    def change_line_plot(self, a,b):
-        self.plot = OpenPulse3DLines(a,b)
+    def change_line_plot(self, nodes, edges):
+        self.plot = OpenPulse3DLines(nodes, edges)
         self.plot.start()
         self.addActor()
-        self.resetCamera()
-        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
-        self.vtkWidget.update()
+        self.setup_renderer()
+        self.update()
         
