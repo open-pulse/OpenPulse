@@ -277,7 +277,7 @@ class Element:
                                         gamma_12 * (A * a_12u_5 / 420 + I_3 * a_12t_3 / 30)])
 
         # Mass matrix out diagonal construction
-        me[9 , 3] =  rho * J_p * L * 6
+        me[9 , 3] =  rho * J_p * L / 6
         me[6 , 0] =  rho * A * L / 6
         me[5 , 1] =  gamma_12 * (A * a_12u_2 / 420 + I_3 * a_12t_2 / 30)
         me[11, 7] = -gamma_12 * (A * a_12u_2 / 420 + I_3 * a_12t_2 / 30)
