@@ -37,13 +37,18 @@ class OPVWidget(QVTKRenderWindowInteractor):
         self.axes.EnabledOn()
         self.axes.InteractiveOff()
 
-    def addActor(self):
+    def add_actor(self):
         self.renderer.AddActor(self.plot.getActor())
 
+    def remove_all_actors(self):
+        for actor in self.renderer.GetActors():
+            self.renderer.RemoveActor(actor)
+
     def change_line_plot(self, nodes, edges):
+        self.remove_all_actors()
         self.plot = OpenPulse3DLines(nodes, edges)
         self.plot.start()
-        self.addActor()
+        self.add_actor()
         self.setup_renderer()
         self.update()
         
