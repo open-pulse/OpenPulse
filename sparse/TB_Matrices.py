@@ -99,7 +99,8 @@ def Elementar_matrices(npel,ngln,e,mat,tube):
     I_3     = I_2
     J_p     = J
     alpha   = Di / Do
-    k_2     = 6. * (1 + nu) * (1 + alpha**2)**2 / ((7 + 6*nu) * (1 + alpha**2)**2  + (20 + 12*nu) * alpha**2)
+    k_2     = 0.5 #6. * (1 + nu) * (1 + alpha**2)**2 / ((7 + 6*nu) * (1 + alpha**2)**2  + (20 + 12*nu) * alpha**2)
+    #Ansys PIPE16: As = 0.5*A (fixed)
     k_3     = k_2
 
     # Stiffness Matrix

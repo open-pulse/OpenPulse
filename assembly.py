@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.sparse import coo_matrix
+import time
 
 
 from node import Node
@@ -131,21 +132,23 @@ class Assembly:
         """ Take a matrix a and symmetrize it."""
         return a + a.T - np.diag(a.diagonal())
     
-    def global_matrices(self):
-        #TODO: Define a better way to pre alocated matrix.
-        total_dof = 3 * Node.degree_freedom * ( self.number_nodes() - self.fixed_nodes.shape[0] )
+    def global_matrices(self, dell_line = True):
+        entries_per_element = Element.total_degree_freedom**2
+        total_entries = entries_per_element * self.number_elements()
 
         # Row, Collumn indeces to be used on Coo_matrix format
-        I = np.zeros(total_dof * total_dof)
-        J = np.zeros(total_dof * total_dof)
+        I = np.zeros(total_entries)
+        J = np.zeros(total_entries)
 
         # Data for the Coo_matrix format
-        coo_K = np.zeros(total_dof * total_dof)
-        coo_M = np.zeros(total_dof * total_dof)
+        coo_K = np.zeros(total_entries)
+        coo_M = np.zeros(total_entries)
+
+        map_elements = self.map_elements()
 
         # For each element.
-        for e in self.map_elements():
-            element = self.map_elements()[e]
+        for e in map_elements:
+            element = map_elements[e]
 
             # Elementar matrices on the global coordinate system
             Ke = element.stiffness_matrix_global()
@@ -154,9 +157,11 @@ class Assembly:
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
             global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes )
-            count = int(0)
-
             aux = len(global_dof)
+
+            # map_elements is counted initiating by 1 going up to number_elements + 1
+            count = (e - 1) * entries_per_element
+            
 
             # Construct vectors row by row
             for i in range( aux ):
@@ -168,14 +173,29 @@ class Assembly:
                 coo_M[count : count + aux] = Me[i, local_dof]
 
                 # Each iteration update len( global_dof ) amount
-                count += aux
+                count += aux 
+        count = int(0)
+        #TODO: consider write in another method
+        # Line and Collumn Elimination
 
-        total_dof = Node.degree_freedom * ( self.number_nodes() )
+        if dell_line:
+            for fixed_node in self.fixed_nodes:
+                fixed_node_internal = self.node_user_to_internal_index()[ fixed_node ]
+                fixed_dof = fixed_node_internal * Node.degree_freedom - count * Node.degree_freedom
 
-        return I, J, coo_K, coo_M, total_dof
+                aux_I = np.where(I > fixed_dof )
+                aux_J = np.where(J > fixed_dof )
 
-        # K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
-        # M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
+                I[aux_I] = I[aux_I] - Node.degree_freedom
+                J[aux_J] = J[aux_J] - Node.degree_freedom
+                
+                count += 1
+
+
+        total_dof = Node.degree_freedom * ( self.number_nodes()  )
+
+        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
+        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
         
-        # return K, M
+        return K, M, I, J, coo_K, coo_M, total_dof
     

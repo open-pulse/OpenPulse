@@ -1,5 +1,6 @@
 #%% 
 import numpy as np
+import time
 
 from material import Material
 from node import Node
@@ -8,6 +9,7 @@ from element import Element
 from assembly import Assembly
 
 import Animate.MS_Animation as Anima
+import matplotlib.pylab as plt
 
 
 
@@ -44,7 +46,7 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
 
 # Tube Segment  is totally define
-Segm = Assembly(nodal_coordinates,
+assemble = Assembly(nodal_coordinates,
                 connectivity,
                 fixed_nodes,
                 material_list,
@@ -53,28 +55,42 @@ Segm = Assembly(nodal_coordinates,
                 cross_section_dictionary,
                 element_type_dictionary)
 
+# Global Assembly
+start = time.time()
+K, M, I, J, coo_K, coo_M, total_dof    = assemble.global_matrices( dell_line = False )
+end = time.time()
+
+print(end - start)
+
+plt.spy(K.toarray()[0:30,0:30], markersize=5)
+plt.show()
+
+plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
+plt.show()
+
+plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
+plt.show()
+
 #%%
 
-# Global Assembly
-K, M    = TB.assembly(Segm,npel,ngln)
 
-# Modal Analysis - Full Matrix process
-k = 25
-nnode = Segm.nnode
-fn, eigvects = TB.modal_analysis(k,ngln,nnode,fixeddof,K,M)
+# # Modal Analysis - Full Matrix process
+# k = 25
+# nnode = Segm.nnode
+# fn, eigvects = TB.modal_analysis(k,ngln,nnode,fixeddof,K,M)
 
-# Modal Shape Animation
-mode = 10 # Mode to be animated
-Anima.MS_animation(coord, connect, eigvects, mode)
+# # Modal Shape Animation
+# mode = 10 # Mode to be animated
+# Anima.MS_animation(coord, connect, eigvects, mode)
 
-# Direct solver
-frequencies = range(100)
-F = np.zeros([ K.shape[0],1 ])
-F[6*15] = 1 
+# # Direct solver
+# frequencies = range(100)
+# F = np.zeros([ K.shape[0],1 ])
+# F[6*15] = 1 
 
-x = TB.solver_direct(frequencies, F, ngln,nnode,fixeddof, K, M)
+# x = TB.solver_direct(frequencies, F, ngln,nnode,fixeddof, K, M)
 
-print(x) 
+# print(x) 
 
 
 #%%
