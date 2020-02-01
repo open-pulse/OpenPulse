@@ -25,13 +25,13 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 # Nodal coordinates
-nodal_coordinates = np.loadtxt('coord_ord_OK.dat') 
+nodal_coordinates = np.loadtxt('coord.dat') 
 
 # Connectivity
-connectivity = np.loadtxt('connect_ord_OK.dat', dtype=int)
+connectivity = np.loadtxt('connect.dat', dtype=int)
 
 # Boundary conditions
-fixed_nodes = np.array([1,1200,1325])
+fixed_nodes = np.array([10,1200,1325])
 
 # Material atribuition for each element
 material_list = [1, material_1]
@@ -57,7 +57,7 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, I, J, coo_K, coo_M, total_dof    = assemble.global_matrices( dell_line = False )
+K, M, I, J, coo_K, coo_M, total_dof    = assemble.global_matrices( delete_line = False )
 end = time.time()
 
 print(end - start)

@@ -55,7 +55,7 @@ class Assembly:
     
     def nodes_internal_index(self):
         """ Array with all node internal index."""
-        return range( self.number_nodes() )
+        return np.arange( self.number_nodes() )
     
     def node_internal_to_user_index(self):
         """ Dictionary ."""
@@ -126,13 +126,8 @@ class Assembly:
             elements_list.update( { element_index : Element(node_initial,node_final,material,cross_section,element_type,element_index)} )
 
         return elements_list
-    
-    @staticmethod
-    def symmetrize(a):
-        """ Take a matrix a and symmetrize it."""
-        return a + a.T - np.diag(a.diagonal())
-    
-    def global_matrices(self, dell_line = True):
+        
+    def global_matrices(self, delete_line = True):
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
 
@@ -151,15 +146,17 @@ class Assembly:
             element = map_elements[e]
 
             # Elementar matrices on the global coordinate system
-            Ke = element.stiffness_matrix_global()
-            Me = element.mass_matrix_global()
+            Ke = element.stiffness_matrix_gcs()
+            Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
             global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes )
+
             aux = len(global_dof)
 
-            # map_elements is counted initiating by 1 going up to number_elements + 1
+            # map_elements is counted initiating by 1 going up to number_elements
+            #TODO: be carefull about element index.
             count = (e - 1) * entries_per_element
             
 
@@ -178,7 +175,7 @@ class Assembly:
         #TODO: consider write in another method
         # Line and Collumn Elimination
 
-        if dell_line:
+        if delete_line:
             for fixed_node in self.fixed_nodes:
                 fixed_node_internal = self.node_user_to_internal_index()[ fixed_node ]
                 fixed_dof = fixed_node_internal * Node.degree_freedom - count * Node.degree_freedom

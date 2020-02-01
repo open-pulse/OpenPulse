@@ -55,7 +55,7 @@ class TubeCrossSection(object):
         ---------
         poisson_ratio : float
             Poisson's ratio [ ]"""
-        alpha   = self.D_internal / self.D_external
+        # alpha   = self.D_internal / self.D_external
         # return 6. * (1 + poisson_ratio) * (1 + alpha**2)**2 / ((7 + 6*poisson_ratio) * (1 + alpha**2)**2  + (20 + 12*poisson_ratio) * alpha**2)
         return 0.5
 

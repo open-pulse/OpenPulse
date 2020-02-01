@@ -48,7 +48,7 @@ class Element:
 
     def length(self):
         """Define the element length."""
-        return self.node_initial.distance(self.node_final)
+        return self.node_initial.distance( self.node_final )
 
     #TODO: Make it more general. Considere degree of freedom fixed.
     def global_degree_freedom(self, fixed_nodes):
@@ -57,25 +57,25 @@ class Element:
         freedom are not considered."""
         
         if self.node_initial.user_index in fixed_nodes:
-            index_global_initial = np.array([])
-            index_local_initial = np.array([])
+            global_dof_node_initial = np.array([])
+            local_dof_node_initial = np.array([])
         else:
-            index_global_initial = self.node_initial.global_dof()
-            index_local_initial = np.arange( Node.degree_freedom )
+            global_dof_node_initial = self.node_initial.global_dof()
+            local_dof_node_initial = np.arange( Node.degree_freedom )
         
         if self.node_final.user_index in fixed_nodes:
-            index_global_final = np.array([])
-            index_local_final = np.array([])
+            global_dof_node_final = np.array([])
+            local_dof_node_final = np.array([])
         else:
-            index_global_final = self.node_final.global_dof()
-            index_local_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )
+            global_dof_node_final = self.node_final.global_dof()
+            local_dof_node_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )
         
-        a, b = len( index_global_initial ), len( index_global_final )
+        a, b = len( global_dof_node_initial ), len( global_dof_node_final )
         global_dof = np.zeros(a+b,dtype = int)
         local_dof = np.zeros(a+b,dtype = int)
 
-        global_dof[0:a],global_dof[a:a+b] = index_global_initial, index_global_final
-        local_dof[0:a],local_dof[a:a+b] = index_local_initial, index_local_final
+        global_dof[0:a], global_dof[a:a+b] = global_dof_node_initial, global_dof_node_final
+        local_dof[0:a], local_dof[a:a+b] = local_dof_node_initial, local_dof_node_final
 
         return global_dof, local_dof
 
@@ -194,7 +194,7 @@ class Element:
 
         return Element.symmetrize(ke)
 
-    def stiffness_matrix_global(self):
+    def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
         T = self.rotation_matrix()
         return T.T @ self.stiffness_matrix() @ T
@@ -294,7 +294,7 @@ class Element:
 
         return Element.symmetrize(me)
     
-    def mass_matrix_global(self):
+    def mass_matrix_gcs(self):
         """ Element mass matrix in the global coordinate system."""
         T = self.rotation_matrix()
         return T.T @ self.mass_matrix() @ T

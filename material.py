@@ -39,6 +39,7 @@ class Material:
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
         self.color = kwargs.get("color", "#525252")
+        # Talvez use:
         self.index = kwargs.get("index", None)
 
         if self.young_modulus is None:
