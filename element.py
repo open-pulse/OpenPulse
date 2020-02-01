@@ -45,25 +45,26 @@ class Element:
         self.cross_section = cross_section
         self.element_type = element_type
         self.user_index = user_index
+        # self.delete_line = delete_line 
 
     def length(self):
         """Define the element length."""
         return self.node_initial.distance( self.node_final )
 
     #TODO: Make it more general. Considere degree of freedom fixed.
-    def global_degree_freedom(self, fixed_nodes):
+    def global_degree_freedom(self, fixed_nodes, delete_line):
         """Return the degrees of freedom related to the element in a array with 12 integers.
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
         
-        if self.node_initial.user_index in fixed_nodes:
+        if self.node_initial.user_index in fixed_nodes and delete_line:
             global_dof_node_initial = np.array([])
             local_dof_node_initial = np.array([])
         else:
             global_dof_node_initial = self.node_initial.global_dof()
             local_dof_node_initial = np.arange( Node.degree_freedom )
         
-        if self.node_final.user_index in fixed_nodes:
+        if self.node_final.user_index in fixed_nodes and delete_line:
             global_dof_node_final = np.array([])
             local_dof_node_final = np.array([])
         else:

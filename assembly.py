@@ -151,7 +151,7 @@ class Assembly:
 
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
-            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes )
+            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, delete_line )
 
             aux = len(global_dof)
 
@@ -176,17 +176,19 @@ class Assembly:
         # Line and Collumn Elimination
 
         if delete_line:
-            for fixed_node in self.fixed_nodes:
-                fixed_node_internal = self.node_user_to_internal_index()[ fixed_node ]
-                fixed_dof = fixed_node_internal * Node.degree_freedom - count * Node.degree_freedom
+            for fixed_node in self.fixed_nodes: 
+                if fixed_node in self.nodes_user_index():
+                        
+                    fixed_node_internal = self.node_user_to_internal_index()[ fixed_node ]
+                    fixed_dof = fixed_node_internal * Node.degree_freedom - count * Node.degree_freedom
 
-                aux_I = np.where(I > fixed_dof )
-                aux_J = np.where(J > fixed_dof )
+                    aux_I = np.where(I > fixed_dof )
+                    aux_J = np.where(J > fixed_dof )
 
-                I[aux_I] = I[aux_I] - Node.degree_freedom
-                J[aux_J] = J[aux_J] - Node.degree_freedom
-                
-                count += 1
+                    I[aux_I] = I[aux_I] - Node.degree_freedom
+                    J[aux_J] = J[aux_J] - Node.degree_freedom
+                    
+                    count += 1
 
 
         total_dof = Node.degree_freedom * ( self.number_nodes()  )
