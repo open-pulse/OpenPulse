@@ -33,6 +33,7 @@ connectivity = np.loadtxt('connect_ord_OK.dat', dtype=int)
 
 # Boundary conditions
 fixed_nodes = np.array([1,1200,1325])
+del_lines = False
 
 # Material atribuition for each element
 material_list = [1, material_1]
@@ -50,6 +51,7 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 assemble = Assembly(nodal_coordinates,
                 connectivity,
                 fixed_nodes,
+                del_lines,
                 material_list,
                 material_dictionary,
                 cross_section_list,
@@ -58,19 +60,24 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_line = False )
+K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_line = del_lines )
 end = time.time()
 
 print(end - start)
 
-plt.spy(K.toarray(), markersize=5)
+plt.spy(K.toarray()[0:30,0:30], markersize=5)
+# plt.spy(K.toarray(), markersize=5)
+
 plt.show()
 
-# plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
-# plt.show()
+plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
+plt.show()
 
-# plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
-# plt.show()
+plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
+plt.show()
+
+plt.spy(K.toarray()[9200:,9200:], markersize=1)
+plt.show()
 
 #%%
 
@@ -82,7 +89,7 @@ N_modes = 100
 M = M.tocsr()
 K = K.tocsr()
 
-eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 1, which ='LM')
+eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 0.1, which ='LM')
 # eigenValues, eigenVectors = eigsh(sK, N_modes, sM, sigma=1e-8, which='LM')
 # eigenValues, eigenVectors = np.linalg.eig( (K.toarray(), M.toarray()) )
 
@@ -109,4 +116,9 @@ eigenVectors = np.real(eigenVectors[:,idx])
 # print(x) 
 
 
+
 #%%
+
+np.savetxt('M_free.txt',M.toarray(),fmt='%.18e')
+np.savetxt('K_free.txt',K.toarray(),fmt='%.18e')
+

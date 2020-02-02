@@ -50,7 +50,7 @@ class Element:
     def length(self):
         """Define the element length."""
         return self.node_initial.distance( self.node_final )
-
+    
     #TODO: Make it more general. Considere degree of freedom fixed.
     def global_degree_freedom(self, fixed_nodes, delete_line):
         """Return the degrees of freedom related to the element in a array with 12 integers.
@@ -60,6 +60,7 @@ class Element:
         if self.node_initial.user_index in fixed_nodes and delete_line:
             global_dof_node_initial = np.array([])
             local_dof_node_initial = np.array([])
+            print('Node initial #', self.node_initial.user_index, ' is fixed')
         else:
             global_dof_node_initial = self.node_initial.global_dof()
             local_dof_node_initial = np.arange( Node.degree_freedom )
@@ -67,6 +68,7 @@ class Element:
         if self.node_final.user_index in fixed_nodes and delete_line:
             global_dof_node_final = np.array([])
             local_dof_node_final = np.array([])
+            print('Node final #', self.node_final.user_index, ' is fixed')
         else:
             global_dof_node_final = self.node_final.global_dof()
             local_dof_node_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )

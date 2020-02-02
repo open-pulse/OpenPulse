@@ -31,6 +31,7 @@ class Assembly:
                     nodal_coordinates,
                     connectivity,
                     fixed_nodes,
+                    del_lines,
                     material_list,
                     material_dictionary,
                     cross_section_list,
@@ -39,6 +40,7 @@ class Assembly:
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
         self.fixed_nodes = fixed_nodes
+        self.del_lines = del_lines
         self.material_list = material_list 
         self.material_dictionary = material_dictionary 
         self.cross_section_list = cross_section_list
@@ -94,7 +96,17 @@ class Assembly:
     
     def element_index(self):
         return self.connectivity[:,0].astype(int)
+
+    def count_dofs_fixed(self,delete_line):
+        "Number of dofs fixed"
+        count_dof_fixed = lambda delete_line: Node.degree_freedom*self.fixed_nodes.shape[0] if delete_line==True else 0
+        return count_dof_fixed(delete_line)
     
+    def count_index_dofs_fixed(self,delete_line):
+        "Number of indexes i and j relative to dofs fixed"
+        count_ind_dof_fixed = lambda delete_line: 3*(Node.degree_freedom**2)*self.fixed_nodes.shape[0] if delete_line==True else 0
+        return count_ind_dof_fixed(self.delete_line)
+
     def map_elements(self):
         elements_list = {}
 
@@ -116,7 +128,7 @@ class Assembly:
             # Take the internal index from user index by dictionary
             index_node_final = nodes_dictionary[ user_index_node_final ]
             node_final = map_nodes[ index_node_final ]
-
+            
             #TODO: define how to access the material and cross_section data.
 
             material = self.material_dictionary[ element_index ]
@@ -127,14 +139,16 @@ class Assembly:
 
         return elements_list
         
-    def global_matrices(self, delete_line = True):
+    
+
+    def global_matrices(self, delete_line ):
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
-
+        
         # Row, Collumn indeces to be used on Coo_matrix format
         I = np.zeros(total_entries)
         J = np.zeros(total_entries)
-
+        
         # Data for the Coo_matrix format
         coo_K = np.zeros(total_entries)
         coo_M = np.zeros(total_entries)
@@ -151,7 +165,7 @@ class Assembly:
 
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
-            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, delete_line )
+            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.del_lines )
 
             aux = len(global_dof)
 
@@ -171,10 +185,11 @@ class Assembly:
 
                 # Each iteration update len( global_dof ) amount
                 count += aux 
-        count = int(0)
+        
         #TODO: consider write in another method
         # Line and Collumn Elimination
 
+        count = int(0)
         if delete_line:
             for fixed_node in self.fixed_nodes: 
                 if fixed_node in self.nodes_user_index():
@@ -193,8 +208,9 @@ class Assembly:
 
         total_dof = Node.degree_freedom * ( self.number_nodes()  )
 
-        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
-        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
+        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof-self.count_dofs_fixed(self.del_lines), total_dof-self.count_dofs_fixed(self.del_lines)] )
+        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof-self.count_dofs_fixed(self.del_lines), total_dof-self.count_dofs_fixed(self.del_lines)] )
+        # K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
+        # M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
         
         return K, M, I, J, coo_K, coo_M, total_dof
-    
