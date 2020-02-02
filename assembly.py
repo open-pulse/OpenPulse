@@ -167,16 +167,19 @@ class Assembly:
             #TODO: code is limited to all degree of freedom of a node fixed.
             global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.del_lines )
 
-            aux = len(global_dof)
+            # aux = len(global_dof)
+            aux = global_dof.shape[0]
 
             # map_elements is counted initiating by 1 going up to number_elements
             #TODO: be carefull about element index.
             count = (e - 1) * entries_per_element
             
-
+            
             # Construct vectors row by row
-            for i in range( aux ):
-                row_index = int( global_dof[i] )
+            ind = int(0)
+            for i in local_dof:
+                
+                row_index = int( global_dof[ind] )
 
                 I[count : count + aux]  = row_index * np.ones( aux, dtype=int )
                 J[count : count + aux]  = np.array( global_dof, dtype= int )
@@ -184,6 +187,7 @@ class Assembly:
                 coo_M[count : count + aux] = Me[i, local_dof]
 
                 # Each iteration update len( global_dof ) amount
+                ind += 1
                 count += aux 
         
         #TODO: consider write in another method

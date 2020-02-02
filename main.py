@@ -32,8 +32,8 @@ nodal_coordinates = np.loadtxt('coord_ord_OK.dat')
 connectivity = np.loadtxt('connect_ord_OK.dat', dtype=int)
 
 # Boundary conditions
-fixed_nodes = np.array([1,1200,1325])
-del_lines = False
+fixed_nodes = np.array([1, 1200, 1325])
+del_lines = True
 
 # Material atribuition for each element
 material_list = [1, material_1]
@@ -118,7 +118,7 @@ eigenVectors = np.real(eigenVectors[:,idx])
 
 
 #%%
-
-np.savetxt('M_free.txt',M.toarray(),fmt='%.18e')
-np.savetxt('K_free.txt',K.toarray(),fmt='%.18e')
+# Save global matrices
+# np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')
+# np.savetxt('K_globalmatrix.txt',K.toarray(),fmt='%.18e')
 
