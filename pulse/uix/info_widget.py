@@ -12,8 +12,8 @@ class InfoWidget(QSplitter):
     def __init__(self, main_window):
         super().__init__(Qt.Vertical)
         self.main_window = main_window
-        self.data_widget = DataWidget(self.main_window)
         self.tree_widget = TreeWidget(self.main_window)
+        self.data_widget = DataWidget(self.main_window)
 
         self.addWidget(self.tree_widget)
         self.addWidget(self.data_widget)

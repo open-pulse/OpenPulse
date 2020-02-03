@@ -56,7 +56,7 @@ class OpenPulse3DLines():
         self.__create_axe3D = True
         
         #Tube Variables
-        self.__tube_Radius = 0.1
+        self.__tube_Radius = 0.05
         self.__tube_numberOfSides = 50
 
         #Axe Variables
