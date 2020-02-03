@@ -95,7 +95,7 @@ deltaL=0.6133*r_vec[nde-1]
 "Outer impedance tube 2"
 Zrad_nf=Z0*(0.25*((k1*r_vec[nde-1])**2) + 1j*k1*deltaL)
 "Inlet impedance tube 1"
-Zin=0#+1j*1*10**6
+Zin=0
 
 #%% Elements and nodes number
 "source position "
@@ -146,7 +146,7 @@ qp_vec[nnq]=-qn1
 
 for i in range(len(f)):
     TM[0,0:2]=[Zin , -1]
-    TM[nn-1,nn-2:nn]=[-Zrad_nf[i]/S_vec[nde-1], -1]
+    TM[nn-1,nn-2:nn]=[Zrad_nf[i]/S_vec[nde-1], -1]
     for n in range(nde):
         element_matrix=np.matrix([[np.cos(k1[i]*L_vec[n]), -1j*np.sin(k1[i]*L_vec[n])/Z_vec[n],-1,0],[-1j*Z_vec[n]*np.sin(k1[i]*L_vec[n]) , np.cos(k1[i]*L_vec[n]), 0, -1]])
         TM[(4*n +3):(4*n +5) , (4*n +2):(4*n +6)]= element_matrix
