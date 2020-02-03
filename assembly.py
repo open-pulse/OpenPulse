@@ -31,7 +31,7 @@ class Assembly:
                     nodal_coordinates,
                     connectivity,
                     fixed_nodes,
-                    del_lines,
+                    dofs_fixed_node,
                     material_list,
                     material_dictionary,
                     cross_section_list,
@@ -40,7 +40,7 @@ class Assembly:
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
         self.fixed_nodes = fixed_nodes
-        self.del_lines = del_lines
+        self.dofs_fixed_node = dofs_fixed_node                
         self.material_list = material_list 
         self.material_dictionary = material_dictionary 
         self.cross_section_list = cross_section_list
@@ -66,7 +66,7 @@ class Assembly:
     def node_user_to_internal_index(self):
         """ Dictionary ."""
         return { j:i for i, j in self.node_internal_to_user_index().items() }
-
+    
     def map_nodes(self):
         """ Nodes assembly in a list ordered by the internal indexing."""
         nodes_dictionary = self.node_internal_to_user_index()
@@ -106,6 +106,10 @@ class Assembly:
         "Number of indexes i and j relative to dofs fixed"
         count_ind_dof_fixed = lambda delete_line: 3*(Node.degree_freedom**2)*self.fixed_nodes.shape[0] if delete_line==True else 0
         return count_ind_dof_fixed(self.delete_line)
+
+    def dofs_fixed(self):
+        """ Dictionary ."""
+        return { self.fixed_nodes[i]:self.dofs_fixed_node[i] for i in range(self.fixed_nodes.shape[0]) }
 
     def map_elements(self):
         elements_list = {}
@@ -165,7 +169,7 @@ class Assembly:
 
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
-            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.del_lines )
+            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.dofs_fixed_node, delete_line )
 
             # aux = len(global_dof)
             aux = global_dof.shape[0]
@@ -212,8 +216,8 @@ class Assembly:
 
         total_dof = Node.degree_freedom * ( self.number_nodes()  )
 
-        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof-self.count_dofs_fixed(self.del_lines), total_dof-self.count_dofs_fixed(self.del_lines)] )
-        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof-self.count_dofs_fixed(self.del_lines), total_dof-self.count_dofs_fixed(self.del_lines)] )
+        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof-self.count_dofs_fixed(delete_line), total_dof-self.count_dofs_fixed(delete_line)] )
+        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof-self.count_dofs_fixed(delete_line), total_dof-self.count_dofs_fixed(delete_line)] )
         # K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
         # M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
         

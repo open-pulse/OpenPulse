@@ -7,6 +7,7 @@ from node import Node
 from tube import TubeCrossSection as TCS
 from element import Element
 from assembly import Assembly
+#from boundaryconditions import BoundaryConditions 
 
 import Animate.MS_Animation as Anima
 import matplotlib.pylab as plt
@@ -33,6 +34,7 @@ connectivity = np.loadtxt('connect_ord_OK.dat', dtype=int)
 
 # Boundary conditions
 fixed_nodes = np.array([1, 1200, 1325])
+dofs_fixed_node = [[0,1,2],['all'],['all']]
 del_lines = True
 
 # Material atribuition for each element
@@ -51,7 +53,7 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 assemble = Assembly(nodal_coordinates,
                 connectivity,
                 fixed_nodes,
-                del_lines,
+                dofs_fixed_node,                
                 material_list,
                 material_dictionary,
                 cross_section_list,

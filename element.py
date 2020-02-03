@@ -4,6 +4,7 @@ from math import pi, sqrt, sin, cos
 from node import Node
 from tube import TubeCrossSection
 from material import Material
+from boundaryconditions import BoundaryConditions 
 
 
 class Element:
@@ -44,22 +45,32 @@ class Element:
         self.material = material
         self.cross_section = cross_section
         self.element_type = element_type
-        self.user_index = user_index
+        self.user_index = user_index  
         # self.delete_line = delete_line 
 
     def length(self):
         """Define the element length."""
         return self.node_initial.distance( self.node_final )
-    
+   
     #TODO: Make it more general. Considere degree of freedom fixed.
-    def global_degree_freedom(self, fixed_nodes, delete_line):
+    def global_degree_freedom(self, fixed_nodes, dofs_fixed_node, delete_line):
         """Return the degrees of freedom related to the element in a array with 12 integers.
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
-        
+
+        for i in range(len(dofs_fixed_node)):
+            if dofs_fixed_node[i][0] == 'all':
+                bc = np.array([])
+            
+            else:
+
+                bc = dofs_fixed_node[i]
+
         if self.node_initial.user_index in fixed_nodes and delete_line:
+
             global_dof_node_initial = np.array([])
             local_dof_node_initial = np.array([])
+            # print(BoundaryConditions.dofs_fixed()[self.node_initial.user_index])
             print('Node initial #', self.node_initial.user_index, ' is fixed')
         else:
             global_dof_node_initial = self.node_initial.global_dof()
