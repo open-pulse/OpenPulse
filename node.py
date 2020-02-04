@@ -24,7 +24,7 @@ class Node:
     # Number of degree of freedom for each node
     degree_freedom = 6
 
-    def __init__(self, x, y, z , user_index, **kwargs):
+    def __init__(self, x, y, z, user_index, **kwargs):
         self.x = x
         self.y = y
         self.z = z
@@ -49,7 +49,7 @@ class Node:
         return Node.degree_freedom * self.index + node_local_dof
 
     #TODO: define a boundary function to take the boundary conditions.
-    
+
     def coordinates(self):
         """ Give coordinates as array."""
         return np.array([self.x, self.y, self.z])
