@@ -27,10 +27,10 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 # Nodal coordinates
-nodal_coordinates = np.loadtxt('coord.dat') 
+nodal_coordinates = np.loadtxt('Input/coord.dat') 
 
 # Connectivity
-connectivity = np.loadtxt('connect.dat', dtype=int)
+connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 
 # Boundary conditions
 fixed_nodes = np.array([1, 1200, 1325])
