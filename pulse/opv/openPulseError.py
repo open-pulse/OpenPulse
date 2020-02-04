@@ -1,14 +1,3 @@
-"""
-* OpenPulse Project - LVA UFSC
-* Multidisciplinary Optimization Group
-*
-* openPulseError.py
-* <file description>
-*
-*
-* Written by José Luiz de Souza <joseloolo@hotmail.com>
-* Modified by <>
-"""
 
 class OpenPulseError():
     

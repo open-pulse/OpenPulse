@@ -89,7 +89,10 @@ class MainWindow(QMainWindow):
         working_area.setSizes([100,300])
 
     def new_call(self):
-        print('THIS DOES NOT WORK')
+        #print('THIS DOES NOT WORK')
+        con = np.array(np.loadtxt('examples/matplotlib/Ex_02/connect.dat'), int)
+        cor = np.array(np.loadtxt('examples/matplotlib/Ex_02/coord.dat'))
+        self.opv_widget.change_line_plot(cor, con)
 
     def import_call(self):
         path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')

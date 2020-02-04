@@ -10,11 +10,11 @@ import numpy as np
 '''
 
 # Select the mode number to be processed (mode < 40)
-mode = 32 
+mode = 7
 
 # connectivity = np.array(np.loadtxt('Ex_02/connect.dat')[:,1:],int)
 # coordinates = np.array(np.loadtxt('Ex_02/coord.dat')[:,1:])
-eigen_vectors = np.array(np.loadtxt('Ex_02/u_def.dat'))
+eigen_vectors = np.array(np.loadtxt('examples/matplotlib/Ex_02/u_def.dat'))
 
 number_nodes = np.shape(eigen_vectors)[0]
 u_xyz = np.zeros((number_nodes, 4))

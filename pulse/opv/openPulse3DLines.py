@@ -1,28 +1,28 @@
-"""
-* OpenPulse Project - LVA UFSC
-* Multidisciplinary Optimization Group
-*
-* openPulse3DLines.py
-* <file description>
-*
-*
-* Written by José Luiz de Souza <joseloolo@hotmail.com>
-* Modified by <>
-"""
 
 import vtk
 import numpy as np
 from random import randint
+from pulse.opv.colorTable import ColorTable
 
 class OpenPulse3DLines():
     
     def __init__(self, vertex = None, edges = None):
         self.__vertex = []
         self.__edges = []
-        self.__colors_r = []#np.array(np.loadtxt('u_sum.dat'))
+        self.__colors_r = np.array(np.loadtxt('u_sum.dat'))
         self.teste_cor = vtk.vtkScalarsToColors()
         self.teste_cor.SetRange(0,0.5)
         self.teste_cor.Build()
+
+
+        min_value = min(self.__colors_r[:,1])
+        max_value = max(self.__colors_r[:,1])
+        self.table = ColorTable()
+        #self.table.SetValueRange(min_value, max_value)
+        self.table.SetTableRange(min_value, max_value)
+        self.table.ForceBuild()
+        
+        
 
         self.__check_vertex(vertex)
         self.__check_edges(edges)
@@ -50,9 +50,9 @@ class OpenPulse3DLines():
 
         #Custom Variables
         self.__show_lines = False
-        self.__show_random_colors = False
-        self.__show_single_color = True
-        self.__show_gradient_color = False
+        self.__show_random_colors = True
+        self.__show_single_color = False
+        self.__show_gradient_color = True
         self.__create_axe3D = True
         
         #Tube Variables
@@ -174,7 +174,7 @@ class OpenPulse3DLines():
 
     def __paint_lines(self):
         if self.__show_gradient_color:
-            self.__linesPolyData.GetCellData().SetScalars(self.colors)
+            self.__linesPolyData.GetPointData().SetScalars(self.__colors)
         else:
             self.__linesPolyData.GetCellData().SetScalars(self.__colors)
         #print(self.__linesPolyData.GetCellData())
@@ -200,6 +200,19 @@ class OpenPulse3DLines():
         self.__init_axe()
         self.__init_actor()
 
+    def teste(self, id_):
+        coluna = self.__colors_r[:,1]
+        cor = [0,0,0]
+        #print(id_, coluna[id_])
+        #exit(0)
+        self.table.GetColor(coluna[id_-1], cor)
+        for i in range(3):
+            cor[i] = int(cor[i]*255)
+
+        cor[0], cor[2] = cor[2], cor[0]
+        #print(cor)
+        self.__colors.InsertNextTypedTuple(cor)
+
 
     #=============
     #Data Settings
@@ -207,18 +220,19 @@ class OpenPulse3DLines():
 
     def __add_points(self):
         for points in self.__vertex:
-            self.__points.InsertPoint(int(points[0]), points[1]/1000, points[2]/1000, points[3]/1000)
+            self.__points.InsertNextPoint(points[1], points[2], points[3])
+            self.teste(int(points[0])-1)
 
     def __add_edges(self):
         for edges in self.__edges:
             line = vtk.vtkLine()
-            line.GetPointIds().SetId(0, edges[1])
-            line.GetPointIds().SetId(1, edges[2])
+            line.GetPointIds().SetId(0, edges[1]-1)
+            line.GetPointIds().SetId(1, edges[2]-1)
             self.__lines.InsertNextCell(line)
-            if self.__show_gradient_color:
-                self.__create_gradient_color(edges[1], edges[2])
-            else:
-                self.__set_line_color() #Create one color for every edge
+            # if self.__show_gradient_color:
+            #     self.__create_gradient_color(edges[1], edges[2])
+            # else:
+            #     self.__set_line_color() #Create one color for every edge
 
 
     #============
