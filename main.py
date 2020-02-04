@@ -124,7 +124,7 @@ def results(mode_to_plot):
 #% Entries for plot function 
 
 #Choose EigenVector to be ploted
-mode_to_plot = 31
+mode_to_plot = 24
 
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
