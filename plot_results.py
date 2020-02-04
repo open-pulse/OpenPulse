@@ -109,8 +109,9 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
 
     if Animate_Mode:
 
-        frames = 250
+        frames = 180
         delay_ms = 1000/60
+        # delay_ms = 20
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
         ax.add_collection3d(line)
 

@@ -65,7 +65,7 @@ start = time.time()
 K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_line = del_lines )
 end = time.time()
 
-print(end - start)
+print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]')
 
 # plt.spy(K.toarray()[0:30,0:30], markersize=5)
 # # plt.spy(K.toarray(), markersize=5)
@@ -91,13 +91,17 @@ N_modes = 100
 M = M.tocsr()
 K = K.tocsr()
 
+start = time.time()
 eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 0.1, which ='LM')
 # eigenValues, eigenVectors = eigsh(sK, N_modes, sM, sigma=1e-8, which='LM')
 # eigenValues, eigenVectors = np.linalg.eig( (K.toarray(), M.toarray()) )
+end = time.time()
 
 idx = eigenValues.argsort()
 fn = ((np.real(eigenValues[idx]))**(1/2))/(2*np.pi)
 eigenVectors = np.real(eigenVectors[:,idx])
+
+print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s]')
 
 #%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
 
@@ -120,7 +124,7 @@ def results(mode_to_plot):
 #% Entries for plot function 
 
 #Choose EigenVector to be ploted
-mode_to_plot = 20
+mode_to_plot = 31
 
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
@@ -128,7 +132,7 @@ u_def = results(mode_to_plot)[:,1:]
 freq_n = fn[mode_to_plot-1]
 
 # Choose the information to plot/animate
-Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, True, False, False
+Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
 # Amplitude scalling factor
 scf=0.4

@@ -61,8 +61,7 @@ class Element:
             if dofs_fixed[self.node_initial.user_index][0]=='all':
                 global_dof_node_initial = np.array([])
                 local_dof_node_initial = np.array([])
-                print('Node #', self.node_initial.user_index, ' is fixed (initial)')
-                print(dofs_fixed[self.node_initial.user_index])
+                print('Node #', self.node_initial.user_index, 'is fixed (initial)', '- dofs fixed:',dofs_fixed[self.node_initial.user_index])
         else:
             global_dof_node_initial = self.node_initial.global_dof()
             local_dof_node_initial = np.arange( Node.degree_freedom )
@@ -71,8 +70,7 @@ class Element:
             if dofs_fixed[self.node_final.user_index][0]=='all':
                 global_dof_node_final = np.array([])
                 local_dof_node_final = np.array([])
-                print('Node #', self.node_final.user_index, ' is fixed (final)')
-                print(dofs_fixed[self.node_final.user_index])
+                print('Node #', self.node_final.user_index, ' is fixed (final)','- dofs fixed:',dofs_fixed[self.node_final.user_index])
         else:
             global_dof_node_final = self.node_final.global_dof()
             local_dof_node_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )
