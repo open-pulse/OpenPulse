@@ -1,7 +1,7 @@
 #%% 
 import numpy as np
 import time
-import h5py
+#import h5py
 
 from material import Material
 from node import Node
