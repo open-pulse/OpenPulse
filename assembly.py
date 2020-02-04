@@ -103,7 +103,7 @@ class Assembly:
         return count_dof_fixed(delete_line)
     
     def count_index_dofs_fixed(self,delete_line):
-        "Number of indexes i and j relative to dofs fixed"
+        "Number of matrix entries relative to dofs fixed"
         count_ind_dof_fixed = lambda delete_line: 3*(Node.degree_freedom**2)*self.fixed_nodes.shape[0] if delete_line==True else 0
         return count_ind_dof_fixed(self.delete_line)
 
@@ -169,7 +169,7 @@ class Assembly:
 
             # Element global degree of freedom indeces
             #TODO: code is limited to all degree of freedom of a node fixed.
-            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.dofs_fixed_node, delete_line )
+            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.dofs_fixed_node, delete_line, self.dofs_fixed() )
 
             # aux = len(global_dof)
             aux = global_dof.shape[0]

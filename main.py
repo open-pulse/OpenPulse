@@ -1,18 +1,18 @@
 #%% 
 import numpy as np
 import time
+import h5py
 
 from material import Material
 from node import Node
 from tube import TubeCrossSection as TCS
 from element import Element
 from assembly import Assembly
-#from boundaryconditions import BoundaryConditions 
+from plot_results import modeshape_plot as plot
 
 import Animate.MS_Animation as Anima
 import matplotlib.pylab as plt
 from scipy.sparse.linalg import eigs, eigsh, lobpcg
-
 
 
 # Material definition: steel
@@ -27,14 +27,14 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 # Nodal coordinates
-nodal_coordinates = np.loadtxt('coord_ord_OK.dat') 
+nodal_coordinates = np.loadtxt('coord.dat') 
 
 # Connectivity
-connectivity = np.loadtxt('connect_ord_OK.dat', dtype=int)
+connectivity = np.loadtxt('connect.dat', dtype=int)
 
 # Boundary conditions
 fixed_nodes = np.array([1, 1200, 1325])
-dofs_fixed_node = [[0,1,2],['all'],['all']]
+dofs_fixed_node = [['all'],['all'],['all']]
 del_lines = True
 
 # Material atribuition for each element
@@ -67,19 +67,19 @@ end = time.time()
 
 print(end - start)
 
-plt.spy(K.toarray()[0:30,0:30], markersize=5)
-# plt.spy(K.toarray(), markersize=5)
+# plt.spy(K.toarray()[0:30,0:30], markersize=5)
+# # plt.spy(K.toarray(), markersize=5)
 
-plt.show()
+# plt.show()
 
-plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
-plt.show()
+# plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
+# plt.show()
 
-plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
-plt.show()
+# plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
+# plt.show()
 
-plt.spy(K.toarray()[9200:,9200:], markersize=1)
-plt.show()
+# plt.spy(K.toarray()[9200:,9200:], markersize=1)
+# plt.show()
 
 #%%
 
@@ -96,31 +96,65 @@ eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 0.1, which ='LM')
 # eigenValues, eigenVectors = np.linalg.eig( (K.toarray(), M.toarray()) )
 
 idx = eigenValues.argsort()
-eigenValues = ((np.real(eigenValues[idx]))**(1/2))/(2*np.pi)
+fn = ((np.real(eigenValues[idx]))**(1/2))/(2*np.pi)
 eigenVectors = np.real(eigenVectors[:,idx])
 
-# # Modal Analysis - Full Matrix process
-# k = 25
-# nnode = Segm.nnode
-# fn, eigvects = TB.modal_analysis(k,ngln,nnode,fixeddof,K,M)
+#%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
 
-# # Modal Shape Animation
-# mode = 10 # Mode to be animated
-# Anima.MS_animation(coord, connect, eigvects, mode)
+def results(mode_to_plot):
 
-# # Direct solver
-# frequencies = range(100)
-# F = np.zeros([ K.shape[0],1 ])
-# F[6*15] = 1 
+  u_xyz = np.zeros((nodal_coordinates.shape[0]-fixed_nodes.shape[0],1+3))
+  ind_u = np.arange(0,eigenVectors.shape[0],6)
 
-# x = TB.solver_direct(frequencies, F, ngln,nnode,fixeddof, K, M)
+  u_xyz[:,1] = eigenVectors[ind_u  ,mode_to_plot-1]
+  u_xyz[:,2] = eigenVectors[ind_u+1,mode_to_plot-1]
+  u_xyz[:,3] = eigenVectors[ind_u+2,mode_to_plot-1]
 
-# print(x) 
+  for i in fixed_nodes:
+    u_xyz = np.insert(u_xyz,i-1,[0],axis=0)
 
+  u_xyz[:,0] = np.arange(1,nodal_coordinates.shape[0]+1,1)
 
+  return u_xyz
 
-#%%
-# Save global matrices
-# np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')
-# np.savetxt('K_globalmatrix.txt',K.toarray(),fmt='%.18e')
+#%% Entries for plot function 
 
+#Choose EigenVector to be ploted
+mode_to_plot = 20
+
+connectivity_plot = connectivity[:,1:]
+coordinates = nodal_coordinates[:,1:]
+u_def = results(mode_to_plot)[:,1:]
+
+# Choose the information to plot/animate
+Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, True, False, False
+
+# Scalling amplitude factor
+scf=0.4
+
+# Call function to plot nodal results [dynamic]
+plot(coordinates, connectivity_plot, u_def, mode_to_plot, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+
+#%% Save some important results using HDF5 format
+
+save_results = False
+
+if save_results:
+    
+  # np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')
+  # np.savetxt('K_globalmatrix.txt',K.toarray(),fmt='%.18e')
+
+  f = h5py.File('output_data.hdf5', 'w')
+  f.create_dataset('/input/nodal_coordinates', data = nodal_coordinates, dtype='float64')
+  f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
+  f.create_dataset('/global_matrices/K', data = K.toarray(), dtype='float64')
+  f.create_dataset('/global_matrices/M', data = M.toarray(), dtype='float64')
+  f.create_dataset('/results/eigenVectors', data = eigenVectors, dtype='float64')
+  f.create_dataset('/results/natural_frequencies', data = fn, dtype='float64')
+  f.close()
+
+## Example how to read files in HDF5 format
+
+# f = h5py.File('output_data.hdf5', 'r')
+# K = f['/global_matrices/K']
+# f.close()
