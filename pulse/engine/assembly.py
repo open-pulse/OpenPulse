@@ -3,10 +3,10 @@ from scipy.sparse import coo_matrix
 import time
 
 
-from node import Node
-from tube import TubeCrossSection
-from material import Material
-from element import Element
+from pulse.engine.node import Node
+from pulse.engine.tube import TubeCrossSection
+from pulse.engine.material import Material
+from pulse.engine.element import Element
 
 
 class Assembly:

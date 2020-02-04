@@ -3,14 +3,13 @@ import numpy as np
 import time
 import h5py
 
-from material import Material
-from node import Node
-from tube import TubeCrossSection as TCS
-from element import Element
-from assembly import Assembly
-from plot_results import modeshape_plot as plot
+from pulse.engine.material import Material
+from pulse.engine.node import Node
+from pulse.engine.tube import TubeCrossSection as TCS
+from pulse.engine.element import Element
+from pulse.engine.assembly import Assembly
 
-import Animate.MS_Animation as Anima
+from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
 from scipy.sparse.linalg import eigs, eigsh, lobpcg
 

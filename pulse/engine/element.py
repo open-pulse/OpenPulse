@@ -1,9 +1,9 @@
 import numpy as np
 from math import pi, sqrt, sin, cos
 
-from node import Node
-from tube import TubeCrossSection
-from material import Material
+from pulse.engine.node import Node
+from pulse.engine.tube import TubeCrossSection
+from pulse.engine.material import Material
 
 
 class Element:

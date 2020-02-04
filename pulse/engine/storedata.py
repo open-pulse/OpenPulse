@@ -16,9 +16,9 @@ class Storage:
 
     if save_results:
         
-    def store_data(self,save,analysis_type):
+    def store_data(self,save):
         if save:
-            
+                
             f = h5py.File('output_data.hdf5', 'w')
             f.create_dataset('/input/nodal_coordinates', data = nodal_coordinates, dtype='float64')
             f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
