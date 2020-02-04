@@ -1,7 +1,7 @@
 #%% 
 import numpy as np
 import time
-#import h5py
+import h5py
 
 from material import Material
 from node import Node
@@ -117,7 +117,7 @@ def results(mode_to_plot):
 
   return u_xyz
 
-#%% Entries for plot function 
+#% Entries for plot function 
 
 #Choose EigenVector to be ploted
 mode_to_plot = 20
@@ -125,17 +125,18 @@ mode_to_plot = 20
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
 u_def = results(mode_to_plot)[:,1:]
+freq_n = fn[mode_to_plot-1]
 
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, True, False, False
 
-# Scalling amplitude factor
+# Amplitude scalling factor
 scf=0.4
 
 # Call function to plot nodal results [dynamic]
-plot(coordinates, connectivity_plot, u_def, mode_to_plot, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
 
-#%% Save some important results using HDF5 format
+#%% Save important results using HDF5 format
 
 save_results = False
 
@@ -147,8 +148,10 @@ if save_results:
   f = h5py.File('output_data.hdf5', 'w')
   f.create_dataset('/input/nodal_coordinates', data = nodal_coordinates, dtype='float64')
   f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
-  f.create_dataset('/global_matrices/K', data = K.toarray(), dtype='float64')
-  f.create_dataset('/global_matrices/M', data = M.toarray(), dtype='float64')
+  f.create_dataset('/global_matrices/I', data = I, dtype='int')
+  f.create_dataset('/global_matrices/J', data = J, dtype='int')
+  f.create_dataset('/global_matrices/coo_K', data = coo_K, dtype='float64')
+  f.create_dataset('/global_matrices/coo_M', data = coo_M, dtype='float64')
   f.create_dataset('/results/eigenVectors', data = eigenVectors, dtype='float64')
   f.create_dataset('/results/natural_frequencies', data = fn, dtype='float64')
   f.close()
@@ -156,5 +159,6 @@ if save_results:
 ## Example how to read files in HDF5 format
 
 # f = h5py.File('output_data.hdf5', 'r')
-# K = f['/global_matrices/K']
-# f.close()
+# list(f.keys())
+# K = f['/global_matrices/coo_K']
+# # f.close()
