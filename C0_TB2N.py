@@ -93,7 +93,6 @@ very good approximation for thin and thick walled pipes.
     for i in range(nint_k):
         pksi = pint_k[i]
         phi, dphi = shape(pksi)
-        #
         dphi = invJac*dphi
         #
         ##### Bending B ######
@@ -103,13 +102,12 @@ very good approximation for thin and thick walled pipes.
         ##### Axial B #####
         Ba = np.array([[dphi[0],0.,0.,0.,0.,0.,dphi[1],0.,0.,0.,0.,0.]])
         ##### Torsional B #####
-        Bt = np.array([[0.,0.,0.,dphi[0],0.,0.,0.,0.,0.,dphi[1],0.,0.]])
-        #       
-        ########## 
-        Kbe = Kbe + np.matmul(np.transpose(Bb),np.matmul(Db,Bb))*(detJac)*wfact_k[i]
-        Kse = Kse + np.matmul(np.transpose(Bs),np.matmul(Ds,Bs))*(detJac)*wfact_k[i]
-        Kae = Kae + E*A*np.matmul(np.transpose(Ba),Ba)*(detJac)*wfact_k[i]
-        Kte = Kte + mu*J*np.matmul(np.transpose(Bt),Bt)*(detJac)*wfact_k[i]
+        Bt = np.array([[0.,0.,0.,dphi[0],0.,0.,0.,0.,0.,dphi[1],0.,0.]])       
+        ##### 
+        Kbe = Kbe + (Bb.T @ Db @ Bb)*detJac*wfact_k[i]
+        Kse = Kse + (Bs.T @ Ds @ Bs)*detJac*wfact_k[i] 
+        Kae = Kae + E*A*(Ba.T @ Ba)*detJac*wfact_k[i]
+        Kte = Kte + mu*J*(Bt.T @ Bt)*detJac*wfact_k[i]
         ##########
         #
     Ke = Kbe + Kse + Kae + Kte 
@@ -121,9 +119,8 @@ very good approximation for thin and thick walled pipes.
         #
         Nt = np.array([[phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.,0.,0.],[0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.,0.],[0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.]])
         Nr = np.array([[0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.],[0.,0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.],[0.,0.,0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1]]])
-        #
         ###########
-        Mt = Mt + np.matmul(np.transpose(Nt),np.matmul(Gt,Nt))*(detJac)*wfact_m[i]
+        Mt = Mt + (Nt.T @ Gt @ Nt)*(detJac)*wfact_m[i]
         Mr = Mr + np.matmul(np.transpose(Nr),np.matmul(Gr,Nr))*(detJac)*wfact_m[i]
         ###########
     Me = Mt + Mr  
@@ -141,6 +138,6 @@ very good approximation for thin and thick walled pipes.
         NN[0:ngln,0:ngln]=phi[0]*np.identity(ngln)
         NN[0:ngln,(ngln):(2*ngln)]=phi[1]*np.identity(ngln)
         #
-        Fe = Fe + np.matmul(np.transpose(NN),np.transpose(eload))*(detJac)*wfact_m[i]
+        Fe = Fe + (NN.T @ eload.T)*detJac*wfact_m[i]
     #
     return Ke, Me, Fe
