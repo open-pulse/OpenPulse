@@ -9,8 +9,8 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 
 from pulse.mesh import Mesh
-from pulse.uix.info_widget import InfoWidget
-from pulse.uix.opv_widget import OPVWidget
+from pulse.uix.infoWidget import InfoWidget
+from pulse.uix.opvWidget import OPVWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -89,7 +89,11 @@ class MainWindow(QMainWindow):
         working_area.setSizes([100,300])
 
     def new_call(self):
-        print('THIS DOES NOT WORK')
+        #print('THIS DOES NOT WORK')
+        con = np.array(np.loadtxt('examples/matplotlib/Ex_02/connect.dat'), int)
+        print(type(con))
+        cor = np.array(np.loadtxt('examples/matplotlib/Ex_02/coord.dat'))
+        self.opv_widget.change_line_plot(cor, con)
 
     def import_call(self):
         path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
