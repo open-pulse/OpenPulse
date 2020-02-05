@@ -12,111 +12,107 @@ from pulse.engine.solution import Solution
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
-from scipy.sparse.linalg import eigs, eigsh, lobpcg
 
 
-# Material definition: steel
+## Material definition:
+# steel
 young_modulus = 210e9 # Young modulus [Pa]
 poisson_ratio = 0.3   # Poisson ratio[-]
 density = 7860  # Density[kg/m^3]
 material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
 
-# Cross section definition:
+## Cross section definition:
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
-# Nodal coordinates
+## Nodal coordinates
 nodal_coordinates = np.loadtxt('Input/coord.dat') 
 
-# Connectivity
+## Connectivity
 connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 
-# Boundary conditions
-fixed_nodes = np.array([1, 1200, 1325])
-dofs_fixed_node = [['all'],['all'],['all']]
-# Delete rows and collumns
-delete_rc = True
+## Boundary conditions
+#TODO: save the rows and collumns deleted.
+fixed_nodes = np.array([1, 1200, 1325]) # Which node has some boundary coundition prescribed.
+dofs_fixed_node = ['all','all','all'] # What are the degree of freedom restricted on those nodes.
+delete_rc = True # Delete rows and collumns
 
-# Material atribuition for each element
+#TODO: determinate how those material, cross section properties and element type will come from mesh.
+## Material atribuition for each element
 material_list = [1, material_1]
 material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 
-# Cross section properties atribuition for each element
+## Cross section properties atribuition for each element
 cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
-# Element type atribuition
+## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
 
-# Tube Segment  is totally define
+## Assembly those informations.
 assemble = Assembly(nodal_coordinates,
-                connectivity,
-                fixed_nodes,
-                dofs_fixed_node,                
-                material_list,
-                material_dictionary,
-                cross_section_list,
-                cross_section_dictionary,
-                element_type_dictionary)
+                    connectivity,
+                    fixed_nodes,
+                    dofs_fixed_node,                
+                    material_list,
+                    material_dictionary,
+                    cross_section_list,
+                    cross_section_dictionary,
+                    element_type_dictionary)
 
 # Global Assembly
 start = time.time()
 K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_rc = delete_rc )
 end = time.time()
+print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
-print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]')
+## Solution
+# Analysis parameters
+freq_max = 200
+df = 1
+number_modes = 200
 
-# plt.spy(K.toarray()[0:30,0:30], markersize=5)
-# # plt.spy(K.toarray(), markersize=5)
+load_dof = 157
+response_dof = 157
 
-# plt.show()
+F = np.zeros( total_dof )
+F[load_dof] = 1
 
-# plt.spy(K.toarray()[7150:7250,7150:7250], markersize=1)
-# plt.show()
+# Solution class definition
+solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df)
 
-# plt.spy(K.toarray()[7850:8000,7850:8000], markersize=1)
-# plt.show()
+# Modal analysis
+natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
 
-# plt.spy(K.toarray()[9200:,9200:], markersize=1)
-# plt.show()
+# Direct method
+xd, frequencies = solu.direct_method(F, timing = True)
 
+# Mode superposition method - Using the previous modal analysis output as input.
+xs, frequencies, _ ,_ = solu.mode_superposition(F,
+                                                number_modes=number_modes,
+                                                natural_frequencies = natural_frequencies,
+                                                modal_shape = modal_shape,
+                                                timing = True)
 
-#%%
-
-f_max = 200
-#frequencies = np.arange(f_max)
-
-solu = Solution(K, M,number_points=51 )
-
-# fn, eigenVectors = solu.modal_analysis( number_modes=N_modes )
-
-start = time.time()
-xd, frequencies = solu.direct_method(F)
-end = time.time()
-print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - direct method')
-
-start = time.time()
-xs, frequencies, _ ,_ = solu.mode_superposition(F, number_modes=N_modes)
-end = time.time()
-print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - mode superposition')
-
-plt.plot(frequencies, np.log10(np.abs(xd[5,:])))
-plt.plot(frequencies, np.log10(np.abs(xs[5,:])))
+fig = plt.figure(figsize=[12,8])
+ax = fig.add_subplot(1,1,1)
+plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
+plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
+ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
 plt.show()
-
 
 #%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
 
 def results(mode_to_plot):
 
   u_xyz = np.zeros((nodal_coordinates.shape[0]-fixed_nodes.shape[0],1+3))
-  ind_u = np.arange(0,eigenVectors.shape[0],6)
+  ind_u = np.arange(0,modal_shape.shape[0],6)
 
-  u_xyz[:,1] = eigenVectors[ind_u  ,mode_to_plot-1]
-  u_xyz[:,2] = eigenVectors[ind_u+1,mode_to_plot-1]
-  u_xyz[:,3] = eigenVectors[ind_u+2,mode_to_plot-1]
+  u_xyz[:,1] = modal_shape[ind_u  ,mode_to_plot-1]
+  u_xyz[:,2] = modal_shape[ind_u+1,mode_to_plot-1]
+  u_xyz[:,3] = modal_shape[ind_u+2,mode_to_plot-1]
 
   for i in fixed_nodes:
     u_xyz = np.insert(u_xyz,i-1,[0],axis=0)

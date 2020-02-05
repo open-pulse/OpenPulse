@@ -72,7 +72,7 @@ class Assembly:
         count = 0
         for dof_list in self.dofs_fixed_node:
             if dof_list == 'all':
-                count += 6
+                count += Node.degree_freedom
             else:
                 count += len(dof_list)
         return count
@@ -90,8 +90,8 @@ class Assembly:
                 global_dofs_fixed[count : count + Node.degree_freedom] = index * Node.degree_freedom + np.arange( Node.degree_freedom )
                 count += Node.degree_freedom
             else:
-                global_dofs_fixed[count : count + len(dof_list)] = index * Node.degree_freedom + self.dofs_fixed[i]
-                count += len(dof_list)
+                global_dofs_fixed[count : count + len(self.dofs_fixed_node[i])] = index * Node.degree_freedom + self.dofs_fixed_node[i]
+                count += len(self.dofs_fixed_node[i])
 
         return global_dofs_fixed
     

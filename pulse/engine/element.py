@@ -56,9 +56,9 @@ class Element:
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
 
-        global_dof_node_initial, local_dof_node_initial = self.node_initial.global_dof(delete_line)
+        global_dof_node_initial, local_dof_node_initial = self.node_initial.node_dofs(delete_line)
 
-        global_dof_node_final, local_dof_node_final = self.node_final.global_dof(delete_line)
+        global_dof_node_final, local_dof_node_final = self.node_final.node_dofs(delete_line)
         local_dof_node_final = local_dof_node_final + Node.degree_freedom
         
         a, b = len( global_dof_node_initial ), len( global_dof_node_final )

@@ -1,5 +1,6 @@
 import numpy as np
 from math import pi
+import time
 
 from scipy.sparse.linalg import eigs, eigsh, spsolve
 
@@ -16,27 +17,21 @@ class Solution:
         self.number_points = kwargs.get("number_points", None)
         
 
-    def modal_analysis(self, number_modes = 10, which = 'LM', sigma = 0.01 ):
-
-        K = self.stiffness_matrix
-        M = self.mass_matrix
+    def modal_analysis(self, number_modes = 10, which = 'LM', sigma = 0.01, timing = False ):
   
-        eigen_values, eigen_vectors = eigs( K,
+        start = time.time()  
+        eigen_values, eigen_vectors = eigs( self.stiffness_matrix,
                                             k = number_modes,
-                                            M = M,
+                                            M = self.mass_matrix,
                                             which = which,
                                             sigma = sigma)
-        
-        natural_frequencies = np.sqrt( np.absolute( np.real(eigen_values) ) ) /(2 * pi)
-        modal_shape = np.real( eigen_vectors )
-  
-        # idx = natural_frequencies.argsort()[::1]
-        # natural_frequencies= natural_frequencies[idx]
-        # modal_shape = modal_shape[:,idx]
 
-        # # Normalizing eigen vector
-        # aux = np.abs( modal_shape.conj().T @ M @ modal_shape )
-        # modal_shape = np.diag( np.divide(1, np.sqrt( aux.diagonal() ) ) ) @ modal_shape
+        end = time.time()
+        if timing:
+            print('Time to perform modal analysis :' + str(round((end - start),6)) + '[s]')
+        
+        modal_shape = np.real( eigen_vectors )
+        natural_frequencies = np.sqrt( np.absolute( np.real(eigen_values) ) ) /(2 * pi)
 
         return natural_frequencies, modal_shape
     
@@ -59,29 +54,44 @@ class Solution:
         return self.frequencies
     
 
-    def direct_method(self, F):
+    def direct_method(self, F, timing = False):
 
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ])
-
+        
+        start = time.time()
         for i in range(len(frequencies)):
             freq = frequencies[i]
             A = self.stiffness_matrix - (2 * pi * freq)**2 * self.mass_matrix
             x[:,i] = spsolve(A, F)
         
+        if timing:
+            end = time.time()
+            print('Time to solve harmonic analisys problem through direct method:' + str(round((end - start),6)) + '[s]')
+
         return x, frequencies
 
-    def mode_superposition(self, F, number_modes = 10, which = 'LM', sigma = 0.01):
-
+    def mode_superposition(self, F, number_modes = 10, which = 'LM', sigma = 0.01, timing = False, **kwargs):
+        
         frequencies = self.freq_vector()
-                
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ])
 
-        natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )
+        modal_shape = kwargs.get("modal_shape", None)
+        natural_frequencies = kwargs.get("natural_frequencies", None)
+        
+        start = time.time()
+        if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
+            natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
+        F_aux = modal_shape.T @ F
         for i in range(len(frequencies)):
             freq = frequencies[i]
             aux = np.diag( np.divide(1, (2 * pi * natural_frequencies)**2 - (2 * pi * freq)**2 ) )
-            x[:,i] = modal_shape @ aux @ modal_shape.T @ F
+            x[:,i] = modal_shape @ aux @ F_aux
+        
+        end = time.time()
+        if timing:
+            print('Time to solve harmonic analisys problem through mode superposition method:' + str(round((end - start),6)) + '[s]')
+
 
         return x, frequencies, natural_frequencies, modal_shape

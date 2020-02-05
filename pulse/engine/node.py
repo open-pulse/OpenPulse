@@ -34,7 +34,7 @@ class Node:
         self.boundary = boundary
         # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z respectively.
 
-    def global_dof(self, delete_line):
+    def node_dofs(self, delete_line):
         """ For a node, define its global degree of freedom.
 
         Parameter
