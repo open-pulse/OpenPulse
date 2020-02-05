@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 ----------------------------------------------------------------------------------------------------------------------------------
 """
 
-def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
 
     # u_def = eigvects[:,mode-1]
     
@@ -48,26 +48,27 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
     ax.set_ylim3d(round(a*ax_lim[0,1],1), round(a*ax_lim[1,1],1))
     ax.set_zlim3d(round(a*ax_lim[0,2],1), round(a*ax_lim[1,2],1))
 
-    ax.view_init(elev=30, azim=-38)
+    ax.view_init(elev=26, azim=-37)
     
-    str_ord = ['st','nd','rd']
+    font = {'family': 'arial',
+            'color':  'black',
+            'weight': 'bold',
+            'size': 14,
+            }
 
-    if mode-1 <= 2:
-        ordinary = str_ord[mode-1]
-    else:
-        ordinary = 'th'
+    ax.set_title((r'Modal shape - $\mathbf{f_n}$ =' + str(round(freq_n,2)) + r'Hz'),fontsize=18,fontweight='bold')
 
-    # ax.set_title(('Modal shape - ' + str(mode) + ordinary + ' mode'),fontsize=18,fontweight='bold')
-    ax.set_xlabel(('Position x[m]'),fontsize=14,fontweight='bold')
-    ax.set_ylabel(('Position y[m]'),fontsize=14,fontweight='bold')
-    ax.set_zlabel(('Position z[m]'),fontsize=14,fontweight='bold')
+    ax.set_xlabel(('Position x[m]'),fontdict=font)
+    ax.set_ylabel(('Position y[m]'),fontdict=font)
+    ax.set_zlabel(('Position z[m]'),fontdict=font)
+    plt.tight_layout()
 
     m = matplotlib.cm.ScalarMappable(cmap=matplotlib.cm.jet)
     m.set_array([])
     m.set_array(r)
 
     cb = fig.colorbar(m, shrink=0.8)
-    cb.set_label('Amplitude [-]', fontsize=12, fontweight='bold')
+    cb.set_label('Amplitude [-]', fontdict=font)
 
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
@@ -108,8 +109,9 @@ def modeshape_plot(coordinates, connectivity, eigvects, mode, scf = 0.4, Show_no
 
     if Animate_Mode:
 
-        frames = 250
+        frames = 180
         delay_ms = 1000/60
+        # delay_ms = 20
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
         ax.add_collection3d(line)
 

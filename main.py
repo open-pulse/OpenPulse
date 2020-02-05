@@ -1,16 +1,16 @@
 #%% 
 import numpy as np
 import time
-#import h5py
+import h5py
 
-from material import Material
-from node import Node
-from tube import TubeCrossSection as TCS
-from element import Element
-from assembly import Assembly
-from plot_results import modeshape_plot as plot
+from pulse.engine.material import Material
+from pulse.engine.node import Node
+from pulse.engine.tube import TubeCrossSection as TCS
+from pulse.engine.element import Element
+from pulse.engine.assembly import Assembly
+from pulse.engine.solution import Solution
 
-import Animate.MS_Animation as Anima
+from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
 from scipy.sparse.linalg import eigs, eigsh, lobpcg
 
@@ -27,15 +27,16 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 # Nodal coordinates
-nodal_coordinates = np.loadtxt('coord.dat') 
+nodal_coordinates = np.loadtxt('Input/coord.dat') 
 
 # Connectivity
-connectivity = np.loadtxt('connect.dat', dtype=int)
+connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 
 # Boundary conditions
 fixed_nodes = np.array([1, 1200, 1325])
 dofs_fixed_node = [['all'],['all'],['all']]
-del_lines = True
+# Delete rows and collumns
+delete_rc = True
 
 # Material atribuition for each element
 material_list = [1, material_1]
@@ -62,10 +63,10 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_line = del_lines )
+K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_rc = delete_rc )
 end = time.time()
 
-print(end - start)
+print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]')
 
 # plt.spy(K.toarray()[0:30,0:30], markersize=5)
 # # plt.spy(K.toarray(), markersize=5)
@@ -81,23 +82,30 @@ print(end - start)
 # plt.spy(K.toarray()[9200:,9200:], markersize=1)
 # plt.show()
 
+
 #%%
 
+f_max = 200
+#frequencies = np.arange(f_max)
 
-# # Modal Analysis - Full Matrix process
+solu = Solution(K, M,number_points=51 )
 
-N_modes = 100
+# fn, eigenVectors = solu.modal_analysis( number_modes=N_modes )
 
-M = M.tocsr()
-K = K.tocsr()
+start = time.time()
+xd, frequencies = solu.direct_method(F)
+end = time.time()
+print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - direct method')
 
-eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 0.1, which ='LM')
-# eigenValues, eigenVectors = eigsh(sK, N_modes, sM, sigma=1e-8, which='LM')
-# eigenValues, eigenVectors = np.linalg.eig( (K.toarray(), M.toarray()) )
+start = time.time()
+xs, frequencies, _ ,_ = solu.mode_superposition(F, number_modes=N_modes)
+end = time.time()
+print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - mode superposition')
 
-idx = eigenValues.argsort()
-fn = ((np.real(eigenValues[idx]))**(1/2))/(2*np.pi)
-eigenVectors = np.real(eigenVectors[:,idx])
+plt.plot(frequencies, np.log10(np.abs(xd[5,:])))
+plt.plot(frequencies, np.log10(np.abs(xs[5,:])))
+plt.show()
+
 
 #%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
 
@@ -117,25 +125,26 @@ def results(mode_to_plot):
 
   return u_xyz
 
-#%% Entries for plot function 
+#% Entries for plot function 
 
 #Choose EigenVector to be ploted
-mode_to_plot = 20
+mode_to_plot = 24
 
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
 u_def = results(mode_to_plot)[:,1:]
+freq_n = fn[mode_to_plot-1]
 
 # Choose the information to plot/animate
-Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, True, False, False
+Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
-# Scalling amplitude factor
+# Amplitude scalling factor
 scf=0.4
 
 # Call function to plot nodal results [dynamic]
-plot(coordinates, connectivity_plot, u_def, mode_to_plot, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
 
-#%% Save some important results using HDF5 format
+#%% Save important results using HDF5 format
 
 save_results = False
 
@@ -147,8 +156,10 @@ if save_results:
   f = h5py.File('output_data.hdf5', 'w')
   f.create_dataset('/input/nodal_coordinates', data = nodal_coordinates, dtype='float64')
   f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
-  f.create_dataset('/global_matrices/K', data = K.toarray(), dtype='float64')
-  f.create_dataset('/global_matrices/M', data = M.toarray(), dtype='float64')
+  f.create_dataset('/global_matrices/I', data = I, dtype='int')
+  f.create_dataset('/global_matrices/J', data = J, dtype='int')
+  f.create_dataset('/global_matrices/coo_K', data = coo_K, dtype='float64')
+  f.create_dataset('/global_matrices/coo_M', data = coo_M, dtype='float64')
   f.create_dataset('/results/eigenVectors', data = eigenVectors, dtype='float64')
   f.create_dataset('/results/natural_frequencies', data = fn, dtype='float64')
   f.close()
@@ -156,5 +167,6 @@ if save_results:
 ## Example how to read files in HDF5 format
 
 # f = h5py.File('output_data.hdf5', 'r')
-# K = f['/global_matrices/K']
-# f.close()
+# list(f.keys())
+# K = f['/global_matrices/coo_K']
+# # f.close()
