@@ -2,9 +2,8 @@
 import math
 import numpy as np
 """
-General algorithm for obtaining the additional load vector 'Fadd' when some degrees of
-freedom 'R' are prescribed with zero or non-zero values 'V'.
-
+General algorithm for obtaining the reaction forces 'Freact' on the constrained nodes.
+THIS IS A POST-PROCESSING PROCEDURE. It is assumed that the solution U is already obtained.
 """
 ####################### 2-node 6-DOF/node ###########################
 # Total Degrees of Freedom = 60 (10 nodes)
@@ -13,22 +12,22 @@ freq = 100 # Hz   #OBS.: THE ADDITIONAL LOAD VECTOR IS DEPENDENT ON THE FREQUENC
 omega = 2.*np.pi*freq
 #
 totaldof = 60
-prescdof = 6
+prescdof = 5
 freedof = totaldof - prescdof
 # Array with Prescribed Degrees of Freedom (Global, internal):
-R = np.array([1, 15, 19, 20, 24, 59 ])  #6 prescribed dofs
+R = np.array([1, 19, 20, 24, 59 ])
 # Array with Values for Prescribed Degrees of Freedom:
-V = np.array([0.01, 0., 0.002, -0.1, 0.25, 0.01])  #all prescribed dofs, even if zero valued dofs (constraints)
+V = np.array([0.01, 0.002, -0.1, 0.25, 0.01])
 #
-# Global matrices eliminating prescribed dofs:
-K = np.random.rand(54,54)
-M = np.random.rand(54,54)
-C = np.random.rand(54,54) #if damped problem
+# Global matrices eliminating constrained dofs:
+K = np.random.rand(55,55)
+M = np.random.rand(55,55)
+C = np.random.rand(55,55) #if damped problem
 #
 # Matrices of eliminated lines:
-KR = np.random.rand(6,54)
-MR = np.random.rand(6,54)
-CR = np.random.rand(6,54) # if damped problem
+KR = np.random.rand(5,55)
+MR = np.random.rand(5,55)
+CR = np.random.rand(5,55) # if damped problem
 #
 Fadd = np.zeros((freedof))
 FKadd = np.zeros((freedof))
