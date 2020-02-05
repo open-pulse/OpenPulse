@@ -8,6 +8,7 @@ from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
 from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
+from pulse.engine.solution import Solution
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -82,25 +83,31 @@ print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]'
 
 #%%
 
-
-# # Modal Analysis - Full Matrix process
-
 N_modes = 100
+F = np.zeros((K.shape[0]))
+F[5] = 1 
 
-M = M.tocsr()
-K = K.tocsr()
+f_max = 200
+#frequencies = np.arange(f_max)
+
+solu = Solution(K, M,number_points=51 )
+
+# fn, eigenVectors = solu.modal_analysis( number_modes=N_modes )
 
 start = time.time()
-eigenValues, eigenVectors = eigs(K, N_modes, M, sigma = 0.1, which ='LM')
-# eigenValues, eigenVectors = eigsh(sK, N_modes, sM, sigma=1e-8, which='LM')
-# eigenValues, eigenVectors = np.linalg.eig( (K.toarray(), M.toarray()) )
+xd, frequencies = solu.direct_method(F)
 end = time.time()
+print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - direct method')
 
-idx = eigenValues.argsort()
-fn = ((np.real(eigenValues[idx]))**(1/2))/(2*np.pi)
-eigenVectors = np.real(eigenVectors[:,idx])
+start = time.time()
+xs, frequencies, _ ,_ = solu.mode_superposition(F, number_modes=N_modes)
+end = time.time()
+print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s] - mode superposition')
 
-print('Time to solve eigenvectors/eigenvalues problem :' + str(round((end - start),6)) + '[s]')
+plt.plot(frequencies, np.log10(np.abs(xd[5,:])))
+plt.plot(frequencies, np.log10(np.abs(xs[5,:])))
+plt.show()
+
 
 #%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
 
