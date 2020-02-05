@@ -1,12 +1,12 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter
 
-from pulse.uix.data_widget import DataWidget
-from pulse.uix.tree_widget import TreeWidget
-from pulse.uix.generate_widget import GenerateWidget
-from pulse.uix.nodes_widget import NodesWidget
-from pulse.uix.edges_widget import EdgesWidget
-from pulse.uix.plot_widget import PlotWidget
+from pulse.uix.dataWidget import DataWidget
+from pulse.uix.treeWidget import TreeWidget
+from pulse.uix.generateWidget import GenerateWidget
+from pulse.uix.nodesWidget import NodesWidget
+from pulse.uix.edgesWidget import EdgesWidget
+from pulse.uix.plotWidget import PlotWidget
 
 class InfoWidget(QSplitter):
     def __init__(self, main_window):
