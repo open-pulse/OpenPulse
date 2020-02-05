@@ -40,7 +40,6 @@ class Lines:
         self._actor()
 
     def _source(self):
-        print(self.nodesList)
         for node in self.nodesList:
             self._nodes.InsertPoint(int(node[0]), node[1]/1000, node[2]/1000, node[3]/1000)
 
@@ -62,7 +61,7 @@ class Lines:
         
         if not self.show_lines:
             self._tubeFilter.SetInputData(self._object)
-            self._tubeFilter.SetRadius(0.1)
+            self._tubeFilter.SetRadius(0.05)
             self._tubeFilter.SetNumberOfSides(50)
             self._tubeFilter.Update()
         
