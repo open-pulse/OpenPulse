@@ -25,7 +25,31 @@ class Mesh:
         else:
             return FileNotFoundError
 
-    def reorder_index(self):
+    def reorder_index_bfs(self):
+        neighbors = self.get_neighbors()
+        translator = {}
+        stack = deque()
+        index = 0
+
+        stack.appendleft(self.nodes[0][0])
+
+        while stack:
+            top = stack.pop()
+
+            if top not in translator:
+                translator[top] = index
+                index += 1
+            else:
+                continue 
+            
+            for neighbor in neighbors[top]:
+                if neighbor not in translator:
+                    stack.appendleft(neighbor)
+
+        self.translate_index(translator)
+
+
+    def reorder_index_dfs(self):
         neighbors = self.get_neighbors()
         translator = {}
         stack = deque()
@@ -57,7 +81,7 @@ class Mesh:
                 node = (translator[index], x, y, z)
                 translated_nodes.append(node)
 
-        for (index, start, end) in self.edges:
+        for index, (_, start, end) in enumerate(self.edges):
             if start and end in translator:
                 edge = (index, translator[start], translator[end])
                 translated_edges.append(edge)
