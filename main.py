@@ -129,7 +129,7 @@ mode_to_plot = 24
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
 u_def = results(mode_to_plot)[:,1:]
-freq_n = fn[mode_to_plot-1]
+freq_n = frequencies[mode_to_plot-1]
 
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
