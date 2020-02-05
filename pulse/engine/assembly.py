@@ -40,7 +40,7 @@ class Assembly:
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
         self.fixed_nodes = fixed_nodes
-        self.dofs_fixed_node = dofs_fixed_node                
+        self.dofs_fixed_node = dofs_fixed_node               
         self.material_list = material_list 
         self.material_dictionary = material_dictionary 
         self.cross_section_list = cross_section_list
@@ -67,25 +67,64 @@ class Assembly:
         """ Dictionary ."""
         return { j:i for i, j in self.node_internal_to_user_index().items() }
     
+    def count_dofs_fixed(self):
+        "Number of dofs fixed"
+        count = 0
+        for dof_list in self.dofs_fixed_node:
+            if dof_list == 'all':
+                count += 6
+            else:
+                count += len(dof_list)
+        return count
+
+    def dofs_fixed(self):
+        """ Global index of every fixed degree of freedom."""
+        dictionary = self.node_user_to_internal_index()
+        global_dofs_fixed = np.zeros( self.count_dofs_fixed() )
+        count = 0
+        for i in range( len(self.fixed_nodes) ):
+            user_index = self.fixed_nodes[i]
+            index = dictionary[user_index]
+
+            if self.dofs_fixed_node[i] == 'all':
+                global_dofs_fixed[count : count + Node.degree_freedom] = index * Node.degree_freedom + np.arange( Node.degree_freedom )
+                count += Node.degree_freedom
+            else:
+                global_dofs_fixed[count : count + len(dof_list)] = index * Node.degree_freedom + self.dofs_fixed[i]
+                count += len(dof_list)
+
+        return global_dofs_fixed
+    
+    def nodes_boundary(self):
+        """ Dictionary ."""
+        boundary = {}
+        dictionary = self.node_internal_to_user_index()
+        nodes_internal = self.nodes_internal_index()
+        for i in nodes_internal:
+            user_index = dictionary[i]
+            if user_index in self.fixed_nodes:
+                if self.dofs_fixed_node[ list(self.fixed_nodes).index(user_index) ] == 'all':
+                    boundary.update( {i : np.arange( Node.degree_freedom ) })
+                else:
+                    boundary.update({i : self.dofs_fixed_node[ list(self.fixed_nodes).index(user_index) ] })
+            else:
+                boundary.update({i: []})
+        return boundary
+    
     def map_nodes(self):
         """ Nodes assembly in a list ordered by the internal indexing."""
         nodes_dictionary = self.node_internal_to_user_index()
         nodes_list = {}
-        for i in self.nodes_internal_index():
+        nodes_boundary = self.nodes_boundary()
+        nodes_internal = self.nodes_internal_index()
+        for i in nodes_internal:
             x = self.nodal_coordinates[i,1]
             y = self.nodal_coordinates[i,2]
             z = self.nodal_coordinates[i,3]
             user_index = nodes_dictionary[i]
-            nodes_list.update( {i : Node(x, y, z, user_index, index = i)} )
+            boundary = nodes_boundary[i]
+            nodes_list.update( {i : Node(x, y, z, user_index, index = i, boundary = boundary)} )
         return nodes_list
-    
-    # #TODO: adapt this function to receive not all dof
-    # def fixed_degree_freedom(self):
-    #     fixed_degree_freedom = []
-
-    #     for node in self.fixed_nodes:
-    #         fixed_degree_freedom = np.concatenate(fixed_degree_freedom, node.global_dof())
-    #     return fixed_degree_freedom
     
     #TODO: determinate the structure and type of material_list and material_dictionary.
     #TODO: determinate the structure and type of cross_section_list and cross_section_dictionary
@@ -96,20 +135,6 @@ class Assembly:
     
     def element_index(self):
         return self.connectivity[:,0].astype(int)
-
-    def count_dofs_fixed(self,delete_line):
-        "Number of dofs fixed"
-        count_dof_fixed = lambda delete_line: Node.degree_freedom*self.fixed_nodes.shape[0] if delete_line==True else 0
-        return count_dof_fixed(delete_line)
-    
-    def count_index_dofs_fixed(self,delete_line):
-        "Number of matrix entries relative to dofs fixed"
-        count_ind_dof_fixed = lambda delete_line: 3*(Node.degree_freedom**2)*self.fixed_nodes.shape[0] if delete_line==True else 0
-        return count_ind_dof_fixed(self.delete_line)
-
-    def dofs_fixed(self):
-        """ Dictionary ."""
-        return { self.fixed_nodes[i]:self.dofs_fixed_node[i] for i in range(self.fixed_nodes.shape[0]) }
 
     def map_elements(self):
         elements_list = {}
@@ -143,9 +168,7 @@ class Assembly:
 
         return elements_list
         
-    
-
-    def global_matrices(self, delete_line ):
+    def global_matrices(self, delete_rc = True ):
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
         
@@ -168,11 +191,9 @@ class Assembly:
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            #TODO: code is limited to all degree of freedom of a node fixed.
-            global_dof, local_dof = element.global_degree_freedom( self.fixed_nodes, self.dofs_fixed_node, delete_line, self.dofs_fixed() )
+            global_dof, local_dof = element.global_dof( delete_rc )
 
-            # aux = len(global_dof)
-            aux = global_dof.shape[0]
+            aux = len(global_dof)
 
             # map_elements is counted initiating by 1 going up to number_elements
             #TODO: be carefull about element index.
@@ -197,28 +218,24 @@ class Assembly:
         #TODO: consider write in another method
         # Line and Collumn Elimination
 
+        # 
         count = int(0)
-        if delete_line:
-            for fixed_node in self.fixed_nodes: 
-                if fixed_node in self.nodes_user_index():
-                        
-                    fixed_node_internal = self.node_user_to_internal_index()[ fixed_node ]
-                    fixed_dof = fixed_node_internal * Node.degree_freedom - count * Node.degree_freedom
 
-                    aux_I = np.where(I > fixed_dof )
-                    aux_J = np.where(J > fixed_dof )
+        if delete_rc:
+            global_dofs_fixed = self.dofs_fixed()
+            for dof_fixed in global_dofs_fixed:
 
-                    I[aux_I] = I[aux_I] - Node.degree_freedom
-                    J[aux_J] = J[aux_J] - Node.degree_freedom
-                    
-                    count += 1
+                aux_I = np.where(I > dof_fixed - count )
+                aux_J = np.where(J > dof_fixed - count )
 
+                I[aux_I] = I[aux_I] - 1
+                J[aux_J] = J[aux_J] - 1
 
-        total_dof = Node.degree_freedom * ( self.number_nodes()  )
+                count += 1
 
-        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof-self.count_dofs_fixed(delete_line), total_dof-self.count_dofs_fixed(delete_line)] )
-        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof-self.count_dofs_fixed(delete_line), total_dof-self.count_dofs_fixed(delete_line)] )
-        # K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
-        # M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
+        total_dof = Node.degree_freedom * ( self.number_nodes() ) - count
+
+        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof, total_dof] )
+        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof, total_dof] )
         
         return K, M, I, J, coo_K, coo_M, total_dof

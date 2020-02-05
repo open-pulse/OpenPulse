@@ -1,7 +1,7 @@
 import numpy as np
 from math import pi, sqrt
 
-class TubeCrossSection(object):
+class TubeCrossSection:
     """ Tube cross section.
     Class used to create the tube's cross section and define its properties.
     External diameter D_external and internal diameter D_internal or thickness 
