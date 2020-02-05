@@ -8,6 +8,7 @@ from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
 from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
+from solution import Solution
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -34,7 +35,8 @@ connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 # Boundary conditions
 fixed_nodes = np.array([1, 1200, 1325])
 dofs_fixed_node = [['all'],['all'],['all']]
-del_lines = True
+# Delete rows and collumns
+delete_rc = True
 
 # Material atribuition for each element
 material_list = [1, material_1]
@@ -61,7 +63,7 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_line = del_lines )
+K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_rc = delete_rc )
 end = time.time()
 
 print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]')
@@ -81,7 +83,25 @@ print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]'
 # plt.show()
 
 #%%
+frequencies = np.arange(100)
+solve = Solution(K, M, frequencies = frequencies)
 
+number_modes = 100
+F = np.zeros( K.shape[0] )
+F[1] = 1
+
+start = time.time()
+x_direct, frequencies_sorted = solve.direct(F)
+x_modal, _ , natural_frequencies, modal_shape = solve.modal(F, number_modes = number_modes)
+end = time.time()
+
+print(end - start)
+
+plt.plot(frequencies_sorted, np.log10(np.abs(x_direct[5,:])) )
+plt.draw()
+plt.plot(frequencies_sorted, np.log10(np.abs(x_modal[5,:])) )
+plt.show()
+#%%
 
 # # Modal Analysis - Full Matrix process
 

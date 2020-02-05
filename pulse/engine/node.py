@@ -24,17 +24,17 @@ class Node:
     # Number of degree of freedom for each node
     degree_freedom = 6
 
-    def __init__(self, x, y, z, user_index, **kwargs):
+    def __init__(self, x, y, z, user_index, boundary = [], **kwargs):
         self.x = x
         self.y = y
         self.z = z
         self.user_index = user_index
 
         self.index = kwargs.get("index", None)
-        #TODO: define how to use the boundary conditions.
-        self.boundary = kwargs.get("boundary", None)
+        self.boundary = boundary
+        # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z respectively.
 
-    def global_dof(self):
+    def global_dof(self, delete_line):
         """ For a node, define its global degree of freedom.
 
         Parameter
@@ -44,11 +44,19 @@ class Node:
         output: array with 6 integers."""
         if self.index == None:
             #TODO: warning, self.index must be defined
-            pass 
-        node_local_dof = np.arange( Node.degree_freedom )
-        return Node.degree_freedom * self.index + node_local_dof
+            pass
 
-    #TODO: define a boundary function to take the boundary conditions.
+        mask = np.ones(self.degree_freedom, dtype=bool)
+        if delete_line:
+            mask[ self.boundary ] = False
+
+        local_dof = np.arange( self.degree_freedom, dtype=int )[mask]
+        if local_dof == []:
+            global_dof = []
+        else: 
+            global_dof = self.degree_freedom * self.index + local_dof
+        
+        return global_dof, local_dof
 
     def coordinates(self):
         """ Give coordinates as array."""

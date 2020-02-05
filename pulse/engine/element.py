@@ -51,29 +51,15 @@ class Element:
         """Define the element length."""
         return self.node_initial.distance( self.node_final )
    
-    #TODO: Make it more general. Considere degree of freedom fixed.
-    def global_degree_freedom(self, fixed_nodes, dofs_fixed_node, delete_line, dofs_fixed):
+    def global_dof(self, delete_line):
         """Return the degrees of freedom related to the element in a array with 12 integers.
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
 
-        if self.node_initial.user_index in fixed_nodes and delete_line:
-            if dofs_fixed[self.node_initial.user_index][0]=='all':
-                global_dof_node_initial = np.array([])
-                local_dof_node_initial = np.array([])
-                print('Node #', self.node_initial.user_index, 'is fixed (initial)', '- dofs fixed:',dofs_fixed[self.node_initial.user_index])
-        else:
-            global_dof_node_initial = self.node_initial.global_dof()
-            local_dof_node_initial = np.arange( Node.degree_freedom )
-        
-        if self.node_final.user_index in fixed_nodes and delete_line:
-            if dofs_fixed[self.node_final.user_index][0]=='all':
-                global_dof_node_final = np.array([])
-                local_dof_node_final = np.array([])
-                print('Node #', self.node_final.user_index, ' is fixed (final)','- dofs fixed:',dofs_fixed[self.node_final.user_index])
-        else:
-            global_dof_node_final = self.node_final.global_dof()
-            local_dof_node_final = np.arange( Node.degree_freedom, 2 * Node.degree_freedom  )
+        global_dof_node_initial, local_dof_node_initial = self.node_initial.global_dof(delete_line)
+
+        global_dof_node_final, local_dof_node_final = self.node_final.global_dof(delete_line)
+        local_dof_node_final = local_dof_node_final + 6
         
         a, b = len( global_dof_node_initial ), len( global_dof_node_final )
         global_dof = np.zeros(a+b,dtype = int)
@@ -304,5 +290,3 @@ class Element:
         T = self.rotation_matrix()
         return T.T @ self.mass_matrix() @ T
     
-
-
