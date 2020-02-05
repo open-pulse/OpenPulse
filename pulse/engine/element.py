@@ -59,7 +59,7 @@ class Element:
         global_dof_node_initial, local_dof_node_initial = self.node_initial.global_dof(delete_line)
 
         global_dof_node_final, local_dof_node_final = self.node_final.global_dof(delete_line)
-        local_dof_node_final = local_dof_node_final + 6
+        local_dof_node_final = local_dof_node_final + Node.degree_freedom
         
         a, b = len( global_dof_node_initial ), len( global_dof_node_final )
         global_dof = np.zeros(a+b,dtype = int)
