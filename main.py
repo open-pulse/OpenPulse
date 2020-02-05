@@ -8,11 +8,7 @@ from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
 from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
-<<<<<<< HEAD
 from pulse.engine.solution import Solution
-=======
-from solution import Solution
->>>>>>> 023ba662988328e1c49ccc2e8b246a223b383236
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -86,32 +82,8 @@ print('Time to assemble global matrices :' + str(round((end - start),6)) + '[s]'
 # plt.spy(K.toarray()[9200:,9200:], markersize=1)
 # plt.show()
 
+
 #%%
-frequencies = np.arange(100)
-solve = Solution(K, M, frequencies = frequencies)
-
-<<<<<<< HEAD
-N_modes = 100
-F = np.zeros((K.shape[0]))
-F[5] = 1 
-=======
-number_modes = 100
-F = np.zeros( K.shape[0] )
-F[1] = 1
-
-start = time.time()
-x_direct, frequencies_sorted = solve.direct(F)
-x_modal, _ , natural_frequencies, modal_shape = solve.modal(F, number_modes = number_modes)
-end = time.time()
-
-print(end - start)
-
-plt.plot(frequencies_sorted, np.log10(np.abs(x_direct[5,:])) )
-plt.draw()
-plt.plot(frequencies_sorted, np.log10(np.abs(x_modal[5,:])) )
-plt.show()
-#%%
->>>>>>> 023ba662988328e1c49ccc2e8b246a223b383236
 
 f_max = 200
 #frequencies = np.arange(f_max)
