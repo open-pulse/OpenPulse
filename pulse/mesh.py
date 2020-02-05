@@ -1,10 +1,15 @@
 from os.path import isfile
 from pulse.utils import split_sequence
+from collections import deque
 import gmsh 
 
 class Mesh:
     def __init__(self, path=''):
         self.path = path
+        self.nodes = []
+        self.edges = []
+
+    def reset_variables(self):
         self.nodes = []
         self.edges = []
 
@@ -20,9 +25,60 @@ class Mesh:
         else:
             return FileNotFoundError
 
-    def reset_variables(self):
-        self.nodes = []
-        self.edges = []
+    def reorder_index(self):
+        neighbors = self.get_neighbors()
+        translator = {}
+        stack = deque()
+        index = 0
+
+        stack.append(self.nodes[0][0])
+
+        while stack:
+            top = stack.pop()
+
+            if top not in translator:
+                translator[top] = index
+                index += 1
+            else:
+                continue 
+            
+            for neighbor in neighbors[top]:
+                if neighbor not in translator:
+                    stack.append(neighbor)
+
+        self.translate_index(translator)
+
+    def translate_index(self, translator):
+        translated_nodes = []
+        translated_edges = []
+
+        for (index, x, y, z) in self.nodes:
+            if index in translator:
+                node = (translator[index], x, y, z)
+                translated_nodes.append(node)
+
+        for (index, start, end) in self.edges:
+            if start and end in translator:
+                edge = (index, translator[start], translator[end])
+                translated_edges.append(edge)
+
+        self.nodes = translated_nodes
+        self.edges = translated_edges
+
+    def get_neighbors(self):
+        neighbors = {}
+
+        for _, start, end in self.edges:
+            if start not in neighbors:
+                neighbors[start] = []
+
+            if end not in neighbors:
+                neighbors[end] = []
+
+            neighbors[start].append(end)
+            neighbors[end].append(start)
+
+        return neighbors
 
     def __initialize_gmsh(self):
         gmsh.initialize('', False)
