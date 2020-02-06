@@ -34,7 +34,7 @@ class Node:
         self.boundary = boundary
         # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z respectively.
 
-    def node_dofs(self, delete_line):
+    def dofs(self):
         """ For a node, define its global degree of freedom.
 
         Parameter
@@ -46,17 +46,22 @@ class Node:
             #TODO: warning, self.index must be defined
             pass
 
+        # mask to delete prescribed degree of freedom
         mask = np.ones(self.degree_freedom, dtype=bool)
-        if delete_line:
-            mask[ self.boundary ] = False
+        mask[ self.boundary ] = False
 
         local_dof = np.arange( self.degree_freedom, dtype=int )[mask]
         if local_dof == []:
             global_dof = []
-        else: 
+        else:
             global_dof = self.degree_freedom * self.index + local_dof
-        
-        return global_dof, local_dof
+
+        if self.boundary == []:
+            global_boundary = []
+        else:
+            global_boundary = self.degree_freedom * self.index + np.array( self.boundary )
+
+        return global_dof, local_dof, global_boundary, self.boundary
 
     def coordinates(self):
         """ Give coordinates as array."""

@@ -35,8 +35,7 @@ connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 ## Boundary conditions
 #TODO: save the rows and collumns deleted.
 fixed_nodes = np.array([1, 1200, 1325]) # Which node has some boundary coundition prescribed.
-dofs_fixed_node = ['all','all','all'] # What are the degree of freedom restricted on those nodes.
-delete_rc = True # Delete rows and collumns
+dofs_fixed_node = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
@@ -64,15 +63,15 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, I, J, coo_K, coo_M, total_dof  = assemble.global_matrices( delete_rc = delete_rc )
+K, M, Kb, Mb, total_dof, Ib, Jb = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
 ## Solution
 # Analysis parameters
-freq_max = 200
+freq_max = 50
 df = 1
-number_modes = 200
+number_modes = 20
 
 load_dof = 157
 response_dof = 157
