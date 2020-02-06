@@ -212,7 +212,6 @@ class Assembly:
             # Construct auxiliar vectors row by row for the BOUNDARY degree of freedom
             for _, line_dof in enumerate(boundary):
 
-                print('Indice da linha armazenada:' , line_restored)
                 aux_b = len(global_boundary) 
 
                 Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
@@ -224,7 +223,7 @@ class Assembly:
 
                 aux_b = len(global_dof) 
                 Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
-                Jb[count_b : count_b + aux_b]  = np.array( global_boundary, dtype= int )
+                Jb[count_b : count_b + aux_b]  = np.array( global_dof, dtype= int )
                 coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, local_dof]
                 coo_Mb[count_b : count_b + aux_b] = Me[line_dof, local_dof]
 
