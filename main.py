@@ -71,7 +71,7 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 # Analysis parameters
 freq_max = 50
 df = 1
-number_modes = 20
+number_modes = 50
 
 load_dof = 157
 response_dof = 157
