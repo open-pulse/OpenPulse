@@ -46,8 +46,8 @@ very good approximation for thin and thick walled pipes.
     ks = 6./(7. + 20.*(kk**2.))
     As_ = ks*A  
     # Residual bending flexibility - Hughes, pg. 378 and ANSYS FACT
-    As1 = 0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
-    As2 = 0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
+    As1 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
+    As2 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
     #
     #Material
     #G = E/(2.0*(1.0 + pois)) #Nao deletar!!!
