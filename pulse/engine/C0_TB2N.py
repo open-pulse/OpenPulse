@@ -38,7 +38,7 @@ very good approximation for thin and thick walled pipes.
     I1 = math.pi*(do**4 - di**4)/64.0   # I1 = I2
     I2 = math.pi*(do**4 - di**4)/64.0
     J =  I1 + I2      #pg 367 Hughes
-    A = math.pi*(do**2 - di**2)/4.0
+    A =  math.pi*(do**2 - di**2)/4.0
     #
     #Shear form factor
     alpha = di/do
