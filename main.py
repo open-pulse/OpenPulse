@@ -83,7 +83,7 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
 ## Solution
 # Analysis parameters
-freq_max = 200
+freq_max = 20
 df = 5
 number_modes = 200
 
@@ -172,7 +172,7 @@ if save_results:
   # np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')
   # np.savetxt('K_globalmatrix.txt',K.toarray(),fmt='%.18e')
 
-  f = h5py.File('output_data.hdf5', 'w')
+  f = h5py.File('new_output_data.hdf5', 'w')
   f.create_dataset('/input/nodal_coordinates', data = nodal_coordinates, dtype='float64')
   f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
   f.create_dataset('/global_matrices/I', data = I, dtype='int')
@@ -183,9 +183,16 @@ if save_results:
   f.create_dataset('/results/natural_frequencies', data = fn, dtype='float64')
   f.close()
 
-## Example how to read files in HDF5 format
+# Example how to read files in HDF5 format
 
-# f = h5py.File('output_data.hdf5', 'r')
-# list(f.keys())
-# K = f['/global_matrices/coo_K']
-# # f.close()
+f = h5py.File('output_data.hdf5', 'r')
+list(f.keys())
+K = f.get('/global_matrices/coo_K').value
+f.close()
+
+
+f = h5py.File('new_output_data.hdf5', 'r')
+list(f.keys())
+K_new = f.get('/global_matrices/coo_K').value
+f.close()
+
