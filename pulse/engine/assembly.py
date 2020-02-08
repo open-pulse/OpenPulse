@@ -1,13 +1,12 @@
 import numpy as np
-from scipy.sparse import coo_matrix
+import time
+from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
 from collections import deque
-
 
 from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection
 from pulse.engine.material import Material
 from pulse.engine.element import Element
-
 
 class Assembly:
     """ Assembly  
@@ -32,6 +31,7 @@ class Assembly:
                     connectivity,
                     fixed_nodes,
                     dofs_fixed_node,
+                    dofs_fixed_value,
                     material_list,
                     material_dictionary,
                     cross_section_list,
@@ -40,7 +40,8 @@ class Assembly:
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
         self.fixed_nodes = fixed_nodes
-        self.dofs_fixed_node = dofs_fixed_node               
+        self.dofs_fixed_node = dofs_fixed_node   
+        self.dofs_fixed_value = dofs_fixed_value            
         self.material_list = material_list 
         self.material_dictionary = material_dictionary 
         self.cross_section_list = cross_section_list
@@ -92,6 +93,13 @@ class Assembly:
 
         return global_dofs_fixed
     
+
+    # def dofs_presc_values(self):
+    #     """ Dictionary ."""
+    #     return {i,j for i in self.dofs_fixed():}
+    #     self.dofs_fixed_value
+
+
     def nodes_boundary(self):
         """ Dictionary ."""
         boundary = {}
@@ -161,26 +169,27 @@ class Assembly:
         return elements_list
         
     def global_matrices(self):
+        start = time.time()
         # Prealocate
         entries_per_element = Element.total_degree_freedom**2
         empty_entries = self.count_empty_entries() 
-        total_entries = entries_per_element * self.number_elements() - empty_entries
+        total_entries = entries_per_element * self.number_elements() - empty_entries*0
                
         # Row, Collumn indeces to be used on Coo_matrix format
         I = np.zeros(total_entries)
         J = np.zeros(total_entries)
         
         # Data for the Coo_matrix format
-        coo_K = np.zeros(total_entries)
-        coo_M = np.zeros(total_entries)
+        data_K = np.zeros(total_entries)
+        data_M = np.zeros(total_entries)
 
-        # Row, Collumn indeces to be used on Coo_matrix format
-        Ib = np.zeros(empty_entries)
-        Jb = np.zeros(empty_entries)
+        # # Row, Collumn indeces to be used on Coo_matrix format
+        # Ib = np.zeros(empty_entries)
+        # Jb = np.zeros(empty_entries)
         
-        # Data for the Coo_matrix format
-        coo_Kb = np.zeros(empty_entries)
-        coo_Mb = np.zeros(empty_entries)
+        # # Data for the Coo_matrix format
+        # coo_Kb = np.zeros(empty_entries)
+        # coo_Mb = np.zeros(empty_entries)
 
         map_elements = self.map_elements()
 
@@ -195,7 +204,8 @@ class Assembly:
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            global_dof, local_dof, global_boundary, boundary = element.dofs()
+            # global_dof, local_dof, global_boundary, boundary = element.dofs()
+            global_dof, local_dof = element.dofs()
 
             # Construct non precribed matriz
             aux = len(global_dof)            
@@ -203,53 +213,64 @@ class Assembly:
 
                 I[count : count + aux]  = global_dof[i] * np.ones( aux, dtype=int )
                 J[count : count + aux]  = np.array( global_dof, dtype= int )
-                coo_K[count : count + aux] = Ke[line_dof, local_dof]
-                coo_M[count : count + aux] = Me[line_dof, local_dof]
+                data_K[count : count + aux] = Ke[line_dof, local_dof]
+                data_M[count : count + aux] = Me[line_dof, local_dof]
 
                 count += aux
-            
              
             # Construct auxiliar vectors row by row for the BOUNDARY degree of freedom
-            for _, line_dof in enumerate(boundary):
+            # for _, line_dof in enumerate(boundary):
 
-                aux_b = len(global_boundary) 
+            #     aux_b = len(global_boundary) 
 
-                Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
-                Jb[count_b : count_b + aux_b]  = np.array( global_boundary, dtype= int )
-                coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, boundary]
-                coo_Mb[count_b : count_b + aux_b] = Me[line_dof, boundary]
+            #     Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
+            #     Jb[count_b : count_b + aux_b]  = np.array( global_boundary, dtype= int )
+            #     coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, boundary]
+            #     coo_Mb[count_b : count_b + aux_b] = Me[line_dof, boundary]
 
-                count_b += aux_b
+            #     count_b += aux_b
 
-                aux_b = len(global_dof) 
-                Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
-                Jb[count_b : count_b + aux_b]  = np.array( global_dof, dtype= int )
-                coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, local_dof]
-                coo_Mb[count_b : count_b + aux_b] = Me[line_dof, local_dof]
+            #     aux_b = len(global_dof) 
+            #     Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
+            #     Jb[count_b : count_b + aux_b]  = np.array( global_dof, dtype= int )
+            #     coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, local_dof]
+            #     coo_Mb[count_b : count_b + aux_b] = Me[line_dof, local_dof]
 
-                count_b += aux_b
-                line_restored +=1
+            #     count_b += aux_b
+            #     line_restored +=1
                 
         
         # Line and Collumn Elimination
         count = int(0)
         global_dofs_fixed = np.sort( self.dofs_fixed() )
-        for dof_fixed in global_dofs_fixed:
+        
+        # for dof_fixed in global_dofs_fixed:
 
-            aux_I = np.where(I > dof_fixed - count )
-            aux_J = np.where(J > dof_fixed - count )
+        #     aux_I = np.where(I > dof_fixed - count )
+        #     aux_J = np.where(J > dof_fixed - count )
 
-            I[aux_I] = I[aux_I] - 1
-            J[aux_J] = J[aux_J] - 1
+        #     I[aux_I] = I[aux_I] - 1
+        #     J[aux_J] = J[aux_J] - 1
 
-            count += 1
+        #     count += 1
         
         total_dof = Node.degree_freedom * ( self.number_nodes() )
+        dofs_not_presc = np.delete( np.arange(total_dof), global_dofs_fixed )
 
-        K = coo_matrix( (coo_K, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
-        M = coo_matrix( (coo_M, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
+        K = csr_matrix( (data_K, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
+        M = csr_matrix( (data_M, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
 
-        Kb = coo_matrix( (coo_Kb, (Ib, Jb)), shape = [line_restored, total_dof] )
-        Mb = coo_matrix( (coo_Mb, (Ib, Jb)), shape = [line_restored, total_dof] )
+        Kr = K[global_dofs_fixed,:]
+        Mr = K[global_dofs_fixed,:]
 
-        return K, M, Kb, Mb, total_dof - line_restored, Ib, Jb
+        K = K[dofs_not_presc,:].tocsc()[:,dofs_not_presc]
+        M = M[dofs_not_presc,:].tocsc()[:,dofs_not_presc]
+        end = time.time()
+        # Kb = coo_matrix( (coo_Kb, (Ib, Jb)), shape = [line_restored, total_dof] )
+        # Mb = coo_matrix( (coo_Mb, (Ib, Jb)), shape = [line_restored, total_dof] )
+
+        # return K, M, Kb, Mb, total_dof - line_restored, Ib, Jb
+
+        print('Time to assemble and process global matrices:', round(end-start,6))
+
+        return K, M, total_dof - line_restored, Kr, Mr, dofs_not_presc, data_K, data_M, I, J

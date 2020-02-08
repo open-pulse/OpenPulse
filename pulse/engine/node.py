@@ -46,22 +46,26 @@ class Node:
             #TODO: warning, self.index must be defined
             pass
 
-        # mask to delete prescribed degree of freedom
-        mask = np.ones(self.degree_freedom, dtype=bool)
-        mask[ self.boundary ] = False
+        # # mask to delete prescribed degree of freedom
+        # mask = np.ones(self.degree_freedom, dtype=bool)
+        # mask[ self.boundary ] = False
 
-        local_dof = np.arange( self.degree_freedom, dtype=int )[mask]
-        if local_dof == []:
-            global_dof = []
-        else:
-            global_dof = self.degree_freedom * self.index + local_dof
+        # local_dof = np.arange( self.degree_freedom, dtype=int )[mask]
+        # if local_dof == []:
+        #     global_dof = []
+        # else:
+        #     global_dof = self.degree_freedom * self.index + local_dof
 
-        if self.boundary == []:
-            global_boundary = []
-        else:
-            global_boundary = self.degree_freedom * self.index + np.array( self.boundary )
 
-        return global_dof, local_dof, global_boundary, self.boundary
+        local_dof = np.arange( self.degree_freedom, dtype=int )
+        global_dof = self.degree_freedom * self.index + local_dof
+
+        # if self.boundary == []:
+        #     global_boundary = []
+        # else:
+        #     global_boundary = self.degree_freedom * self.index + np.array( self.boundary )
+
+        return global_dof, local_dof#, global_boundary, self.boundary
 
     def coordinates(self):
         """ Give coordinates as array."""

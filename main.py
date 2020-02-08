@@ -2,6 +2,8 @@
 import numpy as np
 import time
 import h5py
+import queue
+from collections import deque
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
@@ -9,6 +11,7 @@ from pulse.engine.tube import TubeCrossSection as TCS
 from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
+from pulse.engine.postprocessing import PostProcessing
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -35,7 +38,8 @@ connectivity = np.loadtxt('Input/connect.dat', dtype=int)
 ## Boundary conditions
 #TODO: save the rows and collumns deleted.
 fixed_nodes = np.array([1, 1200, 1325]) # Which node has some boundary coundition prescribed.
-dofs_fixed_node = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
+dofs_fixed_node = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
+dofs_fixed_value = [[0,1,2,3,4,5],[5,4,3,2,1,0],[7,6,5,4,3,2]] # Value prescribed for each degree of freedom
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
@@ -49,12 +53,22 @@ cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
+for i in range(1):
+
+  for j in dofs_fixed_node[i]:
+      
+    if j==0:
+      dofs_presc_data = {'u_x' : dofs_fixed_value[i][j]}
+    
+
+
 
 ## Assembly those informations.
 assemble = Assembly(nodal_coordinates,
                     connectivity,
                     fixed_nodes,
-                    dofs_fixed_node,                
+                    dofs_fixed_node,
+                    dofs_fixed_value,                
                     material_list,
                     material_dictionary,
                     cross_section_list,
@@ -63,20 +77,20 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, Kb, Mb, total_dof, Ib, Jb = assemble.global_matrices()
+K, M, total_dof, Kr, Mr, dofs_not_presc, data_K, data_M, I, J = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
 ## Solution
 # Analysis parameters
-freq_max = 50
-df = 1
-number_modes = 20
+freq_max = 200
+df = 5
+number_modes = 200
 
 load_dof = 157
 response_dof = 157
 
-F = np.zeros( total_dof )
+F = np.zeros( total_dof - len(assemble.dofs_fixed()) )
 F[load_dof] = 1
 
 # Solution class definition
@@ -94,6 +108,16 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
                                                 natural_frequencies = natural_frequencies,
                                                 modal_shape = modal_shape,
                                                 timing = True)
+
+# PostProcessing class definition
+
+#%%
+
+
+post = PostProcessing( fixed_nodes = fixed_nodes, presc_dofs = assemble.dofs_fixed(), value_prescribed_dofs = dofs_fixed_value, eigenVectors = modal_shape, HA_output = xd, nodal_coordinates = nodal_coordinates )
+
+
+eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
@@ -114,7 +138,7 @@ def results(mode_to_plot):
   u_xyz[:,3] = modal_shape[ind_u+2,mode_to_plot-1]
 
   for i in fixed_nodes:
-    u_xyz = np.insert(u_xyz,i-1,[0],axis=0)
+    u_xyz = np.insert( u_xyz, i-1, [0], axis=0 )
 
   u_xyz[:,0] = np.arange(1,nodal_coordinates.shape[0]+1,1)
 
@@ -153,8 +177,8 @@ if save_results:
   f.create_dataset('/input/connectivity', data = connectivity, dtype='int')
   f.create_dataset('/global_matrices/I', data = I, dtype='int')
   f.create_dataset('/global_matrices/J', data = J, dtype='int')
-  f.create_dataset('/global_matrices/coo_K', data = coo_K, dtype='float64')
-  f.create_dataset('/global_matrices/coo_M', data = coo_M, dtype='float64')
+  f.create_dataset('/global_matrices/data_K', data = data_K, dtype='float64')
+  f.create_dataset('/global_matrices/data_M', data = data_M, dtype='float64')
   f.create_dataset('/results/eigenVectors', data = eigenVectors, dtype='float64')
   f.create_dataset('/results/natural_frequencies', data = fn, dtype='float64')
   f.close()
