@@ -90,40 +90,54 @@ class Assembly:
         for i, user_index in enumerate(self.fixed_nodes):
             index = dictionary[user_index]
             global_dofs_fixed.extend( index * Node.degree_freedom + self.dofs_fixed_node[i] )
+            # global_dofs_presc_values(index * Node.degree_freedom + self.dofs_fixed_node[i])
+
 
         return global_dofs_fixed
     
 
-    # def dofs_presc_values(self):
-    #     """ Dictionary ."""
-    #     return {i,j for i in self.dofs_fixed():}
-    #     self.dofs_fixed_value
+
 
 
     def nodes_boundary(self):
         """ Dictionary ."""
         boundary = {}
-        dictionary = self.node_internal_to_user_index()
-        for i, user_index in dictionary.items():
-            if user_index in self.fixed_nodes:
-                boundary.update({i : self.dofs_fixed_node[ list(self.fixed_nodes).index(user_index) ] })
-            else:
-                boundary.update({i: []})
+        for i in range(self.fixed_nodes.shape[0]):
+            boundary.update({ i : self.dofs_fixed_node[i] })
+        # dictionary = self.node_internal_to_user_index()
+        # for i, user_index in dictionary.items():
+        #     if user_index in self.fixed_nodes:
+        #         boundary.update({i : self.dofs_fixed_node[ list(self.fixed_nodes).index(user_index) ] })
+        #     else:
+        #         boundary.update({i: []})
         return boundary
+
     
+    def dofs_prescribed_values(self):
+        """ Dictionary ."""
+        count = 0
+        dofs_presc = self.dofs_fixed()
+        dofs_presc_values = {}
+        for i in range(self.fixed_nodes.shape[0]):
+            for j in range(len(self.dofs_fixed_value[i])):
+                dofs_presc_values.update({ dofs_presc[j+count] : self.dofs_fixed_value[i][j] })
+            count += len(self.dofs_fixed_value[i])
+        return dofs_presc_values
+
+
     def map_nodes(self):
         """ Nodes assembly in a list ordered by the internal indexing."""
         nodes_dictionary = self.node_internal_to_user_index()
         nodes_list = {}
-        nodes_boundary = self.nodes_boundary()
+        # nodes_boundary = self.nodes_boundary()
         nodes_internal = self.nodes_internal_index()
         for i in nodes_internal:
             x = self.nodal_coordinates[i,1]
             y = self.nodal_coordinates[i,2]
             z = self.nodal_coordinates[i,3]
             user_index = nodes_dictionary[i]
-            boundary = nodes_boundary[i]
-            nodes_list.update( {i : Node(x, y, z, user_index, index = i, boundary = boundary)} )
+            # boundary = nodes_boundary[i]
+            nodes_list.update( {i : Node(x, y, z, user_index, index = i)} )
         return nodes_list
     
     #TODO: determinate the structure and type of material_list and material_dictionary.
@@ -175,27 +189,18 @@ class Assembly:
         empty_entries = self.count_empty_entries() 
         total_entries = entries_per_element * self.number_elements() - empty_entries*0
                
-        # Row, Collumn indeces to be used on Coo_matrix format
+        # Row, Collumn indeces to be used on Csr_matrix format
         I = np.zeros(total_entries)
         J = np.zeros(total_entries)
         
-        # Data for the Coo_matrix format
+        # Data for the Csr_matrix format
         data_K = np.zeros(total_entries)
         data_M = np.zeros(total_entries)
 
-        # # Row, Collumn indeces to be used on Coo_matrix format
-        # Ib = np.zeros(empty_entries)
-        # Jb = np.zeros(empty_entries)
-        
-        # # Data for the Coo_matrix format
-        # coo_Kb = np.zeros(empty_entries)
-        # coo_Mb = np.zeros(empty_entries)
-
         map_elements = self.map_elements()
 
-        count = int(0)
-        count_b = int(0)
-        line_restored = int(0)
+        count = 0
+        
         # For each element.
         for _, element in map_elements.items():
 
@@ -204,73 +209,51 @@ class Assembly:
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            # global_dof, local_dof, global_boundary, boundary = element.dofs()
             global_dof, local_dof = element.dofs()
 
             # Construct non precribed matriz
-            aux = len(global_dof)            
-            for i, line_dof in enumerate(local_dof):
+            aux = entries_per_element           
+            # for i, line_dof in enumerate(local_dof):
 
-                I[count : count + aux]  = global_dof[i] * np.ones( aux, dtype=int )
-                J[count : count + aux]  = np.array( global_dof, dtype= int )
-                data_K[count : count + aux] = Ke[line_dof, local_dof]
-                data_M[count : count + aux] = Me[line_dof, local_dof]
+            #     I[count : count + aux]  = global_dof[i] * np.ones( aux, dtype=int )
+            #     J[count : count + aux]  = np.array( global_dof, dtype= int )
+            #     data_K[count : count + aux] = Ke[line_dof, local_dof]
+            #     data_M[count : count + aux] = Me[line_dof, local_dof]
 
-                count += aux
-             
-            # Construct auxiliar vectors row by row for the BOUNDARY degree of freedom
-            # for _, line_dof in enumerate(boundary):
-
-            #     aux_b = len(global_boundary) 
-
-            #     Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
-            #     Jb[count_b : count_b + aux_b]  = np.array( global_boundary, dtype= int )
-            #     coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, boundary]
-            #     coo_Mb[count_b : count_b + aux_b] = Me[line_dof, boundary]
-
-            #     count_b += aux_b
-
-            #     aux_b = len(global_dof) 
-            #     Ib[count_b : count_b + aux_b]  = line_restored * np.ones( aux_b, dtype=int )
-            #     Jb[count_b : count_b + aux_b]  = np.array( global_dof, dtype= int )
-            #     coo_Kb[count_b : count_b + aux_b] = Ke[line_dof, local_dof]
-            #     coo_Mb[count_b : count_b + aux_b] = Me[line_dof, local_dof]
-
-            #     count_b += aux_b
-            #     line_restored +=1
-                
+            #     count += aux
         
+            # for i, line_dof in enumerate(local_dof):
+            I_aux = global_dof.reshape(12,1)*np.ones((1,12))
+            J_aux = I_aux.T
+            I[count : count + aux]  = I_aux.reshape(entries_per_element)
+            J[count : count + aux]  = J_aux.reshape(entries_per_element)
+            data_K[count : count + aux] = Ke.reshape(entries_per_element)
+            data_M[count : count + aux] = Me.reshape(entries_per_element)
+
+            count += aux
+        
+
+
+
+
+
         # Line and Collumn Elimination
-        count = int(0)
-        global_dofs_fixed = np.sort( self.dofs_fixed() )
         
-        # for dof_fixed in global_dofs_fixed:
-
-        #     aux_I = np.where(I > dof_fixed - count )
-        #     aux_J = np.where(J > dof_fixed - count )
-
-        #     I[aux_I] = I[aux_I] - 1
-        #     J[aux_J] = J[aux_J] - 1
-
-        #     count += 1
-        
+        global_dofs_presc = np.sort( self.dofs_fixed() )
+                
         total_dof = Node.degree_freedom * ( self.number_nodes() )
-        dofs_not_presc = np.delete( np.arange(total_dof), global_dofs_fixed )
+        global_dofs_not_presc = np.delete( np.arange(total_dof), global_dofs_presc )
 
-        K = csr_matrix( (data_K, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
-        M = csr_matrix( (data_M, (I, J)), shape = [total_dof - line_restored, total_dof - line_restored] )
+        K = csr_matrix( (data_K, (I, J)), shape = [total_dof, total_dof] )
+        M = csr_matrix( (data_M, (I, J)), shape = [total_dof, total_dof] )
 
-        Kr = K[global_dofs_fixed,:]
-        Mr = K[global_dofs_fixed,:]
+        Kr = K[ global_dofs_presc,: ]
+        Mr = K[ global_dofs_presc,: ]
 
-        K = K[dofs_not_presc,:].tocsc()[:,dofs_not_presc]
-        M = M[dofs_not_presc,:].tocsc()[:,dofs_not_presc]
+        K = K[ global_dofs_not_presc, : ].tocsc()[ :, global_dofs_not_presc ]
+        M = M[ global_dofs_not_presc, : ].tocsc()[ :, global_dofs_not_presc ]
         end = time.time()
-        # Kb = coo_matrix( (coo_Kb, (Ib, Jb)), shape = [line_restored, total_dof] )
-        # Mb = coo_matrix( (coo_Mb, (Ib, Jb)), shape = [line_restored, total_dof] )
-
-        # return K, M, Kb, Mb, total_dof - line_restored, Ib, Jb
 
         print('Time to assemble and process global matrices:', round(end-start,6))
 
-        return K, M, total_dof - line_restored, Kr, Mr, dofs_not_presc, data_K, data_M, I, J
+        return K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_not_presc, global_dofs_presc, total_dof

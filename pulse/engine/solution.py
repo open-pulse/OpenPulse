@@ -30,9 +30,10 @@ class Solution:
         if timing:
             print('Time to perform modal analysis :' + str(round((end - start),6)) + '[s]')
         
-        modal_shape = np.real( eigen_vectors )
         natural_frequencies = np.sqrt( np.absolute( np.real(eigen_values) ) ) /(2 * pi)
-
+        ind_ord = np.argsort(  natural_frequencies )
+        natural_frequencies = natural_frequencies[ ind_ord ]
+        modal_shape = np.real( eigen_vectors[ :, ind_ord ] )
         return natural_frequencies, modal_shape
     
 

@@ -12,6 +12,7 @@ from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
+from pulse.engine.savedata import SaveData
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -53,16 +54,6 @@ cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
-for i in range(1):
-
-  for j in dofs_fixed_node[i]:
-      
-    if j==0:
-      dofs_presc_data = {'u_x' : dofs_fixed_value[i][j]}
-    
-
-
-
 ## Assembly those informations.
 assemble = Assembly(nodal_coordinates,
                     connectivity,
@@ -77,15 +68,15 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, total_dof, Kr, Mr, dofs_not_presc, data_K, data_M, I, J = assemble.global_matrices()
+K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_not_presc, global_dofs_presc, total_dof = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
 ## Solution
 # Analysis parameters
-freq_max = 20
+freq_max = 200
 df = 5
-number_modes = 200
+number_modes = 100
 
 load_dof = 157
 response_dof = 157
@@ -111,48 +102,30 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
 
 # PostProcessing class definition
 
-#%%
+#%
 
+post = PostProcessing( fixed_nodes = fixed_nodes, presc_dofs = assemble.dofs_fixed(), value_prescribed_dofs = assemble.dofs_prescribed_values(), eigenVectors = modal_shape, HA_output = xd, nodal_coordinates = nodal_coordinates )
 
-post = PostProcessing( fixed_nodes = fixed_nodes, presc_dofs = assemble.dofs_fixed(), value_prescribed_dofs = dofs_fixed_value, eigenVectors = modal_shape, HA_output = xd, nodal_coordinates = nodal_coordinates )
+# eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 
+# fig = plt.figure(figsize=[12,8])
+# ax = fig.add_subplot(1,1,1)
+# plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
+# plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
+# ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
+# plt.show()
 
-eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
-
-fig = plt.figure(figsize=[12,8])
-ax = fig.add_subplot(1,1,1)
-plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
-plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
-ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
-plt.show()
-
-#%% Rebuild of EigenVectors adding fixed DOFs information (all DOFs fixed)
-
-def results(mode_to_plot):
-
-  u_xyz = np.zeros((nodal_coordinates.shape[0]-fixed_nodes.shape[0],1+3))
-  ind_u = np.arange(0,modal_shape.shape[0],6)
-
-  u_xyz[:,1] = modal_shape[ind_u  ,mode_to_plot-1]
-  u_xyz[:,2] = modal_shape[ind_u+1,mode_to_plot-1]
-  u_xyz[:,3] = modal_shape[ind_u+2,mode_to_plot-1]
-
-  for i in fixed_nodes:
-    u_xyz = np.insert( u_xyz, i-1, [0], axis=0 )
-
-  u_xyz[:,0] = np.arange(1,nodal_coordinates.shape[0]+1,1)
-
-  return u_xyz
-
-#% Entries for plot function 
+#%% Entries for plot function 
 
 #Choose EigenVector to be ploted
-mode_to_plot = 24
+mode_to_plot = 3
+
+u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
 
 connectivity_plot = connectivity[:,1:]
 coordinates = nodal_coordinates[:,1:]
-u_def = results(mode_to_plot)[:,1:]
-freq_n = frequencies[mode_to_plot-1]
+# u_def = results(mode_to_plot)[:,1:]
+freq_n = natural_frequencies[mode_to_plot-1]
 
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
@@ -163,9 +136,14 @@ scf=0.4
 # Call function to plot nodal results [dynamic]
 plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
 
+exit()
+
+
 #%% Save important results using HDF5 format
 
 save_results = False
+
+save = SaveData(save_results, data_K, data_M, I, J, connectivity, nodal_coordinates, dofs_not_presc = dofs_not_presc, dofs_presc = dofs_presc  )
 
 if save_results:
     

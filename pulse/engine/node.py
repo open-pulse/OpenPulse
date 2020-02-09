@@ -24,15 +24,15 @@ class Node:
     # Number of degree of freedom for each node
     degree_freedom = 6
 
-    def __init__(self, x, y, z, user_index, boundary = [], **kwargs):
+    def __init__(self, x, y, z, user_index, **kwargs):
         self.x = x
         self.y = y
         self.z = z
         self.user_index = user_index
 
         self.index = kwargs.get("index", None)
-        self.boundary = boundary
-        # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z respectively.
+        # self.boundary = boundary
+        # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z, respectively.
 
     def dofs(self):
         """ For a node, define its global degree of freedom.
@@ -46,26 +46,10 @@ class Node:
             #TODO: warning, self.index must be defined
             pass
 
-        # # mask to delete prescribed degree of freedom
-        # mask = np.ones(self.degree_freedom, dtype=bool)
-        # mask[ self.boundary ] = False
-
-        # local_dof = np.arange( self.degree_freedom, dtype=int )[mask]
-        # if local_dof == []:
-        #     global_dof = []
-        # else:
-        #     global_dof = self.degree_freedom * self.index + local_dof
-
-
         local_dof = np.arange( self.degree_freedom, dtype=int )
         global_dof = self.degree_freedom * self.index + local_dof
 
-        # if self.boundary == []:
-        #     global_boundary = []
-        # else:
-        #     global_boundary = self.degree_freedom * self.index + np.array( self.boundary )
-
-        return global_dof, local_dof#, global_boundary, self.boundary
+        return global_dof, local_dof
 
     def coordinates(self):
         """ Give coordinates as array."""
