@@ -222,7 +222,6 @@ class Assembly:
 
             #     count += aux
         
-            # for i, line_dof in enumerate(local_dof):
             I_aux = global_dof.reshape(global_dof.shape[0],1)*np.ones((1,global_dof.shape[0]))
             J_aux = I_aux.T
             I[count : count + aux]  = I_aux.reshape(entries_per_element)
