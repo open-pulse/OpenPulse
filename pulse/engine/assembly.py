@@ -96,9 +96,6 @@ class Assembly:
         return global_dofs_fixed
     
 
-
-
-
     def nodes_boundary(self):
         """ Dictionary ."""
         boundary = {}
@@ -183,7 +180,7 @@ class Assembly:
         return elements_list
         
     def global_matrices(self):
-        start = time.time()
+        start_time = time.time()
         # Prealocate
         entries_per_element = Element.total_degree_freedom**2
         empty_entries = self.count_empty_entries() 
@@ -198,40 +195,31 @@ class Assembly:
         data_M = np.zeros(total_entries)
 
         map_elements = self.map_elements()
-
-        count = 0
         
         # For each element.
-        for _, element in map_elements.items():
+        for index, element in map_elements.items():
 
             # Elementar matrices on the global coordinate system
             Ke = element.stiffness_matrix_gcs()
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            global_dof, local_dof = element.dofs()
+            global_dof, _, mat_I, mat_J = element.dofs()
 
-            # Construct non precribed matriz
-            aux = entries_per_element           
-            # for i, line_dof in enumerate(local_dof):
+            start = (index - 1)*entries_per_element
+            end = start + entries_per_element
+             
+            I[start : end]  = mat_I.reshape(entries_per_element)
+            J[start : end]  = mat_J.reshape(entries_per_element)
+            data_K[start : end] = Ke.reshape(entries_per_element)
+            data_M[start : end] = Me.reshape(entries_per_element)
+                     
+            # I[start:end] = np.repeat(global_dof, len(global_dof))
+            # J[start:end] = np.tile(global_dof, len(global_dof))
+            # data_K[start:end] = Ke.reshape(entries_per_element)
+            # data_M[start:end] = Me.reshape(entries_per_element)     
 
-            #     I[count : count + aux]  = global_dof[i] * np.ones( aux, dtype=int )
-            #     J[count : count + aux]  = np.array( global_dof, dtype= int )
-            #     data_K[count : count + aux] = Ke[line_dof, local_dof]
-            #     data_M[count : count + aux] = Me[line_dof, local_dof]
-
-            #     count += aux
-        
-            I_aux = global_dof.reshape(global_dof.shape[0],1)*np.ones((1,global_dof.shape[0]))
-            J_aux = I_aux.T
-            I[count : count + aux]  = I_aux.reshape(entries_per_element)
-            J[count : count + aux]  = J_aux.reshape(entries_per_element)
-            data_K[count : count + aux] = Ke.reshape(entries_per_element)
-            data_M[count : count + aux] = Me.reshape(entries_per_element)
-
-            count += aux
-        
-        # Line and Collumn Elimination
+        # Line and Column Elimination
         
         global_dofs_presc = np.sort( self.dofs_fixed() )
                 
@@ -240,14 +228,16 @@ class Assembly:
 
         K = csr_matrix( (data_K, (I, J)), shape = [total_dof, total_dof] )
         M = csr_matrix( (data_M, (I, J)), shape = [total_dof, total_dof] )
-
+        
+        # Slice rows and all columns of not prescribed dofs
         Kr = K[ global_dofs_presc,: ]
         Mr = K[ global_dofs_presc,: ]
 
-        K = K[ global_dofs_not_presc, : ].tocsc()[ :, global_dofs_not_presc ]
-        M = M[ global_dofs_not_presc, : ].tocsc()[ :, global_dofs_not_presc ]
-        end = time.time()
+        # Slice all rows/columns from not prescribed dofs
+        K = K[ global_dofs_not_presc, : ][ :, global_dofs_not_presc ]
+        M = M[ global_dofs_not_presc, : ][ :, global_dofs_not_presc ]
+        end_time = time.time()
 
-        print('Time to assemble and process global matrices:', round(end-start,6))
+        print('Time to assemble and process global matrices:', round(end_time-start_time,6))
 
         return K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_not_presc, global_dofs_presc, total_dof

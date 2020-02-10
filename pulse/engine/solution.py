@@ -15,6 +15,9 @@ class Solution:
         self.major_freq = kwargs.get("major_freq", None)
         self.df = kwargs.get("df", None)
         self.number_points = kwargs.get("number_points", None)
+        self.alpha = kwargs.get("alpha", None)
+        self.beta = kwargs.get("beta", None)
+        self.xi = kwargs.get("xi", None)
         
 
     def modal_analysis(self, number_modes = 10, which = 'LM', sigma = 0.01, timing = False ):
@@ -56,14 +59,18 @@ class Solution:
     
 
     def direct_method(self, F, timing = False):
+        
+        if self.alpha == None and self.beta == None:
+            self.alpha = 0
+            self.beta = 0
 
         frequencies = self.freq_vector()
-        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ])
-        
+        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex )
+
         start = time.time()
         for i in range(len(frequencies)):
             freq = frequencies[i]
-            A = self.stiffness_matrix - (2 * pi * freq)**2 * self.mass_matrix
+            A = ( 1 + 1j*freq*self.beta )*self.stiffness_matrix - (2 * pi * freq)**2 *( 1 + 1j*freq*self.alpha )* self.mass_matrix
             x[:,i] = spsolve(A, F)
         
         if timing:
@@ -74,8 +81,12 @@ class Solution:
 
     def mode_superposition(self, F, number_modes = 10, which = 'LM', sigma = 0.01, timing = False, **kwargs):
         
+        if self.alpha == None and self.beta == None:
+            self.alpha = 0
+            self.beta = 0    
+
         frequencies = self.freq_vector()
-        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ])
+        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
 
         modal_shape = kwargs.get("modal_shape", None)
         natural_frequencies = kwargs.get("natural_frequencies", None)
@@ -87,7 +98,8 @@ class Solution:
         F_aux = modal_shape.T @ F
         for i in range(len(frequencies)):
             freq = frequencies[i]
-            aux = np.diag( np.divide(1, (2 * pi * natural_frequencies)**2 - (2 * pi * freq)**2 ) )
+
+            aux = np.diag( np.divide(1, ((1+1j*self.beta*freq)*((2 * pi * natural_frequencies)**2) + (1j*self.alpha*freq) - (2 * pi * freq)**2 )) )
             x[:,i] = modal_shape @ aux @ F_aux
         
         end = time.time()

@@ -75,7 +75,7 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 ## Solution
 # Analysis parameters
 freq_max = 200
-df = 5
+df = 2
 number_modes = 100
 
 load_dof = 157
@@ -85,7 +85,7 @@ F = np.zeros( total_dof - len(assemble.dofs_fixed()) )
 F[load_dof] = 1
 
 # Solution class definition
-solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df)
+solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha = 0, beta = 1e-4)
 
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
@@ -108,12 +108,14 @@ post = PostProcessing( fixed_nodes = fixed_nodes, presc_dofs = assemble.dofs_fix
 
 # eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 
-# fig = plt.figure(figsize=[12,8])
-# ax = fig.add_subplot(1,1,1)
-# plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
-# plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
-# ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
-# plt.show()
+fig = plt.figure(figsize=[12,8])
+ax = fig.add_subplot(1,1,1)
+plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
+plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
+ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
+plt.show()
+
+# exit()
 
 #%% Entries for plot function 
 

@@ -71,7 +71,10 @@ class Element:
         global_dof[0:a], global_dof[a:a+b] = global_dof_ni, global_dof_nf
         local_dof[0:a], local_dof[a:a+b] = local_dof_ni, local_dof_nf
 
-        return global_dof, local_dof
+        mat_I = global_dof.reshape(global_dof.shape[0],1)*np.ones((1,global_dof.shape[0]))
+        mat_J = mat_I.T
+
+        return global_dof, local_dof, mat_I, mat_J
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
