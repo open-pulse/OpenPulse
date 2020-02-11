@@ -15,12 +15,15 @@ class Solution:
         self.major_freq = kwargs.get("major_freq", None)
         self.df = kwargs.get("df", None)
         self.number_points = kwargs.get("number_points", None)
-        self.alpha = kwargs.get("alpha", None)
-        self.beta = kwargs.get("beta", None)
-        self.xi = kwargs.get("xi", None)
-        
+        self.alpha_v = kwargs.get("alpha_v", None)
+        self.beta_v = kwargs.get("beta_v", None)
+        self.alpha_h = kwargs.get("alpha_h", None)
+        self.beta_h = kwargs.get("beta_h", None)
 
     def modal_analysis(self, number_modes = 10, which = 'LM', sigma = 0.01, timing = False ):
+        """ Perform a modal analysis and returns natural frequencies and modal shapes normalized 
+            with respect to generalized mass coordinates.
+        """
   
         start = time.time()  
         eigen_values, eigen_vectors = eigs( self.stiffness_matrix,
@@ -59,10 +62,23 @@ class Solution:
     
 
     def direct_method(self, F, timing = False):
+        """ 
+            Perform an harmonic analysis through direct method and returns the response of
+            all nodes due the external or internal equivalent load. It has been implemented two
+            different damping models: Viscous Proportional and Hysteretic Proportional
+            Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
+            Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
+        """
         
-        if self.alpha == None and self.beta == None:
-            self.alpha = 0
-            self.beta = 0
+        if self.alpha_v == None: 
+            self.alpha_v = 0
+        if self.beta_v == None:
+            self.beta_v = 0
+
+        if self.alpha_h == None: 
+            self.alpha_h = 0
+        if self.beta_h == None:
+            self.beta_h = 0
 
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex )
@@ -70,7 +86,8 @@ class Solution:
         start = time.time()
         for i in range(len(frequencies)):
             freq = frequencies[i]
-            A = ( 1 + 1j*freq*self.beta )*self.stiffness_matrix - (2 * pi * freq)**2 *( 1 + 1j*freq*self.alpha )* self.mass_matrix
+            
+            A = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*self.stiffness_matrix + ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*self.mass_matrix
             x[:,i] = spsolve(A, F)
         
         if timing:
@@ -80,10 +97,23 @@ class Solution:
         return x, frequencies
 
     def mode_superposition(self, F, number_modes = 10, which = 'LM', sigma = 0.01, timing = False, **kwargs):
+        """ 
+            Perform an harmonic analysis through superposition method and returns the response of
+            all nodes due the external or internal equivalent load. It has been implemented two
+            different damping models: Viscous Proportional and Hysteretic Proportional
+            Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
+            Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
+        """
         
-        if self.alpha == None and self.beta == None:
-            self.alpha = 0
-            self.beta = 0    
+        if self.alpha_v == None: 
+            self.alpha_v = 0
+        elif self.beta_v == None:
+            self.beta_v = 0
+
+        if self.alpha_h == None: 
+            self.alpha_h = 0
+        elif self.beta_h == None:
+            self.beta_h = 0
 
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
@@ -99,7 +129,7 @@ class Solution:
         for i in range(len(frequencies)):
             freq = frequencies[i]
 
-            aux = np.diag( np.divide(1, ((1+1j*self.beta*freq)*((2 * pi * natural_frequencies)**2) + (1j*self.alpha*freq) - (2 * pi * freq)**2 )) )
+            aux = np.diag( np.divide(1, (( 1 + 1j*self.beta_v*freq + 1j*self.beta_h)*((2 * pi * natural_frequencies)**2) + (1j*freq*self.alpha_v + 1j*self.alpha_h) - (2 * pi * freq)**2 )) )
             x[:,i] = modal_shape @ aux @ F_aux
         
         end = time.time()

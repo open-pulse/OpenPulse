@@ -85,7 +85,7 @@ F = np.zeros( total_dof - len(assemble.dofs_fixed()) )
 F[load_dof] = 1
 
 # Solution class definition
-solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha = 0, beta = 1e-4)
+solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 1e-4)
 
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
@@ -104,7 +104,12 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
 
 #%
 
-post = PostProcessing( fixed_nodes = fixed_nodes, presc_dofs = assemble.dofs_fixed(), value_prescribed_dofs = assemble.dofs_prescribed_values(), eigenVectors = modal_shape, HA_output = xd, nodal_coordinates = nodal_coordinates )
+post = PostProcessing( fixed_nodes = fixed_nodes, 
+                      presc_dofs = assemble.dofs_fixed(), 
+                      value_prescribed_dofs = assemble.dofs_prescribed_values(), 
+                      eigenVectors = modal_shape, 
+                      HA_output = xd, 
+                      nodal_coordinates = nodal_coordinates )
 
 # eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 
