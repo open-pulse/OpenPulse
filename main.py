@@ -171,10 +171,12 @@ dir_path = save.store_data()
 filename = "output_data.hdf5"
 
 # Defines read as an object of ReadData Class
-read = ReadData(filename)
+read = ReadData(filename, dir_path = dir_path)
 
+# Call read_data method and return all variable saved in file
 var_name, data = read.read_data()
+
 for i, name in enumerate(var_name):
     vars()[name[0]] = data[i]
 
-# %%
+
