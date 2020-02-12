@@ -14,23 +14,24 @@ class PostProcessing:
         self.fn = kwargs.get("fn", None)
         self.eigenVectors = kwargs.get("eigenVectors", None)
         self.HA_output = kwargs.get("HA_output", None)
-        # self.mode_plot = kwargs.get("mode_plot", None)
+        self.log = kwargs.get("log", None)
 
 
     def dof_recover(self):
         """ 
         This method returns eigenVectors with all prescribed dofs values recovered.
-        Similarly, it returns final dofs response U considering already prescribed dofs values.
+        Similarly, it returns final dofs response U_out considering already prescribed dofs values.
 
         """
 
         global_dofs = np.sort( self.presc_dofs )
-        print('Dofs before recovering:',self.eigenVectors.shape[0])
+        if self.log:
+            print('Dofs before recovering:',self.eigenVectors.shape[0])
         aux_eigenVectors = self.eigenVectors
         for row in global_dofs:
             aux_eigenVectors = np.insert( aux_eigenVectors, row, [0], axis=0 )
-        print('Dofs after recovering:',aux_eigenVectors.shape[0])
-        # print(self.eigenVectors[0:5])
+        if self.log:
+            print('Dofs after recovering:',aux_eigenVectors.shape[0])
 
         eigenVectors_Uxyz = np.zeros(( self.nodal_coordinates.shape[0], int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
         eigenVectors_Rxyz = np.zeros(( self.nodal_coordinates.shape[0], int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
@@ -53,10 +54,9 @@ class PostProcessing:
             U_out = self.HA_output
             for i in range(len(self.presc_dofs)):
                     U_out = np.insert( U_out, self.presc_dofs[i], self.value_prescribed_dofs[self.presc_dofs[i]], axis=0 )
-                    # print(self.presc_dofs[i], self.value_prescribed_dofs[self.presc_dofs[i]])
         else:
             U_out = []
-            print("Please, it's necessary to solve an Harmonic Analysis if you intend recover information about prescribed dofs !!!")
+            print("Please, it's necessary to solve an Harmonic Analysis if you intend recover information about prescribed dofs.")
 
         return eigenVectors_Uxyz, eigenVectors_Rxyz, U_out
 

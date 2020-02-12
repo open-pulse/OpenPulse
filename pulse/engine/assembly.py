@@ -212,19 +212,14 @@ class Assembly:
             I[start : end]  = mat_I.reshape(entries_per_element)
             J[start : end]  = mat_J.reshape(entries_per_element)
             data_K[start : end] = Ke.reshape(entries_per_element)
-            data_M[start : end] = Me.reshape(entries_per_element)
-                     
-            # I[start:end] = np.repeat(global_dof, len(global_dof))
-            # J[start:end] = np.tile(global_dof, len(global_dof))
-            # data_K[start:end] = Ke.reshape(entries_per_element)
-            # data_M[start:end] = Me.reshape(entries_per_element)     
+            data_M[start : end] = Me.reshape(entries_per_element)  
 
         # Line and Column Elimination
         
         global_dofs_presc = np.sort( self.dofs_fixed() )
                 
         total_dof = Node.degree_freedom * ( self.number_nodes() )
-        global_dofs_not_presc = np.delete( np.arange(total_dof), global_dofs_presc )
+        global_dofs_free = np.delete( np.arange(total_dof), global_dofs_presc )
 
         K = csr_matrix( (data_K, (I, J)), shape = [total_dof, total_dof] )
         M = csr_matrix( (data_M, (I, J)), shape = [total_dof, total_dof] )
@@ -234,10 +229,10 @@ class Assembly:
         Mr = K[ global_dofs_presc,: ]
 
         # Slice all rows/columns from not prescribed dofs
-        K = K[ global_dofs_not_presc, : ][ :, global_dofs_not_presc ]
-        M = M[ global_dofs_not_presc, : ][ :, global_dofs_not_presc ]
+        K = K[ global_dofs_free, : ][ :, global_dofs_free ]
+        M = M[ global_dofs_free, : ][ :, global_dofs_free]
         end_time = time.time()
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
 
-        return K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_not_presc, global_dofs_presc, total_dof
+        return K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof
