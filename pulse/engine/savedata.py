@@ -54,8 +54,8 @@ class SaveData:
         if os.path.exists(self.filename):
             f = h5py.File(self.filename)
             f.close()
-            print("\nThe already existing 'output_data.hdf5' file has been overwritten.")
-            print("Path:", os.getcwd())
+            print("\nThe already existing '" + self.filename + "' file has been overwritten.")
+            print("Folder path:", os.getcwd())
             flag = False
         else:
             flag = True
@@ -83,7 +83,8 @@ class SaveData:
         f.close()
         if flag:
             print("\nData has been stored in hard disk.")
-            print("Path:", os.getcwd())
+            print("File name: '" + self.filename + "'" )
+            print("Folder path:", os.getcwd())
         return os.getcwd()
 
     # np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')

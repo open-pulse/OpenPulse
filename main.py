@@ -18,7 +18,6 @@ from pulse.engine.readdata import ReadData
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
 
-
 ## Material definition:
 # steel
 young_modulus = 210e9 # Young modulus [Pa]
@@ -114,36 +113,37 @@ eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
-plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])))
-plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])))
-ax.legend(['Direct - OpenPulse','Superposition - OpenPulse'])
+plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])), color = [0,0,0], linewidth=2)
+plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])), color = [1,0,0], linewidth=2)
+ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
+ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
+ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
+ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
 # exit()
 
-# #%% Entries for plot function 
+#%% Entries for plot function 
 
-# #Choose EigenVector to be ploted
-# mode_to_plot = 3
+#Choose EigenVector to be ploted
+mode_to_plot = 17
 
-# u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
+u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
+connectivity_plot = connectivity[:,1:]
+coordinates = nodal_coordinates[:,1:]
 
-# connectivity_plot = connectivity[:,1:]
-# coordinates = nodal_coordinates[:,1:]
-# # u_def = results(mode_to_plot)[:,1:]
-# freq_n = natural_frequencies[mode_to_plot-1]
+freq_n = natural_frequencies[mode_to_plot-1]
 
-# # Choose the information to plot/animate
-# Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
+# Choose the information to plot/animate
+Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
-# # Amplitude scalling factor
-# scf=0.4
+# Amplitude scalling factor
+scf=0.4
 
-# # Call function to plot nodal results [dynamic]
-# plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+# Call function to plot nodal results [dynamic]
+plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
 
-# exit()
-
+exit()
 
 #%% Save important results using HDF5 format
 filename = "output_data.hdf5"
@@ -171,12 +171,10 @@ dir_path = save.store_data()
 filename = "output_data.hdf5"
 
 # Defines read as an object of ReadData Class
-read = ReadData(filename, dir_path = dir_path)
+read = ReadData(filename)
 
 # Call read_data method and return all variable saved in file
-var_name, data = read.read_data()
-
-for i, name in enumerate(var_name):
-    vars()[name[0]] = data[i]
-
-
+var_name, data, flag = read.read_data()
+if flag:
+    for i, name in enumerate(var_name):
+        vars()[name[0]] = data[i]
