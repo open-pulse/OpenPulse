@@ -4,7 +4,6 @@ import os
 class SaveData:
 
     def __init__(self,
-                filename,
                 connectivity,
                 nodal_coordinates, 
                 data_K, 
@@ -14,7 +13,6 @@ class SaveData:
                 dofs_free, 
                 **kwargs):
 
-        self.filename = filename
         self.connectivity = connectivity
         self.nodal_coordinates = nodal_coordinates
         self.data_K = data_K
@@ -29,6 +27,8 @@ class SaveData:
         self.eigenVectors_Rxyz = kwargs.get("eigenVectors_Rxyz", None)
         self.frequency_analysis = kwargs.get("frequency_analysis", None)
         self.U_out = kwargs.get("U_out", None)
+        self.file_name = kwargs.get("file_name", "results_data.hdf5")
+        self.folder_name = kwargs.get("folder_name", "output_data")
     
     #%% Save obtained results in HDF5 format
         
@@ -36,31 +36,27 @@ class SaveData:
         """ This method stores relevant output data obtained with model solution
 
         """
-                
-        # Change current directory
-        if os.path.exists("pulse"):
-            os.chdir("pulse")
 
-        # Create directory
-        dirName = "data_saved"
-        
-        if "pulse" in os.getcwd() and not os.path.exists(dirName):
-            if not dirName in os.getcwd():
-                os.mkdir(dirName)
-                os.chdir(dirName)
-        elif os.path.exists(dirName):
-            os.chdir(dirName)                 
-        
-        if os.path.exists(self.filename):
-            f = h5py.File(self.filename)
+        path = os.path.split(os.path.split(os.path.split(os.path.abspath(__file__))[0])[0])[0]
+        os.chdir(path)
+
+        if not os.path.exists(self.folder_name):
+
+            os.mkdir(self.folder_name)
+            os.chdir(self.folder_name)
+        else:
+            os.chdir(self.folder_name)
+      
+        if os.path.exists(self.file_name):
+            f = h5py.File(self.file_name)
             f.close()
-            print("\nThe already existing '" + self.filename + "' file has been overwritten.")
+            print("\nThe already existing '" + self.file_name + "' file has been overwritten.")
             print("Folder path:", os.getcwd())
             flag = False
         else:
             flag = True
 
-        f = h5py.File(self.filename, 'w')
+        f = h5py.File(self.file_name, 'w')
         f.create_dataset('/input/nodal_coordinates', data = self.nodal_coordinates, dtype = 'float64')
         f.create_dataset('/input/connectivity', data = self.connectivity, dtype = 'int')
         f.create_dataset('/global_matrices/I', data = self.I, dtype = 'int')
@@ -83,9 +79,6 @@ class SaveData:
         f.close()
         if flag:
             print("\nData has been stored in hard disk.")
-            print("File name: '" + self.filename + "'" )
+            print("File name: '" + self.file_name + "'" )
             print("Folder path:", os.getcwd())
-        return os.getcwd()
-
-    # np.savetxt('M_globalmatrix.txt',M.toarray(),fmt='%.18e')
-    # np.savetxt('K_globalmatrix.txt',K.toarray(),fmt='%.18e')
+        return #os.getcwd()

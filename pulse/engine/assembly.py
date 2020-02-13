@@ -92,7 +92,6 @@ class Assembly:
             global_dofs_fixed.extend( index * Node.degree_freedom + self.dofs_fixed_node[i] )
             # global_dofs_presc_values(index * Node.degree_freedom + self.dofs_fixed_node[i])
 
-
         return global_dofs_fixed
     
 
@@ -209,10 +208,10 @@ class Assembly:
             start = (index - 1)*entries_per_element
             end = start + entries_per_element
              
-            I[start : end]  = mat_I.reshape(entries_per_element)
-            J[start : end]  = mat_J.reshape(entries_per_element)
-            data_K[start : end] = Ke.reshape(entries_per_element)
-            data_M[start : end] = Me.reshape(entries_per_element)  
+            I[start : end]  = mat_I.flatten()
+            J[start : end]  = mat_J.flatten()
+            data_K[start : end] = Ke.flatten()
+            data_M[start : end] = Me.flatten()
 
         # Line and Column Elimination
         

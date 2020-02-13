@@ -1,13 +1,12 @@
 import h5py
 import os
-import numpy as np
  
 class ReadData:
 
-    def __init__( self, filename, folder_name = "data_saved", **kwargs ):
-        self.filename = filename
-        self.folder_name = folder_name
+    def __init__( self, **kwargs ):
 
+        self.file_name = kwargs.get("file_name", "results_data.hdf5")
+        self.folder_name = kwargs.get("folder_name", "output_data")
 
     def read_data( self ):
         """ This method read output data obtained with model solution
@@ -18,7 +17,7 @@ class ReadData:
         flag = True
         file_exists = True
 
-        path = os.path.split(os.path.split(os.path.abspath(__file__))[0])[0]
+        path = os.path.split(os.path.split(os.path.split(os.path.abspath(__file__))[0])[0])[0]
         os.chdir(path)
 
         if os.path.exists(self.folder_name):
@@ -31,9 +30,9 @@ class ReadData:
             print("Please, it's necessary to save the results first before to try opening it.")
             file_exists = False
 
-        if os.path.exists(self.filename) and file_exists:
+        if os.path.exists(self.file_name) and file_exists:
                 
-            f = h5py.File(self.filename, 'r')
+            f = h5py.File(self.file_name, 'r')
             groups = list(f.keys())
 
             for gp in groups:
@@ -53,7 +52,7 @@ class ReadData:
 
             if file_exists:
 
-                print("WARNING: The file '" + self.filename + "' does not exists or cannot be found." )
+                print("WARNING: The file '" + self.file_name + "' does not exists or cannot be found." )
                 flag = False
-            
+         
         return var_name, data, flag

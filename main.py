@@ -12,6 +12,7 @@ from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
+# from pulse.engine.dataprocess import DataProcess
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
 
@@ -31,10 +32,10 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 ## Nodal coordinates
-nodal_coordinates = np.loadtxt('Input/coord.dat') 
+nodal_coordinates = np.loadtxt('input_data/coord.dat') 
 
 ## Connectivity
-connectivity = np.loadtxt('Input/connect.dat', dtype=int)
+connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
 
 ## Boundary conditions
 #TODO: save the rows and collumns deleted.
@@ -123,58 +124,54 @@ plt.show()
 
 # exit()
 
-#%% Entries for plot function 
+# #%% Entries for plot function 
 
-#Choose EigenVector to be ploted
-mode_to_plot = 17
+# #Choose EigenVector to be ploted
+# mode_to_plot = 17
 
-u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
-connectivity_plot = connectivity[:,1:]
-coordinates = nodal_coordinates[:,1:]
+# u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
+# connectivity_plot = connectivity[:,1:]
+# coordinates = nodal_coordinates[:,1:]
 
-freq_n = natural_frequencies[mode_to_plot-1]
+# freq_n = natural_frequencies[mode_to_plot-1]
 
-# Choose the information to plot/animate
-Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
+# # Choose the information to plot/animate
+# Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
-# Amplitude scalling factor
-scf=0.4
+# # Amplitude scalling factor
+# scf=0.4
 
-# Call function to plot nodal results [dynamic]
-plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+# # Call function to plot nodal results [dynamic]
+# plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
 
-exit()
+# exit()
 
 #%% Save important results using HDF5 format
-filename = "output_data.hdf5"
-# Defines save as an object of SaveData Class
-save = SaveData(filename,
-                connectivity, 
-                nodal_coordinates,  
-                data_K, 
-                data_M, 
-                I, 
-                J,
-                global_dofs_free,
-                dofs_prescribed = global_dofs_presc,
-                eigenVectors = modal_shape,
-                eigenVectors_Uxyz = eigenVectors_Uxyz,
-                natural_frequencies = natural_frequencies, 
-                frequency_analysis = frequencies,
-                U_out = U_out )
+
+# Defines wdata as an object of SaveData Class
+wdata = SaveData( connectivity, 
+                    nodal_coordinates,  
+                    data_K, 
+                    data_M, 
+                    I, 
+                    J,
+                    global_dofs_free,
+                    dofs_prescribed = global_dofs_presc,
+                    eigenVectors = modal_shape,
+                    eigenVectors_Uxyz = eigenVectors_Uxyz,
+                    natural_frequencies = natural_frequencies, 
+                    frequency_analysis = frequencies,
+                    U_out = U_out )
 
 # Call store_data method to save the output results 
-dir_path = save.store_data()
-
+wdata.store_data()
 #%%
-
-filename = "output_data.hdf5"
-
-# Defines read as an object of ReadData Class
-read = ReadData(filename)
+# Defines rdata as an object of ReadData Class
+rdata = ReadData()
 
 # Call read_data method and return all variable saved in file
-var_name, data, flag = read.read_data()
+var_name, data, flag = rdata.read_data()
 if flag:
     for i, name in enumerate(var_name):
-        vars()[name[0]] = data[i]
+        vars()[name[0]+"_"] = data[i]
+
