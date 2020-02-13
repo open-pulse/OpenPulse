@@ -29,7 +29,7 @@ class Mesh:
         neighbors = self.get_neighbors()
         translator = {}
         stack = deque()
-        index = 0
+        index = 1
 
         stack.appendleft(self.nodes[0][0])
 
@@ -78,12 +78,12 @@ class Mesh:
 
         for (index, x, y, z) in self.nodes:
             if index in translator:
-                node = (translator[index], x, y, z)
+                node = (translator[index], x/1000, y/1000, z/1000)
                 translated_nodes.append(node)
 
         for index, (_, start, end) in enumerate(self.edges):
             if start and end in translator:
-                edge = (index, translator[start], translator[end])
+                edge = (index+1, translator[start], translator[end])
                 translated_edges.append(edge)
 
         self.nodes = translated_nodes

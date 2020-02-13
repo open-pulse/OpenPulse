@@ -16,6 +16,9 @@ from pulse.engine.postprocessing import PostProcessing
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
 
+# from pulse.mesh import Mesh
+
+
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
 
@@ -30,6 +33,14 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
+
+
+# m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
+# m.generate(0.01,0.01)
+# # m.reorder_index_bfs()
+# nodal_coordinates = np.array(m.nodes)
+# connectivity  = np.array(m.edges, dtype=int)
+
 
 ## Nodal coordinates
 nodal_coordinates = np.loadtxt('input_data/coord.dat') 
@@ -73,6 +84,8 @@ K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_d
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
+plt.spy(K.toarray())
+
 ## Solution
 # Analysis parameters
 freq_max = 200
@@ -86,7 +99,7 @@ F = np.zeros( total_dof - len(assemble.dofs_fixed()) )
 F[load_dof] = 1
 
 # Solution class definition
-solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 1e-4)
+solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
 
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
@@ -122,7 +135,7 @@ ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
-# exit()
+exit()
 
 # #%% Entries for plot function 
 
@@ -174,4 +187,6 @@ var_name, data, flag = rdata.read_data()
 if flag:
     for i, name in enumerate(var_name):
         vars()[name[0]+"_"] = data[i]
+
+
 
