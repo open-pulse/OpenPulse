@@ -45,9 +45,9 @@ very good approximation for thin and thick walled pipes.
     kk = alpha/(1+(alpha**2.))
     ks = 6./(7. + 20.*(kk**2.))
     As_ = ks*A  
-    # Residual bending flexibility - Hughes, pg. 378 and ANSYS FACT
-    As1 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
-    As2 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
+    # Residual bending flexibility
+    As1 = 1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
+    As2 = 1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
     #
     #Material
     #G = E/(2.0*(1.0 + pois)) #Nao deletar!!!
@@ -60,7 +60,7 @@ very good approximation for thin and thick walled pipes.
     invJac = 1./detJac
     #
     #Constitutive matrices (element with constant geometry along x-axis)
-    Ds = np.array([[mu*As1, 0.],[0., mu*As2]])
+    Ds = np.diag([mu*As1, mu*As2])
     Db = np.array([[E*I1, 0.],[0., E*I2]])
     #
     #Inertial matrices (element with constant geometry along x-axis)
@@ -70,9 +70,13 @@ very good approximation for thin and thick walled pipes.
     #Preparing for numeric integration
     npel = 2
     ngln = 6
+
+    ## Gauss Quadracture Stiffness
     nint_k = 1 #Stiffness: Reduced integration to avoid shear locking
     pint_k = np.array([0.])
     wfact_k = np.array([2.])
+
+    ## Gauss Quadrature Masss
     nint_m = 2 #Mass: Full integration #Distributed external load: Full integration
     pint_m = np.array([-0.577350269189626,0.577350269189626])
     wfact_m = np.array([1.0,1.0])
@@ -91,6 +95,7 @@ very good approximation for thin and thick walled pipes.
     #
     ############################## STIFFNESS MATRIX ###################################
     for i in range(nint_k):
+
         pksi = pint_k[i]
         phi, dphi = shape(pksi)
         dphi = invJac*dphi

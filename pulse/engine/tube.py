@@ -49,14 +49,18 @@ class TubeCrossSection:
         """Cross section second polar moment of area [m**4]."""
         return 2 * self.moment_area()
 
-    def shear_form_factor(self,poisson_ratio):
+    def shear_form_factor(self):
         """Shear form factor for a tube.
         Parameter
         ---------
         poisson_ratio : float
             Poisson's ratio [ ]"""
-        # alpha   = self.D_internal / self.D_external
-        # return 6. * (1 + poisson_ratio) * (1 + alpha**2)**2 / ((7 + 6*poisson_ratio) * (1 + alpha**2)**2  + (20 + 12*poisson_ratio) * alpha**2)
-        return 0.5
+        alpha = self.D_internal / self.D_internal
+        auxiliar = alpha / (1 + (alpha**2))
+        return 6 / (7 + 20 * auxiliar**2)
+    
+    def shear_area(self, element_length, young_modulus):
+        shear_area = self.area() * self.shear_form_factor()
+        return 1 / (( 1 / shear_area) + element_length**2/(12 * young_modulus * self.moment_area()))
 
 #TODO: organizar a forma como o PRINT é usado para a classe.
