@@ -224,14 +224,14 @@ class Element:
             B_axial[0,0] = dphi[0]
             B_axial[0,6] = dphi[1]
 
-            B_torcional = np.zeros((1,12))
-            B_torcional[0,3] = dphi[0]
-            B_torcional[0,9] = dphi[1] 
+            B_torsional = np.zeros((1,12))
+            B_torsional[0,3] = dphi[0]
+            B_torsional[0,9] = dphi[1] 
             
             Kbe += (B_bending.T @ D_bending @ B_bending) * det_jacobian * weigth
             Kse += (B_shear.T @ D_shear @ B_shear) * det_jacobian * weigth
             Kae += E * A * (B_axial.T @ B_axial) * det_jacobian * weigth
-            Kte += mu * J * (B_torcional.T @ B_torcional) * det_jacobian * weigth
+            Kte += mu * J * (B_torsional.T @ B_torsional) * det_jacobian * weigth
 
         return Kbe + Kse + Kae + Kte 
 

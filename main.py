@@ -6,7 +6,7 @@ import h5py
 from pulse.engine.material import Material
 from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
-from pulse.engine.element import Element
+from pulse.engine.element_288 import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 
