@@ -68,20 +68,13 @@ class Assembly:
         """ Dictionary ."""
         return { j:i for i, j in self.node_internal_to_user_index().items() }
     
-    def count_dofs_fixed(self):
-        "Number of dofs fixed"
-        count = 0
-        for dof_list in self.dofs_fixed_node:
-            count += len(dof_list)
-        return count
+    # def count_dofs_fixed(self):
+    #     "Number of dofs fixed"
+    #     count = 0
+    #     for dof_list in self.dofs_fixed_node:
+    #         count += len(dof_list)
+    #     return count
     
-    def count_empty_entries(self):
-        "Number of dofs fixed"
-        count = 0
-        for i in range( len (self.fixed_nodes )):
-            count += 2 * len(self.dofs_fixed_node[i])**2
-        return count
-
     def dofs_fixed(self):
         """ Global index of every fixed degree of freedom."""
         dictionary = self.node_user_to_internal_index()
@@ -93,21 +86,7 @@ class Assembly:
             # global_dofs_presc_values(index * Node.degree_freedom + self.dofs_fixed_node[i])
 
         return global_dofs_fixed
-    
-
-    def nodes_boundary(self):
-        """ Dictionary ."""
-        boundary = {}
-        for i in range(self.fixed_nodes.shape[0]):
-            boundary.update({ i : self.dofs_fixed_node[i] })
-        # dictionary = self.node_internal_to_user_index()
-        # for i, user_index in dictionary.items():
-        #     if user_index in self.fixed_nodes:
-        #         boundary.update({i : self.dofs_fixed_node[ list(self.fixed_nodes).index(user_index) ] })
-        #     else:
-        #         boundary.update({i: []})
-        return boundary
-
+        
     
     def dofs_prescribed_values(self):
         """ Dictionary ."""
@@ -125,14 +104,12 @@ class Assembly:
         """ Nodes assembly in a list ordered by the internal indexing."""
         nodes_dictionary = self.node_internal_to_user_index()
         nodes_list = {}
-        # nodes_boundary = self.nodes_boundary()
         nodes_internal = self.nodes_internal_index()
         for i in nodes_internal:
             x = self.nodal_coordinates[i,1]
             y = self.nodal_coordinates[i,2]
             z = self.nodal_coordinates[i,3]
             user_index = nodes_dictionary[i]
-            # boundary = nodes_boundary[i]
             nodes_list.update( {i : Node(x, y, z, user_index, index = i)} )
         return nodes_list
     
@@ -182,8 +159,7 @@ class Assembly:
         start_time = time.time()
         # Prealocate
         entries_per_element = Element.total_degree_freedom**2
-        empty_entries = self.count_empty_entries() 
-        total_entries = entries_per_element * self.number_elements() - empty_entries*0
+        total_entries = entries_per_element * self.number_elements()
                
         # Row, Collumn indeces to be used on Csr_matrix format
         I = np.zeros(total_entries)
@@ -195,19 +171,22 @@ class Assembly:
 
         map_elements = self.map_elements()
         
+        count = 0
+
         # For each element.
-        for index, element in map_elements.items():
+        for _, element in map_elements.items():
 
             # Elementar matrices on the global coordinate system
             Ke = element.stiffness_matrix_gcs()
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            global_dof, _, mat_I, mat_J = element.dofs()
+            _, _, mat_I, mat_J = element.dofs()
 
-            start = (index - 1)*entries_per_element
+            start = count*entries_per_element
             end = start + entries_per_element
-             
+            count += 1
+
             I[start : end]  = mat_I.flatten()
             J[start : end]  = mat_J.flatten()
             data_K[start : end] = Ke.flatten()

@@ -12,11 +12,10 @@ from pulse.engine.element import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
-# from pulse.engine.dataprocess import DataProcess
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
 
-# from pulse.mesh import Mesh
+from pulse.mesh import Mesh
 
 
 from pulse.engine.plot_results import modeshape_plot as plot
@@ -35,11 +34,12 @@ thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
 
-# m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
-# m.generate(0.01,0.01)
-# # m.reorder_index_bfs()
-# nodal_coordinates = np.array(m.nodes)
-# connectivity  = np.array(m.edges, dtype=int)
+
+m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
+m.generate(0.01,0.01)
+m.reorder_index_bfs()
+nodal_coordinates = np.array(m.nodes)
+connectivity  = np.array(m.edges, dtype=int)
 
 
 ## Nodal coordinates
@@ -84,7 +84,7 @@ K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_d
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
-plt.spy(K.toarray())
+# plt.spy(K.toarray())
 
 ## Solution
 # Analysis parameters
@@ -135,29 +135,29 @@ ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
+
+
+#%% Entries for plot function 
+
+#Choose EigenVector to be ploted
+mode_to_plot = 100
+
+u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
+connectivity_plot = connectivity[:,1:]
+coordinates = nodal_coordinates[:,1:]
+
+freq_n = natural_frequencies[mode_to_plot-1]
+
+# Choose the information to plot/animate
+Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
+
+# Amplitude scalling factor
+scf=0.4
+
+# Call function to plot nodal results [dynamic]
+plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
+
 exit()
-
-# #%% Entries for plot function 
-
-# #Choose EigenVector to be ploted
-# mode_to_plot = 17
-
-# u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
-# connectivity_plot = connectivity[:,1:]
-# coordinates = nodal_coordinates[:,1:]
-
-# freq_n = natural_frequencies[mode_to_plot-1]
-
-# # Choose the information to plot/animate
-# Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
-
-# # Amplitude scalling factor
-# scf=0.4
-
-# # Call function to plot nodal results [dynamic]
-# plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed, Deformed, Animate_Mode, Save)
-
-# exit()
 
 #%% Save important results using HDF5 format
 
