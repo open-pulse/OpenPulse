@@ -1,6 +1,7 @@
 #
 import math
 import numpy as np
+import SECTION_calc_v2 as sec
 #######################################################
 def shape(ksi):
     """
@@ -14,7 +15,7 @@ Linear shape functions and derivatives for 2-node topology
     #       
     return phi, dphi
 ######################################################  
-def matrices(ee,E,pois,rho,do,di,le,eload):
+def matrices(ee,E,pois,rho,do,di,le,nr):
     """
 Created on Wed Jan 20 11:36:09 2019
 @author: Olavo M. Silva
@@ -23,7 +24,7 @@ Ref.: Hughes, T.J.R., The Finite Element Method - Linear Static
       and Dynamic Finite Element Analysis, Dover, 1987.
       Sec. 5.4
 Notes:
-- The kinematic conditions do not include warping, i.e, plane sections remain plane.
+- The kinematic conditions do not include warping.
 - The elementary matrices are not rotated.
 - Hughes2Ansys convention -> x1:x2, x2:x3, x3:x1, tet1:tet2, tet2:tet3, tet3:tet1.
 - The shear correction factor ks used in the calculation of [Ke] was adapted from: 
@@ -32,22 +33,26 @@ Volume 2: Beams, Plates and Shells, CIMNE, 2013. Sec. 2.2.3.1.
 This is different from what is used in Ansys, which performs a numerical integration 
 over the cross-section to obtain ks. The cross-sectional area is considered as a sum 
 of "N" divisions (default: N=8). However, the equation considered in this work is a 
-very good approximation for thin and thick walled pipes.
+very good approximation for thin and thick walled pipes. Ansys' ks converges to
+analytical ks when N->inf.
+- Ansys pipe288 element has some "tricks" that make hard to compare matrices entries.  
+It can be made with N>100, but with some differences. 
     """
     #Geometry properties of cross-section
     I1 = math.pi*(do**4 - di**4)/64.0   # I1 = I2
     I2 = math.pi*(do**4 - di**4)/64.0
-    J =  I1 + I2      #pg 367 Hughes
+    J =  I1 + I2   
     A =  math.pi*(do**2 - di**2)/4.0
+    #alps = sec.sectcalc(do,di,nr)
     #
     #Shear form factor
     alpha = di/do
     kk = alpha/(1+(alpha**2.))
-    ks = 6./(7. + 20.*(kk**2.))
+    ks =  ansfactor*6./(7. + 20.*(kk**2.)) #1./alps
     As_ = ks*A  
-    # Residual bending flexibility - Hughes, pg. 378 and ANSYS FACT
-    As1 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
-    As2 = As_ #0.9971445*1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
+    # Residual bending flexibility
+    As1 = As_ #1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
+    As2 = As_ #1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
     #
     #Material
     #G = E/(2.0*(1.0 + pois)) #Nao deletar!!!
@@ -104,10 +109,10 @@ very good approximation for thin and thick walled pipes.
         ##### Torsional B #####
         Bt = np.array([[0.,0.,0.,dphi[0],0.,0.,0.,0.,0.,dphi[1],0.,0.]])       
         ##### 
-        Kbe = Kbe + (Bb.T @ Db @ Bb)*detJac*wfact_k[i]
-        Kse = Kse + (Bs.T @ Ds @ Bs)*detJac*wfact_k[i] 
-        Kae = Kae + E*A*(Ba.T @ Ba)*detJac*wfact_k[i]
-        Kte = Kte + mu*J*(Bt.T @ Bt)*detJac*wfact_k[i]
+        Kbe += np.dot(Bb.T,np.dot(Db,Bb))*detJac*wfact_k[i]
+        Kse += np.dot(Bs.T,np.dot(Ds,Bs))*detJac*wfact_k[i]
+        Kae += E*A*np.dot(Ba.T,Ba)*detJac*wfact_k[i]
+        Kte += mu*J*np.dot(Bt.T,Bt)*detJac*wfact_k[i]
         ##########
         #
     Ke = Kbe + Kse + Kae + Kte 
@@ -120,8 +125,8 @@ very good approximation for thin and thick walled pipes.
         Nt = np.array([[phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.,0.,0.],[0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.,0.],[0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.,0.]])
         Nr = np.array([[0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.,0.],[0.,0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1],0.],[0.,0.,0.,0.,0.,phi[0],0.,0.,0.,0.,0.,phi[1]]])
         ###########
-        Mt = Mt + (Nt.T @ Gt @ Nt)*(detJac)*wfact_m[i]
-        Mr = Mr + np.matmul(np.transpose(Nr),np.matmul(Gr,Nr))*(detJac)*wfact_m[i]
+        Mt += np.dot(Nt.T, np.dot(Gt, Nt))*detJac*wfact_m[i]
+        Mr += np.dot(Nr.T,np.dot(Gr,Nr))*detJac*wfact_m[i]
         ###########
     Me = Mt + Mr  
     #

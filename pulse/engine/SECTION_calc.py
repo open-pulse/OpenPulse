@@ -8,16 +8,16 @@ def shapesect(ksi,eta):
     - Q9 element.
     """
     ##### SHAPE FUNCTIONS ######################
-    phi = np.zeros(9) 
-    phi[0] = 0.25*(ksi**2. - ksi)*(eta**2. - eta) 
-    phi[1] = 0.25*(ksi**2. + ksi)*(eta**2. - eta)
-    phi[2] = 0.25*(ksi**2. + ksi)*(eta**2. + eta)
-    phi[3] = 0.25*(ksi**2. - ksi)*(eta**2. + eta)
-    phi[4] = 0.50*(1.0 - ksi**2.)*(eta**2. - eta)
-    phi[5] = 0.50*(ksi**2. + ksi)*(1.0 - eta**2.)
-    phi[6] = 0.50*(1.0 - ksi**2.)*(eta**2. + eta)
-    phi[7] = 0.50*(ksi**2. - ksi)*(1.0 - eta**2.)
-    phi[8] = (1.0 - ksi**2.)*(1.0 - eta**2)
+    phi = np.zeros((1,9)) 
+    phi[0,0] = 0.25*(ksi**2. - ksi)*(eta**2. - eta) 
+    phi[0,1] = 0.25*(ksi**2. + ksi)*(eta**2. - eta)
+    phi[0,2] = 0.25*(ksi**2. + ksi)*(eta**2. + eta)
+    phi[0,3] = 0.25*(ksi**2. - ksi)*(eta**2. + eta)
+    phi[0,4] = 0.50*(1.0 - ksi**2.)*(eta**2. - eta)
+    phi[0,5] = 0.50*(ksi**2. + ksi)*(1.0 - eta**2.)
+    phi[0,6] = 0.50*(1.0 - ksi**2.)*(eta**2. + eta)
+    phi[0,7] = 0.50*(ksi**2. - ksi)*(1.0 - eta**2.)
+    phi[0,8] = (1.0 - ksi**2.)*(1.0 - eta**2)
     #
     #### DERIVATIVES ############################
     dphi=np.zeros((2,9))
@@ -99,8 +99,58 @@ def sectcalc(do,di,nr):
     A = 0.
     I2 = 0.
     I3 = 0.
+    I23 = 0.
     for el in range(nr):   #loop -> elements
         Ael = 0.
+        I2el = 0.
+        I3el = 0.
+        I23el = 0.
+        #phi = np.zeros((9,1))
+        #dphi=np.zeros((2,9))
+        for p in range(Nint):   #loog -> integration points
+            ksi = pint[p,0] 
+            eta = pint[p,1]
+            phi, dphi = shapesect(ksi,eta)
+            #
+            JAC = np.zeros((2,2))
+            Y=0.
+            Z=0.
+            ii=0
+            for i in range(9):
+                ii = connectface[el,i+1] - 1
+                JAC[0,0] = JAC[0,0] + coordface[ii,1]*dphi[0,i] #dxdksi
+                JAC[0,1] = JAC[0,1] + coordface[ii,2]*dphi[0,i] #dydksi
+                JAC[1,0] = JAC[1,0] + coordface[ii,1]*dphi[1,i] #dxdeta
+                JAC[1,1] = JAC[1,1] + coordface[ii,2]*dphi[1,i] #dxdeta
+                Y = Y + coordface[ii,1]*phi[0,i]
+                Z = Z + coordface[ii,2]*phi[0,i]        
+            detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
+            Ael = Ael + detJAC*wint
+            I2el = I2el + (Y**2.)*detJAC*wint
+            I3el = I3el + (Z**2.)*detJAC*wint
+            I23el = I23el + Y*Z*detJAC*wint
+        A = A + Ael
+        I2 = I2 + I2el
+        I3 = I3 + I3el
+        I23 = I23 + I23el
+        cc = 1./(I2*I3 - I23**2.)
+    ##########################
+    #NGL = len(coordface)
+    #K = np.zeros((NGL,NGL))
+    #F = np.zeros((NGL,1))
+    #PSI = np.zeros((NGL,1))
+    #CAP = 0.
+    #DDe = 0.
+    #pe = np.zeros((9,nr))
+    ALP = 0.
+    for el in range(nr):   #loop -> elements
+        ke = np.zeros((9,9))
+        pe1 = np.zeros((9,1))
+        #ue = np.zeros((9,1))
+        #te = 0.
+        phi = np.zeros((1,9))
+        dphi=np.zeros((2,9))
+        #de = np.zeros((2,1))
         I2el = 0.
         I3el = 0.
         for p in range(Nint):   #loog -> integration points
@@ -109,25 +159,66 @@ def sectcalc(do,di,nr):
             phi, dphi = shapesect(ksi,eta)
             #
             JAC = np.zeros((2,2))
-            X=0.
+            invJAC = np.zeros((2,2))
+            aaa = np.zeros((1,9))
+            bbb = np.zeros((1,9))
             Y=0.
+            Z=0.
             ii=0
             for i in range(9):
-                ii = connectface[el,i+1] -1
+                ii = connectface[el,i+1] - 1
                 JAC[0,0] = JAC[0,0] + coordface[ii,1]*dphi[0,i] #dxdksi
                 JAC[0,1] = JAC[0,1] + coordface[ii,2]*dphi[0,i] #dydksi
                 JAC[1,0] = JAC[1,0] + coordface[ii,1]*dphi[1,i] #dxdeta
                 JAC[1,1] = JAC[1,1] + coordface[ii,2]*dphi[1,i] #dxdeta
-                X = X + coordface[ii,1]*phi[i]
-                Y = Y + coordface[ii,2]*phi[i]
+                Y = Y + coordface[ii,1]*phi[0,i]
+                Z = Z + coordface[ii,2]*phi[0,i]        
             detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
-            #
-            Ael = Ael + detJAC*wint
+            invJAC = np.linalg.inv(JAC)
             I2el = I2el + (Y**2.)*detJAC*wint
-            I3el = I3el + (X**2.)*detJAC*wint
-        A = A + Ael
-        I2 = I2 + I2el
-        I3 = I3 + I3el
-    #
+            I3el = I3el + (Z**2.)*detJAC*wint
+            dphig = np.matmul(invJAC, dphi)
+            ke = ke + np.matmul(dphig.T, dphig)*detJAC*wint
+            #r = Y**2. - Z**2.
+            #q = 2.*Y*Z
+            #de[0,0] = I2*r
+            #de[1,0] = I2*q
+            #pe1 = pe1 + np.matmul(dphig.T, de)*detJAC*wint
+            aaa[0,:]=dphig[0,:]
+            bbb[0,:]=dphig[1,:]
+            pe1 = pe1 + (phi.T)*(2.*(I2*Y + I3*Z))*detJAC*wint + (Z*aaa.T - Y*bbb.T)*detJAC*wint 
+            #te = te + np.matmul(de.T, de)*detJAC*wint
+            # end loop Nint    
+        #pe[:,el] = pe1[:,0]
+        #pe1 = 2.*I3el*pe1
+        ue = np.linalg.inv(ke)@pe1
+        temp=0.
+        for p in range(Nint):   #loog -> integration points
+            ksi = pint[p,0] 
+            eta = pint[p,1]
+            phi, dphi = shapesect(ksi,eta)
+            #
+            JAC = np.zeros((2,2))
+            invJAC = np.zeros((2,2))
+            Y=0.
+            Z=0.
+            ii=0
+            for i in range(9):
+                ii = connectface[el,i+1] - 1
+                JAC[0,0] = JAC[0,0] + coordface[ii,1]*dphi[0,i] #dxdksi
+                JAC[0,1] = JAC[0,1] + coordface[ii,2]*dphi[0,i] #dydksi
+                JAC[1,0] = JAC[1,0] + coordface[ii,1]*dphi[1,i] #dxdeta
+                JAC[1,1] = JAC[1,1] + coordface[ii,2]*dphi[1,i] #dxdeta
+                Y = Y + coordface[ii,1]*phi[0,i]
+                Z = Z + coordface[ii,2]*phi[0,i]        
+            detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
+            invJAC = np.linalg.inv(JAC)
+            dphig = np.matmul(invJAC, dphi)
+            temp = temp + ((dphig[0,:]@ue)**2.)*detJAC*wint
+            #temp = temp + (phi.T@ue)*Y*detJAC*wint
+        ALP = ALP + temp
+    RES = ((cc**2.)*A/4.)*ALP  
+   
 
-    
+
+            
