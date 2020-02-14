@@ -31,10 +31,8 @@ class Node:
         self.user_index = user_index
 
         self.index = kwargs.get("index", None)
-        # self.boundary = boundary
-        # boundary must be 0,1,2,3,4,5 to fix u_x, u_y, u_z, theta_x, theta_y, theta_z, respectively.
 
-    def dofs(self):
+    def dofs_node(self):
         """ For a node, define its global degree of freedom.
 
         Parameter
@@ -42,14 +40,10 @@ class Node:
         Node
         
         output: array with 6 integers."""
-        if self.index == None:
-            #TODO: warning, self.index must be defined
-            pass
-
         local_dof = np.arange( self.degree_freedom, dtype=int )
         global_dof = self.degree_freedom * self.index + local_dof
 
-        return global_dof, local_dof
+        return global_dof
 
     def coordinates(self):
         """ Give coordinates as array."""

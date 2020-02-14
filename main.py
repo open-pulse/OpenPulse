@@ -35,11 +35,11 @@ cross_section_1 = TCS(D_external, thickness = thickness)
 
 
 
-m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
-m.generate(0.01,0.01)
-m.reorder_index_bfs()
-nodal_coordinates = np.array(m.nodes)
-connectivity  = np.array(m.edges, dtype=int)
+# m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
+# m.generate(0.01,0.01)
+# m.reorder_index_bfs()
+# nodal_coordinates = np.array(m.nodes)
+# connectivity  = np.array(m.edges, dtype=int)
 
 
 ## Nodal coordinates
