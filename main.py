@@ -90,7 +90,7 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 # Analysis parameters
 freq_max = 200
 df = 2
-number_modes = 100
+number_modes = 400
 
 load_dof = 157
 response_dof = 157
@@ -135,7 +135,7 @@ ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
-
+# exit()
 
 #%% Entries for plot function 
 
