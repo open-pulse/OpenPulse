@@ -32,14 +32,11 @@ D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(D_external, thickness = thickness) 
 
-
-
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
 # m.reorder_index_bfs()
 # nodal_coordinates = np.array(m.nodes)
 # connectivity  = np.array(m.edges, dtype=int)
-
 
 ## Nodal coordinates
 nodal_coordinates = np.loadtxt('input_data/coord.dat') 
@@ -82,7 +79,7 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
+K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof, comprimentos = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
@@ -136,7 +133,12 @@ ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
-exit()
+L_max = max(comprimentos)
+L_min = min(comprimentos)
+
+print(L_max, L_min, L_max-L_min)
+
+# exit()
 
 #%% Entries for plot function 
 

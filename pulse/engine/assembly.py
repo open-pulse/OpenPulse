@@ -164,8 +164,6 @@ class Assembly:
         map_elements = self.map_elements()
         
         count = 0
-        t = 0
-
         # For each element.
         for _, element in map_elements.items():
 
@@ -213,9 +211,7 @@ class Assembly:
         M = M[ global_dofs_free, : ][ :, global_dofs_free ]
         F = F[ global_dofs_free, : ]
         end_time = time.time()
-        # F = 0
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
-        print('Time to load Ke_gcs, Me_gcs and Fe_gcs:', t,'[s]')
-
-        return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof
+        
+        return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof, comprimentos
