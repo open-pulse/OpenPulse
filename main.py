@@ -78,12 +78,7 @@ assemble = Assembly(nodal_coordinates,
                     element_type_dictionary)
 
 # Global Assembly
-start = time.time()
 K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
-end = time.time()
-print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
-
-# plt.spy(K.toarray())
 
 ## Solution
 # Analysis parameters
@@ -133,10 +128,6 @@ ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
-L_max = max(comprimentos)
-L_min = min(comprimentos)
-
-print(L_max, L_min, L_max-L_min)
 
 # exit()
 

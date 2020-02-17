@@ -178,24 +178,25 @@ class Element:
         D_shear = np.diag([mu * shear_area_1, mu * shear_area_2])
         D_bend = np.diag([E * I1, E * I2])
 
-        Ke=0.
-
         ## Numerical integration by Gauss Quadracture
         number_integrations_points = 1
         points, weigths = Element.gauss_quadracture( number_integrations_points )
-
+        
+        Ke=0.
+        B_bend = np.zeros((2,12))
+        B_shear = np.zeros((2,12))
+        B_axial = np.zeros((1,12))
+        B_tors = np.zeros((1,12))
 
         for point, weigth in zip( points, weigths ):
 
             # Shape function and its derivative
             phi, derivative_phi = Element.shape_function( point )
             dphi = inv_jacob * derivative_phi
-
-            B_bend = np.zeros((2,12))
+            
             B_bend[[0,1],[4,5]] = dphi[0]
             B_bend[[0,1],[10,11]] = dphi[1]
-
-            B_shear = np.zeros((2,12))
+            
             B_shear[[0,1],[1,2]] = dphi[0]
             B_shear[0,5] = -phi[0]
             B_shear[[0,1],[7,8]] = dphi[1]
@@ -203,11 +204,9 @@ class Element:
             B_shear[1,4] = phi[0]
             B_shear[1,10] = phi[1]
 
-            B_axial = np.zeros((1,12))
             B_axial[0,0] = dphi[0]
             B_axial[0,6] = dphi[1]
-
-            B_tors = np.zeros((1,12))
+            
             B_tors[0,3] = dphi[0]
             B_tors[0,9] = dphi[1] 
 
@@ -249,15 +248,15 @@ class Element:
         points, weigths = Element.gauss_quadracture( number_integrations_points )
 
         Me=0.
+        N_tr = np.zeros((3,12))
+        N_rot = np.zeros((3,12))
 
         for point, weigth in zip(points, weigths):
             phi, _ = Element.shape_function( point )
-
-            N_tr = np.zeros((3,12))
+            
             N_tr[[0,1,2],[0,1,2]] = phi[0]
             N_tr[[0,1,2],[6,7,8]] = phi[1]
 
-            N_rot = np.zeros((3,12))
             N_rot[[0,1,2],[3,4,5]] = phi[0]
             N_rot[[0,1,2],[9,10,11]] = phi[1]
             
