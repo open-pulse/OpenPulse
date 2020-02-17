@@ -158,8 +158,6 @@ class Element:
 
         # Material properities
         E = self.material.young_modulus
-        nu = self.material.poisson_ratio
-        G = self.material.shear_modulus
         mu = self.material.mu_parameter()
 
         # Tube cross section properties
@@ -173,33 +171,29 @@ class Element:
         shear_area_2 = shear_area_1
 
         #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
-        inv_jacobian = 1 / det_jacobian
+        det_jacob = L / 2
+        inv_jacob = 1 / det_jacob
 
         #Constitutive matrices (element with constant geometry along x-axis)
         D_shear = np.diag([mu * shear_area_1, mu * shear_area_2])
-        D_bending = np.diag([E * I1, E * I2])
+        D_bend = np.diag([E * I1, E * I2])
+
+        Ke=0.
 
         ## Numerical integration by Gauss Quadracture
         number_integrations_points = 1
         points, weigths = Element.gauss_quadracture( number_integrations_points )
 
-        # Memory alocation
-        element_dofs = Element.total_degree_freedom
-        Kbe = np.zeros((element_dofs,element_dofs))
-        Kse = np.zeros((element_dofs,element_dofs))
-        Kae = np.zeros((element_dofs,element_dofs))
-        Kte = np.zeros((element_dofs,element_dofs))
 
         for point, weigth in zip( points, weigths ):
 
             # Shape function and its derivative
             phi, derivative_phi = Element.shape_function( point )
-            dphi = inv_jacobian * derivative_phi
+            dphi = inv_jacob * derivative_phi
 
-            B_bending = np.zeros((2,12))
-            B_bending[[0,1],[4,5]] = dphi[0]
-            B_bending[[0,1],[10,11]] = dphi[1]
+            B_bend = np.zeros((2,12))
+            B_bend[[0,1],[4,5]] = dphi[0]
+            B_bend[[0,1],[10,11]] = dphi[1]
 
             B_shear = np.zeros((2,12))
             B_shear[[0,1],[1,2]] = dphi[0]
@@ -213,16 +207,13 @@ class Element:
             B_axial[0,0] = dphi[0]
             B_axial[0,6] = dphi[1]
 
-            B_torsional = np.zeros((1,12))
-            B_torsional[0,3] = dphi[0]
-            B_torsional[0,9] = dphi[1] 
-            
-            Kbe += (B_bending.T @ D_bending @ B_bending) * det_jacobian * weigth
-            Kse += (B_shear.T @ D_shear @ B_shear) * det_jacobian * weigth
-            Kae += E * A * (B_axial.T @ B_axial) * det_jacobian * weigth
-            Kte += mu * J * (B_torsional.T @ B_torsional) * det_jacobian * weigth
+            B_tors = np.zeros((1,12))
+            B_tors[0,3] = dphi[0]
+            B_tors[0,9] = dphi[1] 
 
-        return Kbe + Kse + Kae + Kte 
+            Ke += ((B_bend.T @ D_bend @ B_bend)+(B_shear.T @ D_shear @ B_shear)+E * A * (B_axial.T @ B_axial)+mu * J * (B_tors.T @ B_tors)) * det_jacob * weigth
+
+        return Ke
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
@@ -237,7 +228,6 @@ class Element:
 
         # Material properities
         rho = self.material.density
-        mu = self.material.mu_parameter()
 
         # Tube cross section properties
         A = self.cross_section.area()
@@ -248,37 +238,30 @@ class Element:
         I2 = I1
 
         #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
+        det_jacob = L / 2
     
         #Inertial matrices (element with constant geometry along x-axis)
-        G_translation = rho * A * np.eye(3)
-        G_rotation = rho * np.diag([J, I1, I2])
+        G_tr = rho * A * np.eye(3)
+        G_rot = rho * np.diag([J, I1, I2])
 
         ## Numerical integration by Gauss Quadracture
         number_integrations_points = 2
         points, weigths = Element.gauss_quadracture( number_integrations_points )
-        
-        #
-        element_dofs = Element.total_degree_freedom
-        Me = np.zeros((element_dofs, element_dofs))
-        Mass_translation = np.zeros((element_dofs, element_dofs))
-        Mass_rotation = np.zeros((element_dofs, element_dofs))
+
+        Me=0.
+
         for point, weigth in zip(points, weigths):
-            phi, dphi = Element.shape_function( point )
+            phi, _ = Element.shape_function( point )
 
-            N_translation = np.zeros((3,12))
-            N_translation[[0,1,2],[0,1,2]] = phi[0]
-            N_translation[[0,1,2],[6,7,8]] = phi[1]
+            N_tr = np.zeros((3,12))
+            N_tr[[0,1,2],[0,1,2]] = phi[0]
+            N_tr[[0,1,2],[6,7,8]] = phi[1]
 
-            N_rotation = np.zeros((3,12))
-            N_rotation[[0,1,2],[3,4,5]] = phi[0]
-            N_rotation[[0,1,2],[9,10,11]] = phi[1]
+            N_rot = np.zeros((3,12))
+            N_rot[[0,1,2],[3,4,5]] = phi[0]
+            N_rot[[0,1,2],[9,10,11]] = phi[1]
             
-            Mass_translation += (N_translation.T @ G_translation @ N_translation) * det_jacobian * weigth
-            Mass_rotation += N_rotation.T @ G_rotation @ N_rotation * det_jacobian * weigth
-            
-        Me = Mass_translation + Mass_rotation
-
+            Me += ((N_tr.T @ G_tr @ N_tr) + (N_rot.T @ G_rot @ N_rot))*det_jacob*weigth 
         return Me
     
     def mass_matrix_gcs(self):
@@ -293,7 +276,7 @@ class Element:
         points, weigths = Element.gauss_quadracture( number_integrations_points )
 
         #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
+        det_jacob = L / 2
 
         node_dofs = Node.degree_freedom
         Fe = np.zeros(( Element.total_degree_freedom, 1))
@@ -306,10 +289,19 @@ class Element:
             NN[0:node_dofs,0:node_dofs] = phi[0] * np.identity( node_dofs )
             NN[0:node_dofs,node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
 
-            Fe += (NN.T @ self.load) * det_jacobian * weigth
+            Fe += (NN.T @ self.load) * det_jacob * weigth
         return Fe
     
     def force_vector_gcs(self):
         T = self.rotation_matrix()
         return T.T @ self.force_vector()
     
+    def matrices_gcs(self):
+        T = self.rotation_matrix()
+        T_trp = T.T
+        Me_gcs = T_trp @ self.mass_matrix() @ T
+        Ke_gcs = T_trp @ self.stiffness_matrix() @ T
+        Fe_gcs = T_trp @ self.force_vector()
+        return Me_gcs, Ke_gcs, Fe_gcs
+
+

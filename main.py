@@ -126,7 +126,7 @@ post = PostProcessing( fixed_nodes = fixed_nodes,
                       log = False )
 
 eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
-# exit()
+
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
 plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])), color = [0,0,0], linewidth=2)
@@ -136,7 +136,7 @@ ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
-
+exit()
 
 #%% Entries for plot function 
 

@@ -141,35 +141,36 @@ class Assembly:
         return map_elements
         
     def global_matrices(self):
+        
         start_time = time.time()
-        # Prealocate
+
+        # Defining variables for memory preallocating
         edof = Element.total_degree_freedom
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
-               
+
+        # MEMORY PREALLOCATING     
+
         # Row, Collumn indeces to be used on Csr_matrix format
         I = np.zeros(total_entries)
         J = np.zeros(total_entries)
-
         I_f = np.zeros(int(total_entries / edof))
         
         # Data for the Csr_matrix format
         data_K = np.zeros(total_entries)
         data_M = np.zeros(total_entries)
-
         data_F = np.zeros(int(total_entries / edof))
 
         map_elements = self.map_elements()
         
         count = 0
+        t = 0
 
         # For each element.
         for _, element in map_elements.items():
 
             # Elementar matrices on the global coordinate system
-            Ke = element.stiffness_matrix_gcs()
-            Me = element.mass_matrix_gcs()
-            Fe = element.force_vector_gcs()
+            Me, Ke, Fe = element.matrices_gcs()
 
             # Element global degree of freedom indeces
             mat_I, mat_J = element.dofs()
@@ -189,7 +190,6 @@ class Assembly:
             J[start : end]  = mat_J.flatten()
             data_K[start : end] = Ke.flatten()
             data_M[start : end] = Me.flatten()
-            
 
         # Line and Column Elimination
         
@@ -213,7 +213,9 @@ class Assembly:
         M = M[ global_dofs_free, : ][ :, global_dofs_free ]
         F = F[ global_dofs_free, : ]
         end_time = time.time()
+        # F = 0
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
+        print('Time to load Ke_gcs, Me_gcs and Fe_gcs:', t,'[s]')
 
         return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof
