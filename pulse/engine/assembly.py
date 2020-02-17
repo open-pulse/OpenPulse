@@ -214,4 +214,4 @@ class Assembly:
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
         
-        return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof, comprimentos
+        return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof

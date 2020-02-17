@@ -79,7 +79,7 @@ assemble = Assembly(nodal_coordinates,
 
 # Global Assembly
 start = time.time()
-K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof, comprimentos = assemble.global_matrices()
+K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
