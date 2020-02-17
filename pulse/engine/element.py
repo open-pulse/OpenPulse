@@ -133,7 +133,7 @@ class Element:
         A   = self.cross_section.area()
         I_2 = self.cross_section.moment_area()
         J   = self.cross_section.polar_moment_area()
-        k_2 = self.cross_section.shear_form_factor( self.material.poisson_ratio )
+        k_2 = 0.5
 
         # Others constitutive properties
         I_3     = I_2
@@ -203,7 +203,7 @@ class Element:
         A   = self.cross_section.area()
         I_2 = self.cross_section.moment_area()
         J   = self.cross_section.polar_moment_area()
-        k_2 = self.cross_section.shear_form_factor( self.material.poisson_ratio )
+        k_2 = 0.5
 
         # Others constitutive constants
         I_3     = I_2

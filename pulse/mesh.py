@@ -125,7 +125,7 @@ class Mesh:
         gmsh.model.mesh.removeDuplicateNodes()
 
     def __read_nodes(self):
-        index, coordinates, _ = gmsh.model.mesh.getNodes()
+        index, coordinates, _ = gmsh.model.mesh.getNodes(1, -1, True)
         coordinates = split_sequence(coordinates, 3)
 
         for index, (x, y, z) in zip(index, coordinates):

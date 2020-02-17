@@ -39,8 +39,6 @@ class Material:
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
         self.color = kwargs.get("color", "#525252")
-        # Talvez use:
-        self.index = kwargs.get("index", None)
 
         if self.young_modulus is None:
             self.young_modulus = self.shear_modulus * (2 * (1 + self.poisson_ratio))
@@ -48,6 +46,12 @@ class Material:
             self.shear_modulus = self.young_modulus / (2 * (1 + self.poisson_ratio))
         elif self.poisson_ratio is None:
             self.poisson_ratio = (self.young_modulus / (2 * self.shear_modulus)) - 1
+
+    def mu_parameter(self):
+        return self.young_modulus / (2 * (1 + self.poisson_ratio ) )
+    
+    def lambda_parameter(self):
+        return self.poisson_ratio * self.young_modulus /( (1 + self.poisson_ratio) * (1 - 2 * self.poisson_ratio) )
 
     def __eq__(self, other):
         """Material is considered equal if its properties are equal."""

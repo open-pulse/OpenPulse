@@ -8,7 +8,7 @@ from collections import deque
 from pulse.engine.material import Material
 from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
-from pulse.engine.element import Element
+from pulse.engine.element_288 import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
@@ -89,7 +89,11 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 # Analysis parameters
 freq_max = 200
 df = 2
+<<<<<<< HEAD
 number_modes = 1000
+=======
+number_modes = 100
+>>>>>>> ada818c148bff5a4eda0e7c3988a745fa4bdc03f
 
 load_dof = 157
 response_dof = 157
