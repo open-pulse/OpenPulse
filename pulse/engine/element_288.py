@@ -35,6 +35,7 @@ class Element:
                  node_final,
                  material,
                  cross_section,
+                 load,
                  element_type,
                  user_index,
                  **kwargs):
@@ -43,6 +44,7 @@ class Element:
         self.node_final = node_final
         self.material = material
         self.cross_section = cross_section
+        self.load = load
         self.element_type = element_type
         self.user_index = user_index  
 
@@ -284,8 +286,9 @@ class Element:
         T = self.rotation_matrix()
         return T.T @ self.mass_matrix() @ T
 
-    def force_vector(self, load):
+    def force_vector(self):
         ## Numerical integration by Gauss Quadracture
+        L   = self.length()
         number_integrations_points = 2
         points, weigths = Element.gauss_quadracture( number_integrations_points )
 
@@ -303,11 +306,10 @@ class Element:
             NN[0:node_dofs,0:node_dofs] = phi[0] * np.identity( node_dofs )
             NN[0:node_dofs,node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
 
-            Fe += (NN.T @ load.T) * det_jacobian * weigth
+            Fe += (NN.T @ self.load) * det_jacobian * weigth
         return Fe
     
-    def force_vector_gcs(self, load):
+    def force_vector_gcs(self):
         T = self.rotation_matrix()
-        # I'm not sure how to rotate this vector
-        return T.T @ self.force_vector( load )
+        return T.T @ self.force_vector()
     

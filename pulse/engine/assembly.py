@@ -32,20 +32,22 @@ class Assembly:
                     fixed_nodes,
                     dofs_fixed_node,
                     dofs_fixed_value,
-                    material_list,
+                    # material_list,
                     material_dictionary,
-                    cross_section_list,
+                    # cross_section_list,
                     cross_section_dictionary,
+                    load_dictionary,
                     element_type_dictionary):
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
         self.fixed_nodes = fixed_nodes
         self.dofs_fixed_node = dofs_fixed_node   
         self.dofs_fixed_value = dofs_fixed_value            
-        self.material_list = material_list 
+        # self.material_list = material_list 
         self.material_dictionary = material_dictionary 
-        self.cross_section_list = cross_section_list
+        # self.cross_section_list = cross_section_list
         self.cross_section_dictionary = cross_section_dictionary
+        self.load_dictionary = load_dictionary
         self.element_type_dictionary = element_type_dictionary
 
     def number_nodes(self):
@@ -131,25 +133,31 @@ class Assembly:
             #TODO: define how to access the material and cross_section data.
             material = self.material_dictionary[ element_index ]
             cross_section = self.cross_section_dictionary[ element_index ]
+            load = self.load_dictionary[ element_index ]
             element_type = self.element_type_dictionary[ element_index ]
 
-            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section,element_type,element_index)} )
+            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section,load,element_type,element_index)} )
 
         return map_elements
         
     def global_matrices(self):
         start_time = time.time()
         # Prealocate
+        edof = Element.total_degree_freedom
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
                
         # Row, Collumn indeces to be used on Csr_matrix format
         I = np.zeros(total_entries)
         J = np.zeros(total_entries)
+
+        I_f = np.zeros(int(total_entries / edof))
         
         # Data for the Csr_matrix format
         data_K = np.zeros(total_entries)
         data_M = np.zeros(total_entries)
+
+        data_F = np.zeros(int(total_entries / edof))
 
         map_elements = self.map_elements()
         
@@ -161,18 +169,27 @@ class Assembly:
             # Elementar matrices on the global coordinate system
             Ke = element.stiffness_matrix_gcs()
             Me = element.mass_matrix_gcs()
+            Fe = element.force_vector_gcs()
 
             # Element global degree of freedom indeces
             mat_I, mat_J = element.dofs()
 
-            start = count*entries_per_element
+            start = count * entries_per_element
             end = start + entries_per_element
+
+            start_f  = count * edof
+            end_f = start_f + edof
+
             count += 1
+
+            I_f[start_f : end_f] = mat_I[:,0]
+            data_F[start_f : end_f] = Fe.flatten()
 
             I[start : end]  = mat_I.flatten()
             J[start : end]  = mat_J.flatten()
             data_K[start : end] = Ke.flatten()
             data_M[start : end] = Me.flatten()
+            
 
         # Line and Column Elimination
         
@@ -183,6 +200,9 @@ class Assembly:
 
         K = csr_matrix( (data_K, (I, J)), shape = [total_dof, total_dof] )
         M = csr_matrix( (data_M, (I, J)), shape = [total_dof, total_dof] )
+
+        J_f = np.zeros_like(I_f)
+        F = csr_matrix( (data_F, (I_f, J_f)), shape = [total_dof, 1] )
         
         # Slice rows and all columns of not prescribed dofs
         Kr = K[ global_dofs_presc,: ]
@@ -191,8 +211,9 @@ class Assembly:
         # Slice all rows/columns from not prescribed dofs
         K = K[ global_dofs_free, : ][ :, global_dofs_free ]
         M = M[ global_dofs_free, : ][ :, global_dofs_free ]
+        F = F[ global_dofs_free, : ]
         end_time = time.time()
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
 
-        return K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof
+        return K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof

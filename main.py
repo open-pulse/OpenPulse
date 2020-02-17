@@ -62,6 +62,8 @@ material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
+load_dictionary = {i:np.zeros((Node.degree_freedom,1)) for i in connectivity[:,0]}
+
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
@@ -71,15 +73,16 @@ assemble = Assembly(nodal_coordinates,
                     fixed_nodes,
                     dofs_fixed_node,
                     dofs_fixed_value,                
-                    material_list,
+                    # material_list,
                     material_dictionary,
-                    cross_section_list,
+                    # cross_section_list,
                     cross_section_dictionary,
+                    load_dictionary,
                     element_type_dictionary)
 
 # Global Assembly
 start = time.time()
-K, M, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
+K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
 end = time.time()
 print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 
@@ -89,7 +92,7 @@ print('Time to assemble global matrices:' + str(round((end - start),6)) + '[s]')
 # Analysis parameters
 freq_max = 200
 df = 2
-number_modes = 1000
+number_modes = 100
 
 load_dof = 157
 response_dof = 157
@@ -134,7 +137,6 @@ ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
-exit()
 
 #%% Entries for plot function 
 
