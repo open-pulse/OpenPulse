@@ -139,7 +139,7 @@ class Assembly:
         
     def global_matrices(self):
         start_time = time.time()
-        # Prealocate
+        # Preallocate
         entries_per_element = Element.total_degree_freedom**2
         total_entries = entries_per_element * self.number_elements()
                
