@@ -55,26 +55,18 @@ class Element:
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
 
-        # Initial node global and local degrees of freedom
-        global_dof_ni, local_dof_ni = self.node_initial.dofs( )
-
-        # Final node global and local degrees of freedom
-        global_dof_nf, local_dof_nf  = self.node_final.dofs( )
-        local_dof_nf = local_dof_nf + Node.degree_freedom
+        global_dof_ni = self.node_initial.dofs_node( )
+        global_dof_nf = self.node_final.dofs_node( )
 
         # Concatenating vectors
         a, b = len( global_dof_ni ), len( global_dof_nf )
-
         global_dof = np.zeros(a+b,dtype = int)
-        local_dof = np.zeros(a+b,dtype = int)
-
         global_dof[0:a], global_dof[a:a+b] = global_dof_ni, global_dof_nf
-        local_dof[0:a], local_dof[a:a+b] = local_dof_ni, local_dof_nf
 
-        mat_I = global_dof.reshape(global_dof.shape[0],1)*np.ones((1,global_dof.shape[0]))
+        mat_I = global_dof.reshape( a+b, 1) @ np.ones(( 1, a+b ))
         mat_J = mat_I.T
 
-        return global_dof, local_dof, mat_I, mat_J
+        return mat_I, mat_J
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""

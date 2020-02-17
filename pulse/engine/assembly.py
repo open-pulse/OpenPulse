@@ -67,93 +67,75 @@ class Assembly:
     def node_user_to_internal_index(self):
         """ Dictionary ."""
         return { j:i for i, j in self.node_internal_to_user_index().items() }
-    
-    # def count_dofs_fixed(self):
-    #     "Number of dofs fixed"
-    #     count = 0
-    #     for dof_list in self.dofs_fixed_node:
-    #         count += len(dof_list)
-    #     return count
-    
+       
     def dofs_fixed(self):
         """ Global index of every fixed degree of freedom."""
         dictionary = self.node_user_to_internal_index()
-        global_dofs_fixed = deque()
+        dofs_fixed = deque()
 
         for i, user_index in enumerate(self.fixed_nodes):
             index = dictionary[user_index]
-            global_dofs_fixed.extend( index * Node.degree_freedom + self.dofs_fixed_node[i] )
-            # global_dofs_presc_values(index * Node.degree_freedom + self.dofs_fixed_node[i])
+            dofs_fixed.extend( index * Node.degree_freedom + self.dofs_fixed_node[i] )
 
-        return global_dofs_fixed
+        return dofs_fixed
         
-    
     def dofs_prescribed_values(self):
         """ Dictionary ."""
         count = 0
         dofs_presc = self.dofs_fixed()
-        dofs_presc_values = {}
+        dofs_prescribed_values = {}
         for i in range(self.fixed_nodes.shape[0]):
             for j in range(len(self.dofs_fixed_value[i])):
-                dofs_presc_values.update({ dofs_presc[j+count] : self.dofs_fixed_value[i][j] })
+                dofs_prescribed_values.update({ dofs_presc[j+count] : self.dofs_fixed_value[i][j] })
             count += len(self.dofs_fixed_value[i])
-        return dofs_presc_values
-
+        return dofs_prescribed_values
 
     def map_nodes(self):
-        """ Nodes assembly in a list ordered by the internal indexing."""
+        """ Nodes assembly in a list ordered by the user indexing."""
         nodes_dictionary = self.node_internal_to_user_index()
-        nodes_list = {}
+        map_nodes = {}
         nodes_internal = self.nodes_internal_index()
         for i in nodes_internal:
             x = self.nodal_coordinates[i,1]
             y = self.nodal_coordinates[i,2]
             z = self.nodal_coordinates[i,3]
             user_index = nodes_dictionary[i]
-            nodes_list.update( {i : Node(x, y, z, user_index, index = i)} )
-        return nodes_list
+            map_nodes.update( {user_index : Node(x, y, z, user_index, index = i)} )
+        return map_nodes
     
     #TODO: determinate the structure and type of material_list and material_dictionary.
     #TODO: determinate the structure and type of cross_section_list and cross_section_dictionary
     #TODO: determinate the structure and type of element_type_dictionary
 
     def number_elements(self):
-        return self.connectivity.shape[0]
+        return len(self.connectivity)
     
     def element_index(self):
         return self.connectivity[:,0].astype(int)
 
     def map_elements(self):
-        elements_list = {}
+        map_elements = {}
 
-        # Given a user index, it returns the internal index
-        nodes_dictionary = self.node_user_to_internal_index()
-
-        # Given the internal index, return respect node.
         map_nodes = self.map_nodes()
-
         # For each element index
-        for i in range( self.number_elements() ):
+        for line in self.connectivity:
 
-            element_index, user_index_node_initial, user_index_node_final = self.connectivity[i,:]
-
-            # Take the internal index from user index by dictionary
-            index_node_initial = nodes_dictionary[ user_index_node_initial ]
-            node_initial = map_nodes[ index_node_initial ]
+            element_index, user_index_node_initial, user_index_node_final = line
 
             # Take the internal index from user index by dictionary
-            index_node_final = nodes_dictionary[ user_index_node_final ]
-            node_final = map_nodes[ index_node_final ]
+            node_initial = map_nodes[ user_index_node_initial ]
+
+            # Take the internal index from user index by dictionary
+            node_final = map_nodes[ user_index_node_final ]
             
             #TODO: define how to access the material and cross_section data.
-
             material = self.material_dictionary[ element_index ]
             cross_section = self.cross_section_dictionary[ element_index ]
             element_type = self.element_type_dictionary[ element_index ]
 
-            elements_list.update( { element_index : Element(node_initial,node_final,material,cross_section,element_type,element_index)} )
+            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section,element_type,element_index)} )
 
-        return elements_list
+        return map_elements
         
     def global_matrices(self):
         start_time = time.time()
@@ -181,7 +163,7 @@ class Assembly:
             Me = element.mass_matrix_gcs()
 
             # Element global degree of freedom indeces
-            _, _, mat_I, mat_J = element.dofs()
+            mat_I, mat_J = element.dofs()
 
             start = count*entries_per_element
             end = start + entries_per_element
@@ -208,7 +190,7 @@ class Assembly:
 
         # Slice all rows/columns from not prescribed dofs
         K = K[ global_dofs_free, : ][ :, global_dofs_free ]
-        M = M[ global_dofs_free, : ][ :, global_dofs_free]
+        M = M[ global_dofs_free, : ][ :, global_dofs_free ]
         end_time = time.time()
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))
