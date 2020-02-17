@@ -1,11 +1,7 @@
 import numpy as np
 from math import pi
 import time
-from scipy.sparse import csr_matrix, csc_matrix, coo_matrix
-
 from scipy.sparse.linalg import eigs, eigsh, spsolve, lobpcg
-# import scipy.linalg.blas as LLF
-# from pyamg import smoothed_aggregation_solver
 
 class Solution:
 
@@ -21,7 +17,7 @@ class Solution:
         self.alpha_v = kwargs.get("alpha_v", None)
         self.beta_v = kwargs.get("beta_v", None)
         self.alpha_h = kwargs.get("alpha_h", None)
-        self.beta_h = kwargs.get("beta_h", None)
+        self.beta_h = kwargs.get("beta_h", None)      
 
     def modal_analysis(self, number_modes = 10, which = 'LM', sigma = 0.01, timing = False ):
         """ Perform a modal analysis and returns natural frequencies and modal shapes normalized 
@@ -34,15 +30,6 @@ class Solution:
                                             M = self.mass_matrix,
                                             which = which,
                                             sigma = sigma)
-
-
-        # # initial approximation to the K eigenvectors
-        # X = np.random.randn(self.stiffness_matrix.shape[0], number_modes) 
-
-        # Y = np.eye(self.stiffness_matrix.shape[0], number_modes)
-
-        # # compute eigenvalues and eigenvectors with LOBPCG
-        # eigen_values, eigen_vectors = lobpcg(self.stiffness_matrix, X, self.mass_matrix, Y=Y, tol=1e-8, largest=False)
 
 
         end = time.time()
@@ -133,23 +120,19 @@ class Solution:
 
         modal_shape = kwargs.get("modal_shape", None)
         natural_frequencies = kwargs.get("natural_frequencies", None)
-        
+
         start = time.time()
         if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
             natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
         F_aux = modal_shape.T @ F
-        ind = np.arange(modal_shape.shape[1])
-        
+
         for i in range(len(frequencies)):
 
             freq = frequencies[i]
             data = np.divide(1, (( 1 + 1j*self.beta_v*freq + 1j*self.beta_h)*((2 * pi * natural_frequencies)**2) + (1j*freq*self.alpha_v + 1j*self.alpha_h) - (2 * pi * freq)**2 ))
-            diag = csc_matrix((data,(ind,ind)),shape=[modal_shape.shape[1],modal_shape.shape[1]])
-        
-            # x[:,i] = modal_shape @ diag @ F_aux
-            aux = diag @ F_aux
-            x[:,i] = modal_shape @ aux
+            diag = np.diag(data)
+            x[:,i] = modal_shape @ (diag @ F_aux)
             
         end = time.time()
         if timing:
