@@ -55,31 +55,18 @@ class Element:
         If the index of the initial node or final node are in 'fixed_nodes', its degree of
         freedom are not considered."""
 
-        # Initial node global, local, global boundary and local boundary degrees of freedom
-        global_dof_ni, local_dof_ni, global_boundary_ni, boundary_ni = self.node_initial.dofs( )
+        global_dof_ni = self.node_initial.dofs_node( )
+        global_dof_nf = self.node_final.dofs_node( )
 
-        # Final node global degrees of freedom, global boundary, local degree od freedom emended and boundary emended
-        global_dof_nf, local_dof_nf, global_boundary_nf, boundary_nf  = self.node_final.dofs( )
-        local_dof_nf = local_dof_nf + Node.degree_freedom
-
-        if boundary_nf != []:
-            boundary_nf = np.array(boundary_nf) + Node.degree_freedom
-        
         # Concatenating vectors
         a, b = len( global_dof_ni ), len( global_dof_nf )
-        c, d = Node.degree_freedom - a, Node.degree_freedom - b
         global_dof = np.zeros(a+b,dtype = int)
-        local_dof = np.zeros(a+b,dtype = int)
-        global_boundary = np.zeros(c+d,dtype = int)
-        boundary = np.zeros(c+d,dtype = int)
-
         global_dof[0:a], global_dof[a:a+b] = global_dof_ni, global_dof_nf
-        local_dof[0:a], local_dof[a:a+b] = local_dof_ni, local_dof_nf
-        global_boundary[0:c], global_boundary[c:c+d] = global_boundary_ni, global_boundary_nf
-        boundary[0:c], boundary[c:c+d] = boundary_ni, boundary_nf
-     
 
-        return global_dof, local_dof, global_boundary, boundary
+        mat_I = global_dof.reshape( a+b, 1) @ np.ones(( 1, a+b ))
+        mat_J = mat_I.T
+
+        return mat_I, mat_J
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
