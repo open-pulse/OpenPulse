@@ -48,7 +48,7 @@ connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
 #TODO: save the rows and collumns deleted.
 fixed_nodes = np.array([1, 1200, 1325]) # Which node has some boundary coundition prescribed.
 dofs_fixed_node = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-dofs_fixed_value = [[0,1,2,3,4,5],[5,4,3,2,1,0],[7,6,5,4,3,2]] # Value prescribed for each degree of freedom
+dofs_fixed_value = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # Value prescribed for each degree of freedom
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
@@ -59,7 +59,7 @@ material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
-load_dictionary = {i:np.zeros((Node.degree_freedom)) for i in connectivity[:,0]}
+load_dictionary = {i:np.array([0, 1, 0, 0, 0, 0]) for i in connectivity[:,0]}
 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
@@ -89,8 +89,9 @@ number_modes = 100
 load_dof = 157
 response_dof = 157
 
-F = np.zeros( total_dof - len(assemble.dofs_fixed()) )
+# point load.
 F[load_dof] = 1
+
 
 # Solution class definition
 solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
@@ -129,7 +130,6 @@ ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
-# exit()
 
 #%% Entries for plot function 
 

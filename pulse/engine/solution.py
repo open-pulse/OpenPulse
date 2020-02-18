@@ -125,7 +125,7 @@ class Solution:
         if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
             natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
-        F_aux = modal_shape.T @ F
+        F_aux = modal_shape.T @ F.toarray().flatten()
 
         for i in range(len(frequencies)):
 
