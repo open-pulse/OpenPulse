@@ -278,15 +278,15 @@ class Element:
         det_jacob = L / 2
 
         node_dofs = Node.degree_freedom
-        Fe = np.zeros(( Element.total_degree_freedom, 1))
+        Fe = np.zeros(( Element.total_degree_freedom))
         NN = np.zeros((node_dofs,2 * node_dofs))
 
 
         for point, weigth in zip(points, weigths):
             phi, _ = Element.shape_function( point )
 
-            NN[0:node_dofs,0:node_dofs] = phi[0] * np.identity( node_dofs )
-            NN[0:node_dofs,node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
+            NN[0:node_dofs, 0:node_dofs            ] = phi[0] * np.identity( node_dofs )
+            NN[0:node_dofs, node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
 
             Fe += (NN.T @ self.load) * det_jacob * weigth
         return Fe

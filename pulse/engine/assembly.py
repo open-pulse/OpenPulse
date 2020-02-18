@@ -171,23 +171,23 @@ class Assembly:
             Me, Ke, Fe = element.matrices_gcs()
 
             # Element global degree of freedom indeces
-            mat_I, mat_J = element.dofs()
-
-            start = count * entries_per_element
-            end = start + entries_per_element
+            mat_I, mat_J  = element.dofs()
 
             start_f  = count * edof
             end_f = start_f + edof
 
-            count += 1
-
             I_f[start_f : end_f] = mat_I[:,0]
-            data_F[start_f : end_f] = Fe.flatten()
+            data_F[start_f : end_f] = Fe
+
+            start = count * entries_per_element
+            end = start + entries_per_element
 
             I[start : end]  = mat_I.flatten()
             J[start : end]  = mat_J.flatten()
             data_K[start : end] = Ke.flatten()
             data_M[start : end] = Me.flatten()
+
+            count += 1
 
         # Line and Column Elimination
         

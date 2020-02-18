@@ -59,7 +59,7 @@ material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
-load_dictionary = {i:np.zeros((Node.degree_freedom,1)) for i in connectivity[:,0]}
+load_dictionary = {i:np.zeros((Node.degree_freedom)) for i in connectivity[:,0]}
 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
