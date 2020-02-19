@@ -1,7 +1,7 @@
 #
 import math
 import numpy as np
-import SECTION_calc_v2 as sec
+import SECTION_GEOM as sec
 #######################################################
 def shape(ksi):
     """
@@ -38,27 +38,36 @@ analytical ks when N->inf.
 - Ansys pipe288 element has some "tricks" that make hard to compare matrices entries.  
 It can be made with N>100, but with some differences. 
     """
-    #Geometry properties of cross-section
-    I1 = math.pi*(do**4 - di**4)/64.0   # I1 = I2
-    I2 = math.pi*(do**4 - di**4)/64.0
-    J =  I1 + I2   
-    A =  math.pi*(do**2 - di**2)/4.0
-    #alps = sec.sectcalc(do,di,nr)
-    #
-    #Shear form factor
-    alpha = di/do
-    kk = alpha/(1+(alpha**2.))
-    ks =  ansfactor*6./(7. + 20.*(kk**2.)) #1./alps
-    As_ = ks*A  
-    # Residual bending flexibility
-    As1 = As_ #1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
-    As2 = As_ #1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
-    #
     #Material
+    #pois = 0.
+    #E = 210e9
+    #pois = 0.3
     #G = E/(2.0*(1.0 + pois)) #Nao deletar!!!
     #lame parameters
     #lamb = pois*E/((1.0 + pois)*(1.0 -2.0*pois)) #Nao deletar!!!
     mu = E/(2.0*(1.0 + pois))
+    #
+    #Geometry properties of cross-section
+    # I1 = math.pi*(do**4 - di**4)/64.0   # I1 = I2
+    # I2 = math.pi*(do**4 - di**4)/64.0
+    # J =  I1 + I2   
+    # A =  math.pi*(do**2 - di**2)/4.0
+    #do = 0.05
+    #di = 0.04
+    #nr = 64
+    offset = np.array([0.,0.])
+    A, I1, I2, I12, J, RES1, RES2 = sec.sectcalc(do,di,nr,offset,pois)
+    #
+    #Shear form factor
+    # alpha = di/do
+    # kk = alpha/(1+(alpha**2.))
+    # ks =  6./(7. + 20.*(kk**2.)) 
+    # As_ = ks*A  
+    # Residual bending flexibility
+    #As1 = 1./((1./(As_)) + ((le)**2.)/(12.*E*I1))
+    #As2 = 1./((1./(As_)) + ((le)**2.)/(12.*E*I2))
+    As1 = A*(1./RES1)
+    As2 = A*(1./RES2)
     #
     #Determinant of Jacobian (linear 1D trasform)
     detJac = le/2.0
@@ -145,4 +154,4 @@ It can be made with N>100, but with some differences.
         #
         Fe = Fe + (NN.T @ eload.T)*detJac*wfact_m[i]
     #
-    return Ke, Me, Fe
+    return Ke, Me, Fe, A, I1, I2, I12, J, RES1, RES2
