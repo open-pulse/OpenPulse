@@ -46,7 +46,8 @@ mesh.generate('Examples\\geometry\\tube_1.iges', 0.01)
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
 
-# K, M, Kr, Mr = get_global_matrices(mesh)
+K, M, Kr, Mr = get_global_matrices(mesh)
+# print(K)
 
 #############################
 
