@@ -54,7 +54,7 @@ class Element:
    
     def dofs(self):
         """Return the degrees of freedom related to the element in a array with 12 integers.
-        If the index of the initial node or final node are in 'fixed_nodes', its degree of
+        If the index of the initial node or final node are in 'nodes_prescribed_dofs', its degree of
         freedom are not considered."""
 
         global_dof_ni = self.node_initial.dofs_node( )
@@ -290,10 +290,17 @@ class Element:
         T = self.rotation_matrix()
         return T.T @ self.mass_matrix() @ T
     
-    def force_vector(self, load):
-        return np.zeros_like( load )
+    def force_vector(self):
+        return np.zeros( self.total_degree_freedom )
     
-    def force_vector_gcs(self, load):
+    def force_vector_gcs(self):
         T = self.rotation_matrix()
-        return T.T @ self.force_vector( load )
-    
+        return T.T @ self.force_vector( )
+
+    def matrices_gcs(self):
+        T = self.rotation_matrix()
+        T_trp = T.T
+        Me_gcs = T_trp @ self.mass_matrix() @ T
+        Ke_gcs = T_trp @ self.stiffness_matrix() @ T
+        Fe_gcs = T_trp @ self.force_vector()
+        return Me_gcs, Ke_gcs, Fe_gcs

@@ -69,6 +69,7 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
 
     cb = fig.colorbar(m, shrink=0.8)
     cb.set_label('Amplitude [-]', fontdict=font)
+    dict(zip(coordinates[:,0], coordinates[:,1:]))
 
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
@@ -76,7 +77,11 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
     segments_u = np.zeros((n_el,2,3))
     r_m = np.zeros(n_el)  
 
+    dict(zip())
+
     ind = int(0)
+
+    np.arange()
 
     for start, end in connectivity:
 

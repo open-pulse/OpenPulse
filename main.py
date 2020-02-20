@@ -8,14 +8,12 @@ from collections import deque
 from pulse.engine.material import Material
 from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
-from pulse.engine.element_288 import Element
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
 from pulse.mesh import Mesh
-
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -34,7 +32,7 @@ cross_section_1 = TCS(D_external, thickness = thickness)
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
-# m.reorder_index_bfs()
+# # m.reorder_index_bfs()
 # nodal_coordinates = np.array(m.nodes)
 # connectivity  = np.array(m.edges, dtype=int)
 
@@ -44,11 +42,18 @@ nodal_coordinates = np.loadtxt('input_data/coord.dat')
 ## Connectivity
 connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
 
-## Boundary conditions
-#TODO: save the rows and collumns deleted.
-fixed_nodes = np.array([1, 1200, 1325]) # Which node has some boundary coundition prescribed.
-dofs_fixed_node = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-dofs_fixed_value = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # Value prescribed for each degree of freedom
+# dofs prescribed (nodes, dof<=>values)
+nodes_prescribed_dofs = np.array([]) # Which node has some boundary coundition prescribed.
+dofs_prescribed_node   = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
+values_prescribed_dofs = [[0,1,2,3,5,4],[7,9,8,11,10,6],[0,0,12,0,0,1]] # prescribed values for each degree of freedom
+prescribed_info = np.zeros((np.asarray(dofs_prescribed_node).flatten().shape[0],2))
+prescribed_info[:,0], prescribed_info[:,1] = np.asarray(dofs_prescribed_node).flatten() , np.asarray(values_prescribed_dofs).flatten()
+prescribed_info2 = {nodes_prescribed_dofs[i] : np.array([[dofs_prescribed_node[i]],[values_prescribed_dofs[i]]]) for i in range(len(nodes_prescribed_dofs))}
+
+# external nodal load prescribed (nodes, dof<=>values)
+nodes_prescribed_dofs_load = np.array([1, 1200, 1325]) # Which node has some nodal load prescribed.
+dofs_prescribed_node_load  = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
+prescribed_load_value      = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # prescribed values for external nodal load
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
@@ -67,9 +72,10 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 ## Assembly those informations.
 assemble = Assembly(nodal_coordinates,
                     connectivity,
-                    fixed_nodes,
-                    dofs_fixed_node,
-                    dofs_fixed_value,                
+                    nodes_prescribed_dofs,
+                    dofs_prescribed_node,
+                    prescribed_info,
+                    prescribed_info2,                
                     # material_list,
                     material_dictionary,
                     # cross_section_list,
@@ -110,13 +116,11 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
                                                 timing = True)
 
 # PostProcessing class definition
-post = PostProcessing( fixed_nodes = fixed_nodes, 
-                      presc_dofs = assemble.dofs_fixed(), 
-                      value_prescribed_dofs = assemble.dofs_prescribed_values(),
-                      nodal_coordinates = nodal_coordinates, 
-                      eigenVectors = modal_shape, 
-                      HA_output = xd,
-                      log = False )
+post = PostProcessing( prescribed_info = assemble.get_prescribed_info(), 
+                       nodal_coordinates = nodal_coordinates, 
+                       eigenVectors = modal_shape, 
+                       HA_output = xd,
+                       log = False )
 
 eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
 

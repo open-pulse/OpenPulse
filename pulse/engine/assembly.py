@@ -7,6 +7,7 @@ from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection
 from pulse.engine.material import Material
 from pulse.engine.element_288 import Element
+# from pulse.engine.element_16 import Element
 
 class Assembly:
     """ Assembly  
@@ -17,7 +18,7 @@ class Assembly:
         
     connectivity : 
         
-    fixed_nodes : 
+    nodes_prescribed_dofs : 
         
     material_list : 
 
@@ -29,9 +30,10 @@ class Assembly:
     def __init__(   self,
                     nodal_coordinates,
                     connectivity,
-                    fixed_nodes,
-                    dofs_fixed_node,
-                    dofs_fixed_value,
+                    nodes_prescribed_dofs,
+                    dofs_prescribed_node,
+                    prescribed_info,
+                    prescribed_info2,
                     # material_list,
                     material_dictionary,
                     # cross_section_list,
@@ -40,9 +42,10 @@ class Assembly:
                     element_type_dictionary):
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
-        self.fixed_nodes = fixed_nodes
-        self.dofs_fixed_node = dofs_fixed_node   
-        self.dofs_fixed_value = dofs_fixed_value            
+        self.nodes_prescribed_dofs = nodes_prescribed_dofs
+        self.dofs_prescribed_node = dofs_prescribed_node   
+        self.prescribed_info = prescribed_info
+        self.prescribed_info2 = prescribed_info2            
         # self.material_list = material_list 
         self.material_dictionary = material_dictionary 
         # self.cross_section_list = cross_section_list
@@ -70,27 +73,45 @@ class Assembly:
         """ Dictionary ."""
         return { j:i for i, j in self.node_internal_to_user_index().items() }
        
-    def dofs_fixed(self):
+    # def dofs_prescribed(self):
+    #     """ Global index of every fixed degree of freedom."""
+    #     dictionary = self.node_user_to_internal_index()
+    #     dofs_prescribed = deque()
+
+    #     for i, user_index in enumerate(self.nodes_prescribed_dofs):
+    #         index = dictionary[user_index]
+
+    #         dofs_prescribed.extend( index * Node.degree_freedom + self.dofs_prescribed_node[i] )
+
+    #     return dofs_prescribed
+
+    def dofs_prescribed(self):
         """ Global index of every fixed degree of freedom."""
         dictionary = self.node_user_to_internal_index()
-        dofs_fixed = deque()
+        dofs_prescribed = deque()
 
-        for i, user_index in enumerate(self.fixed_nodes):
+        for i, user_index in enumerate(self.nodes_prescribed_dofs):
             index = dictionary[user_index]
-            dofs_fixed.extend( index * Node.degree_freedom + self.dofs_fixed_node[i] )
+            
+            dofs_prescribed.extend( index * Node.degree_freedom + self.dofs_prescribed_node[i] )
 
-        return dofs_fixed
-        
-    def dofs_prescribed_values(self):
-        """ Dictionary ."""
-        count = 0
-        dofs_presc = self.dofs_fixed()
-        dofs_prescribed_values = {}
-        for i in range(self.fixed_nodes.shape[0]):
-            for j in range(len(self.dofs_fixed_value[i])):
-                dofs_prescribed_values.update({ dofs_presc[j+count] : self.dofs_fixed_value[i][j] })
-            count += len(self.dofs_fixed_value[i])
-        return dofs_prescribed_values
+        return dofs_prescribed
+
+    def get_prescribed_info(self):
+        """ This method returns a Dictionary in the form:
+        { global_prescribed_dofs (index) : ([local_dofs_prescribed], [values_prescribed_each_dof])}
+        and also returns a reordered array (concerning global prescribed dofs) with the same data. """
+
+        dofs_presc = self.dofs_prescribed()
+        dict_dofs_prescrideb_info = {}
+        if dofs_presc:
+            dofs_prescribed_info = np.insert(self.prescribed_info, 0, dofs_presc ,axis=1)
+            ind = np.argsort(dofs_presc)
+            dofs_prescribed_info_reord = dofs_prescribed_info[ind,:]
+            dict_dofs_prescrideb_info = dict(zip( dofs_prescribed_info[:,0], dofs_prescribed_info[:,1:] ))
+        else:
+            dofs_prescribed_info_reord = []
+        return dict_dofs_prescrideb_info, dofs_prescribed_info_reord
 
     def map_nodes(self):
         """ Nodes assembly in a list ordered by the user indexing."""
@@ -191,7 +212,7 @@ class Assembly:
 
         # Line and Column Elimination
         
-        global_dofs_presc = np.sort( self.dofs_fixed() )
+        global_dofs_presc = np.sort( self.dofs_prescribed() )
                 
         total_dof = Node.degree_freedom * ( self.number_nodes() )
         global_dofs_free = np.delete( np.arange(total_dof), global_dofs_presc )
