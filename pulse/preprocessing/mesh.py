@@ -6,7 +6,7 @@ import numpy as np
 
 from pulse.preprocessing.node import Node
 from pulse.preprocessing.element import Element
-from pulse.utils import split_sequence, m_to_mm, mm_to_m
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
 
 
 class Mesh:
@@ -36,23 +36,20 @@ class Mesh:
         return np.array(global_prescribed).flatten()
 
     def set_material_by_line(self, lines, material):
-        if isinstance(lines, str) and lines == 'all':
-            self.set_cross_section_by_element('all', material)
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_material_by_element(elements, material)
 
     def set_cross_section_by_line(self, lines, cross_section):
-        if isinstance(lines, str) and lines == 'all':
-            self.set_cross_section_by_element('all', cross_section)
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_cross_section_by_element(elements, cross_section)
 
     def set_material_by_element(self, elements, material):
-        if isinstance(elements, str) and elements == 'all':
-            for element in self.elements.values():
-                element.material = material
+        for element in slicer(self.elements, elements):
+            element.material = material
 
     def set_cross_section_by_element(self, elements, cross_section):
-        if isinstance(elements, str) and elements == 'all':
-            for element in self.elements.values():
-                element.cross_section = cross_section
-
+        for element in slicer(self.elements, elements):
+            element.cross_section = cross_section
 
     # generate
     def _initialize_gmsh(self, path):

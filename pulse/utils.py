@@ -6,6 +6,27 @@ def split_sequence(sequence, size):
         subsequences.append(subsequence)
     return subsequences
 
+
+def slicer(iterable, argument):
+    if isinstance(argument, str) and argument == 'all':
+        if isinstance(iterable, dict):
+            for i in iterable.values():
+                yield i 
+        else:
+            for i in iterable:
+                yield i 
+
+    elif isinstance(argument, int):
+        yield iterable[argument]
+    
+    elif hasattr(argument, '__iter__'):
+        for i in argument:
+            yield iterable[i]
+
+    else:
+        raise AttributeError('Argument not supported')
+
+
 def m_to_mm(m):
     return float(m) * 1000
 
