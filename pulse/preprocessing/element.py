@@ -43,10 +43,22 @@ class Element:
 
     def global_matrix_indexes(self):
         ''' Returns two matrixes size 12 by 12, filled with rows indexes and column indexes. It may be usefull to construct the global matrix.'''
-        global_dof = np.concatenate((self.first_node.global_dof, self.last_node.global_dof))
-        rows = global_dof.reshape(len(global_dof), 1) @ np.ones(( 1, len(global_dof)))
+        global_dof = np.zeros(DOF_PER_ELEMENT)
+        global_dof[:DOF_PER_NODE] = self.first_node.global_dof
+        global_dof[DOF_PER_NODE:] = self.last_node.global_dof
+
+        rows = global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
         cols = rows.T
+
         return rows, cols
+
+    def matrices_gcs(self):
+        R = self.rotation_matrix()
+        Rt = R.T
+        mass = Rt @ self.mass_matrix() @ R
+        stiffness = Rt @ self.stiffness_matrix() @ R
+        return mass, stiffness
+
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
@@ -60,7 +72,6 @@ class Element:
     
     def force_vector_gcs(self, load):
         R = self.rotation_matrix()
-        # I'm not sure how to rotate this vector
         return R.T @ self.force_vector(load)
 
     def rotation_matrix(self):

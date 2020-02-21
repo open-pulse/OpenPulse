@@ -20,8 +20,7 @@ def get_global_matrices(mesh):
         end = start + ENTRIES_PER_ELEMENT 
 
         i, j = element.global_matrix_indexes()
-        Ke = element.stiffness_matrix_gcs()
-        Me = element.mass_matrix_gcs()
+        Ke, Me = element.matrices_gcs()
         
         rows[start:end] = i.flatten()
         cols[start:end] = j.flatten()
