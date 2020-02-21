@@ -1,10 +1,10 @@
+import time
+
 import numpy as np
 from scipy.sparse import csr_matrix
 
-import time
-
-from pulse.geometry.node import DOF_PER_NODE
-from pulse.geometry.element import ENTRIES_PER_ELEMENT
+from pulse.preprocessing.node import DOF_PER_NODE
+from pulse.preprocessing.element import ENTRIES_PER_ELEMENT
 
 def get_global_matrices(mesh):
     total_dof = DOF_PER_NODE * len(mesh.nodes)

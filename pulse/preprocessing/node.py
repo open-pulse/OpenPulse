@@ -1,6 +1,6 @@
 import numpy as np
 
-from pulse.setup.boundary_condition import BoundaryCondition
+from pulse.preprocessing.boundary_condition import BoundaryCondition
 
 DOF_PER_NODE = 6
 

@@ -2,9 +2,7 @@ from math import pi, sqrt, sin, cos
 
 import numpy as np
 
-from pulse.geometry.node import Node, distance, DOF_PER_NODE
-from pulse.engine.tube import TubeCrossSection
-from pulse.engine.material import Material
+from pulse.preprocessing.node import Node, distance, DOF_PER_NODE
 
 
 NODES_PER_ELEMENT = 2

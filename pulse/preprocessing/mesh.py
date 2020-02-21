@@ -4,8 +4,8 @@ from random import choice
 import gmsh 
 import numpy as np
 
-from pulse.geometry.node import Node
-from pulse.geometry.element import Element
+from pulse.preprocessing.node import Node
+from pulse.preprocessing.element import Element
 from pulse.utils import split_sequence, m_to_mm, mm_to_m
 
 
