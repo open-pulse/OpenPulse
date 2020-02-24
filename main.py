@@ -153,12 +153,12 @@ plt.show()
 #Choose EigenVector to be ploted
 mode_to_plot = 10
 
-u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
-connectivity_plot = connectivity[:,1:]
-coordinates = nodal_coordinates[:,1:]
+u_def = post.plot_modal_shape(mode_to_plot)
+connectivity_plot = preprocessor.connectivity_remaped()
+coordinates = preprocessor.nodal_coordinates_remaped()
 
 freq_n = natural_frequencies[mode_to_plot-1]
-
+#%%
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 

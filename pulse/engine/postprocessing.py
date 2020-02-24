@@ -32,8 +32,8 @@ class PostProcessing:
 
         eigenVectors_Uxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
         eigenVectors_Rxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
-        eigenVectors_Uxyz[:,0] = np.arange( 1, self.number_nodes + 1, 1 )
-        eigenVectors_Rxyz[:,0] = np.arange( 1, self.number_nodes + 1, 1 )
+        eigenVectors_Uxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
+        eigenVectors_Rxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
 
         ind = np.arange( 0, aux_eigenVectors.shape[0], Node.degree_freedom )
 
