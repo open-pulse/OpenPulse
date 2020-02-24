@@ -67,8 +67,9 @@ class Element:
 
         mat_I = global_dof.reshape( a+b, 1) @ np.ones(( 1, a+b ))
         mat_J = mat_I.T
+        mat_If = mat_I[:,0]
 
-        return mat_I, mat_J
+        return mat_I.flatten(), mat_J.flatten(), mat_If.flatten()
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
@@ -301,6 +302,6 @@ class Element:
         Me_gcs = T_trp @ self.mass_matrix() @ T
         Ke_gcs = T_trp @ self.stiffness_matrix() @ T
         Fe_gcs = T_trp @ self.force_vector()
-        return Me_gcs, Ke_gcs, Fe_gcs
+        return Me_gcs.flatten(), Ke_gcs.flatten(), Fe_gcs
 
 

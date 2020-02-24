@@ -1,13 +1,15 @@
 #%% 
 import numpy as np
-import time
+from time import time
 import h5py
-import queue
-from collections import deque
+import pandas
+# import queue
+# from collections import deque
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
 from pulse.engine.tube import TubeCrossSection as TCS
+from pulse.engine.preprocessing import PreProcessing
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
@@ -17,6 +19,8 @@ from pulse.mesh import Mesh
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
+
+t0 = time()
 
 ## Material definition:
 # steel
@@ -37,23 +41,10 @@ cross_section_1 = TCS(D_external, thickness = thickness)
 # connectivity  = np.array(m.edges, dtype=int)
 
 ## Nodal coordinates
-nodal_coordinates = np.loadtxt('input_data/coord.dat') 
+nodal_coordinates = np.loadtxt('input_data/coord.dat')
 
 ## Connectivity
 connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
-
-# dofs prescribed (nodes, dof<=>values)
-nodes_prescribed_dofs = np.array([]) # Which node has some boundary coundition prescribed.
-dofs_prescribed_node   = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-values_prescribed_dofs = [[0,1,2,3,5,4],[7,9,8,11,10,6],[0,0,12,0,0,1]] # prescribed values for each degree of freedom
-prescribed_info = np.zeros((np.asarray(dofs_prescribed_node).flatten().shape[0],2))
-prescribed_info[:,0], prescribed_info[:,1] = np.asarray(dofs_prescribed_node).flatten() , np.asarray(values_prescribed_dofs).flatten()
-prescribed_info2 = {nodes_prescribed_dofs[i] : np.array([[dofs_prescribed_node[i]],[values_prescribed_dofs[i]]]) for i in range(len(nodes_prescribed_dofs))}
-
-# external nodal load prescribed (nodes, dof<=>values)
-nodes_prescribed_dofs_load = np.array([1, 1200, 1325]) # Which node has some nodal load prescribed.
-dofs_prescribed_node_load  = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-prescribed_load_value      = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # prescribed values for external nodal load
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
@@ -64,46 +55,65 @@ material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
-load_dictionary = {i:np.array([0, 1, 0, 0, 0, 0]) for i in connectivity[:,0]}
+load_dictionary = {i:np.array([0, 0, 0, 0, 0, 0]) for i in connectivity[:,0]}
 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
+##
+### BEGIN OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
+
+# dofs prescribed (nodes, dof<=>values)
+nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
+local_dofs_prescribed   = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
+prescribed_dofs_values = [[0,1,2,3,5,4],[7,9,8,11,10,6],[0,0,12,0,0,1]] # prescribed values for each degree of freedom
+
+# external nodal load prescribed (nodes, dof<=>values)
+nodes_prescribed_load = [27] # Which node has some nodal load prescribed.
+local_dofs_prescribed_load  = [[1]] # What are the local degree of freedom with external load.
+prescribed_load_values      = [[1]] # Whats are the prescribed values for external nodal load
+
+# nodal respose (node, dof_corrected)
+nodes_response = [27] # Desired nodal response.
+local_dofs_response  = [[1]] # Get the response at the following degree of freedom
+
+### END OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
+##
+
+# Preprocessing data:
+preprocessor = PreProcessing(   nodal_coordinates, 
+                                connectivity,
+                                material_dictionary,
+                                cross_section_dictionary,
+                                load_dictionary,
+                                element_type_dictionary,
+                                nodes_prescribed_dofs,
+                                local_dofs_prescribed,
+                                prescribed_dofs_values,
+                                nodes_prescribed_load,
+                                local_dofs_prescribed_load,
+                                prescribed_load_values,
+                                nodes_response,
+                                local_dofs_response )
+
 ## Assembly those informations.
-assemble = Assembly(nodal_coordinates,
-                    connectivity,
-                    nodes_prescribed_dofs,
-                    dofs_prescribed_node,
-                    prescribed_info,
-                    prescribed_info2,                
-                    # material_list,
-                    material_dictionary,
-                    # cross_section_list,
-                    cross_section_dictionary,
-                    load_dictionary,
-                    element_type_dictionary)
+assemble = Assembly( preprocessor )
 
 # Global Assembly
-K, M, F, Kr, Mr, data_K, data_M, I, J, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
+K, M, F, Kr, Mr, data_K, data_M, data_F, I, J, I_f, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
 
 ## Solution
 # Analysis parameters
 freq_max = 200
 df = 2
-number_modes = 100
-
-load_dof = 157
-response_dof = 157
-
-# point load.
-F[load_dof] = 1
-
+number_modes = 200
 
 # Solution class definition
 solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
 
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
+# print(natural_frequencies)
 
 # Direct method
 xd, frequencies = solu.direct_method(F, timing = True)
@@ -116,29 +126,32 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
                                                 timing = True)
 
 # PostProcessing class definition
-post = PostProcessing( prescribed_info = assemble.get_prescribed_info(), 
-                       nodal_coordinates = nodal_coordinates, 
+post = PostProcessing( preprocessor,
                        eigenVectors = modal_shape, 
-                       HA_output = xd,
                        log = False )
 
-eigenVectors_Uxyz, eigenVectors_Rxyz, U_out = post.dof_recover()
+eigenVectors_Uxyz, eigenVectors_Rxyz = post.dof_recover()
+
+response_dof = preprocessor.response_info()[0,0].astype(int)
+Xd = (post.harmonic_response(xd)[response_dof,:])
+Xs = (post.harmonic_response(xs)[response_dof,:])
+
+tf = time()
+print('Total elapsed time:', (tf-t0),'[s]')
 
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
-plt.plot(frequencies, np.log10(np.abs(xd[response_dof,:])), color = [0,0,0], linewidth=2)
-plt.plot(frequencies, np.log10(np.abs(xs[response_dof,:])), color = [1,0,0], linewidth=2)
+plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=2)
+plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=2)
 ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
 ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
-
-#%% Entries for plot function 
-
+# Entries for plot function 
 #Choose EigenVector to be ploted
-mode_to_plot = 100
+mode_to_plot = 10
 
 u_def = post.plot_modal_shape(mode_to_plot)[:,1:]
 connectivity_plot = connectivity[:,1:]
@@ -171,8 +184,7 @@ wdata = SaveData( connectivity,
                     eigenVectors = modal_shape,
                     eigenVectors_Uxyz = eigenVectors_Uxyz,
                     natural_frequencies = natural_frequencies, 
-                    frequency_analysis = frequencies,
-                    U_out = U_out )
+                    frequency_analysis = frequencies )
 
 # Call store_data method to save the output results 
 wdata.store_data()
@@ -185,6 +197,3 @@ var_name, data, flag = rdata.read_data()
 if flag:
     for i, name in enumerate(var_name):
         vars()[name[0]+"_"] = data[i]
-
-
-

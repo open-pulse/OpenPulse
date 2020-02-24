@@ -6,8 +6,8 @@ from scipy.sparse.linalg import eigs, eigsh, spsolve, lobpcg
 class Solution:
 
     def __init__(self, stiffness_matrix, mass_matrix, **kwargs):
-        self.stiffness_matrix = stiffness_matrix
-        self.mass_matrix = mass_matrix
+        self.stiffness_matrix = stiffness_matrix.tocsc()
+        self.mass_matrix = mass_matrix.tocsc()
 
         self.frequencies = kwargs.get("frequencies", None)
         self.minor_freq = kwargs.get("minor_freq", None)
