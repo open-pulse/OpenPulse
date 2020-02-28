@@ -7,3 +7,6 @@ class Project:
     def newProject(self, import_path):
         self.mesh.path = import_path
         self.mesh.generate(1,1)
+
+    def getEntities(self):
+        return self.mesh.entities

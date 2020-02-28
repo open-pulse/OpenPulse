@@ -95,13 +95,13 @@ class MainWindow(QMainWindow):
         name = basename(path)
         self._change_window_title(name)
         self.project.newProject(path)
-        self.draw()
+        self.draw(initial=True)
 
     def import_call(self):
         pass
     
-    def draw(self):
-        self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges)
+    def draw(self, initial=False):
+        self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges, self.project.getEntities(), initial)
 
     def closeEvent(self, event):
         close = QMessageBox.question(

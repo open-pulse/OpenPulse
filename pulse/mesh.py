@@ -1,5 +1,6 @@
 from os.path import isfile
 from pulse.utils import split_sequence
+from pulse.entity import Entity
 from collections import deque
 import gmsh 
 
@@ -8,6 +9,7 @@ class Mesh:
         self.path = path
         self.nodes = []
         self.edges = []
+        self.entities = []
 
     def reset_variables(self):
         self.nodes = []
@@ -122,6 +124,7 @@ class Mesh:
 
     def __generate_meshes(self):
         gmsh.model.mesh.generate(3)
+        self._create_entities()
         gmsh.model.mesh.removeDuplicateNodes()
 
     def __read_nodes(self):
@@ -133,9 +136,7 @@ class Mesh:
             self.nodes.append(node)
 
     def __read_edges(self):
-        for i in gmsh.model.getEntities():
-            if i[0] == 0:
-                continue
+        for i in gmsh.model.getEntities(1):
             dim = i[0]
             tag = i[1]
             _, index, connectivity = gmsh.model.mesh.getElements(dim, tag) 
@@ -146,6 +147,33 @@ class Mesh:
             for index, (start, end) in zip(index, connectivity):
                 edges = index, start, end, tag
                 self.edges.append(edges)
+
+    def _create_entities(self):
+        for i in gmsh.model.getEntities(1):
+            dim = i[0]
+            tag = i[1]
+
+            newEntity = Entity(tag)
+
+            #Element
+            _, index, connectivity = gmsh.model.mesh.getElements(dim, tag) 
+            index = index[0]
+            connectivity = connectivity[0]
+            connectivity = split_sequence(connectivity, 2)
+
+            for index, (start, end) in zip(index, connectivity):
+                edges = index, start, end
+                newEntity.insertEdge(edges)
+
+            #Nodes
+            index, coordinates, _ = gmsh.model.mesh.getNodes(dim, tag, True)
+            coordinates = split_sequence(coordinates, 3)
+
+            for index, (x, y, z) in zip(index, coordinates):
+                node = index, x/1000, y/1000, z/1000
+                newEntity.insertNode(node)
+
+            self.entities.append(newEntity)
 
     def __finalize(self):
         gmsh.finalize()

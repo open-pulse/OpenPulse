@@ -1,5 +1,7 @@
 import vtk
 import numpy as np
+import random
+from pulse.opv.colorTable import ColorTable
 
 class Lines:
     def __init__(self, **kwargs):
@@ -8,6 +10,8 @@ class Lines:
         Pipeline start with assembly() funcion
         Pipeline # Source -> Filter -> Map -> Actor
         '''
+        self.tag = kwargs.get("tag", -1)
+        self.initial = kwargs.get("initial", False)
 
         self.nodesList = kwargs.get("nodes", [])
         self.edgesList = kwargs.get("edges", [])
@@ -22,7 +26,7 @@ class Lines:
         self._object = vtk.vtkPolyData()
 
         #Filter
-        self._colorTable = vtk.vtkLookupTable()
+        self._colorTable = ColorTable()
         self._tubeFilter = vtk.vtkTubeFilter()
         self._colorFilter = vtk.vtkUnsignedCharArray()
         self._colorFilter.SetNumberOfComponents(3)
@@ -41,7 +45,7 @@ class Lines:
 
     def _source(self):
         for node in self.nodesList:
-            self._nodes.InsertPoint(int(node[0]), node[1]/1000, node[2]/1000, node[3]/1000)
+            self._nodes.InsertPoint(int(node[0]), node[1], node[2], node[3])
 
         for edge in self.edgesList:
             line = vtk.vtkLine()
@@ -54,17 +58,25 @@ class Lines:
 
 
     def _filter(self):
-        for i in range(self._nodes.GetNumberOfPoints()):
-            self._colorFilter.InsertNextTypedTuple([255,0,0])
+        color = [random.randint(0,255),random.randint(0,255),random.randint(0,255)]
+        if self._colorTable.is_empty():
+            for _ in range(self._nodes.GetNumberOfPoints()):
+                self._colorFilter.InsertNextTypedTuple(color)
+        else:
+            for id_, _ in self.structure.nodes.items():
+                self._colorFilter.InsertTypedTuple(id_, self._colorTable.get_color_by_id(id_))
 
         self._object.GetPointData().SetScalars(self._colorFilter)
         
         if not self.show_lines:
             self._tubeFilter.SetInputData(self._object)
-            self._tubeFilter.SetRadius(0.05)
+            if self.initial:
+                self._tubeFilter.SetRadius(0.01)
+            else:
+                self._tubeFilter.SetRadius(0.05)
             self._tubeFilter.SetNumberOfSides(50)
             self._tubeFilter.Update()
-        
+
 
     def _map(self):
         if self.show_lines:
@@ -77,3 +89,6 @@ class Lines:
 
     def get_actor(self):
         return self._line_actor
+
+    def get_table(self):
+        return self._colorTable
