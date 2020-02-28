@@ -55,10 +55,9 @@ class Element:
     def matrices_gcs(self):
         R = self.rotation_matrix()
         Rt = R.T
-        mass = Rt @ self.mass_matrix() @ R
         stiffness = Rt @ self.stiffness_matrix() @ R
-        return mass, stiffness
-
+        mass = Rt @ self.mass_matrix() @ R
+        return stiffness, mass
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
