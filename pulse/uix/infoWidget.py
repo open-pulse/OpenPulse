@@ -27,11 +27,11 @@ class InfoWidget(QSplitter):
         self.data_widget.addTab(generate_widget, 'Generate')
 
     def list_of_nodes(self):
-        nodes_widget = NodesWidget(self.main_window.mesh.nodes)
+        nodes_widget = NodesWidget(self.main_window.project.mesh.nodes)
         self.data_widget.addTab(nodes_widget, 'Nodes')
 
     def list_of_connections(self):
-        edges_widget = EdgesWidget(self.main_window.mesh.edges)
+        edges_widget = EdgesWidget(self.main_window.project.mesh.edges)
         self.data_widget.addTab(edges_widget, 'Edges')
 
     def plot_config(self):

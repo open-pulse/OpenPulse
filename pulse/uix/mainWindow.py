@@ -11,11 +11,12 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 from pulse.mesh import Mesh
 from pulse.uix.infoWidget import InfoWidget
 from pulse.uix.opvWidget import OPVWidget
+from pulse.project import Project
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
-        self.mesh = Mesh()
+        self.project = Project()
         self._load_icons()
         self._config()
         self._create_actions()
@@ -90,23 +91,18 @@ class MainWindow(QMainWindow):
         working_area.setSizes([100,300])
 
     def new_call(self):
-        #print('THIS DOES NOT WORK')
-        con = np.array(np.loadtxt('examples/matplotlib/Ex_02/connect.dat'), int)
-        print(type(con))
-        cor = np.array(np.loadtxt('examples/matplotlib/Ex_02/coord.dat'))
-        self.opv_widget.change_line_plot(cor, con)
-
-    def import_call(self):
         path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
         name = basename(path)
-        self.mesh.path = path
         self._change_window_title(name)
+        self.project.newProject(path)
+        self.draw()
 
-    def plot(self):
-        self.opv_widget.change_line_plot(self.mesh.nodes, self.mesh.edges)
+    def import_call(self):
+        pass
+    
+    def draw(self):
+        self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges)
 
-
-    # HERITAGE
     def closeEvent(self, event):
         close = QMessageBox.question(
             self,
@@ -118,6 +114,3 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
-
-    def clickMethod(self):
-        print('PyQt')

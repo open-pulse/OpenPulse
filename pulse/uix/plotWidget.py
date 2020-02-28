@@ -25,4 +25,4 @@ class PlotWidget(QWidget):
         self.layout.addRow(self.plot_button)
 
     def _plot_function(self):
-        self.main_window.plot()
+        self.main_window.draw()

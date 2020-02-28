@@ -133,14 +133,19 @@ class Mesh:
             self.nodes.append(node)
 
     def __read_edges(self):
-        _, index, connectivity = gmsh.model.mesh.getElements() 
-        index = index[0]
-        connectivity = connectivity[0]
-        connectivity = split_sequence(connectivity, 2)
+        for i in gmsh.model.getEntities():
+            if i[0] == 0:
+                continue
+            dim = i[0]
+            tag = i[1]
+            _, index, connectivity = gmsh.model.mesh.getElements(dim, tag) 
+            index = index[0]
+            connectivity = connectivity[0]
+            connectivity = split_sequence(connectivity, 2)
 
-        for index, (start, end) in zip(index, connectivity):
-            edges = index, start, end
-            self.edges.append(edges)
+            for index, (start, end) in zip(index, connectivity):
+                edges = index, start, end, tag
+                self.edges.append(edges)
 
     def __finalize(self):
         gmsh.finalize()
