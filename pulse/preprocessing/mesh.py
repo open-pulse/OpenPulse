@@ -4,7 +4,7 @@ from random import choice
 import gmsh 
 import numpy as np
 
-from pulse.preprocessing.node import Node
+from pulse.preprocessing.node import Node, DOF_PER_NODE
 from pulse.preprocessing.element import Element
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
 
@@ -31,9 +31,9 @@ class Mesh:
     def prescribed_dof(self):
         global_prescribed = []
         for node in self.nodes.values():
-            prescribed = node.boundary_condition.prescribed_dof + node.global_index
-            global_prescribed.append(prescribed)
-        return np.array(global_prescribed).flatten()
+            prescribed = node.boundary_condition.prescribed_dof + node.global_index * DOF_PER_NODE
+            global_prescribed.extend(prescribed)
+        return global_prescribed
 
     def set_material_by_line(self, lines, material):
         for elements in slicer(self.line_to_elements, lines):
@@ -50,6 +50,10 @@ class Mesh:
     def set_cross_section_by_element(self, elements, cross_section):
         for element in slicer(self.elements, elements):
             element.cross_section = cross_section
+
+    def set_boundary_condition_by_node(self, nodes, boundary_condition):
+        for node in slicer(self.nodes, nodes):
+            node.boundary_condition = boundary_condition
 
     # generate
     def _initialize_gmsh(self, path):
