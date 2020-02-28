@@ -1,3 +1,6 @@
+from functools import wraps
+from time import time
+
 def split_sequence(sequence, size):
     subsequences = []
     for start in range(0, len(sequence), size):
@@ -26,6 +29,17 @@ def slicer(iterable, argument):
     else:
         raise AttributeError('Argument not supported')
 
+
+def timer(function):
+    @wraps(function)
+    def wrapper(*args, **kwargs):
+        start_time = time()
+        values = function(*args, **kwargs)
+        end_time = time()
+        print(f'Time to finish {function.__name__}: {end_time - start_time} [s]')
+        return values
+    return wrapper
+    
 
 def m_to_mm(m):
     return float(m) * 1000
