@@ -10,7 +10,7 @@ from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
 
 from pulse.mesh import Mesh
 from pulse.uix.infoWidget import InfoWidget
-from pulse.uix.opvWidget import OPVWidget
+from pulse.uix.vtk.opvWidget import OPVWidget
 from pulse.project import Project
 
 class MainWindow(QMainWindow):
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
 
     def _create_basic_layout(self):
         self.info_widget = InfoWidget(self)
-        self.opv_widget = OPVWidget(self)
+        self.opv_widget = OPVWidget(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
@@ -101,7 +101,9 @@ class MainWindow(QMainWindow):
         pass
     
     def draw(self, initial=False):
-        self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges, self.project.getEntities(), initial)
+        self.opv_widget.plot_nodes()
+        #self.opv_widget.plot_line()
+        #self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges, self.project.getEntities(), initial)
 
     def closeEvent(self, event):
         close = QMessageBox.question(
