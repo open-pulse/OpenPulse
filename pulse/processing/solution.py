@@ -3,9 +3,7 @@ from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
 
-from pulse.utils import timer
 
-@timer
 def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
     eigen_values, eigen_vectors = eigs(stiffness_matrix, M=mass_matrix, k=modes, *args, **kwargs)
 
@@ -19,7 +17,6 @@ def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
 
     return natural_frequencies, modal_shape
 
-@timer
 def direct_method(forces, frequencies, stiffness_matrix, mass_matrix, **kwargs):
     alpha_v = kwargs.get('alpha_v', 0)
     beta_v = kwargs.get('beta_v', 0)
@@ -34,7 +31,6 @@ def direct_method(forces, frequencies, stiffness_matrix, mass_matrix, **kwargs):
         x[:,i] = spsolve(A, forces)
     return x
 
-@timer
 def modal_superposition(forces, frequencies, natural_frequencies, modal_shape, **kwargs):
     alpha_v = kwargs.get('alpha_v', 0)
     beta_v = kwargs.get('beta_v', 0)
