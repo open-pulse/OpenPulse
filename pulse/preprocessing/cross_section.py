@@ -29,5 +29,5 @@ class CrossSection:
         return 6 / (7 + 20 * auxiliar**2)
     
     def shear_area(self, element_length, young_modulus):
-        shear_area = self.area * self.shear_form_factor
-        return 1 / (( 1 / shear_area) + (element_length**2 / (12 * young_modulus * self.moment_area)))
+        temp = self.area * self.shear_form_factor
+        return 1 / (( 1 / temp) + (element_length**2 / (12 * young_modulus * self.moment_area)))
