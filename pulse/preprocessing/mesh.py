@@ -24,6 +24,7 @@ class Mesh:
         self._initialize_gmsh(path)
         self._set_gmsh_options(element_size)
         self._create_entities()
+        self._map_lines_to_elements()
         self._finalize_gmsh()
         self._load_neighbours()
         self._order_global_indexes()
