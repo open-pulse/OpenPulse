@@ -1,4 +1,5 @@
 from PyQt5 import Qt
+from PyQt5.QtWidgets import QMenu
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 #from pulse.opv.lines import Lines
@@ -80,7 +81,7 @@ class OPVWidget(QVTKRenderWindowInteractor):
 
     def plot_nodes(self):
         self.before_plot()
-        
+
         plot = Lines(self.project.getNodes(), self.project.getElements(), -1)
         plot.assembly()
         self.renderer.AddActor(plot.get_actor())
@@ -92,9 +93,13 @@ class OPVWidget(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors[plot.get_actor()] = point[0]
             self.renderer.AddActor(plot.get_actor())
-        
-        
         self.after_plot()
+
+    def on_context_menu(self, pos, a):
+        print(a)
+        menu = QMenu()
+        menu.addAction(str(a))
+        menu.exec_(self.mapToGlobal(pos))
 
     def plot_elements(self):
         pass
