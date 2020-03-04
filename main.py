@@ -3,8 +3,6 @@ import numpy as np
 from time import time
 import h5py
 import pandas
-# import queue
-# from collections import deque
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
