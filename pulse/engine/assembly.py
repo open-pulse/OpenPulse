@@ -88,7 +88,7 @@ class Assembly:
 
             count = 0
             map_elements = self.map_elements
-            for _, element in map_elements.items():
+            for element in map_elements.values():
 
                 # Elementar matrices on the global coordinate system
                 Me_temp, Ke_temp, Fe_temp = element.matrices_gcs()
@@ -132,12 +132,12 @@ class Assembly:
                 
         # Slice rows and all columns of not prescribed dofs
         Kr = K[ global_dofs_presc,: ]
-        Mr = K[ global_dofs_presc,: ]
+        Mr = M[ global_dofs_presc,: ]
 
         # Slice all rows/columns from not prescribed dofs
         K = K[ global_dofs_free, : ][ :, global_dofs_free ]
         M = M[ global_dofs_free, : ][ :, global_dofs_free ]
-        F = F[ global_dofs_free, : ]
+        F = F[ global_dofs_free, : ].toarray().flatten()
         end_time = time.time()
 
         print('Time to assemble and process global matrices:', round(end_time-start_time,6))

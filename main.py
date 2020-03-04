@@ -65,13 +65,14 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
 # dofs prescribed (nodes, dof<=>values)
 nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
-local_dofs_prescribed   = [[5,3,2,0,4,1],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-prescribed_dofs_values = [[0,1,2,3,5,4],[7,9,8,11,10,6],[0,0,12,0,0,1]] # prescribed values for each degree of freedom
+local_dofs_prescribed   = [[0,1,2],[0,1,2],[0,1,2]] # What are the degree of freedom restricted on those nodes.
+# prescribed_dofs_values = [[0.01,0.01,0.01],[0.01,0.01,0.01],[0.01,0.01,0.01]] # prescribed values for each degree of freedom
+prescribed_dofs_values = [[0,0,0],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
-nodes_prescribed_load = [27] # Which node has some nodal load prescribed.
-local_dofs_prescribed_load  = [[1]] # What are the local degree of freedom with external load.
-prescribed_load_values      = [[1]] # Whats are the prescribed values for external nodal load
+nodes_prescribed_load = [27,230] # Which node has some nodal load prescribed.
+local_dofs_prescribed_load  = [[1],[2]] # What are the local degree of freedom with external load.
+prescribed_load_values      = [[1],[1]] # Whats are the prescribed values for external nodal load
 
 # nodal respose (node, dof_corrected)
 nodes_response = [27] # Desired nodal response.
@@ -109,8 +110,14 @@ df = 2
 number_modes = 200
 
 # Solution class definition
-solu = Solution(K, M, minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
 
+presc_dofs_info = preprocessor.prescbribed_dofs_info()
+free_dofs = preprocessor.free_dofs()
+
+solu = Solution(K, M, 
+                Kr=Kr, Mr=Mr, presc_dofs_info = presc_dofs_info, free_dofs = free_dofs,
+                minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
+#%%
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
 # print(natural_frequencies)
@@ -127,8 +134,16 @@ xs, frequencies, _ ,_ = solu.mode_superposition(F,
 
 # PostProcessing class definition
 post = PostProcessing( preprocessor,
-                       eigenVectors = modal_shape, 
+                       eigenVectors = modal_shape,
+                       HA_output = xd, 
+                       frequencies = frequencies,
+                       Kr = Kr,
+                       Mr = Mr,
+                       free_dofs = free_dofs,
                        log = False )
+
+
+R = np.real(post.load_reactions(xd))
 
 eigenVectors_Uxyz, eigenVectors_Rxyz = post.dof_recover()
 
@@ -153,11 +168,13 @@ plt.show()
 #Choose EigenVector to be ploted
 mode_to_plot = 10
 
-u_def = post.plot_modal_shape(mode_to_plot)
+# u_def = post.plot_modal_shape(mode_to_plot)
+u_def = post.plot_harmonic_response(20, xd)
 connectivity_plot = preprocessor.connectivity_remaped()
 coordinates = preprocessor.nodal_coordinates_remaped()
 
 freq_n = natural_frequencies[mode_to_plot-1]
+freq_n = None
 #%%
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False

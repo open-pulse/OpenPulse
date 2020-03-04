@@ -149,6 +149,14 @@ class PreProcessing:
             out[j] = response_dofs[j] - count
         return np.array(out, dtype=int)
 
+    def free_dofs(self):
+
+        total_dof = Node.degree_freedom *self.number_nodes()
+        aux = np.arange(total_dof)
+        free_dofs = np.delete(aux, self.prescbribed_dofs_info()[:,0])
+
+        return free_dofs
+
     def map_nodes(self):
         """ Nodes assembly in a list ordered by the user indexing."""
         user_index = self.nodal_coordinates[:,0].astype(int)
@@ -208,7 +216,7 @@ class PreProcessing:
 
         map_elements = self.map_elements()
         i = 0
-        for _, element in map_elements.items(): 
+        for element in map_elements.values(): 
             Me_t[i,:], Ke_t[i,:], Fe_t[i,:] = element.matrices_gcs()
             mat_It[i,:], mat_Jt[i,:], mat_Ift[i,:] = element.dofs()
             i += 1

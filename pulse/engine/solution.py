@@ -9,6 +9,11 @@ class Solution:
         self.stiffness_matrix = stiffness_matrix.tocsc()
         self.mass_matrix = mass_matrix.tocsc()
 
+        self.Kr = kwargs.get("Kr", None)
+        self.Mr = kwargs.get("Mr", None)
+        self.presc_dofs_info = kwargs.get("presc_dofs_info", None)
+        self.free_dofs = kwargs.get("free_dofs", None)
+        
         self.frequencies = kwargs.get("frequencies", None)
         self.minor_freq = kwargs.get("minor_freq", None)
         self.major_freq = kwargs.get("major_freq", None)
@@ -80,15 +85,40 @@ class Solution:
         if self.beta_h == None:
             self.beta_h = 0
 
+        if self.Kr == None or self.Mr == None:
+            Kr_v, Mr_v = 0, 0
+        else:
+
+            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
+            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+
+            Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
+            Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
+
+            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+                
+                Kr_temp[ :, ind ] = value*Kr[ ind, : ]
+                Mr_temp[ :, ind ] = value*Mr[ ind, : ]
+            
+            Kr_v = np.sum( Kr_temp, axis=1 )
+            Mr_v = np.sum( Mr_temp, axis=1 )
+        
+        M = self.mass_matrix
+        K = self.stiffness_matrix
+
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex )
-
+        
         start = time.time()
-        for i in range(len(frequencies)):
-            freq = frequencies[i]
+        for i, freq in enumerate(frequencies):
+
+            F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
             
-            A = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*self.stiffness_matrix + ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*self.mass_matrix
-            x[:,i] = spsolve(A, F)
+            K_damp = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*K
+            M_damp = ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*M
+            
+            A = K_damp + M_damp
+            x[:,i] = spsolve(A, F - F_add)
         
         if timing:
             end = time.time()
@@ -115,6 +145,24 @@ class Solution:
         elif self.beta_h == None:
             self.beta_h = 0
 
+        if self.Kr == None or self.Mr == None:
+            Kr_v, Mr_v = 0, 0
+        else:
+
+            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
+            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+
+            Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
+            Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
+
+            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+                
+                Kr_temp[ :, ind ] = value*Kr[ ind, : ]
+                Mr_temp[ :, ind ] = value*Mr[ ind, : ]
+            
+            Kr_v = np.sum( Kr_temp, axis=1 )
+            Mr_v = np.sum( Mr_temp, axis=1 )
+
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
 
@@ -125,13 +173,19 @@ class Solution:
         if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
             natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
-        F_aux = modal_shape.T @ F.toarray().flatten()
+        #F_aux = modal_shape.T @ F
 
-        for i in range(len(frequencies)):
+        for i, freq in enumerate(frequencies):
 
-            freq = frequencies[i]
-            data = np.divide(1, (( 1 + 1j*self.beta_v*freq + 1j*self.beta_h)*((2 * pi * natural_frequencies)**2) + (1j*freq*self.alpha_v + 1j*self.alpha_h) - (2 * pi * freq)**2 ))
+            Kg_damp = (1 + 1j*self.beta_v*freq + 1j*self.beta_h)*((2 * pi * natural_frequencies)**2)
+            Mg_damp = (1j*freq*self.alpha_v + 1j*self.alpha_h) - ((2 * pi * freq)**2)
+
+            data = np.divide(1, (Kg_damp + Mg_damp))
             diag = np.diag(data)
+
+            F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
+            F_aux = modal_shape.T @ (F - F_add)
+
             x[:,i] = modal_shape @ (diag @ F_aux)
             
         end = time.time()

@@ -11,16 +11,10 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 ----------------------------------------------------------------------------------------------------------------------------------
 """
 
-def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def modeshape_plot(coordinates, connectivity, Uxyz, freq_n, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
 
-    # u_def = eigvects[:,mode-1]
-    
-    # u_x = np.array( [ u_def[6*i    ] for i in range(int( u_def.shape[0] / 6 )) ])
-    # u_y = np.array( [ u_def[6*i + 1] for i in range(int( u_def.shape[0] / 6 )) ])
-    # u_z = np.array( [ u_def[6*i + 2] for i in range(int( u_def.shape[0] / 6 )) ])
-    
-    u_def = eigvects
-    u_x, u_y, u_z = u_def[:,-3], u_def[:,-2], u_def[:,-1]
+    u_def = Uxyz
+    u_x, u_y, u_z = np.real(u_def[:,-3]), np.real(u_def[:,-2]), np.real(u_def[:,-1])
 
     r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     r_max = max(r)
@@ -54,8 +48,8 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
             'color':  'black',
             'weight': 'bold',
             'size': 14}
-
-    ax.set_title((r'Modal shape - $\mathbf{f_n}$ =' + str(round(freq_n,2)) + r'Hz'),fontsize=18,fontweight='bold')
+    if freq_n:
+        ax.set_title((r'Modal shape - $\mathbf{f_n}$ =' + str(round(freq_n,2)) + r'Hz'),fontsize=18,fontweight='bold')
 
     ax.set_xlabel(('Position x[m]'),fontdict=font)
     ax.set_ylabel(('Position y[m]'),fontdict=font)
