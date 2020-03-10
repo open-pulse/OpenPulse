@@ -180,7 +180,7 @@ class Element:
             Kae += E * A * (B_axial.T @ B_axial) * det_jacobian * weigth
             Kte += mu * J * (B_torsional.T @ B_torsional) * det_jacobian * weigth
 
-            Ke = Kbe + Kse + Kae + Kte 
+        Ke = Kbe + Kse + Kae + Kte 
 
         return Ke
 
@@ -233,21 +233,21 @@ class Element:
     
     def force_vector(self, load):
         ## Numerical integration by Gauss Quadracture
+        L = self.length
         number_integrations_points = 2
         points, weigths = gauss_quadracture(number_integrations_points)
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacobian = L / 2
 
-        node_dofs = Node.degree_freedom
-        Fe = np.zeros((DOF_PER_ELEMENT, 1))
-        NN = np.zeros((node_dofs, 2*node_dofs))
+        Fe = np.zeros((DOF_PER_ELEMENT))
+        NN = np.zeros((DOF_PER_NODE, 2*DOF_PER_NODE))
 
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
 
-            NN[0:node_dofs,0:node_dofs] = phi[0] * np.identity(node_dofs)
-            NN[0:node_dofs,node_dofs:2 * node_dofs] = phi[1] * np.identity(node_dofs)
+            NN[0 : DOF_PER_NODE, 0 : DOF_PER_NODE] = phi[0] * np.identity(DOF_PER_NODE)
+            NN[0 : DOF_PER_NODE, DOF_PER_NODE: 2*DOF_PER_NODE] = phi[1] * np.identity(DOF_PER_NODE)
 
             Fe += (NN.T @ load.T) * det_jacobian * weigth
 
