@@ -1,11 +1,11 @@
-import C0_TB2N as el
+import C0_TB2N_V3 as el
 #
-do = 0.09
-di = 0.04
-nr = 256
+do = 0.05
+di = 0.035
+nr = 64
 E = 210e9
 pois = 0.3
 rho = 7860.
 le = 0.01
 #
-ke,me,fe,A, I1, I2, I12, J, RES1, RES2 = el.matrices(1,E,pois,rho,do,di,le,nr)
+ke,me,fe,A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES23 = el.matrices(1,E,pois,rho,do,di,le,nr)

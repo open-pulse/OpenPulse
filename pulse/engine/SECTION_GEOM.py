@@ -78,14 +78,14 @@ def sectcalc(do,di,nr,secoffset,pois):
     tt = 0
     for i in range(div):
         coordface[3*i + 0,0] = 3*i + 1
-        coordface[3*i + 0,1] = (do/2.)*math.cos(math.radians(tt)) + secoffset[0]
-        coordface[3*i + 0,2] = (do/2.)*math.sin(math.radians(tt)) + secoffset[1]
+        coordface[3*i + 0,1] = (do/2.)*math.cos(math.radians(tt)) - secoffset[0]
+        coordface[3*i + 0,2] = (do/2.)*math.sin(math.radians(tt)) - secoffset[1]
         coordface[3*i + 1,0] = 3*i + 2
-        coordface[3*i + 1,1] = ((do+di)/4.)*math.cos(math.radians(tt)) + secoffset[0]
-        coordface[3*i + 1,2] = ((do+di)/4.)*math.sin(math.radians(tt)) + secoffset[1]
+        coordface[3*i + 1,1] = ((do+di)/4.)*math.cos(math.radians(tt)) - secoffset[0]
+        coordface[3*i + 1,2] = ((do+di)/4.)*math.sin(math.radians(tt)) - secoffset[1]
         coordface[3*i + 2,0] = 3*i + 3
-        coordface[3*i + 2,1] = (di/2.)*math.cos(math.radians(tt)) + secoffset[0]
-        coordface[3*i + 2,2] = (di/2.)*math.sin(math.radians(tt)) + secoffset[1]
+        coordface[3*i + 2,1] = (di/2.)*math.cos(math.radians(tt)) - secoffset[0]
+        coordface[3*i + 2,2] = (di/2.)*math.sin(math.radians(tt)) - secoffset[1]
         tt = tt + ang
     connectface = np.zeros((nr,10))
     connectface = connectface.astype(int)
@@ -104,6 +104,8 @@ def sectcalc(do,di,nr,secoffset,pois):
     I2 = 0.
     I3 = 0.
     I23 = 0.
+    Q2 = 0.
+    Q3 = 0.
     vI2el = np.zeros(nr)
     vI3el = np.zeros(nr)
     for el in range(nr):   #loop -> elements
@@ -111,6 +113,8 @@ def sectcalc(do,di,nr,secoffset,pois):
         I2el = 0.
         I3el = 0.
         I23el = 0.
+        Q2el = 0.
+        Q3el = 0.
         #phi = np.zeros((9,1))
         #dphi=np.zeros((2,9))
         for p in range(Nint):   #loog -> integration points
@@ -135,12 +139,16 @@ def sectcalc(do,di,nr,secoffset,pois):
             I2el = I2el + (Z**2.)*detJAC*wint
             I3el = I3el + (Y**2.)*detJAC*wint
             I23el = I23el + Y*Z*detJAC*wint
+            Q2el = Q2el + Z*detJAC*wint
+            Q3el = Q3el + Y*detJAC*wint
         vI2el[el] = I2el
         vI3el[el] = I3el
         A = A + Ael
         I2 = I2 + I2el
         I3 = I3 + I3el
         I23 = I23 + I23el
+        Q2 = Q2 + Q2el
+        Q3 = Q3 + Q3el
     ccg = 2.*(1.+pois)*(I2*I3 - (I23**2))
     ####################################################################
     ####################### SHEAR COEFFICIENTS #########################
@@ -228,15 +236,17 @@ def sectcalc(do,di,nr,secoffset,pois):
     PSI2 = u2[:-1]
     PSI3 = u3[:-1]
     JX = np.dot(ut.T,np.append(FT, 0))
-    J = I2 + I3 - JX
+    J = I2 + I3 # - JX
     #
     ALP2 = 0.
     ALP3 = 0.
+    ALP23 = 0.
     for el in range(nr):
         PSI2e = np.zeros(9)
         PSI3e = np.zeros(9)
         temp2=0.
         temp3=0.
+        temp23=0.
         for p in range(Nint):   #loop -> integration points
             ksi = pint[p,0] 
             eta = pint[p,1]
@@ -267,7 +277,7 @@ def sectcalc(do,di,nr,secoffset,pois):
             dz = pois*((I2*q/2.) + (I23*r/2.))
             #
             hy = pois*((I3*q/2.) - (I23*r/2.))
-            hz = -(-pois*((I23*q/2.) - (I3*r/2.)))
+            hz = (-pois*((I23*q/2.) - (I3*r/2.)))
             #
             d_ = np.array([dy,dz])
             h_ = np.array([hy,hz])
@@ -276,6 +286,7 @@ def sectcalc(do,di,nr,secoffset,pois):
             #temp2 = temp2 + np.dot(np.dot(PSI2e.T, (dphig.T-d)), np.dot((dphig.T-d).T, PSI2e))*detJAC*wint
             temp2 = temp2 + (dptemp.T @ dptemp)*detJAC*wint
             temp3 = temp3 + (hptemp.T @ hptemp)*detJAC*wint
+            temp23 = temp23 + (dptemp.T @ hptemp)*detJAC*wint
             #temp2 = temp2 + (-2.*(PSI2e @ (dphig.T @ d)) + (d.T @ d))*detJAC*wint
             #temp3 = temp3 + (-2.*(PSI3e @ (dphig.T @ h)) + (h.T @ h))*detJAC*wint
             #temp3 = temp3 + np.dot(np.dot(PSI3e.T, (dphig.T-h)), np.dot((dphig.T-h).T, PSI3e))*detJAC*wint
@@ -284,9 +295,11 @@ def sectcalc(do,di,nr,secoffset,pois):
             #temp = temp + np.dot(phi,PSIe)*Y*detJAC*wint
         ALP2 = ALP2 + temp2
         ALP3 = ALP3 + temp3
+        ALP23 = ALP23 + temp23
     RES2 = (A/(ccg**2.))*(ALP2)
     RES3 = (A/(ccg**2.))*(ALP3)
+    RES23 = (A/(ccg**2.))*(ALP23)
 
-    return A, I2, I3, I23, J, RES2, RES3
+    return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23
 
 
