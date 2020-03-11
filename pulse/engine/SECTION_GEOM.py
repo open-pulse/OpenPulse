@@ -115,8 +115,6 @@ def sectcalc(do,di,nr,secoffset,pois):
         I23el = 0.
         Q2el = 0.
         Q3el = 0.
-        #phi = np.zeros((9,1))
-        #dphi=np.zeros((2,9))
         for p in range(Nint):   #loog -> integration points
             ksi = pint[p,0] 
             eta = pint[p,1]
@@ -188,7 +186,7 @@ def sectcalc(do,di,nr,secoffset,pois):
             ke = ke + (dphig.T @ dphig)*detJAC*wint
             r = Y**2. - Z**2.     
             q = 2.*Y*Z
-            # d = [d1, d2] neq. d_ = [dy, dz] 
+            # d = [d1, d2] neq. d_ = [dy, dz] !!!!!
             d1 = I2*r - I23*q
             d2 = I23*r + I2*q
             h1 = -I23*r + I3*q
@@ -212,6 +210,7 @@ def sectcalc(do,di,nr,secoffset,pois):
         col = np.hstack((col, ccc))
         data = np.hstack((data, k))
     # construct Lagrangian multiplier matrix:
+    # Thanks @robbievanleeuwen !!!
     # column vector of ones
     row = np.hstack((row, range(NGL)))
     col = np.hstack((col, np.repeat(NGL, NGL)))
@@ -230,12 +229,12 @@ def sectcalc(do,di,nr,secoffset,pois):
     u2 = spsolve(K_lg, np.append(F2, 0))
     u3 = spsolve(K_lg, np.append(F3, 0))
     ut = spsolve(K_lg, np.append(FT, 0))
-    err2 = u2[-1] / max(np.absolute(u2))
-    err3 = u3[-1] / max(np.absolute(u3))
-    errt = ut[-1] / max(np.absolute(ut))
+    err2 = u2[-1] / max(np.absolute(u2)) # if needed
+    err3 = u3[-1] / max(np.absolute(u3)) # if needed
+    errt = ut[-1] / max(np.absolute(ut)) # if needed
     PSI2 = u2[:-1]
     PSI3 = u3[:-1]
-    JX = np.dot(ut.T,np.append(FT, 0))
+    JX = np.dot(ut.T,np.append(FT, 0)) # if needed
     J = I2 + I3 # - JX
     #
     ALP2 = 0.
@@ -272,7 +271,7 @@ def sectcalc(do,di,nr,secoffset,pois):
             dphig = invJAC @ dphi
             r = (Y**2.) - (Z**2.)     
             q = 2.*Y*Z
-            # d = [d1, d2] neq. d_ = [dy, dz]
+            # d = [d1, d2] neq. d_ = [dy, dz] !!!!!
             dy = pois*((I2*r/2.) - (I23*q/2.))
             dz = pois*((I2*q/2.) + (I23*r/2.))
             #
@@ -283,16 +282,9 @@ def sectcalc(do,di,nr,secoffset,pois):
             h_ = np.array([hy,hz])
             dptemp = (dphig @ PSI2e.T) - d_.T
             hptemp = (dphig @ PSI3e.T) - h_.T
-            #temp2 = temp2 + np.dot(np.dot(PSI2e.T, (dphig.T-d)), np.dot((dphig.T-d).T, PSI2e))*detJAC*wint
             temp2 = temp2 + (dptemp.T @ dptemp)*detJAC*wint
             temp3 = temp3 + (hptemp.T @ hptemp)*detJAC*wint
             temp23 = temp23 + (dptemp.T @ hptemp)*detJAC*wint
-            #temp2 = temp2 + (-2.*(PSI2e @ (dphig.T @ d)) + (d.T @ d))*detJAC*wint
-            #temp3 = temp3 + (-2.*(PSI3e @ (dphig.T @ h)) + (h.T @ h))*detJAC*wint
-            #temp3 = temp3 + np.dot(np.dot(PSI3e.T, (dphig.T-h)), np.dot((dphig.T-h).T, PSI3e))*detJAC*wint
-            #temp2 = temp2 + (np.dot(PSI2e.T, dphig[0,:])**2. + np.dot(dphig[1,:], PSI2e.T)**2.)*detJAC*wint
-            #temp3 = temp3 + (np.dot(PSI3e.T, dphig[0,:])**2. + np.dot(dphig[1,:], PSI3e.T)**2.)*detJAC*wint
-            #temp = temp + np.dot(phi,PSIe)*Y*detJAC*wint
         ALP2 = ALP2 + temp2
         ALP3 = ALP3 + temp3
         ALP23 = ALP23 + temp23
