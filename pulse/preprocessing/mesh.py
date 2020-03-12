@@ -32,8 +32,7 @@ class Mesh:
     def prescribed_dof(self):
         global_prescribed = []
         for node in self.nodes.values():
-            prescribed = node.boundary_condition.prescribed_dof + node.global_index * DOF_PER_NODE
-            global_prescribed.extend(prescribed)
+            global_prescribed.extend(node.get_boundary_condition_indexes())
         return global_prescribed
 
     def set_material_by_line(self, lines, material):
@@ -52,9 +51,14 @@ class Mesh:
         for element in slicer(self.elements, elements):
             element.cross_section = cross_section
 
+    def set_force_by_element(self, elements, loaded_force):
+        for element in slicer(self.elements, elements):
+            element.loaded_forces = loaded_force
+
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
-            node.boundary_condition = boundary_condition
+            node.set_boundary_condition(boundary_condition)
+
 
     # generate
     def _initialize_gmsh(self, path):

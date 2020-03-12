@@ -3,6 +3,8 @@ from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
 
+from pulse.utils import timer
+
 
 def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
     eigen_values, eigen_vectors = eigs(stiffness_matrix, M=mass_matrix, k=modes, *args, **kwargs)

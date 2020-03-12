@@ -36,20 +36,23 @@ class Element:
         self.last_node = last_node
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
+        self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
 
     @property
     def length(self):
         return distance(self.first_node, self.last_node) 
 
-    def global_matrix_indexes(self):
-        ''' Returns two matrixes size 12 by 12, filled with rows indexes and column indexes. It may be usefull to construct the global matrix.'''
-        global_dof = np.zeros(DOF_PER_ELEMENT)
+    @property
+    def global_dof(self):
+        global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
         global_dof[:DOF_PER_NODE] = self.first_node.global_dof
         global_dof[DOF_PER_NODE:] = self.last_node.global_dof
+        return global_dof
 
-        rows = global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
+    def global_matrix_indexes(self):
+        ''' Returns two matrixes size 12 by 12, filled with rows indexes and column indexes. It may be usefull to construct the global matrix.'''
+        rows = self.global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
         cols = rows.T
-
         return rows, cols
 
     def matrices_gcs(self):
@@ -69,9 +72,9 @@ class Element:
         R = self.rotation_matrix()
         return R.T @ self.mass_matrix() @ R
     
-    def force_vector_gcs(self, load):
+    def force_vector_gcs(self):
         R = self.rotation_matrix()
-        return R.T @ self.force_vector(load)
+        return R.T @ self.force_vector()
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
@@ -231,7 +234,7 @@ class Element:
 
         return Me
     
-    def force_vector(self, load):
+    def force_vector(self):
         ## Numerical integration by Gauss Quadracture
         L = self.length
         number_integrations_points = 2
@@ -249,6 +252,6 @@ class Element:
             NN[0 : DOF_PER_NODE, 0 : DOF_PER_NODE] = phi[0] * np.identity(DOF_PER_NODE)
             NN[0 : DOF_PER_NODE, DOF_PER_NODE: 2*DOF_PER_NODE] = phi[1] * np.identity(DOF_PER_NODE)
 
-            Fe += (NN.T @ load.T) * det_jacobian * weigth
+            Fe += (NN.T @ self.loaded_forces.T) * det_jacobian * weigth
 
         return Fe

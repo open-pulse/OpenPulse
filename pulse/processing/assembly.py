@@ -32,7 +32,6 @@ def get_global_matrices(mesh):
     full_K = csr_matrix((data_k, (rows, cols)), shape=[total_dof, total_dof])
     full_M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
 
-
     prescribed_dof = mesh.prescribed_dof()
     free_dof = np.delete(np.arange(total_dof), prescribed_dof)
 
@@ -43,12 +42,14 @@ def get_global_matrices(mesh):
 
     return K, M, Kr, Mr
 
-
 def get_global_forces(mesh):
     total_dof = DOF_PER_ELEMENT * len(mesh.nodes)
-    F = np.zeros(total_dof)
+    forces = np.zeros(total_dof)
+    indexes = np.zeros(total_dof, dtype=int)
     for index, element in enumerate(mesh.elements.values()):
         start = index * DOF_PER_ELEMENT
         end = start + DOF_PER_ELEMENT
-        F[start:end] = element.force_vector_gcs(np.array([0, 0, 0, 0, 0, 0]))
-    return F
+        forces[start:end] = element.force_vector_gcs()
+        indexes[start:end] = element.global_dof
+    forces = forces[indexes]
+    return forces

@@ -14,7 +14,8 @@ class Node:
         self.x = x
         self.y = y
         self.z = z
-        self.boundary_condition = BoundaryCondition()
+        self.boundary_condition = []
+        self.forces = []
         self.global_index = global_index
 
     @property
@@ -32,5 +33,15 @@ class Node:
     def distance_to(self, other):
         return np.linalg.norm(self.coordinates - other.coordinates)
 
-    def set_boundary_condition(boundary_condition):
-        pass
+    def set_boundary_condition(self, boundary_condition):
+        self.boundary_condition = boundary_condition
+
+    def get_boundary_condition_indexes(self):
+        return [i for i, j in enumerate(self.boundary_condition) if j is not None]
+
+    def set_prescribed_forces(self, forces):
+        self.forces = forces
+
+    def get_prescribed_forces(self):
+        return self.forces
+
