@@ -27,7 +27,7 @@ class Point:
         self._actor()
 
     def _source(self):
-        self.sphere.SetRadius(0.05)
+        self.sphere.SetRadius(0.005)
         self.sphere.SetCenter(self.x, self.y, self.z)
         self.sphere.SetPhiResolution(11)
         self.sphere.SetThetaResolution(21)

@@ -23,14 +23,25 @@ class TreeWidget(QTreeWidget):
         graphic = QTreeWidgetItem(["Graphic"])
         plot = QTreeWidgetItem(['Plot Config'])
 
+        pre_processing = QTreeWidgetItem(["Pre-Processing"])
+        pre_processing_material = QTreeWidgetItem(["Set Material"])
+        pre_processing_cross = QTreeWidgetItem(["Set Cross Section"])
+        pre_processing_dof = QTreeWidgetItem(["Set DOF"])
+        pre_processing_dof_import = QTreeWidgetItem(["Import DOF"])
+
         mesh.addChild(generate)
         mesh.addChild(list_of_nodes)
         mesh.addChild(list_of_connections)
         graphic.addChild(plot)
+        pre_processing.addChild(pre_processing_material)
+        pre_processing.addChild(pre_processing_cross)
+        pre_processing.addChild(pre_processing_dof)
+        pre_processing.addChild(pre_processing_dof_import)
 
         self.addTopLevelItem(hiden_data)
         self.addTopLevelItem(mesh)
         self.addTopLevelItem(graphic)
+        self.addTopLevelItem(pre_processing)
 
     def on_click_item(self, item, column):
         if item.text(0) == "Generate":
@@ -47,3 +58,17 @@ class TreeWidget(QTreeWidget):
         
         elif item.text(0) == "List of Connections":
             self.main_window.info_widget.list_of_connections()
+
+        elif item.text(0) == "Set Material":
+            self.main_window.inputWidget.material_input()
+
+        elif item.text(0) == "Set Cross Section":
+            self.main_window.inputWidget.cross_input()
+
+        elif item.text(0) == "Set DOF":
+            self.main_window.inputWidget.dof_input()
+
+        elif item.text(0) == "Import DOF":
+            self.main_window.inputWidget.import_dof()
+
+        

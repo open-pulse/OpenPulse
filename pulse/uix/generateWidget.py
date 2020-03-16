@@ -19,7 +19,7 @@ class GenerateWidget(QWidget):
     def _mesh_function(self):
         min_size = self.min_size_box.text()
         max_size = self.max_size_box.text()
-        error = self.main_window.project.mesh.generate(min_size, max_size)
+        error = self.main_window.generate(min_size, max_size)
 
         if error == FileNotFoundError:
             QMessageBox.critical(

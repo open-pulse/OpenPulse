@@ -124,7 +124,10 @@ class Mesh:
 
     def __generate_meshes(self):
         gmsh.model.mesh.generate(3)
-        self._create_entities()
+        if (len(self.entities) != 0):
+            self._reload_entities()
+        else:
+            self._create_entities()
         gmsh.model.mesh.removeDuplicateNodes()
 
     def __read_nodes(self):
@@ -147,6 +150,40 @@ class Mesh:
             for index, (start, end) in zip(index, connectivity):
                 edges = index, start, end, tag
                 self.edges.append(edges)
+
+    def _reload_entities(self):
+        for i in gmsh.model.getEntities(1):
+            dim = i[0]
+            tag = i[1]
+
+            newEntity = Entity(tag)
+            for entity in self.entities:
+                if (entity.tag == tag):
+                    newEntity = entity
+                    break
+
+            newEntity.nodes = []
+            newEntity.edges = []
+
+            #Element
+            _, index, connectivity = gmsh.model.mesh.getElements(dim, tag) 
+            index = index[0]
+            connectivity = connectivity[0]
+            connectivity = split_sequence(connectivity, 2)
+
+            for index, (start, end) in zip(index, connectivity):
+                edges = index, start, end
+                newEntity.insertEdge(edges)
+
+            #Nodes
+            index, coordinates, _ = gmsh.model.mesh.getNodes(dim, tag, True)
+            coordinates = split_sequence(coordinates, 3)
+
+            for index, (x, y, z) in zip(index, coordinates):
+                node = index, x/1000, y/1000, z/1000
+                newEntity.insertNode(node)
+
+            #self.entities.append(newEntity)
 
     def _create_entities(self):
         for i in gmsh.model.getEntities(1):

@@ -12,6 +12,7 @@ from pulse.mesh import Mesh
 from pulse.uix.infoWidget import InfoWidget
 from pulse.uix.vtk.opvWidget import OPVWidget
 from pulse.project import Project
+from pulse.uix.inputWidget import InputWidget
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -59,15 +60,35 @@ class MainWindow(QMainWindow):
         self.exit_action.setStatusTip('Exit application')
         self.exit_action.triggered.connect(self.close)
 
+        self.entities_action = QAction(self.exit_icon, '&Entity', self)        
+        self.entities_action.setShortcut('Ctrl+1')
+        self.entities_action.setStatusTip('Plot Entities')
+        self.entities_action.triggered.connect(self.plot_entities)
+
+        self.elements_action = QAction(self.exit_icon, '&Elements', self)        
+        self.elements_action.setShortcut('Ctrl+2')
+        self.elements_action.setStatusTip('Plot Elements')
+        self.elements_action.triggered.connect(self.plot_elements)
+
+        self.points_action = QAction(self.exit_icon, '&Points', self)        
+        self.points_action.setShortcut('Ctrl+3')
+        self.points_action.setStatusTip('Plot Points')
+        self.points_action.triggered.connect(self.plot_points)
+
     def _create_menu_bar(self):
         menuBar = self.menuBar()
 
         fileMenu = menuBar.addMenu('&File')
+        graphicMenu = menuBar.addMenu('&Graphic')
         helpMenu = menuBar.addMenu("&Help")
 
         fileMenu.addAction(self.new_action)
         fileMenu.addAction(self.import_action)
         fileMenu.addAction(self.exit_action)
+
+        graphicMenu.addAction(self.entities_action)
+        graphicMenu.addAction(self.elements_action)
+        graphicMenu.addAction(self.points_action)
 
     def _create_tool_bar(self):
         self.toolbar = QToolBar("Enable Toolbar")
@@ -82,6 +103,7 @@ class MainWindow(QMainWindow):
     def _create_basic_layout(self):
         self.info_widget = InfoWidget(self)
         self.opv_widget = OPVWidget(self.project, self)
+        self.inputWidget = InputWidget(self.project, self.opv_widget)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
@@ -95,15 +117,35 @@ class MainWindow(QMainWindow):
         name = basename(path)
         self._change_window_title(name)
         self.project.newProject(path)
-        self.draw(initial=True)
+        self.draw()
 
     def import_call(self):
         pass
-    
-    def draw(self, initial=False):
-        self.opv_widget.plot_nodes()
-        #self.opv_widget.plot_line()
-        #self.opv_widget.change_line_plot(self.project.mesh.nodes, self.project.mesh.edges, self.project.getEntities(), initial)
+
+    def plot_entities(self):
+        if (not self.project._flag_entities):
+            return
+        self.opv_widget.change_to_entities()
+
+    def plot_elements(self):
+        pass
+
+    def plot_points(self):
+        if (not self.project._flag_points):
+            return
+        self.opv_widget.change_to_points()
+
+    def draw(self):
+        self.opv_widget.plot_entities()
+        self.opv_widget.plot_points()
+        self.plot_entities()
+
+    def draw_points(self):
+        self.opv_widget.plot_points()
+
+    def generate(self, min, max):
+        self.project.generate(min, max)
+        self.draw()
 
     def closeEvent(self, event):
         close = QMessageBox.question(

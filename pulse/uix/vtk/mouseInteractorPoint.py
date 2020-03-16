@@ -1,10 +1,11 @@
 import vtk
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMenu, QAction
 
 
 colors = vtk.vtkNamedColors()
 
-class MouseInteractor(vtk.vtkInteractorStyleTrackballCamera):
+class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
 
     def __init__(self, parent=None):
         self.parent = parent
@@ -28,6 +29,8 @@ class MouseInteractor(vtk.vtkInteractorStyleTrackballCamera):
         return
 
     def leftButtonPressEvent(self, obj, event):
+        if (not self.parent.in_points):
+            return
         clickPos = self.GetInteractor().GetEventPosition()
 
         picker = vtk.vtkPropPicker()
@@ -40,8 +43,8 @@ class MouseInteractor(vtk.vtkInteractorStyleTrackballCamera):
                 self.LastPickedActor.GetMapper().ScalarVisibilityOn()
                 self.LastPickedActor.GetProperty().DeepCopy(self.LastPickedProperty)
 
-            print(self.parent.actors[self.NewPickedActor])
-            if (self.parent.actors[self.NewPickedActor] == -1):
+            print(self.parent.actors_points[self.NewPickedActor])
+            if (self.parent.actors_points[self.NewPickedActor] == -1):
                 return
 
             self.parent.setContextMenuPolicy(Qt.CustomContextMenu)
@@ -57,9 +60,21 @@ class MouseInteractor(vtk.vtkInteractorStyleTrackballCamera):
 
             if (self.LastPickedActor == None):
                 return
-            if (self.parent.actors[self.LastPickedActor] == -1):
+            if (self.parent.actors_points[self.LastPickedActor] == -1):
                 return
-            self.parent.customContextMenuRequested.connect(lambda i : self.parent.on_context_menu(i, self.parent.actors[self.LastPickedActor]))
+            id_ = self.parent.actors_points[self.LastPickedActor]
+            self.parent.customContextMenuRequested.connect(lambda i : self.parent.on_context_menu2(i, 2, id_))
+
+            
+            
 
         self.OnLeftButtonDown()
         return
+
+    def getLastPickedActor(self):
+        if (self.LastPickedActor == None):
+            return
+        if (self.parent.actors_points[self.LastPickedActor] == -1):
+            return
+
+        return(self.parent.actors_points[self.LastPickedActor])

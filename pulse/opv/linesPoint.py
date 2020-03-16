@@ -1,7 +1,7 @@
 import vtk
 import random
 
-class Lines:
+class LinesPoint:
     def __init__(self, nodes = [], edges = [], tag = -1):
 
         self.nodesList = nodes
@@ -28,7 +28,7 @@ class Lines:
 
     def _source(self):
         for node in self.nodesList:
-            self._nodes.InsertPoint(int(node[0]), node[1], node[2], node[3])
+            self._nodes.InsertPoint(int(node[0]), node[1]/1000, node[2]/1000, node[3]/1000)
 
         for edge in self.edgesList:
             line = vtk.vtkLine()
@@ -47,7 +47,7 @@ class Lines:
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(0.01)
+        self._tubeFilter.SetRadius(0.001)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.Update()
 
