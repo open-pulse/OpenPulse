@@ -81,13 +81,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
-        <property name="text">
-         <string>Dout</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
          <string>Excentricidade do eixo Y</string>
@@ -131,9 +124,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_3"/>
-      </item>
-      <item>
        <widget class="QLineEdit" name="lineEdit_4"/>
       </item>
       <item>
@@ -160,13 +150,6 @@
       </item>
       <item>
        <widget class="QLabel" name="label_4">
-        <property name="text">
-         <string>[m]</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="label_8">
         <property name="text">
          <string>[m]</string>
         </property>
