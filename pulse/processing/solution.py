@@ -5,6 +5,28 @@ from scipy.sparse.linalg import eigs, spsolve
 
 
 def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
+    """ 
+    Perform a modal analysis and returns natural frequencies and modal shapes normalized 
+    according to generalized mass coordinates.
+
+    PARAMETERS
+    ----------
+    modes : int 
+    stiffness_matrix : scipy.sparse
+    mass_matrix : scipy.sparse
+
+    RETURNS
+    -------
+    natural_frequencies : ndarray
+    modal_shape : ndarray
+
+    EXAMPLE
+    -------
+    >>> mesh = Mesh()
+    >>> mesh.generate('tube.iges', 0.01)
+    >>> K, M, Kr, Mr = get_global_matrices(mesh)
+    >>> natural_frequencies, modal_shape = modal_analysis(100, K, M)
+    """
     eigen_values, eigen_vectors = eigs(stiffness_matrix, M=mass_matrix, k=modes, *args, **kwargs)
 
     positive_real = np.absolute(np.real(eigen_values))
