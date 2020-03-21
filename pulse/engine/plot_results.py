@@ -6,26 +6,20 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 """ 
 ----------------------------------------------------------------------------------------------------------------------------------
-|    This fucntion loads nodal coordinates (x_p, y_p, z_p), nodal displacements (u_x, u_y, u_z) and plots or animate results in  |
+|    This function loads nodal coordinates (x_p, y_p, z_p), nodal displacements (u_x, u_y, u_z) and plots or animate results in  |
 |    graph figures for both deformed or undeformed shapes.                                                                       |
 ----------------------------------------------------------------------------------------------------------------------------------
 """
 
-def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
+def modeshape_plot(coordinates, connectivity, Uxyz, freq_n, scf = 0.4, Show_nodes = True, Undeformed = True, Deformed = False, Animate_Mode = True, Save = False):
 
-    # u_def = eigvects[:,mode-1]
-    
-    # u_x = np.array( [ u_def[6*i    ] for i in range(int( u_def.shape[0] / 6 )) ])
-    # u_y = np.array( [ u_def[6*i + 1] for i in range(int( u_def.shape[0] / 6 )) ])
-    # u_z = np.array( [ u_def[6*i + 2] for i in range(int( u_def.shape[0] / 6 )) ])
-    
-    u_def = eigvects
-    u_x, u_y, u_z = u_def[:,0], u_def[:,1], u_def[:,2]
+    u_def = Uxyz
+    u_x, u_y, u_z = np.real(u_def[:,-3]), np.real(u_def[:,-2]), np.real(u_def[:,-1])
 
     r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     r_max = max(r)
 
-    x_p, y_p, z_p = coordinates[:,0], coordinates[:,1], coordinates[:,2]
+    x_p, y_p, z_p = coordinates[:,-3], coordinates[:,-2], coordinates[:,-1]
     Coord_dn = np.transpose(np.array([x_p, y_p, z_p]) + np.array([u_x, u_y, u_z])*scf/r_max)
     x_def,y_def,z_def = Coord_dn[:,0], Coord_dn[:,1],Coord_dn[:,2] 
     
@@ -53,22 +47,22 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
     font = {'family': 'arial',
             'color':  'black',
             'weight': 'bold',
-            'size': 14,
-            }
-
-    ax.set_title((r'Modal shape - $\mathbf{f_n}$ =' + str(round(freq_n,2)) + r'Hz'),fontsize=18,fontweight='bold')
+            'size': 14}
+    if freq_n:
+        ax.set_title((r'Modal shape - $\mathbf{f_n}$ =' + str(round(freq_n,2)) + r'Hz'),fontsize=18,fontweight='bold')
 
     ax.set_xlabel(('Position x[m]'),fontdict=font)
     ax.set_ylabel(('Position y[m]'),fontdict=font)
     ax.set_zlabel(('Position z[m]'),fontdict=font)
     plt.tight_layout()
 
-    m = matplotlib.cm.ScalarMappable(cmap=matplotlib.cm.jet)
+    m = matplotlib.cm.ScalarMappable(cmap='jet')
     m.set_array([])
     m.set_array(r)
 
     cb = fig.colorbar(m, shrink=0.8)
     cb.set_label('Amplitude [-]', fontdict=font)
+    # dict(zip(coordinates[:,0], coordinates[:,1:]))
 
     connectivity = np.array(connectivity[:,-2:],int)
     n_el = len(connectivity[:,1])
@@ -76,14 +70,14 @@ def modeshape_plot(coordinates, connectivity, eigvects, freq_n, scf = 0.4, Show_
     segments_u = np.zeros((n_el,2,3))
     r_m = np.zeros(n_el)  
 
-    ind = int(0)
+    ind = 0
 
     for start, end in connectivity:
 
+        segments_p[ind:ind+1,:,:] = np.array([[x_p[start], y_p[start], z_p[start]],[x_p[end], y_p[end], z_p[end]]])
+        segments_u[ind:ind+1,:,:] = np.array([[u_x[start], u_y[start], u_z[start]],[u_x[end], u_y[end], u_z[end]]])
+        r_m[ind] = (r[start]+r[end])/2
         ind += 1
-        segments_p[ind-1:ind,:,:] = np.array([[x_p[start-1], y_p[start-1], z_p[start-1]],[x_p[end-1], y_p[end-1], z_p[end-1]]])
-        segments_u[ind-1:ind,:,:] = np.array([[u_x[start-1], u_y[start-1], u_z[start-1]],[u_x[end-1], u_y[end-1], u_z[end-1]]])
-        r_m[ind-1] = (r[start-1]+r[end-1])/2
 
     if Undeformed:
 
