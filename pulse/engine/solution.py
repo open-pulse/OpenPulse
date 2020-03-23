@@ -65,6 +65,27 @@ class Solution:
 
         return self.frequencies
     
+    def KM_add(self):
+
+        if self.Kr == None or self.Mr == None:
+            Kr_add, Mr_add = 0, 0
+        else:
+
+            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
+            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+
+            Kr_temp = np.zeros(Kr.shape)
+            Mr_temp = np.zeros(Mr.shape)
+
+            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+                
+                Kr_temp[ :, ind ] = value*Kr[ :, ind ]
+                Mr_temp[ :, ind ] = value*Mr[ :, ind ]
+            
+            Kr_add = np.sum( Kr_temp, axis=0 )
+            Mr_add = np.sum( Mr_temp, axis=0 )
+
+        return Kr_add, Mr_add
 
     def direct_method(self, F, timing = False):
         """ 
@@ -85,23 +106,25 @@ class Solution:
         if self.beta_h == None:
             self.beta_h = 0
 
-        if self.Kr == None or self.Mr == None:
-            Kr_v, Mr_v = 0, 0
-        else:
+        Kr_add, Mr_add = self.KM_add()
 
-            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
-            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+        # if self.Kr == None or self.Mr == None:
+        #     Kr_v, Mr_v = 0, 0
+        # else:
 
-            Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
-            Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
+        #     Kr = (self.Kr.toarray())[ :, self.free_dofs ]
+        #     Mr = (self.Mr.toarray())[ :, self.free_dofs ]
 
-            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+        #     Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
+        #     Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
+
+        #     for ind, value in enumerate(self.presc_dofs_info[:,2]):
                 
-                Kr_temp[ :, ind ] = value*Kr[ ind, : ]
-                Mr_temp[ :, ind ] = value*Mr[ ind, : ]
+        #         Kr_temp[ :, ind ] = value*Kr[ ind, : ]
+        #         Mr_temp[ :, ind ] = value*Mr[ ind, : ]
             
-            Kr_v = np.sum( Kr_temp, axis=1 )
-            Mr_v = np.sum( Mr_temp, axis=1 )
+        #     Kr_v = np.sum( Kr_temp, axis=1 )
+        #     Mr_v = np.sum( Mr_temp, axis=1 )
         
         M = self.mass_matrix
         K = self.stiffness_matrix
@@ -112,7 +135,9 @@ class Solution:
         start = time.time()
         for i, freq in enumerate(frequencies):
 
-            F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
+            F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
+            F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
+            F_add = F_Kadd + F_Madd
             
             K_damp = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*K
             M_damp = ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*M
@@ -144,24 +169,26 @@ class Solution:
             self.alpha_h = 0
         elif self.beta_h == None:
             self.beta_h = 0
+        
+        Kr_add, Mr_add = self.KM_add()
 
-        if self.Kr == None or self.Mr == None:
-            Kr_v, Mr_v = 0, 0
-        else:
+        # if self.Kr == None or self.Mr == None:
+        #     Kr_v, Mr_v = 0, 0
+        # else:
 
-            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
-            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+        #     Kr = (self.Kr.toarray())[ :, self.free_dofs ]
+        #     Mr = (self.Mr.toarray())[ :, self.free_dofs ]
 
-            Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
-            Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
+        #     Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
+        #     Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
 
-            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+        #     for ind, value in enumerate(self.presc_dofs_info[:,2]):
                 
-                Kr_temp[ :, ind ] = value*Kr[ ind, : ]
-                Mr_temp[ :, ind ] = value*Mr[ ind, : ]
+        #         Kr_temp[ :, ind ] = value*Kr[ ind, : ]
+        #         Mr_temp[ :, ind ] = value*Mr[ ind, : ]
             
-            Kr_v = np.sum( Kr_temp, axis=1 )
-            Mr_v = np.sum( Mr_temp, axis=1 )
+        #     Kr_v = np.sum( Kr_temp, axis=1 )
+        #     Mr_v = np.sum( Mr_temp, axis=1 )
 
         frequencies = self.freq_vector()
         x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
@@ -183,7 +210,11 @@ class Solution:
             data = np.divide(1, (Kg_damp + Mg_damp))
             diag = np.diag(data)
 
-            F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
+            # F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
+            F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
+            F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
+            F_add = F_Kadd + F_Madd
+
             F_aux = modal_shape.T @ (F - F_add)
 
             x[:,i] = modal_shape @ (diag @ F_aux)

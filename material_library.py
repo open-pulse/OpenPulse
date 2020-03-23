@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-header = ['Material', 'ID', 'Density [kg/m³]',' Young modulus [GPa]', 'Poisson ratio [-]']
+header = ['Material', 'ID', 'Density [kg/m³]', 'Young modulus [GPa]', 'Poisson ratio [-]']
 filename = 'material_library.dat'
 
 def material_properties():
