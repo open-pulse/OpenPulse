@@ -65,12 +65,12 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
 local_dofs_prescribed   = [[0,1,2],[0,1,2],[0,1,2]] # What are the degree of freedom restricted on those nodes.
 # prescribed_dofs_values = [[0.01,0.01,0.01],[0.01,0.01,0.01],[0.01,0.01,0.01]] # prescribed values for each degree of freedom
-prescribed_dofs_values = [[0,0,0],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
+prescribed_dofs_values = [[0.02,0,0],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
 nodes_prescribed_load = [27,230] # Which node has some nodal load prescribed.
 local_dofs_prescribed_load  = [[1],[2]] # What are the local degree of freedom with external load.
-prescribed_load_values      = [[1],[1]] # Whats are the prescribed values for external nodal load
+prescribed_load_values      = [[0],[0]] # Whats are the prescribed values for external nodal load
 
 # nodal respose (node, dof_corrected)
 nodes_response = [27] # Desired nodal response.

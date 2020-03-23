@@ -71,8 +71,8 @@ class Solution:
             Kr_add, Mr_add = 0, 0
         else:
 
-            Kr = (self.Kr.toarray())[ :, self.free_dofs ]
-            Mr = (self.Mr.toarray())[ :, self.free_dofs ]
+            Kr = (self.Kr.toarray())[ self.free_dofs, : ]
+            Mr = (self.Mr.toarray())[ self.free_dofs, : ]
 
             Kr_temp = np.zeros(Kr.shape)
             Mr_temp = np.zeros(Mr.shape)
@@ -82,8 +82,8 @@ class Solution:
                 Kr_temp[ :, ind ] = value*Kr[ :, ind ]
                 Mr_temp[ :, ind ] = value*Mr[ :, ind ]
             
-            Kr_add = np.sum( Kr_temp, axis=0 )
-            Mr_add = np.sum( Mr_temp, axis=0 )
+            Kr_add = np.sum( Kr_temp, axis=1 )
+            Mr_add = np.sum( Mr_temp, axis=1 )
 
         return Kr_add, Mr_add
 

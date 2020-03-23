@@ -231,5 +231,7 @@ class PreProcessing:
             
             F_ext = load_info[:,2]
             I_fe = load_info[:,0]
+        else:
+            F_ext, I_fe = 0, 0
 
         return F_ext, I_fe

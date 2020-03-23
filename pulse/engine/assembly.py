@@ -131,8 +131,8 @@ class Assembly:
         F = csr_matrix( (data_F, (I_f, J_f)), shape = [total_dof, 1] )
                 
         # Slice rows and all columns of not prescribed dofs
-        Kr = K[ global_dofs_presc,: ]
-        Mr = M[ global_dofs_presc,: ]
+        Kr = K[ :, global_dofs_presc ]
+        Mr = M[ :, global_dofs_presc ]
 
         # Slice all rows/columns from not prescribed dofs
         K = K[ global_dofs_free, : ][ :, global_dofs_free ]

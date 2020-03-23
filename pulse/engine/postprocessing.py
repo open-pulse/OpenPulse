@@ -139,17 +139,20 @@ class PostProcessing:
             Kr = (self.Kr.toarray())
             Mr = (self.Mr.toarray())
 
-            Kr_U = np.zeros( (U.shape[1], Kr.shape[0]), dtype = complex )
-            Mr_U = np.zeros( (U.shape[1], Mr.shape[0]), dtype = complex )
-            F_react = np.zeros( (U.shape[1], Mr.shape[0]), dtype = complex )
+            rows = U.shape[1]
+            cols = Kr.shape[1] 
+                        
+            Kr_U    = np.zeros( (rows, cols), dtype = complex )
+            Mr_U    = np.zeros( (rows, cols), dtype = complex )
+            F_react = np.zeros( (rows, cols), dtype = complex )
             U_t = U.T
 
-            for ind in range(Kr.shape[0]):
+            for ind in range(cols):
 
-                Kr_U[ :, ind ] = U_t @ Kr[ ind, : ]
-                Mr_U[ :, ind ] = U_t @ Mr[ ind, : ]
+                Kr_U[ :, ind ] = U_t @ Kr[ :, ind ]
+                Mr_U[ :, ind ] = U_t @ Mr[ :, ind ]
         
-        for k in range(Kr.shape[0]):
+        for k in range(cols):
             for ind, freq in enumerate(self.frequencies):
 
                 F_Kdamp = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_U[ind,k]
