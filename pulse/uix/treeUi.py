@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 
-class TreeWidget(QTreeWidget):
+class TreeUi(QTreeWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
@@ -60,7 +60,7 @@ class TreeWidget(QTreeWidget):
             self.main_window.info_widget.list_of_connections()
 
         elif item.text(0) == "Set Material":
-            self.main_window.inputWidget.material_input()
+            self.main_window.inputWidget.material_list()
 
         elif item.text(0) == "Set Cross Section":
             self.main_window.inputWidget.cross_input()

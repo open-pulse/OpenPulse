@@ -12,13 +12,13 @@ from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
 from pulse.uix.vtk.mouseInteractorEntity import MouseInteractorEntity
 
-from pulse.uix.user_input.materialInput import MaterialInput
-from pulse.uix.user_input.crossInput import CrossInput
-from pulse.uix.user_input.dofInput import DOFInput
-from pulse.uix.user_input.forceInput import ForceInput
+# from pulse.uix.user_input.materialInput import MaterialInput
+# from pulse.uix.user_input.crossInput import CrossInput
+# from pulse.uix.user_input.dofInput import DOFInput
+# from pulse.uix.user_input.forceInput import ForceInput
 
 
-class OPVWidget(QVTKRenderWindowInteractor):
+class OPVUi(QVTKRenderWindowInteractor):
     def __init__(self, project, parent):
         super().__init__()
         self.parent = parent

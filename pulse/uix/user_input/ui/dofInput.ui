@@ -33,7 +33,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_node_id">
        <property name="text">
         <string>Node - ID [ x ]</string>
        </property>
@@ -109,22 +109,22 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QLineEdit" name="lineEdit_3"/>
+      <widget class="QLineEdit" name="line_ux"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_2"/>
+      <widget class="QLineEdit" name="line_uy"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit"/>
+      <widget class="QLineEdit" name="line_uz"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_5"/>
+      <widget class="QLineEdit" name="line_yx"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_6"/>
+      <widget class="QLineEdit" name="line_yy"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_4"/>
+      <widget class="QLineEdit" name="line_yz"/>
      </item>
     </layout>
    </widget>
@@ -182,7 +182,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
+   <widget class="QDialogButtonBox" name="button_save_dof">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -192,7 +192,7 @@
      </rect>
     </property>
     <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
     </property>
    </widget>
   </widget>

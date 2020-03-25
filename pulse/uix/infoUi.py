@@ -1,19 +1,19 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter
 
-from pulse.uix.dataWidget import DataWidget
-from pulse.uix.treeWidget import TreeWidget
-from pulse.uix.generateWidget import GenerateWidget
-from pulse.uix.nodesWidget import NodesWidget
-from pulse.uix.edgesWidget import EdgesWidget
-from pulse.uix.plotWidget import PlotWidget
+from pulse.uix.dataUi import DataUi
+from pulse.uix.treeUi import TreeUi
+from pulse.uix.widgets.generateWidget import GenerateWidget
+from pulse.uix.widgets.nodesWidget import NodesWidget
+from pulse.uix.widgets.edgesWidget import EdgesWidget
+from pulse.uix.widgets.plotWidget import PlotWidget
 
-class InfoWidget(QSplitter):
+class InfoUi(QSplitter):
     def __init__(self, main_window):
         super().__init__(Qt.Vertical)
         self.main_window = main_window
-        self.tree_widget = TreeWidget(self.main_window)
-        self.data_widget = DataWidget(self.main_window)
+        self.tree_widget = TreeUi(self.main_window)
+        self.data_widget = DataUi(self.main_window)
 
         self.addWidget(self.tree_widget)
         self.addWidget(self.data_widget)

@@ -1,11 +1,13 @@
 from pulse.uix.user_input.materialInput import MaterialInput
+from pulse.uix.user_input.materialList import MaterialList
 from pulse.uix.user_input.crossInput import CrossInput
 from pulse.uix.user_input.dofInput import DOFInput
-from pulse.uix.user_input.forceInput import ForceInput
+from pulse.uix.user_input.dofImport import DOFImport
+from pulse.uix.user_input.newProjectInput import NewProjectInput
 
 from pulse.project import Project
 
-class InputWidget:
+class InputUi:
     def __init__(self, project, parent=None):
         self.project = project
         self.parent = parent
@@ -16,6 +18,9 @@ class InputWidget:
             return
         
         mi = MaterialInput()
+
+    def material_list(self):
+        ml = MaterialList()
 
     def cross_input(self):
         last = self.parent.getLastPickedEntity()
@@ -29,7 +34,7 @@ class InputWidget:
         if last is None:
             return
         
-        imd = ForceInput()
+        imd = DOFImport()
 
     def dof_input(self):
         last = self.parent.getLastPickedPoint()
@@ -37,3 +42,6 @@ class InputWidget:
             return
         
         di = DOFInput()
+
+    def newProject(self):
+        a = NewProjectInput()

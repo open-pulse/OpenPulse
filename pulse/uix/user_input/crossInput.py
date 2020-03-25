@@ -1,25 +1,44 @@
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction, QDirModel, QTreeView, QToolBar, QSplitter, QFrame, QHBoxLayout, QVBoxLayout, QFileDialog, QMessageBox, QLineEdit, QDialog, QDialogButtonBox
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
-
+from PyQt5.QtWidgets import QLineEdit, QDialogButtonBox, QDialog
 from PyQt5 import uic
 
 class CrossInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/cross.ui', self)
-        self.exec_()
-        
-        # self.setWindowTitle("Set Cross Section")
-        
-        # QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
-        
-        # self.buttonBox = QDialogButtonBox(QBtn)
-        # self.buttonBox.accepted.connect(self.accept)
-        # self.buttonBox.rejected.connect(self.reject)
+        uic.loadUi('pulse/uix/user_input/ui/crossInput.ui', self)
 
-        # self.layout = QVBoxLayout()
-        # self.layout.addWidget(self.buttonBox)
-        # self.setLayout(self.layout)
-        
+        #Pipe
+
+        self.button_save_pipe = self.findChild(QDialogButtonBox, 'button_save_pipe')
+        self.button_save_pipe.accepted.connect(self.accept_pipe)
+        self.button_save_pipe.rejected.connect(self.reject_pipe)
+
+        self.line_diam_externo = self.findChild(QLineEdit, 'line_diam_externo')
+        self.line_diam_interno = self.findChild(QLineEdit, 'line_diam_interno')
+        self.line_excen_x = self.findChild(QLineEdit, 'line_excen_x')
+        self.line_excen_y = self.findChild(QLineEdit, 'line_excen_y')
+
+
+        #Beam
+
+        self.button_save_beam = self.findChild(QDialogButtonBox, 'button_save_beam')
+        self.button_save_beam.accepted.connect(self.accept_beam)
+        self.button_save_beam.rejected.connect(self.reject_beam)
+
+        self.line_area = self.findChild(QLineEdit, 'line_area')
+        self.line_iyy = self.findChild(QLineEdit, 'line_iyy')
+        self.line_iyz = self.findChild(QLineEdit, 'line_iyz')
+        self.line_izz = self.findChild(QLineEdit, 'line_izz')
+
+        self.exec_()
+
+    def accept_pipe(self):
+        print("Falta verificação de tipo")
+
+    def reject_pipe(self):
+        self.close()
+
+    def accept_beam(self):
+        print("Falta verificação de tipo")
+
+    def reject_beam(self):
+        self.close()

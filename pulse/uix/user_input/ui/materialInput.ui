@@ -17,7 +17,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>New Material</string>
   </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
@@ -61,6 +61,13 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Name</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
         <string>E</string>
@@ -94,13 +101,16 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QLineEdit" name="lineEdit_3"/>
+      <widget class="QLineEdit" name="line_material_name"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_5"/>
+      <widget class="QLineEdit" name="line_e"/>
      </item>
      <item>
-      <widget class="QLineEdit" name="lineEdit_6"/>
+      <widget class="QLineEdit" name="line_v"/>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="line_f"/>
      </item>
     </layout>
    </widget>
@@ -114,6 +124,13 @@
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_4">
+     <item>
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>[-]</string>
+       </property>
+      </widget>
+     </item>
      <item>
       <widget class="QLabel" name="label_9">
        <property name="text">
@@ -137,7 +154,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QDialogButtonBox" name="buttonBox">
+   <widget class="QDialogButtonBox" name="buttonBox_save_material">
     <property name="geometry">
      <rect>
       <x>40</x>
@@ -147,7 +164,7 @@
      </rect>
     </property>
     <property name="standardButtons">
-     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
     </property>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget_5">
@@ -180,7 +197,10 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_6">
      <item>
-      <widget class="QLineEdit" name="lineEdit">
+      <widget class="QLineEdit" name="line_color">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -199,7 +219,7 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_7">
      <item>
-      <widget class="QToolButton" name="toolButton">
+      <widget class="QToolButton" name="toolButton_color">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
          <horstretch>0</horstretch>
@@ -207,7 +227,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>...</string>
+        <string>Color</string>
        </property>
       </widget>
      </item>

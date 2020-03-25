@@ -6,31 +6,31 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
+    <width>611</width>
     <height>280</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>520</width>
+    <width>611</width>
     <height>280</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Material</string>
   </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>520</width>
+     <width>611</width>
      <height>250</height>
     </rect>
    </property>
    <property name="maximumSize">
     <size>
-     <width>520</width>
+     <width>800</width>
      <height>250</height>
     </size>
    </property>
@@ -39,10 +39,15 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>520</width>
+      <width>611</width>
       <height>250</height>
      </rect>
     </property>
+    <column>
+     <property name="text">
+      <string>Name</string>
+     </property>
+    </column>
     <column>
      <property name="text">
       <string>Index</string>
@@ -70,7 +75,7 @@
     </column>
    </widget>
   </widget>
-  <widget class="QPushButton" name="pushButton">
+  <widget class="QPushButton" name="button_insert_material">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -83,7 +88,7 @@
     <string>Insert new Material</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="pushButton_2">
+  <widget class="QPushButton" name="button_close">
    <property name="geometry">
     <rect>
      <x>250</x>
@@ -93,7 +98,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Voltar</string>
+    <string>Close</string>
    </property>
   </widget>
  </widget>

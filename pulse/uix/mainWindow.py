@@ -3,16 +3,21 @@ from os.path import expanduser, basename
 from pathlib import Path
 
 import numpy as np
+# from PyQt5.QtCore import Qt
+# from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction, QDirModel, QTreeView, QToolBar, QSplitter, QFrame, QHBoxLayout, QFileDialog, QMessageBox
+# from PyQt5.QtCore import QSize
+# from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton, QAction, QDirModel, QTreeView, QToolBar, QSplitter, QFrame, QHBoxLayout, QFileDialog, QMessageBox
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QStandardItemModel, QStandardItem
+from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow
 
 from pulse.mesh import Mesh
-from pulse.uix.infoWidget import InfoWidget
-from pulse.uix.vtk.opvWidget import OPVWidget
+from pulse.uix.infoUi import InfoUi
+from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
-from pulse.uix.inputWidget import InputWidget
+from pulse.uix.inputUi import InputUi
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -101,9 +106,9 @@ class MainWindow(QMainWindow):
         self.toolbar.addSeparator()
 
     def _create_basic_layout(self):
-        self.info_widget = InfoWidget(self)
-        self.opv_widget = OPVWidget(self.project, self)
-        self.inputWidget = InputWidget(self.project, self.opv_widget)
+        self.info_widget = InfoUi(self)
+        self.opv_widget = OPVUi(self.project, self)
+        self.inputWidget = InputUi(self.project, self.opv_widget)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
@@ -120,7 +125,8 @@ class MainWindow(QMainWindow):
         self.draw()
 
     def import_call(self):
-        pass
+        self.inputWidget.newProject()
+        return
 
     def plot_entities(self):
         if (not self.project._flag_entities):

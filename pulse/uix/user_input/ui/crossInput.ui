@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Cross Input</string>
   </property>
   <widget class="QTabWidget" name="tabWidget">
    <property name="geometry">
@@ -107,7 +107,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QLineEdit" name="lineEdit">
+       <widget class="QLineEdit" name="line_diam_interno">
         <property name="inputMask">
          <string/>
         </property>
@@ -117,17 +117,17 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_2">
+       <widget class="QLineEdit" name="line_diam_externo">
         <property name="maxLength">
          <number>10</number>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_4"/>
+       <widget class="QLineEdit" name="line_excen_y"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_5"/>
+       <widget class="QLineEdit" name="line_excen_x"/>
       </item>
      </layout>
     </widget>
@@ -171,17 +171,17 @@
       </item>
      </layout>
     </widget>
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="button_save_pipe">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>100</x>
        <y>140</y>
-       <width>291</width>
+       <width>151</width>
        <height>31</height>
       </rect>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
      </property>
     </widget>
    </widget>
@@ -302,7 +302,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
-       <widget class="QLineEdit" name="lineEdit_6">
+       <widget class="QLineEdit" name="line_area">
         <property name="inputMask">
          <string/>
         </property>
@@ -312,31 +312,31 @@
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_7">
+       <widget class="QLineEdit" name="line_iyy">
         <property name="maxLength">
          <number>10</number>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_8"/>
+       <widget class="QLineEdit" name="line_iyz"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_9"/>
+       <widget class="QLineEdit" name="line_izz"/>
       </item>
      </layout>
     </widget>
-    <widget class="QDialogButtonBox" name="buttonBox_2">
+    <widget class="QDialogButtonBox" name="button_save_beam">
      <property name="geometry">
       <rect>
-       <x>10</x>
+       <x>100</x>
        <y>140</y>
-       <width>291</width>
+       <width>151</width>
        <height>31</height>
       </rect>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Help|QDialogButtonBox::Save</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Save</set>
      </property>
     </widget>
    </widget>

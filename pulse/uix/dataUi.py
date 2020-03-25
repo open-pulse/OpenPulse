@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTabWidget
 
-class DataWidget(QTabWidget):
+class DataUi(QTabWidget):
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
