@@ -60,29 +60,30 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 
 ##
 ### BEGIN OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
+# Note: all entries refer to the global coordinate system
 
 # dofs prescribed (nodes, dof<=>values)
 nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
-local_dofs_prescribed   = [[0,1,2],[0,1,2],[0,1,2]] # What are the degree of freedom restricted on those nodes.
+local_dofs_prescribed   = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
 # prescribed_dofs_values = [[0.01,0.01,0.01],[0.01,0.01,0.01],[0.01,0.01,0.01]] # prescribed values for each degree of freedom
-prescribed_dofs_values = [[0,0,0.001],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
+prescribed_dofs_values = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
-nodes_prescribed_load = [11,230] # Which node has some nodal load prescribed.
-local_dofs_prescribed_load  = [[2],[0]] # What are the local degree of freedom with external load.
-prescribed_load_values      = [[0],[0]] # Whats are the prescribed values for external nodal load
+nodes_prescribed_load = [361,230] # Which node has some nodal load prescribed.
+local_dofs_prescribed_load  = [[0],[0]] # What are the local degree of freedom with external load.
+prescribed_load_values      = [[1],[0]] # Whats are the prescribed values for external nodal load
 
 # nodal respose (node, dof_corrected)
-nodes_response = [11] # Desired nodal response.
-local_dofs_response  = [[1]] # Get the response at the following degree of freedom
+nodes_response = [27] # Desired nodal response.
+local_dofs_response  = [[2]] # Get the response at the following degree of freedom
 
 ### END OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
 ##
 
-# Analysis parameters
+# SET ANALYSIS PARAMETERS FOR MODAL ANALYSIS AND HARMONIC ANALYSIS
+number_modes = 200
 freq_max = 200
 df = 2
-number_modes = 200
 
 # Preprocessing data:
 preprocessor = PreProcessing(   nodal_coordinates, 
@@ -104,9 +105,9 @@ preprocessor = PreProcessing(   nodal_coordinates,
 assemble = Assembly( preprocessor )
 
 # Entries for Solution class definition
-solu = Solution( assemble, preprocessor,
+solu = Solution( assemble, 
                 minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
-#%%
+
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
 # print(natural_frequencies)
@@ -121,7 +122,7 @@ xs, frequencies, _ ,_ = solu.mode_superposition(number_modes = number_modes,
                                                 timing = True)
 
 # PostProcessing class definition
-post = PostProcessing( preprocessor, assemble,
+post = PostProcessing( assemble,
                        eigenVectors = modal_shape,
                        HA_output = xd, 
                        frequencies = frequencies,
@@ -129,7 +130,7 @@ post = PostProcessing( preprocessor, assemble,
                        log = False )
 
 R = np.real(post.load_reactions(xd))
-
+# np.savetxt("OpenPulse_Reactions.dat", R)
 response_dof = preprocessor.response_info()[0,0].astype(int)
 Xd = (post.harmonic_response(xd)[response_dof,:])
 Xs = (post.harmonic_response(xs)[response_dof,:])
@@ -137,19 +138,39 @@ Xs = (post.harmonic_response(xs)[response_dof,:])
 tf = time()
 print('Total elapsed time:', (tf-t0),'[s]')
 
+# # FRFs obtained through Ansys (Harmonic Response - Full)
+## NODAL LOAD - Fz(node=27) = 1N
+# FRF_HP27fz_RP27uz = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn27_uz.dat")
+# FRF_HP27fz_RP189uy = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn189_uy.dat")
+# FRF_HP27fz_RP250ux = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn250_ux.dat")
+# FRF = FRF_HP27fz_RP27uz
+# FRF = FRF_HP27fz_RP189uy
+# FRF = FRF_HP27fz_RP250ux
+
+## PRESCRIBED LOAD - Ux(node=361) = 0.001m
+# FRF_Ux_1mm_n361_RP436ux = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn436_ux.dat")
+# FRF_Ux_1mm_n361_RP187uy = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn187_uy.dat")
+# FRF_Ux_1mm_n361_RP711uz = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn711_uz.dat")
+# FRF = FRF_Ux_1mm_n361_RP436ux
+# FRF = FRF_Ux_1mm_n361_RP187uy
+# FRF = FRF_Ux_1mm_n361_RP711uz
+
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
-plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=2)
-plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=2)
+plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=3)
+plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=1.5)
+# plt.semilogy(FRF[:,0], np.abs(FRF[:,1:]), color = [0,0,1], linewidth=1)
 ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
 ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
 ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
 plt.show()
 
+#%%
+# exit()
 # Entries for plot function 
 #Choose EigenVector to be ploted
-mode_to_plot = 10
+mode_to_plot = 31
 
 # u_def = post.plot_modal_shape(mode_to_plot)
 u_def = post.plot_harmonic_response(20, xd)
@@ -158,7 +179,7 @@ coordinates = preprocessor.nodal_coordinates_remaped()
 
 freq_n = natural_frequencies[mode_to_plot-1]
 freq_n = None
-#%%
+
 # Choose the information to plot/animate
 Show_nodes, Undeformed, Deformed, Animate_Mode, Save = True, False, False, True, False
 
@@ -201,8 +222,3 @@ exit()
 # if flag:
 #     for i, name in enumerate(var_name):
 #         vars()[name[0]+"_"] = data[i]
-
-
-A = np.array([[1,2,3],[4,5,6]])
-B = np.array([1,2]).reshape(2)
-A-B

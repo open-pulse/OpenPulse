@@ -58,6 +58,10 @@ class PreProcessing:
     def number_nodes(self):
         ''' Gets the total number of nodes '''
         return len(self.nodal_coordinates[:,0])
+    
+    def number_dofs(self):
+        ''' Gets the total number of degrees of freedom '''
+        return int(self.number_nodes()*Node.degree_freedom)
 
     def map_index_nodes(self):
         '''' Maps internal index in relation to external index of nodes 

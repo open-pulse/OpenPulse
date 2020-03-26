@@ -1,14 +1,14 @@
 import numpy as np
 from math import pi
-import time
+from time import time
 from scipy.sparse.linalg import eigs, eigsh, spsolve, lobpcg
 
 class Solution:
 
-    def __init__(self, assemble, preprocessor, **kwargs):
+    def __init__(self, assemble, **kwargs):
         
         K, M, self.F, self.Kr, self.Mr = assemble.rows_columns_drops(timing=True)
-        self.global_dofs_free,  self.global_dofs_values = assemble.solution_dofs_info()
+        self.global_dofs_free, self.global_dofs_prescribed, self.global_dofs_values = assemble.solution_dofs_info()
         self.stiffness_matrix = K.tocsc()
         self.mass_matrix = M.tocsc()
    
@@ -26,14 +26,14 @@ class Solution:
         """ Perform a modal analysis and returns natural frequencies and modal shapes normalized 
             with respect to generalized mass coordinates.
         """
-        start = time.time()  
+        start = time()  
         eigen_values, eigen_vectors = eigs( self.stiffness_matrix,
                                             k = number_modes,
                                             M = self.mass_matrix,
                                             which = which,
                                             sigma = sigma)
 
-        end = time.time()
+        end = time()
         if timing:
             print('Time to perform modal analysis :' + str(round((end - start),6)) + '[s]')
         
@@ -129,25 +129,20 @@ class Solution:
         if self.beta_h == None:
             self.beta_h = 0
 
-        start = time.time()
+        start = time()
         
         F_aux = F - F_add
         
         for i, freq in enumerate(frequencies):
-
-            # F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
-            # F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
-            # F_add = F_Kadd + F_Madd
             
             K_damp = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*K
             M_damp = ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*M
             
             A = K_damp + M_damp
             x[:,i] = spsolve(A, F_aux[:,i])
-            # x[:,i] = spsolve(A, F - F_add)
         
         if timing:
-            end = time.time()
+            end = time()
             print('Time to solve harmonic analisys problem through direct method:' + str(round((end - start),6)) + '[s]')
 
         return x, frequencies
@@ -179,7 +174,7 @@ class Solution:
         modal_shape = kwargs.get("modal_shape", None)
         natural_frequencies = kwargs.get("natural_frequencies", None)
 
-        start = time.time()
+        start = time()
         if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
             natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
@@ -193,16 +188,9 @@ class Solution:
             data = np.divide(1, (Kg_damp + Mg_damp))
             diag = np.diag(data)
 
-            # F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
-            # F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
-            # F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
-            # F_add = F_Kadd + F_Madd
-
-            # F_aux = modal_shape.T @ (F - F_add)
-
             x[:,i] = modal_shape @ (diag @ F_aux[:,i])
             
-        end = time.time()
+        end = time()
         if timing:
             print('Time to solve harmonic analisys problem through mode superposition method:' + str(round((end - start),6)) + '[s]')
 

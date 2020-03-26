@@ -1,17 +1,17 @@
 import numpy as np
 from math import pi
 
-from pulse.engine.assembly import Assembly
 from pulse.engine.node import Node
 
 class PostProcessing:
 
-    def __init__(self, preprocessor, assemble, **kwargs):
+    def __init__(self, assemble, **kwargs):
 
         _, _, _, self.Kr, self.Mr = assemble.rows_columns_drops(timing=False)
         
-        self.prescbribed_dofs_info = preprocessor.prescbribed_dofs_info()
-        self.number_nodes = preprocessor.number_nodes()
+        self.global_dofs_free, self.global_dofs_prescribed, self.prescribed_dofs_values = assemble.solution_dofs_info()
+        self.number_nodes = int((len(self.global_dofs_free) + len(self.global_dofs_prescribed))/Node.degree_freedom)
+        self.number_dofs = int(len(self.global_dofs_free) + len(self.global_dofs_prescribed))
         self.eigenVectors = kwargs.get("eigenVectors", None)
         self.HA_output = kwargs.get("HA_output", None)
         self.frequencies = kwargs.get("frequencies", None)
@@ -22,14 +22,14 @@ class PostProcessing:
         self.beta_h = kwargs.get("beta_h", None)    
         self.log = kwargs.get("log", None)
 
-    def dof_recover(self):
+    def modal_response(self):
         """ 
         This method returns eigenVectors with all prescribed dofs values recovered.
         
         """
         aux_eigenVectors = self.eigenVectors.copy()
-        if self.prescbribed_dofs_info.any():
-            global_dofs = np.array(self.prescbribed_dofs_info[:,0], dtype='int32')
+        if not self.global_dofs_prescribed == []:
+            global_dofs = np.array(self.global_dofs_prescribed, dtype='int32')
             
             for row in global_dofs:
                 aux_eigenVectors = np.insert( aux_eigenVectors, row, [0], axis=0 )
@@ -60,11 +60,11 @@ class PostProcessing:
     def harmonic_response (self, data):
         '''This method returns final dofs response U_out considering the loads and the prescribed dofs values.'''
 
-        if data.any():
+        if not data == []:
             U_out = data
-            if self.prescbribed_dofs_info.any():
-                global_dofs = np.array(self.prescbribed_dofs_info[:,0], dtype=int)
-                value = self.prescbribed_dofs_info[:,2]
+            if not self.global_dofs_prescribed == []:
+                global_dofs = np.array(self.global_dofs_prescribed, dtype=int)
+                value = self.prescribed_dofs_values
 
             for i, gdof in enumerate(global_dofs):
                     U_out = np.insert( U_out, gdof, value[i], axis=0 )
@@ -76,17 +76,15 @@ class PostProcessing:
 
     def plot_modal_shape(self, mode):
         
-        eigen_Uxyz_plot = []
-        eigen_Uxyz, _ = self.dof_recover()
-        eigen_Uxyz_plot.append(eigen_Uxyz)
-        eigen_Uxyz_plot = np.asarray(eigen_Uxyz_plot[0])
-        Uxyz_mode = np.zeros((eigen_Uxyz_plot.shape[0], 4))
+        eigen_Uxyz, _ = self.modal_response()
+        eigen_Uxyz_plot = eigen_Uxyz.copy()
+        Uxyz_mode = np.zeros((self.number_nodes, 4))
         Uxyz_mode[:,0] = eigen_Uxyz_plot[:,0]
         Uxyz_mode[:,1:4] = eigen_Uxyz_plot[:,(1+3*(mode-1)):(4+3*(mode-1))]
 
         return Uxyz_mode
 
-    def plot_harmonic_response(self, freq, data):
+    def plot_harmonic_response(self, colum, data):
         
         HR_Uxyz_plot = []
         Uout = self.harmonic_response(data)
@@ -112,7 +110,7 @@ class PostProcessing:
         HR_Uxyz_plot = np.asarray(HR_Uxyz_plot[0])
         HR_f = np.zeros((HR_Uxyz_plot.shape[0], 4), dtype=float)
         HR_f[:,0] = np.real(HR_Uxyz_plot[:,0])
-        HR_f[:,1:4] = np.real(HR_Uxyz_plot[:,(1+3*(freq-1)):(4+3*(freq-1))])
+        HR_f[:,1:4] = np.real(HR_Uxyz_plot[:,(1+3*(colum-1)):(4+3*(colum-1))])
 
         return HR_f
 
@@ -130,33 +128,38 @@ class PostProcessing:
 
         U = self.harmonic_response(data)
 
-        if self.Kr == [] or self.Mr == []:
+        if not U==[]:    
 
-            Kr_U, Mr_U = 0, 0
+            if self.Kr == [] or self.Mr == []:
+
+                Kr_U, Mr_U = 0, 0
+
+            else:
+    
+                Kr = (self.Kr.toarray())
+                Mr = (self.Mr.toarray())
+
+                rows = U.shape[1]
+                cols = Kr.shape[1] 
+                            
+                Kr_U    = np.zeros( (rows, cols), dtype = complex )
+                Mr_U    = np.zeros( (rows, cols), dtype = complex )
+                F_react = np.zeros( (rows, cols+1), dtype = complex )
+                F_react[:,0] = self.frequencies
+                U_t = U.T
+
+                for ind in range(cols):
+
+                    Kr_U[ :, ind ] = U_t @ Kr[ :, ind ]
+                    Mr_U[ :, ind ] = U_t @ Mr[ :, ind ]
+            
+            for k in range(cols):
+                for ind, freq in enumerate(self.frequencies):
+
+                    F_Kdamp = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_U[ind,k]
+                    F_Mdamp = ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_U[ind,k]
+                    F_react[ind,k+1] = F_Kdamp -  F_Mdamp
 
         else:
-   
-            Kr = (self.Kr.toarray())
-            Mr = (self.Mr.toarray())
-
-            rows = U.shape[1]
-            cols = Kr.shape[1] 
-                        
-            Kr_U    = np.zeros( (rows, cols), dtype = complex )
-            Mr_U    = np.zeros( (rows, cols), dtype = complex )
-            F_react = np.zeros( (rows, cols), dtype = complex )
-            U_t = U.T
-
-            for ind in range(cols):
-
-                Kr_U[ :, ind ] = U_t @ Kr[ :, ind ]
-                Mr_U[ :, ind ] = U_t @ Mr[ :, ind ]
-        
-        for k in range(cols):
-            for ind, freq in enumerate(self.frequencies):
-
-                F_Kdamp = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_U[ind,k]
-                F_Mdamp = ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_U[ind,k]
-                F_react[ind,k] = F_Kdamp -  F_Mdamp
-
+            F_react = []
         return F_react        
