@@ -6,15 +6,15 @@ from pulse.engine.node import Node
 
 class PostProcessing:
 
-    def __init__(self, preprocessor, **kwargs):
+    def __init__(self, preprocessor, assemble, **kwargs):
+
+        _, _, _, self.Kr, self.Mr = assemble.rows_columns_drops(timing=False)
         
         self.prescbribed_dofs_info = preprocessor.prescbribed_dofs_info()
         self.number_nodes = preprocessor.number_nodes()
         self.eigenVectors = kwargs.get("eigenVectors", None)
         self.HA_output = kwargs.get("HA_output", None)
         self.frequencies = kwargs.get("frequencies", None)
-        self.Kr = kwargs.get("Kr", None)
-        self.Mr = kwargs.get("Mr", None)
         self.free_dofs = kwargs.get("free_dofs", None)
         self.alpha_v = kwargs.get("alpha_v", None)
         self.beta_v = kwargs.get("beta_v", None)
@@ -71,7 +71,7 @@ class PostProcessing:
         else:
             U_out = []
             print("Please, it's necessary to solve an Harmonic Analysis if you intend recover information about prescribed dofs.")
-        
+
         return U_out
 
     def plot_modal_shape(self, mode):
@@ -130,7 +130,7 @@ class PostProcessing:
 
         U = self.harmonic_response(data)
 
-        if self.Kr == None or self.Mr == None:
+        if self.Kr == [] or self.Mr == []:
 
             Kr_U, Mr_U = 0, 0
 

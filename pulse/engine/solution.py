@@ -5,15 +5,13 @@ from scipy.sparse.linalg import eigs, eigsh, spsolve, lobpcg
 
 class Solution:
 
-    def __init__(self, stiffness_matrix, mass_matrix, **kwargs):
-        self.stiffness_matrix = stiffness_matrix.tocsc()
-        self.mass_matrix = mass_matrix.tocsc()
-
-        self.Kr = kwargs.get("Kr", None)
-        self.Mr = kwargs.get("Mr", None)
-        self.presc_dofs_info = kwargs.get("presc_dofs_info", None)
-        self.free_dofs = kwargs.get("free_dofs", None)
+    def __init__(self, assemble, preprocessor, **kwargs):
         
+        K, M, self.F, self.Kr, self.Mr = assemble.rows_columns_drops(timing=True)
+        self.global_dofs_free,  self.global_dofs_values = assemble.solution_dofs_info()
+        self.stiffness_matrix = K.tocsc()
+        self.mass_matrix = M.tocsc()
+   
         self.frequencies = kwargs.get("frequencies", None)
         self.minor_freq = kwargs.get("minor_freq", None)
         self.major_freq = kwargs.get("major_freq", None)
@@ -28,14 +26,12 @@ class Solution:
         """ Perform a modal analysis and returns natural frequencies and modal shapes normalized 
             with respect to generalized mass coordinates.
         """
-  
         start = time.time()  
         eigen_values, eigen_vectors = eigs( self.stiffness_matrix,
                                             k = number_modes,
                                             M = self.mass_matrix,
                                             which = which,
                                             sigma = sigma)
-
 
         end = time.time()
         if timing:
@@ -47,7 +43,6 @@ class Solution:
         modal_shape = np.real( eigen_vectors[ :, ind_ord ] )
         return natural_frequencies, modal_shape
     
-
     def freq_vector(self):
 
         if np.array(self.frequencies).all() == None or self.frequencies==[] :
@@ -65,29 +60,50 @@ class Solution:
 
         return self.frequencies
     
-    def KM_add(self):
+    def F_add(self):
 
-        if self.Kr == None or self.Mr == None:
+        frequencies = self.freq_vector()
+
+        if self.alpha_v == None: 
+            self.alpha_v = 0
+        if self.beta_v == None:
+            self.beta_v = 0
+
+        if self.alpha_h == None: 
+            self.alpha_h = 0
+        if self.beta_h == None:
+            self.beta_h = 0
+     
+        if self.Kr == [] or self.Mr == []:
             Kr_add, Mr_add = 0, 0
         else:
-
-            Kr = (self.Kr.toarray())[ self.free_dofs, : ]
-            Mr = (self.Mr.toarray())[ self.free_dofs, : ]
-
+            Kr = (self.Kr.toarray())[ self.global_dofs_free, : ]
+            Mr = (self.Mr.toarray())[ self.global_dofs_free, : ]
             Kr_temp = np.zeros(Kr.shape)
             Mr_temp = np.zeros(Mr.shape)
 
-            for ind, value in enumerate(self.presc_dofs_info[:,2]):
+            for ind, value in enumerate(self.global_dofs_values):
                 
                 Kr_temp[ :, ind ] = value*Kr[ :, ind ]
                 Mr_temp[ :, ind ] = value*Mr[ :, ind ]
             
             Kr_add = np.sum( Kr_temp, axis=1 )
             Mr_add = np.sum( Mr_temp, axis=1 )
+        
+        rows = len(Kr_add) 
+        columns = len(frequencies)
 
-        return Kr_add, Mr_add
+        F_add = np.zeros([ rows , columns ], dtype=complex)
 
-    def direct_method(self, F, timing = False):
+        for i, freq in enumerate(frequencies):
+
+            F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
+            F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h))*Mr_add
+            F_add[:, i] = F_Kadd + F_Madd
+
+        return F_add
+
+    def direct_method(self, timing = False):
         """ 
             Perform an harmonic analysis through direct method and returns the response of
             all nodes due the external or internal equivalent load. It has been implemented two
@@ -95,6 +111,13 @@ class Solution:
             Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
             Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
         """
+        
+        M = self.mass_matrix
+        K = self.stiffness_matrix
+        F = self.F.reshape(len(self.global_dofs_free),1)
+        F_add = self.F_add()
+        frequencies = self.freq_vector()
+        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex )
         
         if self.alpha_v == None: 
             self.alpha_v = 0
@@ -106,44 +129,22 @@ class Solution:
         if self.beta_h == None:
             self.beta_h = 0
 
-        Kr_add, Mr_add = self.KM_add()
-
-        # if self.Kr == None or self.Mr == None:
-        #     Kr_v, Mr_v = 0, 0
-        # else:
-
-        #     Kr = (self.Kr.toarray())[ :, self.free_dofs ]
-        #     Mr = (self.Mr.toarray())[ :, self.free_dofs ]
-
-        #     Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
-        #     Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
-
-        #     for ind, value in enumerate(self.presc_dofs_info[:,2]):
-                
-        #         Kr_temp[ :, ind ] = value*Kr[ ind, : ]
-        #         Mr_temp[ :, ind ] = value*Mr[ ind, : ]
-            
-        #     Kr_v = np.sum( Kr_temp, axis=1 )
-        #     Mr_v = np.sum( Mr_temp, axis=1 )
-        
-        M = self.mass_matrix
-        K = self.stiffness_matrix
-
-        frequencies = self.freq_vector()
-        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex )
-        
         start = time.time()
+        
+        F_aux = F - F_add
+        
         for i, freq in enumerate(frequencies):
 
-            F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
-            F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
-            F_add = F_Kadd + F_Madd
+            # F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
+            # F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
+            # F_add = F_Kadd + F_Madd
             
             K_damp = ( 1 + 1j*freq*self.beta_v + 1j*self.beta_h )*K
             M_damp = ( -((2 * pi * freq)**2) + 1j*freq*self.alpha_v + 1j*self.alpha_h)*M
             
             A = K_damp + M_damp
-            x[:,i] = spsolve(A, F - F_add)
+            x[:,i] = spsolve(A, F_aux[:,i])
+            # x[:,i] = spsolve(A, F - F_add)
         
         if timing:
             end = time.time()
@@ -151,7 +152,7 @@ class Solution:
 
         return x, frequencies
 
-    def mode_superposition(self, F, number_modes = 10, which = 'LM', sigma = 0.01, timing = False, **kwargs):
+    def mode_superposition(self, number_modes = 10, which = 'LM', sigma = 0.01, timing = False, **kwargs):
         """ 
             Perform an harmonic analysis through superposition method and returns the response of
             all nodes due the external or internal equivalent load. It has been implemented two
@@ -160,6 +161,11 @@ class Solution:
             Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
         """
         
+        F = self.F.reshape(len(self.global_dofs_free),1)
+        F_add = self.F_add()
+        frequencies = self.freq_vector()
+        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
+
         if self.alpha_v == None: 
             self.alpha_v = 0
         elif self.beta_v == None:
@@ -170,29 +176,6 @@ class Solution:
         elif self.beta_h == None:
             self.beta_h = 0
         
-        Kr_add, Mr_add = self.KM_add()
-
-        # if self.Kr == None or self.Mr == None:
-        #     Kr_v, Mr_v = 0, 0
-        # else:
-
-        #     Kr = (self.Kr.toarray())[ :, self.free_dofs ]
-        #     Mr = (self.Mr.toarray())[ :, self.free_dofs ]
-
-        #     Kr_temp = np.zeros(( Kr.shape[1], Kr.shape[0] ))
-        #     Mr_temp = np.zeros(( Mr.shape[1], Mr.shape[0] ))
-
-        #     for ind, value in enumerate(self.presc_dofs_info[:,2]):
-                
-        #         Kr_temp[ :, ind ] = value*Kr[ ind, : ]
-        #         Mr_temp[ :, ind ] = value*Mr[ ind, : ]
-            
-        #     Kr_v = np.sum( Kr_temp, axis=1 )
-        #     Mr_v = np.sum( Mr_temp, axis=1 )
-
-        frequencies = self.freq_vector()
-        x = np.zeros([ self.stiffness_matrix.shape[0], len(frequencies) ], dtype=complex)
-
         modal_shape = kwargs.get("modal_shape", None)
         natural_frequencies = kwargs.get("natural_frequencies", None)
 
@@ -200,7 +183,7 @@ class Solution:
         if np.array(modal_shape).all() == None or modal_shape.shape[1] != number_modes:
             natural_frequencies, modal_shape = self.modal_analysis( number_modes = number_modes, which = 'LM', sigma = sigma )            
 
-        #F_aux = modal_shape.T @ F
+        F_aux = modal_shape.T @ (F - F_add)
 
         for i, freq in enumerate(frequencies):
 
@@ -211,13 +194,13 @@ class Solution:
             diag = np.diag(data)
 
             # F_add = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_v - ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_v
-            F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
-            F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
-            F_add = F_Kadd + F_Madd
+            # F_Kadd = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_add 
+            # F_Madd = (- ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_add)
+            # F_add = F_Kadd + F_Madd
 
-            F_aux = modal_shape.T @ (F - F_add)
+            # F_aux = modal_shape.T @ (F - F_add)
 
-            x[:,i] = modal_shape @ (diag @ F_aux)
+            x[:,i] = modal_shape @ (diag @ F_aux[:,i])
             
         end = time.time()
         if timing:

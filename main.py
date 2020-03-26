@@ -2,7 +2,7 @@
 import numpy as np
 from time import time
 import h5py
-import pandas
+import pandas as pd
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
@@ -65,19 +65,24 @@ element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
 nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
 local_dofs_prescribed   = [[0,1,2],[0,1,2],[0,1,2]] # What are the degree of freedom restricted on those nodes.
 # prescribed_dofs_values = [[0.01,0.01,0.01],[0.01,0.01,0.01],[0.01,0.01,0.01]] # prescribed values for each degree of freedom
-prescribed_dofs_values = [[0.02,0,0],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
+prescribed_dofs_values = [[0,0,0.001],[0,0,0],[0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
-nodes_prescribed_load = [27,230] # Which node has some nodal load prescribed.
-local_dofs_prescribed_load  = [[1],[2]] # What are the local degree of freedom with external load.
+nodes_prescribed_load = [11,230] # Which node has some nodal load prescribed.
+local_dofs_prescribed_load  = [[2],[0]] # What are the local degree of freedom with external load.
 prescribed_load_values      = [[0],[0]] # Whats are the prescribed values for external nodal load
 
 # nodal respose (node, dof_corrected)
-nodes_response = [27] # Desired nodal response.
+nodes_response = [11] # Desired nodal response.
 local_dofs_response  = [[1]] # Get the response at the following degree of freedom
 
 ### END OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
 ##
+
+# Analysis parameters
+freq_max = 200
+df = 2
+number_modes = 200
 
 # Preprocessing data:
 preprocessor = PreProcessing(   nodal_coordinates, 
@@ -95,25 +100,11 @@ preprocessor = PreProcessing(   nodal_coordinates,
                                 nodes_response,
                                 local_dofs_response )
 
-## Assembly those informations.
+## Call Assembly class.
 assemble = Assembly( preprocessor )
 
-# Global Assembly
-K, M, F, Kr, Mr, data_K, data_M, data_F, I, J, I_f, global_dofs_free, global_dofs_presc, total_dof = assemble.global_matrices()
-
-## Solution
-# Analysis parameters
-freq_max = 200
-df = 2
-number_modes = 200
-
-# Solution class definition
-
-presc_dofs_info = preprocessor.prescbribed_dofs_info()
-free_dofs = preprocessor.free_dofs()
-
-solu = Solution(K, M, 
-                Kr=Kr, Mr=Mr, presc_dofs_info = presc_dofs_info, free_dofs = free_dofs,
+# Entries for Solution class definition
+solu = Solution( assemble, preprocessor,
                 minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
 #%%
 # Modal analysis
@@ -121,29 +112,23 @@ natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_mo
 # print(natural_frequencies)
 
 # Direct method
-xd, frequencies = solu.direct_method(F, timing = True)
+xd, frequencies = solu.direct_method(timing = True)
 
 # Mode superposition method - Using the previous modal analysis output as input.
-xs, frequencies, _ ,_ = solu.mode_superposition(F,
-                                                number_modes=number_modes,
+xs, frequencies, _ ,_ = solu.mode_superposition(number_modes = number_modes,
                                                 natural_frequencies = natural_frequencies,
                                                 modal_shape = modal_shape,
                                                 timing = True)
 
 # PostProcessing class definition
-post = PostProcessing( preprocessor,
+post = PostProcessing( preprocessor, assemble,
                        eigenVectors = modal_shape,
                        HA_output = xd, 
                        frequencies = frequencies,
-                       Kr = Kr,
-                       Mr = Mr,
-                       free_dofs = free_dofs,
+                       free_dofs = preprocessor.free_dofs,
                        log = False )
 
-
 R = np.real(post.load_reactions(xd))
-
-eigenVectors_Uxyz, eigenVectors_Rxyz = post.dof_recover()
 
 response_dof = preprocessor.response_info()[0,0].astype(int)
 Xd = (post.harmonic_response(xd)[response_dof,:])
@@ -185,30 +170,39 @@ plot(coordinates, connectivity_plot, u_def, freq_n, scf, Show_nodes, Undeformed,
 
 exit()
 
-#%% Save important results using HDF5 format
+# #%% Save important results using HDF5 format
 
-# Defines wdata as an object of SaveData Class
-wdata = SaveData( connectivity, 
-                    nodal_coordinates,  
-                    data_K, 
-                    data_M, 
-                    I, 
-                    J,
-                    global_dofs_free,
-                    dofs_prescribed = global_dofs_presc,
-                    eigenVectors = modal_shape,
-                    eigenVectors_Uxyz = eigenVectors_Uxyz,
-                    natural_frequencies = natural_frequencies, 
-                    frequency_analysis = frequencies )
+# data_K, data_M, data_F, I, J, I_f, global_dofs_free, global_dofs_presc, total_dofs = assemble.matrices_data_to_save()
+# eigenVectors_Uxyz, eigenVectors_Rxyz = post.dof_recover()
 
-# Call store_data method to save the output results 
-wdata.store_data()
-#%%
-# Defines rdata as an object of ReadData Class
-rdata = ReadData()
+# # Defines wdata as an object of SaveData Class
+# wdata = SaveData( connectivity, 
+#                     nodal_coordinates,  
+#                     data_K, 
+#                     data_M, 
+#                     I, 
+#                     J,
+#                     I_f,
+#                     global_dofs_free,
+#                     dofs_prescribed = global_dofs_presc,
+#                     eigenVectors = modal_shape,
+#                     eigenVectors_Uxyz = eigenVectors_Uxyz,
+#                     natural_frequencies = natural_frequencies, 
+#                     frequency_analysis = frequencies )
 
-# Call read_data method and return all variable saved in file
-var_name, data, flag = rdata.read_data()
-if flag:
-    for i, name in enumerate(var_name):
-        vars()[name[0]+"_"] = data[i]
+# # Call store_data method to save the output results 
+# wdata.store_data()
+# #%%
+# # Defines rdata as an object of ReadData Class
+# rdata = ReadData()
+
+# # Call read_data method and return all variable saved in file
+# var_name, data, flag = rdata.read_data()
+# if flag:
+#     for i, name in enumerate(var_name):
+#         vars()[name[0]+"_"] = data[i]
+
+
+A = np.array([[1,2,3],[4,5,6]])
+B = np.array([1,2]).reshape(2)
+A-B

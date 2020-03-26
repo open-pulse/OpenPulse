@@ -89,7 +89,7 @@ class PreProcessing:
         return temp_coord
 
     def get_prescribed_info(self, nodes_p, local_dofs_p, values_p):
-        ''' Write something import here '''
+        ''' This method correlates user inputs and maps this to internal dofs '''
 
         number_of_dofs_per_node = np.zeros((2, len(nodes_p)),dtype=int)
         number_of_dofs_per_node[0,:] = nodes_p
@@ -227,7 +227,7 @@ class PreProcessing:
         load_info = self.prescbribed_load_info() 
         Element.total_degree_freedom
 
-        if load_info.all():
+        if load_info.any() and not load_info == []:
             
             F_ext = load_info[:,2]
             I_fe = load_info[:,0]

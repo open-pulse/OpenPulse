@@ -35,6 +35,7 @@ class Assembly:
         self.number_elements = preprocessor.number_elements()
         self.total_elements_dofs = Element.total_degree_freedom
         self.global_dofs_prescribed = preprocessor.prescbribed_dofs_info()[:,0].astype(int)
+        self.global_dofs_values = preprocessor.prescbribed_dofs_info()[:,2]
         self.map_elements = preprocessor.map_elements()
 
         if preprocessor.prescbribed_load_info().any():
@@ -49,7 +50,6 @@ class Assembly:
       
     def global_matrices(self):
         
-        start_time = time.time()
         # Defining variables for memory preallocating
         
         edof = self.total_elements_dofs
@@ -60,6 +60,7 @@ class Assembly:
         if self.flag:
             ext_ind = len(self.prescribed_load_info[:,0])
             data_Fe, I_fe = self.external_load
+
         else:
             ext_ind = 1
             data_Fe, I_fe = 0, 0
@@ -112,25 +113,58 @@ class Assembly:
 
                 count += 1
 
-        # Line and Column Elimination
+        # # Line and Column Elimination
         
-        # global_dofs_presc = np.sort( self.global_dofs_prescribed() )
-        global_dofs_presc = self.global_dofs_prescribed
+        # global_dofs_presc = self.global_dofs_prescribed
                 
-        # total_dof = Node.degree_freedom * ( self.number_nodes() )
-        total_dof = Node.degree_freedom *self.number_nodes 
+        # # total_dofs = Node.degree_freedom * ( self.number_nodes() )
+        total_dofs = Node.degree_freedom *self.number_nodes 
         
-        global_dofs_free = np.delete( np.arange(total_dof), global_dofs_presc )
+        # global_dofs_free = np.delete( np.arange(total_dofs), global_dofs_presc )
 
-        K = csr_matrix( (data_K, (I, J)), shape = [total_dof, total_dof] )
-        M = csr_matrix( (data_M, (I, J)), shape = [total_dof, total_dof] )
+        K = csr_matrix( (data_K, (I, J)), shape = [total_dofs, total_dofs] )
+        M = csr_matrix( (data_M, (I, J)), shape = [total_dofs, total_dofs] )
         
         data_F[-ext_ind:] = data_Fe
         I_f[-ext_ind:] = I_fe
-
-        F = csr_matrix( (data_F, (I_f, J_f)), shape = [total_dof, 1] )
+       
+        F = csr_matrix( (data_F, (I_f, J_f)), shape = [total_dofs, 1] )
                 
-        # Slice rows and all columns of not prescribed dofs
+        # # Slice rows and all columns of not prescribed dofs
+        # Kr = K[ :, global_dofs_presc ]
+        # Mr = M[ :, global_dofs_presc ]
+
+        # # Slice all rows/columns from not prescribed dofs
+        # K = K[ global_dofs_free, : ][ :, global_dofs_free ]
+        # M = M[ global_dofs_free, : ][ :, global_dofs_free ]
+        # F = F[ global_dofs_free, : ].toarray().flatten()
+                
+        return K, M, F, data_K, data_M, data_F, I, J, I_f
+    
+
+    def matrices_data_to_save(self):
+
+        global_dofs_presc = self.global_dofs_prescribed
+        total_dofs = Node.degree_freedom *self.number_nodes
+        global_dofs_free = np.delete( np.arange(total_dofs), global_dofs_presc ) 
+        
+        _, _, _, data_K, data_M, data_F, I, J, I_f = self.global_matrices()
+
+        return data_K, data_M, data_F, I, J, I_f, global_dofs_free, global_dofs_presc, total_dofs
+
+    def rows_columns_drops(self, timing=True):
+        
+        start_time = time.time()
+
+        # Line and Column Elimination
+
+        global_dofs_presc = self.global_dofs_prescribed
+        total_dofs = Node.degree_freedom *self.number_nodes 
+        global_dofs_free = np.delete( np.arange(total_dofs), global_dofs_presc )
+
+        K, M, F, _, _, _, _, _, _, = self.global_matrices()
+        
+        # Slice columns of prescribed dofs
         Kr = K[ :, global_dofs_presc ]
         Mr = M[ :, global_dofs_presc ]
 
@@ -138,8 +172,17 @@ class Assembly:
         K = K[ global_dofs_free, : ][ :, global_dofs_free ]
         M = M[ global_dofs_free, : ][ :, global_dofs_free ]
         F = F[ global_dofs_free, : ].toarray().flatten()
+
         end_time = time.time()
 
-        print('Time to assemble and process global matrices:', round(end_time-start_time,6))
+        if timing:
+            print('Time to assemble and process global matrices:', round(end_time-start_time,6))
         
-        return K, M, F, Kr, Mr, data_K, data_M, data_F, I, J, I_f, global_dofs_free, global_dofs_presc, total_dof
+        return K, M, F, Kr, Mr
+
+    def solution_dofs_info(self):
+
+        global_dofs_presc = self.global_dofs_prescribed
+        total_dofs = Node.degree_freedom *self.number_nodes 
+        global_dofs_free = np.delete( np.arange(total_dofs), global_dofs_presc )
+        return global_dofs_free, self.global_dofs_values
