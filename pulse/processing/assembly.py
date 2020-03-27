@@ -42,12 +42,19 @@ def get_global_matrices(mesh):
 
     return K, M, Kr, Mr
 
-@timer
 def get_global_forces(mesh):
     total_dof = DOF_PER_NODE * len(mesh.nodes)
     forces = np.zeros(total_dof)
+
+    # distributed forces
     for element in mesh.elements.values():
         position = element.global_dof
         forces[position] += element.force_vector_gcs()
+
+    # nodal forces
+    for node in mesh.nodes.values():
+        position = node.global_dof
+        forces[position] += node.forces
+
     return forces
     

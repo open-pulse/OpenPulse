@@ -66,6 +66,10 @@ class Mesh:
     def set_force_by_element(self, elements, loaded_force):
         for element in slicer(self.elements, elements):
             element.loaded_forces = loaded_force
+    
+    def set_force_by_node(self, nodes, loaded_force):
+        for node in slicer(self.nodes, nodes):
+            node.forces = loaded_force
 
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):

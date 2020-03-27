@@ -14,8 +14,8 @@ class Node:
         self.x = x
         self.y = y
         self.z = z
-        self.boundary_condition = []
-        self.forces = []
+        self.boundary_condition = [None, None, None, None, None, None]
+        self.forces = [0,0,0,0,0,0]
         self.global_index = global_index
 
     @property
