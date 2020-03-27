@@ -28,6 +28,18 @@ class Mesh:
         self._finalize_gmsh()
         self._load_neighbours()
         self._order_global_indexes()
+    
+    def load_mesh(self, coordinates, connectivity):
+        for i, x, y, z in np.loadtxt(coordinates):
+            self.nodes[int(i)] = Node(x,y,z)
+
+        for i, first, last in np.loadtxt(connectivity, dtype=int):
+            first_node = self.nodes[first]
+            last_node = self.nodes[last]
+            self.elements[i] = Element(first_node, last_node)
+
+        self._load_neighbours()
+        self._order_global_indexes()
 
     def prescribed_dof(self):
         global_prescribed = []
