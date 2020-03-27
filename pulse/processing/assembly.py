@@ -56,5 +56,8 @@ def get_global_forces(mesh):
         position = node.global_dof
         forces[position] += node.forces
 
+    prescribed_dof = mesh.prescribed_dof()
+    forces = np.delete(forces, prescribed_dof)
+
     return forces
     

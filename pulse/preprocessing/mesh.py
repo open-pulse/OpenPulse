@@ -44,7 +44,8 @@ class Mesh:
     def prescribed_dof(self):
         global_prescribed = []
         for node in self.nodes.values():
-            global_prescribed.extend(node.get_boundary_condition_indexes())
+            boundary_condition = np.array(node.get_boundary_condition_indexes()) + node.global_index * DOF_PER_NODE
+            global_prescribed.extend(boundary_condition)
         return global_prescribed
 
     def set_material_by_line(self, lines, material):
