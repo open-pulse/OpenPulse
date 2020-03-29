@@ -32,7 +32,7 @@ def get_global_matrices(mesh):
     full_K = csr_matrix((data_k, (rows, cols)), shape=[total_dof, total_dof])
     full_M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
 
-    prescribed_dof = mesh.prescribed_dof()
+    prescribed_dof = mesh.get_prescribed_dofs_index()
     free_dof = np.delete(np.arange(total_dof), prescribed_dof)
 
     K = full_K[free_dof, :][:, free_dof]
