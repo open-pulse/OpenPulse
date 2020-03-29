@@ -51,7 +51,7 @@ class Mesh:
     def get_prescribed_dofs_values(self):
         global_prescribed = []
         for node in self.nodes.values():
-            global_prescribed.extend(node.get_boundary_condition_indexes())
+            global_prescribed.extend(node.get_boundary_condition_values())
         return global_prescribed
 
     def set_material_by_line(self, lines, material):

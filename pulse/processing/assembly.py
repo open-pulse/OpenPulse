@@ -55,6 +55,50 @@ def get_global_forces(mesh):
     for node in mesh.nodes.values():
         position = node.global_dof
         forces[position] += node.forces
+    
+    prescribed_dof = mesh.get_prescribed_dofs_index()
+    forces = np.delete(forces, prescribed_dof)
 
     return forces
     
+def new_get_global_matrices(mesh):
+    total_dof = DOF_PER_NODE * len(mesh.nodes)
+    total_entries = ENTRIES_PER_ELEMENT * len(mesh.elements)
+
+    rows = np.zeros(total_entries)
+    cols = np.zeros(total_entries)
+    data_k = np.zeros(total_entries)
+    data_m = np.zeros(total_entries)
+
+    for index, element in enumerate(mesh.elements.values()):
+        start = index * ENTRIES_PER_ELEMENT
+        end = start + ENTRIES_PER_ELEMENT 
+
+        i, j = element.global_matrix_indexes()
+        Ke, Me = element.matrices_gcs()
+        
+        rows[start:end] = i.flatten()
+        cols[start:end] = j.flatten()
+        data_k[start:end] = Ke.flatten()
+        data_m[start:end] = Me.flatten()
+
+    K = csr_matrix((data_k, (rows, cols)), shape=[total_dof, total_dof])
+    M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
+
+    return K, M
+
+def new_get_global_forces(mesh):
+    total_dof = DOF_PER_NODE * len(mesh.nodes)
+    forces = np.zeros(total_dof)
+
+    # distributed forces
+    for element in mesh.elements.values():
+        position = element.global_dof
+        forces[position] += element.force_vector_gcs()
+
+    # nodal forces
+    for node in mesh.nodes.values():
+        position = node.global_dof
+        forces[position] += node.forces
+
+    return forces
