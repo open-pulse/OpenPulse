@@ -33,7 +33,7 @@ def get_global_matrices(mesh):
     full_M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
 
     prescribed_indexes = mesh.get_prescribed_indexes()
-    unprescribed_indexes = mesh.get_unprescribed_indexes()=
+    unprescribed_indexes = mesh.get_unprescribed_indexes()
 
     K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
     M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
