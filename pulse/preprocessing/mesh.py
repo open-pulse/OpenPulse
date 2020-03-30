@@ -41,14 +41,22 @@ class Mesh:
         self._load_neighbours()
         self._order_global_indexes()
 
-    def get_prescribed_dofs_index(self):
+    def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.nodes.values():
-            dofs = np.array(node.get_boundary_condition_indexes()) + node.global_index * DOF_PER_NODE
+            starting_position = node.global_index * DOF_PER_NODE
+            dofs = np.array(node.get_boundary_condition_indexes()) + starting_position
             global_prescribed.extend(dofs)
         return global_prescribed
 
-    def get_prescribed_dofs_values(self):
+    def get_unprescribed_indexes(self):
+        total_dof = DOF_PER_NODE * len(self.nodes)
+        all_indexes = np.arange(total_dof)
+        prescribed_indexes = self.get_prescribed_indexes()
+        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
+        return unprescribed_indexes
+
+    def get_prescribed_values(self):
         global_prescribed = []
         for node in self.nodes.values():
             global_prescribed.extend(node.get_boundary_condition_values())
