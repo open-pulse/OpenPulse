@@ -16,49 +16,50 @@ class PostProcessing:
         self.HA_output = kwargs.get("HA_output", None)
         self.frequencies = kwargs.get("frequencies", None)
         self.free_dofs = kwargs.get("free_dofs", None)
-        self.alpha_v = kwargs.get("alpha_v", None)
-        self.beta_v = kwargs.get("beta_v", None)
-        self.alpha_h = kwargs.get("alpha_h", None)
-        self.beta_h = kwargs.get("beta_h", None)    
-        self.log = kwargs.get("log", None)
+        self.damping = kwargs.get("damping", [0,0,0,0])
+
+    def get_Uxyz_Rxyz(self, data, dtype):
+        """ This method returns: 
+            Uxyz = [ Ux[:,0+n], Uy[:,0+n], Uz[:,0+n] ]
+            Rxyz = [ Rx[:,0+n], Ry[:,0+n], Rz[:,0+n] ].
+        """
+        ind = np.arange( 0, data.shape[0], Node.degree_freedom )
+        Uxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*data.shape[1]) ), dtype=dtype)
+        Rxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*data.shape[1]) ), dtype=dtype)
+        Uxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
+        Rxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
+
+        for j in range( data.shape[1] ):
+                
+            Uxyz[:, 1+3*j], Uxyz[:, 2+3*j], Uxyz[:, 3+3*j] = data[ind+0, j], data[ind+1, j], data[ind+2, j]
+            Rxyz[:, 1+3*j], Rxyz[:, 2+3*j], Rxyz[:, 3+3*j] = data[ind+3, j], data[ind+4, j], data[ind+5, j]
+    
+        return Uxyz, Rxyz
 
     def modal_response(self):
-        """ 
-        This method returns eigenVectors with all prescribed dofs values recovered.
-        
-        """
+        """ This method returns eigenVectors with all prescribed dofs values recovered."""
         aux_eigenVectors = self.eigenVectors.copy()
         if not self.global_dofs_prescribed == []:
-            global_dofs = np.array(self.global_dofs_prescribed, dtype='int32')
+            global_dofs = np.array(self.global_dofs_prescribed, dtype=int)
             
             for row in global_dofs:
                 aux_eigenVectors = np.insert( aux_eigenVectors, row, [0], axis=0 )
-            
-        if self.log:
-            print('Dofs before recovering:',self.eigenVectors.shape[0])
-            print('Dofs after recovering:',aux_eigenVectors.shape[0])
 
-        eigenVectors_Uxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
-        eigenVectors_Rxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*aux_eigenVectors.shape[1]) ))
-        eigenVectors_Uxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
-        eigenVectors_Rxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
+        return aux_eigenVectors
 
-        ind = np.arange( 0, aux_eigenVectors.shape[0], Node.degree_freedom )
-
-        for j in range( self.eigenVectors.shape[1] ):
-                
-            eigenVectors_Uxyz[ :, 1+3*j ] = aux_eigenVectors[ ind+0, j ]
-            eigenVectors_Uxyz[ :, 2+3*j ] = aux_eigenVectors[ ind+1, j ]
-            eigenVectors_Uxyz[ :, 3+3*j ] = aux_eigenVectors[ ind+2, j ]
-            
-            eigenVectors_Rxyz[ :, 1+3*j ] = aux_eigenVectors[ ind+3, j ]
-            eigenVectors_Rxyz[ :, 2+3*j ] = aux_eigenVectors[ ind+4, j ]
-            eigenVectors_Rxyz[ :, 3+3*j ] = aux_eigenVectors[ ind+5, j ]
+    def plot_modal_shape(self, mode):
+        '''This method returns modal shape to plot.'''
+        data = self.modal_response()
+        eigenUxyz, _ = self.get_Uxyz_Rxyz(data, dtype=float)
     
-        return eigenVectors_Uxyz, eigenVectors_Rxyz
+        Uxyz_mode = np.zeros((self.number_nodes, 4))
+        Uxyz_mode[:,0] = eigenUxyz[:,0]
+        Uxyz_mode[:,1:4] = eigenUxyz[:,(1+3*(mode-1)):(4+3*(mode-1))]
+
+        return Uxyz_mode
     
     def harmonic_response (self, data):
-        '''This method returns final dofs response U_out considering the loads and the prescribed dofs values.'''
+        """ This method returns U_out with all prescribed dofs values recovered."""
 
         if not data == []:
             U_out = data
@@ -74,58 +75,21 @@ class PostProcessing:
 
         return U_out
 
-    def plot_modal_shape(self, mode):
-        
-        eigen_Uxyz, _ = self.modal_response()
-        eigen_Uxyz_plot = eigen_Uxyz.copy()
-        Uxyz_mode = np.zeros((self.number_nodes, 4))
-        Uxyz_mode[:,0] = eigen_Uxyz_plot[:,0]
-        Uxyz_mode[:,1:4] = eigen_Uxyz_plot[:,(1+3*(mode-1)):(4+3*(mode-1))]
+    def plot_harmonic_response(self, column, data):
+        '''This method returns harmonic response to plot.'''
+        U = self.harmonic_response(data)
+        HR_Uxyz, _ = self.get_Uxyz_Rxyz(U, dtype=complex)
 
-        return Uxyz_mode
-
-    def plot_harmonic_response(self, colum, data):
-        
-        HR_Uxyz_plot = []
-        Uout = self.harmonic_response(data)
-
-        ind = np.arange( 0, Uout.shape[0], Node.degree_freedom )
-
-        HR_Uxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*Uout.shape[1]) ), dtype=complex)
-        HR_Rxyz = np.zeros(( self.number_nodes, int(1 + (Node.degree_freedom/2)*Uout.shape[1]) ), dtype=complex)
-        HR_Uxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
-        HR_Rxyz[:,0] = np.arange( 0, self.number_nodes + 0, 1 )
-
-        for j in range( Uout.shape[1] ):
-                
-            HR_Uxyz[ :, 1+3*j ] = Uout[ ind+0, j ]
-            HR_Uxyz[ :, 2+3*j ] = Uout[ ind+1, j ]
-            HR_Uxyz[ :, 3+3*j ] = Uout[ ind+2, j ]
-            
-            HR_Rxyz[ :, 1+3*j ] = Uout[ ind+3, j ]
-            HR_Rxyz[ :, 2+3*j ] = Uout[ ind+4, j ]
-            HR_Rxyz[ :, 3+3*j ] = Uout[ ind+5, j ]
-
-        HR_Uxyz_plot.append(HR_Uxyz)
-        HR_Uxyz_plot = np.asarray(HR_Uxyz_plot[0])
-        HR_f = np.zeros((HR_Uxyz_plot.shape[0], 4), dtype=float)
-        HR_f[:,0] = np.real(HR_Uxyz_plot[:,0])
-        HR_f[:,1:4] = np.real(HR_Uxyz_plot[:,(1+3*(colum-1)):(4+3*(colum-1))])
+        HR_f = np.zeros((self.number_nodes, 4), dtype=float)
+        HR_f[:,0] = np.real(HR_Uxyz[:,0])
+        HR_f[:,1:4] = np.real(HR_Uxyz[:,(1+3*(column-1)):(4+3*(column-1))])
 
         return HR_f
 
     def load_reactions(self, data):
+        '''This method returns reaction forces at fixed points.'''
 
-        if self.alpha_v == None: 
-            self.alpha_v = 0
-        if self.beta_v == None:
-            self.beta_v = 0
-
-        if self.alpha_h == None: 
-            self.alpha_h = 0
-        if self.beta_h == None:
-            self.beta_h = 0
-
+        alpha_h, beta_h, alpha_v, beta_v = self.damping
         U = self.harmonic_response(data)
 
         if not U==[]:    
@@ -156,9 +120,11 @@ class PostProcessing:
             for k in range(cols):
                 for ind, freq in enumerate(self.frequencies):
 
-                    F_Kdamp = (1 + 1j*freq*self.beta_v + 1j*self.beta_h)*Kr_U[ind,k]
-                    F_Mdamp = ( ((2 * pi * freq)**2) - 1j*freq*self.alpha_v - 1j*self.alpha_h)*Mr_U[ind,k]
-                    F_react[ind,k+1] = F_Kdamp -  F_Mdamp
+                    omega = 2*pi*freq
+
+                    F_Kdamp = (1 + 1j*( beta_h + omega*beta_v ))*Kr_U[ind,k]
+                    F_Mdamp = ( -(omega**2) + 1j*( alpha_h + omega*alpha_v ))*Mr_U[ind,k]
+                    F_react[ind,k+1] = F_Kdamp +  F_Mdamp
 
         else:
             F_react = []

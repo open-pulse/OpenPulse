@@ -57,15 +57,14 @@ load_dictionary = {i:np.array([0, 0, 0, 0, 0, 0]) for i in connectivity[:,0]}
 
 ## Element type atribuition
 element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
-
+#
 ##
 ### BEGIN OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
 # Note: all entries refer to the global coordinate system
 
 # dofs prescribed (nodes, dof<=>values)
 nodes_prescribed_dofs = [1, 1200, 1325] # Which node has some boundary coundition prescribed.
-local_dofs_prescribed   = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
-# prescribed_dofs_values = [[0.01,0.01,0.01],[0.01,0.01,0.01],[0.01,0.01,0.01]] # prescribed values for each degree of freedom
+local_dofs_prescribed  = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are the degree of freedom restricted on those nodes.
 prescribed_dofs_values = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
@@ -74,10 +73,37 @@ local_dofs_prescribed_load  = [[0],[0]] # What are the local degree of freedom w
 prescribed_load_values      = [[1],[0]] # Whats are the prescribed values for external nodal load
 
 # nodal respose (node, dof_corrected)
-nodes_response = [27] # Desired nodal response.
-local_dofs_response  = [[2]] # Get the response at the following degree of freedom
+nodes_response = [436] # Desired nodal to get response.
+local_dofs_response  = [[0]] # Get the response at the following degree of freedom
 
 ### END OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
+##
+
+## 
+### ENTRIES FOR LUMPED PARAMETERS
+## LUMPED STIFFNESS
+nodes_lumped_stiffness = [427]
+local_lumped_stiffness = [[0,1,2]]
+lumped_stiffness_values = [[1e9*0,1e9*0,1e9*0]]
+
+## LUMPED MASS
+nodes_lumped_mass = [204]
+local_lumped_mass = [[0,1,2]]
+lumped_mass_values = [[1000*0,1000*0,1000*0]]
+
+## LUMPED DAMPING
+# proportional hysteretic and viscous
+alpha_h_lumped = 0 # hysteretic constant of mass matrix
+beta_h_lumped = 0 # hysteretic constant of stiffenss matrix
+alpha_v_lumped = 0 # viscous constant of mass matrix
+beta_v_lumped = 0 # viscous constant of stiffenss matrix
+lumped_damping = [alpha_h_lumped, beta_h_lumped, alpha_v_lumped, beta_v_lumped]
+
+# viscous non-proportional model 
+nodes_lumped_damping = [427]
+local_lumped_damping = [[0,1,2]]
+lumped_damping_values = [[1000*0,1000*0,1000*0]]
+###
 ##
 
 # SET ANALYSIS PARAMETERS FOR MODAL ANALYSIS AND HARMONIC ANALYSIS
@@ -92,34 +118,45 @@ preprocessor = PreProcessing(   nodal_coordinates,
                                 cross_section_dictionary,
                                 load_dictionary,
                                 element_type_dictionary,
-                                nodes_prescribed_dofs,
-                                local_dofs_prescribed,
-                                prescribed_dofs_values,
-                                nodes_prescribed_load,
-                                local_dofs_prescribed_load,
-                                prescribed_load_values,
-                                nodes_response,
-                                local_dofs_response )
-
+                                nodes_prescribed_dofs = nodes_prescribed_dofs,
+                                local_dofs_prescribed = local_dofs_prescribed,
+                                prescribed_dofs_values = prescribed_dofs_values,
+                                nodes_prescribed_load = nodes_prescribed_load,
+                                local_dofs_prescribed_load = local_dofs_prescribed_load,
+                                prescribed_load_values = prescribed_load_values,
+                                nodes_response = nodes_response,
+                                local_dofs_response = local_dofs_response,
+                                nodes_lumped_stiffness = nodes_lumped_stiffness,
+                                local_lumped_stiffness = local_lumped_stiffness,
+                                lumped_stiffness_values = lumped_stiffness_values,
+                                nodes_lumped_mass = nodes_lumped_mass,
+                                local_lumped_mass = local_lumped_mass,
+                                lumped_mass_values = lumped_mass_values,
+                                nodes_lumped_damping = nodes_lumped_damping,
+                                local_lumped_damping = local_lumped_damping,
+                                lumped_damping_values = lumped_damping_values
+                                )
+#%%
 ## Call Assembly class.
 assemble = Assembly( preprocessor )
 
 # Entries for Solution class definition
+damping = [0, 0, 0, 0] # [alpha_h, beta_h, alpha_v, beta_v]
 solu = Solution( assemble, 
-                minor_freq = 0, major_freq = freq_max, df = df, alpha_v = 0, beta_v = 0)
+                minor_freq = 0, major_freq = freq_max, df = df, damping=damping, lumped_damping=lumped_damping)
 
 # Modal analysis
 natural_frequencies, modal_shape = solu.modal_analysis( number_modes = number_modes, timing = True )
 # print(natural_frequencies)
 
 # Direct method
-xd, frequencies = solu.direct_method(timing = True)
+xd, frequencies = solu.direct_method(timing = True, viscous_damping_lumped = True)
 
 # Mode superposition method - Using the previous modal analysis output as input.
-xs, frequencies, _ ,_ = solu.mode_superposition(number_modes = number_modes,
-                                                natural_frequencies = natural_frequencies,
-                                                modal_shape = modal_shape,
-                                                timing = True)
+xs, frequencies, _ ,_ = solu.mode_superposition( number_modes = number_modes,
+                                                 natural_frequencies = natural_frequencies,
+                                                 modal_shape = modal_shape,
+                                                 timing = True )
 
 # PostProcessing class definition
 post = PostProcessing( assemble,
@@ -127,6 +164,7 @@ post = PostProcessing( assemble,
                        HA_output = xd, 
                        frequencies = frequencies,
                        free_dofs = preprocessor.free_dofs,
+                       damping = damping,
                        log = False )
 
 R = np.real(post.load_reactions(xd))
@@ -138,6 +176,7 @@ Xs = (post.harmonic_response(xs)[response_dof,:])
 tf = time()
 print('Total elapsed time:', (tf-t0),'[s]')
 
+#TODO DO NOT DELETE THESE LINES
 # # FRFs obtained through Ansys (Harmonic Response - Full)
 ## NODAL LOAD - Fz(node=27) = 1N
 # FRF_HP27fz_RP27uz = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn27_uz.dat")
@@ -146,6 +185,13 @@ print('Total elapsed time:', (tf-t0),'[s]')
 # FRF = FRF_HP27fz_RP27uz
 # FRF = FRF_HP27fz_RP189uy
 # FRF = FRF_HP27fz_RP250ux
+
+# FRF_HP361_Fx_1N_RP_436_Ux = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_436_Ux.dat")
+# FRF_HP361_Fx_1N_RP_187_Uy = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_187_Uy.dat")
+# FRF_HP361_Fx_1N_RP_711_Uz = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_711_Uz.dat")
+# FRF = FRF_HP361_Fx_1N_RP_436_Ux
+# FRF = FRF_HP361_Fx_1N_RP_187_Uy
+# FRF = FRF_HP361_Fx_1N_RP_711_Uz
 
 ## PRESCRIBED LOAD - Ux(node=361) = 0.001m
 # FRF_Ux_1mm_n361_RP436ux = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn436_ux.dat")
@@ -159,13 +205,12 @@ fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
 plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=3)
 plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=1.5)
-# plt.semilogy(FRF[:,0], np.abs(FRF[:,1:]), color = [0,0,1], linewidth=1)
+# plt.semilogy(FRF[:,0], np.abs(FRF[:,1] + 1j*FRF[:,2]), color = [0,0,1], linewidth=1)
 ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
 ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
-ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])
+ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])#, 'Direct - Ansys'])
 plt.show()
-
 #%%
 # exit()
 # Entries for plot function 

@@ -15,14 +15,24 @@ class PreProcessing:
                     cross_section_dictionary,
                     load_dictionary,
                     element_type_dictionary,
-                    nodes_prescribed_dofs,
-                    local_dofs_prescribed,
-                    prescribed_dofs_values,
-                    nodes_prescribed_load,
-                    local_dofs_prescribed_load,
-                    prescribed_load_values,
-                    nodes_response,
-                    local_dofs_response  ):
+                    # nodes_prescribed_dofs,
+                    # local_dofs_prescribed,
+                    # prescribed_dofs_values,
+                    # nodes_prescribed_load,
+                    # local_dofs_prescribed_load,
+                    # prescribed_load_values,
+                    # nodes_response,
+                    # local_dofs_response,
+                    # nodes_lumped_stiffness,
+                    # local_lumped_stiffness,
+                    # lumped_stiffness_values,
+                    # nodes_lumped_mass,
+                    # local_lumped_mass,
+                    # lumped_mass_values,
+                    # nodes_lumped_damping,
+                    # local_lumped_damping,
+                    # lumped_damping_values, 
+                    **kwargs  ):
 
         self.nodal_coordinates = nodal_coordinates
         self.connectivity = connectivity
@@ -30,30 +40,30 @@ class PreProcessing:
         self.cross_section_dictionary = cross_section_dictionary
         self.load_dictionary = load_dictionary
         self.element_type_dictionary = element_type_dictionary
-        self.nodes_prescribed_dofs = nodes_prescribed_dofs
-        self.local_dofs_prescribed = local_dofs_prescribed
-        self.prescribed_dofs_values = prescribed_dofs_values
-        self.nodes_prescribed_load = nodes_prescribed_load
-        self.local_dofs_prescribed_load = local_dofs_prescribed_load
-        self.prescribed_load_values = prescribed_load_values
-        self.nodes_response = nodes_response
-        self.local_dofs_response = local_dofs_response
 
-    # def nodes_user_index(self):
-    #     """ Array with all node user index."""
-    #     return self.nodal_coordinates[:,0].astype(int)
-    
-    # def nodes_internal_index(self):
-    #     """ Array with all node internal index."""
-    #     return np.arange( self.number_nodes() )
-    
-    # def node_internal_to_user_index(self):
-    #     """ Dictionary ."""
-    #     return {i:self.nodes_user_index()[i] for i in self.nodes_internal_index()}
-    
-    # def node_user_to_internal_index(self):
-    #     """ Dictionary ."""
-    #     return { j:i for i, j in self.node_internal_to_user_index().items() }
+        self.nodes_prescribed_dofs = kwargs.get("nodes_prescribed_dofs", [])
+        self.local_dofs_prescribed = kwargs.get("local_dofs_prescribed", [[]])
+        self.prescribed_dofs_values = kwargs.get("prescribed_dofs_values", [[]])
+
+        self.nodes_prescribed_load = kwargs.get("nodes_prescribed_load", [])
+        self.local_dofs_prescribed_load = kwargs.get("local_dofs_prescribed_load", [[]])
+        self.prescribed_load_values = kwargs.get("prescribed_load_values", [[]])
+
+        self.nodes_response = kwargs.get("nodes_response",[1])
+        self.local_dofs_response = kwargs.get("local_dofs_response",[[0]])
+
+        self.nodes_lumped_stiffness = kwargs.get("nodes_lumped_stiffness",[])
+        self.local_lumped_stiffness = kwargs.get("local_lumped_stiffness",[[]])
+        self.lumped_stiffness_values = kwargs.get("lumped_stiffness_values",[[]])
+
+        self.nodes_lumped_mass = kwargs.get("nodes_lumped_mass",[])
+        self.local_lumped_mass = kwargs.get("local_lumped_mass",[[]])
+        self.lumped_mass_values = kwargs.get("lumped_mass_values",[[]])
+        
+        self.nodes_lumped_damping = kwargs.get("nodes_lumped_damping",[])
+        self.local_lumped_damping = kwargs.get("local_lumped_damping",[[]])
+        self.lumped_damping_values = kwargs.get("lumped_damping_values",[[]])
+
     
     def number_nodes(self):
         ''' Gets the total number of nodes '''
@@ -92,66 +102,71 @@ class PreProcessing:
             temp_coord[ i , 0 ] = int(mapping[ self.nodal_coordinates[ i , 0 ]])
         return temp_coord
 
-    def get_prescribed_info(self, nodes_p, local_dofs_p, values_p):
+    def get_input_info(self, nodes_p, local_dofs_p, values_p):
         ''' This method correlates user inputs and maps this to internal dofs '''
 
-        number_of_dofs_per_node = np.zeros((2, len(nodes_p)),dtype=int)
-        number_of_dofs_per_node[0,:] = nodes_p
+        if nodes_p == []:
 
-        for i in range(len(nodes_p)):
-            number_of_dofs_per_node[1,i] = len(local_dofs_p[i])
+            input_info = []
 
-        if values_p != None:
-            presc_info = np.zeros(( np.sum(number_of_dofs_per_node[1,:]), 3))
         else:
-            presc_info = np.zeros(( np.sum(number_of_dofs_per_node[1,:]), 2))
-        
-        start, end = 0, 0
-        mapping = self.map_index_nodes()
 
-        for j, value in enumerate(nodes_p):
-            end += number_of_dofs_per_node[1,j]
-            presc_info[ start:end, 0] = mapping[value]*Node.degree_freedom + local_dofs_p[j]
-            presc_info[ start:end, 1] = local_dofs_p[j]
+            number_of_dofs_per_node = np.zeros((2, len(nodes_p)),dtype=int)
+            number_of_dofs_per_node[0,:] = nodes_p
+
+            for i in range(len(nodes_p)):
+                number_of_dofs_per_node[1,i] = len(local_dofs_p[i])
+
             if values_p != None:
-                presc_info[ start:end, 2] = values_p[j]
-            start = end
+                input_info = np.zeros(( np.sum(number_of_dofs_per_node[1,:]), 3))
+            else:
+                input_info = np.zeros(( np.sum(number_of_dofs_per_node[1,:]), 2))
+            
+            start, end = 0, 0
+            mapping = self.map_index_nodes()
 
-        ind = np.argsort(presc_info[:, 0])
-        presc_info = presc_info[ind, :]
+            for j, value in enumerate(nodes_p):
+                end += number_of_dofs_per_node[1,j]
+                input_info[ start:end, 0] = mapping[value]*Node.degree_freedom + local_dofs_p[j]
+                input_info[ start:end, 1] = local_dofs_p[j]
+                if values_p != None:
+                    input_info[ start:end, 2] = values_p[j]
+                start = end
 
-        return presc_info
+            ind = np.argsort(input_info[:, 0])
+            input_info = input_info[ind, :]
+    
+        return input_info
     
     def prescbribed_dofs_info (self):
         ''' Returns prescribed info of external load in the format:
             [global_dofs, local_dofs, values_prescribed] '''
-        return self.get_prescribed_info(self.nodes_prescribed_dofs, self.local_dofs_prescribed, self.prescribed_dofs_values)
+        return self.get_input_info(self.nodes_prescribed_dofs, self.local_dofs_prescribed, self.prescribed_dofs_values)
 
     def prescbribed_load_info (self):
         ''' Returns prescribed dofs info in the format:
             [global_dofs, local_dofs, values_prescribed] '''
-        return self.get_prescribed_info( self.nodes_prescribed_load, self.local_dofs_prescribed_load, self.prescribed_load_values )
+        return self.get_input_info( self.nodes_prescribed_load, self.local_dofs_prescribed_load, self.prescribed_load_values )
 
     def response_info (self):
         ''' Returns prescribed dofs info in the format:
             [global_dofs, local_dofs, values_prescribed] '''
-        return self.get_prescribed_info( self.nodes_response, self.local_dofs_response, None )
+        return self.get_input_info( self.nodes_response, self.local_dofs_response, None )
 
-    def response_info_corrected (self):
-        ''' Get the response at corrected degree of freedom. '''
-        response_dofs = self.response_info()[:,0]
-        load_dofs = self.prescbribed_dofs_info()[:,0]
-        out = np.zeros(len(response_dofs), dtype=int)
-        count = 0
+    def lumped_stiffness_info (self):
+        ''' Returns prescribed dofs info in the format:
+            [global_dofs, local_dofs, values_prescribed] '''
+        return self.get_input_info( self.nodes_lumped_stiffness, self.local_lumped_stiffness, self.lumped_stiffness_values )
 
-        for j in range(len(response_dofs)):    
-            for dof in load_dofs:
-                if dof < response_dofs[j]:
-                    count += 1
-                if dof == response_dofs[j]:
-                    print("Warning: you're trying to get the answer to a prescribed degree of freedom!")
-            out[j] = response_dofs[j] - count
-        return np.array(out, dtype=int)
+    def lumped_mass_info (self):
+        ''' Returns prescribed dofs info in the format:
+            [global_dofs, local_dofs, values_prescribed] '''
+        return self.get_input_info( self.nodes_lumped_mass, self.local_lumped_mass, self.lumped_mass_values )
+
+    def lumped_viscous_damping_info (self):
+        ''' Returns prescribed dofs info in the format:
+            [global_dofs, local_dofs, values_prescribed] '''
+        return self.get_input_info( self.nodes_lumped_damping, self.local_lumped_damping, self.lumped_damping_values )
 
     def free_dofs(self):
 
