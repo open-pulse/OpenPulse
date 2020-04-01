@@ -108,7 +108,7 @@ class MainWindow(QMainWindow):
     def _create_basic_layout(self):
         self.info_widget = InfoUi(self)
         self.opv_widget = OPVUi(self.project, self)
-        self.inputWidget = InputUi(self.project, self.opv_widget)
+        self.inputWidget = InputUi(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
@@ -121,7 +121,7 @@ class MainWindow(QMainWindow):
         path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
         name = basename(path)
         self._change_window_title(name)
-        self.project.newProject(path)
+        self.project.newProject("test", path, 0.1)
         self.draw()
 
     def import_call(self):
@@ -129,28 +129,22 @@ class MainWindow(QMainWindow):
         return
 
     def plot_entities(self):
-        if (not self.project._flag_entities):
-            return
         self.opv_widget.change_to_entities()
 
     def plot_elements(self):
-        pass
+        self.opv_widget.change_to_elements()
 
     def plot_points(self):
-        if (not self.project._flag_points):
-            return
         self.opv_widget.change_to_points()
 
     def draw(self):
         self.opv_widget.plot_entities()
         self.opv_widget.plot_points()
+        self.opv_widget.plot_elements()
         self.plot_entities()
 
-    def draw_points(self):
-        self.opv_widget.plot_points()
-
     def generate(self, min, max):
-        self.project.generate(min, max)
+        #self.project.generate(min, max)
         self.draw()
 
     def closeEvent(self, event):
@@ -164,3 +158,12 @@ class MainWindow(QMainWindow):
             sys.exit()
         else:
             event.ignore()
+
+    def getInputWidget(self):
+        return self.inputWidget
+
+    def getInfoWidget(self):
+        return self.info_widget
+
+    def getOPVWidget(self):
+        return self.opv_widget

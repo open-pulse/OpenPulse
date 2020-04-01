@@ -15,6 +15,7 @@ class Material:
         self.young_modulus = kwargs.get("young_modulus", None)
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
+        self.color = kwargs.get("color", None)
         
         self._calculate_remaining_properties()
 

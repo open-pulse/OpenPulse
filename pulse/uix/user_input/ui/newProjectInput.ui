@@ -7,13 +7,13 @@
     <x>0</x>
     <y>0</y>
     <width>481</width>
-    <height>141</height>
+    <height>169</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
     <width>481</width>
-    <height>141</height>
+    <height>169</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
      <x>0</x>
      <y>0</y>
      <width>481</width>
-     <height>141</height>
+     <height>171</height>
     </rect>
    </property>
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -75,7 +75,7 @@
       <x>110</x>
       <y>40</y>
       <width>281</width>
-      <height>21</height>
+      <height>22</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -151,7 +151,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
+      <y>140</y>
       <width>461</width>
       <height>23</height>
      </rect>
@@ -165,6 +165,50 @@
     <property name="centerButtons">
      <bool>true</bool>
     </property>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_7">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>100</y>
+      <width>91</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_7">
+     <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Element Size</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="verticalLayoutWidget_8">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>100</y>
+      <width>131</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <layout class="QVBoxLayout" name="verticalLayout_8">
+     <item>
+      <widget class="QLineEdit" name="line_element_size">
+       <property name="inputMethodHints">
+        <set>Qt::ImhNone</set>
+       </property>
+       <property name="maxLength">
+        <number>20</number>
+       </property>
+       <property name="placeholderText">
+        <string>Element Size</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </widget>
   </widget>
  </widget>

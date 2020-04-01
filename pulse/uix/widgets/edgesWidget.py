@@ -1,5 +1,7 @@
 from PyQt5 import QtGui, QtCore
-from PyQt5.QtWidgets import *
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
+
+from pulse.preprocessing.element import Element
 
 class EdgesWidget(QTreeWidget):
     def __init__(self, edges):
@@ -16,10 +18,10 @@ class EdgesWidget(QTreeWidget):
         self.setHeaderLabels(["ID", "Point 1", "Point 2"])
 
     def _create_widgets(self):
-        for edge in self.edges:
-            index = str(edge[0])
-            point1 = str(edge[1])
-            point2 = str(edge[2])
+        for key, edge in self.edges.items():
+            index = str(key)
+            point1 = str(edge.first_node)
+            point2 = str(edge.last_node)
 
             item = QTreeWidgetItem([str(index), str(point1), str(point2)])
             self.addTopLevelItem(item)

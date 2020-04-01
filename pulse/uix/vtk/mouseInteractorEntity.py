@@ -11,79 +11,86 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
         self.parent = parent
         self.AddObserver("LeftButtonPressEvent", self.leftButtonPressEvent)
         self.AddObserver("RightButtonPressEvent", self.rightButtonPressEvent)
+        self.AddObserver("RightButtonReleaseEvent", self.rightButtonReleaseEvent)
 
-        self.LastPickedActor = None
-        self.currentEntity = -1
-        self.LastPickedProperty = vtk.vtkProperty()
+        self.listSelectedEntities = []
+        self.lastSelectedEntitiesProperty = []
+        self.lastSelectedActors = []
+        self.position_1 = None
+        self.position_2 = None
+
+    def rightButtonReleaseEvent(self, obj, event):
+        if (not self.parent.in_entities):
+            return
+        if self.position_1 is None:
+            return
+
+        self.position_2 = self.GetInteractor().GetEventPosition()
+
+        #if you already have picked any actor, restore before state
+        for i in range(len(self.lastSelectedEntitiesProperty)):
+            self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+            self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
+
+        self.lastSelectedActors.clear()
+        self.lastSelectedEntitiesProperty.clear()
+        self.listSelectedEntities.clear()
+
+
+        picker = vtk.vtkAreaPicker()
+        picker.AreaPick(self.position_1[0], self.position_1[1], self.position_2[0], self.position_2[1], self.GetDefaultRenderer())
+        pickedActors = picker.GetProp3Ds()
+        for actor in pickedActors:
+            current_actor_property = vtk.vtkProperty()
+            current_actor_property.DeepCopy(actor.GetProperty())
+            self.lastSelectedEntitiesProperty.append(current_actor_property)
+
+            actor.GetMapper().ScalarVisibilityOff()
+            actor.GetProperty().SetColor(colors.GetColor3d('Red'))
+            actor.GetProperty().SetDiffuse(1.0)
+            actor.GetProperty().SetSpecular(0.0)
+            self.lastSelectedActors.append(actor)
+            self.listSelectedEntities.append(self.parent.actors_entities[actor])
+        self.parent.update()
+
 
     def rightButtonPressEvent(self, obj, event):
-        if (self.LastPickedActor == None):
+        if (not self.parent.in_entities):
             return
-        if (self.parent.actors_entities[self.LastPickedActor] == -1):
-            return
-        clickPos = self.GetInteractor().GetEventPosition()
-        id_ = self.parent.actors_entities[self.LastPickedActor]
-        point_ = QPoint(clickPos[0], clickPos[1])
-        menu = QMenu()
-        menu.addAction('Entity')
-        menu.addAction("Set Material")
-        menu.exec_(self.parent.mapToGlobal(point_))
-        self.OnRightButtonDown()
-        self.OnLeftButtonDown()
-        return
+        self.position_1 = self.GetInteractor().GetEventPosition()
 
     def leftButtonPressEvent(self, obj, event):
         if (not self.parent.in_entities):
+            self.OnLeftButtonDown()
             return
-        clickPos = self.GetInteractor().GetEventPosition()
 
+        clickPos = self.GetInteractor().GetEventPosition()
         picker = vtk.vtkPropPicker()
         picker.Pick(clickPos[0], clickPos[1], 0, self.GetDefaultRenderer())
+        actor = picker.GetActor()
 
-        self.NewPickedActor = picker.GetActor()
+        if actor:
+            for i in range(len(self.lastSelectedEntitiesProperty)):
+                self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+                self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
 
-        if self.NewPickedActor:
-            if self.LastPickedActor:
-                self.LastPickedActor.GetMapper().ScalarVisibilityOn()
-                self.LastPickedActor.GetProperty().DeepCopy(self.LastPickedProperty)
+            self.lastSelectedActors.clear()
+            self.lastSelectedEntitiesProperty.clear()
+            self.listSelectedEntities.clear()
 
-            print(self.parent.actors_entities[self.NewPickedActor])
-            if (self.parent.actors_entities[self.NewPickedActor] == -1):
-                return
+            current_actor_property = vtk.vtkProperty()
+            current_actor_property.DeepCopy(actor.GetProperty())
+            self.lastSelectedEntitiesProperty.append(current_actor_property)
 
-            self.parent.setContextMenuPolicy(Qt.CustomContextMenu)
-
-            self.LastPickedProperty.DeepCopy(self.NewPickedActor.GetProperty())
-
-            self.NewPickedActor.GetMapper().ScalarVisibilityOff()
-            self.NewPickedActor.GetProperty().SetColor(colors.GetColor3d('Red'))
-            self.NewPickedActor.GetProperty().SetDiffuse(1.0)
-            self.NewPickedActor.GetProperty().SetSpecular(0.0)
-
-            self.LastPickedActor = self.NewPickedActor
-
-            if (self.LastPickedActor == None):
-                return
-            if (self.parent.actors_entities[self.LastPickedActor] == -1):
-                return
-
-            id_ = self.parent.actors_entities[self.LastPickedActor]
-            # point_ = QPoint(clickPos[0], clickPos[1])
-            # menu = QMenu()
-            # menu.addAction('Entity')
-            # menu.addAction("Set Material")
-            # menu.exec_(self.parent.parent.mapToGlobal(point_))
-            
-
-            #self.parent.customContextMenuRequested.connect(lambda i : self.parent.on_context_menu(i, 0, id_))
+            actor.GetMapper().ScalarVisibilityOff()
+            actor.GetProperty().SetColor(colors.GetColor3d('Red'))
+            actor.GetProperty().SetDiffuse(1.0)
+            actor.GetProperty().SetSpecular(0.0)
+            self.lastSelectedActors.append(actor)
+            self.listSelectedEntities.append(self.parent.actors_entities[actor])
+            self.parent.update()
 
         self.OnLeftButtonDown()
-        return
 
-    def getLastPickedActor(self):
-        if (self.LastPickedActor == None):
-            return
-        if (self.parent.actors_entities[self.LastPickedActor] == -1):
-            return
-
-        return(self.parent.actors_entities[self.LastPickedActor])
+    def getListPickedActors(self):
+        return self.listSelectedEntities

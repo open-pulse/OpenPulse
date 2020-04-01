@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>242</width>
-    <height>230</height>
+    <width>315</width>
+    <height>220</height>
    </rect>
   </property>
   <property name="maximumSize">
    <size>
-    <width>242</width>
-    <height>230</height>
+    <width>315</width>
+    <height>220</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -24,7 +24,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>241</width>
+     <width>341</width>
      <height>231</height>
     </rect>
    </property>
@@ -33,7 +33,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>231</width>
+      <width>311</width>
       <height>31</height>
      </rect>
     </property>
@@ -55,7 +55,7 @@
      <rect>
       <x>10</x>
       <y>40</y>
-      <width>61</width>
+      <width>101</width>
       <height>101</height>
      </rect>
     </property>
@@ -70,21 +70,21 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>E</string>
+        <string>Young Modulus</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_3">
        <property name="text">
-        <string>V</string>
+        <string>Poisson</string>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>F</string>
+        <string>Density</string>
        </property>
       </widget>
      </item>
@@ -93,9 +93,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_3">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>120</x>
       <y>40</y>
-      <width>91</width>
+      <width>141</width>
       <height>101</height>
      </rect>
     </property>
@@ -117,9 +117,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_4">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>270</x>
       <y>40</y>
-      <width>51</width>
+      <width>38</width>
       <height>101</height>
      </rect>
     </property>
@@ -134,7 +134,7 @@
      <item>
       <widget class="QLabel" name="label_9">
        <property name="text">
-        <string>[-]</string>
+        <string>[GPa]</string>
        </property>
       </widget>
      </item>
@@ -148,7 +148,7 @@
      <item>
       <widget class="QLabel" name="label_13">
        <property name="text">
-        <string>[-]</string>
+        <string>[kg/m³]</string>
        </property>
       </widget>
      </item>
@@ -157,11 +157,14 @@
    <widget class="QDialogButtonBox" name="buttonBox_save_material">
     <property name="geometry">
      <rect>
-      <x>40</x>
+      <x>10</x>
       <y>190</y>
-      <width>161</width>
+      <width>241</width>
       <height>23</height>
      </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
     </property>
     <property name="standardButtons">
      <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
@@ -172,7 +175,7 @@
      <rect>
       <x>10</x>
       <y>150</y>
-      <width>61</width>
+      <width>101</width>
       <height>31</height>
      </rect>
     </property>
@@ -189,9 +192,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_6">
     <property name="geometry">
      <rect>
-      <x>80</x>
+      <x>120</x>
       <y>150</y>
-      <width>91</width>
+      <width>111</width>
       <height>31</height>
      </rect>
     </property>
@@ -211,9 +214,9 @@
    <widget class="QWidget" name="verticalLayoutWidget_7">
     <property name="geometry">
      <rect>
-      <x>180</x>
+      <x>230</x>
       <y>150</y>
-      <width>51</width>
+      <width>81</width>
       <height>31</height>
      </rect>
     </property>

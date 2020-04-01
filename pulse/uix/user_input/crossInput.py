@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QLineEdit, QDialogButtonBox, QDialog
+from pulse.preprocessing.cross_section import CrossSection
 from PyQt5 import uic
 
 class CrossInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/crossInput.ui', self)
-
+        self.cross = None
         #Pipe
 
         self.button_save_pipe = self.findChild(QDialogButtonBox, 'button_save_pipe')
@@ -32,13 +33,16 @@ class CrossInput(QDialog):
         self.exec_()
 
     def accept_pipe(self):
-        print("Falta verificação de tipo")
+        line_diam_externo = float(self.line_diam_externo.text())
+        line_diam_interno = float(self.line_diam_interno.text())
+        self.cross = CrossSection(line_diam_externo, line_diam_interno)
+        self.close()
 
     def reject_pipe(self):
         self.close()
 
     def accept_beam(self):
-        print("Falta verificação de tipo")
+        print("Implementar")
 
     def reject_beam(self):
         self.close()

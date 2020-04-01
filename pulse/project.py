@@ -1,45 +1,47 @@
-from pulse.mesh import Mesh
+from pulse.preprocessing.mesh import Mesh
+from pulse.processing.assembly import get_global_matrices
 
 class Project:
     def __init__(self):
         self.mesh = Mesh()
-        self.entities = []
+        self.projectName = ""
+        self.importPath = ""
+        self.elementSize = 0
 
-        self._flag_generate = False   #Do have generate mash?
-        self._flag_elements = False   #
-        self._flag_points = False     #
-        self._flag_entities = False   #
+        self.K = self.M = self.Kr = self.Mr = None
 
-    def newProject(self, import_path):
+        self.projectReady = False #True if the project was created or loaded
+        self.projectAssembly = False #True if the project was assembled
+
+    def newProject(self, project_name, import_path, element_size):
         self.mesh = Mesh()
-        self.mesh.path = import_path
-        self.mesh.generate(1,1)
-        self.entities = self.mesh.entities
-        self.set_flags_new_project()
-
-    def getEntities(self):
-        return self.entities
+        self.importPath = import_path
+        self.projectName = project_name
+        self.elementSize = element_size
+        self.projectReady = True
+        self.mesh.generate(self.importPath, self.elementSize)
 
     def getNodes(self):
         return self.mesh.nodes
 
     def getElements(self):
-        return self.mesh.edges
+        return self.mesh.elements
 
-    def generate(self, min_size, max_size):
-        self.set_flags_generate()
-        self.mesh.generate(min_size,max_size)
+    def getEntities(self):
+        return self.mesh.entities
 
-    def set_flags_new_project(self):
-        self._flag_generate = False
-        self._flag_entities = True
-        self._flag_elements = False
-        self._flag_points = False
+    def setMaterial_by_Entity(self, entity_id, material):
+        self.mesh.set_material_by_line(entity_id, material)
 
-    def set_flags_generate(self):
-        self._flag_generate = True
-        self._flag_entities = True
-        self._flag_elements = True
-        self._flag_points = True
+    def setMaterial(self, material):
+        self.mesh.set_material_by_element('all', material)
 
-        
+    def setCrossSection(self, cross_section):
+        self.mesh.set_cross_section_by_element('all', cross_section)
+
+    def isReady(self):
+        return self.projectReady
+
+    def getGlobalMatrices(self):
+        self.projectAssembly = True
+        self.K, self.M, self.Kr, self.Mr = get_global_matrices(self.mesh)

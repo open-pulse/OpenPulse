@@ -7,15 +7,11 @@ import vtk
 from pulse.opv.lines import Lines
 from pulse.opv.linesPoint import LinesPoint
 from pulse.opv.point import Point
+from pulse.opv.element import Element
 
 from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
 from pulse.uix.vtk.mouseInteractorEntity import MouseInteractorEntity
-
-# from pulse.uix.user_input.materialInput import MaterialInput
-# from pulse.uix.user_input.crossInput import CrossInput
-# from pulse.uix.user_input.dofInput import DOFInput
-# from pulse.uix.user_input.forceInput import ForceInput
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -36,6 +32,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_elements.SetBackground(0.2,0.2,0.2)
         self.renderer_points.SetBackground(0.2,0.2,0.2)
 
+        #self.style_entities = MouseInteractorTemp(self)
         self.style_entities = MouseInteractorEntity(self)
         self.style_elements = MouseInteractorElement(self)
         self.style_points = MouseInteractorPoint(self)
@@ -48,14 +45,17 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_elements = False
         self.in_points = False
 
-
         self.actors_entities = {}
         self.actors_elements = {}
         self.actors_points = {}
 
         #Set initial plot & config
         self.create_actions()
-        self.change_to_entities()
+        #self.change_to_entities()
+        self.SetInteractorStyle(self.style_entities)
+        self.GetRenderWindow().AddRenderer(self.renderer_entities)
+        self.renderer_entities.ResetCamera()
+        self.update()
 
         self.plot = Lines()
         self.plot.assembly()
@@ -81,8 +81,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = True
         self.in_elements = False
         self.in_points = False
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.style_entities.LastPickedActor = None
+        #self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
@@ -93,7 +92,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = True
         self.in_points = False
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        #self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.style_elements.LastPickedActor = None
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
@@ -105,7 +104,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = True
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        #self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.style_points.LastPickedActor = None
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
@@ -113,23 +112,29 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.update()
 
     def plot_entities(self):
-        #Remove actors
         for actor in self.renderer_entities.GetActors():
             self.renderer_entities.RemoveActor(actor)
         self.actors_entities = {}
-        
-        #Add actors
+    
         for entity in self.project.getEntities():
-            plot = Lines(entity.nodes, entity.edges, entity.tag)
+            plot = Lines(entity.getNodes(), entity.getElements(), entity.getTag())
             plot.assembly()
-            self.actors_entities[plot.get_actor()] = entity.tag
+            self.actors_entities[plot.get_actor()] = entity.getTag()
             self.renderer_entities.AddActor(plot.get_actor())
-
-        #Plot
-        #self.change_to_entities()
-
+            
     def plot_elements(self):
-        pass
+        for actor in self.renderer_elements.GetActors():
+            self.renderer_elements.RemoveActor(actor)
+        self.actors_elements = {}
+
+        for key, element in self.project.getElements().items():
+            plot = Element(element, key)
+            plot.assembly()
+            self.actors_elements[plot.get_actor()] = key
+            self.renderer_elements.AddActor(plot.get_actor())
+
+    def getListPickedEntities(self):
+        return self.style_entities.getListPickedActors()
 
     def getLastPickedEntity(self):
         if self.in_entities:
@@ -142,21 +147,20 @@ class OPVUi(QVTKRenderWindowInteractor):
         return None
 
     def plot_points(self):
-        #Remove actors
         for actor in self.renderer_points.GetActors():
             self.renderer_points.RemoveActor(actor)
         self.actors_points = {}
 
-        #Add actors
-        plot = LinesPoint(self.project.getNodes(), self.project.getElements(), -1)
-        plot.assembly()
-        self.renderer_points.AddActor(plot.get_actor())
-        self.actors_points[plot.get_actor()] = -1
+        # #Add actors
+        # plot = LinesPoint(self.project.getNodes(), self.project.getElements(), -1)
+        # plot.assembly()
+        # self.renderer_points.AddActor(plot.get_actor())
+        # self.actors_points[plot.get_actor()] = -1
 
-        for point in self.project.getNodes():
-            plot = Point(point[1]/1000, point[2]/1000, point[3]/1000, point[0])
+        for key, node in self.project.getNodes().items():
+            plot = Point(node.x, node.y, node.z, key)
             plot.assembly()
-            self.actors_points[plot.get_actor()] = point[0]
+            self.actors_points[plot.get_actor()] = key
             self.renderer_points.AddActor(plot.get_actor())
 
         #self.change_to_points()

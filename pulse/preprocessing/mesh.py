@@ -4,6 +4,7 @@ from random import choice
 import gmsh 
 import numpy as np
 
+from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE
 from pulse.preprocessing.element import Element
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
@@ -18,6 +19,7 @@ class Mesh:
         self.elements = {}
         self.neighbours = {}
         self.line_to_elements = {}
+        self.entities = []
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -74,13 +76,43 @@ class Mesh:
 
     def _create_entities(self):
         gmsh.model.mesh.generate(3)
-        gmsh.model.mesh.removeDuplicateNodes()
+        #remove duplicate acctualy don't work with a entities.
+        #gmsh.model.mesh.removeDuplicateNodes()
         
         node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
         _, element_indexes, connectivities = gmsh.model.mesh.getElements()
 
         self._create_nodes(node_indexes, coords)
         self._create_elements(element_indexes[0], connectivities[0])
+
+
+        #Apenas temporario - Cópia do antigo mesh para gerar as linhas
+        #Atualizar futuramente
+        for i in gmsh.model.getEntities(1):
+            dim = i[0]
+            tag = i[1]
+
+            newEntity = Entity(tag)
+
+            #Element
+            _, index, connectivity = gmsh.model.mesh.getElements(dim, tag) 
+            index = index[0]
+            connectivity = connectivity[0]
+            connectivity = split_sequence(connectivity, 2)
+
+            for index, (start, end) in zip(index, connectivity):
+                edges = index, start, end
+                newEntity.insertEdge(edges)
+
+            #Nodes
+            index, coordinates, _ = gmsh.model.mesh.getNodes(dim, tag, True)
+            coordinates = split_sequence(coordinates, 3)
+
+            for index, (x, y, z) in zip(index, coordinates):
+                node = index, x/1000, y/1000, z/1000
+                newEntity.insertNode(node)
+
+            self.entities.append(newEntity)
 
     def _map_lines_to_elements(self):
         for dim, tag in gmsh.model.getEntities(1):

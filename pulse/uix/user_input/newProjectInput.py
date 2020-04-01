@@ -15,6 +15,7 @@ class NewProjectInput(QDialog):
 
         self.line_project_name = self.findChild(QLineEdit, 'line_project_name')
         self.line_import_geometry = self.findChild(QLineEdit, 'line_import_geometry')
+        self.line_element_size = self.findChild(QLineEdit, 'line_element_size')
 
         self.toolButton_import_geometry = self.findChild(QToolButton, 'toolButton_import_geometry')
         self.toolButton_import_geometry.clicked.connect(self.import_geometry)

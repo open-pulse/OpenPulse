@@ -1,6 +1,6 @@
 from os.path import isfile
 from pulse.utils import split_sequence
-from pulse.entity import Entity
+from pulse.preprocessing.entity import Entity
 from collections import deque
 import gmsh 
 
@@ -14,6 +14,18 @@ class Mesh:
     def reset_variables(self):
         self.nodes = []
         self.edges = []
+
+    def generic_generate(self):
+        if isfile(self.path):
+            self.reset_variables()
+            self.__initialize_gmsh()
+            self.__set_gmsh_options(1, 1)
+            self.__generic_generate_meshes()
+            self.__read_nodes()
+            self.__read_edges()
+            self.__finalize()
+        else:
+            return FileNotFoundError
 
     def generate(self, min_element_size=0, max_element_size=1e+019):
         if isfile(self.path):
@@ -122,12 +134,14 @@ class Mesh:
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
         gmsh.option.setNumber('Geometry.Tolerance', 1e-06)
 
+    def __generic_generate_meshes(self):
+        gmsh.model.mesh.generate(3)
+        self._create_entities()
+        gmsh.model.mesh.removeDuplicateNodes()
+
     def __generate_meshes(self):
         gmsh.model.mesh.generate(3)
-        if (len(self.entities) != 0):
-            self._reload_entities()
-        else:
-            self._create_entities()
+        self._reload_entities()
         gmsh.model.mesh.removeDuplicateNodes()
 
     def __read_nodes(self):

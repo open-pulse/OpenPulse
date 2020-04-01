@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>611</width>
+    <width>610</width>
     <height>280</height>
    </rect>
   </property>
@@ -47,35 +47,56 @@
      <property name="text">
       <string>Name</string>
      </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
+     </property>
     </column>
     <column>
      <property name="text">
       <string>Index</string>
      </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>E</string>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>V</string>
+      <string>Young Modulus</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>F</string>
+      <string>Density</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
+     </property>
+    </column>
+    <column>
+     <property name="text">
+      <string>Poisson</string>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
      </property>
     </column>
     <column>
      <property name="text">
       <string>Color</string>
      </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
+     </property>
     </column>
    </widget>
   </widget>
-  <widget class="QPushButton" name="button_insert_material">
+  <widget class="QPushButton" name="button_select_material">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -85,20 +106,33 @@
     </rect>
    </property>
    <property name="text">
-    <string>Insert new Material</string>
+    <string>Select Material</string>
    </property>
   </widget>
   <widget class="QPushButton" name="button_close">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>410</x>
      <y>250</y>
-     <width>171</width>
+     <width>141</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
     <string>Close</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="button_insert_material">
+   <property name="geometry">
+    <rect>
+     <x>250</x>
+     <y>250</y>
+     <width>151</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Insert new Material</string>
    </property>
   </widget>
  </widget>

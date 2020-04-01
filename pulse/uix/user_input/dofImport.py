@@ -21,7 +21,12 @@ class DOFImport(QDialog):
 
         self.label_node_id.setText("Node - ID [ "+str(self.node_id)+" ]")
         self.exec_()
-        
+
+    def accept_dof(self):
+        pass
+
+    def reject_dof(self):
+        self.close()
 
     def import_dof(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
