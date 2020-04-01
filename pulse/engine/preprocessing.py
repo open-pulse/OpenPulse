@@ -2,9 +2,9 @@ import numpy as np
 import time
 
 from pulse.engine.node import Node
-from pulse.engine.tube import TubeCrossSection
+from pulse.engine.section_fem import TubeCrossSection
 from pulse.engine.material import Material
-from pulse.engine.element_288 import Element
+from pulse.engine.element_288b import Element
                                 
 class PreProcessing:
 

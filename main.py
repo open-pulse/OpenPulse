@@ -6,7 +6,7 @@ import pandas as pd
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
-from pulse.engine.tube import TubeCrossSection as TCS
+from pulse.engine.section_fem import TubeCrossSection as TCS
 from pulse.engine.preprocessing import PreProcessing
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
@@ -30,7 +30,9 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 ## Cross section definition:
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
-cross_section_1 = TCS(D_external, thickness = thickness) 
+division_number = 16
+offset = [1e-5, 2e-5]
+cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
