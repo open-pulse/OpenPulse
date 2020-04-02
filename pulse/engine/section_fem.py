@@ -155,39 +155,51 @@ class TubeCrossSection:
         return connectivity.astype('int')
     
     def properties(self, poisson_ratio, offset):
+        '''
+        Parameters: possion_ratio: float
+                        Material propertie.
+                    offset: [2,1] array
+                        Deviation from the coordinate system axis Y and Z, respectively.
+        Returns:    A: float
+                        Cross section area.
+                    I2: float
+                        Cross section second moment of area relative to Y axis.
+                    I3: float
+                        Cross section second moment of area relative to Z axis.
+                    I23: float
+                        Cross section product moment of area relative to YZ axis.
+                    J: float
+                        Cross section second polar moment of area.
+                    Q2: float
+                        Cross section first moment of area relative to Y axis.
+                    Q3: float
+                        Cross section first moment of area relative to Z axis.
+
+        '''
         points, weigth = TubeCrossSection.gauss_quadracture2D()
         coordinate = self.mesh_coordinate(offset)
         connectivity = self.mesh_connectivity()
         
         # Geometry properties
         A, I2, I3, I23, Q2, Q3 = 0, 0, 0, 0, 0, 0
-        for el in range( self.division_number ):
-            Ael, I2el, I3el, I23el, Q2el, Q3el = 0, 0, 0, 0, 0, 0
-            for p in points:
-                ksi, eta  = p
+        for el in range( self.division_number ): # Integration over each cross sections element
+            for ksi, eta in points: # integration points
                 phi, dphi = TubeCrossSection.shape_function(ksi,eta)
                 JAC = np.zeros((2,2))
                 Y, Z = 0, 0
-                for i in range(9):
-                    index = connectivity[el,i]
+                for i, index in enumerate(connectivity[el,:]):
                     JAC[0,:] += coordinate[index, :] * dphi[0,i]
                     JAC[1,:] += coordinate[index, :] * dphi[1,i]
                     Y += coordinate[index, 0] * phi[i]
                     Z += coordinate[index, 1] * phi[i]
                 detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
-                aux = detJAC * weigth
-                Ael += aux
-                I2el += Z**2 * aux
-                I3el += Y**2 * aux
-                I23el += Y * Z * aux
-                Q2el += Z * aux
-                Q3el += Y * aux
-            A += Ael
-            I2 += I2el
-            I3 += I3el
-            I23 += I23el
-            Q2 += Q2el
-            Q3 += Q3el
+                dA = detJAC * weigth
+                A += dA
+                I2 += Z**2 * dA
+                I3 += Y**2 * dA
+                I23 += Y * Z * dA
+                Q2 += Z * dA
+                Q3 += Y * dA
         ccg = 2 * (1 + poisson_ratio) * (I2*I3 - (I23**2))
         J = I2 + I3
 
@@ -202,33 +214,30 @@ class TubeCrossSection:
         matr_aux2 =   np.array([[I2, -I23],[I23, I2]])
         matr_aux3 = - np.array([[I23, -I3],[I3, I23]])
 
-        for el in range( self.division_number ):   #loop -> elements
+        for el in range( self.division_number ): # Integration over each cross sections element
             ke, pe2, pe3, pet =  0, 0, 0, 0
-            for p in points:   #loog -> integration points
-                ksi, eta  = p
+            for ksi, eta in points:   # integration points
                 phi, dphi = TubeCrossSection.shape_function(ksi,eta)
                 JAC = np.zeros((2,2))
-                Y=0
-                Z=0
-                for i in range(9):
-                    index = connectivity[el,i]
+                Y, Z = 0, 0
+                for i, index in enumerate(connectivity[el,:]):
                     JAC[0,:] += coordinate[index, [0, 1]] * dphi[0,i]
                     JAC[1,:] += coordinate[index, [0, 1]] * dphi[1,i]
                     Y += coordinate[index, 0] * phi[i]
                     Z += coordinate[index, 1] * phi[i]
                 detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
-                aux = detJAC * weigth
+                dA = detJAC * weigth
                 invJAC = np.linalg.inv(JAC)
                 dphig = invJAC @ dphi
-                ke +=  dphig.T @ dphig * aux
+                ke +=  dphig.T @ dphig * dA
                 vect_aux = np.array([Y**2 - Z**2, 2*Y * Z])
                 d = matr_aux2 @ vect_aux
                 h = matr_aux3 @ vect_aux
                 vec = np.array([Z, -Y])
                 #
-                pe2 += ( poisson_ratio/2 * dphig.T @ d + 2*(1 + poisson_ratio)*phi*(I2*Y - I23*Z) ) * aux
-                pe3 += ( poisson_ratio/2 * dphig.T @ h + 2*(1 + poisson_ratio)*phi*(I3*Z - I23*Y) ) * aux
-                pet += dphig.T @ vec * aux
+                pe2 += ( poisson_ratio/2 * dphig.T @ d + 2*(1 + poisson_ratio)*phi*(I2*Y - I23*Z) ) * dA
+                pe3 += ( poisson_ratio/2 * dphig.T @ h + 2*(1 + poisson_ratio)*phi*(I3*Z - I23*Y) ) * dA
+                pet += dphig.T @ vec * dA
                 #
             indeces = connectivity[el,:]
             F2[indeces] += pe2
@@ -240,7 +249,7 @@ class TubeCrossSection:
         # construct Lagrangian multiplier matrix:
         # Thanks @robbievanleeuwen !!!
         # column vector of ones
-        row = np.hstack((row, range(NGL)))
+        row = np.hstack((row, np.arange(NGL)))
         col = np.hstack((col, np.repeat(NGL, NGL)))
         data = np.hstack((data, np.repeat(1, NGL)))
         # row vector of ones
@@ -259,24 +268,16 @@ class TubeCrossSection:
         PSI2 = u2[:-1]
         PSI3 = u3[:-1]
         #
-        ALP2 = 0
-        ALP3 = 0
-        ALP23 = 0
+        ALP2, ALP3, ALP23 = 0, 0, 0
         matr_aux4 = np.array([[-I23, I3],[I3, -I23]])
-        for el in range( self.division_number ):   #loop -> elements
+        for el in range( self.division_number ): # Integration over each cross 
             PSI2e = np.zeros(9)
             PSI3e = np.zeros(9)
-            temp2=0
-            temp3=0
-            temp23=0
-            for p in points:   #loog -> integration points
-                ksi, eta  = p
+            for ksi, eta in points:   # integration points
                 phi, dphi = TubeCrossSection.shape_function(ksi,eta)
                 JAC = np.zeros((2,2))
-                Y=0
-                Z=0
-                for i in range(9):
-                    index = connectivity[el,i]
+                Y, Z = 0, 0
+                for i, index in enumerate(connectivity[el,:]):
                     JAC[0,:] += coordinate[index, [0, 1]] * dphi[0,i]
                     JAC[1,:] += coordinate[index, [0, 1]] * dphi[1,i]
                     Y += coordinate[index, 0] * phi[i]
@@ -284,20 +285,17 @@ class TubeCrossSection:
                     PSI2e[i] = PSI2[index]
                     PSI3e[i] = PSI3[index]
                 detJAC = JAC[0,0]*JAC[1,1] - JAC[0,1]*JAC[1,0]
-                aux = detJAC * weigth
+                dA = detJAC * weigth
                 invJAC = np.linalg.inv(JAC)
                 dphig = invJAC @ dphi
                 vect_aux = np.array([Y**2 - Z**2, 2*Y * Z])
                 d = poisson_ratio/2 * matr_aux2 @ vect_aux
                 h = poisson_ratio/2 * matr_aux4 @ vect_aux
-                dptemp = (dphig @ PSI2e.T) - d.T
-                hptemp = (dphig @ PSI3e.T) - h.T
-                temp2 += dptemp.T @ dptemp * aux
-                temp3 += hptemp.T @ hptemp * aux
-                temp23 += dptemp.T @ hptemp * aux
-            ALP2 += temp2
-            ALP3 += temp3
-            ALP23 += temp23
+                dptemp = (dphig @ PSI2e) - d
+                hptemp = (dphig @ PSI3e) - h
+                ALP2 += dptemp @ dptemp * dA
+                ALP3 += hptemp @ hptemp * dA
+                ALP23 += dptemp @ hptemp * dA
         RES2 = (A/(ccg**2))*(ALP2)
         RES3 = (A/(ccg**2))*(ALP3)
         RES23 = (A/(ccg**2))*(ALP23)
@@ -307,8 +305,9 @@ class TubeCrossSection:
 if __name__ == "__main__":
     D_external = 0.05   # External diameter [m]
     thickness  = 0.008 # Thickness [m]
-    division_number = 64
+    division_number = 16
     offset = [1e-3, 2e-3]
+    # offset = [0, 0]
     poisson_ratio = 0.3
     cross_section_1 = TubeCrossSection(D_external, division_number = division_number , offset = offset , thickness = thickness) 
     A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23 = cross_section_1.properties(poisson_ratio = poisson_ratio, offset = offset)

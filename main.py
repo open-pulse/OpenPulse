@@ -30,7 +30,7 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 ## Cross section definition:
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
-division_number = 16
+division_number = 64
 offset = [0, 0]
 cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
 
