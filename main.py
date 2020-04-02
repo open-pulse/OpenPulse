@@ -31,7 +31,7 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 division_number = 16
-offset = [1e-5, 2e-5]
+offset = [0, 0]
 cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
