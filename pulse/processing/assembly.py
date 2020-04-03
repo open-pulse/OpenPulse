@@ -59,8 +59,5 @@ def get_global_forces(mesh):
     prescribed_indexes = mesh.get_prescribed_indexes()
     forces = np.delete(forces, prescribed_indexes)
 
-    prescribed_dof = mesh.prescribed_dof()
-    forces = np.delete(forces, prescribed_dof)
-
     return forces
     
