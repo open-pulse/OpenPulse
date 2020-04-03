@@ -39,6 +39,9 @@ class Node:
     def get_boundary_condition_indexes(self):
         return [i for i, j in enumerate(self.boundary_condition) if j is not None]
 
+    def get_boundary_condition_values(self):
+        return [i for i in self.boundary_condition if i is not None]
+
     def set_prescribed_forces(self, forces):
         self.forces = forces
 

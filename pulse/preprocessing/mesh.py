@@ -41,11 +41,25 @@ class Mesh:
         self._load_neighbours()
         self._order_global_indexes()
 
-    def prescribed_dof(self):
+    def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.nodes.values():
-            boundary_condition = np.array(node.get_boundary_condition_indexes()) + node.global_index * DOF_PER_NODE
-            global_prescribed.extend(boundary_condition)
+            starting_position = node.global_index * DOF_PER_NODE
+            dofs = np.array(node.get_boundary_condition_indexes()) + starting_position
+            global_prescribed.extend(dofs)
+        return global_prescribed
+
+    def get_unprescribed_indexes(self):
+        total_dof = DOF_PER_NODE * len(self.nodes)
+        all_indexes = np.arange(total_dof)
+        prescribed_indexes = self.get_prescribed_indexes()
+        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
+        return unprescribed_indexes
+
+    def get_prescribed_values(self):
+        global_prescribed = []
+        for node in self.nodes.values():
+            global_prescribed.extend(node.get_boundary_condition_values())
         return global_prescribed
 
     def set_material_by_line(self, lines, material):
