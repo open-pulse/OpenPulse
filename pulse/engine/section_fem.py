@@ -269,7 +269,6 @@ class TubeCrossSection:
         PSI3 = u3[:-1]
         #
         ALP2, ALP3, ALP23 = 0, 0, 0
-        matr_aux4 = np.array([[-I23, I3],[I3, -I23]])
         for el in range( self.division_number ): # Integration over each cross 
             PSI2e = np.zeros(9)
             PSI3e = np.zeros(9)
@@ -290,7 +289,7 @@ class TubeCrossSection:
                 dphig = invJAC @ dphi
                 vect_aux = np.array([Y**2 - Z**2, 2*Y * Z])
                 d = poisson_ratio/2 * matr_aux2 @ vect_aux
-                h = poisson_ratio/2 * matr_aux4 @ vect_aux
+                h = poisson_ratio/2 * matr_aux3 @ vect_aux
                 dptemp = (dphig @ PSI2e) - d
                 hptemp = (dphig @ PSI3e) - h
                 ALP2 += dptemp @ dptemp * dA
@@ -299,13 +298,20 @@ class TubeCrossSection:
         RES2 = (A/(ccg**2))*(ALP2)
         RES3 = (A/(ccg**2))*(ALP3)
         RES23 = (A/(ccg**2))*(ALP23)
+
+        print('Number of divisions: ', division_number)
+        print('Offset considered: ', offset)
+        print('RES2  value: ', RES2)
+        print('RES3  value: ', RES3)
+        print('RES23 value: ', RES23)
+        print('K_lg condition number : ', np.linalg.cond(K_lg.toarray()))
         
         return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23
 
 if __name__ == "__main__":
     D_external = 0.05   # External diameter [m]
     thickness  = 0.008 # Thickness [m]
-    division_number = 16
+    division_number = 64
     offset = [1e-3, 2e-3]
     # offset = [0, 0]
     poisson_ratio = 0.3
