@@ -4,7 +4,7 @@ import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
 
 from pulse.utils import timer
-from pulse.processing.assembly import new_get_global_matrices, get_global_forces
+from pulse.processing.assembly import get_global_matrices, get_global_forces
 
 
 def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
@@ -26,8 +26,9 @@ def direct_method(forces, frequencies, stiffness_matrix, mass_matrix, **kwargs):
     alpha_h = kwargs.get('alpha_h', 0)
     beta_h = kwargs.get('beta_h', 0)
 
-    shape = (stiffness_matrix.shape[0], len(frequencies))
-    x = np.zeros(shape, dtype=complex)
+    rows = stiffness_matrix.shape[0]
+    cols = len(frequencies)
+    x = np.zeros((rows, cols), dtype=complex)
 
     for i, frequency in enumerate(frequencies):
         A = complex(1, frequency*beta_v + beta_h)*stiffness_matrix + complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)*mass_matrix
@@ -51,79 +52,70 @@ def modal_superposition(forces, frequencies, natural_frequencies, modal_shape, *
     return x
 
 ######
+# TODO: EVERYTHING IS A COMPLETE MESS, SOLVE IT AS SOON AS POSSIBLE
 
-# TODO: this code seens terible, solve it as soon as possible 
-
-def new_direct_method(mesh, frequencies, **kwargs):
-    alpha_v = kwargs.get('alpha_v', 0)
-    beta_v = kwargs.get('beta_v', 0)
-    alpha_h = kwargs.get('alpha_h', 0)
-    beta_h = kwargs.get('beta_h', 0)
-
-    # get matrices
-    K, M = new_get_global_matrices(mesh)
+def new_direct_method(mesh, frequencies, dumping, **kwargs):
+    K, M, Kr, Mr = get_global_matrices(mesh)
     F = get_global_forces(mesh)
-    F_add = get_equivalent_forces(mesh, frequencies, stiffness=K, mass=M, **kwargs)
- 
-    # get dofs
-    all_dofs = np.arange(K.shape[0])
-    prescribed_dofs_index = mesh.get_prescribed_dofs_index()
-    free_dofs_index = np.delete(all_dofs, prescribed_dofs_index)
+    F_add = get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping)
 
-    # slice matrices
-    K_free = K[free_dofs_index, :][:, free_dofs_index]
-    M_free = M[free_dofs_index, :][:, free_dofs_index]
-    F = F.reshape(-1, 1)
-                           
-    # create x
-    shape = (K_free.shape[0], len(frequencies))
-    x = np.zeros(shape, dtype=complex)
-    # calculate x
-    F_aux = F - F_add
+    rows = K.shape[0]
+    cols = len(frequencies)
+    solution = np.zeros((rows, cols), dtype=complex)
+    alpha_h, beta_h, alpha_v, beta_v = dumping
+    F_aux = F.reshape(-1, 1) - F_add
+
     for i, frequency in enumerate(frequencies):
-        K_damp = complex(1, frequency*beta_v + beta_h)*K_free
-        M_damp = complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)*M_free
+        K_damp = K * complex(1, frequency*beta_v + beta_h)
+        M_damp = M * complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)
         A = K_damp + M_damp
-        x[:,i] = spsolve(A, F_aux[:, i])
-    return x
+        solution[:,i] = spsolve(A, F_aux[:,i])
 
-def get_equivalent_forces(mesh, frequencies, stiffness, mass, **kwargs):
-    alpha_v = kwargs.get('alpha_v', 0)
-    beta_v = kwargs.get('beta_v', 0)
-    alpha_h = kwargs.get('alpha_h', 0)
-    beta_h = kwargs.get('beta_h', 0)    
+    prescribed_indexes = mesh.get_prescribed_indexes()
+    prescribed_values = mesh.get_prescribed_values()
+    solution = reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values)
 
-    # get dofs
-    all_dofs = np.arange(stiffness.shape[0])
-    prescribed_dofs_index = mesh.get_prescribed_dofs_index()
-    prescribed_dofs_values = mesh.get_prescribed_dofs_values()
-    free_dofs_index = np.delete(all_dofs, prescribed_dofs_index)
+    return solution
 
-    Kr = stiffness[free_dofs_index, :][:, prescribed_dofs_index]
-    Mr = mass[free_dofs_index, :][:, prescribed_dofs_index]
+
+def get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping):   
+    unprescribed_indexes = mesh.get_unprescribed_indexes()
+    prescribed_values = mesh.get_prescribed_values()
+
     Kr = Kr.toarray()
     Mr = Mr.toarray()
+    Kr = Kr[unprescribed_indexes, :]
+    Mr = Mr[unprescribed_indexes, :]
 
     if Kr == [] or Mr == []:
+        print('ENTREI AQUi')
         Kr_add = [0]
         Mr_add = [0]
     else:
-        Kr_temp = np.zeros(Kr.shape)
-        Mr_temp = np.zeros(Mr.shape)
-
-        for ind, value in enumerate(prescribed_dofs_values):
-            Kr_temp[:, ind] = value*Kr[:, ind]
-            Mr_temp[:, ind] = value*Mr[:, ind]
-
-        Kr_add = np.sum(Kr_temp, axis=1)
-        Mr_add = np.sum(Mr_temp, axis=1)
+        Kr_add = np.sum(Kr*prescribed_values, axis=1)
+        Mr_add = np.sum(Mr*prescribed_values, axis=1)
 
     rows = len(Kr_add)
     cols = len(frequencies)
-    
-    F_add = np.zeros((rows,cols), dtype=complex)   
-    for i, freq in enumerate(frequencies):
-        F_Kadd = (1 + 1j*freq*beta_v + 1j*beta_h)*Kr_add 
-        F_Madd = (- ( ((2 * np.pi * freq)**2) - 1j*freq*alpha_v - 1j*alpha_h))*Mr_add
-        F_add[:, i] = F_Kadd + F_Madd
+    F_add = np.zeros((rows,cols), dtype=complex)
+    alpha_h, beta_h, alpha_v, beta_v = dumping
+
+    for i, frequency in enumerate(frequencies):
+        F_K_add = Kr_add * complex(1,frequency*beta_v + beta_h)
+        F_M_add = Mr_add * complex(-(2*np.pi*frequency)**2, -frequency*alpha_v - alpha_h)
+        F_add[:, i] = F_K_add + F_M_add
+
     return F_add
+
+def reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values):
+    rows = solution.shape[0] + len(prescribed_indexes)
+    cols = solution.shape[1]
+    full_solution = np.zeros((rows, cols), dtype=complex)
+
+    unprescribed_indexes = np.delete(np.arange(rows), prescribed_indexes)
+    full_solution[unprescribed_indexes, :] = solution
+
+    for i in range(cols):
+        full_solution[prescribed_indexes, i] = prescribed_values 
+
+    return full_solution
