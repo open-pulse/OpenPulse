@@ -3,6 +3,8 @@ class Entity:
         self.tag = tag
         self.nodes = []
         self.elements = []
+        self.material = None
+        self.cross = None
 
     def insertNode(self, node):
         self.nodes.append(node)
@@ -18,3 +20,8 @@ class Entity:
 
     def getTag(self):
         return self.tag
+
+    def getColor(self):
+        if self.material is None:
+            return [255,255,255]
+        return self.material.getColorRGB()

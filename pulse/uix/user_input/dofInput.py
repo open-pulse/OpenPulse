@@ -1,12 +1,13 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QDialogButtonBox, QDialog
+from PyQt5.QtWidgets import QLabel, QLineEdit, QDialogButtonBox, QDialog, QMessageBox
+from pulse.preprocessing.boundary_condition import BoundaryCondition
 from PyQt5 import uic
 
 class DOFInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/dofInput.ui', self)
-        self.node_id = kwargs.get("node_id", -1)
 
+        self.bondary = None
         self.button_save_dof = self.findChild(QDialogButtonBox, 'button_save_dof')
         self.button_save_dof.accepted.connect(self.accept_dof)
         self.button_save_dof.rejected.connect(self.reject_dof)
@@ -20,12 +21,69 @@ class DOFInput(QDialog):
         self.line_yy = self.findChild(QLineEdit, 'line_yy')
         self.line_yz = self.findChild(QLineEdit, 'line_yz')
 
-        self.label_node_id.setText("Node - ID [ "+str(self.node_id)+" ]")
+        self.label_node_id.setText("Node - Boundary Condition")
 
         self.exec_()
         
     def accept_dof(self):
-        pass
+        dx = None
+        dy = None
+        dz = None
+        rx = None
+        ry = None
+        rz = None
+        if self.line_ux.text() != "":
+            try:
+                dx = int(self.line_ux.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        if self.line_uy.text() != "":
+            try:
+                dy = int(self.line_uy.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        if self.line_uz.text() != "":
+            try:
+                dz = int(self.line_uz.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        if self.line_yx.text() != "":
+            try:
+                rx = int(self.line_yx.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        if self.line_yy.text() != "":
+            try:
+                ry = int(self.line_yy.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        if self.line_yz.text() != "":
+            try:
+                rz = int(self.line_yz.text())
+            except Exception:
+                self.error("Digite um valor válido")
+                return
+
+        self.bondary = BoundaryCondition(dx,dy,dz,rx,ry,rz)
+        self.close()
 
     def reject_dof(self):
         self.close()
+
+    def error(self, msg, title = "Error"):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(msg)
+        #msg_box.setInformativeText('More information')
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()

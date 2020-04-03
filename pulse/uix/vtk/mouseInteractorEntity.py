@@ -29,7 +29,7 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
 
         #if you already have picked any actor, restore before state
         for i in range(len(self.lastSelectedEntitiesProperty)):
-            self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+            #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
             self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
 
         self.lastSelectedActors.clear()
@@ -71,7 +71,7 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
 
         if actor:
             for i in range(len(self.lastSelectedEntitiesProperty)):
-                self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+                #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
                 self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
 
             self.lastSelectedActors.clear()
@@ -94,3 +94,8 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
 
     def getListPickedActors(self):
         return self.listSelectedEntities
+
+    def clear(self):
+        self.lastSelectedActors.clear()
+        self.lastSelectedEntitiesProperty.clear()
+        self.listSelectedEntities.clear()

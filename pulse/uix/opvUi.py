@@ -45,6 +45,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_elements = False
         self.in_points = False
 
+        self.changedSelectedEntityColors = False
+
         self.actors_entities = {}
         self.actors_elements = {}
         self.actors_points = {}
@@ -62,6 +64,23 @@ class OPVUi(QVTKRenderWindowInteractor):
         self._create_axes()
 
         self.Initialize()         #VTK Initialize - Don't remove this function
+
+    def resetInfo(self):
+        for actor in self.renderer_entities.GetActors():
+            self.renderer_entities.RemoveActor(actor)
+        self.actors_entities = {}
+
+        for actor in self.renderer_elements.GetActors():
+            self.renderer_elements.RemoveActor(actor)
+        self.actors_elements = {}
+
+        for actor in self.renderer_points.GetActors():
+            self.renderer_points.RemoveActor(actor)
+        self.actors_points = {}
+
+        self.style_entities.clear()
+        self.style_elements.clear()
+        self.style_points.clear()
         
     def _create_axes(self):
         axesActor = vtk.vtkAxesActor()
@@ -117,11 +136,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.actors_entities = {}
     
         for entity in self.project.getEntities():
-            plot = Lines(entity.getNodes(), entity.getElements(), entity.getTag())
+            plot = Lines(entity)
             plot.assembly()
             self.actors_entities[plot.get_actor()] = entity.getTag()
             self.renderer_entities.AddActor(plot.get_actor())
-            
+        
     def plot_elements(self):
         for actor in self.renderer_elements.GetActors():
             self.renderer_elements.RemoveActor(actor)
@@ -133,18 +152,26 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.actors_elements[plot.get_actor()] = key
             self.renderer_elements.AddActor(plot.get_actor())
 
+    def changeColorEntities(self, entity_id, color):
+        actors = [key  for (key, value) in self.actors_entities.items() if value in entity_id]
+        for actor in actors:
+            actor.GetMapper().ScalarVisibilityOff()
+            actor.GetProperty().SetColor(color)
+        self.style_entities.clear()
+        #self.changedSelectedEntityColors = True
+
+    def changeColorPoints(self, points_id, color):
+        actors = [key  for (key, value) in self.actors_points.items() if value in points_id]
+        for actor in actors:
+            actor.GetMapper().ScalarVisibilityOff()
+            actor.GetProperty().SetColor(color)
+        self.style_points.clear()
+
     def getListPickedEntities(self):
         return self.style_entities.getListPickedActors()
 
-    def getLastPickedEntity(self):
-        if self.in_entities:
-            return self.style_entities.getLastPickedActor()
-        return None
-
-    def getLastPickedPoint(self):
-        if self.in_points:
-            return self.style_points.getLastPickedActor()
-        return None
+    def getListPickedPoints(self):
+        return self.style_points.getListPickedActors()
 
     def plot_points(self):
         for actor in self.renderer_points.GetActors():

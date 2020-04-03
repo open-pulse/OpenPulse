@@ -94,3 +94,8 @@ class MouseInteractorElement(vtk.vtkInteractorStyleTrackballCamera):
 
     def getListPickedActors(self):
         return self.listSelectedElements
+
+    def clear(self):
+        self.lastSelectedActors.clear()
+        self.lastSelectedElementsProperty.clear()
+        self.listSelectedElements.clear()

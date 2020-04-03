@@ -29,7 +29,7 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
 
         #if you already have picked any actor, restore before state
         for i in range(len(self.lastSelectedPointProperty)):
-            self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+            #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
             self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedPointProperty[i])
 
         self.lastSelectedActors.clear()
@@ -71,7 +71,7 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
 
         if actor:
             for i in range(len(self.lastSelectedPointProperty)):
-                self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
+                #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
                 self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedPointProperty[i])
 
             self.lastSelectedActors.clear()
@@ -94,3 +94,8 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
 
     def getListPickedActors(self):
         return self.listSelectedPoints
+
+    def clear(self):
+        self.lastSelectedActors.clear()
+        self.lastSelectedPointProperty.clear()
+        self.listSelectedPoints.clear()

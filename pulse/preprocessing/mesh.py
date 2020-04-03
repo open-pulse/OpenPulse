@@ -56,7 +56,7 @@ class Mesh:
 
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
-            node.boundary_condition = boundary_condition
+            node.set_boundary_condition(boundary_condition)
 
     # generate
     def _initialize_gmsh(self, path):
@@ -76,8 +76,8 @@ class Mesh:
 
     def _create_entities(self):
         gmsh.model.mesh.generate(3)
-        #remove duplicate acctualy don't work with a entities.
-        #gmsh.model.mesh.removeDuplicateNodes()
+        self._create_vector_entidades()
+        gmsh.model.mesh.removeDuplicateNodes()
         
         node_indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
         _, element_indexes, connectivities = gmsh.model.mesh.getElements()
@@ -85,7 +85,7 @@ class Mesh:
         self._create_nodes(node_indexes, coords)
         self._create_elements(element_indexes[0], connectivities[0])
 
-
+    def _create_vector_entidades(self):
         #Apenas temporario - Cópia do antigo mesh para gerar as linhas
         #Atualizar futuramente
         for i in gmsh.model.getEntities(1):

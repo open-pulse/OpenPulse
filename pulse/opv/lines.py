@@ -1,12 +1,14 @@
 import vtk
 import random
+from pulse.preprocessing.entity import Entity
 
 class Lines:
-    def __init__(self, nodes = [], edges = [], tag = -1):
+    def __init__(self, entity = Entity(-1)):
 
-        self.nodesList = nodes
-        self.edgesList = edges
-        self.tag = tag
+        self.color = entity.getColor()
+        self.nodesList = entity.getNodes()
+        self.elementsList = entity.getElements()
+        self.tag = entity.getTag()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -30,19 +32,18 @@ class Lines:
         for node in self.nodesList:
             self._nodes.InsertPoint(int(node[0]), node[1], node[2], node[3])
 
-        for edge in self.edgesList:
+        for element in self.elementsList:
             line = vtk.vtkLine()
-            line.GetPointIds().SetId(0, edge[1])
-            line.GetPointIds().SetId(1, edge[2])
+            line.GetPointIds().SetId(0, element[1])
+            line.GetPointIds().SetId(1, element[2])
             self._edges.InsertNextCell(line)
 
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
     def _filter(self):
-        color = [random.randint(0,255),random.randint(0,255),random.randint(0,255)]
         for _ in range(self._nodes.GetNumberOfPoints()):
-            self._colorFilter.InsertNextTypedTuple(color)
+            self._colorFilter.InsertNextTypedTuple(self.color)
 
         self._object.GetPointData().SetScalars(self._colorFilter)
 

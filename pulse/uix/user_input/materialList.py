@@ -1,15 +1,17 @@
 from PyQt5.QtWidgets import QDialog, QPushButton, QTreeWidget, QTreeWidgetItem
+from pulse.uix.user_input.materialInput import MaterialInput
 from os.path import basename
 import numpy as np
 from PyQt5 import uic
 from PyQt5.QtGui import QBrush, QColor
+import configparser
 
 from pulse.preprocessing.material import Material
 
 class MaterialList(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, material_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.path = kwargs.get("material_path", "material_library.dat")
+        self.path = material_path
         self.current_item = None
         self.material = None
         uic.loadUi('pulse/uix/user_input/ui/materialList.ui', self)
@@ -29,14 +31,17 @@ class MaterialList(QDialog):
         self.exec_()
         
     def material_insert(self):
-        pass
+        if MaterialInput(self.path):
+            self.treeWidget.clear()
+            self.load(self.path)
+
 
     def material_select(self):
         if self.current_item is None:
             return
         
         new_material = Material(self.current_item.text(0), float(self.current_item.text(2)), 
-                            young_modulus=float(self.current_item.text(3)), 
+                            young_modulus=float(self.current_item.text(3))*(10**(9)), 
                             poisson_ratio=float(self.current_item.text(4)), 
                             color=self.current_item.text(5))
         self.material = new_material
@@ -49,14 +54,27 @@ class MaterialList(QDialog):
         self.current_item = item
 
     def load(self, path):
-        imported_library = np.loadtxt(path, dtype=str, skiprows=1, delimiter=";")
-        name = np.array(imported_library[:,0])
-        material_ID = np.array(imported_library[:,1], dtype=int)
-        density = np.array(imported_library[:,2], dtype=float)
-        YoungModulus = np.array(imported_library[:,3], dtype=float)
-        poisson = np.array(imported_library[:,4], dtype=float)
-        color = np.array(imported_library[:,5])
-        for i in range(len(material_ID)):
-            load_material = QTreeWidgetItem([str(name[i]).strip(), str(material_ID[i]).strip(), str(density[i]).strip(), str(YoungModulus[i]).strip(), str(poisson[i]).strip(), str(color[i]).strip()])
-            #load_material.setForeground(0,QBrush(QColor(255, 0, 0, 255)))
+        config = configparser.ConfigParser()
+        config.read(path)
+        for mat in config.sections():
+            name = str(config[mat]['name'])
+            identifier =  str(config[mat]['identifier'])
+            density =  str(config[mat]['density'])
+            youngmodulus =  str(config[mat]['youngmodulus'])
+            poisson =  str(config[mat]['poisson'])
+            color =  str(config[mat]['color'])
+            load_material = QTreeWidgetItem([name, identifier, density, youngmodulus, poisson, color])
+            #Colorir
+            colorRGB = self.getColorRGB(color)
+            # load_material.setForeground(0,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+            # load_material.setForeground(1,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+            # load_material.setForeground(2,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+            # load_material.setForeground(3,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+            # load_material.setForeground(4,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+            load_material.setForeground(5,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
             self.treeWidget.addTopLevelItem(load_material)
+
+    def getColorRGB(self, color):
+        temp = color[1:-1] #Remove "[ ]"
+        tokens = temp.split(',')
+        return list(map(int, tokens))

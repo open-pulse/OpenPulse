@@ -118,15 +118,21 @@ class MainWindow(QMainWindow):
         working_area.setSizes([100,300])
 
     def new_call(self):
-        path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'Iges Files (*.iges)')
-        name = basename(path)
-        self._change_window_title(name)
-        self.project.newProject("test", path, 0.1)
-        self.draw()
+        if self.inputWidget.newProject():
+            self.resetInfo()
+            self._change_window_title(self.project.projectName)
+            self.draw()
 
     def import_call(self):
-        self.inputWidget.newProject()
-        return
+        path, _type = QFileDialog.getOpenFileName(None, 'Open file', '', 'OpenPulse Project (*.ini)')
+        if path != "":
+            self.resetInfo()
+            self.project.openProject(path)
+            self._change_window_title(self.project.projectName)
+            self.draw()
+
+    def resetInfo(self):
+        self.opv_widget.resetInfo()
 
     def plot_entities(self):
         self.opv_widget.change_to_entities()

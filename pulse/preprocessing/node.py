@@ -15,6 +15,8 @@ class Node:
         self.y = y
         self.z = z
         self.boundary_condition = BoundaryCondition()
+        self.haveBoundaryCondition_D = False   #Used to color the point
+        self.haveBoundaryCondition_R = False   #Used to color the point
         self.global_index = global_index
 
     @property
@@ -32,5 +34,9 @@ class Node:
     def distance_to(self, other):
         return np.linalg.norm(self.coordinates - other.coordinates)
 
-    def set_boundary_condition(boundary_condition):
-        pass
+    def set_boundary_condition(self, boundary_condition):
+        if boundary_condition.displacement is not (None, None, None):
+            self.haveBoundaryCondition_D = True
+        if boundary_condition.rotation is not (None, None, None):
+            self.haveBoundaryCondition_R = True
+        self.boundary_condition = boundary_condition

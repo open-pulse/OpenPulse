@@ -40,6 +40,19 @@ class Material:
         else:
             raise TypeError('At least 2 arguments from young_modulus, shear_modulus and poisson_ratio should be provided')
     
+    def getColorRGB(self):
+        temp = self.color[1:-1] #Remove "[ ]"
+        tokens = temp.split(',')
+        return list(map(int, tokens))
+
+    def getNormalizedColorRGB(self):
+        #VTK works with type of color
+        color = self.getColorRGB()
+        for i in range(3):
+            if color[i] != 0:
+                color[i] = color[i]/255
+        return color
+
     def __eq__(self, other):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]
         other_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]

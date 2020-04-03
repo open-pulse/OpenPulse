@@ -13,3 +13,8 @@ mesh.set_cross_section_by_element('all', cross_section)
 
 # GETTING ALL MATRICES TOGETHER
 K, M, Kr, Mr = get_global_matrices(mesh)
+
+print(K)
+print(M)
+print(Kr)
+print(Mr)

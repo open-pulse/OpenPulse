@@ -15,22 +15,20 @@ class InputUi:
 
     def material_input(self):
         pass
-        # last = self.parent.getLastPickedEntity()
-        # if last is None:
-        #     return
-        
-        # mi = MaterialInput()
+        #MaterialInput(self.project.materialPath)
 
     def material_list(self):
         entities_id = self.opv.getListPickedEntities()
         if len(entities_id) == 0:
             return
-        selected_material = MaterialList()
+        selected_material = MaterialList(self.project.materialPath)
         if selected_material.material is None:
             return
         for entity in entities_id:
             self.project.setMaterial_by_Entity(entity, selected_material.material)
         print("### Material {} defined in the entities {}".format(selected_material.material.name, entities_id))
+        self.opv.changeColorEntities(entities_id, selected_material.material.getNormalizedColorRGB())
+        
 
     def cross_input(self):
         entities_id = self.opv.getListPickedEntities()
@@ -40,12 +38,8 @@ class InputUi:
         if cross_section.cross is None:
             return
         for entity in entities_id:
-            self.project.setMaterial_by_Entity(entity, selected_material.material)
-        # last = self.parent.getLastPickedEntity()
-        # if last is None:
-        #     return
-        
-        # ci = CrossInput()
+            self.project.setCrossSection_by_Entity(entity, cross_section.cross)
+        print("### Cross defined in the entities {}".format(entities_id))
 
     def import_dof(self):
         pass
@@ -57,20 +51,27 @@ class InputUi:
 
     def dof_input(self):
         pass
-        # last = self.parent.getLastPickedPoint()
-        # if last is None:
-        #     return
-        
-        # di = DOFInput()
+        point_id = self.opv.getListPickedPoints()
+        if len(point_id) == 0:
+            return
+
+        dof = DOFInput()
+        if dof.bondary is None:
+            return
+        print(point_id)
+        self.project.setBondaryCondition_by_Node(point_id, dof.bondary)
+        print("### BC defined in the Points {}".format(point_id))
+        self.opv.changeColorPoints(point_id, (0,1,1))
 
     def newProject(self):
-        a = NewProjectInput()
+        result = NewProjectInput(self.project)
+        return result.create
 
     def define_material_all(self):
         if not self.project.isReady():
             return   #No project were loaded
 
-        selected_material = MaterialList()
+        selected_material = MaterialList(self.project.materialPath)
         
         if selected_material.material is not None:
             self.project.setMaterial(selected_material.material)
@@ -82,4 +83,3 @@ class InputUi:
         cross_section = CrossInput()
         if cross_section.cross is not None:
             self.project.setCrossSection(cross_section.cross)
-        
