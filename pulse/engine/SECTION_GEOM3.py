@@ -1,7 +1,10 @@
 import math
+import scipy
 import numpy as np
 from scipy.sparse import csc_matrix, coo_matrix, linalg
 from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import cgs
+from scipy.sparse.linalg import LinearOperator, spilu
 #######################################################
 def shapesect(ksi,eta):
     """
@@ -53,6 +56,7 @@ def sectcalc(do,di,nr,secoffset,pois):
     #
     #Geometry properties of cross-section
     ### Integration points ###
+  
     Nint = 4
     #c = 1./np.sqrt(3.)
     c = np.sqrt(3.)/3.
@@ -97,6 +101,7 @@ def sectcalc(do,di,nr,secoffset,pois):
             connectface[i,1:10] = [3,3+aux,1+aux,1,6+aux,2+aux,4+aux,2,5+aux]
         aux = aux + 6
     NGL = len(coordface)
+    ##################################################
     ####################################################################
     ####################### GEOMETRY PROPERTIES  #######################
     ####################################################################
@@ -152,6 +157,7 @@ def sectcalc(do,di,nr,secoffset,pois):
     ####################### SHEAR COEFFICIENTS #########################
     ####################################################################
     F2 = np.zeros(NGL)
+    u2 = np.zeros(NGL)
     F3 = np.zeros(NGL)
     FT = np.zeros(NGL)
     row = []  # list holding row indices
@@ -209,41 +215,50 @@ def sectcalc(do,di,nr,secoffset,pois):
         row = np.hstack((row, rrr))
         col = np.hstack((col, ccc))
         data = np.hstack((data, k))
-    # construct Lagrangian multiplier matrix:
-    # Thanks @robbievanleeuwen !!!
-    # column vector of ones
-    # row = np.hstack((row, range(NGL)))
-    # col = np.hstack((col, np.repeat(NGL, NGL)))
-    # data = np.hstack((data, np.repeat(1, NGL)))
-    # row vector of ones
-    # row = np.hstack((row, np.repeat(NGL, NGL)))
-    # col = np.hstack((col, range(NGL)))
-    # data = np.hstack((data, np.repeat(1, NGL)))
-    # zero in bottom right corner
-    # row = np.hstack((row, NGL))
-    # col = np.hstack((col, NGL))
-    # data = np.hstack((data, 0))
+    #construct Lagrangian multiplier matrix:
+    #Thanks @robbievanleeuwen !!!
+    #column vector of ones
+    row = np.hstack((row, range(NGL)))
+    col = np.hstack((col, np.repeat(NGL, NGL)))
+    data = np.hstack((data, np.repeat(1, NGL)))
+    #row vector of ones
+    row = np.hstack((row, np.repeat(NGL, NGL)))
+    col = np.hstack((col, range(NGL)))
+    data = np.hstack((data, np.repeat(1, NGL)))
+    #zero in bottom right corner
+    row = np.hstack((row, NGL))
+    col = np.hstack((col, NGL))
+    data = np.hstack((data, 0))
+    
+    K_lg = csc_matrix((data, (row, col)), shape=(NGL+1, NGL+1))
+
+    Kd = K_lg.toarray()
+    KK = np.linalg.pinv(Kd)
+
+    u2 = KK @ np.append(F2, 0)
+    u3 = KK @ np.append(F3, 0)
+    #ut = KK @ np.append(FT, 0)
+    
     #
-    #K_lg = csc_matrix((data, (row, col)), shape=(NGL+1, NGL+1))
-    #u2 = spsolve(K_lg, np.append(F2, 0))
-    #u3 = spsolve(K_lg, np.append(F3, 0))
-    #ut = spsolve(K_lg, np.append(FT, 0))
+    # norm_A = scipy.sparse.linalg.norm(K_lg)
+    # norm_invA = scipy.sparse.linalg.norm(scipy.sparse.linalg.inv(K_lg))
+    # cond = norm_A*norm_invA
+    # #
+    # u2 = spsolve(K_lg, np.append(F2, 0))
+    # u3 = spsolve(K_lg, np.append(F3, 0))
+    # ut = spsolve(K_lg, np.append(FT, 0))
     #
-    K_lg = csc_matrix((data, (row, col)), shape=(NGL, NGL))
-    u2 = spsolve(K_lg, F2)
-    u3 = spsolve(K_lg, F3)
-    ut = spsolve(K_lg, FT)
     #
     # err2 = u2[-1] / max(np.absolute(u2)) # if needed
     # err3 = u3[-1] / max(np.absolute(u3)) # if needed
     # errt = ut[-1] / max(np.absolute(ut)) # if needed
-    # PSI2 = u2[:-1]
-    # PSI3 = u3[:-1]
+    PSI2 = u2[:-1]
+    PSI3 = u3[:-1]
     #
-    PSI2 = u2
-    PSI3 = u3
+    #PSI2 = u2
+    #PSI3 = u3
     #JX = np.dot(ut.T,np.append(FT, 0)) # if needed
-    JX = np.dot(ut.T,FT) # if needed
+    #JX = np.dot(ut.T,FT) # if needed
     J = I2 + I3 # - JX
     #
     ALP2 = 0.
@@ -302,5 +317,3 @@ def sectcalc(do,di,nr,secoffset,pois):
     RES23 = (A/(ccg**2.))*(ALP23)
 
     return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23
-
-

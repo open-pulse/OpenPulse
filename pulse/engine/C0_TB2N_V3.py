@@ -1,7 +1,7 @@
 #
 import math
 import numpy as np
-import SECTION_GEOM as sec
+import SECTION_GEOM3 as sec
 #######################################################
 def shape(ksi):
     """
