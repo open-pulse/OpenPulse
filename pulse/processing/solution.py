@@ -6,79 +6,10 @@ from scipy.sparse.linalg import eigs, spsolve
 from pulse.utils import timer
 from pulse.processing.assembly import get_global_matrices, get_global_forces
 
+# TODO: This code is a little messy, solve it as soon as possible
+# TODO: Improve performance
 
-def modal_analysis(modes, stiffness_matrix, mass_matrix, *args, **kwargs):
-    eigen_values, eigen_vectors = eigs(stiffness_matrix, M=mass_matrix, k=modes, *args, **kwargs)
-
-    positive_real = np.absolute(np.real(eigen_values))
-    natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
-    modal_shape = np.real(eigen_vectors)
-
-    index_order = np.argsort(natural_frequencies)
-    natural_frequencies = natural_frequencies[index_order]
-    modal_shape = modal_shape[:, index_order]
-
-    return natural_frequencies, modal_shape
-
-def direct_method(forces, frequencies, stiffness_matrix, mass_matrix, **kwargs):
-    alpha_v = kwargs.get('alpha_v', 0)
-    beta_v = kwargs.get('beta_v', 0)
-    alpha_h = kwargs.get('alpha_h', 0)
-    beta_h = kwargs.get('beta_h', 0)
-
-    rows = stiffness_matrix.shape[0]
-    cols = len(frequencies)
-    x = np.zeros((rows, cols), dtype=complex)
-
-    for i, frequency in enumerate(frequencies):
-        A = complex(1, frequency*beta_v + beta_h)*stiffness_matrix + complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)*mass_matrix
-        x[:,i] = spsolve(A, forces)
-    return x
- 
-def modal_superposition(forces, frequencies, natural_frequencies, modal_shape, **kwargs):
-    alpha_v = kwargs.get('alpha_v', 0)
-    beta_v = kwargs.get('beta_v', 0)
-    alpha_h = kwargs.get('alpha_h', 0)
-    beta_h = kwargs.get('beta_h', 0)
-
-    shape = (modal_shape.shape[0], len(frequencies))
-    x = np.zeros(shape, dtype=complex)
-
-    F_aux = modal_shape.T @ forces.flatten()
-    for i, frequency in enumerate(frequencies):        
-        data = np.divide(1, (complex(1, beta_v*frequency + beta_h) * (2*np.pi*natural_frequencies)**2 + complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)))
-        diag = np.diag(data)
-        x[:,i] = modal_shape @ (diag @ F_aux)
-    return x
-
-######
-# TODO: EVERYTHING IS A COMPLETE MESS, SOLVE IT AS SOON AS POSSIBLE
-
-def new_direct_method(mesh, frequencies, dumping, **kwargs):
-    K, M, Kr, Mr = get_global_matrices(mesh)
-    F = get_global_forces(mesh)
-    F_add = get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping)
-
-    rows = K.shape[0]
-    cols = len(frequencies)
-    solution = np.zeros((rows, cols), dtype=complex)
-    alpha_h, beta_h, alpha_v, beta_v = dumping
-    F_aux = F.reshape(-1, 1) - F_add
-
-    for i, frequency in enumerate(frequencies):
-        K_damp = K * complex(1, frequency*beta_v + beta_h)
-        M_damp = M * complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)
-        A = K_damp + M_damp
-        solution[:,i] = spsolve(A, F_aux[:,i])
-
-    prescribed_indexes = mesh.get_prescribed_indexes()
-    prescribed_values = mesh.get_prescribed_values()
-    solution = reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values)
-
-    return solution
-
-
-def get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping):   
+def _get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping):   
     unprescribed_indexes = mesh.get_unprescribed_indexes()
     prescribed_values = mesh.get_prescribed_values()
 
@@ -107,7 +38,8 @@ def get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping):
 
     return F_add
 
-def reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values):
+
+def _reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values):
     rows = solution.shape[0] + len(prescribed_indexes)
     cols = solution.shape[1]
     full_solution = np.zeros((rows, cols), dtype=complex)
@@ -119,3 +51,71 @@ def reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values):
         full_solution[prescribed_indexes, i] = prescribed_values 
 
     return full_solution
+
+
+# Usefull starts here
+def modal_analysis(stiffness_matrix, mass_matrix, modes=10, which='LM', sigma=0.01):
+    eigen_values, eigen_vectors = eigs(stiffness_matrix, M=mass_matrix, k=modes, which=which, sigma=sigma)
+
+    positive_real = np.absolute(np.real(eigen_values))
+    natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
+    modal_shape = np.real(eigen_vectors)
+
+    index_order = np.argsort(natural_frequencies)
+    natural_frequencies = natural_frequencies[index_order]
+    modal_shape = modal_shape[:, index_order]
+
+    return natural_frequencies, modal_shape
+
+def direct_method(mesh, frequencies, dumping=(0,0,0,0)):
+    K, M, Kr, Mr = get_global_matrices(mesh)
+    F = get_global_forces(mesh)
+    F_add = _get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping)
+
+    rows = K.shape[0]
+    cols = len(frequencies)
+    solution = np.zeros((rows, cols), dtype=complex)
+
+    alpha_h, beta_h, alpha_v, beta_v = dumping
+    F_aux = F.reshape(-1, 1) - F_add
+
+    for i, frequency in enumerate(frequencies):
+        K_damp = K * complex(1, frequency*beta_v + beta_h)
+        M_damp = M * complex(-(2*np.pi*frequency)**2, frequency*alpha_v + alpha_h)
+        A = K_damp + M_damp
+        solution[:,i] = spsolve(A, F_aux[:,i])
+
+    prescribed_indexes = mesh.get_prescribed_indexes()
+    prescribed_values = mesh.get_prescribed_values()
+    solution = _reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values)
+
+    return solution
+
+def modal_superposition(mesh, frequencies, modes, dumping=(0,0,0,0)):
+    K, M, Kr, Mr = get_global_matrices(mesh)
+    F = get_global_forces(mesh)
+    F_add = _get_equivalent_forces(mesh, frequencies, Kr, Mr, dumping)
+
+    natural_frequencies, modal_shape = modal_analysis(K, M, modes)
+
+    rows = K.shape[0]
+    cols = len(frequencies)
+    solution = np.zeros((rows, cols), dtype=complex)
+    
+    alpha_h, beta_h, alpha_v, beta_v = dumping
+    F_aux = modal_shape.T @ (F.reshape(-1, 1) - F_add)
+
+    for i, frequency in enumerate(frequencies):       
+        Kg_damp = complex(1, beta_v*frequency + beta_h) * (2 * np.pi * natural_frequencies)**2
+        Mg_damp = complex(0, alpha_v*frequency + alpha_h) - (2 * np.pi * frequency)**2
+        data = np.divide(1, (Kg_damp + Mg_damp))
+        diag = np.diag(data)
+        solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
+
+    prescribed_indexes = mesh.get_prescribed_indexes()
+    prescribed_values = mesh.get_prescribed_values()
+    solution = _reinsert_prescribed_dofs(solution, prescribed_indexes, prescribed_values)
+
+    return solution
+
+
