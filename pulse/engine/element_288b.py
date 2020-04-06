@@ -34,7 +34,7 @@ class Element:
                  node_initial, 
                  node_final,
                  material,
-                 cross_section,
+                 cross_section_properties,
                  load,
                  element_type,
                  user_index,
@@ -43,7 +43,7 @@ class Element:
         self.node_initial = node_initial
         self.node_final = node_final
         self.material = material
-        self.cross_section = cross_section
+        self.cross_section_properties = cross_section_properties
         self.load = load
         self.element_type = element_type
         self.user_index = user_index  
@@ -157,15 +157,9 @@ class Element:
         L   = self.length()
         # Material properities
         E = self.material.young_modulus
-        poisson_ratio = self.material.poisson_ratio
         mu = self.material.mu_parameter()
         # Tube cross section properties
-        offset = self.cross_section.offset
-        _, _, _, _, _, Q1a, Q2a, RES1a, RES2a, _ = self.cross_section.properties(poisson_ratio = poisson_ratio, offset = [offset[0],0])
-
-        _, _, _, _, _, Q1b, Q2b, RES1b, RES2b, _ = self.cross_section.properties(poisson_ratio = poisson_ratio, offset = [0,offset[1]])
-
-        A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.cross_section.properties(poisson_ratio = poisson_ratio, offset = offset)
+        A, I1, I2, I12, J, Q1, Q2, Q1a, Q2a, RES1a, RES2a, Q1b, Q2b, RES1b, RES2b = self.cross_section_properties
 
         # Shear coefficiets - Treatment 
         ala = np.min([1./RES1a,1./RES2a])
@@ -229,11 +223,9 @@ class Element:
 
         # Material properities
         rho = self.material.density
-        poisson_ratio = self.material.poisson_ratio
 
-        # Tube cross section properties
-        offset = self.cross_section.offset
-        A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.cross_section.properties(poisson_ratio = poisson_ratio, offset = offset)
+        # Tube cross section properties        
+        A, I1, I2, I12, J, Q1, Q2, _, _, _, _, _, _, _, _ = self.cross_section_properties
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2

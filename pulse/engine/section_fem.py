@@ -1,7 +1,6 @@
 import numpy as np
 from math import pi, sqrt, cos, sin
 from scipy.sparse import csc_matrix
-from scipy.sparse.linalg import spsolve
 
 class TubeCrossSection:
     """ Tube cross section.
@@ -42,25 +41,6 @@ class TubeCrossSection:
         elif self.thickness is None:
             self.thickness = ( self.D_external - self.D_internal) / 2
 
-    def area(self):
-        """Cross section area [m**2]."""
-        return (self.D_external**2 - self.D_internal**2) * pi / 4
-        
-    def moment_area(self):
-        """Cross section second moment of area [m**4]."""
-        return (self.D_external**4 - self.D_internal**4) * pi / 64
-    
-    def polar_moment_area(self):
-        """Cross section second polar moment of area [m**4]."""
-        return 2 * self.moment_area()
-
-    def shear_form_factor(self,poisson_ratio):
-        """Shear form factor for a tube.
-        Parameter
-        ---------
-        poisson_ratio : float
-            Poisson's ratio [ ]"""
-        return 0.5
 
     @staticmethod
     def gauss_quadracture2D():
@@ -154,7 +134,7 @@ class TubeCrossSection:
 
         return connectivity.astype('int')
     
-    def properties(self, poisson_ratio, offset):
+    def fem_solution(self, poisson_ratio, offset):
         '''
         Parameters: possion_ratio: float
                         Material propertie.
@@ -174,6 +154,12 @@ class TubeCrossSection:
                         Cross section first moment of area relative to Y axis.
                     Q3: float
                         Cross section first moment of area relative to Z axis.
+                    RES2: float
+                        ------
+                    RES3: float
+                        ------
+                    RES23: float
+                        ------
 
         '''
         points, weigth = TubeCrossSection.gauss_quadracture2D()
@@ -207,7 +193,6 @@ class TubeCrossSection:
         NGL = len(coordinate)
         F2 = np.zeros(NGL)
         F3 = np.zeros(NGL)
-        FT = np.zeros(NGL)
         row = []  # list holding row indices
         col = []  # list holding column indices
         data = []
@@ -215,7 +200,7 @@ class TubeCrossSection:
         matr_aux3 = - np.array([[I23, -I3],[I3, I23]])
 
         for el in range( self.division_number ): # Integration over each cross sections element
-            ke, pe2, pe3, pet =  0, 0, 0, 0
+            ke, pe2, pe3 =  0, 0, 0
             for ksi, eta in points:   # integration points
                 phi, dphi = TubeCrossSection.shape_function(ksi,eta)
                 JAC = np.zeros((2,2))
@@ -233,16 +218,13 @@ class TubeCrossSection:
                 vect_aux = np.array([Y**2 - Z**2, 2*Y * Z])
                 d = matr_aux2 @ vect_aux
                 h = matr_aux3 @ vect_aux
-                vec = np.array([Z, -Y])
                 #
                 pe2 += ( poisson_ratio/2 * dphig.T @ d + 2*(1 + poisson_ratio)*phi*(I2*Y - I23*Z) ) * dA
                 pe3 += ( poisson_ratio/2 * dphig.T @ h + 2*(1 + poisson_ratio)*phi*(I3*Z - I23*Y) ) * dA
-                pet += dphig.T @ vec * dA
                 #
             indeces = connectivity[el,:]
             F2[indeces] += pe2
             F3[indeces] += pe3
-            FT[indeces] += pet
             row = np.hstack((row, np.repeat(indeces, 9) ))
             col = np.hstack((col, np.tile(indeces, 9) ))
             data = np.hstack((data, ke.flatten() ))
@@ -262,9 +244,10 @@ class TubeCrossSection:
         data = np.hstack((data, 0))
         #
         K_lg = csc_matrix((data, (row, col)), shape=(NGL+1, NGL+1))
-        #
-        u2 = spsolve(K_lg, np.append(F2, 0))
-        u3 = spsolve(K_lg, np.append(F3, 0))
+        inv_K_lg = np.linalg.pinv(K_lg.toarray())
+
+        u2 = inv_K_lg @ np.append(F2, 0)
+        u3 = inv_K_lg @ np.append(F3, 0)
         PSI2 = u2[:-1]
         PSI3 = u3[:-1]
         #
@@ -298,24 +281,14 @@ class TubeCrossSection:
         RES2 = (A/(ccg**2))*(ALP2)
         RES3 = (A/(ccg**2))*(ALP3)
         RES23 = (A/(ccg**2))*(ALP23)
-
-        print('Number of divisions: ', division_number)
-        print('Offset considered: ', offset)
-        print('RES2  value: ', RES2)
-        print('RES3  value: ', RES3)
-        print('RES23 value: ', RES23)
-        print('K_lg condition number : ', np.linalg.cond(K_lg.toarray()))
-        
         return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23
 
-if __name__ == "__main__":
-    D_external = 0.05   # External diameter [m]
-    thickness  = 0.008 # Thickness [m]
-    division_number = 64
-    offset = [1e-3, 2e-3]
-    # offset = [0, 0]
-    poisson_ratio = 0.3
-    cross_section_1 = TubeCrossSection(D_external, division_number = division_number , offset = offset , thickness = thickness) 
-    A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23 = cross_section_1.properties(poisson_ratio = poisson_ratio, offset = offset)
+    def properties(self, poisson_ratio):
 
-    print(RES2, RES3, RES23)
+        _, _, _, _, _, Q1a, Q2a, RES1a, RES2a, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = [self.offset[0],0])
+
+        _, _, _, _, _, Q1b, Q2b, RES1b, RES2b, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = [0,self.offset[1]])
+
+        A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = self.offset)
+
+        return A, I1, I2, I12, J, Q1, Q2, Q1a, Q2a, RES1a, RES2a, Q1b, Q2b, RES1b, RES2b

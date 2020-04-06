@@ -213,11 +213,11 @@ class PreProcessing:
             
             #TODO: define how to access the material and cross_section data.
             material = self.material_dictionary[ element_index ]
-            cross_section = self.cross_section_dictionary[ element_index ]
+            cross_section_properties = self.cross_section_dictionary[ element_index ]
             load = self.load_dictionary[ element_index ]
             element_type = self.element_type_dictionary[ element_index ]
 
-            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section,load,element_type,element_index)} )
+            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section_properties,load,element_type,element_index)} )
 
         return map_elements
         
@@ -234,11 +234,10 @@ class PreProcessing:
         mat_Ift = np.ones(shape=[ Nel, edof    ], dtype=float)
 
         map_elements = self.map_elements()
-        i = 0
-        for element in map_elements.values(): 
+
+        for i, element in enumerate(map_elements.values()): 
             Me_t[i,:], Ke_t[i,:], Fe_t[i,:] = element.matrices_gcs()
             mat_It[i,:], mat_Jt[i,:], mat_Ift[i,:] = element.dofs()
-            i += 1
         return Me_t, Ke_t, Fe_t, mat_It, mat_Jt, mat_Ift
 
     def external_load(self):
