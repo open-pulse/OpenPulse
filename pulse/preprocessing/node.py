@@ -40,3 +40,6 @@ class Node:
         if boundary_condition.rotation is not (None, None, None):
             self.haveBoundaryCondition_R = True
         self.boundary_condition = boundary_condition
+
+    def getBondaryCondition(self):
+        return self.boundary_condition

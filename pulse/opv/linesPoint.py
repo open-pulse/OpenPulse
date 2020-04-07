@@ -1,12 +1,15 @@
 import vtk
 import random
+from pulse.preprocessing.entity import Entity
 
 class LinesPoint:
-    def __init__(self, nodes = [], edges = [], tag = -1):
+    def __init__(self, entity = Entity(-1)):
 
-        self.nodesList = nodes
-        self.edgesList = edges
-        self.tag = tag
+        self.color = entity.getColor()
+        self.normalizedColor = entity.getNormalizedColor()
+        self.nodesList = entity.getNodes()
+        self.elementsList = entity.getElements()
+        self.tag = entity.getTag()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -28,19 +31,19 @@ class LinesPoint:
 
     def _source(self):
         for node in self.nodesList:
-            self._nodes.InsertPoint(int(node[0]), node[1]/1000, node[2]/1000, node[3]/1000)
+            self._nodes.InsertPoint(int(node[0]), node[1], node[2], node[3])
 
-        for edge in self.edgesList:
+        for element in self.elementsList:
             line = vtk.vtkLine()
-            line.GetPointIds().SetId(0, edge[1])
-            line.GetPointIds().SetId(1, edge[2])
+            line.GetPointIds().SetId(0, element[1])
+            line.GetPointIds().SetId(1, element[2])
             self._edges.InsertNextCell(line)
 
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
     def _filter(self):
-        color = [random.randint(0,255),random.randint(0,255),random.randint(0,255)]
+        color = [255,255,255]
         for _ in range(self._nodes.GetNumberOfPoints()):
             self._colorFilter.InsertNextTypedTuple(color)
 
@@ -54,9 +57,11 @@ class LinesPoint:
 
     def _map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
+        #self._mapper.ScalarVisibilityOff()
 
     def _actor(self):
         self._line_actor.SetMapper(self._mapper)
+        #self._line_actor.GetProperty().SetColor(self.normalizedColor)
 
     def get_actor(self):
         return self._line_actor

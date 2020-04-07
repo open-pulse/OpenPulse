@@ -6,6 +6,7 @@ import vtk
 #from pulse.opv.lines import Lines
 from pulse.opv.lines import Lines
 from pulse.opv.linesPoint import LinesPoint
+from pulse.opv.preProcessingLines import PreProcessingLines
 from pulse.opv.point import Point
 from pulse.opv.element import Element
 
@@ -27,19 +28,27 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_entities = vtk.vtkRenderer()
         self.renderer_elements = vtk.vtkRenderer()
         self.renderer_points = vtk.vtkRenderer()
+        self.renderer_pre_processing = vtk.vtkRenderer()
 
         self.renderer_entities.SetBackground(0.2,0.2,0.2)
         self.renderer_elements.SetBackground(0.2,0.2,0.2)
         self.renderer_points.SetBackground(0.2,0.2,0.2)
+        self.renderer_pre_processing.SetBackground(0.2,0.2,0.2)
 
         #self.style_entities = MouseInteractorTemp(self)
         self.style_entities = MouseInteractorEntity(self)
         self.style_elements = MouseInteractorElement(self)
         self.style_points = MouseInteractorPoint(self)
+        self.style_pre_processing = vtk.vtkInteractorStyleTrackballCamera()
 
         self.style_entities.SetDefaultRenderer(self.renderer_entities)
         self.style_elements.SetDefaultRenderer(self.renderer_elements)
         self.style_points.SetDefaultRenderer(self.renderer_points)
+        self.style_pre_processing.SetDefaultRenderer(self.renderer_pre_processing)
+
+        self.textActorEntity = vtk.vtkTextActor()
+        self.textActorPoint = vtk.vtkTextActor()
+        self.textActorPreProcessing = vtk.vtkTextActor()
 
         self.in_entities = False
         self.in_elements = False
@@ -81,6 +90,78 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.style_entities.clear()
         self.style_elements.clear()
         self.style_points.clear()
+
+        self.update_text_actor_entity()
+
+    def update_text_actor_entity(self):
+        self.renderer_entities.RemoveActor2D(self.textActorEntity)
+        actors_id = self.getListPickedEntities()
+        if len(actors_id) == 0:
+            self.textActorEntity.SetInput("")
+        elif len(actors_id) == 1:
+            entity = self.project.getEntity(actors_id[0])
+            material_name = "Undefined"
+            diam_ext = "Undefined"
+            diam_int = "Undefined"
+            if entity.getMaterial() is not None:
+                material_name = entity.getMaterial().getName()
+            if entity.getCrossSection() is not None:
+                diam_ext = entity.getCrossSection().getExternalDiameter()
+                diam_int = entity.getCrossSection().getInternalDiameter()
+            text = "Line ID  {}\nMaterial:  {}\nExternal Diameter:  {}\nInternal Diameter:  {}".format(actors_id[0], material_name, diam_ext, diam_int)
+            self.textActorEntity.SetInput(text)
+        else:
+            text = "Selected Lines:\n"
+            i = 0
+            for ids in actors_id:
+                if i == 30:
+                    text += "..."
+                    break
+                if i == 10 or i == 20:
+                    text += "{}\n".format(ids)
+                else:
+                    text += "{}  ".format(ids)
+                i+=1
+            self.textActorEntity.SetInput(text)
+
+        width, height = self.renderer_entities.GetSize()
+        self.textActorEntity.SetDisplayPosition(width-250,35)
+        self.renderer_entities.AddActor2D(self.textActorEntity)
+
+    def update_text_actor_point(self):
+        self.renderer_points.RemoveActor2D(self.textActorPoint)
+        actors_id = self.getListPickedPoints()
+        if len(actors_id) == 0:
+            self.textActorPoint.SetInput("")
+        elif len(actors_id) == 1:
+            node = self.project.getNode(int(actors_id[0]))
+            text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  {}\nRotation:  {}".format(actors_id[0], node.x, node.y, node.z, node.getBondaryCondition().displacement, node.getBondaryCondition().rotation)
+            self.textActorPoint.SetInput(text)
+        else:
+            text = "Selected Points:\n"
+            i = 0
+            for ids in actors_id:
+                if i == 30:
+                    text += "..."
+                    break
+                if i == 10 or i == 20:
+                    text += "{}\n".format(ids)
+                else:
+                    text += "{}  ".format(ids)
+                i+=1
+            self.textActorPoint.SetInput(text)
+
+        width, height = self.renderer_points.GetSize()
+        self.textActorPoint.SetDisplayPosition(width-250,35)
+        self.renderer_points.AddActor2D(self.textActorPoint)
+
+    def update_text_actor_pre_processing(self):
+        self.renderer_pre_processing.RemoveActor2D(self.textActorPreProcessing)
+        text = "Element Size:  {}\n".format(self.project.getElementSize())
+        self.textActorPreProcessing.SetInput(text)
+        width, height = self.renderer_pre_processing.GetSize()
+        self.textActorPreProcessing.SetDisplayPosition(width-250,35)
+        self.renderer_pre_processing.AddActor2D(self.textActorPreProcessing)
         
     def _create_axes(self):
         axesActor = vtk.vtkAxesActor()
@@ -94,13 +175,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.renderer_entities)
         self.GetRenderWindow().RemoveRenderer(self.renderer_elements)
         self.GetRenderWindow().RemoveRenderer(self.renderer_points)
+        self.GetRenderWindow().RemoveRenderer(self.renderer_pre_processing)
 
     def change_to_entities(self):
         self.remove_all_renderers()
         self.in_entities = True
         self.in_elements = False
         self.in_points = False
-        #self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
@@ -111,8 +192,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = True
         self.in_points = False
-        #self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.style_elements.LastPickedActor = None
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
         self.renderer_elements.ResetCamera()
@@ -123,18 +202,40 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = True
-        #self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.style_points.LastPickedActor = None
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
         self.renderer_points.ResetCamera()
         self.update()
 
+    def change_to_preProcessing(self):
+        self.style_entities.clear()
+        self.style_elements.clear()
+        self.style_points.clear()
+        self.remove_all_renderers()
+        self.in_entities = False
+        self.in_elements = False
+        self.in_points = False
+        self.plot_pre_processing_entities()
+        self.SetInteractorStyle(self.style_pre_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
+        self.renderer_pre_processing.ResetCamera()
+        self.update_text_actor_pre_processing()
+        self.update()
+
+    def plot_pre_processing_entities(self):
+        for actor in self.renderer_pre_processing.GetActors():
+            self.renderer_pre_processing.RemoveActor(actor)
+
+        for entity in self.project.getEntities():
+            plot = PreProcessingLines(entity)
+            plot.assembly()
+            self.renderer_pre_processing.AddActor(plot.get_actor())
+
     def plot_entities(self):
         for actor in self.renderer_entities.GetActors():
             self.renderer_entities.RemoveActor(actor)
         self.actors_entities = {}
-    
+
         for entity in self.project.getEntities():
             plot = Lines(entity)
             plot.assembly()
@@ -155,16 +256,19 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changeColorEntities(self, entity_id, color):
         actors = [key  for (key, value) in self.actors_entities.items() if value in entity_id]
         for actor in actors:
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(color)
+        self.update_text_actor_entity()
         self.style_entities.clear()
-        #self.changedSelectedEntityColors = True
+
+    def changeColorCross(self):
+        self.update_text_actor_entity()
+        #...
 
     def changeColorPoints(self, points_id, color):
         actors = [key  for (key, value) in self.actors_points.items() if value in points_id]
         for actor in actors:
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(color)
+        self.update_text_actor_point()
         self.style_points.clear()
 
     def getListPickedEntities(self):
@@ -178,52 +282,19 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.renderer_points.RemoveActor(actor)
         self.actors_points = {}
 
-        # #Add actors
-        # plot = LinesPoint(self.project.getNodes(), self.project.getElements(), -1)
-        # plot.assembly()
-        # self.renderer_points.AddActor(plot.get_actor())
-        # self.actors_points[plot.get_actor()] = -1
+        for entity in self.project.getEntities():
+            plot = LinesPoint(entity)
+            plot.assembly()
+            self.renderer_points.AddActor(plot.get_actor())
+            self.actors_points[plot.get_actor()] = -1
 
         for key, node in self.project.getNodes().items():
-            plot = Point(node.x, node.y, node.z, key)
+            plot = Point(node, key)
             plot.assembly()
             self.actors_points[plot.get_actor()] = key
             self.renderer_points.AddActor(plot.get_actor())
 
-        #self.change_to_points()
-
-
-
-
-
-
-        # self.colorbar = vtk.vtkScalarBarActor()
-        # self.colorbar.SetMaximumNumberOfColors(400)
-        # self.colorbar.SetLookupTable(self.plot.get_table())
-        # self.colorbar.SetWidth(0.05)
-        # self.colorbar.SetPosition(0.95, 0.1)
-        # self.colorbar.SetLabelFormat("%.3g")
-        # self.colorbar.VisibilityOn()
-
-    # def add_actor(self):
-    #     self.renderer.AddActor(self.colorbar)
-
-
-    # def plot_nodes(self):
-    #     self.before_plot()
-
-    #     plot = Lines3(self.project.getNodes(), self.project.getElements(), -1)
-    #     plot.assembly()
-    #     self.renderer.AddActor(plot.get_actor())
-    #     self.actors[plot.get_actor()] = -1
-
-    #     for point in self.project.getNodes():
-    #         print(point)
-    #         plot = Point(point[1]/1000, point[2]/1000, point[3]/1000, point[0])
-    #         plot.assembly()
-    #         self.actors[plot.get_actor()] = point[0]
-    #         self.renderer.AddActor(plot.get_actor())
-    #     self.after_plot()
+    #====================
 
     def create_actions(self):
         self.cross_action = QAction('&Cross', self)        
@@ -285,23 +356,3 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def dof_import_call(self):
         ForceInput()
-
-    # def change_line_plot(self, nodes, edges, entities, initial):
-    #     self.remove_all_actors()
-    #     for i in entities:
-    #         if not initial:
-    #             if i.tag == self.GetInteractorStyle().currentEntity:
-    #                 plot = Lines(nodes=i.nodes, edges=i.edges, tag=i.tag, initial=initial)
-    #                 plot.assembly()
-    #                 self.actors.append(plot)
-    #                 self.renderer.AddActor(plot.get_actor())
-    #         else:
-    #                 plot = Lines(nodes=i.nodes, edges=i.edges, tag=i.tag, initial=initial)
-    #                 plot.assembly()
-    #                 self.actors.append(plot)
-    #                 self.renderer.AddActor(plot.get_actor())
-    #     self.GetInteractorStyle().setActors(self.actors)
-    #     self.colorbar.SetLookupTable(self.plot.get_table())
-    #     self.setup_renderer()
-    #     self.update()
-        

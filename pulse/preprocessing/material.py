@@ -11,6 +11,7 @@ def save_material(material):
 class Material:
     def __init__(self, name, density, **kwargs):
         self.name = name
+        self.identifier = kwargs.get("identifier", -1)
         self.density = density
         self.young_modulus = kwargs.get("young_modulus", None)
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
@@ -52,6 +53,9 @@ class Material:
             if color[i] != 0:
                 color[i] = color[i]/255
         return color
+
+    def getName(self):
+        return self.name
 
     def __eq__(self, other):
         self_parameters = [v for v in self.__dict__.values() if isinstance(v, (float, int))]

@@ -31,3 +31,9 @@ class CrossSection:
     def shear_area(self, element_length, young_modulus):
         temp = self.area * self.shear_form_factor
         return 1 / (( 1 / temp) + (element_length**2 / (12 * young_modulus * self.moment_area)))
+
+    def getExternalDiameter(self):
+        return self.external_diameter
+
+    def getInternalDiameter(self):
+        return self.internal_diameter

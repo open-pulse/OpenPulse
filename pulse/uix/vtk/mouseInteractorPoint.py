@@ -29,28 +29,28 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
 
         #if you already have picked any actor, restore before state
         for i in range(len(self.lastSelectedPointProperty)):
-            #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
             self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedPointProperty[i])
 
         self.lastSelectedActors.clear()
         self.lastSelectedPointProperty.clear()
         self.listSelectedPoints.clear()
 
-
         picker = vtk.vtkAreaPicker()
         picker.AreaPick(self.position_1[0], self.position_1[1], self.position_2[0], self.position_2[1], self.GetDefaultRenderer())
         pickedActors = picker.GetProp3Ds()
         for actor in pickedActors:
+            if self.parent.actors_points[actor] == -1:
+                continue
             current_actor_property = vtk.vtkProperty()
             current_actor_property.DeepCopy(actor.GetProperty())
             self.lastSelectedPointProperty.append(current_actor_property)
 
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(colors.GetColor3d('Red'))
             actor.GetProperty().SetDiffuse(1.0)
             actor.GetProperty().SetSpecular(0.0)
             self.lastSelectedActors.append(actor)
             self.listSelectedPoints.append(self.parent.actors_points[actor])
+        self.parent.update_text_actor_point()
         self.parent.update()
 
 
@@ -69,9 +69,8 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
         picker.Pick(clickPos[0], clickPos[1], 0, self.GetDefaultRenderer())
         actor = picker.GetActor()
 
-        if actor:
+        if actor and self.parent.actors_points[actor] != -1:
             for i in range(len(self.lastSelectedPointProperty)):
-                #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
                 self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedPointProperty[i])
 
             self.lastSelectedActors.clear()
@@ -82,12 +81,12 @@ class MouseInteractorPoint(vtk.vtkInteractorStyleTrackballCamera):
             current_actor_property.DeepCopy(actor.GetProperty())
             self.lastSelectedPointProperty.append(current_actor_property)
 
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(colors.GetColor3d('Red'))
             actor.GetProperty().SetDiffuse(1.0)
             actor.GetProperty().SetSpecular(0.0)
             self.lastSelectedActors.append(actor)
             self.listSelectedPoints.append(self.parent.actors_points[actor])
+            self.parent.update_text_actor_point()
             self.parent.update()
 
         self.OnLeftButtonDown()

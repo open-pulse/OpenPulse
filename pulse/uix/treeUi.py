@@ -34,8 +34,8 @@ class TreeUi(QTreeWidget):
         pre_processing_dof = QTreeWidgetItem(["Set DOF"])
         pre_processing_dof_import = QTreeWidgetItem(["Import DOF"])
         #Preprocessing - Temporário
-        pre_processing_temp_set_all_material = QTreeWidgetItem(["[Temp] Define Material <All>"])
-        pre_processing_temp_set_all_cross = QTreeWidgetItem(["[Temp] Define Cross Section <All>"])
+        pre_processing_temp_set_all_material = QTreeWidgetItem(["Set Material <All>"])
+        pre_processing_temp_set_all_cross = QTreeWidgetItem(["Set Cross Section <All>"])
 
         #Assembly
         assembly = QTreeWidgetItem(["Assembly"])
@@ -46,6 +46,7 @@ class TreeUi(QTreeWidget):
         generate.setDisabled(True)
         graphic.setDisabled(True)
         hiden_data.setDisabled(True)
+        pre_processing_dof_import.setDisabled(True)
 
         mesh.addChild(generate)
         mesh.addChild(list_of_nodes)
@@ -101,11 +102,12 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == "Import DOF":
             self.main_window.getInputWidget().import_dof()
 
-        elif item.text(0) == "[Temp] Define Material <All>":
+        elif item.text(0) == "Set Material <All>":
             self.main_window.getInputWidget().define_material_all()
 
-        elif item.text(0) == "[Temp] Define Cross Section <All>":
+        elif item.text(0) == "Set Cross Section <All>":
             self.main_window.getInputWidget().define_cross_all()
 
         elif item.text(0) == "Global Matrices":
-            self.main_window.project.getGlobalMatrices()
+            self.main_window.getInputWidget().preProcessingInfo()
+            #self.main_window.project.getGlobalMatrices()

@@ -77,7 +77,6 @@ class NewProjectInput(QDialog):
 
         self.createMaterialFile(path)
         self.createProjectFile(path)
-
         self.project.newProject(path, self.line_project_name.text(), geometry_file_name, self.line_element_size.text(), 'material.dat')
         return True
 

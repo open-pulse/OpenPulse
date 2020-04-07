@@ -1,8 +1,9 @@
 import vtk
 import random
 from pulse.preprocessing.entity import Entity
+from pulse.preprocessing.cross_section import CrossSection
 
-class Lines:
+class PreProcessingLines:
     def __init__(self, entity = Entity(-1)):
 
         self.color = entity.getColor()
@@ -10,6 +11,8 @@ class Lines:
         self.nodesList = entity.getNodes()
         self.elementsList = entity.getElements()
         self.tag = entity.getTag()
+        self.cross = entity.getCrossSection()
+        self.externalRadius = float(self.cross.external_diameter)
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -49,10 +52,10 @@ class Lines:
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(0.01)
+        self._tubeFilter.SetRadius(self.externalRadius*0.2)
         self._tubeFilter.SetNumberOfSides(50)
+        self._tubeFilter.SetCapping(True)
         self._tubeFilter.Update()
-
 
     def _map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())

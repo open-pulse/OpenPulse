@@ -29,7 +29,6 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
 
         #if you already have picked any actor, restore before state
         for i in range(len(self.lastSelectedEntitiesProperty)):
-            #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
             self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
 
         self.lastSelectedActors.clear()
@@ -45,12 +44,12 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
             current_actor_property.DeepCopy(actor.GetProperty())
             self.lastSelectedEntitiesProperty.append(current_actor_property)
 
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(colors.GetColor3d('Red'))
             actor.GetProperty().SetDiffuse(1.0)
             actor.GetProperty().SetSpecular(0.0)
             self.lastSelectedActors.append(actor)
             self.listSelectedEntities.append(self.parent.actors_entities[actor])
+        self.parent.update_text_actor_entity()
         self.parent.update()
 
 
@@ -58,12 +57,13 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
         if (not self.parent.in_entities):
             return
         self.position_1 = self.GetInteractor().GetEventPosition()
+        
 
     def leftButtonPressEvent(self, obj, event):
         if (not self.parent.in_entities):
             self.OnLeftButtonDown()
             return
-
+        
         clickPos = self.GetInteractor().GetEventPosition()
         picker = vtk.vtkPropPicker()
         picker.Pick(clickPos[0], clickPos[1], 0, self.GetDefaultRenderer())
@@ -71,7 +71,6 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
 
         if actor:
             for i in range(len(self.lastSelectedEntitiesProperty)):
-                #self.lastSelectedActors[i].GetMapper().ScalarVisibilityOn()
                 self.lastSelectedActors[i].GetProperty().DeepCopy(self.lastSelectedEntitiesProperty[i])
 
             self.lastSelectedActors.clear()
@@ -82,12 +81,12 @@ class MouseInteractorEntity(vtk.vtkInteractorStyleTrackballCamera):
             current_actor_property.DeepCopy(actor.GetProperty())
             self.lastSelectedEntitiesProperty.append(current_actor_property)
 
-            actor.GetMapper().ScalarVisibilityOff()
             actor.GetProperty().SetColor(colors.GetColor3d('Red'))
             actor.GetProperty().SetDiffuse(1.0)
             actor.GetProperty().SetSpecular(0.0)
             self.lastSelectedActors.append(actor)
             self.listSelectedEntities.append(self.parent.actors_entities[actor])
+            self.parent.update_text_actor_entity()
             self.parent.update()
 
         self.OnLeftButtonDown()

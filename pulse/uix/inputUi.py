@@ -4,6 +4,7 @@ from pulse.uix.user_input.crossInput import CrossInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.dofImport import DOFImport
 from pulse.uix.user_input.newProjectInput import NewProjectInput
+from pulse.uix.user_input.preProcessingInfo import PreProcessingInfo
 
 from pulse.project import Project
 
@@ -21,7 +22,7 @@ class InputUi:
         entities_id = self.opv.getListPickedEntities()
         if len(entities_id) == 0:
             return
-        selected_material = MaterialList(self.project.materialPath)
+        selected_material = MaterialList(self.project.materialListPath)
         if selected_material.material is None:
             return
         for entity in entities_id:
@@ -40,6 +41,7 @@ class InputUi:
         for entity in entities_id:
             self.project.setCrossSection_by_Entity(entity, cross_section.cross)
         print("### Cross defined in the entities {}".format(entities_id))
+        self.opv.changeColorCross()
 
     def import_dof(self):
         pass
@@ -61,7 +63,7 @@ class InputUi:
         print(point_id)
         self.project.setBondaryCondition_by_Node(point_id, dof.bondary)
         print("### BC defined in the Points {}".format(point_id))
-        self.opv.changeColorPoints(point_id, (0,1,1))
+        self.opv.changeColorPoints(point_id, (0,1,0))
 
     def newProject(self):
         result = NewProjectInput(self.project)
@@ -71,10 +73,14 @@ class InputUi:
         if not self.project.isReady():
             return   #No project were loaded
 
-        selected_material = MaterialList(self.project.materialPath)
+        selected_material = MaterialList(self.project.materialListPath)
         
         if selected_material.material is not None:
             self.project.setMaterial(selected_material.material)
+        entities = []
+        for entity in self.project.getEntities():
+            entities.append(entity.getTag())
+        self.opv.changeColorEntities(entities, selected_material.material.getNormalizedColorRGB())
 
     def define_cross_all(self):
         if not self.project.isReady():
@@ -83,3 +89,9 @@ class InputUi:
         cross_section = CrossInput()
         if cross_section.cross is not None:
             self.project.setCrossSection(cross_section.cross)
+        self.opv.changeColorCross()
+
+    def preProcessingInfo(self):
+        pre = PreProcessingInfo(self.project.entityPath, self.project.nodePath)
+        if not pre.hasError:
+            self.opv.change_to_preProcessing()

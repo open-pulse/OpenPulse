@@ -1,3 +1,5 @@
+from pulse.preprocessing.material import Material
+
 class Entity:
     def __init__(self, tag):
         self.tag = tag
@@ -25,3 +27,14 @@ class Entity:
         if self.material is None:
             return [255,255,255]
         return self.material.getColorRGB()
+
+    def getNormalizedColor(self):
+        if self.material is None:
+            return [1,1,1]
+        return self.material.getNormalizedColorRGB()
+
+    def getCrossSection(self):
+        return self.cross
+
+    def getMaterial(self):
+        return self.material
