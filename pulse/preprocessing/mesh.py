@@ -31,12 +31,38 @@ class Mesh:
         self._finalize_gmsh()
         self._load_neighbours()
         self._order_global_indexes()
+    
+    def load_mesh(self, coordinates, connectivity):
+        for i, x, y, z in np.loadtxt(coordinates):
+            self.nodes[int(i)] = Node(x,y,z)
 
-    def prescribed_dof(self):
+        for i, first, last in np.loadtxt(connectivity, dtype=int):
+            first_node = self.nodes[first]
+            last_node = self.nodes[last]
+            self.elements[i] = Element(first_node, last_node)
+
+        self._load_neighbours()
+        self._order_global_indexes()
+
+    def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.nodes.values():
-            prescribed = node.boundary_condition.prescribed_dof + node.global_index * DOF_PER_NODE
-            global_prescribed.extend(prescribed)
+            starting_position = node.global_index * DOF_PER_NODE
+            dofs = np.array(node.get_boundary_condition_indexes()) + starting_position
+            global_prescribed.extend(dofs)
+        return global_prescribed
+
+    def get_unprescribed_indexes(self):
+        total_dof = DOF_PER_NODE * len(self.nodes)
+        all_indexes = np.arange(total_dof)
+        prescribed_indexes = self.get_prescribed_indexes()
+        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
+        return unprescribed_indexes
+
+    def get_prescribed_values(self):
+        global_prescribed = []
+        for node in self.nodes.values():
+            global_prescribed.extend(node.get_boundary_condition_values())
         return global_prescribed
 
     def set_material_by_line(self, lines, material):
@@ -55,9 +81,18 @@ class Mesh:
         for element in slicer(self.elements, elements):
             element.cross_section = cross_section
 
+    def set_force_by_element(self, elements, loaded_force):
+        for element in slicer(self.elements, elements):
+            element.loaded_forces = loaded_force
+    
+    def set_force_by_node(self, nodes, loaded_force):
+        for node in slicer(self.nodes, nodes):
+            node.forces = loaded_force
+
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.set_boundary_condition(boundary_condition)
+
 
     # generate
     def _initialize_gmsh(self, path):

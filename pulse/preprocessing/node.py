@@ -14,9 +14,14 @@ class Node:
         self.x = x
         self.y = y
         self.z = z
+<<<<<<< HEAD
         self.boundary_condition = BoundaryCondition()
         self.haveBoundaryCondition_D = False   #Used to color the point
         self.haveBoundaryCondition_R = False   #Used to color the point
+=======
+        self.boundary_condition = [None, None, None, None, None, None]
+        self.forces = [0,0,0,0,0,0]
+>>>>>>> master
         self.global_index = global_index
 
     @property
@@ -43,3 +48,16 @@ class Node:
 
     def getBondaryCondition(self):
         return self.boundary_condition
+
+    def get_boundary_condition_indexes(self):
+        return [i for i, j in enumerate(self.boundary_condition) if j is not None]
+
+    def get_boundary_condition_values(self):
+        return [i for i in self.boundary_condition if i is not None]
+
+    def set_prescribed_forces(self, forces):
+        self.forces = forces
+
+    def get_prescribed_forces(self):
+        return self.forces
+
