@@ -1,9 +1,9 @@
 import numpy as np
 from math import pi, sqrt, sin, cos
 
-from pulse.engine.node import Node
-from pulse.engine.section_fem import TubeCrossSection as TCS
-from pulse.engine.material import Material
+from node import Node
+from section_fem import TubeCrossSection as TCS
+from material import Material
 
 
 class Element:
@@ -82,16 +82,25 @@ class Element:
         L_ = sqrt(delta_x**2 + delta_y**2)
         L  = sqrt(delta_x**2 + delta_y**2 + delta_z**2)
 
+        if L_ > 0.0001*L:
+            sine = delta_y/L_
+            cossine = delta_x/L_
+        else:
+            sine = 0.0
+            cossine = 1.0
+
         C = np.zeros((3,3))
         if L_ != 0.:
-            C[0,] = np.array([ [delta_x / L, delta_y / L, delta_z / L] ])
+            C[0,] = np.array([ [cossine * L_ / L,
+                                sine * L_ / L,
+                                delta_z / L] ])
 
-            C[1,] = np.array([ [-delta_x*delta_z * sin(gamma) / (L_ * L) - delta_y * cos(gamma) / L_,
-                                -delta_y*delta_z * sin(gamma) / (L_ * L) + delta_x * cos(gamma) / L_,
+            C[1,] = np.array([ [-cossine * delta_z * sin(gamma) / L - sine * cos(gamma),
+                                -sine * delta_z * sin(gamma) / L + cossine * cos(gamma),
                                 L_ * sin(gamma) / L] ])
 
-            C[2,] = np.array([ [-delta_x*delta_z * cos(gamma) / (L_ * L) + delta_y * sin(gamma) / L_,
-                                -delta_y*delta_z * cos(gamma) / (L_ * L) - delta_x * sin(gamma) / L_,
+            C[2,] = np.array([ [-cossine * delta_z * cos(gamma) / L + sine * sin(gamma),
+                                -sine * delta_z * cos(gamma) / L - cossine * sin(gamma),
                                 L_ * cos(gamma) / L] ])
         else:
             C[0,0] = 0.
@@ -316,7 +325,7 @@ if __name__ == '__main__':
     D_external = 0.05   # External diameter [m]
     thickness  = 0.008 # Thickness [m]
     division_number = 64
-    offset = [0, 0.0025]
+    offset = [0, 0]
     cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
     cs_properties = cross_section.properties(poisson_ratio = 0)
 
