@@ -16,6 +16,7 @@ class Mesh:
 
     def reset_variables(self):
         self.nodes = {}
+        self.nodes_color = {}
         self.elements = {}
         self.neighbours = {}
         self.line_to_elements = {}
@@ -109,6 +110,7 @@ class Mesh:
             coordinates = split_sequence(coordinates, 3)
 
             for index, (x, y, z) in zip(index, coordinates):
+                self.nodes_color[index] = Node(x/1000, y/1000, z/1000)
                 node = index, x/1000, y/1000, z/1000
                 newEntity.insertNode(node)
 
@@ -132,7 +134,7 @@ class Mesh:
         for index, connectivity in zip(indexes, split_sequence(connectivities, 2)):
             first_node = self.nodes[connectivity[0]]
             last_node = self.nodes[connectivity[1]]
-            self.elements[index] = Element(first_node, last_node)
+            self.elements[index] = Element(first_node, last_node, connectivity[0], connectivity[1])
 
     def _load_neighbours(self):
         self.neighbours = {}

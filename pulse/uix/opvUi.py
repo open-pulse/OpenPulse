@@ -9,6 +9,7 @@ from pulse.opv.linesPoint import LinesPoint
 from pulse.opv.preProcessingLines import PreProcessingLines
 from pulse.opv.point import Point
 from pulse.opv.element import Element
+from pulse.opv.colorTable import ColorTable
 
 from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
@@ -49,6 +50,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.textActorEntity = vtk.vtkTextActor()
         self.textActorPoint = vtk.vtkTextActor()
         self.textActorPreProcessing = vtk.vtkTextActor()
+
+        self.colorbar = vtk.vtkScalarBarActor()
 
         self.in_entities = False
         self.in_elements = False
@@ -162,6 +165,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         width, height = self.renderer_pre_processing.GetSize()
         self.textActorPreProcessing.SetDisplayPosition(width-250,35)
         self.renderer_pre_processing.AddActor2D(self.textActorPreProcessing)
+
+    def create_colorBarActor(self, colorTable):
+        self.colorbar.SetMaximumNumberOfColors(400)
+        self.colorbar.SetLookupTable(colorTable)
+        self.colorbar.SetWidth(0.05)
+        self.colorbar.SetPosition(0.95, 0.1)
+        self.colorbar.SetLabelFormat("%.3g")
+        self.colorbar.VisibilityOn()
         
     def _create_axes(self):
         axesActor = vtk.vtkAxesActor()
@@ -226,10 +237,15 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
+        colorTable = ColorTable(self.project)
+        self.create_colorBarActor(colorTable)
+
         for entity in self.project.getEntities():
-            plot = PreProcessingLines(entity)
+            plot = PreProcessingLines(colorTable, entity)
             plot.assembly()
             self.renderer_pre_processing.AddActor(plot.get_actor())
+        
+        self.renderer_pre_processing.AddActor(self.colorbar)
 
     def plot_entities(self):
         for actor in self.renderer_entities.GetActors():

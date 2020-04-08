@@ -61,6 +61,9 @@ class Project:
     def getNodes(self):
         return self.mesh.nodes
 
+    def getNodesColor(self):
+        return self.mesh.nodes_color
+
     def getElements(self):
         return self.mesh.elements
 

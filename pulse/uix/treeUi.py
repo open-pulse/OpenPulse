@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor
+from pulse.uix.matplotlib.temp import Temp
 
 class TreeUi(QTreeWidget):
     def __init__(self, main_window):
@@ -41,6 +42,10 @@ class TreeUi(QTreeWidget):
         assembly = QTreeWidgetItem(["Assembly"])
         assembly_get_global_matrices = QTreeWidgetItem(["Global Matrices"])
 
+        #Graph Plots
+        matplot_graph = QTreeWidgetItem(["Matplotlib"])
+        matplot_graph_temp = QTreeWidgetItem(["Temp"])
+
         #Desativados
         mesh.setDisabled(True)
         generate.setDisabled(True)
@@ -60,14 +65,18 @@ class TreeUi(QTreeWidget):
         pre_processing.addChild(pre_processing_temp_set_all_cross)
         assembly.addChild(assembly_get_global_matrices)
 
+        matplot_graph.addChild(matplot_graph_temp)
+
         self.addTopLevelItem(hiden_data)
         self.addTopLevelItem(mesh)
         self.addTopLevelItem(graphic)
         self.addTopLevelItem(pre_processing)
         self.addTopLevelItem(assembly)
+        self.addTopLevelItem(matplot_graph)
 
         pre_processing.setExpanded(True)
         assembly.setExpanded(True)
+        matplot_graph.setExpanded(True)
 
     def on_click_item(self, item, column):
         if item.text(0) == "Generate":
@@ -111,3 +120,8 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == "Global Matrices":
             self.main_window.getInputWidget().preProcessingInfo()
             #self.main_window.project.getGlobalMatrices()
+
+        elif item.text(0) == "Temp":
+            a = Temp()
+            a.axes.plot([0,1,2,3,4], [10,1,20,3,40])
+            a.show()

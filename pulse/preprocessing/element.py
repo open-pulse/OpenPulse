@@ -31,9 +31,11 @@ def shape_function(ksi):
 
 
 class Element:
-    def __init__(self, first_node, last_node, **kwargs):
+    def __init__(self, first_node, last_node, first_node_id, last_node_id, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
+        self.first_node_id = first_node_id
+        self.last_node_id = last_node_id
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
 

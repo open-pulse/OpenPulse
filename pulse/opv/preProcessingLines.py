@@ -4,10 +4,9 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.cross_section import CrossSection
 
 class PreProcessingLines:
-    def __init__(self, entity = Entity(-1)):
+    def __init__(self, color_table, entity = Entity(-1)):
 
-        self.color = entity.getColor()
-        self.normalizedColor = entity.getNormalizedColor()
+        self.colorTable = color_table
         self.nodesList = entity.getNodes()
         self.elementsList = entity.getElements()
         self.tag = entity.getTag()
@@ -46,8 +45,10 @@ class PreProcessingLines:
         self._object.SetLines(self._edges)
 
     def _filter(self):
-        for _ in range(self._nodes.GetNumberOfPoints()):
-            self._colorFilter.InsertNextTypedTuple(self.color)
+        for node in self.nodesList:
+            self._colorFilter.InsertTypedTuple(int(node[0]), self.colorTable.get_color_by_id(node[0]))
+        # for _ in range(self._nodes.GetNumberOfPoints()):
+        #     self._colorFilter.InsertNextTypedTuple([255,255,255])
 
         self._object.GetPointData().SetScalars(self._colorFilter)
 
@@ -59,11 +60,11 @@ class PreProcessingLines:
 
     def _map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
-        self._mapper.ScalarVisibilityOff()
+        #self._mapper.ScalarVisibilityOff()
 
     def _actor(self):
         self._line_actor.SetMapper(self._mapper)
-        self._line_actor.GetProperty().SetColor(self.normalizedColor)
+        #self._line_actor.GetProperty().SetColor(self.normalizedColor)
 
     def get_actor(self):
         return self._line_actor
