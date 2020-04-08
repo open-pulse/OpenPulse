@@ -2,7 +2,7 @@ import numpy as np
 from math import pi, sqrt, sin, cos
 
 from pulse.engine.node import Node
-from pulse.engine.section_fem import TubeCrossSection
+from pulse.engine.section_fem import TubeCrossSection as TCS
 from pulse.engine.material import Material
 
 
@@ -170,10 +170,18 @@ class Element:
         inv_jacob = 1 / det_jacob
 
         #Constitutive matrices (element with constant geometry along x-axis)
-        Dts_a = mu*np.array([[J,-Q1a,Q2a],[-Q1a,ala*A,0.],[Q2a,0.,ala*A]]) #Torsion + shear (Ansys) - Part a
-        Dts_b = mu*np.array([[J,-Q1b,Q2b],[-Q1b,alb*A,0.],[Q2b,0.,alb*A]]) #Torsion + shear (Ansys) - Part b
+        #Torsion + shear - Part a
+        Dts_a = mu*np.array([[J,    -Q1a,  Q2a],
+                             [-Q1a, ala*A, 0.],
+                             [Q2a,  0.,    ala*A]])
+        #Torsion + shear - Part b
+        Dts_b = mu*np.array([ [J,    -Q1b,  Q2b],
+                              [-Q1b, alb*A, 0.],
+                              [Q2b,  0.,    alb*A]]) 
         Dts = (Dts_a + Dts_b) / 2
-        Dab = E*np.array([[A,Q1,-Q2],[Q1,I1,-I12],[-Q2,-I12,I2]]) #Axial + Bending
+        Dab = E*np.array([[A,   Q1, -Q2],
+                          [Q1,  I1, -I12],
+                          [-Q2,-I12, I2]]) #Axial + Bending
 
         ## Numerical integration by Gauss Quadracture
         number_integrations_points = 1
@@ -297,3 +305,36 @@ class Element:
         Ke_gcs = T.T @ self.stiffness_matrix() @ T
         Fe_gcs = T.T @ self.force_vector()
         return Me_gcs.flatten(), Ke_gcs.flatten(), Fe_gcs
+
+if __name__ == '__main__':
+    young_modulus = 210e9 # Young modulus [Pa]
+    poisson_ratio = 0.3   # Poisson ratio[-]
+    density = 7860  # Density[kg/m^3]
+    material = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
+
+    ## Cross section definition:
+    D_external = 0.05   # External diameter [m]
+    thickness  = 0.008 # Thickness [m]
+    division_number = 64
+    offset = [0, 0.0025]
+    cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
+    cs_properties = cross_section.properties(poisson_ratio = 0)
+
+    load = [0, 0, 0, 0, 0, 0]
+    element_type = None
+    user_index = 1
+    node_initial = Node(0, 0, 0, 1, index = 0)
+    node_final = Node(0.01, 0, 0, 2, index = 1)
+
+    element =Element(node_initial, 
+                     node_final,
+                     material,
+                     cs_properties,
+                     load,
+                     element_type,
+                     user_index)
+
+    ke = element.stiffness_matrix()
+    me = element.mass_matrix()
+
+    print(ke)

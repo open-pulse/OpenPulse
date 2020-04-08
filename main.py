@@ -33,7 +33,7 @@ thickness  = 0.008 # Thickness [m]
 division_number = 64
 offset = [0, 0]
 cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
-cross_section_1_properties = cross_section_1.properties(material_1.poisson_ratio)
+cross_section_1_properties = cross_section_1.properties(poisson_ratio = 0) # Obs.: Here, poisson have to be set 0.
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)

@@ -244,7 +244,8 @@ class TubeCrossSection:
         data = np.hstack((data, 0))
         #
         K_lg = csc_matrix((data, (row, col)), shape=(NGL+1, NGL+1))
-        inv_K_lg = np.linalg.pinv(K_lg.toarray())
+        # Pseudo inverse used to remedy numerical instability
+        inv_K_lg = np.linalg.pinv(K_lg.toarray()) 
 
         u2 = inv_K_lg @ np.append(F2, 0)
         u3 = inv_K_lg @ np.append(F3, 0)
@@ -292,3 +293,16 @@ class TubeCrossSection:
         A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = self.offset)
 
         return A, I1, I2, I12, J, Q1, Q2, Q1a, Q2a, RES1a, RES2a, Q1b, Q2b, RES1b, RES2b
+
+if __name__ == '__main__':
+
+    poisson_ratio = 0.3   # Poisson ratio[-]
+    D_external = 0.05   # External diameter [m]
+    thickness  = 0.008 # Thickness [m]
+    division_number = 64
+    offset = [2e-3, 2e-3]
+    cross_section_1 = TubeCrossSection(D_external, division_number = division_number , offset = offset , thickness = thickness)
+    cross_section_1_properties = cross_section_1.properties(poisson_ratio)
+
+    for i in cross_section_1_properties:
+        print(i)
