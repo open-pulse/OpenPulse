@@ -8,17 +8,14 @@ def get_frf(mesh, solution, node, dof):
     y = np.abs(solution[position])
     return y
 
-def get_normal(mesh, solution, node, frequency):
-    start_node = mesh.nodes[node]
-    position = start_node.global_index * DOF_PER_NODE
-    x = solution[position + 0][frequency]
-    y = solution[position + 1][frequency]
-    z = solution[position + 2][frequency]
-
-    dx = (x - start_node.x)
-    dy = (y - start_node.y)
-    dz = (z - start_node.z)
-
-    normal = np.sqrt(dx*dx + dy*dy + dz*dz)
-
-    return normal
+def get_displacement_matrix(mesh, solution, frequency):
+    displacement = []
+    
+    for i, node in mesh.nodes.items():
+        pos = node.global_index * DOF_PER_NODE
+        x = np.real(solution[pos + 0, frequency])
+        y = np.real(solution[pos + 1, frequency])
+        z = np.real(solution[pos + 2, frequency])
+        displacement.append([i,x,y,z])
+        
+    return displacement
