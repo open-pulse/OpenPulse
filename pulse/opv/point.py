@@ -9,7 +9,7 @@ class Point:
         self.y = node.y
         self.z = node.z
         self.color = [0,0,1]
-        if node.haveBoundaryCondition_D or node.haveBoundaryCondition_R:
+        if node.haveBoundaryCondition():
             self.color = [0,1,0]
         self.tag = tag
 

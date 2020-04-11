@@ -2,12 +2,12 @@ from PyQt5.QtWidgets import QLabel, QLineEdit, QDialogButtonBox, QDialog, QMessa
 from pulse.preprocessing.boundary_condition import BoundaryCondition
 from PyQt5 import uic
 
-class DOFInput(QDialog):
+class ForceInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/dofInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/forceInput.ui', self)
 
-        self.bondary = None
+        self.force = None
         self.button_save_dof = self.findChild(QDialogButtonBox, 'button_save_dof')
         self.button_save_dof.accepted.connect(self.accept_dof)
         self.button_save_dof.rejected.connect(self.reject_dof)
@@ -21,7 +21,7 @@ class DOFInput(QDialog):
         self.line_yy = self.findChild(QLineEdit, 'line_yy')
         self.line_yz = self.findChild(QLineEdit, 'line_yz')
 
-        self.label_node_id.setText("Node - Boundary Condition")
+        self.label_node_id.setText("Node - Force")
 
         self.exec_()
         
@@ -74,7 +74,7 @@ class DOFInput(QDialog):
                 self.error("Digite um valor válido")
                 return
 
-        self.bondary = [dx,dy,dz,rx,ry,rz]
+        self.force = [dx,dy,dz,rx,ry,rz]
         self.close()
 
     def reject_dof(self):

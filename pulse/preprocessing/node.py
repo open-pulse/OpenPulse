@@ -14,14 +14,8 @@ class Node:
         self.x = x
         self.y = y
         self.z = z
-<<<<<<< HEAD
-        self.boundary_condition = BoundaryCondition()
-        self.haveBoundaryCondition_D = False   #Used to color the point
-        self.haveBoundaryCondition_R = False   #Used to color the point
-=======
         self.boundary_condition = [None, None, None, None, None, None]
         self.forces = [0,0,0,0,0,0]
->>>>>>> master
         self.global_index = global_index
 
     @property
@@ -40,10 +34,6 @@ class Node:
         return np.linalg.norm(self.coordinates - other.coordinates)
 
     def set_boundary_condition(self, boundary_condition):
-        if boundary_condition.displacement is not (None, None, None):
-            self.haveBoundaryCondition_D = True
-        if boundary_condition.rotation is not (None, None, None):
-            self.haveBoundaryCondition_R = True
         self.boundary_condition = boundary_condition
 
     def getBondaryCondition(self):
@@ -61,3 +51,8 @@ class Node:
     def get_prescribed_forces(self):
         return self.forces
 
+    def haveBoundaryCondition(self):
+        for i in self.boundary_condition:
+            if i is not None:
+                return True
+        return False

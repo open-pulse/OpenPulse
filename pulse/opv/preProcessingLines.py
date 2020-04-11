@@ -53,7 +53,7 @@ class PreProcessingLines:
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(self.externalRadius*0.2)
+        self._tubeFilter.SetRadius(self.externalRadius)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.SetCapping(True)
         self._tubeFilter.Update()

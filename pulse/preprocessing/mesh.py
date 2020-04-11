@@ -16,7 +16,7 @@ class Mesh:
 
     def reset_variables(self):
         self.nodes = {}
-        self.nodes_color = {}
+        self.nodes_color = {}  #Nodes with duplicates
         self.elements = {}
         self.neighbours = {}
         self.line_to_elements = {}
@@ -92,7 +92,6 @@ class Mesh:
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.set_boundary_condition(boundary_condition)
-
 
     # generate
     def _initialize_gmsh(self, path):

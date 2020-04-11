@@ -174,3 +174,6 @@ class MainWindow(QMainWindow):
 
     def getOPVWidget(self):
         return self.opv_widget
+
+    def getProject(self):
+        return self.project

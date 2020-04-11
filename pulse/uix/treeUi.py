@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor
-from pulse.uix.matplotlib.temp import Temp
+from pulse.uix.matplotlib.frf import FRF
 
 class TreeUi(QTreeWidget):
     def __init__(self, main_window):
@@ -24,19 +24,23 @@ class TreeUi(QTreeWidget):
         list_of_nodes = QTreeWidgetItem(["List of Nodes"])
         list_of_connections = QTreeWidgetItem(['List of Connections'])
 
-        #Grafic - COnfiguração de plot
-        graphic = QTreeWidgetItem(["Graphic"])
-        plot = QTreeWidgetItem(['Plot Config'])
-
         #PreProcessing
         pre_processing = QTreeWidgetItem(["Pre-Processing"])
         pre_processing_material = QTreeWidgetItem(["Set Material"])
         pre_processing_cross = QTreeWidgetItem(["Set Cross Section"])
         pre_processing_dof = QTreeWidgetItem(["Set DOF"])
+        pre_processing_dof_node = QTreeWidgetItem(["Set DOF NodeID"])
         pre_processing_dof_import = QTreeWidgetItem(["Import DOF"])
+        pre_processing_force = QTreeWidgetItem(["Set Force"])
+        pre_processing_force_node = QTreeWidgetItem(["Set Force NodeID"])
         #Preprocessing - Temporário
         pre_processing_temp_set_all_material = QTreeWidgetItem(["Set Material <All>"])
         pre_processing_temp_set_all_cross = QTreeWidgetItem(["Set Cross Section <All>"])
+
+        #Grafic - COnfiguração de plot
+        graphic = QTreeWidgetItem(["Graphic"])
+        graphic_direct = QTreeWidgetItem(['Direct'])
+        graphic_modal = QTreeWidgetItem(['Modal'])
 
         #Assembly
         assembly = QTreeWidgetItem(["Assembly"])
@@ -44,33 +48,38 @@ class TreeUi(QTreeWidget):
 
         #Graph Plots
         matplot_graph = QTreeWidgetItem(["Matplotlib"])
-        matplot_graph_temp = QTreeWidgetItem(["Temp"])
+        matplot_graph_frf = QTreeWidgetItem(["FRF"])
 
         #Desativados
         mesh.setDisabled(True)
         generate.setDisabled(True)
-        graphic.setDisabled(True)
+        #graphic.setDisabled(True)
+        assembly.setDisabled(True)
         hiden_data.setDisabled(True)
         pre_processing_dof_import.setDisabled(True)
 
         mesh.addChild(generate)
         mesh.addChild(list_of_nodes)
         mesh.addChild(list_of_connections)
-        graphic.addChild(plot)
         pre_processing.addChild(pre_processing_material)
         pre_processing.addChild(pre_processing_cross)
         pre_processing.addChild(pre_processing_dof)
+        pre_processing.addChild(pre_processing_dof_node)
         pre_processing.addChild(pre_processing_dof_import)
+        pre_processing.addChild(pre_processing_force)
+        pre_processing.addChild(pre_processing_force_node)
         pre_processing.addChild(pre_processing_temp_set_all_material)
         pre_processing.addChild(pre_processing_temp_set_all_cross)
+        graphic.addChild(graphic_direct)
+        graphic.addChild(graphic_modal)
         assembly.addChild(assembly_get_global_matrices)
 
-        matplot_graph.addChild(matplot_graph_temp)
+        matplot_graph.addChild(matplot_graph_frf)
 
         self.addTopLevelItem(hiden_data)
         self.addTopLevelItem(mesh)
-        self.addTopLevelItem(graphic)
         self.addTopLevelItem(pre_processing)
+        self.addTopLevelItem(graphic)
         self.addTopLevelItem(assembly)
         self.addTopLevelItem(matplot_graph)
 
@@ -108,8 +117,17 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == "Set DOF":
             self.main_window.getInputWidget().dof_input()
 
+        elif item.text(0) == "Set DOF NodeID":
+            self.main_window.getInputWidget().dof_input_node()
+
         elif item.text(0) == "Import DOF":
             self.main_window.getInputWidget().import_dof()
+
+        elif item.text(0) == "Set Force":
+            self.main_window.getInputWidget().force_input()
+
+        elif item.text(0) == "Set Force NodeID":
+            self.main_window.getInputWidget().force_input_node()
 
         elif item.text(0) == "Set Material <All>":
             self.main_window.getInputWidget().define_material_all()
@@ -119,9 +137,13 @@ class TreeUi(QTreeWidget):
 
         elif item.text(0) == "Global Matrices":
             self.main_window.getInputWidget().preProcessingInfo()
-            #self.main_window.project.getGlobalMatrices()
 
-        elif item.text(0) == "Temp":
-            a = Temp()
-            a.axes.plot([0,1,2,3,4], [10,1,20,3,40])
-            a.show()
+        elif item.text(0) == "FRF":
+            frf = FRF(self.main_window.getProject())
+            frf.show()
+
+        elif item.text(0) == "Direct":
+            pass
+
+        elif item.text(0) == "Modal":
+            pass

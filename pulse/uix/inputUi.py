@@ -2,7 +2,10 @@ from pulse.uix.user_input.materialInput import MaterialInput
 from pulse.uix.user_input.materialList import MaterialList
 from pulse.uix.user_input.crossInput import CrossInput
 from pulse.uix.user_input.dofInput import DOFInput
+from pulse.uix.user_input.dofInputNode import DOFInputNode
 from pulse.uix.user_input.dofImport import DOFImport
+from pulse.uix.user_input.forceInput import ForceInput
+from pulse.uix.user_input.forceInputNode import ForceInputNode
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.uix.user_input.preProcessingInfo import PreProcessingInfo
 
@@ -52,7 +55,6 @@ class InputUi:
         # imd = DOFImport()
 
     def dof_input(self):
-        pass
         point_id = self.opv.getListPickedPoints()
         if len(point_id) == 0:
             return
@@ -60,10 +62,40 @@ class InputUi:
         dof = DOFInput()
         if dof.bondary is None:
             return
-        print(point_id)
         self.project.setBondaryCondition_by_Node(point_id, dof.bondary)
         print("### BC defined in the Points {}".format(point_id))
         self.opv.changeColorPoints(point_id, (0,1,0))
+
+    def dof_input_node(self):
+        point_id = self.opv.getListPickedPoints()
+        dof = DOFInputNode(point_id)
+        if dof.bondary is None:
+            return
+        if len(dof.nodes) != 0:
+            self.project.setBondaryCondition_by_Node(dof.nodes, dof.bondary)
+            print("### BC defined in the Points {}".format(dof.nodes))
+            self.opv.changeColorPoints(dof.nodes, (0,1,0))
+
+    def force_input_node(self):
+        force = ForceInputNode()
+        if force.force is None:
+            return
+        if len(force.nodes) != 0:
+            self.project.setFroce_by_Node(force.nodes, force.force)
+            print("### Force defined in the Points {}".format(force.nodes))
+            self.opv.changeColorPoints(force.nodes, (0,1,0))
+
+    def force_input(self):
+        point_id = self.opv.getListPickedPoints()
+        if len(point_id) == 0:
+            return
+
+        force = ForceInput()
+        if force.force is None:
+            return
+        self.project.setFroce_by_Node(point_id, force.force)
+        print("### Force defined in the Points {}".format(point_id))
+        self.opv.changeColorPoints(point_id, (0,1,1))
 
     def newProject(self):
         result = NewProjectInput(self.project)
@@ -75,8 +107,9 @@ class InputUi:
 
         selected_material = MaterialList(self.project.materialListPath)
         
-        if selected_material.material is not None:
-            self.project.setMaterial(selected_material.material)
+        if selected_material.material is None:
+            return
+        self.project.setMaterial(selected_material.material)
         entities = []
         for entity in self.project.getEntities():
             entities.append(entity.getTag())
@@ -87,11 +120,14 @@ class InputUi:
             return   #No project were loaded
 
         cross_section = CrossInput()
-        if cross_section.cross is not None:
-            self.project.setCrossSection(cross_section.cross)
+        if cross_section.cross is None:
+            return
+        self.project.setCrossSection(cross_section.cross)
         self.opv.changeColorCross()
 
     def preProcessingInfo(self):
         pre = PreProcessingInfo(self.project.entityPath, self.project.nodePath)
         if not pre.hasError:
+            self.project.setTempValues()
+            self.project.getGlobalMatrices()
             self.opv.change_to_preProcessing()

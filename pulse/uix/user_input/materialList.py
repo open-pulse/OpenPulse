@@ -64,7 +64,7 @@ class MaterialList(QDialog):
             youngmodulus =  str(config[mat]['youngmodulus'])
             poisson =  str(config[mat]['poisson'])
             color =  str(config[mat]['color'])
-            load_material = QTreeWidgetItem([name, identifier, density, youngmodulus, poisson, color])
+            load_material = QTreeWidgetItem([name, identifier, youngmodulus, density, poisson, color])
             #Colorir
             colorRGB = self.getColorRGB(color)
             # load_material.setForeground(0,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))

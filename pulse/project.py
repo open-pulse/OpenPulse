@@ -4,6 +4,7 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.boundary_condition import BoundaryCondition
+import numpy as np
 import configparser
 
 class Project:
@@ -58,6 +59,9 @@ class Project:
         self.loadEntityFile()
         self.loadNodeFile()
 
+    def getMesh(self):
+        return self.mesh
+
     def getNodes(self):
         return self.mesh.nodes
 
@@ -100,13 +104,13 @@ class Project:
         self.addCrossSectionInFile(entity_id, cross_section)
 
     def setMaterial(self, material):
-        self.mesh.set_material_by_element('all', material)
+        self.mesh.set_material_by_line('all', material)
         self._setAllEntityMaterial(material)
         for entity in self.mesh.entities:
             self.addMaterialInFile(entity.getTag(), material.identifier)
 
     def setCrossSection(self, cross_section):
-        self.mesh.set_cross_section_by_element('all', cross_section)
+        self.mesh.set_cross_section_by_line('all', cross_section)
         self._setAllEntityCross(cross_section)
         for entity in self.mesh.entities:
             self.addCrossSectionInFile(entity.getTag(), cross_section)
@@ -114,6 +118,9 @@ class Project:
     def setBondaryCondition_by_Node(self, node_id, bc):
         self.mesh.set_boundary_condition_by_node(node_id, bc)
         self.addBondaryConditionInFile(node_id, bc)
+
+    def setFroce_by_Node(self, node_id, force):
+        self.mesh.set_force_by_node(node_id, force)
 
     def isReady(self):
         return self.projectReady
@@ -165,12 +172,12 @@ class Project:
         config.read(self.nodePath)
         for node_id in nodes_id:
             if str(node_id) in config.sections():
-                config[str(node_id)]['displacement'] = str(bc.displacement)
-                config[str(node_id)]['rotation'] = str(bc.rotation)
+                config[str(node_id)]['displacement'] = "({},{},{})".format(bc[0], bc[1], bc[2])
+                config[str(node_id)]['rotation'] = "({},{},{})".format(bc[3], bc[4], bc[5])
             else:
                 config[str(node_id)] = {
-                    'displacement': str(bc.displacement),
-                    'rotation': str(bc.rotation)
+                    'displacement': "({},{},{})".format(bc[0], bc[1], bc[2]),
+                    'rotation': "({},{},{})".format(bc[3], bc[4], bc[5])
                 }
         with open(self.nodePath, 'w') as configfile:
             config.write(configfile)
@@ -238,7 +245,7 @@ class Project:
             if rotation[2].isnumeric():
                 rz = int(rotation[2])
 
-            bc = BoundaryCondition(dx,dy,dz,rx,ry,rz)
+            bc = [dx,dy,dz,rx,ry,rz]
             self.loadBondaryCondition_by_Node(node_id, bc)
 
     def isFloat(self, number):
@@ -250,3 +257,9 @@ class Project:
 
     def getElementSize(self):
         return self.elementSize
+
+    def setTempValues(self):
+        self.setBondaryCondition_by_Node([1, 100], [1,2,None,None,9,8])
+        self.mesh.set_force_by_node([10, 18], np.array([1,1,1,1,1,1]))
+        #self.setBondaryCondition_by_Node([1, 1200, 1325], np.zeros(6))
+        #self.mesh.set_force_by_node([361, 230], np.array([1,0,0,0,0,0]))

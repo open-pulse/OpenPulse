@@ -31,7 +31,7 @@ def shape_function(ksi):
 
 
 class Element:
-    def __init__(self, first_node, last_node, first_node_id, last_node_id, **kwargs):
+    def __init__(self, first_node, last_node, first_node_id = -1, last_node_id = -1, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
         self.first_node_id = first_node_id

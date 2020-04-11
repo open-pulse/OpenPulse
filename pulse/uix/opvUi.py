@@ -138,7 +138,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.textActorPoint.SetInput("")
         elif len(actors_id) == 1:
             node = self.project.getNode(int(actors_id[0]))
-            text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  {}\nRotation:  {}".format(actors_id[0], node.x, node.y, node.z, node.getBondaryCondition().displacement, node.getBondaryCondition().rotation)
+            text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(actors_id[0], node.x, node.y, node.z, node.getBondaryCondition()[0], node.getBondaryCondition()[1], node.getBondaryCondition()[2], node.getBondaryCondition()[3], node.getBondaryCondition()[4], node.getBondaryCondition()[5])
             self.textActorPoint.SetInput(text)
         else:
             text = "Selected Points:\n"
