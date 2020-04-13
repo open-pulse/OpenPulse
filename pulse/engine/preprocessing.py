@@ -213,11 +213,11 @@ class PreProcessing:
             
             #TODO: define how to access the material and cross_section data.
             material = self.material_dictionary[ element_index ]
-            cross_section_properties = self.cross_section_dictionary[ element_index ]
+            cross_section = self.cross_section_dictionary[ element_index ]
             load = self.load_dictionary[ element_index ]
             element_type = self.element_type_dictionary[ element_index ]
 
-            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section_properties,load,element_type,element_index)} )
+            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section,load,element_type,element_index)} )
 
         return map_elements
         

@@ -33,7 +33,6 @@ thickness  = 0.008 # Thickness [m]
 division_number = 64
 offset = [0, 0]
 cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
-cross_section_1_properties = cross_section_1.properties(poisson_ratio = 0) # Obs.: Here, poisson have to be set 0.
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
@@ -53,7 +52,7 @@ material_list = [1, material_1]
 material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 
 ## Cross section properties atribuition for each element
-cross_section_list = [1, cross_section_1_properties]
+cross_section_list = [1, cross_section_1]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
 load_dictionary = {i:np.array([0, 0, 0, 0, 0, 0]) for i in connectivity[:,0]}

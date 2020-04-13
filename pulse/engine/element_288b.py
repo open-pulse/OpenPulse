@@ -1,9 +1,9 @@
 import numpy as np
 from math import pi, sqrt, sin, cos
 
-from node import Node
-from section_fem import TubeCrossSection as TCS
-from material import Material
+from pulse.engine.node import Node
+from pulse.engine.section_fem import TubeCrossSection as TCS
+from pulse.engine.material import Material
 
 
 class Element:
@@ -34,7 +34,7 @@ class Element:
                  node_initial, 
                  node_final,
                  material,
-                 cross_section_properties,
+                 cross_section,
                  load,
                  element_type,
                  user_index,
@@ -43,7 +43,7 @@ class Element:
         self.node_initial = node_initial
         self.node_final = node_final
         self.material = material
-        self.cross_section_properties = cross_section_properties
+        self.cross_section = cross_section
         self.load = load
         self.element_type = element_type
         self.user_index = user_index  
@@ -86,8 +86,8 @@ class Element:
             sine = delta_y/L_
             cossine = delta_x/L_
         else:
-            sine = 0.0
-            cossine = 1.0
+            sine = 0
+            cossine = 1
 
         C = np.zeros((3,3))
         if L_ != 0.:
@@ -168,11 +168,11 @@ class Element:
         E = self.material.young_modulus
         mu = self.material.mu_parameter()
         # Tube cross section properties
-        A, I1, I2, I12, J, Q1, Q2, Q1a, Q2a, RES1a, RES2a, Q1b, Q2b, RES1b, RES2b = self.cross_section_properties
+        A, I1, I2, I12, J, Q1, Q2, RES1, RES2, _ = self.cross_section.properties(poisson_ratio = 0)
 
         # Shear coefficiets - Treatment 
-        ala = np.min([1./RES1a,1./RES2a])
-        alb = np.min([1./RES1b,1./RES2b])
+        al1 = 1/RES1
+        al2 = 1/RES2
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -180,14 +180,9 @@ class Element:
 
         #Constitutive matrices (element with constant geometry along x-axis)
         #Torsion + shear - Part a
-        Dts_a = mu*np.array([[J,    -Q1a,  Q2a],
-                             [-Q1a, ala*A, 0.],
-                             [Q2a,  0.,    ala*A]])
-        #Torsion + shear - Part b
-        Dts_b = mu*np.array([ [J,    -Q1b,  Q2b],
-                              [-Q1b, alb*A, 0.],
-                              [Q2b,  0.,    alb*A]]) 
-        Dts = (Dts_a + Dts_b) / 2
+        Dts = mu*np.array([ [J,   -Q1,   Q2],
+                            [-Q1, al1*A, 0.],
+                            [Q2,  0.,    al2*A]])
         Dab = E*np.array([[A,   Q1, -Q2],
                           [Q1,  I1, -I12],
                           [-Q2,-I12, I2]]) #Axial + Bending
@@ -241,8 +236,8 @@ class Element:
         # Material properities
         rho = self.material.density
 
-        # Tube cross section properties        
-        A, I1, I2, I12, J, Q1, Q2, _, _, _, _, _, _, _, _ = self.cross_section_properties
+        # Tube cross section properties
+        A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.cross_section.properties(poisson_ratio = 0)
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
@@ -316,6 +311,7 @@ class Element:
         return Me_gcs.flatten(), Ke_gcs.flatten(), Fe_gcs
 
 if __name__ == '__main__':
+    ## Test setup! ##
     young_modulus = 210e9 # Young modulus [Pa]
     poisson_ratio = 0.3   # Poisson ratio[-]
     density = 7860  # Density[kg/m^3]
@@ -325,9 +321,8 @@ if __name__ == '__main__':
     D_external = 0.05   # External diameter [m]
     thickness  = 0.008 # Thickness [m]
     division_number = 64
-    offset = [0, 0]
-    cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
-    cs_properties = cross_section.properties(poisson_ratio = 0)
+    offset = [0.000, 0.000]
+    cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness)
 
     load = [0, 0, 0, 0, 0, 0]
     element_type = None
@@ -335,15 +330,14 @@ if __name__ == '__main__':
     node_initial = Node(0, 0, 0, 1, index = 0)
     node_final = Node(0.01, 0, 0, 2, index = 1)
 
-    element =Element(node_initial, 
-                     node_final,
-                     material,
-                     cs_properties,
-                     load,
-                     element_type,
-                     user_index)
+    element = Element(node_initial, 
+                      node_final,
+                      material,
+                      cross_section,
+                      load,
+                      element_type,
+                      user_index)
 
-    ke = element.stiffness_matrix()
-    me = element.mass_matrix()
+    ke = element.stiffness_matrix_gcs()
 
     print(ke)

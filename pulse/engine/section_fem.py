@@ -103,8 +103,9 @@ class TubeCrossSection:
         dphi[1,8] = (1 - ksi**2) * (-2*eta)
         return phi, dphi
     
-    def mesh_coordinate(self, offset = [0, 0]):
+    def mesh_coordinate(self):
         # coordinates of points on the face
+        offset = self.offset
         angular_increment = 2 * pi / (2 * self.division_number)
         theta = 0
         r_o = self.D_external / 2
@@ -134,7 +135,7 @@ class TubeCrossSection:
 
         return connectivity.astype('int')
     
-    def fem_solution(self, poisson_ratio, offset):
+    def properties(self, poisson_ratio):
         '''
         Parameters: possion_ratio: float
                         Material propertie.
@@ -163,7 +164,7 @@ class TubeCrossSection:
 
         '''
         points, weigth = TubeCrossSection.gauss_quadracture2D()
-        coordinate = self.mesh_coordinate(offset)
+        coordinate = self.mesh_coordinate()
         connectivity = self.mesh_connectivity()
         
         # Geometry properties
@@ -283,16 +284,6 @@ class TubeCrossSection:
         RES3 = (A/(ccg**2))*(ALP3)
         RES23 = (A/(ccg**2))*(ALP23)
         return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23
-
-    def properties(self, poisson_ratio):
-
-        _, _, _, _, _, Q1a, Q2a, RES1a, RES2a, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = [self.offset[0],0])
-
-        _, _, _, _, _, Q1b, Q2b, RES1b, RES2b, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = [0,self.offset[1]])
-
-        A, I1, I2, I12, J, Q1, Q2, _, _, _ = self.fem_solution(poisson_ratio = poisson_ratio, offset = self.offset)
-
-        return A, I1, I2, I12, J, Q1, Q2, Q1a, Q2a, RES1a, RES2a, Q1b, Q2b, RES1b, RES2b
 
 if __name__ == '__main__':
 
