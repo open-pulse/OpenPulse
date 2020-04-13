@@ -41,6 +41,7 @@ class TreeUi(QTreeWidget):
         graphic = QTreeWidgetItem(["Graphic"])
         graphic_direct = QTreeWidgetItem(['Direct'])
         graphic_modal = QTreeWidgetItem(['Modal'])
+        graphic_change_frequency = QTreeWidgetItem(['Change Frequency'])
 
         #Assembly
         assembly = QTreeWidgetItem(["Assembly"])
@@ -72,6 +73,7 @@ class TreeUi(QTreeWidget):
         pre_processing.addChild(pre_processing_temp_set_all_cross)
         graphic.addChild(graphic_direct)
         graphic.addChild(graphic_modal)
+        graphic.addChild(graphic_change_frequency)
         assembly.addChild(assembly_get_global_matrices)
 
         matplot_graph.addChild(matplot_graph_frf)
@@ -143,7 +145,10 @@ class TreeUi(QTreeWidget):
             frf.show()
 
         elif item.text(0) == "Direct":
-            pass
+            self.main_window.getInputWidget().direct_method()
 
         elif item.text(0) == "Modal":
-            pass
+            self.main_window.getInputWidget().modal_superposition()
+
+        elif item.text(0) == "Change Frequency":
+            self.main_window.getInputWidget().changeFrequencyInput()

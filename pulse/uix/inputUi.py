@@ -7,7 +7,12 @@ from pulse.uix.user_input.dofImport import DOFImport
 from pulse.uix.user_input.forceInput import ForceInput
 from pulse.uix.user_input.forceInputNode import ForceInputNode
 from pulse.uix.user_input.newProjectInput import NewProjectInput
+from pulse.uix.user_input.frequencyInput import FrequencyInput
+from pulse.uix.user_input.frequencyList import FrequencyList
 from pulse.uix.user_input.preProcessingInfo import PreProcessingInfo
+
+from pulse.processing.solution import direct_method, modal_superposition
+from pulse.postprocessing.plot_data import get_displacement_matrix
 
 from pulse.project import Project
 
@@ -124,6 +129,52 @@ class InputUi:
             return
         self.project.setCrossSection(cross_section.cross)
         self.opv.changeColorCross()
+
+    def direct_method(self):
+        freq = FrequencyInput()
+        try:
+            if len(freq.frequencies) == 0:
+                print("Nenhuma frequencia")
+                return
+            if not self.project.checkEntityMaterial():
+                print("Erro check material")
+                return
+            if not self.project.checkEntityCross():
+                print("Erro check cross")
+                return
+            direct = direct_method(self.project.getMesh(), freq.frequencies)
+            self.project.setDirectMatriz(direct)
+            self.project.setFrequencies(freq.frequencies)
+            self.opv.change_to_direct_method(0)
+        except Exception as e:
+            print("{}".format(e))
+
+    def modal_superposition(self):
+        freq = FrequencyInput()
+        try:
+            if len(freq.frequencies) == 0:
+                print("Nenhuma frequencia")
+                return
+            if not self.project.checkEntityMaterial():
+                print("Erro check material")
+                return
+            if not self.project.checkEntityCross():
+                print("Erro check cross")
+                return
+            modes = 140
+            modal = modal_superposition(self.project.getMesh(), freq.frequencies, modes)
+            self.project.setModalMatriz(modal)
+            self.project.setFrequencies(freq.frequencies)
+            self.project.setModes(modes)
+            self.opv.change_to_modal_superposition(0)
+        except Exception as e:
+            print("{}".format(e))
+
+    def changeFrequencyInput(self):
+        freq = FrequencyList(self.project.getFrequencies())
+        if freq.current_item is None:
+            return
+        self.opv.changeFrequency(freq.current_item)
 
     def preProcessingInfo(self):
         pre = PreProcessingInfo(self.project.entityPath, self.project.nodePath)

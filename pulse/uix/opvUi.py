@@ -7,13 +7,16 @@ import vtk
 from pulse.opv.lines import Lines
 from pulse.opv.linesPoint import LinesPoint
 from pulse.opv.preProcessingLines import PreProcessingLines
+from pulse.opv.postProcessingLines import PostProcessingLines
 from pulse.opv.point import Point
 from pulse.opv.element import Element
 from pulse.opv.colorTable import ColorTable
+from pulse.postprocessing.plot_data import get_displacement_matrix
 
 from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
 from pulse.uix.vtk.mouseInteractorEntity import MouseInteractorEntity
+from pulse.uix.vtk.mouseInteractorPostProcessing import MouseInteractorPostProcessing
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -40,7 +43,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.style_entities = MouseInteractorEntity(self)
         self.style_elements = MouseInteractorElement(self)
         self.style_points = MouseInteractorPoint(self)
-        self.style_pre_processing = vtk.vtkInteractorStyleTrackballCamera()
+        self.style_pre_processing = MouseInteractorPostProcessing(self)
 
         self.style_entities.SetDefaultRenderer(self.renderer_entities)
         self.style_elements.SetDefaultRenderer(self.renderer_elements)
@@ -56,6 +59,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = False
+        self.in_direct = False
+        self.in_modal = False
 
         self.changedSelectedEntityColors = False
 
@@ -158,9 +163,15 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.textActorPoint.SetDisplayPosition(width-250,35)
         self.renderer_points.AddActor2D(self.textActorPoint)
 
-    def update_text_actor_pre_processing(self):
+    def update_text_actor_post_processing(self, type_, frequency, frequencies, modal=None):
         self.renderer_pre_processing.RemoveActor2D(self.textActorPreProcessing)
-        text = "Element Size:  {}\n".format(self.project.getElementSize())
+        text = ""
+        if type_ == 1:
+            text += "Direct Method\n"
+        elif type_ == 2:
+            text += "Modal Superposition\nModes: {}\n".format(modal)
+        text += "Frequency: {}\n".format(frequencies[frequency])
+        text += "Frequency List: {}".format(frequencies)
         self.textActorPreProcessing.SetInput(text)
         width, height = self.renderer_pre_processing.GetSize()
         self.textActorPreProcessing.SetDisplayPosition(width-250,35)
@@ -193,6 +204,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = True
         self.in_elements = False
         self.in_points = False
+        self.in_direct = False
+        self.in_modal = False
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
@@ -203,6 +216,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = True
         self.in_points = False
+        self.in_direct = False
+        self.in_modal = False
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
         self.renderer_elements.ResetCamera()
@@ -213,12 +228,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = True
+        self.in_direct = False
+        self.in_modal = False
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
         self.renderer_points.ResetCamera()
         self.update()
 
-    def change_to_preProcessing(self):
+    def change_to_direct_method(self, frequency_indice):
         self.style_entities.clear()
         self.style_elements.clear()
         self.style_points.clear()
@@ -226,25 +243,62 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = False
-        self.plot_pre_processing_entities()
+        self.in_direct = True
+        self.in_modal = False
+        self.plot_direct_method(self.project.getDirectMatriz(), frequency_indice)
         self.SetInteractorStyle(self.style_pre_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
         self.renderer_pre_processing.ResetCamera()
-        self.update_text_actor_pre_processing()
+        self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies())
+        self.update() 
+
+    def change_to_modal_superposition(self, frequency_indice):
+        self.style_entities.clear()
+        self.style_elements.clear()
+        self.style_points.clear()
+        self.remove_all_renderers()
+        self.in_entities = False
+        self.in_elements = False
+        self.in_points = False
+        self.in_direct = False
+        self.in_modal = True
+        self.plot_modal_superposition(self.project.getModalMatriz(), frequency_indice)
+        self.SetInteractorStyle(self.style_pre_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
+        self.renderer_pre_processing.ResetCamera()
+        self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), self.project.getModes())
         self.update()
 
-    def plot_pre_processing_entities(self):
+    def changeFrequency(self, frequency_indice):
+        if self.in_direct:
+            self.plot_direct_method(self.project.getDirectMatriz(), frequency_indice)
+            self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies())
+        elif self.in_modal:
+            self.plot_modal_superposition(self.project.getModalMatriz(), frequency_indice)
+            self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), self.project.getModes())
+
+    def plot_modal_superposition(self, modal, frequency_indice):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
-        colorTable = ColorTable(self.project)
+        matriz = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        colorTable = ColorTable(self.project, matriz)
         self.create_colorBarActor(colorTable)
+        plot = PostProcessingLines(self.project, matriz, colorTable)
+        plot.assembly()
+        self.renderer_pre_processing.AddActor(plot.get_actor())
+        self.renderer_pre_processing.AddActor(self.colorbar)
 
-        for entity in self.project.getEntities():
-            plot = PreProcessingLines(colorTable, entity)
-            plot.assembly()
-            self.renderer_pre_processing.AddActor(plot.get_actor())
-        
+    def plot_direct_method(self, direct, frequency_indice):
+        for actor in self.renderer_pre_processing.GetActors():
+            self.renderer_pre_processing.RemoveActor(actor)
+
+        matriz = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
+        colorTable = ColorTable(self.project, matriz)
+        self.create_colorBarActor(colorTable)
+        plot = PostProcessingLines(self.project, matriz, colorTable)
+        plot.assembly()
+        self.renderer_pre_processing.AddActor(plot.get_actor())
         self.renderer_pre_processing.AddActor(self.colorbar)
 
     def plot_entities(self):

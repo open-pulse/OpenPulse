@@ -14,26 +14,40 @@ class Project:
         self.projectName = ""
         self.materialListPath = ""
         self.geometryPath = ""
+        self.cordPath = ""
+        self.connPath = ""
         self.elementSize = 0
         self.entityPath = ""
         self.nodePath = ""
 
-        self.K = self.M = self.Kr = self.Mr = None
+        self.load_by_geometry = False
 
         self.projectReady = False #True if the project was created or loaded
         self.projectAssembly = False #True if the project was assembled
 
-    def newProject(self, path, project_name, geometry_name, element_size, material_name):
+        self.direct = None
+        self.modal = None
+        self.modes = 0
+        self.frequencies = []
+
+    def newProject(self, path, project_name, geometry_name, cord_name, conn_name, element_size, material_name):
         self.mesh = Mesh()
         self.path = path
         self.geometryPath = "{}//{}".format(path, geometry_name)
+        self.cordPath = "{}//{}".format(path, cord_name)
+        self.connPath = "{}//{}".format(path, conn_name)
         self.materialListPath = "{}//{}".format(path, material_name)
         self.entityPath = "{}//{}".format(path, 'entity.dat')
         self.nodePath = "{}//{}".format(path, 'node.dat')
         self.projectName = project_name
         self.elementSize = float(element_size)
         self.projectReady = True
-        self.mesh.generate(self.geometryPath, self.elementSize)
+        if geometry_name == "":
+            self.mesh.load_mesh(self.cordPath, self.connPath)
+            self.load_by_geometry = False
+        else:
+            self.mesh.generate(self.geometryPath, self.elementSize)
+            self.load_by_geometry = True
         self.createEntityFile()
 
     def openProject(self, path):
@@ -45,17 +59,26 @@ class Project:
         geometry_name = config['PROJECT']['geometryfile']
         element_size = config['PROJECT']['elementsize']
         material_name = config['PROJECT']['materialfile']
+        cord_name = config['PROJECT']['CordFile']
+        conn_name = config['PROJECT']['ConnFile']
         
         self.path = folder_path
         self.projectName = name
         self.geometryPath = "{}//{}".format(folder_path, geometry_name)
+        self.cordPath = "{}/{}".format(folder_path, cord_name)
+        self.connPath = "{}/{}".format(folder_path, conn_name)
         self.materialListPath = "{}//{}".format(folder_path, material_name)
         self.entityPath = "{}//{}".format(folder_path, 'entity.dat')
         self.nodePath = "{}//{}".format(folder_path, 'node.dat')
         self.elementSize = float(element_size)
         self.projectReady = True
         self.mesh = Mesh()
-        self.mesh.generate(self.geometryPath, self.elementSize)
+        if geometry_name == "":
+            self.mesh.load_mesh(self.cordPath, self.connPath)
+            self.load_by_geometry = False
+        else:
+            self.mesh.generate(self.geometryPath, self.elementSize)
+            self.load_by_geometry = True
         self.loadEntityFile()
         self.loadNodeFile()
 
@@ -83,34 +106,55 @@ class Project:
                 return entity
 
     def loadMaterial_by_Entity(self, entity_id, material):
-        self.mesh.set_material_by_line(entity_id, material)
-        self._setEntityMaterial(entity_id, material)
+        if self.load_by_geometry:
+            self.mesh.set_material_by_line(entity_id, material)
+            self._setEntityMaterial(entity_id, material)
+        else:
+            self.mesh.set_material_by_element('all', material)
+            self._setEntityMaterial(entity_id, material)
 
     def loadCrossSection_by_Entity(self, entity_id, cross_section):
-        self.mesh.set_cross_section_by_line(entity_id, cross_section)
-        self._setEntityCross(entity_id, cross_section)
+        if self.load_by_geometry:
+            self.mesh.set_cross_section_by_line(entity_id, cross_section)
+            self._setEntityCross(entity_id, cross_section)
+        else:
+            self.mesh.set_cross_section_by_element('all', cross_section)
+            self._setEntityCross(entity_id, cross_section)
 
     def loadBondaryCondition_by_Node(self, node_id, bc):
         self.mesh.set_boundary_condition_by_node(node_id, bc)
 
+    def loadForce_by_Node(self, node_id, force):
+        self.mesh.set_force_by_node(node_id, force)
+
     def setMaterial_by_Entity(self, entity_id, material):
-        self.mesh.set_material_by_line(entity_id, material)
-        self._setEntityMaterial(entity_id, material)
-        self.addMaterialInFile(entity_id, material.identifier)
+        if self.load_by_geometry:
+            self.mesh.set_material_by_line(entity_id, material)
+            self._setEntityMaterial(entity_id, material)
+            self.addMaterialInFile(entity_id, material.identifier)
+        else:
+            self.mesh.set_material_by_element('all', material)
+            self._setEntityMaterial(entity_id, material)
+            self.addMaterialInFile(entity_id, material.identifier)
 
     def setCrossSection_by_Entity(self, entity_id, cross_section):
-        self.mesh.set_cross_section_by_line(entity_id, cross_section)
-        self._setEntityCross(entity_id, cross_section)
-        self.addCrossSectionInFile(entity_id, cross_section)
+        if self.load_by_geometry:
+            self.mesh.set_cross_section_by_line(entity_id, cross_section)
+            self._setEntityCross(entity_id, cross_section)
+            self.addCrossSectionInFile(entity_id, cross_section)
+        else:
+            self.mesh.set_cross_section_by_element('all', cross_section)
+            self._setEntityCross(entity_id, cross_section)
+            self.addCrossSectionInFile(entity_id, cross_section)
 
     def setMaterial(self, material):
-        self.mesh.set_material_by_line('all', material)
+        self.mesh.set_material_by_element('all', material)
         self._setAllEntityMaterial(material)
         for entity in self.mesh.entities:
             self.addMaterialInFile(entity.getTag(), material.identifier)
 
     def setCrossSection(self, cross_section):
-        self.mesh.set_cross_section_by_line('all', cross_section)
+        self.mesh.set_cross_section_by_element('all', cross_section)
         self._setAllEntityCross(cross_section)
         for entity in self.mesh.entities:
             self.addCrossSectionInFile(entity.getTag(), cross_section)
@@ -121,13 +165,10 @@ class Project:
 
     def setFroce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)
+        self.addForceInFile(node_id, force)
 
     def isReady(self):
         return self.projectReady
-
-    def getGlobalMatrices(self):
-        self.projectAssembly = True
-        self.K, self.M, self.Kr, self.Mr = get_global_matrices(self.mesh)
 
     def _setEntityMaterial(self, entity_id, material):
         for entity in self.mesh.entities:
@@ -177,7 +218,23 @@ class Project:
             else:
                 config[str(node_id)] = {
                     'displacement': "({},{},{})".format(bc[0], bc[1], bc[2]),
-                    'rotation': "({},{},{})".format(bc[3], bc[4], bc[5])
+                    'rotation': "({},{},{})".format(bc[3], bc[4], bc[5]),
+                    'force': ""
+                }
+        with open(self.nodePath, 'w') as configfile:
+            config.write(configfile)
+
+    def addForceInFile(self, nodes_id, force):
+        config = configparser.ConfigParser()
+        config.read(self.nodePath)
+        for node_id in nodes_id:
+            if str(node_id) in config.sections():
+                config[str(node_id)]['force'] = "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
+            else:
+                config[str(node_id)] = {
+                    'displacement': "",
+                    'rotation': "",
+                    'force': "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
                 }
         with open(self.nodePath, 'w') as configfile:
             config.write(configfile)
@@ -211,7 +268,8 @@ class Project:
                         youngmodulus =  str(material_list[material]['youngmodulus'])
                         poisson =  str(material_list[material]['poisson'])
                         color =  str(material_list[material]['color'])
-                        temp_material = Material(name, float(density), identifier=identifier, young_modulus=float(youngmodulus), poisson_ratio=float(poisson), color=color)
+                        youngmodulus = float(youngmodulus)*(10**(9))
+                        temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
                         self.loadMaterial_by_Entity(int(entity), temp_material)
             
             if self.isFloat(diam_ext) and self.isFloat(diam_int):
@@ -227,26 +285,47 @@ class Project:
             node_id = int(node)
             displacement = node_list[str(node)]['displacement']
             rotation = node_list[str(node)]['rotation']
+            force = node_list[str(node)]['force']
             displacement = displacement[1:-1].split(',')
             rotation = rotation[1:-1].split(',')
+            force = force[1:-1].split(',')
 
             dx = dy = dz = rx = ry = rz = None
-            if displacement[0].isnumeric():
-                dx = int(displacement[0])
-            if displacement[1].isnumeric():
-                dy = int(displacement[1])
-            if displacement[2].isnumeric():
-                dz = int(displacement[2])
-
-            if rotation[0].isnumeric():
-                rx = int(rotation[0])
-            if rotation[1].isnumeric():
-                ry = int(rotation[1])
-            if rotation[2].isnumeric():
-                rz = int(rotation[2])
+            if len(displacement) == 3:
+                if displacement[0].isnumeric():
+                    dx = int(displacement[0])
+                if displacement[1].isnumeric():
+                    dy = int(displacement[1])
+                if displacement[2].isnumeric():
+                    dz = int(displacement[2])
+            if len(rotation) == 3:
+                if rotation[0].isnumeric():
+                    rx = int(rotation[0])
+                if rotation[1].isnumeric():
+                    ry = int(rotation[1])
+                if rotation[2].isnumeric():
+                    rz = int(rotation[2])
 
             bc = [dx,dy,dz,rx,ry,rz]
+
+            f1 = f2 = f3 = f4 = f5 = f6 = 0
+            if len(force) == 6:
+                if force[0].isnumeric():
+                    f1 = int(force[0])
+                if force[1].isnumeric():
+                    f2 = int(force[1])
+                if force[2].isnumeric():
+                    f3 = int(force[2])
+                if force[3].isnumeric():
+                    f4 = int(force[3])
+                if force[4].isnumeric():
+                    f5 = int(force[4])
+                if force[5].isnumeric():
+                    f6 = int(force[5])
+            
+            fr = [f1, f2, f3, f4, f5, f6]
             self.loadBondaryCondition_by_Node(node_id, bc)
+            self.loadForce_by_Node(node_id, fr)
 
     def isFloat(self, number):
         try:
@@ -258,8 +337,38 @@ class Project:
     def getElementSize(self):
         return self.elementSize
 
-    def setTempValues(self):
-        self.setBondaryCondition_by_Node([1, 100], [1,2,None,None,9,8])
-        self.mesh.set_force_by_node([10, 18], np.array([1,1,1,1,1,1]))
-        #self.setBondaryCondition_by_Node([1, 1200, 1325], np.zeros(6))
-        #self.mesh.set_force_by_node([361, 230], np.array([1,0,0,0,0,0]))
+    def checkEntityMaterial(self):
+        for entity in self.getEntities():
+            if entity.getMaterial() is None:
+                return False
+        return True
+
+    def checkEntityCross(self):
+        for entity in self.getEntities():
+            if entity.getCrossSection() is None:
+                return False
+        return True
+
+    def setDirectMatriz(self, direct):
+        self.direct = direct
+
+    def setModalMatriz(self, modal):
+        self.modal = modal
+
+    def setFrequencies(self, frequencies):
+        self.frequencies = frequencies
+
+    def setModes(self, modes):
+        self.modes = modes
+
+    def getDirectMatriz(self):
+        return self.direct
+
+    def getModalMatriz(self):
+        return self.modal
+
+    def getFrequencies(self):
+        return self.frequencies
+
+    def getModes(self):
+        return self.modes

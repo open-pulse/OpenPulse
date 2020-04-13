@@ -40,8 +40,8 @@ class MaterialList(QDialog):
         if self.current_item is None:
             return
         
-        new_material = Material(self.current_item.text(0), float(self.current_item.text(2)), 
-                            young_modulus=float(self.current_item.text(3))*(10**(9)), 
+        new_material = Material(self.current_item.text(0), float(self.current_item.text(3)), 
+                            young_modulus=float(self.current_item.text(2))*(10**(9)), 
                             poisson_ratio=float(self.current_item.text(4)), 
                             color=self.current_item.text(5),
                             identifier=int(self.current_item.text(1)))
