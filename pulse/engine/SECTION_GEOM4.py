@@ -153,6 +153,8 @@ def sectcalc(do,di,nr,secoffset,pois):
         Q2 = Q2 + Q2el
         Q3 = Q3 + Q3el
     ccg = 2.*(1.+pois)*(I2*I3 - (I23**2))
+    yc = Q3/A
+    zc = Q2/A
     ####################################################################
     ####################### SHEAR COEFFICIENTS #########################
     ####################################################################
@@ -320,4 +322,4 @@ def sectcalc(do,di,nr,secoffset,pois):
     RES3 = (A/(ccg**2.))*(ALP3)
     RES23 = (A/(ccg**2.))*(ALP23)
 
-    return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23, ys, zs
+    return A, I2, I3, I23, J, Q2, Q3, RES2, RES3, RES23, yc, zc, ys, zs

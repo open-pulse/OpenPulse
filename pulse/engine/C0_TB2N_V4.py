@@ -1,7 +1,7 @@
 #
 import math
 import numpy as np
-import SECTION_GEOM3 as sec
+import SECTION_GEOM4 as sec
 #######################################################
 def shape(ksi):
     """
@@ -40,99 +40,72 @@ It can be made with N>100, but with some differences.
     #
     #Geometry properties of cross-section
     # Shear + Torsion
-    vec1 = np.array([offset[0],0.0])
-    A, I1, I2, I12, Ja, Q1a, Q2a, RES1a, RES2a, RES12, ys, zs = sec.sectcalc(do,di,nr,vec1,0.)
-    vec2 = np.array([0.0,offset[1]])
-    A, I1, I2, I12, Jb, Q1b, Q2b, RES1b, RES2b, RES12, ys, zs = sec.sectcalc(do,di,nr,vec2,0.)
-    # Axial + Bending
-    A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12, ys, zs = sec.sectcalc(do,di,nr,offset,0.)
-    ddt = RES1*RES2 - (RES12**2.) #if needed
-    # Torsional -> mass
-    Jm = I1 + I2
+    A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12, yc, zc, ys, zs = sec.sectcalc(do,di,nr,offset,0.)
+    vec = offset + np.array([yc,zc])
+    _, I1p, I2p, _, Jp, _, _, RES1p, RES2p, _, yc_p, zc_p, ys_p, zs_p = sec.sectcalc(do,di,nr,vec,0.)
     #
     ###############################
-    yc = -0.005 #Q2/A
-    zc = -0.00 #Q1/A
-    ys = -0.005 #Q2/A
-    zs = -0.00 #Q1/A
+    # Principal bending axis
     meas = np.linalg.norm(offset)
     if meas>0.:
         thetap = 0.5*np.arctan(2*I12/(I2-I1))
     else:
         thetap = 0.
-    thetap = -np.pi
-    print(thetap)
-    Iyp = 0.5*(I1+I2) + 0.5*(I1+I2)*np.cos(2*thetap) - I12*np.sin(2*thetap)
-    Izp = I1 + I2 - Iyp
-
+    # Rotational part of transformation matrix
     lam = np.array([[1.,0.,0.],[0.,np.cos(thetap),np.sin(thetap)],[0.,-np.sin(thetap),np.cos(thetap)]])
-    
-    tam  = -np.array([[0.,-zc,yc],[zs,0.,0.],[-ys,0.,0.]])
+    # Translational part of transformation matrix
+    tam  = np.array([[0.,zc,-yc],[-zs,0.,0.],[ys,0.,0.]])
     II = np.identity(3)
-
+    # Obtaining of transformation matrix O
     T = np.zeros((12, 12))
     R = np.zeros((12, 12))
-
+    #
     T[0:3, 0:3]      = II
     T[3:6, 3:6]      = II
     T[6:9, 6:9]      = II
     T[9:12, 9:12]    = II
     T[0:3,3:6]       = tam
     T[6:9,9:12]      = tam
-
+    #
     R[0:3, 0:3]      = lam
     R[3:6, 3:6]      = lam
     R[6:9, 6:9]      = lam
     R[9:12, 9:12]    = lam
-
-    ALPHA = np.array([[RES1,RES12],[RES12, RES2]])
-    print(ALPHA)
-    VRES,DUMP = np.linalg.eig(ALPHA)
-    print(VRES)
-
-    O = R @ T
-
-    ##############################
-    # Shear coefficiets - Treatment 
-    ala = 0*np.min([1./RES1a,1./RES2a])
-    alb = 0*np.min([1./RES1b,1./RES2b])
-    #al1 = 1./VRES[0] #np.min([1./RES1a,1./RES1b])
-    #al2 = 1./VRES[1] #np.min([1./RES2a,1./RES2b])
-    Q1m = (Q1a + Q1b)/2
-    Q2m = (Q2a + Q2b)/2
-    al1 = 1./RES1
-    al2 = 1./RES2
-    al12 = 1./RES12
-    al = np.min([1./RES1,1./RES2])
-    # Residual bending flexibility
-    #As1 = 1./((1./(As1)) + ((le)**2.)/(12.*E*I1)) #if needed
-    #As2 = 1./((1./(As2)) + ((le)**2.)/(12.*E*I2)) #if needed
+    # Principal values of RES -> VRES  #if necessary in the future
+    if meas>0.:
+        gammap = 0.5*np.arctan(2*RES12/(RES2-RES1))
+    else:
+        gammap = 0.
+    RES1x = 0.5*(RES1+RES2) + 0.5*(RES1+RES2)*np.cos(2*gammap) - RES12*np.sin(2*gammap)
+    RES2x = RES1 + RES2 - RES1p
     #
+    # Transformation based on the Principal Bending Axis
+    O = R @ T
+    #
+    ##############################
+    # Shear coefficiets
+    al1 = 1./RES1p
+    al2 = 1./RES2p
+    # Geometry properties: principal bending axis
+    Q1p = 0.
+    Q2p = 0.
+    I12p = 0.
     #Determinant of Jacobian (linear 1D trasform)
     detJac = le/2.0
     invJac = 1./detJac
-    #s
+    #
     #Constitutive matrices (element with constant geometry along x-axis)
-    Dts = mu*np.array([[J,-Q1,Q2],[-Q1,al1*A,0.],[Q2,0.,al2*A]]) #Theoretical (common shear)
-    #Dts = mu*np.array([[J, -(RES1*Q1+RES12*Q2)/ddt, (RES12*Q1+RES1*Q2)/ddt],[-Q1,RES2*A/ddt,-RES12*A/ddt],[Q2,-RES12*A/ddt,RES1*A/ddt]]) #Theoretical, Pilkey shear -> asymmetric
-    
-    #Dts_a = mu*np.array([[J,-Q1a,Q2a],[-Q1a,ala*A,0.],[Q2a,0.,ala*A]]) #Torsion + shear (Ansys) - Part a
-    #Dts_b = mu*np.array([[J,-Q1b,Q2b],[-Q1b,alb*A,0.],[Q2b,0.,alb*A]]) #Torsion + shear (Ansys) - Part b
-    #Dab = E*np.array([[A,Q1,-Q2],[Q1,I1,-I12],[-Q2,-I12,I2]]) #Axial + Bending
-    Dab = E*np.array([[A,Q1,-Q2],[Q1,I1,-I12],[-Q2,-I12,I2]]) #Axial + Bending
-
-    #Dts = mu*np.array([[J,0,0],[0,al*A,0.],[0,0.,al*A]]) #Torsion + shear (Ansys) - Part a
-    #Dab = E*np.array([[A,0,0],[0,Iyp,0],[0,0,Izp]]) #Axial + Bending
-
+    Dts = mu*np.array([[Jp,-Q1p,Q2p],[-Q1p,al1*A,0.],[Q2p,0.,al2*A]]) #Theoretical (common shear)
+    Dab = E*np.array([[A,Q1p,-Q2p],[Q1p,I1p,-I12p],[-Q2p,-I12p,I2p]]) #Axial + Bending
     #
     #Inertial matrices (element with constant geometry along x-axis)
     Ggm = np.zeros((6,6))
-    Ggm[0,0:6] = np.array([A, 0., 0., 0., Q1, -Q2]) 
-    Ggm[1,0:6] = np.array([0., A, 0., -Q1, 0., 0.])
-    Ggm[2,0:6] = np.array([0., 0., A, Q2, 0., 0.])
-    Ggm[3,0:6] = np.array([0., -Q1, Q2, Jm, 0., 0.])
-    Ggm[4,0:6] = np.array([Q1, 0., 0., 0., I1, -I12])
-    Ggm[5,0:6] = np.array([-Q2, 0., 0., 0., -I12, I2])
+    Ggm[0,0:6] = np.array([A, 0., 0., 0., Q1p, -Q2p]) 
+    Ggm[1,0:6] = np.array([0., A, 0., -Q1p, 0., 0.])
+    Ggm[2,0:6] = np.array([0., 0., A, Q2p, 0., 0.])
+    Ggm[3,0:6] = np.array([0., -Q1p, Q2p, Jp, 0., 0.])
+    Ggm[4,0:6] = np.array([Q1p, 0., 0., 0., I1p, -I12p])
+    Ggm[5,0:6] = np.array([-Q2p, 0., 0., 0., -I12p, I2p])
     Ggm = rho*Ggm
     #
     #Preparing for numeric integration
@@ -148,8 +121,6 @@ It can be made with N>100, but with some differences.
     Ke =  np.zeros((npel*ngln,npel*ngln))
     Kabe = np.zeros((npel*ngln,npel*ngln))
     Ktse = np.zeros((npel*ngln,npel*ngln))
-    Ktse_a = np.zeros((npel*ngln,npel*ngln))
-    Ktse_b = np.zeros((npel*ngln,npel*ngln))
     #
     Me = np.zeros((npel*ngln,npel*ngln))
     #
@@ -187,14 +158,8 @@ It can be made with N>100, but with some differences.
         Bts[0:3,0:6], Bts[0:3,6:12] = Bts_n1, Bts_n2  
         ##### 
         Kabe += (Bab.T @ (Dab @ Bab))*detJac*wfact_k[i]
-        #Ktse_a += (Bts.T @ (Dts_a @ Bts))*detJac*wfact_k[i]
-        #Ktse_b += (Bts.T @ (Dts_b @ Bts))*detJac*wfact_k[i]
         Ktse += (Bts.T @ (Dts @ Bts))*detJac*wfact_k[i] 
-
         ##########
-        #
-    ##Keb = 1.*Kabe + 0.*(Ktse_a + Ktse_b)/2.
-    ##Kes = 0.*Kabe + 1.*(Ktse_a + Ktse_b)/2.
     Ke = Kabe + Ktse
     Ke = O.T @ Ke @ O
     #
@@ -207,6 +172,7 @@ It can be made with N>100, but with some differences.
         N[0:ngln,(ngln):(2*ngln)]=phi[1]*np.identity(6)
         ###########
         Me += (N.T @ Ggm @ N)*detJac*wfact_m[i]
+    Me = O.T @ Me @ O
     #
     ############################## LOAD VECTOR ########################################
     #
@@ -222,6 +188,7 @@ It can be made with N>100, but with some differences.
         NN[0:ngln,(ngln):(2*ngln)]=phi[1]*np.identity(ngln)
         #
         Fe = Fe + (NN.T @ eload.T)*detJac*wfact_m[i]
+        Fe = O.T @ Fe
     #
     #return Ke, Keb, Kes, A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12
-    return Ke, yc,zc,A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12, ys, zs
+    return Ke, Me ,A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12, yc, zc, ys, zs, yc_p, zc_p, ys_p, zs_p, thetap
