@@ -1,5 +1,6 @@
 import numpy as np
-from math import pi, sqrt, sin, cos
+from numpy.linalg import norm
+from math import pi, sqrt, sin, cos, atan
 
 from pulse.engine.node import Node
 from pulse.engine.section_fem import TubeCrossSection as TCS
@@ -147,6 +148,7 @@ class Element:
         else:
             #warning: n must be 1, 2 or 3.
             pass
+
     
     @staticmethod
     def shape_function(ksi):
@@ -161,39 +163,41 @@ class Element:
 
     def stiffness_matrix(self):
         """ Element striffness matrix in the element coordinate system."""
-
-        # Element length
-        L   = self.length()
         # Material properities
         E = self.material.young_modulus
         mu = self.material.mu_parameter()
         # Tube cross section properties
-        A, I1, I2, I12, J, Q1, Q2, RES1, RES2, _, _, _, _, _, _ = self.cross_section_properties
+        A, I1, I2, _, J, _, _, RES1, RES2, _, _, _, _, _, O = self.cross_section_properties
 
         # Shear coefficiets - Treatment 
         al1 = 1/RES1
         al2 = 1/RES2
+        # Principal bending axis, thus
+        Q1 = 0
+        Q2 = 0
+        I12 = 0
 
-        #Determinant of Jacobian (linear 1D trasform)
+        # Determinant of Jacobian (linear 1D trasform)
+        # Element length
+        L   = self.length()
         det_jacob = L / 2
         inv_jacob = 1 / det_jacob
 
         #Constitutive matrices (element with constant geometry along x-axis)
         #Torsion + shear - Part a
-        Dts = mu*np.array([ [J,   -Q1,   Q2],
-                            [-Q1, al1*A, 0.],
-                            [Q2,  0.,    al2*A]])
-        Dab = E*np.array([[A,   Q1, -Q2],
-                          [Q1,  I1, -I12],
+        Dts = mu*np.array([[J,   -Q1,   Q2],
+                           [-Q1, al1*A,  0  ],
+                           [Q2,   0,  al2*A]])
+        Dab = E*np.array([[A,  Q1 , -Q2],
+                          [Q1, I1 , -I12],
                           [-Q2,-I12, I2]]) #Axial + Bending
 
         ## Numerical integration by Gauss Quadracture
         number_integrations_points = 1
         points, weigths = Element.gauss_quadracture( number_integrations_points )
-        
-        Ke =  np.zeros( (Element.total_degree_freedom ,Element.total_degree_freedom) )
-        Kabe = np.zeros_like(Ke)
-        Ktse = np.zeros_like(Ke)
+
+        Kabe = 0
+        Ktse = 0
 
         for point, weigth in zip( points, weigths ):
 
@@ -220,7 +224,7 @@ class Element:
             
         Ke = Kabe + Ktse
 
-        return Ke
+        return O.T @ Ke @ O
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
@@ -230,16 +234,16 @@ class Element:
     def mass_matrix(self):
         """ Element mass matrix in the element coordinate system."""
 
+        # Tube cross section properties
+        A, I1, I2, _, J, _, _, _, _, _, _, _, _, _, O = self.cross_section_properties
+        # Principal bending axis, thus
+        Q1 = 0
+        Q2 = 0
+        I12 = 0
+
+        # Determinant of Jacobian (linear 1D trasform)
         # Element length
         L   = self.length()
-
-        # Material properities
-        rho = self.material.density
-
-        # Tube cross section properties
-        A, I1, I2, I12, J, Q1, Q2, _, _, _, _, _, _, _, _ = self.cross_section_properties
-
-        #Determinant of Jacobian (linear 1D trasform)
         det_jacob = L / 2
     
         #Inertial matrices
@@ -250,6 +254,7 @@ class Element:
         Ggm[2, 3] = Q2
         Ggm[0, 5] = -Q2
         Ggm[4, 5] = -I12
+        rho = self.material.density
         Ggm = rho*( Ggm + Ggm.T )
 
         # Numerical integration by Gauss Quadracture
@@ -265,10 +270,12 @@ class Element:
         for point, weigth in zip(points, weigths):
             phi, _ = Element.shape_function( point )
 
-            N = np.c_[phi[0] * np.identity( node_dofs ), phi[1] * np.identity( node_dofs )] 
+            N[0:node_dofs, 0:node_dofs            ] = phi[0] * np.identity( node_dofs )
+            N[0:node_dofs, node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
 
-            Me += (N.T @ Ggm @ N) * det_jacob * weigth 
-        return Me
+            Me += (N.T @ Ggm @ N) * det_jacob * weigth
+        
+        return O.T @ Me @ O
     
     def mass_matrix_gcs(self):
         """ Element mass matrix in the global coordinate system."""
@@ -292,10 +299,13 @@ class Element:
         for point, weigth in zip(points, weigths):
             phi, _ = Element.shape_function( point )
 
-            N = np.c_[phi[0] * np.identity( node_dofs ), phi[1] * np.identity( node_dofs )] 
+            N[0:node_dofs, 0:node_dofs            ] = phi[0] * np.identity( node_dofs )
+            N[0:node_dofs, node_dofs:2 * node_dofs] = phi[1] * np.identity( node_dofs )
 
             Fe += (N.T @ self.load) * det_jacob * weigth
-        return Fe
+        
+        _, _, _, _, _, _, _, _, _, _, _, _, _, _, O = self.cross_section_properties
+        return O.T @ Fe
     
     def force_vector_gcs(self):
         T = self.rotation_matrix()
@@ -320,7 +330,7 @@ if __name__ == '__main__':
     thickness  = 0.008 # Thickness [m]
     division_number = 64
     offset = [0.005, 0.005]
-    cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288b')
+    cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288c')
     cross_section_1_properties = cross_section_1.all_props()
 
     load = [0, 0, 0, 0, 0, 0]

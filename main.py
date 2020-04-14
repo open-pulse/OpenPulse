@@ -32,7 +32,8 @@ D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 division_number = 64
 offset = [0, 0]
-cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness) 
+cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288c')
+cross_section_1_properties = cross_section_1.all_props()
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
@@ -52,13 +53,13 @@ material_list = [1, material_1]
 material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 
 ## Cross section properties atribuition for each element
-cross_section_list = [1, cross_section_1]
+cross_section_list = [1, cross_section_1_properties]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
 load_dictionary = {i:np.array([0, 0, 0, 0, 0, 0]) for i in connectivity[:,0]}
 
 ## Element type atribuition
-element_type_dictionary = { i:'pipe16' for i in connectivity[:,0] }
+element_type_dictionary = { i:'288c' for i in connectivity[:,0] }
 #
 ##
 ### BEGIN OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
