@@ -32,6 +32,25 @@ class Mesh:
         self._load_neighbours()
         self._order_global_indexes()
     
+    # def load_mesh(self, coordinates, connectivity):
+    #     newEntity = Entity(1)
+    #     for i, x, y, z in np.loadtxt(coordinates):
+    #         self.nodes[int(i)] = Node(x,y,z)
+    #         node = int(i), x, y, z
+    #         newEntity.insertNode(node)
+
+    #     for i, first, last in np.loadtxt(connectivity, dtype=int):
+    #         first_node = self.nodes[first]
+    #         last_node = self.nodes[last]
+    #         self.elements[i] = Element(first_node, last_node, first, last)
+    #         edges = i, first, last
+    #         newEntity.insertEdge(edges)
+
+    #     self.entities.append(newEntity)
+
+    #     self._load_neighbours()
+    #     self._order_global_indexes()
+
     def load_mesh(self, coordinates, connectivity):
         newEntity = Entity(1)
         for i, x, y, z in np.loadtxt(coordinates):
@@ -45,11 +64,15 @@ class Mesh:
             self.elements[i] = Element(first_node, last_node, first, last)
             edges = i, first, last
             newEntity.insertEdge(edges)
-
+            
         self.entities.append(newEntity)
-
         self._load_neighbours()
-        self._order_global_indexes()
+        self._simple_ordering()
+        # self._order_global_indexes()
+
+    def _simple_ordering(self):
+        for index, node in enumerate(self.nodes.values()):
+            node.global_index = index
 
     def get_prescribed_indexes(self):
         global_prescribed = []

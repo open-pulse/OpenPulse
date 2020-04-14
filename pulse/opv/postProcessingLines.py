@@ -3,15 +3,15 @@ import random
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.cross_section import CrossSection
 
+import numpy as np
+
 class PostProcessingLines:
-    def __init__(self, project, matriz, color_table):
+    def __init__(self, project, coord_def, color_table):
 
         self.project = project
-        self.projectNodes = self.project.getNodes()
-        self.matriz = matriz
+        self.coord_def = coord_def
         self.colorTable = color_table
         self.elements = self.project.getElements()
-        self.nodes = matriz
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -32,9 +32,14 @@ class PostProcessingLines:
         self._actor()
 
     def _source(self):
-        for node in self.nodes:
-            id_ = int(node[0])
-            self._nodes.InsertPoint(id_, node[1] + self.projectNodes[id_].x, node[2] + self.projectNodes[id_].y, node[3] + self.projectNodes[id_].z)
+        indice = self.coord_def[:,0]
+        x = self.coord_def[:,1]
+        y = self.coord_def[:,2]
+        z = self.coord_def[:,3]
+
+        for i in range(len(indice)):
+            id_ = int(indice[i])
+            self._nodes.InsertPoint(id_, x[i], y[i], z[i])
 
         for key, element in self.elements.items():
             line = vtk.vtkLine()
@@ -46,16 +51,14 @@ class PostProcessingLines:
         self._object.SetLines(self._edges)
 
     def _filter(self):
-        for node in self.nodes:
-            #self._colorFilter.InsertNextTypedTuple([255,255,255])
-            self._colorFilter.InsertTypedTuple(int(node[0]), self.colorTable.get_color_by_id(node[0]))
-        # for _ in range(self._nodes.GetNumberOfPoints()):
-        #     self._colorFilter.InsertNextTypedTuple([255,255,255])
-
+        indice = self.coord_def[:,0]
+        for i in range(len(indice)):
+            id_ = int(indice[i])
+            self._colorFilter.InsertTypedTuple(id_, self.colorTable.get_color_by_id(i))
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(0.2)
+        self._tubeFilter.SetRadius(0.05)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.SetCapping(True)
         self._tubeFilter.Update()
