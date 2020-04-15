@@ -23,14 +23,14 @@ class FRF(FigureCanvasQTAgg):
         super(FRF, self).__init__(fig)
         self.setWindowTitle("FRF")
         try:
-            frequencies = np.arange(0, 1401, 7)
-            modes = 140
+            frequencies = np.arange(0, 202, 2)
+            modes = 200
             direct = direct_method(self.project.getMesh(), frequencies)
             modal = modal_superposition(self.project.getMesh(), frequencies, modes)
 
             # GETTING FRF
-            node = 96
-            local_dof = 1
+            node = 711
+            local_dof = 2
             x = frequencies
             yd = get_frf(self.project.getMesh(), direct, node, local_dof)
             ym = get_frf(self.project.getMesh(), modal, node, local_dof)

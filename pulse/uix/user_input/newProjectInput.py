@@ -148,8 +148,8 @@ class NewProjectInput(QDialog):
         config['STEEL'] = {
             'Name': 'steel',
             'Identifier': 1,
-            'Density': 210,
-            'YoungModulus': 7860,
+            'Density': 7860,
+            'YoungModulus': 210,
             'Poisson': 0.3,
             'Color': '[0,0,255]' #Blue
         }
@@ -157,8 +157,8 @@ class NewProjectInput(QDialog):
         config['STAINLESS_STEEL'] = {
             'Name': 'stainless_steel',
             'Identifier': 2,
-            'Density': 193,
-            'YoungModulus': 7750,
+            'Density': 7750,
+            'YoungModulus': 193,
             'Poisson': 0.31,
             'Color': '[255,255,0]' #Yelow
         }
@@ -166,8 +166,8 @@ class NewProjectInput(QDialog):
         config['NI-CO-CR_STEEL'] = {
             'Name': 'Ni-Co-Cr_steel',
             'Identifier': 3,
-            'Density': 212,
-            'YoungModulus': 8220,
+            'Density': 8220,
+            'YoungModulus': 212,
             'Poisson': 0.315,
             'Color': '[0,255,255]' #Cyan
         }
