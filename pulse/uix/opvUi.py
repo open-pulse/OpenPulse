@@ -193,6 +193,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.EnabledOn()
         self.axes.InteractiveOff()
 
+    def _atualizar_axes(self):
+        self.axes.SetEnabled(0)
+        self._create_axes()
+
     def remove_all_renderers(self):
         self.GetRenderWindow().RemoveRenderer(self.renderer_entities)
         self.GetRenderWindow().RemoveRenderer(self.renderer_elements)
@@ -209,6 +213,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
+        self._atualizar_axes()
         self.update()
 
     def change_to_elements(self):
@@ -221,6 +226,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
         self.renderer_elements.ResetCamera()
+        self._atualizar_axes()
         self.update()
 
     def change_to_points(self):
@@ -233,6 +239,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
         self.renderer_points.ResetCamera()
+        self._atualizar_axes()
         self.update()
 
     def change_to_direct_method(self, frequency_indice):
@@ -249,6 +256,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_pre_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
         self.renderer_pre_processing.ResetCamera()
+        self._atualizar_axes()
         self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies())
         self.update() 
 
@@ -266,6 +274,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_pre_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
         self.renderer_pre_processing.ResetCamera()
+        self._atualizar_axes()
         self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), self.project.getModes())
         self.update()
 
