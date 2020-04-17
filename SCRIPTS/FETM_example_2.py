@@ -187,7 +187,94 @@ ax.set_ylabel('Pressure [Pa]')
 plt.show()
 
 print("--- The executing total time of program is: %s seconds ---" % (time.time() - start_time))
+
+#%% PLOT 3D per frequency and FRF available for each estructure node
+
+from functions.plot_results import results_plot as gplot
+import matplotlib.pyplot as plt
+
+def map_index_nodes(nodal_coordinates):
+    '''' Maps internal index in relation to external index of nodes 
+            dictioanary = {external_node_index : internal_node_index} '''
+    nodes_in = np.array(nodal_coordinates[:,0], dtype=int)
+    ord_nodes = np.arange(len(nodes_in), dtype=int)
+    return dict(zip(nodes_in, ord_nodes))
+
+def connectivity_remaped(connectivity, nodal_coordinates):
+    ''' Reconstruction of initial connectivity array considering the nodes_ID changes '''
+    
+    connectivity_remaped = np.zeros(connectivity.shape, dtype=int)
+    connectivity_remaped[:,0] = np.arange(1, connectivity.shape[0]+1, 1, dtype=int)
+    mapping = map_index_nodes(nodal_coordinates)
+
+    for i in range(connectivity.shape[0]):
+        for j in range(connectivity.shape[1]-1):
+            connectivity_remaped[ i , 1 + j ] = mapping[ connectivity[ i , 1 + j ] ] 
+    return connectivity_remaped
+
+def nodal_coordinates_remaped(connectivity, nodal_coordinates):
+    ''' Reconstruction of initial nodal_coordinates array considering nodes_ID changes '''
+    
+    temp_coord = nodal_coordinates.copy()
+    mapping = map_index_nodes(nodal_coordinates)
+    rows = len(nodal_coordinates[:,0])
+    
+    for i in range(rows):
+        temp_coord[ i , 0 ] = int(mapping[ nodal_coordinates[ i , 0 ]])
+    return temp_coord
+
+if __name__ == "__main__":
+
+    ## Load Nodal coordinates file
+    nodal_coordinates = np.loadtxt('coord_example_2.dat')
+
+    ## Load Connectivity file
+    connectivity = np.loadtxt('connect_example_2.dat', dtype=int)
+
+    ## Load results file
+    results = np.loadtxt('pressure_all_nodes.dat')
+    
+    ## Frequency analysis setup
+    df, freq_max = 1, 250
+    frequencies = np.arange(0,freq_max,df)
+    
+    ## Chose node to plot the response function
+    node_to_plot = 1088
+    
+    mapping = map_index_nodes(nodal_coordinates)
+    node = mapping[node_to_plot]
+    p_ref = 20*(10**(-6))
+
+    #fig = plt.figure(figsize=[12,8])
+    fig = plt.figure(2)
+    ax = fig.add_subplot(1,1,1)
+    
+    plt.plot(frequencies, 20*np.log10(np.abs(results[node,:])/p_ref), color = [0,0,0], linewidth=3)
+    
+    ax.set_title(('Acoustic FETM Model - OpenPulse'), fontsize = 18, fontweight = 'bold')
+    ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
+    ax.set_ylabel(("Pressure magnitude [dB]"), fontsize = 16, fontweight = 'bold')
+    ax.legend(['Pressure at node: ' + str(node_to_plot)])
+    
+    plt.show()
+
+    #   
+    ##
+    ### ENTRIES FOR PLOT/ANIMATION FUNCTION
+    ##
+    #
+    
+    # Choose a frequency/column to be ploted
+    freq_to_plot = 200
+    P_res = results[:,freq_to_plot]
+    connectivity_plot = connectivity_remaped(connectivity, nodal_coordinates)
+    nodal_coordinates_plot  = nodal_coordinates_remaped(connectivity, nodal_coordinates)
+
+    # Call function to plot nodal results [dynamic]
+    gplot( nodal_coordinates_plot, connectivity_plot, P_res, deformation=False,freq_n=freq_to_plot)
+
                        
+  
                 
                 
                 
@@ -196,9 +283,4 @@ print("--- The executing total time of program is: %s seconds ---" % (time.time(
                 
                 
                 
-                
-                
-                
-
-
-# %%
+        
