@@ -28,19 +28,13 @@ def get_displacement_matrix(mesh, solution, column, scf=0.4):
     r_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     r_max = max(r_def)
 
-    coord = np.zeros((rows,4))
     coord_def = np.zeros((rows,4))
-    count = 0
-    
-    for i, node in mesh.nodes.items():
-        # index = mesh.nodes[i].global_index
-        coord[count,0] = i
-        coord_def[count,0] = i
-        coord[count,1:4] = node.x, node.y, node.z
-        count += 1
-        
+    coord = mesh.get_nodal_coordinates_matrix(reordering=True)
+    connect = mesh.get_connectivity_matrix(reordering=True)
+
+    coord_def[:,0] = coord[:,0]
     coord_def[:,1] = coord[:,1] + u_x*(scf/r_max)
     coord_def[:,2] = coord[:,2] + u_y*(scf/r_max)
     coord_def[:,3] = coord[:,3] + u_z*(scf/r_max)
         
-    return coord_def, r_def
+    return connect, coord_def, r_def

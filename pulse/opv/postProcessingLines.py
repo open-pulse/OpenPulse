@@ -6,9 +6,10 @@ from pulse.preprocessing.cross_section import CrossSection
 import numpy as np
 
 class PostProcessingLines:
-    def __init__(self, project, coord_def, color_table):
+    def __init__(self, project, connect, coord_def, color_table):
 
         self.project = project
+        self.connect = connect
         self.coord_def = coord_def
         self.colorTable = color_table
         self.elements = self.project.getElements()
@@ -40,13 +41,25 @@ class PostProcessingLines:
         for i in range(len(indice)):
             id_ = int(indice[i])
             self._nodes.InsertPoint(id_, x[i], y[i], z[i])
+            # print(id_, x[i], y[i], z[i])
 
-        for key, element in self.elements.items():
+
+        for i in range(len(self.elements)):
             line = vtk.vtkLine()
-            line.GetPointIds().SetId(0, element.first_node_id)
-            line.GetPointIds().SetId(1, element.last_node_id)
+            line.GetPointIds().SetId(0, self.connect[i,1])
+            line.GetPointIds().SetId(1, self.connect[i,2])
             self._edges.InsertNextCell(line)
-
+            
+        # for element in self.elements.values():
+        #     line = vtk.vtkLine()
+        #     # line.GetPointIds().SetId(0, element.first_node_id)
+        #     # line.GetPointIds().SetId(1, element.last_node_id)
+        #     # line.GetPointIds().SetId(0, element.first_node.global_index)
+        #     # line.GetPointIds().SetId(1, element.last_node.global_index)
+        #     line.GetPointIds().SetId(0, element.first_node.external_index)
+        #     line.GetPointIds().SetId(1, element.last_node.external_index)
+        #     self._edges.InsertNextCell(line)
+            
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
