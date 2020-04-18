@@ -290,11 +290,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
-        coord_def, r_def = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        connect, coord_def, r_def  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         #matriz = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
-        plot = PostProcessingLines(self.project, coord_def, colorTable)
+        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_pre_processing.AddActor(plot.get_actor())
         self.renderer_pre_processing.AddActor(self.colorbar)
@@ -303,11 +303,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
-        coord_def, r_def = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
+        connect, coord_def, r_def  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
         #matriz = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
-        plot = PostProcessingLines(self.project, coord_def, colorTable)
+        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_pre_processing.AddActor(plot.get_actor())
         self.renderer_pre_processing.AddActor(self.colorbar)
