@@ -5,16 +5,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-class AnalyseHarmonicInput(QDialog):
+class AnalyseModalInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/analyseHarmonicStructuralInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/analyseModalStructuralInput.ui', self)
 
-        self.index = 0
+        self.modes = 0
 
-        self.comboBox = self.findChild(QComboBox, 'comboBox')
-        self.comboBox.currentIndexChanged.connect(self.selectionChange)
-        self.index = self.comboBox.currentIndex()
+        self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
@@ -34,10 +32,23 @@ class AnalyseHarmonicInput(QDialog):
         msg_box.setWindowTitle(title)
         msg_box.exec_()
 
-    def selectionChange(self, index):
-        self.index = self.comboBox.currentIndex()
+    def isInteger(self, value):
+        try:
+            int(value)
+            return True
+        except:
+            return False
 
     def check(self):
+        if self.lineEdit.text() == "":
+            self.error("Insert a value")
+            return
+        else:
+            if self.isInteger(self.lineEdit.text()):
+                self.modes = int(self.lineEdit.text())
+            else:
+                self.error("Value error")
+                return
         self.close()
 
     def button_clicked(self):

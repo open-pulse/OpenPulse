@@ -53,14 +53,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.textActorEntity = vtk.vtkTextActor()
         self.textActorPoint = vtk.vtkTextActor()
         self.textActorPreProcessing = vtk.vtkTextActor()
+        self.textUnit = vtk.vtkTextActor()
 
         self.colorbar = vtk.vtkScalarBarActor()
 
         self.in_entities = False
         self.in_elements = False
         self.in_points = False
-        self.in_direct = False
-        self.in_modal = False
+        self.in_result = False
 
         self.changedSelectedEntityColors = False
 
@@ -69,7 +69,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.actors_points = {}
 
         #Set initial plot & config
-        self.create_actions()
         #self.change_to_entities()
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
@@ -163,26 +162,36 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.textActorPoint.SetDisplayPosition(width-250,35)
         self.renderer_points.AddActor2D(self.textActorPoint)
 
-    def update_text_actor_post_processing(self, type_, frequency, frequencies, modal=None):
+    def update_text_actor_post_processing(self, type_, frequency, frequencies, factor, modal=None):
         self.renderer_pre_processing.RemoveActor2D(self.textActorPreProcessing)
         text = ""
         if type_ == 1:
             text += "Direct Method\n"
         elif type_ == 2:
             text += "Modal Superposition\nModes: {}\n".format(modal)
-        text += "Frequency: {}\n".format(frequencies[frequency])
-        text += "Frequency List: {}".format(frequencies)
+        text += "Frequency: {} [Hz]\n".format(frequencies[frequency])
+        text += "Magnification factor {:.1f}x\n".format(factor)
         self.textActorPreProcessing.SetInput(text)
         width, height = self.renderer_pre_processing.GetSize()
         self.textActorPreProcessing.SetDisplayPosition(width-250,35)
         self.renderer_pre_processing.AddActor2D(self.textActorPreProcessing)
 
+    def updateTextUnit(self, unit):
+        self.renderer_pre_processing.RemoveActor2D(self.textUnit)
+        text = "Unit: [{}]".format(unit)
+        self.textUnit.SetInput(text)
+        self.textUnit.
+        width, height = self.renderer_pre_processing.GetSize()
+        self.textUnit.SetDisplayPosition(width-100,height-30)
+        self.renderer_pre_processing.AddActor2D(self.textUnit)
+
     def create_colorBarActor(self, colorTable):
         self.colorbar.SetMaximumNumberOfColors(400)
         self.colorbar.SetLookupTable(colorTable)
-        self.colorbar.SetWidth(0.05)
-        self.colorbar.SetPosition(0.95, 0.1)
-        self.colorbar.SetLabelFormat("%.3g")
+        self.colorbar.SetWidth(0.06)
+        self.colorbar.SetTextPositionToPrecedeScalarBar()
+        self.colorbar.SetPosition(0.90, 0.1)
+        self.colorbar.SetLabelFormat("%.1g")
         self.colorbar.VisibilityOn()
         
     def _create_axes(self):
@@ -192,37 +201,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.SetInteractor(self)
         self.axes.EnabledOn()
         self.axes.InteractiveOff()
-
-        
-
-        
-
-        # self.slider = vtk.vtkSliderRepresentation2D()
-        # self.slider.SetMinimumValue(-4.5)
-        # self.slider.SetMaximumValue(4.5)
-        # self.slider.SetValue(-4.5)
-        # self.slider.SetTitleText("U min")
-
-        # self.slider.GetPoint1Coordinate().SetCoordinateSystemToNormalizedDisplay()
-        # self.slider.GetPoint1Coordinate().SetValue(40, 40)
-        # self.slider.GetPoint2Coordinate().SetCoordinateSystemToNormalizedDisplay()
-        # self.slider.GetPoint2Coordinate().SetValue(100, 40)
-
-        # tubeWidth = 0.1
-        # sliderLength = 0.1
-        # titleHeight = 0.1
-        # labelHeight = 0.1
-
-        # self.slider.SetTubeWidth(tubeWidth)
-        # self.slider.SetSliderLength(sliderLength)
-        # self.slider.SetTitleHeight(titleHeight)
-        # self.slider.SetLabelHeight(labelHeight)
-
-        # self.w = vtk.vtkSliderWidget()
-        # self.w.SetInteractor(self)
-        # self.w.SetRepresentation(self.slider)
-        # #self.w.SetAnimationModeToAnimate()
-        # self.w.EnabledOn()
 
     def _atualizar_axes(self):
         self.axes.SetEnabled(0)
@@ -239,8 +217,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = True
         self.in_elements = False
         self.in_points = False
-        self.in_direct = False
-        self.in_modal = False
+        self.in_result = False
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
@@ -252,8 +229,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = True
         self.in_points = False
-        self.in_direct = False
-        self.in_modal = False
+        self.in_result = False
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
         self.renderer_elements.ResetCamera()
@@ -265,8 +241,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = True
-        self.in_direct = False
-        self.in_modal = False
+        self.in_result = False
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
         self.renderer_points.ResetCamera()
@@ -281,14 +256,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = False
-        self.in_direct = True
-        self.in_modal = False
-        self.plot_direct_method(self.project.getDirectMatriz(), frequency_indice)
+        self.in_result = True
+        factor = self.plot_direct_method(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_pre_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
         self.renderer_pre_processing.ResetCamera()
+        self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
+        self.updateTextUnit(self.project.getUnit())
         self._atualizar_axes()
-        self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies())
         self.update() 
 
     def change_to_modal_superposition(self, frequency_indice):
@@ -299,30 +274,53 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_entities = False
         self.in_elements = False
         self.in_points = False
-        self.in_direct = False
-        self.in_modal = True
-        self.plot_modal_superposition(self.project.getModalMatriz(), frequency_indice)
+        self.in_result = False
+        factor = self.plot_modal_superposition(self.project.getSolution(), frequency_indice)
+        self.SetInteractorStyle(self.style_pre_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
+        self.renderer_pre_processing.ResetCamera()
+        self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
+        self.updateTextUnit(self.project.getUnit())
+        self._atualizar_axes()
+        self.update()
+
+    def change_to_modal_analyse(self, frequency_indice):
+        self.style_entities.clear()
+        self.style_elements.clear()
+        self.style_points.clear()
+        self.remove_all_renderers()
+        self.in_entities = False
+        self.in_elements = False
+        self.in_points = False
+        self.in_result = False
+        self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_pre_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
         self.renderer_pre_processing.ResetCamera()
         self._atualizar_axes()
-        self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), self.project.getModes())
         self.update()
 
-    def changeFrequency(self, frequency_indice):
-        if self.in_direct:
-            self.plot_direct_method(self.project.getDirectMatriz(), frequency_indice)
-            self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies())
-        elif self.in_modal:
-            self.plot_modal_superposition(self.project.getModalMatriz(), frequency_indice)
-            self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), self.project.getModes())
+    def plot_modal_analyse(self, modal, frequency_indice):
+        for actor in self.renderer_pre_processing.GetActors():
+            self.renderer_pre_processing.RemoveActor(actor)
+
+        connect, coord_def, r_def, scale  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        colorTable = ColorTable(self.project, r_def)
+        self.create_colorBarActor(colorTable)
+        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
+        plot.assembly()
+        self.renderer_pre_processing.AddActor(plot.get_actor())
+        self.renderer_pre_processing.AddActor(self.colorbar)
+
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_pre_processing.AddActor(scale)
 
     def plot_modal_superposition(self, modal, frequency_indice):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
-        #matriz = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -333,13 +331,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
         self.renderer_pre_processing.AddActor(scale)
+        return factor
 
     def plot_direct_method(self, direct, frequency_indice):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
-        #matriz = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -350,6 +348,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
         self.renderer_pre_processing.AddActor(scale)
+        return factor
 
     def plot_entities(self):
         for actor in self.renderer_entities.GetActors():
@@ -362,9 +361,9 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.actors_entities[plot.get_actor()] = entity.getTag()
             self.renderer_entities.AddActor(plot.get_actor())
     
-        scale = vtk.vtkLegendScaleActor()
-        scale.AllAxesOff ()
-        self.renderer_entities.AddActor(scale)
+        # scale = vtk.vtkLegendScaleActor()
+        # scale.AllAxesOff ()
+        # self.renderer_entities.AddActor(scale)
 
     def plot_elements(self):
         for actor in self.renderer_elements.GetActors():
@@ -377,9 +376,9 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.actors_elements[plot.get_actor()] = key
             self.renderer_elements.AddActor(plot.get_actor())
         
-        scale = vtk.vtkLegendScaleActor()
-        scale.AllAxesOff ()
-        self.renderer_elements.AddActor(scale)
+        # scale = vtk.vtkLegendScaleActor()
+        # scale.AllAxesOff ()
+        # self.renderer_elements.AddActor(scale)
 
     def changeColorEntities(self, entity_id, color):
         actors = [key  for (key, value) in self.actors_entities.items() if value in entity_id]
@@ -422,69 +421,6 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.actors_points[plot.get_actor()] = key
             self.renderer_points.AddActor(plot.get_actor())
 
-        scale = vtk.vtkLegendScaleActor()
-        scale.AllAxesOff ()
-        self.renderer_points.AddActor(scale)
-
-    #====================
-
-    def create_actions(self):
-        self.cross_action = QAction('&Cross', self)        
-        self.cross_action.setStatusTip("Set Cross Section")
-        self.cross_action.triggered.connect(self.cross_call)
-
-        self.dof_action = QAction('&DOF', self)        
-        self.dof_action.setStatusTip("Set DOFs")
-        self.dof_action.triggered.connect(self.dof_call)
-
-        self.dof_import_action = QAction('&DOF_I', self)        
-        self.dof_import_action.setStatusTip("Import DOF's")
-        self.dof_import_action.triggered.connect(self.dof_import_call)
-
-    def on_context_menu2(self, pos, type, id):
-        #type 0 = Entity
-        #type 1 = Element
-        #Type 2 = Point
-        menu = QMenu()
-        if (type == 0 and self.in_entities):
-            menu.addAction('Entity'+str(id))
-            menu.addAction("Set Material")
-            menu.addAction(self.cross_action)
-        elif (type == 1 and self.in_elements):
-            pass
-        elif (type == 2 and self.in_points):
-            menu.addAction("Point "+ str(id))
-            menu.addAction(self.dof_action)
-            menu.addAction(self.dof_import_action)
-            menu.addAction("Set F")
-
-        menu.exec_(self.mapToGlobal(pos))
-
-    def on_context_menu(self, pos, type, id):
-        #type 0 = Entity
-        #type 1 = Element
-        #Type 2 = Point
-        print(pos)
-        menu = QMenu()
-        if (type == 0 and self.in_entities):
-            menu.addAction('Entity'+str(id))
-            menu.addAction("Set Material")
-            menu.addAction(self.cross_action)
-        elif (type == 1 and self.in_elements):
-            pass
-        elif (type == 2 and self.in_points):
-            menu.addAction("Point "+ str(id))
-            menu.addAction(self.dof_action)
-            menu.addAction(self.dof_import_action)
-            menu.addAction("Set F")
-
-        menu.exec_(self.mapToGlobal(pos))
-
-    def cross_call(self):
-        CrossInput()
-
-    def dof_call(self):
-        DOFInput()
-
-    def dof_import_call(self):
-        ForceInput()
+        # scale = vtk.vtkLegendScaleActor()
+        # scale.AllAxesOff ()
+        # self.renderer_points.AddActor(scale)

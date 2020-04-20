@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
 from os.path import basename
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
@@ -6,9 +6,22 @@ from PyQt5 import uic
 import configparser
 
 class PlotModeShapeInput(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotModeShapeInput.ui', self)
+
+        self.frequencies = frequencies
+        self.frequency = None
+
+        self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
+        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
+        self.pushButton = self.findChild(QPushButton, 'pushButton')
+        self.pushButton.clicked.connect(self.button)
+
+        self.treeWidget.itemClicked.connect(self.on_click_item)
+        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+        self.load()
 
         self.exec_()
 
@@ -25,5 +38,38 @@ class PlotModeShapeInput(QDialog):
         msg_box.setWindowTitle(title)
         msg_box.exec_()
 
+    def isFloat(self, value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
+
     def check(self):
-        pass
+        if self.lineEdit.text() == "":
+            self.error("Select a frequency")
+            return
+        else:
+            if self.isFloat(self.lineEdit.text()):
+                frequency = float(self.lineEdit.text())
+                self.frequency = self.frequencies.index(frequency)
+            else:
+                self.error("Value error (Frequency)")
+                return
+
+        self.close()
+
+    def load(self):
+        for frequency in self.frequencies:
+            new = QTreeWidgetItem([str(frequency)])
+            self.treeWidget.addTopLevelItem(new)
+
+    def on_click_item(self, item):
+        self.lineEdit.setText(item.text(0))
+
+    def on_doubleclick_item(self, item):
+        self.lineEdit.setText(item.text(0))
+        self.check()
+
+    def button(self):
+        self.check()

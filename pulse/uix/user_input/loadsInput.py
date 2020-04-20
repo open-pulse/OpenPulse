@@ -55,7 +55,10 @@ class LoadsInput(QDialog):
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
-            tokens.remove('')
+            try:
+                tokens.remove('')
+            except:
+                pass
             self.nodes = list(map(int, tokens))
         except Exception:
             self.error("Wrong input for Node ID's!", "Error Node ID's")

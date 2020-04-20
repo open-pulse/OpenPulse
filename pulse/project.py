@@ -26,11 +26,18 @@ class Project:
         self.projectAssembly = False #True if the project was assembled
 
         #Analysis
-        self.AnalysisType = None
-        self.direct = None
-        self.modal = None
+        self.analysisTypeID = None
+        self.analysisType = ""
+        self.analysisMethod = ""
+        self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = []
+        self.naturalFrequencies = []
+        self.solution = None
+
+        self.direct = None
+        self.modal = None
+        
 
     def newProject(self, path, project_name, geometry_name, cord_name, conn_name, element_size, material_name):
         self.mesh = Mesh()
@@ -244,8 +251,8 @@ class Project:
     def addCrossSectionInFile(self, entity_id, cross_section):
         config = configparser.ConfigParser()
         config.read(self.entityPath)
-        config[str(entity_id)]['external diam'] = str(cross_section.external_diameter)
-        config[str(entity_id)]['internal diam'] = str(cross_section.internal_diameter)
+        config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
+        config[str(entity_id)]['thickness'] = str(cross_section.thickness)
         with open(self.entityPath, 'w') as configfile:
             config.write(configfile)
 
@@ -258,8 +265,8 @@ class Project:
 
         for entity in entityFile.sections():
             material_id = entityFile[entity]['MaterialID']
-            diam_ext = entityFile[entity]['external diam']
-            diam_int = entityFile[entity]['internal diam']
+            diam_ext = entityFile[entity]['outer diameter']
+            thickness = entityFile[entity]['thickness']
             if material_id.isnumeric():
                 material_id = int(material_id)
                 for material in material_list.sections():
@@ -274,10 +281,10 @@ class Project:
                         temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
                         self.loadMaterial_by_Entity(int(entity), temp_material)
             
-            if self.isFloat(diam_ext) and self.isFloat(diam_int):
+            if self.isFloat(diam_ext) and self.isFloat(thickness):
                 diam_ext = float(diam_ext)
-                diam_int = float(diam_int)
-                cross = CrossSection(diam_ext, diam_int)
+                thickness = float(thickness)
+                cross = CrossSection(diam_ext, thickness)
                 self.loadCrossSection_by_Entity(int(entity), cross)
 
     def loadNodeFile(self):
@@ -377,3 +384,42 @@ class Project:
 
     def getMaterialListPath(self):
         return self.materialListPath
+
+    def setAnalysisType(self, value, _type, _method = ""):
+        self.analysisTypeID = value
+        self.analysisType = _type
+        self.analysisMethod = _method
+
+    def getAnalysisTypeID(self):
+        return self.analysisTypeID
+
+    def getAnalysisType(self):
+        return self.analysisType
+
+    def getAnalysisMethod(self):
+        return self.analysisMethod
+
+    def setDamping(self, value):
+        self.damping = value
+
+    def getDamping(self):
+        return self.damping
+
+    def setSolution(self, value):
+        self.solution = value
+    
+    def getSolution(self):
+        return self.solution
+
+    def setNaturalFrequencies(self, value):
+        self.naturalFrequencies = value
+
+    def getNaturalFrequencies(self):
+        return self.naturalFrequencies
+
+    def getUnit(self):
+        analyse = self.getAnalysisTypeID()
+        if analyse == 0 or analyse == 1:
+            return "m"
+        else:
+            return "m"

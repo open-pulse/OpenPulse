@@ -81,13 +81,11 @@ class CrossSectionInput(QDialog):
             try:
                 outerDiameter = float(self.lineEdit_outerDiameter.text())
                 thickness = float(self.lineEdit_thickness.text())
-                # offset_y = float(self.lineEdit_offset_y.text())
-                # offset_z = float(self.lineEdit_offset_z.text())
             except Exception:
                 self.error("Wrong input!", "Pipe Error")
                 return
 
-            self.section = CrossSection(outerDiameter, outerDiameter)
+            self.section = CrossSection(outerDiameter, thickness)
             self.close()
 
         else:

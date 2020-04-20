@@ -69,9 +69,9 @@ class InputUi:
         if dof.dof is None:
             return
 
-        self.project.setBondaryCondition_by_Node(point_id, dof.dof)
-        print("[Set Bondary Condition] - defined in the poins {}".format(point_id))
-        self.opv.changeColorPoints(point_id, (0,1,0))
+        self.project.setBondaryCondition_by_Node(dof.nodes, dof.dof)
+        print("[Set Bondary Condition] - defined in the poins {}".format(dof.nodes))
+        self.opv.changeColorPoints(dof.nodes, (0,1,0))
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
@@ -80,30 +80,86 @@ class InputUi:
         if loads.loads is None:
             return
 
-        self.project.setFroce_by_Node(point_id, loads.loads)
-        print("[Set Loads] - defined in the poins {}".format(point_id))
-        self.opv.changeColorPoints(point_id, (0,1,0))
+        self.project.setFroce_by_Node(loads.nodes, loads.loads)
+        print("[Set Loads] - defined in the poins {}".format(loads.nodes))
+        self.opv.changeColorPoints(loads.nodes, (0,1,0))
 
     def addMassSpringDamper(self):
         MassSpringDamperInput()
 
     def analyseTypeInput(self):
-        AnalyseTypeInput()
+        analyseType = AnalyseTypeInput()
+        if analyseType.typeID is None:
+            return
+        
+        self.project.setAnalysisType(analyseType.typeID, analyseType.type, analyseType.method)
+        self.project.setModes(analyseType.modes)
 
     def analyseSetup(self):
-        AnalyseSetupInput()
+        if self.project.getAnalysisTypeID() is None:
+            return
+        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod())
+        
+        if not setup.complete:
+            return
+
+        self.project.setFrequencies(setup.frequencies)
+        self.project.setModes(setup.modes)
+        self.project.setDamping(setup.damping)
 
     def analyseOutputResults(self):
         AnalyseOutputResultsInput()
 
     def runAnalyse(self):
-        RunAnalyseInput()
+        mesh = self.project.getMesh()
+        analyseType = self.project.getAnalysisTypeID()
+        frequencies = self.project.getFrequencies()
+        modes = self.project.getModes()
+        damping = self.project.getDamping()
+        if analyseType is None:
+            return
+        if len(frequencies) == 0:
+            if analyseType == 0 or analyseType == 1:
+                return
+        solution = RunAnalyseInput(mesh, analyseType, frequencies, modes, damping)
+
+        if solution.solution is None:
+            return
+        
+        self.project.setSolution(solution.solution)
+        if analyseType == 2:
+            self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
 
     def plotModeShapes(self):
-        PlotModeShapeInput()
+        solution = self.project.getSolution()
+        analyseType = self.project.getAnalysisTypeID()
+        frequencies = self.project.getNaturalFrequencies()
+        if analyseType == 2:
+            if solution is None:
+                return
+            plot = PlotModeShapeInput(frequencies)
+            if plot.frequency is None:
+                return
+            self.opv.change_to_modal_analyse(plot.frequency)
+        else:
+            return
 
     def plotHarmonicResponse(self):
-        PlotHarmonicResponseInput()
+        solution = self.project.getSolution()
+        analyseType = self.project.getAnalysisTypeID()
+        frequencies = self.project.getFrequencies()
+        if analyseType == 0 or analyseType == 1:
+            if solution is None:
+                return
+            plot = PlotHarmonicResponseInput(frequencies)
+            if plot.frequency is None:
+                return
+            if analyseType == 0:
+                self.opv.change_to_direct_method(plot.frequency)
+            else:
+                self.opv.change_to_modal_superposition(plot.frequency)
+        else:
+            return
 
     def plotPressureField(self):
         pass

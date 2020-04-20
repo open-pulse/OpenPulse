@@ -6,18 +6,26 @@ from PyQt5 import uic
 import configparser
 
 from pulse.uix.user_input.analyseHarmonicInput import AnalyseHarmonicInput
+from pulse.uix.user_input.analyseModalInput import AnalyseModalInput
 
 class AnalyseTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/analyseTypeInput.ui', self)
 
+        self.typeID = None
         self.type = None
+        self.method = None
+        self.modes = 0
         #Type 0 == Harmonic Structural Direct
         #Type 1 == Harmonic Structural Modal
+        #Type 2 == Modal Structural
 
         self.pushButton_harmonic_structural = self.findChild(QPushButton, 'pushButton_harmonic_structural')
         self.pushButton_harmonic_structural.clicked.connect(self.harmonic_structural)
+
+        self.pushButton_modal_structural = self.findChild(QPushButton, 'pushButton_modal_structural')
+        self.pushButton_modal_structural.clicked.connect(self.modal_structural)
 
         self.exec_()
 
@@ -36,5 +44,19 @@ class AnalyseTypeInput(QDialog):
 
     def harmonic_structural(self):
         select = AnalyseHarmonicInput()
-        self.type = select.index
+        self.typeID = select.index
+        self.type = "Harmonic Analysis - Structural"
+        if self.typeID == 0:
+            self.method = "Direct"
+        else:
+            self.method = "Mode Superposition"
+        self.close()
+
+    def modal_structural(self):
+        modal = AnalyseModalInput()
+        if modal.modes is None:
+            return
+        self.modes = modal.modes
+        self.typeID = 2
+        self.type = "Modal Analysis - Structural"
         self.close()

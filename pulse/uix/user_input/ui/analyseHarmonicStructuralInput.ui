@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>313</width>
-    <height>153</height>
+    <width>361</width>
+    <height>163</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Run analysis</string>
+   <string>Select Analysis Type </string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -37,8 +37,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>311</width>
-     <height>151</height>
+     <width>361</width>
+     <height>161</height>
     </rect>
    </property>
    <property name="font">
@@ -51,7 +51,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>311</width>
+      <width>361</width>
       <height>41</height>
      </rect>
     </property>
@@ -69,7 +69,7 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>291</width>
+       <width>351</width>
        <height>16</height>
       </rect>
      </property>
@@ -80,7 +80,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Run analysis</string>
+      <string>Select the analysis of interest:</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -95,8 +95,8 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>311</width>
-      <height>111</height>
+      <width>361</width>
+      <height>121</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -105,13 +105,16 @@
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QLabel" name="label_title">
+    <widget class="QPushButton" name="pushButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>20</x>
        <y>20</y>
-       <width>271</width>
-       <height>71</height>
+       <width>321</width>
+       <height>23</height>
       </rect>
      </property>
      <property name="font">
@@ -121,10 +124,88 @@
       </font>
      </property>
      <property name="text">
-      <string>Solution in progress…</string>
+      <string>Harmonic Analysis - Structural</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="icon">
+      <iconset>
+       <activeon>../../../../../../Downloads/load.png</activeon>
+      </iconset>
+     </property>
+     <property name="shortcut">
+      <string/>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>50</y>
+       <width>101</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Method:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QComboBox" name="comboBox">
+     <property name="geometry">
+      <rect>
+       <x>130</x>
+       <y>50</y>
+       <width>211</width>
+       <height>22</height>
+      </rect>
+     </property>
+     <property name="insertPolicy">
+      <enum>QComboBox::NoInsert</enum>
+     </property>
+     <item>
+      <property name="text">
+       <string>Direct</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mode Superposition</string>
+      </property>
+     </item>
+    </widget>
+    <widget class="QPushButton" name="pushButton_2">
+     <property name="geometry">
+      <rect>
+       <x>80</x>
+       <y>80</y>
+       <width>201</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Continue</string>
      </property>
     </widget>
    </widget>

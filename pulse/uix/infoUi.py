@@ -16,7 +16,7 @@ class InfoUi(QSplitter):
         self.data_widget = DataUi(self.main_window)
 
         self.addWidget(self.tree_widget)
-        self.addWidget(self.data_widget)
+        #self.addWidget(self.data_widget)
         self.setSizes([100, 100])
 
     def hidden_data(self):

@@ -104,6 +104,7 @@ class TreeUi(QTreeWidget):
         self.item_child_setMaterial.setIcon(0, self.icon_child_setMaterial)
 
         self.item_child_addMassSpringDamper.setDisabled(True)
+        self.item_child_selectTheOutputResults.setDisabled(True)
         self.item_child_plotPressureField.setDisabled(True)
         self.item_child_plotStressField.setDisabled(True)
 

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>361</width>
-    <height>131</height>
+    <height>163</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>361</width>
-     <height>131</height>
+     <height>161</height>
     </rect>
    </property>
    <property name="font">
@@ -80,7 +80,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Select the analysis of interest:</string>
+      <string>Select the number of modes of analysis:</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -96,7 +96,7 @@
       <x>0</x>
       <y>40</y>
       <width>361</width>
-      <height>91</height>
+      <height>121</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -124,7 +124,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Harmonic Analysis - Structural</string>
+      <string>Modal Analysis - Structural</string>
      </property>
      <property name="icon">
       <iconset>
@@ -163,7 +163,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Method:</string>
+         <string>Modes:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -172,28 +172,28 @@
       </item>
      </layout>
     </widget>
-    <widget class="QComboBox" name="comboBox">
+    <widget class="QPushButton" name="pushButton_2">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>50</y>
-       <width>211</width>
-       <height>22</height>
+       <x>80</x>
+       <y>80</y>
+       <width>201</width>
+       <height>23</height>
       </rect>
      </property>
-     <property name="insertPolicy">
-      <enum>QComboBox::NoInsert</enum>
+     <property name="text">
+      <string>Continue</string>
      </property>
-     <item>
-      <property name="text">
-       <string>Direct</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Mode Superposition</string>
-      </property>
-     </item>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="geometry">
+      <rect>
+       <x>132</x>
+       <y>50</y>
+       <width>211</width>
+       <height>20</height>
+      </rect>
+     </property>
     </widget>
    </widget>
   </widget>

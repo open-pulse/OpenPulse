@@ -6,14 +6,27 @@ from PyQt5 import uic
 import configparser
 
 class AnalyseSetupInput(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, typeID, title, subtitle, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput.ui', self)
+        self.analyseID = typeID
+
+        if self.analyseID == 1:
+            uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput_modal.ui', self)
+        else:
+            uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput.ui', self)
 
         self.currentTab = 0
 
+        self.complete = False
+        self.frequencies = []
+        self.damping = [0,0,0,0]
+        self.modes = 0
+
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_subtitle = self.findChild(QLabel, 'label_subtitle')
+
+        if self.analyseID == 1:
+            self.lineEdit_modes = self.findChild(QLineEdit, 'lineEdit_modes')
 
         self.lineEdit_av = self.findChild(QLineEdit, 'lineEdit_av')
         self.lineEdit_bv = self.findChild(QLineEdit, 'lineEdit_bv')
@@ -27,6 +40,9 @@ class AnalyseSetupInput(QDialog):
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
         self.currentTab = self.tabWidget.currentIndex()
+
+        self.label_title.setText(title)
+        self.label_subtitle.setText(subtitle)
 
         self.exec_()
 
@@ -46,5 +62,88 @@ class AnalyseSetupInput(QDialog):
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
+    def isInteger(self, value):
+        try:
+            int(value)
+            return True
+        except:
+            return False
+
     def check(self):
-        pass
+        _min = _max = _step = 0
+        if self.analyseID == 0 or self.analyseID == 1:
+            #Verify Modes
+            if self.analyseID == 1:
+                if self.lineEdit_modes.text() == "":
+                    self.error("Insert a value (modes)")
+                else:
+                    if self.isInteger(self.lineEdit_modes.text()):
+                        self.modes = int(self.lineEdit_modes.text())
+                    else:
+                        self.error("Value error (modes)")
+                        return
+
+            if self.lineEdit_min.text() != "":
+                if self.isInteger(self.lineEdit_min.text()):
+                    _min = int(self.lineEdit_min.text())
+                else:
+                    self.error("Value error (freq min)")
+                    return
+
+            if self.lineEdit_max.text() == "":
+                self.error("Insert a value (freq max)")
+                return
+            else:
+                if self.isInteger(self.lineEdit_max.text()):
+                    _max = int(self.lineEdit_max.text())
+                else:
+                    self.error("Value error (freq max)")
+                    return
+
+            if self.lineEdit_step.text() == "":
+                self.error("Insert a value (freq df)")
+                return
+            else:
+                if self.isInteger(self.lineEdit_step.text()):
+                    _step = int(self.lineEdit_step.text())
+                else:
+                    self.error("Value error (freq df)")
+                    return
+
+        av = bv = ah = bh = 0
+        if self.lineEdit_av.text() != "":
+            if self.isInteger(self.lineEdit_av.text()):
+                av = int(self.lineEdit_av.text())
+            else:
+                self.error("Value error (av)")
+                return
+
+        if self.lineEdit_bv.text() != "":
+            if self.isInteger(self.lineEdit_bv.text()):
+                bv = int(self.lineEdit_bv.text())
+            else:
+                self.error("Value error (bv)")
+                return
+
+        if self.lineEdit_ah.text() != "":
+            if self.isInteger(self.lineEdit_ah.text()):
+                ah = int(self.lineEdit_ah.text())
+            else:
+                self.error("Value error (ah)")
+                return
+
+        if self.lineEdit_bh.text() != "":
+            if self.isInteger(self.lineEdit_bh.text()):
+                bh = int(self.lineEdit_bh.text())
+            else:
+                self.error("Value error (bh)")
+                return
+
+        self.damping = [av, bv, ah, bh]
+
+        if self.analyseID == 0 or self.analyseID == 1:
+            for i in range(_min, _max+1, _step):
+                self.frequencies.append(i)
+        
+        self.complete = True
+        self.close()

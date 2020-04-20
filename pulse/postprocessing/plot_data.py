@@ -36,5 +36,6 @@ def get_displacement_matrix(mesh, solution, column, scf=0.4):
     coord_def[:,1] = coord[:,1] + u_x*(scf/r_max)
     coord_def[:,2] = coord[:,2] + u_y*(scf/r_max)
     coord_def[:,3] = coord[:,3] + u_z*(scf/r_max)
+    factor = (scf/r_max)
         
-    return connect, coord_def, r_def
+    return connect, coord_def, r_def, factor
