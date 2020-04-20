@@ -52,7 +52,8 @@ class TreeUi(QTreeWidget):
         self.font_top.setWeight(75)
 
     def _createColorsBrush(self):
-        color_top = QColor(39, 180, 211)
+        #color_top = QColor(39, 180, 211)
+        color_top = QColor(178, 178, 178)
         #color_child = QColor(0, 0, 0)
         self.brush_top = QBrush(color_top)
         self.brush_top.setStyle(Qt.SolidPattern)
