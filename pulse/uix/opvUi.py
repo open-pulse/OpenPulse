@@ -180,7 +180,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_pre_processing.RemoveActor2D(self.textUnit)
         text = "Unit: [{}]".format(unit)
         self.textUnit.SetInput(text)
-        self.textUnit.
         width, height = self.renderer_pre_processing.GetSize()
         self.textUnit.SetDisplayPosition(width-100,height-30)
         self.renderer_pre_processing.AddActor2D(self.textUnit)
