@@ -25,6 +25,8 @@ class Project:
         self.projectReady = False #True if the project was created or loaded
         self.projectAssembly = False #True if the project was assembled
 
+        #Analysis
+        self.AnalysisType = None
         self.direct = None
         self.modal = None
         self.modes = 0
@@ -372,3 +374,6 @@ class Project:
 
     def getModes(self):
         return self.modes
+
+    def getMaterialListPath(self):
+        return self.materialListPath

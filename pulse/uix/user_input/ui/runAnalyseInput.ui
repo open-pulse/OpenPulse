@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>581</width>
-    <height>271</height>
+    <width>313</width>
+    <height>153</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set Material</string>
+   <string>Run analysis</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -37,8 +37,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>581</width>
-     <height>271</height>
+     <width>311</width>
+     <height>151</height>
     </rect>
    </property>
    <property name="font">
@@ -51,7 +51,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>581</width>
+      <width>311</width>
       <height>41</height>
      </rect>
     </property>
@@ -64,61 +64,23 @@
     <property name="lineWidth">
      <number>1</number>
     </property>
-    <widget class="QRadioButton" name="radioButton_entity">
-     <property name="geometry">
-      <rect>
-       <x>480</x>
-       <y>10</y>
-       <width>82</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <stylestrategy>PreferAntialias</stylestrategy>
-      </font>
-     </property>
-     <property name="text">
-      <string>The Entity</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButton_all">
-     <property name="geometry">
-      <rect>
-       <x>370</x>
-       <y>10</y>
-       <width>82</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <stylestrategy>PreferAntialias</stylestrategy>
-      </font>
-     </property>
-     <property name="text">
-      <string>All</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>10</x>
        <y>10</y>
-       <width>271</width>
+       <width>291</width>
        <height>16</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <pointsize>10</pointsize>
+       <italic>false</italic>
       </font>
      </property>
      <property name="text">
-      <string>Attribute material to:</string>
+      <string>Run analysis</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -128,63 +90,43 @@
      </property>
     </widget>
    </widget>
-   <widget class="QTreeWidget" name="treeWidget">
+   <widget class="QFrame" name="frame_2">
     <property name="geometry">
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>581</width>
-      <height>231</height>
+      <width>311</width>
+      <height>111</height>
      </rect>
     </property>
     <property name="frameShape">
-     <enum>QFrame::Panel</enum>
+     <enum>QFrame::Box</enum>
     </property>
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <property name="lineWidth">
-     <number>1</number>
-    </property>
-    <property name="tabKeyNavigation">
-     <bool>true</bool>
-    </property>
-    <property name="alternatingRowColors">
-     <bool>true</bool>
-    </property>
-    <property name="indentation">
-     <number>0</number>
-    </property>
-    <column>
-     <property name="text">
-      <string>Name</string>
+    <widget class="QLabel" name="label_title">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>20</y>
+       <width>271</width>
+       <height>16</height>
+      </rect>
      </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>ID</string>
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-    </column>
-    <column>
      <property name="text">
-      <string>Density</string>
+      <string>Solution in progress…</string>
      </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Young Modulus</string>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Poisson</string>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Color</string>
-     </property>
-    </column>
+    </widget>
    </widget>
   </widget>
  </widget>

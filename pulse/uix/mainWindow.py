@@ -35,7 +35,7 @@ class MainWindow(QMainWindow):
         icons_path = 'pulse\\data\\icons\\'
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'new.png')
-        self.open_icon = QIcon(icons_path + 'open.png')
+        self.open_icon = QIcon(icons_path + 'load.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
 
     def _config(self):

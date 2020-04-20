@@ -193,6 +193,37 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.EnabledOn()
         self.axes.InteractiveOff()
 
+        
+
+        
+
+        # self.slider = vtk.vtkSliderRepresentation2D()
+        # self.slider.SetMinimumValue(-4.5)
+        # self.slider.SetMaximumValue(4.5)
+        # self.slider.SetValue(-4.5)
+        # self.slider.SetTitleText("U min")
+
+        # self.slider.GetPoint1Coordinate().SetCoordinateSystemToNormalizedDisplay()
+        # self.slider.GetPoint1Coordinate().SetValue(40, 40)
+        # self.slider.GetPoint2Coordinate().SetCoordinateSystemToNormalizedDisplay()
+        # self.slider.GetPoint2Coordinate().SetValue(100, 40)
+
+        # tubeWidth = 0.1
+        # sliderLength = 0.1
+        # titleHeight = 0.1
+        # labelHeight = 0.1
+
+        # self.slider.SetTubeWidth(tubeWidth)
+        # self.slider.SetSliderLength(sliderLength)
+        # self.slider.SetTitleHeight(titleHeight)
+        # self.slider.SetLabelHeight(labelHeight)
+
+        # self.w = vtk.vtkSliderWidget()
+        # self.w.SetInteractor(self)
+        # self.w.SetRepresentation(self.slider)
+        # #self.w.SetAnimationModeToAnimate()
+        # self.w.EnabledOn()
+
     def _atualizar_axes(self):
         self.axes.SetEnabled(0)
         self._create_axes()
@@ -299,6 +330,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_pre_processing.AddActor(plot.get_actor())
         self.renderer_pre_processing.AddActor(self.colorbar)
 
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_pre_processing.AddActor(scale)
+
     def plot_direct_method(self, direct, frequency_indice):
         for actor in self.renderer_pre_processing.GetActors():
             self.renderer_pre_processing.RemoveActor(actor)
@@ -312,6 +347,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_pre_processing.AddActor(plot.get_actor())
         self.renderer_pre_processing.AddActor(self.colorbar)
 
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_pre_processing.AddActor(scale)
+
     def plot_entities(self):
         for actor in self.renderer_entities.GetActors():
             self.renderer_entities.RemoveActor(actor)
@@ -322,7 +361,11 @@ class OPVUi(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors_entities[plot.get_actor()] = entity.getTag()
             self.renderer_entities.AddActor(plot.get_actor())
-        
+    
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_entities.AddActor(scale)
+
     def plot_elements(self):
         for actor in self.renderer_elements.GetActors():
             self.renderer_elements.RemoveActor(actor)
@@ -333,6 +376,10 @@ class OPVUi(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors_elements[plot.get_actor()] = key
             self.renderer_elements.AddActor(plot.get_actor())
+        
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_elements.AddActor(scale)
 
     def changeColorEntities(self, entity_id, color):
         actors = [key  for (key, value) in self.actors_entities.items() if value in entity_id]
@@ -374,6 +421,10 @@ class OPVUi(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors_points[plot.get_actor()] = key
             self.renderer_points.AddActor(plot.get_actor())
+
+        scale = vtk.vtkLegendScaleActor()
+        scale.AllAxesOff ()
+        self.renderer_points.AddActor(scale)
 
     #====================
 

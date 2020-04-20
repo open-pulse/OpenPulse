@@ -1,103 +1,107 @@
-from PyQt5.QtWidgets import QLabel, QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QColorDialog, QMessageBox
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem
 from os.path import basename
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+
+from pulse.preprocessing.material import Material
 
 class MaterialInput(QDialog):
     def __init__(self, material_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.path = material_path
+        self.materialPath = material_path
         uic.loadUi('pulse/uix/user_input/ui/materialInput.ui', self)
 
-        self.haveNewMaterial = False
-        self.buttonBox_save_material = self.findChild(QDialogButtonBox, 'buttonBox_save_material')
-        self.buttonBox_save_material.accepted.connect(self.accept_material)
-        self.buttonBox_save_material.rejected.connect(self.reject_material)
+        self.clicked_item = None
+        self.material = None
+        self.flagAll = False
+        self.flagEntity = False
 
-        self.line_material_name = self.findChild(QLineEdit, 'line_material_name')
-        self.line_e = self.findChild(QLineEdit, 'line_e') #Young Modulus
-        self.line_v = self.findChild(QLineEdit, 'line_v') #Poisson
-        self.line_f = self.findChild(QLineEdit, 'line_f') #Density
-        self.line_color = self.findChild(QLineEdit, 'line_color')
+        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
+        self.treeWidget.setColumnWidth(1, 20)
+        self.treeWidget.setColumnWidth(5, 30)
+        self.treeWidget.setColumnWidth(3, 180)
+        self.treeWidget.itemClicked.connect(self.on_click_item)
+        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.toolButton_color = self.findChild(QToolButton, 'toolButton_color')
-        self.toolButton_color.clicked.connect(self.material_color)
+        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
+        self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
+        self.radioButton_all.toggled.connect(self.radioButtonEvent)
+        self.radioButton_entity.toggled.connect(self.radioButtonEvent)
 
+        self.flagAll = self.radioButton_all.isChecked()
+        self.flagEntity = self.radioButton_entity.isChecked()
+
+        self.loadList()
         self.exec_()
-        
-    def accept_material(self):
-        if self.line_material_name.text() == "":
-            self.error("Digite o nome do material!")
-            return
-        elif self.line_e.text() == "":
-            self.error("Digite um valor para Young Modulus")
-            return
-        elif self.line_v.text() == "":
-            self.error("Digite um valor para Poisson")
-            return
-        elif self.line_f.text() == "":
-            self.error("Digite um valor para Density")
-            return
-        elif self.line_color.text() == "":
-            self.error("Selecione uma cor")
-            return
 
-        try:
-            float(self.line_e.text())
-        except Exception:
-            self.error("Digite um valor válido para Young Modulus")
-            return
-
-        try:
-            float(self.line_v.text())
-        except Exception:
-            self.error("Digite um valor válido para Poisson")
-            return
-
-        try:
-            float(self.line_f.text())
-        except Exception:
-            self.error("Digite um valor válido para Density")
-            return
-
-        self.addMaterial()
-        self.haveNewMaterial = True
-        self.close()
-
-    def reject_material(self):
-        self.close()
-
-    def material_color(self):
-        color = QColorDialog.getColor()
-        if color.isValid():
-            r = color.red()
-            g = color.green()
-            b = color.blue()
-            self.line_color.setText('[{},{},{}]'.format(r,g,b))
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.check()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def error(self, msg, title = "Error"):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setText(msg)
-        #msg_box.setInformativeText('More information')
         msg_box.setWindowTitle(title)
         msg_box.exec_()
 
-    def addMaterial(self):
-        config = configparser.ConfigParser()
-        config.read(self.path)
-        name = self.line_material_name.text()
+    def check(self):
+        if self.clicked_item is None:
+            self.error("Select a material in the list")
+            return
+        
+        try:
+            name = self.clicked_item.text(0)
+            identifier = int(self.clicked_item.text(1))
+            density = float(self.clicked_item.text(2))
+            poisson = float(self.clicked_item.text(4))
+            young = float(self.clicked_item.text(3))*(10**(9))
+            color = self.clicked_item.text(5)
+            new_material = Material(name, density, poisson_ratio=poisson, young_modulus=young, identifier=identifier, color=color)
+            self.material = new_material
+            self.close()
+        except Exception as e:
+            self.error(str(e), "Error with the material list data")
+            return
 
-        identifier = len(config.sections())
+    def loadList(self):
+        try:
+            config = configparser.ConfigParser()
+            config.read(self.materialPath)
+            for mat in config.sections():
+                material = config[mat]
+                name = str(material['name'])
+                identifier =  str(material['identifier'])
+                density =  str(material['density'])
+                youngmodulus =  str(material['youngmodulus'])
+                poisson =  str(material['poisson'])
+                color =  str(material['color'])
 
-        config[name.upper()] = {
-            'Name': name,
-            'Identifier': identifier+1,
-            'Density': float(self.line_v.text()),
-            'YoungModulus': float(self.line_e.text()),
-            'Poisson': float(self.line_f.text()),
-            'Color': self.line_color.text() #Blue
-        }
-        with open(self.path, 'w') as configfile:
-            config.write(configfile)
+                load_material = QTreeWidgetItem([name, identifier, density, youngmodulus, poisson, color])
+                colorRGB = self.getColorRGB(color)
+                load_material.setBackground(5,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+                load_material.setForeground(5,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+                self.treeWidget.addTopLevelItem(load_material)
+        except Exception as e:
+            self.error(str(e), "Error while loading the material list")
+            self.close()
+        
+    def getColorRGB(self, color):
+        temp = color[1:-1] #Remove "[ ]"
+        tokens = temp.split(',')
+        return list(map(int, tokens))
+
+    def on_click_item(self, item):
+        self.clicked_item = item
+
+    def on_doubleclick_item(self, item):
+        self.clicked_item = item
+        self.check()
+    
+    def radioButtonEvent(self):
+        self.flagAll = self.radioButton_all.isChecked()
+        self.flagEntity = self.radioButton_entity.isChecked()

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>391</width>
-    <height>361</height>
+    <height>329</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,20 +22,20 @@
   <property name="minimumSize">
    <size>
     <width>391</width>
-    <height>361</height>
+    <height>329</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>391</width>
-    <height>361</height>
+    <height>329</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set Prescribed DOFs</string>
+   <string> Set Nodal Loads</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>391</width>
-     <height>361</height>
+     <height>331</height>
     </rect>
    </property>
    <property name="font">
@@ -92,7 +92,8 @@
       </font>
      </property>
      <property name="text">
-      <string>Insert values for prescribed DOFs:</string>
+      <string>Insert values for nodal loads:
+</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -108,7 +109,7 @@
       <x>0</x>
       <y>40</y>
       <width>391</width>
-      <height>321</height>
+      <height>291</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -177,7 +178,7 @@
          </font>
         </property>
         <property name="text">
-         <string>DOFs</string>
+         <string>Loads</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -255,7 +256,7 @@
       <item>
        <widget class="QLabel" name="label_6">
         <property name="text">
-         <string>Ux:</string>
+         <string>Fx:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -265,7 +266,7 @@
       <item>
        <widget class="QLabel" name="label_7">
         <property name="text">
-         <string>Uy:</string>
+         <string>Fy:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -275,7 +276,7 @@
       <item>
        <widget class="QLabel" name="label_8">
         <property name="text">
-         <string>Uz:</string>
+         <string>Fz:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -285,7 +286,7 @@
       <item>
        <widget class="QLabel" name="label_10">
         <property name="text">
-         <string>Rx:</string>
+         <string>Mx:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -295,7 +296,7 @@
       <item>
        <widget class="QLabel" name="label_11">
         <property name="text">
-         <string>Ry:</string>
+         <string>My:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -305,7 +306,7 @@
       <item>
        <widget class="QLabel" name="label_9">
         <property name="text">
-         <string>Rz:</string>
+         <string>Mz:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -325,22 +326,22 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
-       <widget class="QLineEdit" name="lineEdit_ux"/>
+       <widget class="QLineEdit" name="lineEdit_fx"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_uy"/>
+       <widget class="QLineEdit" name="lineEdit_fy"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_uz"/>
+       <widget class="QLineEdit" name="lineEdit_fz"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_rx"/>
+       <widget class="QLineEdit" name="lineEdit_mx"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_ry"/>
+       <widget class="QLineEdit" name="lineEdit_my"/>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_rz"/>
+       <widget class="QLineEdit" name="lineEdit_mz"/>
       </item>
      </layout>
     </widget>
@@ -357,7 +358,7 @@
       <item>
        <widget class="QLabel" name="label_13">
         <property name="text">
-         <string>[m]</string>
+         <string>[N]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -367,7 +368,7 @@
       <item>
        <widget class="QLabel" name="label_14">
         <property name="text">
-         <string>[m]</string>
+         <string>[N]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -377,7 +378,7 @@
       <item>
        <widget class="QLabel" name="label_15">
         <property name="text">
-         <string>[m]</string>
+         <string>[N]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -387,7 +388,7 @@
       <item>
        <widget class="QLabel" name="label_16">
         <property name="text">
-         <string>[rad]</string>
+         <string>[N.m]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -397,7 +398,7 @@
       <item>
        <widget class="QLabel" name="label_17">
         <property name="text">
-         <string>[rad]</string>
+         <string>[N.m]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -407,49 +408,12 @@
       <item>
        <widget class="QLabel" name="label_12">
         <property name="text">
-         <string>[rad]</string>
+         <string>[N.m]</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_9">
-     <property name="geometry">
-      <rect>
-       <x>40</x>
-       <y>230</y>
-       <width>91</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_9">
-      <item>
-       <widget class="QLabel" name="label_18">
-        <property name="text">
-         <string>All DOFs:</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_10">
-     <property name="geometry">
-      <rect>
-       <x>140</x>
-       <y>230</y>
-       <width>131</width>
-       <height>22</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_10">
-      <item>
-       <widget class="QLineEdit" name="lineEdit_all"/>
       </item>
      </layout>
     </widget>
@@ -457,7 +421,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>260</y>
+       <y>230</y>
        <width>371</width>
        <height>16</height>
       </rect>
@@ -470,7 +434,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>280</y>
+       <y>250</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -495,7 +459,7 @@
      <property name="geometry">
       <rect>
        <x>120</x>
-       <y>280</y>
+       <y>250</y>
        <width>181</width>
        <height>22</height>
       </rect>
@@ -514,7 +478,7 @@
      <property name="geometry">
       <rect>
        <x>300</x>
-       <y>280</y>
+       <y>250</y>
        <width>71</width>
        <height>21</height>
       </rect>

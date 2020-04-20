@@ -1,89 +1,121 @@
-from PyQt5.QtWidgets import QLabel, QLineEdit, QDialogButtonBox, QDialog, QMessageBox
-from pulse.preprocessing.boundary_condition import BoundaryCondition
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem
+from os.path import basename
+from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
+import configparser
 
 class DOFInput(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, list_node_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/dofInput.ui', self)
 
-        self.bondary = None
-        self.button_save_dof = self.findChild(QDialogButtonBox, 'button_save_dof')
-        self.button_save_dof.accepted.connect(self.accept_dof)
-        self.button_save_dof.rejected.connect(self.reject_dof)
+        self.dof = None
+        self.nodes = []
 
-        self.label_node_id = self.findChild(QLabel, 'label_node_id')
+        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
-        self.line_ux = self.findChild(QLineEdit, 'line_ux')
-        self.line_uy = self.findChild(QLineEdit, 'line_uy')
-        self.line_uz = self.findChild(QLineEdit, 'line_uz')
-        self.line_yx = self.findChild(QLineEdit, 'line_yx')
-        self.line_yy = self.findChild(QLineEdit, 'line_yy')
-        self.line_yz = self.findChild(QLineEdit, 'line_yz')
+        self.lineEdit_ux = self.findChild(QLineEdit, 'lineEdit_ux')
+        self.lineEdit_uy = self.findChild(QLineEdit, 'lineEdit_uy')
+        self.lineEdit_uz = self.findChild(QLineEdit, 'lineEdit_uz')
+        self.lineEdit_rx = self.findChild(QLineEdit, 'lineEdit_rx')
+        self.lineEdit_ry = self.findChild(QLineEdit, 'lineEdit_ry')
+        self.lineEdit_rz = self.findChild(QLineEdit, 'lineEdit_rz')
 
-        self.label_node_id.setText("Node - Boundary Condition")
+        self.lineEdit_all = self.findChild(QLineEdit, 'lineEdit_all')
+
+        self.writeNodes(list_node_ids)
 
         self.exec_()
-        
-    def accept_dof(self):
-        dx = None
-        dy = None
-        dz = None
-        rx = None
-        ry = None
-        rz = None
-        if self.line_ux.text() != "":
-            try:
-                dx = int(self.line_ux.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
 
-        if self.line_uy.text() != "":
-            try:
-                dy = int(self.line_uy.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
-
-        if self.line_uz.text() != "":
-            try:
-                dz = int(self.line_uz.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
-
-        if self.line_yx.text() != "":
-            try:
-                rx = int(self.line_yx.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
-
-        if self.line_yy.text() != "":
-            try:
-                ry = int(self.line_yy.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
-
-        if self.line_yz.text() != "":
-            try:
-                rz = int(self.line_yz.text())
-            except Exception:
-                self.error("Digite um valor válido")
-                return
-
-        self.bondary = [dx,dy,dz,rx,ry,rz]
-        self.close()
-
-    def reject_dof(self):
-        self.close()
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.check()
+        elif event.key() == Qt.Key_Escape:
+            self.close()
 
     def error(self, msg, title = "Error"):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setText(msg)
-        #msg_box.setInformativeText('More information')
         msg_box.setWindowTitle(title)
         msg_box.exec_()
+
+    def writeNodes(self, list_node_ids):
+        text = ""
+        for node in list_node_ids:
+            text += "{}, ".format(node)
+        self.lineEdit_nodeID.setText(text)
+
+    def isInteger(self, value):
+        try:
+            int(value)
+            return True
+        except:
+            return False
+
+    def check(self):
+        try:
+            tokens = self.lineEdit_nodeID.text().strip().split(',')
+            tokens.remove('')
+            self.nodes = list(map(int, tokens))
+        except Exception:
+            self.error("Wrong input for Node ID's!", "Error Node ID's")
+            return
+
+        if self.lineEdit_all.text() != "":
+            if self.isInteger(self.lineEdit_all.text()):
+                dof = int(self.lineEdit_all.text())
+                self.dof = [dof, dof, dof, dof, dof, dof]
+                self.close()
+            else:
+                self.error("Wrong input (All Dofs)!", "Error (All Dofs)")
+                return
+        else:
+            ux = uy = uz = None
+            if self.lineEdit_ux.text() != "":
+                if self.isInteger(self.lineEdit_ux.text()):
+                    ux = int(self.lineEdit_ux.text())
+                else:
+                    self.error("Wrong input (ux)!", "Error")
+                    return
+            
+            if self.lineEdit_uy.text() != "":
+                if self.isInteger(self.lineEdit_uy.text()):
+                    uy = int(self.lineEdit_uy.text())
+                else:
+                    self.error("Wrong input (uy)!", "Error")
+                    return
+
+            if self.lineEdit_uz.text() != "":
+                if self.isInteger(self.lineEdit_uz.text()):
+                    uz = int(self.lineEdit_uz.text())
+                else:
+                    self.error("Wrong input (uz)!", "Error")
+                    return
+
+            
+            rx = ry = rz = None
+            if self.lineEdit_rx.text() != "":
+                if self.isInteger(self.lineEdit_rx.text()):
+                    rx = int(self.lineEdit_rx.text())
+                else:
+                    self.error("Wrong input (rx)!", "Error")
+                    return
+            
+            if self.lineEdit_ry.text() != "":
+                if self.isInteger(self.lineEdit_ry.text()):
+                    ry = int(self.lineEdit_ry.text())
+                else:
+                    self.error("Wrong input (ry)!", "Error")
+                    return
+
+            if self.lineEdit_rz.text() != "":
+                if self.isInteger(self.lineEdit_rz.text()):
+                    rz = int(self.lineEdit_rz.text())
+                else:
+                    self.error("Wrong input (rz)!", "Error")
+                    return
+
+            self.dof = [ux, uy, uz, rx, ry, rz]
+            self.close()

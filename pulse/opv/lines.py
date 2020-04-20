@@ -53,7 +53,6 @@ class Lines:
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.Update()
 
-
     def _map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
         self._mapper.ScalarVisibilityOff()
