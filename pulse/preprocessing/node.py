@@ -10,13 +10,19 @@ def distance(a, b):
 
 
 class Node:
-    def __init__(self, x, y, z, global_index=None):
+    def __init__(self, x, y, z, global_index=None, external_index=None):
         self.x = x
         self.y = y
         self.z = z
         self.boundary_condition = [None, None, None, None, None, None]
         self.forces = [0,0,0,0,0,0]
+        
+        self.mass   = [0,0,0,0,0,0]
+        self.spring = [0,0,0,0,0,0]
+        self.damper = [0,0,0,0,0,0]
+        
         self.global_index = global_index
+        self.external_index = external_index
 
     @property
     def coordinates(self):
