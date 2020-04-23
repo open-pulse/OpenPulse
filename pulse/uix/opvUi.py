@@ -89,6 +89,9 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.renderer_points.RemoveActor(actor)
         self.actors_points = {}
 
+        for actor in self.renderer_post_processing.GetActors():
+            self.renderer_post_processing.RemoveActor(actor)
+
         self.style_entities.clear()
         self.style_elements.clear()
         self.style_points.clear()

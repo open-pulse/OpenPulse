@@ -20,10 +20,10 @@ class MainWindow(QMainWindow):
         self.project = Project()
         self._load_icons()
         self._config()
+        self._create_basic_layout()
         self._create_actions()
         self._create_menu_bar()
         self._create_tool_bar()
-        self._create_basic_layout()
         self.show()
 
     def _load_icons(self):
@@ -92,64 +92,79 @@ class MainWindow(QMainWindow):
         self.setMaterial_action = QAction('&Set Material', self)        
         self.setMaterial_action.setShortcut('Alt+1')
         self.setMaterial_action.setStatusTip('Set Material')
+        self.setMaterial_action.triggered.connect(self.getInputWidget().setMaterial)
 
         self.setCrossSection_action = QAction('&Set Cross-Section', self)        
         self.setCrossSection_action.setShortcut('Alt+2')
         self.setCrossSection_action.setStatusTip('Set Cross-Section')
+        self.setCrossSection_action.triggered.connect(self.getInputWidget().setCrossSection)
 
         self.setElementType_action = QAction('&Set Element Type', self)        
         self.setElementType_action.setShortcut('Alt+3')
         self.setElementType_action.setStatusTip('Set Element Type')
+        self.setElementType_action.triggered.connect(self.getInputWidget().setElementType)
 
         self.setDOF_action = QAction('&Set Prescribed DOFs', self)        
         self.setDOF_action.setShortcut('Alt+4')
         self.setDOF_action.setStatusTip('Set Prescribed DOFs')
+        self.setDOF_action.triggered.connect(self.getInputWidget().setDOF)
 
         self.setForce_action = QAction('&Set Nodal Loads', self)        
         self.setForce_action.setShortcut('Alt+5')
         self.setForce_action.setStatusTip('Set Nodal Loads')
+        self.setForce_action.triggered.connect(self.getInputWidget().setNodalLoads)
 
         self.setMass_action = QAction('&Add: Mass / Spring / Damper', self)        
         self.setMass_action.setShortcut('Alt+6')
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
+        self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
         #Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
         self.selectAnalysisType_action.setShortcut('Alt+Q')
         self.selectAnalysisType_action.setStatusTip('Select Analysis Type')
+        self.selectAnalysisType_action.triggered.connect(self.getInputWidget().analyseTypeInput)
         
         self.analysisSetup_action = QAction('&Analysis Setup', self)        
         self.analysisSetup_action.setShortcut('Alt+W')
         self.analysisSetup_action.setStatusTip('Analysis Setup')
+        self.analysisSetup_action.triggered.connect(self.getInputWidget().analyseSetup)
 
         self.selectOutput_action = QAction('&Select the Outputs Results', self)        
         self.selectOutput_action.setShortcut('Alt+E')
         self.selectOutput_action.setStatusTip('Select the Outputs Results')
+        self.selectOutput_action.triggered.connect(self.getInputWidget().analyseOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
         self.runAnalysis_action.setShortcut('Alt+R')
         self.runAnalysis_action.setStatusTip('Run Analysis')
+        self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalyse)
 
         #Results Viewer
         self.plotModeShapes_action = QAction('&Plot Mode Shapes', self)        
         self.plotModeShapes_action.setShortcut('Ctrl+Q')
         self.plotModeShapes_action.setStatusTip('Plot Mode Shapes')
+        self.plotModeShapes_action.triggered.connect(self.getInputWidget().plotModeShapes)
 
         self.plotHarmonicResponse_action = QAction('&Plot Harmonic Response', self)        
         self.plotHarmonicResponse_action.setShortcut('Ctrl+W')
         self.plotHarmonicResponse_action.setStatusTip('Plot Harmonic Response')
+        self.plotHarmonicResponse_action.triggered.connect(self.getInputWidget().plotHarmonicResponse)
 
         self.plotPressureField_action = QAction('&Plot Pressure Field', self)        
         self.plotPressureField_action.setShortcut('Ctrl+E')
         self.plotPressureField_action.setStatusTip('Plot Pressure Field')
+        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotPressureField)
 
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
         self.plotSressField_action.setShortcut('Ctrl+R')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
+        self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
 
         self.plotFrequencyResponse_action = QAction('&Plot Frequency Response', self)        
         self.plotFrequencyResponse_action.setShortcut('Ctrl+T')
         self.plotFrequencyResponse_action.setStatusTip('Plot Frequency Response')
+        self.plotFrequencyResponse_action.triggered.connect(self.getInputWidget().plotFrequencyResponse)
 
 
     def _create_menu_bar(self):

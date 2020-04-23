@@ -1,7 +1,5 @@
 import vtk
 import random
-from pulse.preprocessing.element import Element
-from pulse.preprocessing.node import Node
 
 class Element:
     def __init__(self, element, tag=-1):

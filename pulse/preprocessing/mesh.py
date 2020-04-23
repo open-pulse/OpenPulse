@@ -113,7 +113,7 @@ class Mesh:
 
     def set_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
-            node.set_boundary_condition(boundary_condition)
+            node.boundary_condition = boundary_condition
 
     # generate
     def _initialize_gmsh(self, path):

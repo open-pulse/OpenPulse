@@ -173,7 +173,15 @@ class InputUi:
         pass
 
     def plotFrequencyResponse(self):
-        PlotFrequencyResponseInput()
+        analyseType = self.project.getAnalysisTypeID()
+        if analyseType == 0 or analyseType == 1:
+            solution = self.project.getSolution()
+            if solution is None:
+                return
+            analyseMethod = self.project.getAnalysisMethod()
+            frequencies = self.project.getFrequencies()
+            mesh = self.project.getMesh()
+            PlotFrequencyResponseInput(mesh, analyseMethod, frequencies, solution)
 
     def newProject(self):
         result = NewProjectInput(self.project)

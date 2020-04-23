@@ -124,7 +124,7 @@
          </font>
         </property>
         <property name="text">
-         <string>Node IDs:</string>
+         <string>Node ID:</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -144,7 +144,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QLineEdit" name="lineEdit"/>
+       <widget class="QLineEdit" name="lineEdit_nodeID"/>
       </item>
      </layout>
     </widget>
@@ -178,21 +178,21 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QCheckBox" name="checkBox_2">
+       <widget class="QCheckBox" name="checkBox_ux">
         <property name="text">
          <string>Ux</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_3">
+       <widget class="QCheckBox" name="checkBox_uy">
         <property name="text">
          <string>Uy</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="checkBox_uz">
         <property name="text">
          <string>Uz</string>
         </property>
@@ -211,21 +211,21 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QCheckBox" name="checkBox_5">
+       <widget class="QCheckBox" name="checkBox_rx">
         <property name="text">
          <string>Rx</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_4">
+       <widget class="QCheckBox" name="checkBox_ry">
         <property name="text">
          <string>Ry</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox_6">
+       <widget class="QCheckBox" name="checkBox_rz">
         <property name="text">
          <string>Rz</string>
         </property>
