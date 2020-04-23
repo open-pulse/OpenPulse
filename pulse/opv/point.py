@@ -9,11 +9,19 @@ class Point:
         self.y = node.y
         self.z = node.z
         self.color = [0,0,1]
-        if node.haveBoundaryCondition():
+        self.special = True
+        if node.haveBoundaryCondition() and node.haveForce():
             self.color = [0,1,0]
+        elif node.haveBoundaryCondition():
+            self.color = [0,1,1]
+        elif node.haveForce():
+            self.color = [1,0,0]
+        else:
+            self.special = False
         self.tag = tag
 
         self.sphere = vtk.vtkSphereSource()
+        self.cube = vtk.vtkCubeSource ()
 
         self._object = vtk.vtkPolyData()
 
@@ -31,10 +39,15 @@ class Point:
         self._actor()
 
     def _source(self):
-        self.sphere.SetRadius(0.01)
+        self.sphere.SetRadius(0.03)
         self.sphere.SetCenter(self.x, self.y, self.z)
         self.sphere.SetPhiResolution(11)
         self.sphere.SetThetaResolution(21)
+
+        self.cube.SetXLength(0.01)
+        self.cube.SetYLength(0.01)
+        self.cube.SetZLength(0.01)
+        self.cube.SetCenter(self.x, self.y, self.z)
 
     def _filter(self):
         pass
@@ -45,7 +58,10 @@ class Point:
         # self._object.GetPointData().SetScalars(self._colorFilter)
 
     def _map(self):
-        self._mapper.SetInputConnection(self.sphere.GetOutputPort())
+        if self.special:
+            self._mapper.SetInputConnection(self.sphere.GetOutputPort())
+        else:
+            self._mapper.SetInputConnection(self.cube.GetOutputPort())
         self._mapper.ScalarVisibilityOff()
 
     def _actor(self):

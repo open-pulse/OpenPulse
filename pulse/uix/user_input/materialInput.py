@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton
 from os.path import basename
+from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -13,6 +14,10 @@ class MaterialInput(QDialog):
         self.materialPath = material_path
         uic.loadUi('pulse/uix/user_input/ui/materialInput.ui', self)
 
+        icons_path = 'pulse\\data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
+        
         self.clicked_item = None
         self.material = None
         self.flagAll = False
@@ -29,6 +34,9 @@ class MaterialInput(QDialog):
         self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_entity.toggled.connect(self.radioButtonEvent)
+
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm.clicked.connect(self.check)
 
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()

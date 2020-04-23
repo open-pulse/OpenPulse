@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>403</width>
-    <height>323</height>
+    <height>361</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>401</width>
-     <height>321</height>
+     <height>361</height>
     </rect>
    </property>
    <property name="font">
@@ -96,7 +96,7 @@
       <x>0</x>
       <y>40</y>
       <width>401</width>
-      <height>281</height>
+      <height>321</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -1029,6 +1029,19 @@
        </layout>
       </widget>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="pushButton_confirm">
+     <property name="geometry">
+      <rect>
+       <x>140</x>
+       <y>280</y>
+       <width>131</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Confirm</string>
+     </property>
     </widget>
    </widget>
   </widget>

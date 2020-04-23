@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton
 from os.path import basename
+from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -9,6 +10,10 @@ class LoadsInput(QDialog):
     def __init__(self, list_node_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/loadsInput.ui', self)
+
+        icons_path = 'pulse\\data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
 
         self.loads = None
         self.nodes = []
@@ -21,6 +26,9 @@ class LoadsInput(QDialog):
         self.lineEdit_mx = self.findChild(QLineEdit, 'lineEdit_mx')
         self.lineEdit_my = self.findChild(QLineEdit, 'lineEdit_my')
         self.lineEdit_mz = self.findChild(QLineEdit, 'lineEdit_mz')
+
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm.clicked.connect(self.check)
 
         self.writeNodes(list_node_ids)
 

@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
 from os.path import basename
+from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -14,6 +15,10 @@ class AnalyseSetupInput(QDialog):
             uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput_modal.ui', self)
         else:
             uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput.ui', self)
+
+        icons_path = 'pulse\\data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
 
         self.currentTab = 0
 
@@ -36,6 +41,9 @@ class AnalyseSetupInput(QDialog):
         self.lineEdit_min = self.findChild(QLineEdit, 'lineEdit_min')
         self.lineEdit_max = self.findChild(QLineEdit, 'lineEdit_max')
         self.lineEdit_step = self.findChild(QLineEdit, 'lineEdit_step')
+
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm.clicked.connect(self.check)
 
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)

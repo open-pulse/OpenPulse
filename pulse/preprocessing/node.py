@@ -58,7 +58,7 @@ class Node:
         return self.forces
 
     def haveBoundaryCondition(self):
-        for i in self.boundary_condition:
-            if i is not None:
-                return True
-        return False
+        return self.boundary_condition.count(None) != 6
+    
+    def haveForce(self):
+        return self.forces.count(0) != 6

@@ -182,7 +182,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Continue</string>
+      <string>Run Analysis</string>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit">

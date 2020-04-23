@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
-#from pulse.opv.lines import Lines
 from pulse.opv.lines import Lines
 from pulse.opv.linesPoint import LinesPoint
 from pulse.opv.preProcessingLines import PreProcessingLines
@@ -32,27 +31,26 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_entities = vtk.vtkRenderer()
         self.renderer_elements = vtk.vtkRenderer()
         self.renderer_points = vtk.vtkRenderer()
-        self.renderer_pre_processing = vtk.vtkRenderer()
+        self.renderer_post_processing = vtk.vtkRenderer()
 
         self.renderer_entities.SetBackground(0.2,0.2,0.2)
         self.renderer_elements.SetBackground(0.2,0.2,0.2)
         self.renderer_points.SetBackground(0.2,0.2,0.2)
-        self.renderer_pre_processing.SetBackground(0.2,0.2,0.2)
+        self.renderer_post_processing.SetBackground(0.2,0.2,0.2)
 
-        #self.style_entities = MouseInteractorTemp(self)
         self.style_entities = MouseInteractorEntity(self)
         self.style_elements = MouseInteractorElement(self)
         self.style_points = MouseInteractorPoint(self)
-        self.style_pre_processing = MouseInteractorPostProcessing(self)
+        self.style_post_processing = MouseInteractorPostProcessing(self)
 
         self.style_entities.SetDefaultRenderer(self.renderer_entities)
         self.style_elements.SetDefaultRenderer(self.renderer_elements)
         self.style_points.SetDefaultRenderer(self.renderer_points)
-        self.style_pre_processing.SetDefaultRenderer(self.renderer_pre_processing)
+        self.style_post_processing.SetDefaultRenderer(self.renderer_post_processing)
 
         self.textActorEntity = vtk.vtkTextActor()
         self.textActorPoint = vtk.vtkTextActor()
-        self.textActorPreProcessing = vtk.vtkTextActor()
+        self.textActorPostProcessing = vtk.vtkTextActor()
         self.textUnit = vtk.vtkTextActor()
 
         self.colorbar = vtk.vtkScalarBarActor()
@@ -62,14 +60,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.in_points = False
         self.in_result = False
 
-        self.changedSelectedEntityColors = False
-
         self.actors_entities = {}
         self.actors_elements = {}
         self.actors_points = {}
 
         #Set initial plot & config
-        #self.change_to_entities()
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
@@ -163,7 +158,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_points.AddActor2D(self.textActorPoint)
 
     def update_text_actor_post_processing(self, type_, frequency, frequencies, factor, modal=None):
-        self.renderer_pre_processing.RemoveActor2D(self.textActorPreProcessing)
+        self.renderer_post_processing.RemoveActor2D(self.textActorPostProcessing)
         text = ""
         if type_ == 1:
             text += "Direct Method\n"
@@ -171,18 +166,18 @@ class OPVUi(QVTKRenderWindowInteractor):
             text += "Modal Superposition\nModes: {}\n".format(modal)
         text += "Frequency: {} [Hz]\n".format(frequencies[frequency])
         text += "Magnification factor {:.1f}x\n".format(factor)
-        self.textActorPreProcessing.SetInput(text)
-        width, height = self.renderer_pre_processing.GetSize()
-        self.textActorPreProcessing.SetDisplayPosition(width-250,35)
-        self.renderer_pre_processing.AddActor2D(self.textActorPreProcessing)
+        self.textActorPostProcessing.SetInput(text)
+        width, height = self.renderer_post_processing.GetSize()
+        self.textActorPostProcessing.SetDisplayPosition(width-250,35)
+        self.renderer_post_processing.AddActor2D(self.textActorPostProcessing)
 
     def updateTextUnit(self, unit):
-        self.renderer_pre_processing.RemoveActor2D(self.textUnit)
+        self.renderer_post_processing.RemoveActor2D(self.textUnit)
         text = "Unit: [{}]".format(unit)
         self.textUnit.SetInput(text)
-        width, height = self.renderer_pre_processing.GetSize()
+        width, height = self.renderer_post_processing.GetSize()
         self.textUnit.SetDisplayPosition(width-100,height-30)
-        self.renderer_pre_processing.AddActor2D(self.textUnit)
+        self.renderer_post_processing.AddActor2D(self.textUnit)
 
     def create_colorBarActor(self, colorTable):
         self.colorbar.SetMaximumNumberOfColors(400)
@@ -209,144 +204,122 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.renderer_entities)
         self.GetRenderWindow().RemoveRenderer(self.renderer_elements)
         self.GetRenderWindow().RemoveRenderer(self.renderer_points)
-        self.GetRenderWindow().RemoveRenderer(self.renderer_pre_processing)
+        self.GetRenderWindow().RemoveRenderer(self.renderer_post_processing)
 
-    def change_to_entities(self):
+    def beforeChangePlot(self):
         self.remove_all_renderers()
-        self.in_entities = True
+        self.in_entities = False
         self.in_elements = False
         self.in_points = False
         self.in_result = False
+
+    def afterChangePlot(self):
+        self._atualizar_axes()
+        self.update()
+
+    def change_to_entities(self):
+        self.beforeChangePlot()
+        self.in_entities = True
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
         self.renderer_entities.ResetCamera()
-        self._atualizar_axes()
-        self.update()
+        self.afterChangePlot()
 
     def change_to_elements(self):
-        self.remove_all_renderers()
-        self.in_entities = False
+        self.beforeChangePlot()
         self.in_elements = True
-        self.in_points = False
-        self.in_result = False
         self.SetInteractorStyle(self.style_elements)
         self.GetRenderWindow().AddRenderer(self.renderer_elements)
         self.renderer_elements.ResetCamera()
-        self._atualizar_axes()
-        self.update()
+        self.afterChangePlot()
 
     def change_to_points(self):
-        self.remove_all_renderers()
-        self.in_entities = False
-        self.in_elements = False
+        self.beforeChangePlot()
         self.in_points = True
-        self.in_result = False
         self.SetInteractorStyle(self.style_points)
         self.GetRenderWindow().AddRenderer(self.renderer_points)
         self.renderer_points.ResetCamera()
-        self._atualizar_axes()
-        self.update()
+        self.afterChangePlot()
 
     def change_to_direct_method(self, frequency_indice):
-        self.style_entities.clear()
-        self.style_elements.clear()
-        self.style_points.clear()
-        self.remove_all_renderers()
-        self.in_entities = False
-        self.in_elements = False
-        self.in_points = False
+        self.beforeChangePlot()
         self.in_result = True
         factor = self.plot_direct_method(self.project.getSolution(), frequency_indice)
-        self.SetInteractorStyle(self.style_pre_processing)
-        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
-        self.renderer_pre_processing.ResetCamera()
+        self.SetInteractorStyle(self.style_post_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
+        self.renderer_post_processing.ResetCamera()
         self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
-        self._atualizar_axes()
-        self.update() 
+        self.afterChangePlot()
 
     def change_to_modal_superposition(self, frequency_indice):
-        self.style_entities.clear()
-        self.style_elements.clear()
-        self.style_points.clear()
-        self.remove_all_renderers()
-        self.in_entities = False
-        self.in_elements = False
-        self.in_points = False
-        self.in_result = False
+        self.beforeChangePlot()
+        self.in_result = True
         factor = self.plot_modal_superposition(self.project.getSolution(), frequency_indice)
-        self.SetInteractorStyle(self.style_pre_processing)
-        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
-        self.renderer_pre_processing.ResetCamera()
+        self.SetInteractorStyle(self.style_post_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
+        self.renderer_post_processing.ResetCamera()
         self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
-        self._atualizar_axes()
-        self.update()
+        self.afterChangePlot()
 
     def change_to_modal_analyse(self, frequency_indice):
-        self.style_entities.clear()
-        self.style_elements.clear()
-        self.style_points.clear()
-        self.remove_all_renderers()
-        self.in_entities = False
-        self.in_elements = False
-        self.in_points = False
-        self.in_result = False
+        self.beforeChangePlot()
+        self.in_result = True
         self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
-        self.SetInteractorStyle(self.style_pre_processing)
-        self.GetRenderWindow().AddRenderer(self.renderer_pre_processing)
-        self.renderer_pre_processing.ResetCamera()
-        self._atualizar_axes()
-        self.update()
+        self.SetInteractorStyle(self.style_post_processing)
+        self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
+        self.renderer_post_processing.ResetCamera()
+        self.afterChangePlot()
 
     def plot_modal_analyse(self, modal, frequency_indice):
-        for actor in self.renderer_pre_processing.GetActors():
-            self.renderer_pre_processing.RemoveActor(actor)
+        for actor in self.renderer_post_processing.GetActors():
+            self.renderer_post_processing.RemoveActor(actor)
 
         connect, coord_def, r_def, scale  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
-        self.renderer_pre_processing.AddActor(plot.get_actor())
-        self.renderer_pre_processing.AddActor(self.colorbar)
+        self.renderer_post_processing.AddActor(plot.get_actor())
+        self.renderer_post_processing.AddActor(self.colorbar)
 
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
-        self.renderer_pre_processing.AddActor(scale)
+        self.renderer_post_processing.AddActor(scale)
 
     def plot_modal_superposition(self, modal, frequency_indice):
-        for actor in self.renderer_pre_processing.GetActors():
-            self.renderer_pre_processing.RemoveActor(actor)
+        for actor in self.renderer_post_processing.GetActors():
+            self.renderer_post_processing.RemoveActor(actor)
 
         connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
-        self.renderer_pre_processing.AddActor(plot.get_actor())
-        self.renderer_pre_processing.AddActor(self.colorbar)
+        self.renderer_post_processing.AddActor(plot.get_actor())
+        self.renderer_post_processing.AddActor(self.colorbar)
 
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
-        self.renderer_pre_processing.AddActor(scale)
+        self.renderer_post_processing.AddActor(scale)
         return factor
 
     def plot_direct_method(self, direct, frequency_indice):
-        for actor in self.renderer_pre_processing.GetActors():
-            self.renderer_pre_processing.RemoveActor(actor)
+        for actor in self.renderer_post_processing.GetActors():
+            self.renderer_post_processing.RemoveActor(actor)
 
         connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
-        self.renderer_pre_processing.AddActor(plot.get_actor())
-        self.renderer_pre_processing.AddActor(self.colorbar)
+        self.renderer_post_processing.AddActor(plot.get_actor())
+        self.renderer_post_processing.AddActor(self.colorbar)
 
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
-        self.renderer_pre_processing.AddActor(scale)
+        self.renderer_post_processing.AddActor(scale)
         return factor
 
     def plot_entities(self):
@@ -359,10 +332,6 @@ class OPVUi(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors_entities[plot.get_actor()] = entity.getTag()
             self.renderer_entities.AddActor(plot.get_actor())
-    
-        # scale = vtk.vtkLegendScaleActor()
-        # scale.AllAxesOff ()
-        # self.renderer_entities.AddActor(scale)
 
     def plot_elements(self):
         for actor in self.renderer_elements.GetActors():
@@ -374,10 +343,23 @@ class OPVUi(QVTKRenderWindowInteractor):
             plot.assembly()
             self.actors_elements[plot.get_actor()] = key
             self.renderer_elements.AddActor(plot.get_actor())
-        
-        # scale = vtk.vtkLegendScaleActor()
-        # scale.AllAxesOff ()
-        # self.renderer_elements.AddActor(scale)
+
+    def plot_points(self):
+        for actor in self.renderer_points.GetActors():
+            self.renderer_points.RemoveActor(actor)
+        self.actors_points = {}
+
+        for entity in self.project.getEntities():
+            plot = LinesPoint(entity)
+            plot.assembly()
+            self.renderer_points.AddActor(plot.get_actor())
+            self.actors_points[plot.get_actor()] = -1
+
+        for key, node in self.project.getNodes().items():
+            plot = Point(node, key)
+            plot.assembly()
+            self.actors_points[plot.get_actor()] = key
+            self.renderer_points.AddActor(plot.get_actor())
 
     def changeColorEntities(self, entity_id, color):
         actors = [key  for (key, value) in self.actors_entities.items() if value in entity_id]
@@ -402,24 +384,3 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def getListPickedPoints(self):
         return self.style_points.getListPickedActors()
-
-    def plot_points(self):
-        for actor in self.renderer_points.GetActors():
-            self.renderer_points.RemoveActor(actor)
-        self.actors_points = {}
-
-        for entity in self.project.getEntities():
-            plot = LinesPoint(entity)
-            plot.assembly()
-            self.renderer_points.AddActor(plot.get_actor())
-            self.actors_points[plot.get_actor()] = -1
-
-        for key, node in self.project.getNodes().items():
-            plot = Point(node, key)
-            plot.assembly()
-            self.actors_points[plot.get_actor()] = key
-            self.renderer_points.AddActor(plot.get_actor())
-
-        # scale = vtk.vtkLegendScaleActor()
-        # scale.AllAxesOff ()
-        # self.renderer_points.AddActor(scale)

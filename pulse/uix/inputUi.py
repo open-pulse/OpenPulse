@@ -10,12 +10,9 @@ from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.plotModeShapeInput import PlotModeShapeInput
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotFrequencyResponseInput import PlotFrequencyResponseInput
+from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 
 from pulse.uix.user_input.newProjectInput import NewProjectInput
-from pulse.uix.user_input.preProcessingInfo import PreProcessingInfo
-
-from pulse.processing.solution import direct_method, modal_superposition
-from pulse.postprocessing.plot_data import get_displacement_matrix
 
 from pulse.project import Project
 
@@ -62,6 +59,9 @@ class InputUi:
             self.project.setCrossSection(cross.section)
             print("[Set CrossSection] - defined in all the entities")
 
+    def setElementType(self):
+        ElementTypeInput()
+
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
         dof = DOFInput(point_id)
@@ -94,6 +94,11 @@ class InputUi:
         
         self.project.setAnalysisType(analyseType.typeID, analyseType.type, analyseType.method)
         self.project.setModes(analyseType.modes)
+        
+        if analyseType.typeID == 0 or analyseType.typeID == 1:
+            self.analyseSetup()
+        elif analyseType.typeID == 2:
+            self.runAnalyse()
 
     def analyseSetup(self):
         if self.project.getAnalysisTypeID() is None:
@@ -173,49 +178,3 @@ class InputUi:
     def newProject(self):
         result = NewProjectInput(self.project)
         return result.create
-
-    def direct_method(self):
-        freq = FrequencyInput()
-        try:
-            if len(freq.frequencies) == 0:
-                print("Nenhuma frequencia")
-                return
-            if not self.project.checkEntityMaterial():
-                print("Erro check material")
-                return
-            if not self.project.checkEntityCross():
-                print("Erro check cross")
-                return
-            direct = direct_method(self.project.getMesh(), freq.frequencies)
-            self.project.setDirectMatriz(direct)
-            self.project.setFrequencies(freq.frequencies)
-            self.opv.change_to_direct_method(0)
-        except Exception as e:
-            print("{}".format(e))
-
-    def modal_superposition(self):
-        freq = FrequencyInput()
-        try:
-            if len(freq.frequencies) == 0:
-                print("Nenhuma frequencia")
-                return
-            if not self.project.checkEntityMaterial():
-                print("Erro check material")
-                return
-            if not self.project.checkEntityCross():
-                print("Erro check cross")
-                return
-            modes = 140
-            modal = modal_superposition(self.project.getMesh(), freq.frequencies, modes)
-            self.project.setModalMatriz(modal)
-            self.project.setFrequencies(freq.frequencies)
-            self.project.setModes(modes)
-            self.opv.change_to_modal_superposition(0)
-        except Exception as e:
-            print("{}".format(e))
-
-    def changeFrequencyInput(self):
-        freq = FrequencyList(self.project.getFrequencies())
-        if freq.current_item is None:
-            return
-        self.opv.changeFrequency(freq.current_item)

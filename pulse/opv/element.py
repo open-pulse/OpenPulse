@@ -39,7 +39,7 @@ class Element:
         self._object.SetLines(self._edges)
 
     def _filter(self):
-        color = [random.randint(0,255),random.randint(0,255),random.randint(0,255)]
+        color = [0,0,255]
         for _ in range(self._nodes.GetNumberOfPoints()):
             self._colorFilter.InsertNextTypedTuple(color)
 

@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
-from pulse.uix.matplotlib.frf import FRF
 
 class TreeUi(QTreeWidget):
     def __init__(self, main_window):
@@ -20,6 +19,7 @@ class TreeUi(QTreeWidget):
         self.name_top_modelSetup = "Model Setup"
         self.name_child_setMaterial = "Set Material"
         self.name_child_setCrossSection = "Set Cross-Section"
+        self.name_child_setElementType = "Set Element Type"
         self.name_child_setPrescribedDofs = "Set Prescribed DOFs"
         self.name_child_setNodalLoads = "Set Nodal Loads"
         self.name_child_addMassSpringDamper = "Add: Mass / Spring / Damper"
@@ -69,6 +69,7 @@ class TreeUi(QTreeWidget):
         self.item_top_modelSetup = QTreeWidgetItem([self.name_top_modelSetup])
         self.item_child_setMaterial = QTreeWidgetItem([self.name_child_setMaterial])
         self.item_child_setCrossSection = QTreeWidgetItem([self.name_child_setCrossSection])
+        self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
         self.item_child_setPrescribedDofs = QTreeWidgetItem([self.name_child_setPrescribedDofs])
         self.item_child_setNodalLoads = QTreeWidgetItem([self.name_child_setNodalLoads])
         self.item_child_addMassSpringDamper = QTreeWidgetItem([self.name_child_addMassSpringDamper])
@@ -102,8 +103,9 @@ class TreeUi(QTreeWidget):
         self.item_top_resultsViewer.setTextAlignment(0, Qt.AlignHCenter)
         self.item_top_resultsViewer.setBackground(0, self.brush_top)
 
-        self.item_child_setMaterial.setIcon(0, self.icon_child_setMaterial)
+        #self.item_child_setMaterial.setIcon(0, self.icon_child_setMaterial)
 
+        self.item_child_setElementType.setDisabled(True)
         self.item_child_addMassSpringDamper.setDisabled(True)
         self.item_child_selectTheOutputResults.setDisabled(True)
         self.item_child_plotPressureField.setDisabled(True)
@@ -113,6 +115,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_top_modelSetup)
         self.addTopLevelItem(self.item_child_setMaterial)
         self.addTopLevelItem(self.item_child_setCrossSection)
+        self.addTopLevelItem(self.item_child_setElementType)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
         self.addTopLevelItem(self.item_child_setNodalLoads)
         self.addTopLevelItem(self.item_child_addMassSpringDamper)
@@ -135,6 +138,8 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().setMaterial()
         elif item.text(0) == self.name_child_setCrossSection:
             self.mainWindow.getInputWidget().setCrossSection()
+        elif item.text(0) == self.name_child_setElementType:
+            self.mainWindow.getInputWidget().setElementType()
         elif item.text(0) == self.name_child_setPrescribedDofs:
             self.mainWindow.getInputWidget().setDOF()
         elif item.text(0) == self.name_child_setNodalLoads:

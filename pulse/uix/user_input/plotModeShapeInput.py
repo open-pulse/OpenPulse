@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
 from os.path import basename
+from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -9,6 +10,11 @@ class PlotModeShapeInput(QDialog):
     def __init__(self, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotModeShapeInput.ui', self)
+
+        icons_path = 'pulse\\data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
+
 
         self.frequencies = frequencies
         self.frequency = None

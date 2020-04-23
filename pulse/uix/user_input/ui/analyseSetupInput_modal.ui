@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>313</height>
+    <height>352</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -38,7 +38,7 @@
      <x>0</x>
      <y>0</y>
      <width>401</width>
-     <height>311</height>
+     <height>351</height>
     </rect>
    </property>
    <property name="font">
@@ -96,7 +96,7 @@
       <x>0</x>
       <y>40</y>
       <width>401</width>
-      <height>271</height>
+      <height>311</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -774,6 +774,19 @@ Hysteretic</string>
        </layout>
       </widget>
      </widget>
+    </widget>
+    <widget class="QPushButton" name="pushButton_confirm">
+     <property name="geometry">
+      <rect>
+       <x>114</x>
+       <y>270</y>
+       <width>181</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>Confirm</string>
+     </property>
     </widget>
    </widget>
   </widget>
