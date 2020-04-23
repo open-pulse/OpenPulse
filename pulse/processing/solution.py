@@ -1,9 +1,7 @@
-from time import time
 
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
 
-from pulse.utils import timer
 from pulse.processing.assembly import get_global_matrices, get_global_forces, get_lumped_matrices, get_all_matrices
 
 # TODO: This code is a little messy, solve it as soon as possible

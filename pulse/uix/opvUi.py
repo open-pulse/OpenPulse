@@ -372,15 +372,76 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.update_text_actor_entity()
         #...
 
+    def transformPoints(self, points_id):
+        nodeAll = []
+        nodeBC = []
+        nodeF = []
+        nodeND = []
+        for node_id in points_id:
+            node = self.project.getNode(node_id)
+            if node.haveBoundaryCondition() and node.haveForce():
+                nodeAll.append(node_id)
+            elif node.haveBoundaryCondition():
+                nodeBC.append(node_id)
+            elif node.haveForce():
+                nodeF.append(node_id)
+            else:
+                nodeND.append(node_id)
+
+        colorAll = [0,1,0]
+        colorBC = [0,1,1]
+        colorF = [1,1,0]
+        colorND = [0,0,1]
+        self.changeColorPoints(nodeAll, colorAll)
+        self.changeColorPoints(nodeBC, colorBC)
+        self.changeColorPoints(nodeF, colorF)
+        self.changeColorPoints(nodeND, colorND)
+
+        self.transformPointsToCube(nodeND)
+        self.transformPointsToSphere(nodeAll)
+        self.transformPointsToSphere(nodeBC)
+        self.transformPointsToSphere(nodeF)
+
+        self.update_text_actor_point()
+        self.style_points.clear()
+
     def changeColorPoints(self, points_id, color):
         actors = [key  for (key, value) in self.actors_points.items() if value in points_id]
         for actor in actors:
             actor.GetProperty().SetColor(color)
-        self.update_text_actor_point()
-        self.style_points.clear()
+
+    def transformPointsToSphere(self, points_id):
+        actors = [key  for (key, value) in self.actors_points.items() if value in points_id]
+        for actor in actors:
+            sphere = vtk.vtkSphereSource()
+            sphere.SetRadius(0.03)
+            pos = actor.GetCenter()
+            sphere.SetCenter(pos[0], pos[1], pos[2])
+            sphere.SetPhiResolution(11)
+            sphere.SetThetaResolution(21)
+            actor.GetMapper().SetInputConnection(sphere.GetOutputPort())
+
+    def transformPointsToCube(self, points_id):
+        actors = [key  for (key, value) in self.actors_points.items() if value in points_id]
+        for actor in actors:
+            cube = vtk.vtkCubeSource()
+            pos = actor.GetCenter()
+            cube.SetXLength(0.01)
+            cube.SetYLength(0.01)
+            cube.SetZLength(0.01)
+            cube.SetCenter(pos[0], pos[1], pos[2])
+            actor.GetMapper().SetInputConnection(cube.GetOutputPort())
 
     def getListPickedEntities(self):
         return self.style_entities.getListPickedActors()
 
     def getListPickedPoints(self):
         return self.style_points.getListPickedActors()
+
+    def savePNG(self, path):
+        imageFilter = vtk.vtkWindowToImageFilter()
+        imageFilter.SetInput(self.GetRenderWindow())
+        writer = vtk.vtkPNGWriter()
+        writer.SetFileName(path)
+        writer.SetInputConnection(imageFilter.GetOutputPort())
+        writer.Write()

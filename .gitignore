@@ -3,3 +3,4 @@ Projects/
 .vscode/
 test.py
 src/
+target/

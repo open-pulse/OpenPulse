@@ -71,7 +71,7 @@ class InputUi:
 
         self.project.setBondaryCondition_by_Node(dof.nodes, dof.dof)
         print("[Set Bondary Condition] - defined in the poins {}".format(dof.nodes))
-        self.opv.changeColorPoints(dof.nodes, (0,1,0))
+        self.opv.transformPoints(dof.nodes)
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
@@ -82,7 +82,7 @@ class InputUi:
 
         self.project.setFroce_by_Node(loads.nodes, loads.loads)
         print("[Set Loads] - defined in the poins {}".format(loads.nodes))
-        self.opv.changeColorPoints(loads.nodes, (0,1,0))
+        self.opv.transformPoints(loads.nodes)
 
     def addMassSpringDamper(self):
         MassSpringDamperInput()

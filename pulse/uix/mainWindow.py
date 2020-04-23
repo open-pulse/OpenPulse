@@ -1,5 +1,5 @@
 import sys
-from os.path import expanduser, basename, exists
+from os.path import expanduser, basename, exists, dirname
 from pathlib import Path
 
 import numpy as np
@@ -31,6 +31,7 @@ class MainWindow(QMainWindow):
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'add.png')
         self.open_icon = QIcon(icons_path + 'upload.png')
+        self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
 
     def _config(self):
@@ -56,6 +57,11 @@ class MainWindow(QMainWindow):
         self.import_action.setShortcut('Ctrl+O')
         self.import_action.setStatusTip('Import Project')
         self.import_action.triggered.connect(self.import_call)
+
+        self.saveAsPng_action = QAction(self.saveImage_icon, '&Save as PNG', self)       
+        self.saveAsPng_action.setShortcut('Ctrl+S')
+        self.saveAsPng_action.setStatusTip('Save as PNG')
+        self.saveAsPng_action.triggered.connect(self.savePNG_call)
 
         self.exit_action = QAction(self.exit_icon, '&Exit', self)        
         self.exit_action.setShortcut('Ctrl+Q')
@@ -158,6 +164,7 @@ class MainWindow(QMainWindow):
 
         projectMenu.addAction(self.new_action)
         projectMenu.addAction(self.import_action)
+        projectMenu.addAction(self.saveAsPng_action)
         projectMenu.addAction(self.exit_action)
 
         graphicMenu.addAction(self.entities_action)
@@ -191,8 +198,9 @@ class MainWindow(QMainWindow):
         self.addToolBar(self.toolbar)
 
         self.toolbar.addAction(self.new_action)
-        self.toolbar.addAction(self.import_action)      
+        self.toolbar.addAction(self.import_action)
         self.toolbar.addSeparator()
+        self.toolbar.addAction(self.saveAsPng_action)
 
     def _create_basic_layout(self):
         self.info_widget = InfoUi(self)
@@ -223,6 +231,15 @@ class MainWindow(QMainWindow):
             self.project.loadProject(path)
             self._change_window_title(self.project.getProjectName())
             self.draw()
+
+    def savePNG_call(self):
+        userPath = expanduser('~')
+        projectPath = "{}\\OpenPulse\\Projects".format(userPath)
+        if not exists(projectPath):
+            projectPath = ""
+        path, _type = QFileDialog.getSaveFileName(None, 'Save file', projectPath, 'PNG (*.png)')
+        if path != "":
+            self.getOPVWidget().savePNG(path)
 
     def resetInfo(self):
         self.opv_widget.resetInfo()

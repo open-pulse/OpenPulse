@@ -15,7 +15,7 @@ class Point:
         elif node.haveBoundaryCondition():
             self.color = [0,1,1]
         elif node.haveForce():
-            self.color = [1,0,0]
+            self.color = [1,1,0]
         else:
             self.special = False
         self.tag = tag

@@ -4,7 +4,7 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import time
+from time import time
 import configparser
 
 from pulse.processing.solution import *

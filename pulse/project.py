@@ -90,12 +90,6 @@ class Project:
         self._connPath = "{}\\{}".format(self._projectPath, connFile)
         self._cordPath = "{}\\{}".format(self._projectPath, cordFile)
 
-        print(self._projectName)
-        print(self._projectPath)
-        print(self._elementSize)
-        print(self._materialListPath)
-        print(self._geometryPath)
-
         self._entityPath = "{}\\{}".format(self._projectPath, "entity.dat")
         self._nodePath = "{}\\{}".format(self._projectPath, "node.dat")
 

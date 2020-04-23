@@ -147,7 +147,7 @@ class AnalyseSetupInput(QDialog):
                 self.error("Value error (bh)")
                 return
 
-        self.damping = [av, bv, ah, bh]
+        self.damping = [ah, bh, av, bv]
 
         if self.analyseID == 0 or self.analyseID == 1:
             for i in range(_min, _max+1, _step):
