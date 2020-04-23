@@ -599,7 +599,7 @@
         <item>
          <widget class="QLineEdit" name="lineEdit_area">
           <property name="focusPolicy">
-           <enum>Qt::TabFocus</enum>
+           <enum>Qt::StrongFocus</enum>
           </property>
          </widget>
         </item>
