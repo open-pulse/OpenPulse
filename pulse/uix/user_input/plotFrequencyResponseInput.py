@@ -9,6 +9,38 @@ from pulse.postprocessing.plot_data import get_frf
 import matplotlib.pyplot as plt
 import numpy as np
 
+
+class SnaptoCursor(object):
+    def __init__(self, ax, x, y):
+        self.ax = ax
+        self.ly = ax.axvline( x=np.min(x),  ymin=np.min(y), color='k', alpha=0.3)  # the vert line
+        self.lx = ax.axhline(color='k', alpha=0.3)  # the vert line
+        self.marker, = ax.plot(np.min(x), np.min(y), marker="o", color=[0,0,0], zorder=3) 
+        self.x = x
+        self.y = y
+        self.txt = ax.text(np.min(x), np.min(y), '')
+        self.df = (x[1]-x[0])/2
+        self.dH = 0#(np.max(y) - np.min(y))/len(y)
+
+    def mouse_move(self, event):
+        if not event.inaxes: 
+            return
+        x, y = event.xdata, event.ydata
+        if x>=np.max(self.x): 
+            return
+        indx = np.searchsorted(self.x, [x])[0]
+        dx = self.df
+        
+        x = self.x[indx]
+        y = self.y[indx]
+        self.ly.set_xdata(x)
+        self.lx.set_ydata(y)
+        self.marker.set_data([x],[y])
+        self.txt.set_text('x=%1.2f, y=%4.2e' % (x, y))
+        self.txt.set_position((x+dx,y))
+        self.ax.figure.canvas.draw_idle()
+
+
 class PlotFrequencyResponseInput(QDialog):
     def __init__(self, mesh, analyseMethod, frequencies, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -73,54 +105,77 @@ class PlotFrequencyResponseInput(QDialog):
 
         self.localDof = 0
         if self.checkBox_ux.isChecked():
-            self.localDof = 1
+            self.localDof = 0
+            self.localdof_label = "Ux"
+            self.unit_label = "m"
 
         if self.checkBox_uy.isChecked():
             if self.localDof != 0:
                 self.error("Multiple Selections (Max 1)")
                 return
             else:
-                self.localDof = 2
+                self.localDof = 1
+                self.localdof_label = "Uy"
+                self.unit_label = "m"
         
         if self.checkBox_uz.isChecked():
             if self.localDof != 0:
                 self.error("Multiple Selections (Max 1)")
                 return
             else:
-                self.localDof = 3
+                self.localDof = 2
+                self.localdof_label = "Uz"
+                self.unit_label = "m"
 
         if self.checkBox_rx.isChecked():
             if self.localDof != 0:
                 self.error("Multiple Selections (Max 1)")
                 return
             else:
-                self.localDof = 4
+                self.localDof = 3
+                self.localdof_label = "Rx"
+                self.unit_label = "rad"
 
         if self.checkBox_ry.isChecked():
             if self.localDof != 0:
                 self.error("Multiple Selections (Max 1)")
                 return
             else:
-                self.localDof = 5
+                self.localDof = 4
+                self.localdof_label = "Ry"
+                self.unit_label = "rad"
 
         if self.checkBox_rz.isChecked():
             if self.localDof != 0:
                 self.error("Multiple Selections (Max 1)")
                 return
             else:
-                self.localDof = 6
+                self.localDof = 5
+                self.localdof_label = "Rz"
+                self.unit_label = "rad"
         
         self.plot()
 
     def plot(self):
-        gr = get_frf(self.mesh, self.solution, self.nodeID, self.localDof)
-
+        frequencies = self.frequencies
+        dof_response = get_frf(self.mesh, self.solution, self.nodeID, self.localDof)
+       
         fig = plt.figure(figsize=[10,6])
         ax = fig.add_subplot(1,1,1)
-        plt.semilogy(self.frequencies, np.abs(gr), color = [1,0,0], linewidth=3)
-        ax.set_title(('FRF: {} Method').format(self.analyseMethod), fontsize = 18, fontweight = 'bold')
+
+        #cursor = Cursor(ax)
+        cursor = SnaptoCursor(ax, frequencies, dof_response)
+        plt.connect('motion_notify_event', cursor.mouse_move)
+
+        if dof_response.all()==0:
+            plt.plot(frequencies, dof_response, color = [1,0,0], linewidth=2)
+        else:    
+            plt.semilogy(frequencies, dof_response, color = [1,0,0], linewidth=2)
+        
+        ax.set_title(('Frequency Response Function: {} Method').format(self.analyseMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
-        method = '{} - OpenPulse'.format(self.analyseMethod)
-        ax.legend([method])
+        ax.set_ylabel(("FRF's magnitude [{}]").format(self.unit_label), fontsize = 16, fontweight = 'bold')
+        legend_label = "Response {} at node {}".format(self.localdof_label, self.nodeID)
+        ax.legend([legend_label])
+        # plt.axis([np.min(frequencies), np.max(frequencies), np.min(dof_response), np.max(dof_response)])
         plt.show()

@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+import numpy as np
 
 class AnalyseSetupInput(QDialog):
     def __init__(self, typeID, title, subtitle, *args, **kwargs):
@@ -91,9 +92,12 @@ class AnalyseSetupInput(QDialog):
                         self.error("Value error (modes)")
                         return
 
-            if self.lineEdit_min.text() != "":
-                if self.isInteger(self.lineEdit_min.text()):
-                    _min = int(self.lineEdit_min.text())
+            if self.lineEdit_min.text() == "":
+                self.error("Insert a value (freq min)")
+                return
+            else:
+                if float(self.lineEdit_min.text())>=0:
+                    _min = float(self.lineEdit_min.text())
                 else:
                     self.error("Value error (freq min)")
                     return
@@ -102,8 +106,8 @@ class AnalyseSetupInput(QDialog):
                 self.error("Insert a value (freq max)")
                 return
             else:
-                if self.isInteger(self.lineEdit_max.text()):
-                    _max = int(self.lineEdit_max.text())
+                if float(self.lineEdit_max.text()) > float(self.lineEdit_min.text()) + float(self.lineEdit_step.text()):
+                    _max = float(self.lineEdit_max.text())
                 else:
                     self.error("Value error (freq max)")
                     return
@@ -112,11 +116,11 @@ class AnalyseSetupInput(QDialog):
                 self.error("Insert a value (freq df)")
                 return
             else:
-                if self.isInteger(self.lineEdit_step.text()):
-                    _step = int(self.lineEdit_step.text())
-                else:
+                if float(self.lineEdit_step.text())<0 or float(self.lineEdit_step.text())>=float(self.lineEdit_max.text()):
                     self.error("Value error (freq df)")
                     return
+                else:
+                    _step = float(self.lineEdit_step.text())
 
         av = bv = ah = bh = 0
         if self.lineEdit_av.text() != "":
@@ -150,8 +154,7 @@ class AnalyseSetupInput(QDialog):
         self.damping = [ah, bh, av, bv]
 
         if self.analyseID == 0 or self.analyseID == 1:
-            for i in range(_min, _max+1, _step):
-                self.frequencies.append(i)
+            self.frequencies = np.arange(_min, _max+_step, _step)
         
         self.complete = True
         self.close()
