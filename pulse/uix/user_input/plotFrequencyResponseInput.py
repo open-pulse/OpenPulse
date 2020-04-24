@@ -15,7 +15,7 @@ class SnaptoCursor(object):
         self.ax = ax
         self.ly = ax.axvline( x=np.min(x),  ymin=np.min(y), color='k', alpha=0.3)  # the vert line
         self.lx = ax.axhline(color='k', alpha=0.3)  # the vert line
-        self.marker, = ax.plot(np.min(x), np.min(y), marker="o", color=[0,0,0], zorder=3) 
+        self.marker, = ax.plot(np.min(x), np.min(y), markersize=4, marker="s", color=[0,0,0], zorder=3) 
         self.x = x
         self.y = y
         self.txt = ax.text(np.min(x), np.min(y), '')
@@ -168,9 +168,9 @@ class PlotFrequencyResponseInput(QDialog):
         plt.connect('motion_notify_event', cursor.mouse_move)
 
         if dof_response.all()==0:
-            plt.plot(frequencies, dof_response, color = [1,0,0], linewidth=2)
+            plt.plot(frequencies, dof_response, color=[1,0,0], linewidth=2)
         else:    
-            plt.semilogy(frequencies, dof_response, color = [1,0,0], linewidth=2)
+            plt.semilogy(frequencies, dof_response, color=[1,0,0], linewidth=2)
         
         ax.set_title(('Frequency Response Function: {} Method').format(self.analyseMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
