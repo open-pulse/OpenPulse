@@ -38,10 +38,7 @@ division_number = 64
 offset = [0.005, 0.005] # Offsets: (ey, ez) [m]
 
 ## Element type selection: 
-# Enter 1 for Element288a
-# Enter 2 for Element288b
-# Enter 3 for Element288c
-
+# Enter: 1 -> Element288a; 2 -> Element288b or 3 -> Element288c
 Element_type_selector = 3
 
 if Element_type_selector==1:
