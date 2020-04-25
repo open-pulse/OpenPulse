@@ -1,11 +1,6 @@
 import numpy as np
 from time import time
 from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
-# from pulse.engine.element_16 import Element
-from pulse.engine.element_288a import Element
-# from pulse.engine.element_288b import Element
-# from pulse.engine.element_288c import Element
-
 
 class Assembly:
     """ Assembly  
@@ -28,12 +23,13 @@ class Assembly:
     Nel_max = 500000
 
     def __init__(   self,
-                    preprocessor  ):
+                    preprocessor, Element  ):
 
         self.preprocessor = preprocessor
+        self.Element = Element
         self.number_nodes = preprocessor.number_nodes()
         self.number_elements = preprocessor.number_elements()
-        self.total_elements_dofs = Element.total_degree_freedom
+        self.total_elements_dofs = self.Element.total_degree_freedom
         self.total_dofs = preprocessor.number_dofs() 
         self.global_dofs_prescribed = preprocessor.prescbribed_dofs_info()[:,0].astype(int)
         self.global_dofs_free = np.delete( np.arange(self.total_dofs), self.global_dofs_prescribed )

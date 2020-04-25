@@ -43,6 +43,33 @@ class TubeCrossSection:
         elif self.thickness is None:
             self.thickness = ( self.D_external - self.D_internal) / 2
 
+    def area(self):
+        """Cross section area [m**2]."""
+        return (self.D_external**2 - self.D_internal**2) * pi / 4
+    
+    def moment_area(self):
+        """Cross section second moment of area [m**4]."""
+        return (self.D_external**4 - self.D_internal**4) * pi / 64
+    
+    def polar_moment_area(self):
+        """Cross section second polar moment of area [m**4]."""
+        return 2 * self.moment_area()
+
+    def shear_form_factor(self):
+        """Shear form factor for a tube.
+        Parameter
+        ---------
+        poisson_ratio : float
+            Poisson's ratio [ ]"""
+        alpha = self.D_internal / self.D_external
+        # auxiliar = alpha / (1 + (alpha**2))
+        return 6 / (7 + 20 * ((alpha / (1 + (alpha**2)))**2))
+    
+    def shear_area(self, element_length, young_modulus):
+        shear_area = self.area() * self.shear_form_factor()
+        return 1 / (( 1 / shear_area) + element_length**2/(12 * young_modulus * self.moment_area()))
+
+
 
     @staticmethod
     def gauss_quadracture2D():

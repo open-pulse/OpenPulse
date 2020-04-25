@@ -4,11 +4,7 @@ import time
 from pulse.engine.node import Node
 from pulse.engine.section_fem import TubeCrossSection
 from pulse.engine.material import Material
-# from pulse.engine.element_16 import Element
-from pulse.engine.element_288a import Element
-# from pulse.engine.element_288b import Element
-# from pulse.engine.element_288c import Element
-                                
+
 class PreProcessing:
 
     def __init__ (  self, 
@@ -17,6 +13,7 @@ class PreProcessing:
                     material_dictionary,
                     cross_section_dictionary,
                     load_dictionary,
+                    Element,
                     element_type_dictionary,
                     # nodes_prescribed_dofs,
                     # local_dofs_prescribed,
@@ -42,6 +39,7 @@ class PreProcessing:
         self.material_dictionary = material_dictionary 
         self.cross_section_dictionary = cross_section_dictionary
         self.load_dictionary = load_dictionary
+        self.Element = Element
         self.element_type_dictionary = element_type_dictionary
 
         self.nodes_prescribed_dofs = kwargs.get("nodes_prescribed_dofs", [])
@@ -192,7 +190,7 @@ class PreProcessing:
         return map_nodes
 
     def total_element_dofs(self):
-        return Element.total_degree_freedom
+        return self.Element.total_degree_freedom
 
     def number_elements(self):
         return len(self.connectivity)
@@ -220,14 +218,14 @@ class PreProcessing:
             load = self.load_dictionary[ element_index ]
             element_type = self.element_type_dictionary[ element_index ]
 
-            map_elements.update( { element_index : Element(node_initial,node_final,material,cross_section_properties,load,element_type,element_index)} )
+            map_elements.update( { element_index : self.Element(node_initial,node_final,material,cross_section_properties,load,element_type,element_index)} )
 
         return map_elements
         
     def all_elementaries_matrices_gcs(self):
 
         Nel = self.number_elements()           
-        edof = Element.total_degree_freedom
+        edof = self.Element.total_degree_freedom
 
         Ke_t    = np.ones(shape=[ Nel, edof**2 ], dtype=float)
         Me_t    = np.ones(shape=[ Nel, edof**2 ], dtype=float)
@@ -246,7 +244,7 @@ class PreProcessing:
     def external_load(self):
         
         load_info = self.prescbribed_load_info() 
-        Element.total_degree_freedom
+        self.Element.total_degree_freedom
 
         if load_info.any() and not load_info == []:
             

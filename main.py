@@ -2,12 +2,9 @@
 import numpy as np
 from time import time
 import h5py
-import pandas as pd
 
 from pulse.engine.material import Material
 from pulse.engine.node import Node
-# from pulse.engine.section_fem import TubeCrossSection as TCS
-from pulse.engine.tube import TubeCrossSection as TCS
 from pulse.engine.preprocessing import PreProcessing
 from pulse.engine.assembly import Assembly
 from pulse.engine.solution import Solution
@@ -15,14 +12,20 @@ from pulse.engine.postprocessing import PostProcessing
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
 from pulse.mesh import Mesh
+from pulse.engine.section_fem import TubeCrossSection as TCS
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
 
 t0 = time()
 
+## Nodal coordinates
+nodal_coordinates = np.loadtxt('input_data/coord.dat')
+
+## Connectivity
+connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
+
 ## Material definition:
-# steel
 young_modulus = 210e9 # Young modulus [Pa]
 poisson_ratio = 0.3   # Poisson ratio[-]
 density = 7860  # Density[kg/m^3]
@@ -31,42 +34,46 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 ## Cross section definition:
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
+division_number = 64 
+offset = [0.005, 0.005] # Offsets: (ey, ez) [m]
 
-cross_section_1 = TCS(D_external, thickness = thickness)
+## Element type selection: 
+# Enter 1 for Element288a
+# Enter 2 for Element288b
+# Enter 3 for Element288c
 
-division_number = 64
-offset = [0.005, 0.005]
-# cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288c')
-# cross_section_1_properties = cross_section_1.all_props()
+Element_type_selector = 3
 
-# m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
-# m.generate(0.01,0.01)
-# # m.reorder_index_bfs()
-# nodal_coordinates = np.array(m.nodes)
-# connectivity  = np.array(m.edges, dtype=int)
+if Element_type_selector==1:
+    from pulse.engine.element_288a import Element
+    cross_section = TCS(D_external, thickness = thickness, element_type = '288a')
+    cross_section_properties = cross_section
+    element_type_dictionary = { i:'288a' for i in connectivity[:,0] }
 
-## Nodal coordinates
-nodal_coordinates = np.loadtxt('input_data/coord.dat')
+if Element_type_selector==2:
+    from pulse.engine.element_288b import Element
+    cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288b')
+    cross_section_properties = cross_section.all_props()
+    element_type_dictionary = { i:'288b' for i in connectivity[:,0] }
 
-## Connectivity
-connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
+if Element_type_selector==3:
+    from pulse.engine.element_288c import Element
+    cross_section = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288c')
+    cross_section_properties = cross_section.all_props()
+    element_type_dictionary = { i:'288c' for i in connectivity[:,0] }
+   
+## Cross section properties atribuition for each element
+cross_section_list = [1, cross_section_properties]
+cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
 
 #TODO: determinate how those material, cross section properties and element type will come from mesh.
 ## Material atribuition for each element
 material_list = [1, material_1]
 material_dictionary = { i:material_list[1] for i in connectivity[:,0] }
 
-## Cross section properties atribuition for each element
-cross_section_list = [1, cross_section_1]
-cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
-
-# cross_section_list = [1, cross_section_1_properties]
-# cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
-
+# distributed load over element
 load_dictionary = {i:np.array([0, 0, 0, 0, 0, 0]) for i in connectivity[:,0]}
 
-## Element type atribuition
-element_type_dictionary = { i:'288c' for i in connectivity[:,0] }
 #
 ##
 ### BEGIN OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
@@ -82,7 +89,7 @@ nodes_prescribed_load = [361] # Which node has some nodal load prescribed.
 local_dofs_prescribed_load  = [[0]]# What are the local degree of freedom with external load.
 prescribed_load_values      = [[1]] # Whats are the prescribed values for external nodal load
 
-run=3
+run=1
 
 if run==1:
     # nodal respose (node, dof_corrected)
@@ -139,6 +146,7 @@ preprocessor = PreProcessing(   nodal_coordinates,
                                 material_dictionary,
                                 cross_section_dictionary,
                                 load_dictionary,
+                                Element,
                                 element_type_dictionary,
                                 nodes_prescribed_dofs = nodes_prescribed_dofs,
                                 local_dofs_prescribed = local_dofs_prescribed,
@@ -160,7 +168,7 @@ preprocessor = PreProcessing(   nodal_coordinates,
                                 )
 #%%
 ## Call Assembly class.
-assemble = Assembly( preprocessor )
+assemble = Assembly( preprocessor, Element )
 
 # Entries for Solution class definition
 damping = [0, 0, 0, 0] # [alpha_h, beta_h, alpha_v, beta_v]
