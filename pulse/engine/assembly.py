@@ -2,8 +2,8 @@ import numpy as np
 from time import time
 from scipy.sparse import coo_matrix, csr_matrix, csc_matrix
 # from pulse.engine.element_16 import Element
-# from pulse.engine.element_288a import Element
-from pulse.engine.element_288b import Element
+from pulse.engine.element_288a import Element
+# from pulse.engine.element_288b import Element
 # from pulse.engine.element_288c import Element
 
 
@@ -28,7 +28,7 @@ class Assembly:
     Nel_max = 500000
 
     def __init__(   self,
-                    preprocessor ):
+                    preprocessor  ):
 
         self.preprocessor = preprocessor
         self.number_nodes = preprocessor.number_nodes()

@@ -5,8 +5,8 @@ from pulse.engine.node import Node
 from pulse.engine.section_fem import TubeCrossSection
 from pulse.engine.material import Material
 # from pulse.engine.element_16 import Element
-# from pulse.engine.element_288a import Element
-from pulse.engine.element_288b import Element
+from pulse.engine.element_288a import Element
+# from pulse.engine.element_288b import Element
 # from pulse.engine.element_288c import Element
                                 
 class PreProcessing:
