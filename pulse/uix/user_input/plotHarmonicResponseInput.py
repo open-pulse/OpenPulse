@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+import numpy as np
 
 class PlotHarmonicResponseInput(QDialog):
     def __init__(self, frequencies, *args, **kwargs):
@@ -15,8 +16,8 @@ class PlotHarmonicResponseInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-
         self.frequencies = frequencies
+        self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
 
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
@@ -56,13 +57,9 @@ class PlotHarmonicResponseInput(QDialog):
             self.error("Select a frequency")
             return
         else:
-            if self.isInteger(self.lineEdit.text()):
-                frequency = int(self.lineEdit.text())
-                self.frequency = self.frequencies.index(frequency)
-            else:
-                self.error("Value error (Frequency)")
-                return
-
+            frequency_selected = float(self.lineEdit.text())
+            self.frequency = self.frequency_to_index[frequency_selected]
+            
         self.close()
 
     def load(self):
