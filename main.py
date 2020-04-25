@@ -31,7 +31,7 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 division_number = 64
-offset = [0, 0]
+offset = [0.005, 0.005]
 cross_section_1 = TCS(D_external, division_number = division_number , offset = offset , thickness = thickness, element_type = '288c')
 cross_section_1_properties = cross_section_1.all_props()
 
@@ -71,13 +71,25 @@ local_dofs_prescribed  = [[0,1,2,3,4,5],[0,1,2,3,4,5],[0,1,2,3,4,5]] # What are 
 prescribed_dofs_values = [[0,0,0,0,0,0],[0,0,0,0,0,0],[0,0,0,0,0,0]] # prescribed values for each degree of freedom
 
 # external nodal load prescribed (nodes, dof<=>values)
-nodes_prescribed_load = [361,230] # Which node has some nodal load prescribed.
-local_dofs_prescribed_load  = [[0],[0]] # What are the local degree of freedom with external load.
-prescribed_load_values      = [[1],[0]] # Whats are the prescribed values for external nodal load
+nodes_prescribed_load = [361] # Which node has some nodal load prescribed.
+local_dofs_prescribed_load  = [[0]]# What are the local degree of freedom with external load.
+prescribed_load_values      = [[1]] # Whats are the prescribed values for external nodal load
 
-# nodal respose (node, dof_corrected)
-nodes_response = [436] # Desired nodal to get response.
-local_dofs_response  = [[0]] # Get the response at the following degree of freedom
+run=3
+
+if run==1:
+    # nodal respose (node, dof_corrected)
+    nodes_response = [436] # Desired nodal to get response.
+    local_dofs_response  = [[0]] # Get the response at the following degree of freedom
+if run==2:
+     # nodal respose (node, dof_corrected)
+    nodes_response = [187] # Desired nodal to get response.
+    local_dofs_response  = [[1]] # Get the response at the following degree of freedom
+if run==3:
+     # nodal respose (node, dof_corrected)
+    nodes_response = [711] # Desired nodal to get response.
+    local_dofs_response  = [[2]] # Get the response at the following degree of freedom
+
 
 ### END OF NODAL/DOF INPUTS FOR PRESCRIBED DOFS, LOADS AND RESPONSE
 ##
@@ -179,43 +191,41 @@ Xs = (post.harmonic_response(xs)[response_dof,:])
 tf = time()
 print('Total elapsed time:', (tf-t0),'[s]')
 
+test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
+
 #TODO DO NOT DELETE THESE LINES
-# # FRFs obtained through Ansys (Harmonic Response - Full)
-## NODAL LOAD - Fz(node=27) = 1N
-# FRF_HP27fz_RP27uz = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn27_uz.dat")
-# FRF_HP27fz_RP189uy = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn189_uy.dat")
-# FRF_HP27fz_RP250ux = np.loadtxt("Examples/Ansys_FRFs/Nodal_load/HPn27_fz_RPn250_ux.dat")
-# FRF = FRF_HP27fz_RP27uz
-# FRF = FRF_HP27fz_RP189uy
-# FRF = FRF_HP27fz_RP250ux
+## FRFs obtained through Ansys (Harmonic Response - Full)
+file1 = open("Examples/Validation/Element288c/" + test_label + "/FRF_Fx_1N_Ux_node_436.csv", "r")
+file2 = open("Examples/Validation/Element288c/" + test_label + "/FRF_Fx_1N_Uy_node_187.csv", "r")
+file3 = open("Examples/Validation/Element288c/" + test_label + "/FRF_Fx_1N_Uz_node_711.csv", "r")
+FRF_Ux = np.loadtxt(file1, delimiter=",", skiprows=2)
+FRF_Uy = np.loadtxt(file2, delimiter=",", skiprows=2)
+FRF_Uz = np.loadtxt(file3, delimiter=",", skiprows=2)
+file1.close()
+file2.close()
+file3.close()
 
-# FRF_HP361_Fx_1N_RP_436_Ux = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_436_Ux.dat")
-# FRF_HP361_Fx_1N_RP_187_Uy = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_187_Uy.dat")
-# FRF_HP361_Fx_1N_RP_711_Uz = np.loadtxt("Examples/Ansys_FRFs/Lumped/HP361_Fx_1N_RP_711_Uz.dat")
-# FRF = FRF_HP361_Fx_1N_RP_436_Ux
-# FRF = FRF_HP361_Fx_1N_RP_187_Uy
-# FRF = FRF_HP361_Fx_1N_RP_711_Uz
-
-## PRESCRIBED LOAD - Ux(node=361) = 0.001m
-# FRF_Ux_1mm_n361_RP436ux = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn436_ux.dat")
-# FRF_Ux_1mm_n361_RP187uy = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn187_uy.dat")
-# FRF_Ux_1mm_n361_RP711uz = np.loadtxt("Examples/Ansys_FRFs/Prescribed_dof/Ux_1mm_n361_RPn711_uz.dat")
-# FRF = FRF_Ux_1mm_n361_RP436ux
-# FRF = FRF_Ux_1mm_n361_RP187uy
-# FRF = FRF_Ux_1mm_n361_RP711uz
-
+if run==1:
+    FRF = FRF_Ux
+elif run==2:
+    FRF = FRF_Uy
+elif run==3:
+    FRF = FRF_Uz
+else:
+    print("Invalid run number entry!")
+#%%
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
 plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=3)
 plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=1.5)
-# plt.semilogy(FRF[:,0], np.abs(FRF[:,1] + 1j*FRF[:,2]), color = [0,0,1], linewidth=1)
+plt.semilogy(FRF[:,0], np.abs(FRF[:,1] + 1j*FRF[:,2]), color = [0,0,1], linewidth=1)
 ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
 ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
-ax.set_ylabel(("FRF's magnitude [m/N]"), fontsize = 16, fontweight = 'bold')
-ax.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse'])#, 'Direct - Ansys'])
+ax.set_ylabel(("FRF's magnitude [m]"), fontsize = 16, fontweight = 'bold')
+plt.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse', 'Direct - Ansys'], loc="best")
 plt.show()
 #%%
-# exit()
+exit()
 # Entries for plot function 
 #Choose EigenVector to be ploted
 mode_to_plot = 31
