@@ -78,6 +78,9 @@ def _get_equivalent_forces(mesh, frequencies, matrices, global_damping_values, l
 
 def modal_analysis(mesh, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_analysis=False):
 
+    prescribed_indexes = mesh.get_prescribed_indexes()
+    prescribed_values = mesh.get_prescribed_values()
+
     if not harmonic_analysis:
         Kadd_lump, Madd_lump, _, _, _, _, _, _, _, _, _, _, _ = get_all_matrices(mesh)
     else:
@@ -93,6 +96,8 @@ def modal_analysis(mesh, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_
     index_order = np.argsort(natural_frequencies)
     natural_frequencies = natural_frequencies[index_order]
     modal_shape = modal_shape[:, index_order]
+
+    modal_shape = _reinsert_prescribed_dofs( modal_shape, prescribed_indexes, prescribed_values )
 
     return natural_frequencies, modal_shape
 
