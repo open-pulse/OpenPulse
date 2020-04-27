@@ -35,11 +35,11 @@ material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_r
 D_external = 0.05   # External diameter [m]
 thickness  = 0.008 # Thickness [m]
 division_number = 64 
-offset = [0.005, 0.005] # Offsets: (ey, ez) [m]
+offset = [0, 0] # Offsets: (ey, ez) [m]
 
 ## Element type selection: 
-# Enter: 1 -> Element288a; 2 -> Element288b or 3 -> Element288c
-Element_type_selector = 3
+# Enter: 1 -> Element288a; 2 -> Element288b; 3 -> Element288c or 4 -> Element16
+Element_type_selector = 4
 
 if Element_type_selector==1:
     from pulse.engine.element_288a import Element
@@ -59,6 +59,12 @@ if Element_type_selector==3:
     cross_section_properties = cross_section.all_props()
     element_type_dictionary = { i:'288c' for i in connectivity[:,0] }
    
+if Element_type_selector==4:
+    from pulse.engine.element_16 import Element
+    cross_section = TCS(D_external, thickness = thickness, element_type = 'Pipe16')
+    cross_section_properties = cross_section
+    element_type_dictionary = { i:'Pipe16' for i in connectivity[:,0] }
+
 ## Cross section properties atribuition for each element
 cross_section_list = [1, cross_section_properties]
 cross_section_dictionary = { i:cross_section_list[1] for i in connectivity[:,0] }
