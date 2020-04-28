@@ -8,7 +8,7 @@ def get_frf(mesh, solution, node, dof):
     y = np.abs(solution[position])
     return y
 
-def get_displacement_matrix(mesh, solution, column, scf=0.4):
+def get_displacement_matrix(mesh, solution, column, scf=0.4, gain=[]):
 
     data = np.real(solution)
     rows = int(data.shape[0]/DOF_PER_NODE)
@@ -32,10 +32,14 @@ def get_displacement_matrix(mesh, solution, column, scf=0.4):
     coord = mesh.get_nodal_coordinates_matrix(reordering=True)
     connect = mesh.get_connectivity_matrix(reordering=True)
 
+    if gain == []:
+        factor = (scf/r_max)
+    else:
+        factor = gain*(scf/r_max)
+
     coord_def[:,0] = coord[:,0]
-    coord_def[:,1] = coord[:,1] + u_x*(scf/r_max)
-    coord_def[:,2] = coord[:,2] + u_y*(scf/r_max)
-    coord_def[:,3] = coord[:,3] + u_z*(scf/r_max)
-    factor = (scf/r_max)
+    coord_def[:,1] = coord[:,1] + u_x*factor
+    coord_def[:,2] = coord[:,2] + u_y*factor
+    coord_def[:,3] = coord[:,3] + u_z*factor
         
     return connect, coord_def, r_def, factor
