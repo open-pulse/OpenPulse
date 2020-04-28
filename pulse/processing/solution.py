@@ -97,7 +97,9 @@ def modal_analysis(mesh, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_
     natural_frequencies = natural_frequencies[index_order]
     modal_shape = modal_shape[:, index_order]
 
-    modal_shape = _reinsert_prescribed_dofs( modal_shape, prescribed_indexes, prescribed_values )
+    if not harmonic_analysis:
+
+        modal_shape = _reinsert_prescribed_dofs( modal_shape, prescribed_indexes, prescribed_values )
 
     return natural_frequencies, modal_shape
 
@@ -137,6 +139,7 @@ def direct_method(mesh, frequencies, global_damping_values=(0,0,0,0), lump_dampi
 
     alphaH, betaH, alphaV, betaV = global_damping_values
     F_aux = F.reshape(-1, 1) - F_eq
+    # print(F_aux.shape)
 
     for i, freq in enumerate(frequencies):
 
@@ -186,6 +189,13 @@ def modal_superposition(mesh, frequencies, modes, global_damping_values=(0,0,0,0
     solution = np.zeros((rows, cols), dtype=complex)
     
     alphaH, betaH, alphaV, betaV = global_damping_values
+    # print(F.shape)
+    # print(F_eq.shape)
+    # print((F.reshape(-1, 1)).shape)
+    # A = (F.reshape(-1, 1) - F_eq)
+    # print(A.shape)
+    # print(modal_shape.shape)
+    # return
     F_aux = modal_shape.T @ (F.reshape(-1, 1) - F_eq)
 
     for i, freq in enumerate(frequencies):

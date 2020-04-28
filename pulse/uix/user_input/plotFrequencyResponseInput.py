@@ -95,25 +95,17 @@ class PlotFrequencyResponseInput(QDialog):
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
-            # print(tokens)
             try:
                 tokens.remove('')
-                # print(tokens)
             except:
                 pass
             node_typed = list(map(int, tokens))
-            # print(node_typed)
             if len(node_typed) == 1:
                 try:
-                    # print(node_typed[0])
                     self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-                    print(self.nodeID)
                 except:
                     self.error("Incorrect Node ID input!")
                     return
-
-                # self.nodeID = nodes[0]
-                # print(nodes[0])
             else:
                 self.error("Multiple Node IDs", "Error Node ID's")
                 return
