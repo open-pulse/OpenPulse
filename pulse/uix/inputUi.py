@@ -143,9 +143,9 @@ class InputUi:
             if solution is None:
                 return
             plot = PlotModeShapeInput(frequencies)
-            if plot.frequency is None:
+            if plot.mode_index is None:
                 return
-            self.opv.change_to_modal_analyse(plot.frequency)
+            self.opv.change_to_modal_analyse(plot.mode_index)
         else:
             return
 

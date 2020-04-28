@@ -17,7 +17,7 @@ class PlotModeShapeInput(QDialog):
 
 
         self.frequencies = frequencies
-        self.frequency = None
+        self.mode_index = None
 
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
         self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
@@ -51,16 +51,28 @@ class PlotModeShapeInput(QDialog):
         except:
             return False
 
+    def isInt(self, value):
+        try:
+            int(value)
+            return True
+        except:
+            return False
+
     def check(self):
         if self.lineEdit.text() == "":
-            self.error("Select a frequency")
+            self.error("Select a frequency or enter a valid mode number.")
             return
         else:
-            if self.isFloat(self.lineEdit.text()):
+            if float(self.lineEdit.text()) in self.frequencies:
                 frequency = float(self.lineEdit.text())
-                self.frequency = self.frequencies.index(frequency)
+                self.mode_index = self.frequencies.index(frequency)
+            elif not self.isInt(self.lineEdit.text()):
+                self.error("Please, enter a valid mode number or natural frequency!")
+                return
+            elif int(self.lineEdit.text())>0 and int(self.lineEdit.text())<=len(self.frequencies):
+                    self.mode_index = int(self.lineEdit.text())-1
             else:
-                self.error("Value error (Frequency)")
+                self.error("Please, enter a valid mode number or natural frequency!")
                 return
 
         self.close()

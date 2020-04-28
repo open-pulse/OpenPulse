@@ -8,7 +8,7 @@ def get_frf(mesh, solution, node, dof):
     y = np.abs(solution[position])
     return y
 
-def get_displacement_matrix(mesh, solution, column, scf=0.4, gain=[]):
+def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[]):
 
     data = np.real(solution)
     rows = int(data.shape[0]/DOF_PER_NODE)

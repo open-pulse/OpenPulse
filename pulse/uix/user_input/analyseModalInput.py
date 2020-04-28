@@ -15,7 +15,7 @@ class AnalyseModalInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.modes = 0
+        self.modes = 20
 
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
 
