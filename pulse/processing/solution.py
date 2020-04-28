@@ -189,13 +189,7 @@ def modal_superposition(mesh, frequencies, modes, global_damping_values=(0,0,0,0
     solution = np.zeros((rows, cols), dtype=complex)
     
     alphaH, betaH, alphaV, betaV = global_damping_values
-    # print(F.shape)
-    # print(F_eq.shape)
-    # print((F.reshape(-1, 1)).shape)
-    # A = (F.reshape(-1, 1) - F_eq)
-    # print(A.shape)
-    # print(modal_shape.shape)
-    # return
+
     F_aux = modal_shape.T @ (F.reshape(-1, 1) - F_eq)
 
     for i, freq in enumerate(frequencies):

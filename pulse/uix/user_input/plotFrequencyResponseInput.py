@@ -63,7 +63,7 @@ class PlotFrequencyResponseInput(QDialog):
         self.solution = solution
         self.nodeID = 0
 
-        self.localDof = 0
+        self.localDof = None
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
@@ -93,6 +93,7 @@ class PlotFrequencyResponseInput(QDialog):
         msg_box.exec_()
 
     def check(self):
+        self.localDof = None
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
             try:
@@ -106,6 +107,9 @@ class PlotFrequencyResponseInput(QDialog):
                 except:
                     self.error("Incorrect Node ID input!")
                     return
+            elif len(node_typed) == 0:
+                self.error("Please, enter a valid Node ID!")
+                return
             else:
                 self.error("Multiple Node IDs", "Error Node ID's")
                 return
@@ -113,64 +117,64 @@ class PlotFrequencyResponseInput(QDialog):
             self.error("Wrong input for Node ID's!", "Error Node ID's")
             return
 
-        self.localDof = 0
         if self.checkBox_ux.isChecked():
             self.localDof = 0
             self.localdof_label = "Ux"
             self.unit_label = "m"
 
         if self.checkBox_uy.isChecked():
-            if self.localDof != 0:
-                self.error("Multiple Selections (Max 1)")
-                return
-            else:
+            if self.localDof == None:
                 self.localDof = 1
                 self.localdof_label = "Uy"
                 self.unit_label = "m"
-        
-        if self.checkBox_uz.isChecked():
-            if self.localDof != 0:
+            else:
                 self.error("Multiple Selections (Max 1)")
                 return
-            else:
+        if self.checkBox_uz.isChecked():
+            if self.localDof == None:
                 self.localDof = 2
                 self.localdof_label = "Uz"
                 self.unit_label = "m"
-
-        if self.checkBox_rx.isChecked():
-            if self.localDof != 0:
+            else:
                 self.error("Multiple Selections (Max 1)")
                 return
-            else:
+
+        if self.checkBox_rx.isChecked():
+            if self.localDof == None:
                 self.localDof = 3
                 self.localdof_label = "Rx"
                 self.unit_label = "rad"
-
-        if self.checkBox_ry.isChecked():
-            if self.localDof != 0:
+            else:
                 self.error("Multiple Selections (Max 1)")
                 return
-            else:
+
+        if self.checkBox_ry.isChecked():
+            if self.localDof == None:
                 self.localDof = 4
                 self.localdof_label = "Ry"
                 self.unit_label = "rad"
-
-        if self.checkBox_rz.isChecked():
-            if self.localDof != 0:
+            else:
                 self.error("Multiple Selections (Max 1)")
                 return
-            else:
+        if self.checkBox_rz.isChecked():
+            if self.localDof == None:
                 self.localDof = 5
                 self.localdof_label = "Rz"
                 self.unit_label = "rad"
-        
+            else:
+                self.error("Multiple Selections (Max 1)")
+                return
+          
+        if self.localDof==None:
+            self.error("Please, it's necessary to select one DOF to plot the frequency response.")
+            return
+
         self.plot()
 
     def plot(self):
 
         frequencies = self.frequencies
         dof_response = get_frf(self.mesh, self.solution, self.nodeID, self.localDof)
-       
         fig = plt.figure(figsize=[10,6])
         ax = fig.add_subplot(1,1,1)
 
