@@ -3,7 +3,7 @@ import random
 from pulse.preprocessing.node import Node
 
 class Point:
-    def __init__(self, node, tag = -1):
+    def __init__(self, node, tag = -1, colorBC = [0,1,1], colorF = [1,1,0]):
 
         self.x = node.x
         self.y = node.y
@@ -13,9 +13,9 @@ class Point:
         if node.haveBoundaryCondition() and node.haveForce():
             self.color = [0,1,0]
         elif node.haveBoundaryCondition():
-            self.color = [0,1,1]
+            self.color = colorBC
         elif node.haveForce():
-            self.color = [1,1,0]
+            self.color = colorF
         else:
             self.special = False
         self.tag = tag
