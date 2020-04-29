@@ -60,6 +60,13 @@ class LoadsInput(QDialog):
         except:
             return False
 
+    def isFloat(self, value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
+
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -74,45 +81,44 @@ class LoadsInput(QDialog):
 
         fx = fy = fz = 0
         if self.lineEdit_fx.text() != "":
-            if self.isInteger(self.lineEdit_fx.text()):
-                fx = int(self.lineEdit_fx.text())
+            if self.isFloat(self.lineEdit_fx.text()):
+                fx = float(self.lineEdit_fx.text())
             else:
                 self.error("Wrong input (fx)!", "Error")
                 return
         
         if self.lineEdit_fy.text() != "":
-            if self.isInteger(self.lineEdit_fy.text()):
-                fy = int(self.lineEdit_fy.text())
+            if self.isFloat(self.lineEdit_fy.text()):
+                fy = float(self.lineEdit_fy.text())
             else:
                 self.error("Wrong input (fy)!", "Error")
                 return
 
         if self.lineEdit_fz.text() != "":
-            if self.isInteger(self.lineEdit_fz.text()):
-                fz = int(self.lineEdit_fz.text())
+            if self.isFloat(self.lineEdit_fz.text()):
+                fz = float(self.lineEdit_fz.text())
             else:
                 self.error("Wrong input (fz)!", "Error")
                 return
-
         
         mx = my = mz = 0
         if self.lineEdit_mx.text() != "":
-            if self.isInteger(self.lineEdit_mx.text()):
-                mx = int(self.lineEdit_mx.text())
+            if self.isFloat(self.lineEdit_mx.text()):
+                mx = float(self.lineEdit_mx.text())
             else:
                 self.error("Wrong input (mx)!", "Error")
                 return
         
         if self.lineEdit_my.text() != "":
-            if self.isInteger(self.lineEdit_my.text()):
-                my = int(self.lineEdit_my.text())
+            if self.isFloat(self.lineEdit_my.text()):
+                my = float(self.lineEdit_my.text())
             else:
                 self.error("Wrong input (my)!", "Error")
                 return
 
         if self.lineEdit_mz.text() != "":
-            if self.isInteger(self.lineEdit_mz.text()):
-                mz = int(self.lineEdit_mz.text())
+            if self.isFloat(self.lineEdit_mz.text()):
+                mz = float(self.lineEdit_mz.text())
             else:
                 self.error("Wrong input (mz)!", "Error")
                 return

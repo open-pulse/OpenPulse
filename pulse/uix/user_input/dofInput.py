@@ -62,6 +62,14 @@ class DOFInput(QDialog):
         except:
             return False
 
+    def isFloat(self, value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
+
+
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -75,8 +83,8 @@ class DOFInput(QDialog):
             return
 
         if self.lineEdit_all.text() != "":
-            if self.isInteger(self.lineEdit_all.text()):
-                dof = int(self.lineEdit_all.text())
+            if self.isFloat(self.lineEdit_all.text()):
+                dof = float(self.lineEdit_all.text())
                 self.dof = [dof, dof, dof, dof, dof, dof]
                 self.close()
             else:
@@ -85,22 +93,22 @@ class DOFInput(QDialog):
         else:
             ux = uy = uz = None
             if self.lineEdit_ux.text() != "":
-                if self.isInteger(self.lineEdit_ux.text()):
-                    ux = int(self.lineEdit_ux.text())
+                if self.isFloat(self.lineEdit_ux.text()):
+                    ux = float(self.lineEdit_ux.text())
                 else:
                     self.error("Wrong input (ux)!", "Error")
                     return
             
             if self.lineEdit_uy.text() != "":
-                if self.isInteger(self.lineEdit_uy.text()):
-                    uy = int(self.lineEdit_uy.text())
+                if self.isFloat(self.lineEdit_uy.text()):
+                    uy = float(self.lineEdit_uy.text())
                 else:
                     self.error("Wrong input (uy)!", "Error")
                     return
 
             if self.lineEdit_uz.text() != "":
-                if self.isInteger(self.lineEdit_uz.text()):
-                    uz = int(self.lineEdit_uz.text())
+                if self.isFloat(self.lineEdit_uz.text()):
+                    uz = float(self.lineEdit_uz.text())
                 else:
                     self.error("Wrong input (uz)!", "Error")
                     return
@@ -108,22 +116,22 @@ class DOFInput(QDialog):
             
             rx = ry = rz = None
             if self.lineEdit_rx.text() != "":
-                if self.isInteger(self.lineEdit_rx.text()):
-                    rx = int(self.lineEdit_rx.text())
+                if self.isFloat(self.lineEdit_rx.text()):
+                    rx = float(self.lineEdit_rx.text())
                 else:
                     self.error("Wrong input (rx)!", "Error")
                     return
             
             if self.lineEdit_ry.text() != "":
-                if self.isInteger(self.lineEdit_ry.text()):
-                    ry = int(self.lineEdit_ry.text())
+                if self.isFloat(self.lineEdit_ry.text()):
+                    ry = float(self.lineEdit_ry.text())
                 else:
                     self.error("Wrong input (ry)!", "Error")
                     return
 
             if self.lineEdit_rz.text() != "":
-                if self.isInteger(self.lineEdit_rz.text()):
-                    rz = int(self.lineEdit_rz.text())
+                if self.isFloat(self.lineEdit_rz.text()):
+                    rz = float(self.lineEdit_rz.text())
                 else:
                     self.error("Wrong input (rz)!", "Error")
                     return
