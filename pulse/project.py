@@ -322,6 +322,9 @@ class Project:
     def getMesh(self):
         return self.mesh
 
+    def getNodesBC(self):
+        return self.mesh.nodesBC
+
     def getNodes(self):
         return self.mesh.nodes
 

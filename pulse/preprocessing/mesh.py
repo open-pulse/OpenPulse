@@ -21,6 +21,7 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.entities = []
+        self.nodesBC = []
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -177,15 +178,20 @@ class Mesh:
     def get_nodal_coordinates_matrix(self, reordering=True):
     # Returns the coordinates matrix for all nodes
     # output = [index, coord_x, coord_y, coord_z] 
+        self.nodesBC = []
         number_nodes = len(self.nodes)
         coordinates = np.zeros((number_nodes, 4))
         if reordering:
             for external_index, node in self.nodes.items():
                 index = self.nodes[external_index].global_index
+                if self.nodes[external_index].haveBoundaryCondition():
+                    self.nodesBC.append(self.nodes[external_index])
                 coordinates[index,:] = index, node.x, node.y, node.z
         else:               
             for external_index, node in self.nodes.items():
                 index = self.nodes[external_index].global_index
+                if self.nodes[external_index].haveBoundaryCondition():
+                    self.nodesBC.append(self.nodes[external_index])
                 coordinates[index,:] = external_index, node.x, node.y, node.z
         return coordinates
 

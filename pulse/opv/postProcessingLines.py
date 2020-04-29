@@ -71,7 +71,7 @@ class PostProcessingLines:
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(0.05)
+        self._tubeFilter.SetRadius(0.02)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.SetCapping(True)
         self._tubeFilter.Update()

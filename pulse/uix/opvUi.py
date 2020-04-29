@@ -160,13 +160,18 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.textActorPoint.SetDisplayPosition(width-250,35)
         self.renderer_points.AddActor2D(self.textActorPoint)
 
-    def update_text_actor_post_processing(self, type_, frequency, frequencies, factor, modal=None):
+    def update_text_actor_post_processing(self, type_, frequency, frequencies, factor, mode=None):
         self.renderer_post_processing.RemoveActor2D(self.textActorPostProcessing)
         text = ""
         if type_ == 1:
+            text += "Harmonic Analysis - Structural\n"
             text += "Direct Method\n"
         elif type_ == 2:
-            text += "Modal Superposition\nModes: {}\n".format(modal)
+            text += "Harmonic Analysis - Structural\n"
+            text += "Modal Superposition\n"
+        elif type_ == 3:
+            text += "Modal Analysis - Structural\n"
+            text += "Mode: {}\n".format(mode)
         text += "Frequency: {} [Hz]\n".format(frequencies[frequency])
         text += "Magnification factor {:.1f}x\n".format(factor)
         self.textActorPostProcessing.SetInput(text)
@@ -269,27 +274,34 @@ class OPVUi(QVTKRenderWindowInteractor):
     def change_to_modal_analyse(self, frequency_indice):
         self.beforeChangePlot()
         self.in_result = True
-        self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
+        factor = self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.renderer_post_processing.ResetCamera()
+        self.update_text_actor_post_processing(3, frequency_indice, self.project.getNaturalFrequencies(), factor, self.project.getModes())
+        self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
 
     def plot_modal_analyse(self, modal, frequency_indice):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, scale  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
+        for node in self.project.getNodesBC():
+            point = Point(node, colorBC = [0,0,0])
+            point.assembly()
+            self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
 
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
         self.renderer_post_processing.AddActor(scale)
+        return factor
 
     def plot_modal_superposition(self, modal, frequency_indice):
         for actor in self.renderer_post_processing.GetActors():
@@ -301,6 +313,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
+        for node in self.project.getNodesBC():
+            point = Point(node, colorBC = [0,0,0])
+            point.assembly()
+            self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
 
         scale = vtk.vtkLegendScaleActor()
@@ -318,8 +334,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
+        for node in self.project.getNodesBC():
+            point = Point(node, colorBC = [0,0,0])
+            point.assembly()
+            self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
-
         scale = vtk.vtkLegendScaleActor()
         scale.AllAxesOff ()
         self.renderer_post_processing.AddActor(scale)
