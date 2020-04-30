@@ -155,42 +155,46 @@ class Project:
             rotation = rotation[1:-1].split(',')
             force = force[1:-1].split(',')
 
-            dx = dy = dz = rx = ry = rz = None
+            ux = uy = uz = rx = ry = rz = None
             if len(displacement) == 3:
-                if displacement[0].isnumeric():
-                    dx = int(displacement[0])
-                if displacement[1].isnumeric():
-                    dy = int(displacement[1])
-                if displacement[2].isnumeric():
-                    dz = int(displacement[2])
+                if displacement[0] != 'None':
+                    ux = float(displacement[0])
+                if displacement[1] != 'None':
+                    uy = float(displacement[1])
+                if displacement[2] != 'None':
+                    uz = float(displacement[2])
             if len(rotation) == 3:
-                if rotation[0].isnumeric():
-                    rx = int(rotation[0])
-                if rotation[1].isnumeric():
-                    ry = int(rotation[1])
-                if rotation[2].isnumeric():
-                    rz = int(rotation[2])
+                if rotation[0] != 'None':
+                    rx = float(rotation[0])
+                if rotation[1] != 'None':
+                    ry = float(rotation[1])
+                if rotation[2] != 'None':
+                    rz = float(rotation[2])
 
-            bc = [dx,dy,dz,rx,ry,rz]
+            BC = [ux,uy,uz,rx,ry,rz]
 
-            f1 = f2 = f3 = f4 = f5 = f6 = 0
+            if not ux == uy == uz == rx == ry == rz == None:
+                self.loadBondaryCondition_by_Node(node_id, BC)
+
+            Fx = Fy = Fz = Mx = My = Mz = 0.0
             if len(force) == 6:
-                if force[0].isnumeric():
-                    f1 = int(force[0])
-                if force[1].isnumeric():
-                    f2 = int(force[1])
-                if force[2].isnumeric():
-                    f3 = int(force[2])
-                if force[3].isnumeric():
-                    f4 = int(force[3])
-                if force[4].isnumeric():
-                    f5 = int(force[4])
-                if force[5].isnumeric():
-                    f6 = int(force[5])
+                if force[0] != '0.0':
+                    Fx = float(force[0])
+                if force[1] != '0.0':
+                    Fy = float(force[1])
+                if force[2] != '0.0':
+                    Fz = float(force[2])
+                if force[3] != '0.0':
+                    Mx = float(force[3])
+                if force[4] != '0.0':
+                    My = float(force[4])
+                if force[5] != '0.0':
+                    Mz = float(force[5])
+                
+            Fr = [Fx, Fy, Fz, Mx, My, Mz]
             
-            fr = [f1, f2, f3, f4, f5, f6]
-            self.loadBondaryCondition_by_Node(node_id, bc)
-            self.loadForce_by_Node(node_id, fr)
+            if sum(Fr)>0:
+                self.loadForce_by_Node(node_id, Fr)
 
     def addBondaryConditionInFile(self, nodes_id, bc):
         config = configparser.ConfigParser()

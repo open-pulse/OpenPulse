@@ -79,7 +79,7 @@ class LoadsInput(QDialog):
             self.error("Wrong input for Node ID's!", "Error Node ID's")
             return
 
-        fx = fy = fz = 0
+        fx = fy = fz = 0.0
         if self.lineEdit_fx.text() != "":
             if self.isFloat(self.lineEdit_fx.text()):
                 fx = float(self.lineEdit_fx.text())
@@ -101,7 +101,7 @@ class LoadsInput(QDialog):
                 self.error("Wrong input (fz)!", "Error")
                 return
         
-        mx = my = mz = 0
+        mx = my = mz = 0.0
         if self.lineEdit_mx.text() != "":
             if self.isFloat(self.lineEdit_mx.text()):
                 mx = float(self.lineEdit_mx.text())
