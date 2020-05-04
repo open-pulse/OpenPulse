@@ -64,6 +64,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.actors_elements = {}
         self.actors_points = {}
 
+        self.sliderScale = 1
+        self.sliderEnable = True
+        self.TypeID = 0
+        self.currentFrequencyIndice = None
+
         #Set initial plot & config
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
@@ -208,6 +213,78 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.SetEnabled(0)
         self._create_axes()
 
+    def _create_slider(self):
+        tubeWidth = 0.005
+        sliderLength = 0.01
+        sliderWidth = 0.01
+        titleHeight = 0.015
+        labelHeight = 0.015
+
+        self.slider2d = vtk.vtkSliderRepresentation2D()
+        self.slider2d.SetMinimumValue(0)
+        self.slider2d.SetMaximumValue(1)
+        self.slider2d.SetValue(self.sliderScale)
+        self.slider2d.SetEndCapWidth(0.02)
+        self.slider2d.SetEndCapLength(0.01)
+        #self.slider2d.SetTitleText('Scale')
+
+        width, height = self.renderer_post_processing.GetSize()
+
+        self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
+        self.slider2d.GetPoint1Coordinate().SetValue(width-250,20)
+        self.slider2d.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
+        self.slider2d.GetPoint2Coordinate().SetValue(width-50, 20)
+
+        self.slider2d.SetTubeWidth(tubeWidth)
+        self.slider2d.SetSliderLength(sliderLength)
+        self.slider2d.SetSliderWidth(sliderWidth)
+        self.slider2d.SetTitleHeight(titleHeight)
+        self.slider2d.SetLabelHeight(labelHeight)
+
+        self.sliderW = vtk.vtkSliderWidget()
+        self.sliderW.SetInteractor(self)
+        self.sliderW.SetRepresentation(self.slider2d)
+        self.sliderW.SetAnimationModeToOff()
+        self.sliderW.SetNumberOfAnimationSteps(10)
+        self.sliderW.SetEnabled(True)
+        self.sliderW.AddObserver(vtk.vtkCommand.InteractionEvent,self.callback)
+
+    def callback(self, slider, b):
+        # if not self.sliderEnable:
+        #     return
+        newValue = slider.GetRepresentation().GetValue()
+        newValue = float("{:.1}".format(newValue))
+        if newValue > 0 and newValue < 0.1:
+            return
+        if newValue != self.sliderScale:
+            #print(newValue, self.sliderScale)
+            self.sliderScale = newValue
+            if self.currentFrequencyIndice is not None:
+                #self.sliderEnable = False
+                if self.TypeID == 1:
+                    self.change_to_direct_method(self.currentFrequencyIndice)
+                elif self.TypeID == 2:
+                    self.change_to_modal_superposition(self.currentFrequencyIndice)
+                elif self.TypeID == 3:
+                    self.change_to_modal_analyse(self.currentFrequencyIndice)
+                
+
+    def _atualizar_slider(self):
+        if self.in_result:
+            if self.sliderEnable:
+                return
+            self.sliderEnable = True
+            self._create_slider()
+        else:
+            self.sliderEnable = False
+    
+    def change_frequency(self, frequency_indice):
+        if self.currentFrequencyIndice is not None:
+            if frequency_indice != self.currentFrequencyIndice:
+                self.sliderScale = 1
+                self.slider2d.SetValue(self.sliderScale)
+        self.currentFrequencyIndice = frequency_indice
+
     def remove_all_renderers(self):
         self.GetRenderWindow().RemoveRenderer(self.renderer_entities)
         self.GetRenderWindow().RemoveRenderer(self.renderer_elements)
@@ -223,6 +300,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def afterChangePlot(self):
         self._atualizar_axes()
+        self._atualizar_slider()
         self.update()
 
     def change_to_entities(self):
@@ -251,6 +329,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def change_to_direct_method(self, frequency_indice):
         self.beforeChangePlot()
+        self.change_frequency(frequency_indice)
+        self.TypeID = 1
         self.in_result = True
         factor = self.plot_direct_method(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
@@ -262,6 +342,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def change_to_modal_superposition(self, frequency_indice):
         self.beforeChangePlot()
+        self.change_frequency(frequency_indice)
+        self.TypeID = 2
         self.in_result = True
         factor = self.plot_modal_superposition(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
@@ -273,6 +355,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def change_to_modal_analyse(self, frequency_indice):
         self.beforeChangePlot()
+        self.change_frequency(frequency_indice)
+        self.TypeID = 3
         self.in_result = True
         factor = self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
@@ -286,7 +370,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -307,7 +391,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -328,7 +412,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice)
+        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
