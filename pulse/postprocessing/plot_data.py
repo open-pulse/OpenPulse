@@ -1,19 +1,19 @@
 import numpy as np
 
-from pulse.preprocessing.node import DOF_PER_NODE
+from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 
 # this is temporary, and will be changed a lot
 def get_frf(mesh, solution, node, dof):
-    position = mesh.nodes[node].global_index * DOF_PER_NODE + dof
-    y = np.abs(solution[position])
-    return y
+    position = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
+    results = np.abs(solution[position])
+    return results
 
-def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[]):
+def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
 
     data = np.real(solution)
-    rows = int(data.shape[0]/DOF_PER_NODE)
-    cols = int(1 + (DOF_PER_NODE/2)*data.shape[1])
-    ind = np.arange( 0, data.shape[0], DOF_PER_NODE )
+    rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
+    cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])
+    ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     Uxyz = np.zeros((rows, cols))
     Rxyz = np.zeros((rows, cols))
     Uxyz[:,0] = np.arange( 0, rows, 1 )
@@ -26,7 +26,11 @@ def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[]):
 
     u_x, u_y, u_z = Uxyz[:,1+3*(column)], Uxyz[:,2+3*(column)], Uxyz[:,3+3*(column)]
     r_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
-    r_max = max(r_def)
+    
+    if Normalize:
+        r_max = max(r_def)
+    else:
+        r_max, scf = 1, 1
 
     coord_def = np.zeros((rows,4))
     coord = mesh.get_nodal_coordinates_matrix(reordering=True)

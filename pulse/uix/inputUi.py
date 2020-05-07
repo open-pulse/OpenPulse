@@ -11,9 +11,7 @@ from pulse.uix.user_input.plotModeShapeInput import PlotModeShapeInput
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotFrequencyResponseInput import PlotFrequencyResponseInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
-
 from pulse.uix.user_input.newProjectInput import NewProjectInput
-
 from pulse.project import Project
 
 class InputUi:
@@ -69,7 +67,7 @@ class InputUi:
         if dof.dof is None:
             return
 
-        self.project.setBondaryCondition_by_Node(dof.nodes, dof.dof)
+        self.project.setStructuralBondaryCondition_by_Node(dof.nodes, dof.dof)
         print("[Set Bondary Condition] - defined in the poins {}".format(dof.nodes))
         self.opv.transformPoints(dof.nodes)
 
