@@ -1,6 +1,5 @@
-#%%
+#%% 
 from time import time
-
 import numpy as np 
 import matplotlib.pyplot as plt 
 
@@ -11,6 +10,13 @@ from pulse.processing.assembly import get_global_matrices, get_lumped_matrices
 from pulse.processing.solution import direct_method, modal_superposition, modal_analysis, get_reactions_at_fixed_nodes
 from pulse.postprocessing.plot_data import get_frf, get_displacement_matrix
 from pulse.animation.plot_function import plot_results
+
+''' 
+    |=============================================================================|
+    |  Please, it's necessary to copy and paste main.py script at OpenPulse file  |
+    |  then type "python main.py" in the terminal to run the code !               |
+    |=============================================================================| 
+'''
 
 # PREPARING MESH
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
