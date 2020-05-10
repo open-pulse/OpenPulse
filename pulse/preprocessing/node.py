@@ -10,12 +10,19 @@ def distance(a, b):
 
 
 class Node:
-    def __init__(self, x, y, z, global_index=None):
+    def __init__(self, x, y, z, global_index=None, external_index=None):
         self.x = x
         self.y = y
         self.z = z
-        self.boundary_condition = BoundaryCondition()
+        self.boundary_condition = [None, None, None, None, None, None]
+        self.forces = [0,0,0,0,0,0]
+        
+        self.mass   = [0,0,0,0,0,0]
+        self.spring = [0,0,0,0,0,0]
+        self.damper = [0,0,0,0,0,0]
+        
         self.global_index = global_index
+        self.external_index = external_index
 
     @property
     def coordinates(self):
@@ -32,5 +39,26 @@ class Node:
     def distance_to(self, other):
         return np.linalg.norm(self.coordinates - other.coordinates)
 
-    def set_boundary_condition(boundary_condition):
-        pass
+    def set_boundary_condition(self, boundary_condition):
+        self.boundary_condition = boundary_condition
+
+    def getBondaryCondition(self):
+        return self.boundary_condition
+
+    def get_boundary_condition_indexes(self):
+        return [i for i, j in enumerate(self.boundary_condition) if j is not None]
+
+    def get_boundary_condition_values(self):
+        return [i for i in self.boundary_condition if i is not None]
+
+    def set_prescribed_forces(self, forces):
+        self.forces = forces
+
+    def get_prescribed_forces(self):
+        return self.forces
+
+    def haveBoundaryCondition(self):
+        return self.boundary_condition.count(None) != 6
+    
+    def haveForce(self):
+        return self.forces.count(0) != 6

@@ -56,8 +56,8 @@ class TubeCrossSection:
         poisson_ratio : float
             Poisson's ratio [ ]"""
         alpha = self.D_internal / self.D_external
-        auxiliar = alpha / (1 + (alpha**2))
-        return 6 / (7 + 20 * auxiliar**2)
+        # auxiliar = alpha / (1 + (alpha**2))
+        return 6 / (7 + 20 * ((alpha / (1 + (alpha**2)))**2))
     
     def shear_area(self, element_length, young_modulus):
         shear_area = self.area() * self.shear_form_factor()
