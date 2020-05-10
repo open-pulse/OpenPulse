@@ -9,7 +9,6 @@ from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 
 def get_global_matrices(mesh):
-
     total_dof = DOF_PER_NODE * len(mesh.nodes)
     total_entries = ENTRIES_PER_ELEMENT * len(mesh.elements)
 
@@ -45,7 +44,6 @@ def get_global_matrices(mesh):
     return K, M, Kr, Mr
     
 def get_lumped_matrices(mesh):
-
     total_dof = DOF_PER_NODE * len(mesh.nodes)
     
     data_Mlump = np.zeros(total_dof)
@@ -121,7 +119,6 @@ def get_lumped_matrices(mesh):
     return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
     
 def get_all_matrices(mesh):
-    
     K, M, Kr, Mr = get_global_matrices(mesh)
     K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump = get_lumped_matrices(mesh)
     
@@ -132,7 +129,6 @@ def get_all_matrices(mesh):
 
 
 def get_global_forces(mesh):
-
     total_dof = DOF_PER_NODE * len(mesh.nodes)
     forces = np.zeros(total_dof)
 
