@@ -166,18 +166,18 @@ ax.spines['right'].set_color('none')
 ax.tick_params(labelcolor='w', top=False, bottom=False, left=False, right=False)
 
 #Axis plots and legends
-ax1.plot(f,p_b1_out,'-',f_com,np.real(p_out_b1_com_3d),'-.')
-ax1.legend(['Branch 1 out FETM','Branch 1 out FEM 3D','Branch out FEM 3D'],loc='best')
+ax1.plot(f,20*np.log10(np.abs(p_b1_out/p_ref)),'-',f_com,20*np.log10(np.abs(p_out_b1_com_3d/p_ref)),'-.')
+ax1.legend(['Branch 1 out FETM','Branch 1 out FEM 3D'],loc='best')
 ax1.set_xticklabels([])
 
-ax2.plot(f,p_b2_out,'-',f_com,np.real(p_out_b2_com_3d),'-.')
-ax2.legend(['Branch 2 out FETM','Branch 2 out FEM 3D','Bend out FEM 3D'],loc='best')
+ax2.plot(f,20*np.log10(np.abs(p_b2_out/p_ref)),'-',f_com,20*np.log10(np.abs(p_out_b2_com_3d/p_ref)),'-.')
+ax2.legend(['Branch 2 out FETM','Branch 2 out FEM 3D'],loc='best')
 ax2.set_xticklabels([])
     
-ax3.plot(f,p_b3_out,'-',f_com,np.real(p_out_b3_com_3d),'-.')
+ax3.plot(f,20*np.log10(np.abs(p_b3_out/p_ref)),'-',f_com,20*np.log10(np.abs(p_out_b3_com_3d/p_ref)),'-.')
 ax3.legend(['Branch 3 out FETM','Branch 3 out FEM 3D',],loc='best')
 
-ax4.plot(f,p_out,'-',f_com,np.real(p_out_com_3d),'-.')
+ax4.plot(f,20*np.log10(np.abs(p_out/p_ref)),'-',f_com,20*np.log10(np.abs(p_out_com_3d/p_ref)),'-.')
 ax4.legend(['Out FETM','Out FEM 3D','Bend out FEM 3D'],loc=2)
 
 # Set common labels
