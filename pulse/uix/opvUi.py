@@ -510,18 +510,21 @@ class OPVUi(QVTKRenderWindowInteractor):
                 nodeAll.append(node_id)
             elif node.haveBoundaryCondition():
                 nodeBC.append(node_id)
+                if sum([value for value in node.structural_boundary_condition if value != None])==0:
+                    colorBC = [0,0,0]
+                else:
+                    colorBC = [1,1,1]
+                self.changeColorPoints(nodeBC, colorBC)
             elif node.haveForce():
                 nodeF.append(node_id)
+                colorF = [1,1,0]
+                self.changeColorPoints(nodeF, colorF)
             else:
                 nodeND.append(node_id)
 
         colorAll = [0,1,0]
-        colorBC = [0,1,1]
-        colorF = [1,1,0]
         colorND = [0,0,1]
         self.changeColorPoints(nodeAll, colorAll)
-        self.changeColorPoints(nodeBC, colorBC)
-        self.changeColorPoints(nodeF, colorF)
         self.changeColorPoints(nodeND, colorND)
 
         self.transformPointsToCube(nodeND)
