@@ -172,7 +172,6 @@ class Mesh:
     # Returns the coordinates matrix for all nodes
     # output -> [index(internal), coord_x, coord_y, coord_z] if reordering=True
     # output -> [index(external), coord_x, coord_y, coord_z] if reordering=False
-        self.nodesBC = []
         number_nodes = len(self.nodes)
         nodal_coordinates = np.zeros((number_nodes, 4))
         if reordering:
