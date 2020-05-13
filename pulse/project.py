@@ -3,7 +3,6 @@ from pulse.processing.assembly import get_global_matrices
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.preprocessing.boundary_condition import BoundaryCondition
 import numpy as np
 import configparser
 import os
@@ -174,7 +173,7 @@ class Project:
             BC = [ux,uy,uz,rx,ry,rz]
 
             if not ux == uy == uz == rx == ry == rz == None:
-                self.loadBondaryCondition_by_Node(node_id, BC)
+                self.loadStructuralBondaryCondition_by_Node(node_id, BC)
 
             Fx = Fy = Fz = Mx = My = Mz = 0.0
             if len(force) == 6:
@@ -272,8 +271,8 @@ class Project:
         for entity in self.mesh.entities:
             self.addCrossSectionInFile(entity.getTag(), cross_section)
 
-    def setBondaryCondition_by_Node(self, node_id, bc):
-        self.mesh.set_boundary_condition_by_node(node_id, bc)
+    def setStructuralBondaryCondition_by_Node(self, node_id, bc):
+        self.mesh.set_structural_boundary_condition_by_node(node_id, bc)
         self.addBondaryConditionInFile(node_id, bc)
 
     def setFroce_by_Node(self, node_id, force):
@@ -305,8 +304,8 @@ class Project:
 
         self._setEntityCross(entity_id, cross_section)
 
-    def loadBondaryCondition_by_Node(self, node_id, bc):
-        self.mesh.set_boundary_condition_by_node(node_id, bc)
+    def loadStructuralBondaryCondition_by_Node(self, node_id, bc):
+        self.mesh.set_structural_boundary_condition_by_node(node_id, bc)
 
     def loadForce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)

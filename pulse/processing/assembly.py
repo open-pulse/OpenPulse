@@ -1,16 +1,35 @@
-import time
-
+from time import time
 import numpy as np
 from scipy.sparse import csr_matrix
 
 from pulse.utils import timer
-from pulse.preprocessing.node import DOF_PER_NODE
+from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
+def get_prescribed_indexes(mesh):
+    global_prescribed = []
+    for node in mesh.nodes.values():
+        starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
+        dofs = np.array(node.get_structural_boundary_condition_indexes()) + starting_position
+        global_prescribed.extend(dofs)
+    return global_prescribed
+
+def get_prescribed_values(mesh):
+    global_prescribed = []
+    for node in mesh.nodes.values():
+        global_prescribed.extend(node.get_structural_boundary_condition_values())
+    return global_prescribed
+
+def get_unprescribed_indexes(mesh):
+    total_dof = DOF_PER_NODE_STRUCTURAL * len(mesh.nodes)
+    all_indexes = np.arange(total_dof)
+    prescribed_indexes = get_prescribed_indexes(mesh)
+    unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
+    return unprescribed_indexes
 
 def get_global_matrices(mesh):
 
-    total_dof = DOF_PER_NODE * len(mesh.nodes)
+    total_dof = DOF_PER_NODE_STRUCTURAL * len(mesh.nodes)
     total_entries = ENTRIES_PER_ELEMENT * len(mesh.elements)
 
     rows = np.zeros(total_entries)
@@ -34,8 +53,8 @@ def get_global_matrices(mesh):
     full_K = csr_matrix((data_k, (rows, cols)), shape=[total_dof, total_dof])
     full_M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
 
-    prescribed_indexes = mesh.get_prescribed_indexes()
-    unprescribed_indexes = mesh.get_unprescribed_indexes()
+    prescribed_indexes = get_prescribed_indexes(mesh)
+    unprescribed_indexes = get_unprescribed_indexes(mesh)
 
     K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
     M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
@@ -46,69 +65,57 @@ def get_global_matrices(mesh):
     
 def get_lumped_matrices(mesh):
 
-    total_dof = DOF_PER_NODE * len(mesh.nodes)
-    
-    data_Mlump = np.zeros(total_dof)
-    data_Klump = np.zeros(total_dof)
-    data_Clump = np.zeros(total_dof)
-    
-    ind_Mlump = np.zeros(total_dof)
-    ind_Klump = np.zeros(total_dof)
-    ind_Clump = np.zeros(total_dof)
+    total_dof = DOF_PER_NODE_STRUCTURAL * len(mesh.nodes)
+
+    data_Mlump = []
+    data_Klump = []
+    data_Clump = []
+
+    ind_Mlump = []
+    ind_Klump = []
+    ind_Clump = []
 
     flag_Clump = False
 
     # processing external elements by node
-    for index, node in enumerate(mesh.nodes.values()):
+    for node in mesh.nodes.values():
+        # processing mass added
         if np.sum(node.spring) == 0:
             continue
-        start = index * DOF_PER_NODE
-        # print(start)
-        end = start + DOF_PER_NODE 
-        # print(end)
-        position = node.global_dof
-        # print(position)
-        # print(node.spring)
-
-        data_Klump[start:end] = node.spring
-        ind_Klump[start:end] = position
-  
-    for index, node in enumerate(mesh.nodes.values()):
+        else:
+            position = node.global_dof
+            data_Klump.append(node.spring)
+            ind_Klump.append(position)
+        # processing mass added
         if np.sum(node.mass) == 0:
             continue
-        start = index * DOF_PER_NODE
-        # print(start)
-        end = start + DOF_PER_NODE 
-        # print(end)
-        position = node.global_dof
-        # print(position)
-        # print(node.mass)
-
-        data_Mlump[start:end] = node.mass
-        ind_Mlump[start:end] = position
-
-    for index, node in enumerate(mesh.nodes.values()):
+        else:
+            position = node.global_dof
+            data_Mlump.append(node.mass)
+            ind_Mlump.append(position)
+        # processing damper added
         if np.sum(node.damper) == 0:
             continue
-        start = index * DOF_PER_NODE
-        # print(start)
-        end = start + DOF_PER_NODE 
-        # print(end)
-        position = node.global_dof
-        # print(position)
-        # print(node.damper)
-
-        data_Clump[start:end] = node.damper
-        ind_Clump[start:end] = position
-        flag_Clump = True
-
-
+        else:
+            position = node.global_dof
+            data_Clump.append(node.damper)
+            ind_Clump.append(position)
+            flag_Clump = True
+        
+    data_Klump = np.array(data_Klump).flatten()
+    data_Mlump = np.array(data_Mlump).flatten()
+    data_Clump = np.array(data_Clump).flatten()
+    
+    ind_Klump = np.array(ind_Klump).flatten()
+    ind_Mlump = np.array(ind_Mlump).flatten()
+    ind_Clump = np.array(ind_Clump).flatten()
+      
     full_K = csr_matrix((data_Klump, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof])
     full_M = csr_matrix((data_Mlump, (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof])
     full_C = csr_matrix((data_Clump, (ind_Clump, ind_Clump)), shape=[total_dof, total_dof])
 
-    prescribed_indexes = mesh.get_prescribed_indexes()
-    unprescribed_indexes = mesh.get_unprescribed_indexes()
+    prescribed_indexes = get_prescribed_indexes(mesh)
+    unprescribed_indexes = get_unprescribed_indexes(mesh)
 
     K_lump = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
     M_lump = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
@@ -131,29 +138,31 @@ def get_all_matrices(mesh):
     return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
 
-def get_global_forces(mesh):
+def get_global_loads(mesh, frequencies, loads_matrix3D=False):
 
-    total_dof = DOF_PER_NODE * len(mesh.nodes)
-    forces = np.zeros(total_dof)
+    total_dof = DOF_PER_NODE_STRUCTURAL * len(mesh.nodes)
+    loads = np.zeros(total_dof)
 
     # distributed loads
     for element in mesh.elements.values():
         if np.sum(element.loaded_forces) == 0:
             continue
         position = element.global_dof
-        forces[position] += element.force_vector_gcs()
+        loads[position] += element.force_vector_gcs()
 
     # nodal loads
     for node in mesh.nodes.values():
         if np.sum(node.forces) == 0:
             continue
         position = node.global_dof
-        forces[position] += node.forces
-    
-    # prescribed_indexes = mesh.get_prescribed_indexes()
-    # forces = np.delete(forces, prescribed_indexes)
-    
-    unprescribed_indexes = mesh.get_unprescribed_indexes()
-    forces = forces[unprescribed_indexes]
+        loads[position] += node.forces
+        
+    unprescribed_indexes = get_unprescribed_indexes(mesh)
+    loads = loads[unprescribed_indexes]
 
-    return forces
+    if loads_matrix3D:
+        loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
+    else:
+        loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
+
+    return loads

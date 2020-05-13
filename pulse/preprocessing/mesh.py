@@ -5,10 +5,9 @@ import gmsh
 import numpy as np
 
 from pulse.preprocessing.entity import Entity
-from pulse.preprocessing.node import Node, DOF_PER_NODE
+from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.element import Element, NODES_PER_ELEMENT
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
-
 
 class Mesh:
     def __init__(self):
@@ -55,27 +54,6 @@ class Mesh:
         for index, node in enumerate(self.nodes.values()):
             node.global_index = index
 
-    def get_prescribed_indexes(self):
-        global_prescribed = []
-        for node in self.nodes.values():
-            starting_position = node.global_index * DOF_PER_NODE
-            dofs = np.array(node.get_boundary_condition_indexes()) + starting_position
-            global_prescribed.extend(dofs)
-        return global_prescribed
-
-    def get_unprescribed_indexes(self):
-        total_dof = DOF_PER_NODE * len(self.nodes)
-        all_indexes = np.arange(total_dof)
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
-        return unprescribed_indexes
-
-    def get_prescribed_values(self):
-        global_prescribed = []
-        for node in self.nodes.values():
-            global_prescribed.extend(node.get_boundary_condition_values())
-        return global_prescribed
-
     def set_material_by_line(self, lines, material):
         for elements in slicer(self.line_to_elements, lines):
             self.set_material_by_element(elements, material)
@@ -112,9 +90,9 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.damper = values
 
-    def set_boundary_condition_by_node(self, nodes, boundary_condition):
+    def set_structural_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
-            node.boundary_condition = boundary_condition
+            node.structural_boundary_condition = boundary_condition
 
     # generate
     def _initialize_gmsh(self, path):
@@ -194,7 +172,6 @@ class Mesh:
                     self.nodesBC.append(self.nodes[external_index])
                 coordinates[index,:] = external_index, node.x, node.y, node.z
         return coordinates
-
 
 
     def get_connectivity_matrix(self, reordering=True):

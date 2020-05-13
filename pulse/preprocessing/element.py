@@ -1,12 +1,10 @@
 from math import pi, sqrt, sin, cos
-
 import numpy as np
 
-from pulse.preprocessing.node import Node, distance, DOF_PER_NODE
-
+from pulse.preprocessing.node import Node, distance, DOF_PER_NODE_STRUCTURAL
 
 NODES_PER_ELEMENT = 2
-DOF_PER_ELEMENT = DOF_PER_NODE * NODES_PER_ELEMENT
+DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 
@@ -38,7 +36,7 @@ class Element:
         self.last_node_id = last_node_id
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
-        self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
+        self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
 
     @property
     def length(self):
@@ -47,8 +45,8 @@ class Element:
     @property
     def global_dof(self):
         global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
-        global_dof[:DOF_PER_NODE] = self.first_node.global_dof
-        global_dof[DOF_PER_NODE:] = self.last_node.global_dof
+        global_dof[:DOF_PER_NODE_STRUCTURAL] = self.first_node.global_dof
+        global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.global_dof
         return global_dof
 
     def global_matrix_indexes(self):
@@ -246,13 +244,13 @@ class Element:
         det_jacobian = L / 2
 
         Fe = np.zeros((DOF_PER_ELEMENT))
-        NN = np.zeros((DOF_PER_NODE, 2*DOF_PER_NODE))
+        NN = np.zeros((DOF_PER_NODE_STRUCTURAL, 2*DOF_PER_NODE_STRUCTURAL))
 
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
 
-            NN[0 : DOF_PER_NODE, 0 : DOF_PER_NODE] = phi[0] * np.identity(DOF_PER_NODE)
-            NN[0 : DOF_PER_NODE, DOF_PER_NODE: 2*DOF_PER_NODE] = phi[1] * np.identity(DOF_PER_NODE)
+            NN[0 : DOF_PER_NODE_STRUCTURAL, 0 : DOF_PER_NODE_STRUCTURAL] = phi[0] * np.identity(DOF_PER_NODE_STRUCTURAL)
+            NN[0 : DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_STRUCTURAL: 2*DOF_PER_NODE_STRUCTURAL] = phi[1] * np.identity(DOF_PER_NODE_STRUCTURAL)
 
             Fe += (NN.T @ self.loaded_forces.T) * det_jacobian * weigth
 
