@@ -69,6 +69,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.TypeID = 0
         self.currentFrequencyIndice = None
 
+        self.needResetCamera = True
+
         #Set initial plot & config
         self.SetInteractorStyle(self.style_entities)
         self.GetRenderWindow().AddRenderer(self.renderer_entities)
@@ -253,7 +255,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         # if not self.sliderEnable:
         #     return
         newValue = slider.GetRepresentation().GetValue()
-        if newValue > 1:
+        if newValue > 1.0:
             newValue = float("{:.2}".format(newValue))
         else:
             newValue = float("{:.1}".format(newValue))
@@ -286,14 +288,21 @@ class OPVUi(QVTKRenderWindowInteractor):
             if frequency_indice != self.currentFrequencyIndice:
                 self.sliderScale = 1
                 self.slider2d.SetValue(self.sliderScale)
+                self.needResetCamera = True
+        
         self.currentFrequencyIndice = frequency_indice
+
+    def resetCamera(self):
+        if self.needResetCamera:
+            self.renderer_post_processing.ResetCamera()
+            self.needResetCamera = False
 
     def remove_all_renderers(self):
         self.GetRenderWindow().RemoveRenderer(self.renderer_entities)
         self.GetRenderWindow().RemoveRenderer(self.renderer_elements)
         self.GetRenderWindow().RemoveRenderer(self.renderer_points)
         self.GetRenderWindow().RemoveRenderer(self.renderer_post_processing)
-
+        
     def beforeChangePlot(self):
         self.remove_all_renderers()
         self.in_entities = False
@@ -338,7 +347,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         factor = self.plot_direct_method(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
-        self.renderer_post_processing.ResetCamera()
+        self.resetCamera()
         self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
@@ -351,7 +360,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         factor = self.plot_modal_superposition(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
-        self.renderer_post_processing.ResetCamera()
+        self.resetCamera()
         self.update_text_actor_post_processing(2, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
@@ -364,7 +373,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         factor = self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
-        self.renderer_post_processing.ResetCamera()
+        self.resetCamera()
         self.update_text_actor_post_processing(3, frequency_indice, self.project.getNaturalFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
