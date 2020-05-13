@@ -222,7 +222,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
         self.slider2d.SetMinimumValue(0)
-        self.slider2d.SetMaximumValue(1)
+        self.slider2d.SetMaximumValue(2)
         self.slider2d.SetValue(self.sliderScale)
         self.slider2d.SetEndCapWidth(0.02)
         self.slider2d.SetEndCapLength(0.01)
@@ -253,7 +253,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         # if not self.sliderEnable:
         #     return
         newValue = slider.GetRepresentation().GetValue()
-        newValue = float("{:.1}".format(newValue))
+        if newValue > 1:
+            newValue = float("{:.2}".format(newValue))
+        else:
+            newValue = float("{:.1}".format(newValue))
         if newValue > 0 and newValue < 0.1:
             return
         if newValue != self.sliderScale:

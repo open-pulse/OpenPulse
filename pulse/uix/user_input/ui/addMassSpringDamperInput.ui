@@ -109,9 +109,9 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>40</y>
        <width>381</width>
-       <height>261</height>
+       <height>221</height>
       </rect>
      </property>
      <property name="currentIndex">
@@ -121,33 +121,11 @@
       <attribute name="title">
        <string>Mass</string>
       </attribute>
-      <widget class="QWidget" name="verticalLayoutWidget">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>91</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Node ID's:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_5">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>50</y>
+         <x>260</x>
+         <y>10</y>
          <width>71</width>
          <height>21</height>
         </rect>
@@ -171,44 +149,16 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="verticalLayoutWidget_2">
-       <property name="geometry">
-        <rect>
-         <x>110</x>
-         <y>10</y>
-         <width>251</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <widget class="QLineEdit" name="lineEdit_nodeID">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_7">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>70</y>
+         <x>120</x>
+         <y>30</y>
          <width>131</width>
          <height>152</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
-        <item>
-         <widget class="QLineEdit" name="lineEdit_fx"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="lineEdit_fy"/>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="lineEdit_fz"/>
-        </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_mx"/>
         </item>
@@ -218,13 +168,22 @@
         <item>
          <widget class="QLineEdit" name="lineEdit_mz"/>
         </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_ix"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_iy"/>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_iz"/>
+        </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget_8">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>70</y>
+         <x>260</x>
+         <y>30</y>
          <width>71</width>
          <height>151</height>
         </rect>
@@ -295,8 +254,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_4">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>50</y>
+         <x>120</x>
+         <y>10</y>
          <width>131</width>
          <height>21</height>
         </rect>
@@ -323,8 +282,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_6">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>70</y>
+         <x>20</x>
+         <y>30</y>
          <width>91</width>
          <height>151</height>
         </rect>
@@ -395,8 +354,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_3">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>50</y>
+         <x>20</x>
+         <y>10</y>
          <width>91</width>
          <height>21</height>
         </rect>
@@ -425,33 +384,11 @@
       <attribute name="title">
        <string>Spring</string>
       </attribute>
-      <widget class="QWidget" name="verticalLayoutWidget_9">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>91</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_9">
-        <item>
-         <widget class="QLabel" name="label_18">
-          <property name="text">
-           <string>Node ID's:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_10">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>50</y>
+         <x>260</x>
+         <y>10</y>
          <width>71</width>
          <height>21</height>
         </rect>
@@ -475,60 +412,41 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="verticalLayoutWidget_11">
-       <property name="geometry">
-        <rect>
-         <x>110</x>
-         <y>10</y>
-         <width>251</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_11">
-        <item>
-         <widget class="QLineEdit" name="lineEdit_nodeID_2">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_12">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>70</y>
+         <x>120</x>
+         <y>30</y>
          <width>131</width>
          <height>152</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_12">
         <item>
-         <widget class="QLineEdit" name="lineEdit_fx_2"/>
+         <widget class="QLineEdit" name="lineEdit_kx"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_fy_2"/>
+         <widget class="QLineEdit" name="lineEdit_ky"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_fz_2"/>
+         <widget class="QLineEdit" name="lineEdit_kz"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_mx_2"/>
+         <widget class="QLineEdit" name="lineEdit_krx"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_my_2"/>
+         <widget class="QLineEdit" name="lineEdit_kry"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_mz_2"/>
+         <widget class="QLineEdit" name="lineEdit_krz"/>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget_13">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>70</y>
+         <x>260</x>
+         <y>30</y>
          <width>71</width>
          <height>151</height>
         </rect>
@@ -599,8 +517,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_14">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>50</y>
+         <x>120</x>
+         <y>10</y>
          <width>131</width>
          <height>21</height>
         </rect>
@@ -627,8 +545,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_15">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>70</y>
+         <x>20</x>
+         <y>30</y>
          <width>91</width>
          <height>151</height>
         </rect>
@@ -699,8 +617,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_16">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>50</y>
+         <x>20</x>
+         <y>10</y>
          <width>91</width>
          <height>21</height>
         </rect>
@@ -729,33 +647,11 @@
       <attribute name="title">
        <string>Damper</string>
       </attribute>
-      <widget class="QWidget" name="verticalLayoutWidget_17">
-       <property name="geometry">
-        <rect>
-         <x>10</x>
-         <y>10</y>
-         <width>91</width>
-         <height>21</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_17">
-        <item>
-         <widget class="QLabel" name="label_34">
-          <property name="text">
-           <string>Node ID's:</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_18">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>50</y>
+         <x>260</x>
+         <y>10</y>
          <width>71</width>
          <height>21</height>
         </rect>
@@ -779,60 +675,41 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="verticalLayoutWidget_19">
-       <property name="geometry">
-        <rect>
-         <x>110</x>
-         <y>10</y>
-         <width>251</width>
-         <height>22</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_19">
-        <item>
-         <widget class="QLineEdit" name="lineEdit_nodeID_3">
-          <property name="focusPolicy">
-           <enum>Qt::ClickFocus</enum>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_20">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>70</y>
+         <x>120</x>
+         <y>30</y>
          <width>131</width>
          <height>152</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_20">
         <item>
-         <widget class="QLineEdit" name="lineEdit_fx_3"/>
+         <widget class="QLineEdit" name="lineEdit_cx"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_fy_3"/>
+         <widget class="QLineEdit" name="lineEdit_cy"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_fz_3"/>
+         <widget class="QLineEdit" name="lineEdit_cz"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_mx_3"/>
+         <widget class="QLineEdit" name="lineEdit_crx"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_my_3"/>
+         <widget class="QLineEdit" name="lineEdit_cry"/>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_mz_3"/>
+         <widget class="QLineEdit" name="lineEdit_crz"/>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget_21">
        <property name="geometry">
         <rect>
-         <x>270</x>
-         <y>70</y>
+         <x>260</x>
+         <y>30</y>
          <width>71</width>
          <height>151</height>
         </rect>
@@ -903,8 +780,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_22">
        <property name="geometry">
         <rect>
-         <x>130</x>
-         <y>50</y>
+         <x>120</x>
+         <y>10</y>
          <width>131</width>
          <height>21</height>
         </rect>
@@ -931,8 +808,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_23">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>70</y>
+         <x>20</x>
+         <y>30</y>
          <width>91</width>
          <height>151</height>
         </rect>
@@ -1003,8 +880,8 @@
       <widget class="QWidget" name="verticalLayoutWidget_24">
        <property name="geometry">
         <rect>
-         <x>30</x>
-         <y>50</y>
+         <x>20</x>
+         <y>10</y>
          <width>91</width>
          <height>21</height>
         </rect>
@@ -1041,6 +918,41 @@
      </property>
      <property name="text">
       <string>Confirm</string>
+     </property>
+    </widget>
+    <widget class="QWidget" name="verticalLayoutWidget">
+     <property name="geometry">
+      <rect>
+       <x>20</x>
+       <y>10</y>
+       <width>91</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Node ID's:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_nodeID">
+     <property name="geometry">
+      <rect>
+       <x>121</x>
+       <y>11</y>
+       <width>249</width>
+       <height>20</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
      </property>
     </widget>
    </widget>

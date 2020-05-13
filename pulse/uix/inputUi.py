@@ -85,7 +85,16 @@ class InputUi:
         self.opv.transformPoints(loads.nodes)
 
     def addMassSpringDamper(self):
-        MassSpringDamperInput()
+        point_id = self.opv.getListPickedPoints()
+        msd = MassSpringDamperInput(point_id)
+
+        if msd.mass is None:
+            return
+
+        self.project.setMass_by_Node(msd.nodes, msd.mass)
+        self.project.setSpring_by_Node(msd.nodes, msd.spring)
+        self.project.setDamper_by_Node(msd.nodes, msd.damper)
+        print("[Set Mass/Spring/Damper] - defined in the poins {}".format(msd.nodes))
 
     def analyseTypeInput(self):
         analyseType = AnalyseTypeInput()

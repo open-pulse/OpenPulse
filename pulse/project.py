@@ -280,6 +280,14 @@ class Project:
         self.mesh.set_force_by_node(node_id, force)
         self.addForceInFile(node_id, force)
 
+    def setMass_by_Node(self, node_id, mass):
+        self.mesh.add_mass_to_node(node_id, mass)
+
+    def setSpring_by_Node(self, node_id, spring):
+        self.mesh.add_spring_to_node(node_id, spring)
+
+    def setDamper_by_Node(self, node_id, damper):
+        self.mesh.add_damper_to_node(node_id, damper)
 
     def loadMaterial_by_Entity(self, entity_id, material):
         if self._importType == 0:
