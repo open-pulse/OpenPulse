@@ -1,5 +1,5 @@
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import get_global_matrices
+from pulse.processing.solution import Solution
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection
@@ -408,6 +408,10 @@ class Project:
 
     def getDamping(self):
         return self.damping
+
+    def getSolve(self):
+        self.solution = Solution(self.mesh)
+        return self.solution
 
     def setSolution(self, value):
         self.solution = value

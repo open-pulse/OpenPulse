@@ -389,7 +389,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getNodesBC():
-            point = Point(node, colorBC = [0,0,0])
+            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+                point = Point(node)
+            else:
+                point = Point(node, u_def=coord_def[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
@@ -410,7 +413,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getNodesBC():
-            point = Point(node, colorBC = [0,0,0])
+            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+                point = Point(node)
+            else:
+                point = Point(node, u_def=coord_def[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
@@ -431,7 +437,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getNodesBC():
-            point = Point(node, colorBC = [0,0,0])
+            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+                point = Point(node)
+            else:
+                point = Point(node, u_def=coord_def[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)

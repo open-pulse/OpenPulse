@@ -123,7 +123,8 @@ class InputUi:
         AnalyseOutputResultsInput()
 
     def runAnalyse(self):
-        mesh = self.project.getMesh()
+        solve = self.project.getSolve()
+        # mesh = self.project.getMesh()
         analyseType = self.project.getAnalysisTypeID()
         frequencies = self.project.getFrequencies()
         modes = self.project.getModes()
@@ -133,7 +134,7 @@ class InputUi:
         if len(frequencies) == 0:
             if analyseType == 0 or analyseType == 1:
                 return
-        solution = RunAnalyseInput(mesh, analyseType, frequencies, modes, damping)
+        solution = RunAnalyseInput(solve, analyseType, frequencies, modes, damping)
 
         if solution.solution is None:
             return

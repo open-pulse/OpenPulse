@@ -10,7 +10,7 @@ import configparser
 from pulse.processing.solution import *
 
 class RunAnalyseInput(QDialog):
-    def __init__(self, mesh, analyseType, frequencies, modes, damping,*args, **kwargs):
+    def __init__(self, solve, analyseType, frequencies, modes, damping,*args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/runAnalyseInput.ui', self)
 
@@ -21,7 +21,7 @@ class RunAnalyseInput(QDialog):
         self.solution = None
         self.naturalFrequencies = []
 
-        self.mesh = mesh
+        self.solve = solve
         self.analyseType = analyseType
         self.frequencies = frequencies
         self.damping = damping
@@ -46,11 +46,11 @@ class RunAnalyseInput(QDialog):
     def run(self):
         inicio = time()
         if self.analyseType == 0:  #Harmonic Structural Direct
-            self.solution = direct_method(self.mesh, self.frequencies, self.damping)
+            self.solution = self.solve.direct_method(self.frequencies, self.damping)
         elif self.analyseType == 1: #Harmonic Structural Modal
-            self.solution = modal_superposition(self.mesh, self.frequencies, self.modes, self.damping)
+            self.solution = self.solve.modal_superposition(self.frequencies, self.modes, self.damping)
         elif self.analyseType == 2: #Modal Structural
-            self.naturalFrequencies, self.solution = modal_analysis(self.mesh, modes = self.modes)
+            self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)
         fim = time()
         text = "Solution finished!\n"
         text += "Time elapsed: {} [s]\n".format(fim-inicio)

@@ -33,8 +33,8 @@ def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[], Normalize=
         r_max, scf = 1, 1
 
     coord_def = np.zeros((rows,4))
-    coord = mesh.get_nodal_coordinates_matrix(reordering=True)
-    connect = mesh.get_connectivity_matrix(reordering=True)
+    coord = mesh.nodal_coordinates_matrix
+    connect = mesh.connectivity_matrix
 
     if gain == []:
         factor = (scf/r_max)
