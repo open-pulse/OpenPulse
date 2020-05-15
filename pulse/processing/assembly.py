@@ -34,8 +34,7 @@ class Assembly:
         return unprescribed_indexes
 
     def get_global_matrices(self):
-        t0 = time()
-
+ 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         number_elements = len(self.mesh.elements)
 
@@ -50,8 +49,6 @@ class Assembly:
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
 
-        dt = time()-t0
-        print("Elapsed time:" + str(dt))
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()
 
