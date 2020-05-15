@@ -34,33 +34,24 @@ class Assembly:
         return unprescribed_indexes
 
     def get_global_matrices(self):
+        t0 = time()
 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.elements)
-        
-        # rows = np.zeros(total_entries)
-        # cols = np.zeros(total_entries)
+        number_elements = len(self.mesh.elements)
+
         rows, cols = self.mesh.get_global_indexes()
-     
-        data_k = np.zeros(total_entries, dtype=float)
-        data_m = np.zeros(total_entries, dtype=float)
+        mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
         for index, element in enumerate(self.mesh.elements.values()):
 
-            start = index * ENTRIES_PER_ELEMENT
-            end = start + ENTRIES_PER_ELEMENT 
+            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()            
 
-            Ke, Me = element.matrices_gcs()
-            data_k[start:end] = Ke.flatten()
-            data_m[start:end] = Me.flatten()
+        full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
+        full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
 
-            # i, j = element.global_matrix_indexes()
-            # rows[start:end] = i.flatten()
-            # cols[start:end] = j.flatten()
-            
-        full_K = csr_matrix((data_k, (rows, cols)), shape=[total_dof, total_dof])
-        full_M = csr_matrix((data_m, (rows, cols)), shape=[total_dof, total_dof])
-
+        dt = time()-t0
+        print("Elapsed time:" + str(dt))
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()
 
