@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import get_global_matrices, get_lumped_matrices
-from pulse.processing.solution import direct_method, modal_superposition, modal_analysis, get_reactions_at_fixed_nodes
+from pulse.processing.assembly import Assembly 
+from pulse.processing.solution import Solution
 from pulse.postprocessing.plot_data import get_frf, get_displacement_matrix
 from pulse.animation.plot_function import plot_results
 
@@ -20,13 +20,15 @@ from pulse.animation.plot_function import plot_results
 
 # PREPARING MESH
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
-cross_section = CrossSection(0.05, 0.034)
+cross_section = CrossSection(0.05, 0.008)
 mesh = Mesh()
+# connect = mesh.connectivity_matrix
+# coord = mesh.nodal_coordinates_matrix 
 
 run = 2
 if run==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_structural_boundary_condition_by_node([1, 24, 26], np.zeros(6))
+    mesh.set_structural_boundary_condition_by_node([40, 1424, 1324], np.zeros(6))
 if run==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
     mesh.set_structural_boundary_condition_by_node([1, 1200, 1325], np.zeros(6))
@@ -38,30 +40,28 @@ mesh.set_cross_section_by_element('all', cross_section)
 mesh.set_force_by_node([361], np.array([1,0,0,0,0,0]))
 
 # mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
-# mesh.add_spring_to_node([600],3*np.array([1e9,1e9,1e9,0,0,0]))
 # mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
 # mesh.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
-connect = mesh.get_connectivity_matrix(reordering=True)
-coord = mesh.get_nodal_coordinates_matrix(reordering=True) 
+# assemble = Assembly(mesh)
+# K, M, Kr, Mr = assemble.get_global_matrices()
 
-natural_frequencies, mode_shapes = modal_analysis(mesh, modes=200, harmonic_analysis=True)
+solu = Solution(mesh)
+natural_frequencies, mode_shapes = solu.modal_analysis(modes=200, harmonic_analysis=True)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 modes = 200
-direct = direct_method(mesh, frequencies, is_viscous_lumped=True)
-modal = modal_superposition(mesh, frequencies, modes, fastest=True)
-
-# exit()
+direct = solu.direct_method(frequencies, is_viscous_lumped=True)
+modal = solu.modal_superposition(frequencies, modes, fastest=True)
 
 column = 85
 
 ms_results = np.real(modal)
 
-load_reactions = get_reactions_at_fixed_nodes(mesh, frequencies, direct)
+load_reactions = solu.get_reactions_at_fixed_nodes(frequencies, direct)
 load_reactions = np.real(load_reactions)
 _, coord_def, _, _ = get_displacement_matrix(mesh, modal, column, Normalize=False)
 
@@ -106,15 +106,3 @@ ax.set_title(("FRF - Response {} at node {}").format(DOF_label[local_DOF], respo
 ax.set_xlabel(("Frequency [Hz]"), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude {}").format(Unit_label[local_DOF]), fontsize = 16, fontweight = 'bold')
 plt.show()
-
-# %%
-
-# data = np.zeros((len(frequencies),2))
-# data[:,0] = frequencies
-# data[:,1] = yd
-# np.savetxt("FRF_newCode_RP_n436x_direct.dat",data)
-
-# data = np.zeros((len(frequencies),2))
-# data[:,0] = frequencies
-# data[:,1] = ym
-# np.savetxt("FRF_newCode_RP_n436x_modesup.dat",data)
