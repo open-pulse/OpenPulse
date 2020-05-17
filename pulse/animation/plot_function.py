@@ -21,8 +21,8 @@ def plot_results( mesh,
                   Animate_Mode = True, 
                   Save = False):
      
-    connectivity = mesh.get_connectivity_matrix(reordering=True) 
-    coordinates = mesh.get_nodal_coordinates_matrix(reordering=True)
+    connectivity = mesh.connectivity_matrix 
+    coordinates = mesh.nodal_coordinates_matrix
 
     if data[:,1:].any():
         if out_OpenPulse:
