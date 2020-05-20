@@ -1,6 +1,7 @@
 __pycache__/
 Projects/
 .vscode/
+.pytest_cache/
 test.py
 src/
 target/
