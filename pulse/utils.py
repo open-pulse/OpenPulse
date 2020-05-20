@@ -1,5 +1,7 @@
 from functools import wraps
 from time import time
+from scipy.sparse import issparse
+
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -46,3 +48,14 @@ def m_to_mm(m):
 
 def mm_to_m(mm):
     return float(mm) / 1000
+
+def sparse_is_equal(a, b):
+    if not (issparse(a) and issparse(b)):
+        raise TypeError('a and b should be sparse matrices')
+
+    diference = a != b
+    if isinstance(diference, bool):
+        return not diference
+
+    if issparse(diference):
+        return diference.nnz == 0
