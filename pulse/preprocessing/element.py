@@ -122,8 +122,6 @@ class Element:
         L   = self.length
 
         E = self.material.young_modulus
-        nu = self.material.poisson_ratio
-        G = self.material.shear_modulus
         mu = self.material.mu_parameter
 
         A = self.cross_section.area
@@ -190,7 +188,6 @@ class Element:
         L   = self.length
 
         rho = self.material.density
-        mu = self.material.mu_parameter
 
         A = self.cross_section.area
         I1 = self.cross_section.moment_area
@@ -215,7 +212,7 @@ class Element:
         Mass_translation = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         for point, weigth in zip(points, weigths):
-            phi, dphi = shape_function(point)
+            phi, _ = shape_function(point)
 
             N_translation = np.zeros((3,12))
             N_translation[[0,1,2],[0,1,2]] = phi[0]

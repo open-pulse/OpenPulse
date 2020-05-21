@@ -12,6 +12,11 @@ class CrossSection:
     #     return (self.external_diameter - self.internal_diameter)/2
 
     @property
+    def area_fluid(self):
+        self.internal_diameter = self.external_diameter - 2*self.thickness
+        return self.internal_diameter**2 * pi / 4
+
+    @property
     def area(self):
         self.internal_diameter = self.external_diameter - 2*self.thickness
         return (self.external_diameter**2 - self.internal_diameter**2) * pi / 4

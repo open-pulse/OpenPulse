@@ -6,8 +6,8 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import Assembly 
-from pulse.processing.solution import Solution
+from pulse.processing.assembly_structural import AssemblyStructural 
+from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_data import get_frf, get_displacement_matrix
 from pulse.animation.plot_function import plot_results
 
@@ -39,14 +39,14 @@ mesh.set_cross_section_by_element('all', cross_section)
 # mesh.set_boundary_condition_by_node([361], np.array([0.1,None,None,None,None,None]))
 mesh.set_force_by_node([361], np.array([1,0,0,0,0,0]))
 
-# mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
-# mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
-# mesh.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
+mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
+mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
+mesh.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
 # assemble = Assembly(mesh)
 # K, M, Kr, Mr = assemble.get_global_matrices()
 
-solu = Solution(mesh)
+solu = SolutionStructural(mesh)
 natural_frequencies, mode_shapes = solu.modal_analysis(modes=200, harmonic_analysis=True)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS

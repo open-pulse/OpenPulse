@@ -1,5 +1,6 @@
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.solution import Solution
+from pulse.processing.solution_structural import SolutionStructural
+from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection
@@ -31,7 +32,8 @@ class Project:
         self.modes = 0
         self.frequencies = []
         self.naturalFrequencies = []
-        self.solution = None
+        self.solution_structural = None
+        self.solution_acoustic = None
 
     def resetInfo(self):
         self.mesh = Mesh()
@@ -42,7 +44,8 @@ class Project:
         self.modes = 0
         self.frequencies = []
         self.naturalFrequencies = []
-        self.solution = None
+        self.solution_structural = None
+        self.solution_acoustic = None
 
     def newProject(self, projectPath, projectName, elementSize, importType, materialListPath, geometryPath = "", cordPath = "", connPath = ""):
         self.resetInfo()
@@ -65,6 +68,7 @@ class Project:
 
         self.createEntityFile()
 
+    #TODO: add acoustics physical quantities 
     def loadProject(self, projectFilePath):
         self.resetInfo()
         projectFilePath = projectFilePath.replace('/', '\\')
@@ -100,6 +104,7 @@ class Project:
         self.loadEntityFile()
         self.loadNodeFile()
 
+    #TODO: add acoustics physical quantities 
     def createEntityFile(self):
         config = configparser.ConfigParser()
         for entity in self.getEntities():
@@ -111,6 +116,7 @@ class Project:
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
+    #TODO: add acoustics physical quantities 
     def loadEntityFile(self):
         material_list = configparser.ConfigParser()
         material_list.read(self._materialListPath)
@@ -142,6 +148,7 @@ class Project:
                 cross = CrossSection(diam_ext, thickness)
                 self.loadCrossSection_by_Entity(int(entity), cross)
 
+    #TODO: add acoustics physical quantities 
     def loadNodeFile(self):
         node_list = configparser.ConfigParser()
         node_list.read(self._nodePath)
@@ -195,7 +202,9 @@ class Project:
             if sum(Fr)>0:
                 self.loadForce_by_Node(node_id, Fr)
 
-    def addBondaryConditionInFile(self, nodes_id, bc):
+    #TODO: duplicate this function to acoustics boundary conditions
+    #TODO: rename: addStructuralBoundaryConditionInFile
+    def addBoundaryConditionInFile(self, nodes_id, bc):
         config = configparser.ConfigParser()
         config.read(self._nodePath)
         for node_id in nodes_id:
@@ -211,6 +220,7 @@ class Project:
         with open(self._nodePath, 'w') as configfile:
             config.write(configfile)
 
+    #TODO: duplicate this function to volume_velocity entries
     def addForceInFile(self, nodes_id, force):
         config = configparser.ConfigParser()
         config.read(self._nodePath)
@@ -250,6 +260,22 @@ class Project:
         self._setEntityMaterial(entity_id, material)
         self.addMaterialInFile(entity_id, material.identifier)
 
+    # def addFluidInFile(self, entity_id, fluid_id):
+    #     config = configparser.ConfigParser()
+    #     config.read(self._entityPath)
+    #     config[str(entity_id)]['FluidID'] = str(fluid_id)
+    #     with open(self._entityPath, 'w') as configfile:
+    #         config.write(configfile)
+
+    # def setFluid_by_Entity(self, entity_id, fluid):
+    #     if self._importType == 0:
+    #         self.mesh.set_fluid_by_line(entity_id, fluid)
+    #     elif self._importType == 1:
+    #         self.mesh.set_fluid_by_element('all', fluid)
+
+    #     self._setEntityFluid(entity_id, fluid)
+    #     self.addFluidInFile(entity_id, fluid.identifier)
+
     def setCrossSection_by_Entity(self, entity_id, cross_section):
         if self._importType == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
@@ -265,17 +291,28 @@ class Project:
         for entity in self.mesh.entities:
             self.addMaterialInFile(entity.getTag(), material.identifier)
 
+    # def setFluid(self, fluid):
+    #     self.mesh.set_fluid_by_element('all', fluid)
+    #     self._setAllEntityFluid(fluid)
+    #     for entity in self.mesh.entities:
+    #         self.addFluidInFile(entity.getTag(), fluid.identifier)
+
     def setCrossSection(self, cross_section):
         self.mesh.set_cross_section_by_element('all', cross_section)
         self._setAllEntityCross(cross_section)
         for entity in self.mesh.entities:
             self.addCrossSectionInFile(entity.getTag(), cross_section)
 
-    def setStructuralBondaryCondition_by_Node(self, node_id, bc):
+    def setStructuralBoundaryCondition_by_Node(self, node_id, bc):
         self.mesh.set_structural_boundary_condition_by_node(node_id, bc)
-        self.addBondaryConditionInFile(node_id, bc)
+        self.addBoundaryConditionInFile(node_id, bc)
+        # self.addStructuralBoundaryConditionInFile(node_id, bc)
 
-    def setFroce_by_Node(self, node_id, force):
+    # def setAcousticBoundaryCondition_by_Node(self, node_id, bc):
+    #     self.mesh.set_acoustic_boundary_condition_by_node(node_id, bc)
+    #     self.addAcousticBoundaryConditionInFile(node_id, bc)
+
+    def setForce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)
         self.addForceInFile(node_id, force)
 
@@ -287,6 +324,19 @@ class Project:
 
     def setDamper_by_Node(self, node_id, damper):
         self.mesh.add_damper_to_node(node_id, damper)
+    #
+    # def setVolumeVelocity_by_Node(self, node_id, volume_velocity):
+    #     self.mesh.set_volume_velocity_by_node(node_id, volume_velocity)
+    #     self.addVolumeVelocityInFile(node_id, volume_velocity)
+
+    # def setImpedanceSpecific_by_Node(self, node_id, impedance_specific):
+    #     self.mesh.add_impedance_specific_to_node(node_id, impedance_specific)
+
+    # def setImpedanceAcoustic_by_Node(self, node_id, impedance_acoustic):
+    #     self.mesh.add_impedance_acoustic_to_node(node_id, impedance_acoustic)
+
+    # def setImpedanceRadiation_by_Node(self, node_id, impedance_radiation):
+    #     self.mesh.add_impedance_radiation_to_node(node_id, impedance_radiation)
 
     def loadMaterial_by_Entity(self, entity_id, material):
         if self._importType == 0:
@@ -295,6 +345,14 @@ class Project:
             self.mesh.set_material_by_element('all', material)
 
         self._setEntityMaterial(entity_id, material)
+
+    # def loadFluid_by_Entity(self, entity_id, fluid):
+    #     if self._importType == 0:
+    #         self.mesh.set_fluid_by_line(entity_id, fluid)
+    #     elif self._importType == 1:
+    #         self.mesh.set_fluid_by_element('all', fluid)
+
+    #     self._setEntityFluid(entity_id, fluid)
 
     def loadCrossSection_by_Entity(self, entity_id, cross_section):
         if self._importType == 0:
@@ -310,11 +368,23 @@ class Project:
     def loadForce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)
 
+    # def loadAcousticBondaryCondition_by_Node(self, node_id, bc):
+    #     self.mesh.set_acoustic_boundary_condition_by_node(node_id, bc)
+
+    # def loadVolumeVelocity_by_Node(self, node_id, force):
+    #     self.mesh.set_volume_velocity_by_node(node_id, force)
+
     def _setEntityMaterial(self, entity_id, material):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
                 entity.material = material
                 return
+
+    # def _setEntityFluid(self, entity_id, fluid):
+    #     for entity in self.mesh.entities:
+    #         if entity.tag == entity_id:
+    #             entity.fluid = fluid
+    #             return
 
     def _setEntityCross(self, entity_id, cross):
         for entity in self.mesh.entities:
@@ -325,6 +395,10 @@ class Project:
     def _setAllEntityMaterial(self, material):
         for entity in self.mesh.entities:
             entity.material = material
+            
+    # def _setAllEntityFluid(self, fluid):
+    #     for entity in self.mesh.entities:
+    #         entity.fluid = fluid
 
     def _setAllEntityCross(self, cross):
         for entity in self.mesh.entities:
@@ -334,7 +408,13 @@ class Project:
         return self.mesh
 
     def getNodesBC(self):
-        return self.mesh.nodesBC
+        return self.mesh.nodesStructuralBC
+
+    # def getNodesStructuralBC(self):
+    #     return self.mesh.nodesStructuralBC
+
+    # def getNodesAcousticBC(self):
+    #     return self.mesh.nodesAcousticBC
 
     def getNodes(self):
         return self.mesh.nodes
@@ -343,7 +423,13 @@ class Project:
         return self.mesh.nodes_color
 
     def getElements(self):
-        return self.mesh.elements
+        return self.mesh.structural_elements
+
+    # def getStructuralElements(self):
+    #     return self.mesh.structural_elements
+
+    # def getAcousticElements(self):
+    #     return self.mesh.acoustic_elements
 
     def getEntities(self):
         return self.mesh.entities
@@ -410,7 +496,7 @@ class Project:
         return self.damping
 
     def getSolve(self):
-        self.solution = Solution(self.mesh)
+        self.solution = SolutionStructural(self.mesh)
         return self.solution
 
     def setSolution(self, value):
@@ -418,6 +504,26 @@ class Project:
     
     def getSolution(self):
         return self.solution
+
+    # def getSolveStructural(self):
+    #     self.solution_structural = SolutionStructural(self.mesh)
+    #     return self.solution_structural
+
+    # def setSolutionStructural(self, value):
+    #     self.solution_structural = value
+    
+    # def getSolutionStructural(self):
+    #     return self.solution_structural
+
+    # def getSolveAcoustic(self):
+    #     self.solution_acoustic = SolutionAcoustic(self.mesh, self.frequencies)
+    #     return self.solution_acoustic
+
+    # def setSolutionAcoustic(self, value):
+    #     self.solution_acoustic = value
+    
+    # def getSolutionAcoustic(self):
+    #     return self.solution_acoustic
 
     def setNaturalFrequencies(self, value):
         self.naturalFrequencies = value

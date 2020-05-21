@@ -6,6 +6,7 @@ class Entity:
         self.nodes = []
         self.elements = []
         self.material = None
+        self.fluid = None
         self.cross = None
 
     def insertNode(self, node):
@@ -38,3 +39,6 @@ class Entity:
 
     def getMaterial(self):
         return self.material
+        
+    def getFluid(self):
+        return self.fluid

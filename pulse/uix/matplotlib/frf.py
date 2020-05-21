@@ -8,8 +8,8 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg, NavigationTool
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 
-from pulse.processing.assembly import get_global_matrices
-from pulse.processing.solution import direct_method, modal_superposition
+from pulse.processing.assembly_structural import get_global_matrices
+from pulse.processing.solution_structural import direct_method, modal_superposition
 from pulse.postprocessing.plot_data import get_frf
 
 import numpy as np

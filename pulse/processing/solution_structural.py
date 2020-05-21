@@ -2,13 +2,13 @@ from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
 
-from pulse.processing.assembly import Assembly
+from pulse.processing.assembly_structural import AssemblyStructural
 
-class Solution:
+class SolutionStructural:
 
     def __init__(self, mesh):
 
-        self.assembly = Assembly(mesh)
+        self.assembly = AssemblyStructural(mesh)
 
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()

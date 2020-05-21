@@ -7,7 +7,7 @@ from PyQt5 import uic
 from time import time
 import configparser
 
-from pulse.processing.solution import *
+from pulse.processing.solution_structural import *
 
 class RunAnalyseInput(QDialog):
     def __init__(self, solve, analyseType, frequencies, modes, damping,*args, **kwargs):

@@ -7,7 +7,7 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 
-class Assembly:
+class AssemblyStructural:
     def __init__(self, mesh):
         self.mesh = mesh
 
@@ -36,13 +36,13 @@ class Assembly:
     def get_global_matrices(self):
  
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        number_elements = len(self.mesh.elements)
+        number_elements = len(self.mesh.structural_elements)
 
-        rows, cols = self.mesh.get_global_indexes()
+        rows, cols = self.mesh.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for index, element in enumerate(self.mesh.elements.values()):
+        for index, element in enumerate(self.mesh.structural_elements.values()):
 
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()            
 
@@ -139,7 +139,7 @@ class Assembly:
         loads = np.zeros(total_dof)
 
         # distributed loads
-        for element in self.mesh.elements.values():
+        for element in self.mesh.structural_elements.values():
             if np.sum(element.loaded_forces) == 0:
                 continue
             position = element.global_dof
