@@ -34,7 +34,7 @@ If you have any questions you can open a new issue with the tag 'question'.
     Jacson G. Vargas,
     Andre F. Fernandes,
     José L. Souza,
-    Ana Rocha.
+    Ana P. Rocha.
 
 ## Running the examples
 
