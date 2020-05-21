@@ -10,7 +10,7 @@ You can try it out now by running the tutorial on binder.
 
 ## Documentation
 
-Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration Module](https://www.overleaf.com/read/qknbtmvyfxyn) and [Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc).
+Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://www.overleaf.com/read/qknbtmvyfxyn) and [Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
