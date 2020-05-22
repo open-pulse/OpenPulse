@@ -25,6 +25,9 @@ class AnalyseSetupInput(QDialog):
 
         self.complete = False
         self.frequencies = []
+        self.min_frequency = 0
+        self.max_frequency = 0
+        self.step_frequency = 0
         self.damping = [0,0,0,0]
         self.modes = 0
 
@@ -154,6 +157,9 @@ class AnalyseSetupInput(QDialog):
         self.damping = [ah, bh, av, bv]
 
         if self.analyseID == 0 or self.analyseID == 1:
+            self.min_frequency = _min
+            self.max_frequency = _max
+            self.step_frequency = _step
             self.frequencies = np.arange(_min, _max+_step, _step)
         
         self.complete = True

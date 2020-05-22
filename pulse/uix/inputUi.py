@@ -103,7 +103,10 @@ class InputUi:
         self.project.setModes(analyseType.modes)
         
         if analyseType.typeID == 0 or analyseType.typeID == 1:
-            self.analyseSetup()
+            if len(self.project.getFrequencies()) != 0:
+                self.runAnalyse()
+            else:
+                self.analyseSetup()
         elif analyseType.typeID == 2:
             self.runAnalyse()
 
@@ -115,7 +118,7 @@ class InputUi:
         if not setup.complete:
             return
 
-        self.project.setFrequencies(setup.frequencies)
+        self.project.setFrequencies(setup.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
         self.project.setModes(setup.modes)
         self.project.setDamping(setup.damping)
 

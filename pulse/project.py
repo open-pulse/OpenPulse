@@ -14,15 +14,6 @@ class Project:
         self.file = ProjectFile()
 
         self._projectName = ""
-        self._elementSize = 0
-
-        self._projectPath = ""
-        self._materialListPath = ""
-        self._geometryPath = ""
-        self._connPath = ""
-        self._cordPath = ""
-        self._nodePath = ""
-        self._entityPath = ""
 
         #Analysis
         self.analysisTypeID = None
@@ -50,9 +41,9 @@ class Project:
         self.file.new(projectPath, projectName, elementSize, importType, materialListPath, geometryPath, cordPath, connPath)
 
         if self.file.getImportType() == 0:
-            self.mesh.generate(self._geometryPath, self._elementSize)
+            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
         elif self.file.getImportType() == 1:
-            self.mesh.load_mesh(self._cordPath, self._connPath)
+            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
 
         self.file.createEntityFile(self.getEntities())
 
@@ -61,12 +52,13 @@ class Project:
         self.file.load(projectFilePath)
 
         if self.file.getImportType() == 0:
-            self.mesh.generate(self._geometryPath, self._elementSize)
+            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
         elif self.file.getImportType() == 1:
-            self.mesh.load_mesh(self._cordPath, self._connPath)
+            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
 
         self.loadEntityFile()
         self.loadNodeFile()
+        self.loadAnalyseFile()
 
     def loadEntityFile(self):
         material, cross = self.file.getDictOfEntitiesFromFile()
@@ -76,13 +68,25 @@ class Project:
             self.loadCrossSection_by_Entity(key, crossSection)
 
     def loadNodeFile(self):
-        boundary, force = self.file.getDictOfNodesFromFile()
+        boundary, force, mass, spring, damper = self.file.getDictOfNodesFromFile()
         for key, bc in boundary.items():
             if bc.count(None) != 6:
                 self.loadStructuralBondaryCondition_by_Node(key, bc)
         for key, fr in force.items():
             if sum(fr) > 0:
                 self.loadForce_by_Node(key, fr)
+        for key, ms in mass.items():
+            if sum(fr) > 0:
+                self.loadMass_by_Node(key, ms)
+        for key, sp in spring.items():
+            if sum(fr) > 0:
+                self.loadSpring_by_Node(key, sp)
+        for key, dm in damper.items():
+            if sum(fr) > 0:
+                self.loadDamper_by_Node(key, dm)
+
+    def loadAnalyseFile(self):
+        self.frequencies = self.file.loadAnalyseFile()
 
     def setMaterial_by_Entity(self, entity_id, material):
         if self.file.getImportType() == 0:
@@ -124,12 +128,15 @@ class Project:
 
     def setMass_by_Node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
+        self.file.addMassInFile(node_id, mass)
 
     def setSpring_by_Node(self, node_id, spring):
         self.mesh.add_spring_to_node(node_id, spring)
+        self.file.addSpringInFile(node_id, spring)
 
     def setDamper_by_Node(self, node_id, damper):
         self.mesh.add_damper_to_node(node_id, damper)
+        self.file.addDamperInFile(node_id, damper)
 
     def loadMaterial_by_Entity(self, entity_id, material):
         if self.file.getImportType() == 0:
@@ -152,6 +159,15 @@ class Project:
 
     def loadForce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)
+
+    def loadMass_by_Node(self, node_id, mass):
+        self.mesh.add_mass_to_node(node_id, mass)
+
+    def loadSpring_by_Node(self, node_id, spring):
+        self.mesh.add_spring_to_node(node_id, spring)
+
+    def loadDamper_by_Node(self, node_id, damper):
+        self.mesh.add_damper_to_node(node_id, damper)
 
     def _setEntityMaterial(self, entity_id, material):
         for entity in self.mesh.entities:
@@ -200,7 +216,7 @@ class Project:
                 return entity
 
     def getElementSize(self):
-        return self._elementSize
+        return self.file.elementSize
 
     def checkEntityMaterial(self):
         for entity in self.getEntities():
@@ -214,7 +230,9 @@ class Project:
                 return False
         return True
 
-    def setFrequencies(self, frequencies):
+    def setFrequencies(self, frequencies, min_, max_, step_):
+        if max_ != 0 and step_ != 0:
+            self.file.addFrequencyInFile(min_, max_, step_)
         self.frequencies = frequencies
 
     def setModes(self, modes):
@@ -227,7 +245,7 @@ class Project:
         return self.modes
 
     def getMaterialListPath(self):
-        return self._materialListPath
+        return self.file.materialListPath
 
     def getProjectName(self):
         return self._projectName

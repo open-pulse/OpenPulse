@@ -3,6 +3,8 @@ from pulse.preprocessing.cross_section import CrossSection
 
 import configparser
 import os
+import numpy as np
+
 
 class ProjectFile:
     def __init__(self):
@@ -15,9 +17,11 @@ class ProjectFile:
         self._cordPath = ""
         self._nodePath = ""
         self._entityPath = ""
+        self._analysePath = ""
 
         self._entityFileName = "entity.dat"
         self._nodeFileName = "node.dat"
+        self._projectBaseName = "project.ini"
 
     def _reset(self):
         self._projectName = ""
@@ -28,7 +32,6 @@ class ProjectFile:
         self._connPath = ""
         self._cordPath = ""
         self._nodePath = ""
-        self._entityPath = ""
 
     def new(self, projectPath, projectName, elementSize, importType, materialListPath, geometryPath = "", cordPath = "", connPath = ""):
         self._projectPath = projectPath
@@ -67,6 +70,59 @@ class ProjectFile:
 
         self._entityPath = "{}\\{}".format(self._projectPath, self._entityFileName)
         self._nodePath = "{}\\{}".format(self._projectPath, self._nodeFileName)
+
+    #Analyse
+    def loadAnalyseFile(self):
+        frequencies = []
+
+        temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
+        config = configparser.ConfigParser()
+        config.read(temp_projectBaseFilePath)
+        sections = config.sections()
+        if "analyse" in sections:
+            keys = list(config['analyse'].keys())
+            if "frequency min" in keys and "frequency max" in keys and "frequency step" in keys:
+                min_ = config['analyse']['frequency min']
+                max_ = config['analyse']['frequency max']
+                step_ = config['analyse']['frequency step']
+                frequencies = np.arange(float(min_), float(max_)+float(step_), float(step_))
+
+        return frequencies
+
+    def addFrequencyInFile(self, min_, max_, step_):
+        temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
+        config = configparser.ConfigParser()
+        config.read(temp_projectBaseFilePath)
+        sections = config.sections()
+        if "analyse" in sections:
+            keys = list(config['analyse'].keys())
+            if "frequency min" in keys:
+                config['analyse']['frequency min'] = min_
+            else:
+                config['analyse'] = {
+                    'frequency min' : min_
+                }
+            if "frequency max" in keys:
+                config['analyse']['frequency max'] = max_
+            else:
+                config['analyse'] = {
+                    'frequency max' : max_
+                }
+            if "frequency step" in keys:
+                config['analyse']['frequency step'] = step_
+            else:
+                config['analyse'] = {
+                    'frequency step' : step_
+                }
+        else:
+            config['analyse'] = {
+                'frequency min' : min_,
+                'frequency max' : max_,
+                'frequency step': step_,
+            }
+
+        with open(temp_projectBaseFilePath, 'w') as configfile:
+            config.write(configfile)
 
     #Entity File
 
@@ -140,10 +196,13 @@ class ProjectFile:
 
         dict_boundary = {}
         dict_forces = {}
+        dict_mass = {}
+        dict_spring = {}
+        dict_damper = {}
 
         for node in node_list.sections():
             node_id = int(node)
-            keys = list(node.keys())
+            keys = list(node_list[node].keys())
             if "displacement" in keys and "rotation" in keys:
                 #Have boundary condition
                 displacement = node_list[str(node)]['displacement']
@@ -155,8 +214,23 @@ class ProjectFile:
                 force = node_list[str(node)]['force']
                 fr = self._getForceFromString(force)
                 dict_forces[node_id] = fr
+            if "mass" in keys:
+                #Have forces
+                mass = node_list[str(node)]['mass']
+                ms = self._getMassFromString(mass)
+                dict_mass[node_id] = ms
+            if "spring" in keys:
+                #Have forces
+                spring = node_list[str(node)]['spring']
+                sp = self._getSpringFromString(spring)
+                dict_spring[node_id] = sp
+            if "damper" in keys:
+                #Have forces
+                damper = node_list[str(node)]['damper']
+                dm = self._getForceFromString(damper)
+                dict_damper[node_id] = dm
         
-        return dict_boundary, dict_forces
+        return dict_boundary, dict_forces, dict_mass, dict_spring, dict_damper
 
     def _getForceFromString(self, force):
         force = force[1:-1].split(',')
@@ -177,6 +251,66 @@ class ProjectFile:
             
         Fr = [Fx, Fy, Fz, Mx, My, Mz]
         return Fr
+
+    def _getMassFromString(self, mass):
+        mass = mass[1:-1].split(',')
+        mx = my = mz = ix = iy = iz = 0.0
+        if len(mass) == 6:
+            if mass[0] != '0.0':
+                mx = float(mass[0])
+            if mass[1] != '0.0':
+                my = float(mass[1])
+            if mass[2] != '0.0':
+                mz = float(mass[2])
+            if mass[3] != '0.0':
+                ix = float(mass[3])
+            if mass[4] != '0.0':
+                iy = float(mass[4])
+            if mass[5] != '0.0':
+                iz = float(mass[5])
+            
+        ms = [mx, my, mz, ix, iy, iz]
+        return ms
+
+    def _getSpringFromString(self, spring):
+        spring = spring[1:-1].split(',')
+        kx = ky = kz = krx = kry = krz = 0.0
+        if len(spring) == 6:
+            if spring[0] != '0.0':
+                kx = float(spring[0])
+            if spring[1] != '0.0':
+                ky = float(spring[1])
+            if spring[2] != '0.0':
+                kz = float(spring[2])
+            if spring[3] != '0.0':
+                krx = float(spring[3])
+            if spring[4] != '0.0':
+                kry = float(spring[4])
+            if spring[5] != '0.0':
+                krz = float(spring[5])
+            
+        sp = [kx, ky, kz, krx, kry, krz]
+        return sp
+
+    def _getDamperFromString(self, damper):
+        damper = damper[1:-1].split(',')
+        cx = cy = cz = crx = cry = crz = 0.0
+        if len(damper) == 6:
+            if damper[0] != '0.0':
+                cx = float(damper[0])
+            if damper[1] != '0.0':
+                cy = float(damper[1])
+            if damper[2] != '0.0':
+                cz = float(damper[2])
+            if damper[3] != '0.0':
+                crx = float(damper[3])
+            if damper[4] != '0.0':
+                cry = float(damper[4])
+            if damper[5] != '0.0':
+                crz = float(damper[5])
+            
+        dm = [cx, cy, cz, crx, cry, crz]
+        return dm
 
     def _getBoundaryFromString(self, displacement, rotation):
         displacement = displacement[1:-1].split(',')
@@ -202,6 +336,8 @@ class ProjectFile:
         return BC
 
     def addBondaryConditionInFile(self, nodesID_list, boundaryCondition):
+        if boundaryCondition.count(None) == 6:
+            return
         config = configparser.ConfigParser()
         config.read(self._nodePath)
         for node_id in nodesID_list:
@@ -217,6 +353,8 @@ class ProjectFile:
             config.write(configfile)
 
     def addForceInFile(self, nodesID_list, force):
+        if sum(force) == 0:
+            return
         config = configparser.ConfigParser()
         config.read(self._nodePath)
         for node_id in nodesID_list:
@@ -229,8 +367,73 @@ class ProjectFile:
         with open(self._nodePath, 'w') as configfile:
             config.write(configfile)
 
+    def addMassInFile(self, nodesID_list, mass):
+        if sum(mass) == 0:
+            return
+        config = configparser.ConfigParser()
+        config.read(self._nodePath)
+        for node_id in nodesID_list:
+            if str(node_id) in config.sections():
+                config[str(node_id)]['mass'] = "({},{},{},{},{},{})".format(mass[0], mass[1], mass[2], mass[3], mass[4], mass[5])
+            else:
+                config[str(node_id)] = {
+                    'mass': "({},{},{},{},{},{})".format(mass[0], mass[1], mass[2], mass[3], mass[4], mass[5]),
+                }
+        with open(self._nodePath, 'w') as configfile:
+            config.write(configfile)
+
+    def addSpringInFile(self, nodesID_list, spring):
+        if sum(spring) == 0:
+            return
+        config = configparser.ConfigParser()
+        config.read(self._nodePath)
+        for node_id in nodesID_list:
+            if str(node_id) in config.sections():
+                config[str(node_id)]['spring'] = "({},{},{},{},{},{})".format(spring[0], spring[1], spring[2], spring[3], spring[4], spring[5])
+            else:
+                config[str(node_id)] = {
+                    'spring': "({},{},{},{},{},{})".format(spring[0], spring[1], spring[2], spring[3], spring[4], spring[5]),
+                }
+        with open(self._nodePath, 'w') as configfile:
+            config.write(configfile)
+
+    def addDamperInFile(self, nodesID_list, damper):
+        if sum(damper) == 0:
+            return
+        config = configparser.ConfigParser()
+        config.read(self._nodePath)
+        for node_id in nodesID_list:
+            if str(node_id) in config.sections():
+                config[str(node_id)]['damper'] = "({},{},{},{},{},{})".format(damper[0], damper[1], damper[2], damper[3], damper[4], damper[5])
+            else:
+                config[str(node_id)] = {
+                    'damper': "({},{},{},{},{},{})".format(damper[0], damper[1], damper[2], damper[3], damper[4], damper[5]),
+                }
+        with open(self._nodePath, 'w') as configfile:
+            config.write(configfile)
+
     def getImportType(self):
         return self._importType
+
+    @property
+    def elementSize(self):
+        return self._elementSize
+
+    @property
+    def geometryPath(self):
+        return self._geometryPath
+
+    @property
+    def cordPath(self):
+        return self._cordPath
+
+    @property
+    def connPath(self):
+        return self._connPath
+
+    @property
+    def materialListPath(self):
+        return self._materialListPath
 
     def isFloat(self, number):
         try:
