@@ -10,7 +10,7 @@ from pulse.opv.postProcessingLines import PostProcessingLines
 from pulse.opv.point import Point
 from pulse.opv.element import Element
 from pulse.opv.colorTable import ColorTable
-from pulse.postprocessing.plot_data import get_displacement_matrix
+from pulse.postprocessing.plot_structural_data import get_structural_response
 
 from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
@@ -382,7 +382,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
+        connect, coord_def, r_def, factor = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -406,7 +406,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
+        connect, coord_def, r_def, factor  = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
@@ -430,7 +430,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_displacement_matrix(self.project.getMesh(), direct, frequency_indice, gain=self.sliderScale)
+        connect, coord_def, r_def, factor  = get_structural_response(self.project.getMesh(), direct, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)

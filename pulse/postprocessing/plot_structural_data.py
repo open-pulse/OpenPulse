@@ -8,7 +8,7 @@ def get_frf(mesh, solution, node, dof):
     results = np.abs(solution[position])
     return results
 
-def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
+def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
 
     data = np.real(solution)
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)

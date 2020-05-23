@@ -1,11 +1,10 @@
 from time import time
 import numpy as np
-from scipy.sparse import csr_matrix
+from scipy.sparse import csr_matrix, csc_matrix
 
 from pulse.utils import timer
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.element_acoustic import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
-
 
 class AssemblyAcoustic:
     def __init__(self, mesh):
@@ -34,6 +33,8 @@ class AssemblyAcoustic:
 
     def get_global_matrices(self, frequencies):
 
+        ones = np.ones(len(frequencies))
+
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.acoustic_elements)
 
@@ -44,11 +45,9 @@ class AssemblyAcoustic:
 
             start = index * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT 
-
-            Ke = element.matrix(frequencies)
-            # Ke has data in columns, each line corresponds to one frequency
-            data_k[:, start:end] = Ke
-        
+            # data arrangement: pressures are arranged in columns and each row corresponds to one frequency of the analysis
+            data_k[:, start:end] = element.matrix(frequencies, ones)
+            
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype = complex) for data in data_k]
 
         prescribed_indexes = self.get_prescribed_indexes()

@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.postprocessing.plot_data import get_frf
+from pulse.postprocessing.plot_structural_data import get_frf
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -25,7 +25,6 @@ class SnaptoCursor(object):
             self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
             # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
             # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
-
 
     def mouse_move(self, event):
         if self.show_cursor:   
