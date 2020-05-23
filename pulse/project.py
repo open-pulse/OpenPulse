@@ -368,23 +368,27 @@ class Project:
     def loadForce_by_Node(self, node_id, force):
         self.mesh.set_force_by_node(node_id, force)
 
-    # def loadAcousticBondaryCondition_by_Node(self, node_id, bc):
-    #     self.mesh.set_acoustic_boundary_condition_by_node(node_id, bc)
-
-    # def loadVolumeVelocity_by_Node(self, node_id, force):
-    #     self.mesh.set_volume_velocity_by_node(node_id, force)
-
     def _setEntityMaterial(self, entity_id, material):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
                 entity.material = material
                 return
 
+    # def loadAcousticBondaryCondition_by_Node(self, node_id, bc):
+    #     self.mesh.set_acoustic_boundary_condition_by_node(node_id, bc)
+
+    # def loadVolumeVelocity_by_Node(self, node_id, force):
+    #     self.mesh.set_volume_velocity_by_node(node_id, force)
+
     # def _setEntityFluid(self, entity_id, fluid):
     #     for entity in self.mesh.entities:
     #         if entity.tag == entity_id:
     #             entity.fluid = fluid
     #             return
+
+    # def _setAllEntityFluid(self, fluid):
+    #     for entity in self.mesh.entities:
+    #         entity.fluid = fluid
 
     def _setEntityCross(self, entity_id, cross):
         for entity in self.mesh.entities:
@@ -396,10 +400,6 @@ class Project:
         for entity in self.mesh.entities:
             entity.material = material
             
-    # def _setAllEntityFluid(self, fluid):
-    #     for entity in self.mesh.entities:
-    #         entity.fluid = fluid
-
     def _setAllEntityCross(self, cross):
         for entity in self.mesh.entities:
             entity.cross = cross
@@ -407,14 +407,11 @@ class Project:
     def getMesh(self):
         return self.mesh
 
-    def getNodesBC(self):
-        return self.mesh.nodesStructuralBC
+    def getStructuralBCNodes(self):
+        return self.mesh.StructuralBCnodes
 
-    # def getNodesStructuralBC(self):
-    #     return self.mesh.nodesStructuralBC
-
-    # def getNodesAcousticBC(self):
-    #     return self.mesh.nodesAcousticBC
+    def getAcousticBCNodes(self):
+        return self.mesh.nodesAcousticBC
 
     def getNodes(self):
         return self.mesh.nodes
@@ -422,14 +419,11 @@ class Project:
     def getNodesColor(self):
         return self.mesh.nodes_color
 
-    def getElements(self):
+    def getStructuralElements(self):
         return self.mesh.structural_elements
 
-    # def getStructuralElements(self):
-    #     return self.mesh.structural_elements
-
-    # def getAcousticElements(self):
-    #     return self.mesh.acoustic_elements
+    def getAcousticElements(self):
+        return self.mesh.acoustic_elements
 
     def getEntities(self):
         return self.mesh.entities
@@ -495,25 +489,15 @@ class Project:
     def getDamping(self):
         return self.damping
 
-    def getSolve(self):
-        self.solution = SolutionStructural(self.mesh)
-        return self.solution
-
-    def setSolution(self, value):
-        self.solution = value
+    def setStructuralSolution(self, value):
+        self.solution_structural = value
     
-    def getSolution(self):
-        return self.solution
+    def getStructuralSolution(self):
+        return self.solution_structural
 
-    # def getSolveStructural(self):
-    #     self.solution_structural = SolutionStructural(self.mesh)
-    #     return self.solution_structural
-
-    # def setSolutionStructural(self, value):
-    #     self.solution_structural = value
-    
-    # def getSolutionStructural(self):
-    #     return self.solution_structural
+    def getStructuralSolve(self):
+        self.solution_structural = SolutionStructural(self.mesh)
+        return self.solution_structural
 
     # def getSolveAcoustic(self):
     #     self.solution_acoustic = SolutionAcoustic(self.mesh, self.frequencies)

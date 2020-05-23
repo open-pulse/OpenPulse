@@ -12,7 +12,7 @@ class PostProcessingLines:
         self.connect = connect
         self.coord_def = coord_def
         self.colorTable = color_table
-        self.elements = self.project.getElements()
+        self.elements = self.project.getStructuralElements()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()

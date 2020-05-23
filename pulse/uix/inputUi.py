@@ -123,7 +123,7 @@ class InputUi:
         AnalyseOutputResultsInput()
 
     def runAnalyse(self):
-        solve = self.project.getSolve()
+        solve = self.project.getStructuralSolve()
         # mesh = self.project.getMesh()
         analyseType = self.project.getAnalysisTypeID()
         frequencies = self.project.getFrequencies()
@@ -139,12 +139,12 @@ class InputUi:
         if solution.solution is None:
             return
         
-        self.project.setSolution(solution.solution)
+        self.project.setStructuralSolution(solution.solution)
         if analyseType == 2:
             self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
 
     def plotModeShapes(self):
-        solution = self.project.getSolution()
+        solution = self.project.getStructuralSolution()
         analyseType = self.project.getAnalysisTypeID()
         frequencies = self.project.getNaturalFrequencies()
         if analyseType == 2:
@@ -158,7 +158,7 @@ class InputUi:
             return
 
     def plotHarmonicResponse(self):
-        solution = self.project.getSolution()
+        solution = self.project.getStructuralSolution()
         analyseType = self.project.getAnalysisTypeID()
         frequencies = self.project.getFrequencies()
         if analyseType == 0 or analyseType == 1:
@@ -183,7 +183,7 @@ class InputUi:
     def plotFrequencyResponse(self):
         analyseType = self.project.getAnalysisTypeID()
         if analyseType == 0 or analyseType == 1:
-            solution = self.project.getSolution()
+            solution = self.project.getStructuralSolution()
             if solution is None:
                 return
             analyseMethod = self.project.getAnalysisMethod()

@@ -22,8 +22,8 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.entities = []
-        self.nodesStructuralBC = []
-        self.nodesAcousticBC = []
+        self.StructuralBCnodes = []
+        self.AcousticBCnodes = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
 
@@ -284,7 +284,7 @@ class Mesh:
     def set_structural_boundary_condition_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.structural_boundary_condition = boundary_condition
-            self.nodesStructuralBC.append(node)
+            self.StructuralBCnodes.append(node)
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
@@ -314,4 +314,4 @@ class Mesh:
     def set_acoustic_boundary_condition_by_node(self, nodes, acoustic_boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.acoustic_boundary_condition = acoustic_boundary_condition
-            self.nodesAcousticBC.append(node)
+            self.AcousticBCnodes.append(node)

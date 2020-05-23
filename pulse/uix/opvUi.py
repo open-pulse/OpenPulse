@@ -344,7 +344,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_frequency(frequency_indice)
         self.TypeID = 1
         self.in_result = True
-        factor = self.plot_direct_method(self.project.getSolution(), frequency_indice)
+        factor = self.plot_direct_method(self.project.getStructuralSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
@@ -357,7 +357,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_frequency(frequency_indice)
         self.TypeID = 2
         self.in_result = True
-        factor = self.plot_modal_superposition(self.project.getSolution(), frequency_indice)
+        factor = self.plot_modal_superposition(self.project.getStructuralSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
@@ -370,7 +370,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_frequency(frequency_indice)
         self.TypeID = 3
         self.in_result = True
-        factor = self.plot_modal_analyse(self.project.getSolution(), frequency_indice)
+        factor = self.plot_modal_analyse(self.project.getStructuralSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
@@ -388,7 +388,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
-        for node in self.project.getNodesBC():
+        for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
@@ -412,7 +412,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
-        for node in self.project.getNodesBC():
+        for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
@@ -436,7 +436,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
-        for node in self.project.getNodesBC():
+        for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
@@ -465,7 +465,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.renderer_elements.RemoveActor(actor)
         self.actors_elements = {}
 
-        for key, element in self.project.getElements().items():
+        for key, element in self.project.getStructuralElements().items():
             plot = Element(element, key)
             plot.assembly()
             self.actors_elements[plot.get_actor()] = key
