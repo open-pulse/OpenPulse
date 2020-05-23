@@ -175,7 +175,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             text += "Direct Method\n"
         elif type_ == 2:
             text += "Harmonic Analysis - Structural\n"
-            text += "Modal Superposition\n"
+            text += "Mode Superposition Method\n"
         elif type_ == 3:
             text += "Modal Analysis - Structural\n"
             text += "Mode: {}\n".format(mode)
