@@ -48,7 +48,7 @@ class RunAnalyseInput(QDialog):
         if self.analyseType == 0:  #Harmonic Structural Direct
             self.solution = self.solve.direct_method(self.frequencies, self.damping)
         elif self.analyseType == 1: #Harmonic Structural Modal
-            self.solution = self.solve.modal_superposition(self.frequencies, self.modes, self.damping)
+            self.solution = self.solve.mode_superposition(self.frequencies, self.modes, self.damping)
         elif self.analyseType == 2: #Modal Structural
             self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)
         fim = time()

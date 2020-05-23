@@ -204,7 +204,7 @@ class Project:
 
     #TODO: duplicate this function to acoustics boundary conditions
     #TODO: rename: addStructuralBoundaryConditionInFile
-    def addBoundaryConditionInFile(self, nodes_id, bc):
+    def addStructuralBoundaryConditionInFile(self, nodes_id, bc):
         config = configparser.ConfigParser()
         config.read(self._nodePath)
         for node_id in nodes_id:
@@ -305,8 +305,8 @@ class Project:
 
     def setStructuralBoundaryCondition_by_Node(self, node_id, bc):
         self.mesh.set_structural_boundary_condition_by_node(node_id, bc)
-        self.addBoundaryConditionInFile(node_id, bc)
-        # self.addStructuralBoundaryConditionInFile(node_id, bc)
+        # self.addBoundaryConditionInFile(node_id, bc)
+        self.addStructuralBoundaryConditionInFile(node_id, bc)
 
     # def setAcousticBoundaryCondition_by_Node(self, node_id, bc):
     #     self.mesh.set_acoustic_boundary_condition_by_node(node_id, bc)

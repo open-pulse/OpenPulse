@@ -5,7 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.postprocessing.plot_structural_data import get_frf
+from pulse.postprocessing.plot_structural_data import get_structural_frf
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -173,7 +173,7 @@ class PlotFrequencyResponseInput(QDialog):
     def plot(self):
 
         frequencies = self.frequencies
-        dof_response = get_frf(self.mesh, self.solution, self.nodeID, self.localDof)
+        dof_response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
         fig = plt.figure(figsize=[10,6])
         ax = fig.add_subplot(1,1,1)
 

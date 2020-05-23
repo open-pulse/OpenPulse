@@ -1,6 +1,5 @@
 #%%
 from time import time
-
 import numpy as np 
 import matplotlib.pyplot as plt 
 
@@ -12,6 +11,7 @@ from pulse.processing.solution_acoustic import SolutionAcoustic
 
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf, get_acoustic_response
 from pulse.animation.plot_function import plot_results
+
 start = time()
 # Fluid setup
 sound_velocity = 350.337
@@ -45,7 +45,7 @@ f_max = 250
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-ACT = AssemblyAcoustic(mesh)
+# ACT = AssemblyAcoustic(mesh)
 # %timeit ACT.get_global_matrices(frequencies)
 
 solution = SolutionAcoustic(mesh, frequencies)

@@ -3,7 +3,7 @@ import numpy as np
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 
 # this is temporary, and will be changed a lot
-def get_frf(mesh, solution, node, dof):
+def get_structural_frf(mesh, solution, node, dof):
     position = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
     results = np.abs(solution[position])
     return results

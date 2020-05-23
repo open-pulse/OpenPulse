@@ -67,7 +67,7 @@ class InputUi:
         if dof.dof is None:
             return
 
-        self.project.setStructuralBondaryCondition_by_Node(dof.nodes, dof.dof)
+        self.project.setStructuralBoundaryCondition_by_Node(dof.nodes, dof.dof)
         print("[Set Bondary Condition] - defined in the poins {}".format(dof.nodes))
         self.opv.transformPoints(dof.nodes)
 
@@ -78,7 +78,7 @@ class InputUi:
         if loads.loads is None:
             return
 
-        self.project.setFroce_by_Node(loads.nodes, loads.loads)
+        self.project.setForce_by_Node(loads.nodes, loads.loads)
         print("[Set Loads] - defined in the poins {}".format(loads.nodes))
         self.opv.transformPoints(loads.nodes)
 

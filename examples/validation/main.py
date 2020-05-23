@@ -8,7 +8,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
 from pulse.processing.assembly_structural import AssemblyStructural 
 from pulse.processing.solution_structural import SolutionStructural
-from pulse.postprocessing.plot_data import get_frf, get_displacement_matrix
+from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.animation.plot_function import plot_results
 
 ''' 
@@ -55,7 +55,7 @@ df = 2
 frequencies = np.arange(0, f_max+df, df)
 modes = 200
 direct = solu.direct_method(frequencies, is_viscous_lumped=True)
-modal = solu.modal_superposition(frequencies, modes, fastest=True)
+modal = solu.mode_superposition(frequencies, modes, fastest=True)
 
 column = 85
 
@@ -63,7 +63,7 @@ ms_results = np.real(modal)
 
 load_reactions = solu.get_reactions_at_fixed_nodes(frequencies, direct)
 load_reactions = np.real(load_reactions)
-_, coord_def, _, _ = get_displacement_matrix(mesh, modal, column, Normalize=False)
+_, coord_def, _, _ = get_structural_response(mesh, modal, column, Normalize=False)
 
 plot_results( mesh,
               coord_def,
@@ -79,8 +79,8 @@ plot_results( mesh,
 # GETTING FRF
 response_node = 361
 local_DOF = 0
-response_DM = get_frf(mesh, direct, response_node, local_DOF)
-response_MS = get_frf(mesh, modal, response_node, local_DOF)
+response_DM = get_structural_frf(mesh, direct, response_node, local_DOF)
+response_MS = get_structural_frf(mesh, modal, response_node, local_DOF)
 
 DOF_label = dict(zip(np.arange(6), ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]))
 Unit_label = dict(zip(np.arange(6), ["[m]", "[m]", "[m]", "[rad]", "[rad]", "[rad]"]))

@@ -167,7 +167,7 @@ class SolutionStructural:
 
         return solution
 
-    def modal_superposition(self, frequencies, modes, F_loaded=None, global_damping_values=(0,0,0,0), lump_damping_values=(0,0,0,0), fastest=True):
+    def mode_superposition(self, frequencies, modes, F_loaded=None, global_damping_values=(0,0,0,0), lump_damping_values=(0,0,0,0), fastest=True):
         
         """ 
             Perform an harmonic analysis through superposition method and returns the response of
