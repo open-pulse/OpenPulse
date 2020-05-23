@@ -217,8 +217,7 @@ class Mesh:
         return 
 
     def get_global_structural_indexes(self):
-        # Returns the complete I and J indexes vector for assembly process
-        # connect = self.get_connectivity_matrix()
+        # Process the I and J indexes vector for assembly process
         rows, cols = len(self.structural_elements), DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         cols_nodes = self.connectivity_matrix[:,1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)*DOF_PER_NODE_STRUCTURAL + np.arange(6, dtype=int)
@@ -228,8 +227,7 @@ class Mesh:
         return I.flatten(), J.flatten()
     
     def get_global_acoustic_indexes(self):
-        # Returns the complete I and J indexes vector for assembly process
-        # connect = self.get_connectivity_matrix()
+        # Returns the I and J indexes vector for assembly process
         rows, cols = len(self.acoustic_elements), DOF_PER_NODE_ACOUSTIC*NODES_PER_ELEMENT
         cols_nodes = self.connectivity_matrix[:,1:].astype(int)
         cols_dofs = cols_nodes.reshape(-1,1)

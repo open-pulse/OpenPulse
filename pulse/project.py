@@ -499,15 +499,15 @@ class Project:
         self.solution_structural = SolutionStructural(self.mesh)
         return self.solution_structural
 
-    # def getSolveAcoustic(self):
-    #     self.solution_acoustic = SolutionAcoustic(self.mesh, self.frequencies)
-    #     return self.solution_acoustic
+    def getAcousticSolve(self):
+        self.solution_acoustic = SolutionAcoustic(self.mesh, self.frequencies)
+        return self.solution_acoustic
 
-    # def setSolutionAcoustic(self, value):
-    #     self.solution_acoustic = value
+    def setAcousticSolution(self, value):
+        self.solution_acoustic = value
     
-    # def getSolutionAcoustic(self):
-    #     return self.solution_acoustic
+    def getAcousticSolution(self):
+        return self.solution_acoustic
 
     def setNaturalFrequencies(self, value):
         self.naturalFrequencies = value
