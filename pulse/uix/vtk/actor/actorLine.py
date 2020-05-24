@@ -1,15 +1,17 @@
 import vtk
-import random
+from pulse.uix.vtk.vtkActorBase import vtkActorBase
 from pulse.preprocessing.entity import Entity
 
-class Lines:
+class ActorLine(vtkActorBase):
     def __init__(self, entity = Entity(-1)):
+        super().__init__()
 
         self.color = entity.getColor()
         self.normalizedColor = entity.getNormalizedColor()
         self.nodesList = entity.getNodes()
         self.elementsList = entity.getElements()
         self.tag = entity.getTag()
+        self.radius = 0.01
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -21,15 +23,7 @@ class Lines:
 
         self._mapper = vtk.vtkPolyDataMapper()
 
-        self._line_actor = vtk.vtkActor()
-
-    def assembly(self):
-        self._source()
-        self._filter()
-        self._map()
-        self._actor()
-
-    def _source(self):
+    def source(self):
         for node in self.nodesList:
             self._nodes.InsertPoint(int(node[0]), node[1], node[2], node[3])
 
@@ -42,24 +36,24 @@ class Lines:
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
-    def _filter(self):
+    def filter(self):
         for _ in range(self._nodes.GetNumberOfPoints()):
             self._colorFilter.InsertNextTypedTuple(self.color)
 
         self._object.GetPointData().SetScalars(self._colorFilter)
 
         self._tubeFilter.SetInputData(self._object)
-        self._tubeFilter.SetRadius(0.01)
+        self._tubeFilter.SetRadius(self.radius)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.Update()
 
-    def _map(self):
+    def map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
         self._mapper.ScalarVisibilityOff()
 
-    def _actor(self):
-        self._line_actor.SetMapper(self._mapper)
-        self._line_actor.GetProperty().SetColor(self.normalizedColor)
+    def actor(self):
+        self._actor.SetMapper(self._mapper)
+        self._actor.GetProperty().SetColor(self.normalizedColor)
 
-    def get_actor(self):
-        return self._line_actor
+    def setRadius(self, value):
+        self.radius = value

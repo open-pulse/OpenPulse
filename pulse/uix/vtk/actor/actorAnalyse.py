@@ -1,12 +1,10 @@
 import vtk
-import random
-from pulse.preprocessing.entity import Entity
-from pulse.preprocessing.cross_section import CrossSection
-
 import numpy as np
+from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
-class PostProcessingLines:
+class ActorAnalyse(vtkActorBase):
     def __init__(self, project, connect, coord_def, color_table):
+        super().__init__()
 
         self.project = project
         self.connect = connect
@@ -17,6 +15,7 @@ class PostProcessingLines:
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
         self._object = vtk.vtkPolyData()
+        self.teste = vtk.vtkDoubleArray()
 
         self._tubeFilter = vtk.vtkTubeFilter()
         self._colorFilter = vtk.vtkUnsignedCharArray()
@@ -24,15 +23,7 @@ class PostProcessingLines:
 
         self._mapper = vtk.vtkPolyDataMapper()
 
-        self._line_actor = vtk.vtkActor()
-
-    def assembly(self):
-        self._source()
-        self._filter()
-        self._map()
-        self._actor()
-
-    def _source(self):
+    def source(self):
         indice = self.coord_def[:,0]
         x = self.coord_def[:,1]
         y = self.coord_def[:,2]
@@ -63,24 +54,38 @@ class PostProcessingLines:
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
-    def _filter(self):
+    def filter(self):
         indice = self.coord_def[:,0]
         for i in range(len(indice)):
             id_ = int(indice[i])
             self._colorFilter.InsertTypedTuple(id_, self.colorTable.get_color_by_id(i))
         self._object.GetPointData().SetScalars(self._colorFilter)
 
+        self.teste.SetName("TubeRadius")
+        self.teste.SetNumberOfTuples(len(indice))
+        j = 0.001
+        for i in range(500):
+            id_ = int(indice[i])
+            self.teste.SetTuple1(id_,0.01)
+
+        for i in range(500, len(indice)):
+            id_ = int(indice[i])
+            self.teste.SetTuple1(id_,0.03)
+
+        self._object.GetPointData().AddArray(self.teste)
+        #self._object.GetPointData().SetActiveScalars("TubeRadius")
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(0.02)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.SetCapping(True)
+        self._tubeFilter.SetVaryRadiusToVaryRadiusByVector()
         self._tubeFilter.Update()
+        
 
-    def _map(self):
+    def map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
+        self._mapper.ScalarVisibilityOn()
+        #self._mapper.SetScalarModeToUsePointFieldData()
 
-    def _actor(self):
-        self._line_actor.SetMapper(self._mapper)
-
-    def get_actor(self):
-        return self._line_actor
+    def actor(self):
+        self._actor.SetMapper(self._mapper)

@@ -101,19 +101,20 @@ class InputUi:
         
         self.project.setAnalysisType(analyseType.typeID, analyseType.type, analyseType.method)
         self.project.setModes(analyseType.modes)
+        #It's necessary to change the solution to None because there is a chance that the the user will
+        #change the analyseType but before running again, her will try to plot.
+        self.project.setSolution(None)
         
         if analyseType.typeID == 0 or analyseType.typeID == 1:
-            if len(self.project.getFrequencies()) != 0:
-                self.runAnalyse()
-            else:
-                self.analyseSetup()
+            self.analyseSetup()
         elif analyseType.typeID == 2:
             self.runAnalyse()
 
     def analyseSetup(self):
         if self.project.getAnalysisTypeID() is None:
             return
-        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod())
+        minFrequency, maxFrequency, stepFrequency = self.project.getMinMaxStepFrequency()
+        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod(), min_freq = minFrequency, max_freq = maxFrequency, step_freq = stepFrequency)
         
         if not setup.complete:
             return
@@ -156,7 +157,7 @@ class InputUi:
             plot = PlotModeShapeInput(frequencies)
             if plot.mode_index is None:
                 return
-            self.opv.change_to_modal_analyse(plot.mode_index)
+            self.opv.changeAndPlotAnalyse(plot.mode_index)
         else:
             return
 
@@ -170,10 +171,7 @@ class InputUi:
             plot = PlotHarmonicResponseInput(frequencies)
             if plot.frequency is None:
                 return
-            if analyseType == 0:
-                self.opv.change_to_direct_method(plot.frequency)
-            else:
-                self.opv.change_to_modal_superposition(plot.frequency)
+            self.opv.changeAndPlotAnalyse(plot.frequency)
         else:
             return
 

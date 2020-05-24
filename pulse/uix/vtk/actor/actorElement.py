@@ -1,8 +1,9 @@
 import vtk
-import random
+from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
-class Element:
+class ActorElement(vtkActorBase):
     def __init__(self, element, tag=-1):
+        super().__init__()
         self.element = element
         self.tag = tag
 
@@ -10,21 +11,15 @@ class Element:
         self._edges = vtk.vtkCellArray()
         self._object = vtk.vtkPolyData()
 
+        self.normalizedColor = [0,1,1]
+
         self._tubeFilter = vtk.vtkTubeFilter()
         self._colorFilter = vtk.vtkUnsignedCharArray()
         self._colorFilter.SetNumberOfComponents(3)
 
         self._mapper = vtk.vtkPolyDataMapper()
 
-        self._line_actor = vtk.vtkActor()
-
-    def assembly(self):
-        self._source()
-        self._filter()
-        self._map()
-        self._actor()
-
-    def _source(self):
+    def source(self):
         self._nodes.InsertPoint(0, self.element.first_node.x, self.element.first_node.y, self.element.first_node.z)
         self._nodes.InsertPoint(1, self.element.last_node.x, self.element.last_node.y, self.element.last_node.z)
 
@@ -36,7 +31,7 @@ class Element:
         self._object.SetPoints(self._nodes)
         self._object.SetLines(self._edges)
 
-    def _filter(self):
+    def filter(self):
         color = [0,0,255]
         for _ in range(self._nodes.GetNumberOfPoints()):
             self._colorFilter.InsertNextTypedTuple(color)
@@ -48,12 +43,10 @@ class Element:
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.Update()
 
-
-    def _map(self):
+    def map(self):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
+        self._mapper.ScalarVisibilityOff()
 
-    def _actor(self):
-        self._line_actor.SetMapper(self._mapper)
-
-    def get_actor(self):
-        return self._line_actor
+    def actor(self):
+        self._actor.SetMapper(self._mapper)
+        self._actor.GetProperty().SetColor(self.normalizedColor)

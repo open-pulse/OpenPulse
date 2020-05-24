@@ -7,6 +7,7 @@ import numpy as np
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow
 
 from pulse.uix.infoUi import InfoUi
@@ -36,7 +37,7 @@ class MainWindow(QMainWindow):
 
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
-        self.showMaximized()
+        #self.showMaximized()
         self.setWindowIcon(self.pulse_icon)
         self._change_window_title()
 
@@ -257,21 +258,22 @@ class MainWindow(QMainWindow):
             self.getOPVWidget().savePNG(path)
 
     def resetInfo(self):
+        return
         self.opv_widget.resetInfo()
 
     def plot_entities(self):
-        self.opv_widget.change_to_entities()
+        self.opv_widget.changePlotToEntities()
 
     def plot_elements(self):
-        self.opv_widget.change_to_elements()
+        self.opv_widget.changePlotToElements()
 
     def plot_points(self):
-        self.opv_widget.change_to_points()
+        self.opv_widget.changePlotToPoints()
 
     def draw(self):
-        self.opv_widget.plot_entities()
-        self.opv_widget.plot_points()
-        self.opv_widget.plot_elements()
+        self.opv_widget.plotEntities()
+        self.opv_widget.plotElements()
+        self.opv_widget.plotPoints()
         self.plot_entities()
 
     def closeEvent(self, event):

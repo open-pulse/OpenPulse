@@ -73,8 +73,9 @@ class ProjectFile:
 
     #Analyse
     def loadAnalyseFile(self):
-        frequencies = []
-
+        min_ = 0
+        max_ = 0
+        step_ = 0
         temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
         config = configparser.ConfigParser()
         config.read(temp_projectBaseFilePath)
@@ -85,11 +86,13 @@ class ProjectFile:
                 min_ = config['analyse']['frequency min']
                 max_ = config['analyse']['frequency max']
                 step_ = config['analyse']['frequency step']
-                frequencies = np.arange(float(min_), float(max_)+float(step_), float(step_))
 
-        return frequencies
+        return float(min_), float(max_), float(step_)
 
     def addFrequencyInFile(self, min_, max_, step_):
+        min_ = str(min_)
+        max_ = str(max_)
+        step_ = str(step_)
         temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
         config = configparser.ConfigParser()
         config.read(temp_projectBaseFilePath)
@@ -121,6 +124,7 @@ class ProjectFile:
                 'frequency step': step_,
             }
 
+        print(temp_projectBaseFilePath)
         with open(temp_projectBaseFilePath, 'w') as configfile:
             config.write(configfile)
 

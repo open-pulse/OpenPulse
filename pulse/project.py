@@ -3,7 +3,7 @@ from pulse.processing.solution import Solution
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.project_file import ProjectFile
+from pulse.projectFile import ProjectFile
 import numpy as np
 import configparser
 import os
@@ -33,6 +33,9 @@ class Project:
         self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = []
+        self.minFrequency = 0
+        self.maxFrequency = 0
+        self.stepFrequency = 0
         self.naturalFrequencies = []
         self.solution = None
 
@@ -86,7 +89,7 @@ class Project:
                 self.loadDamper_by_Node(key, dm)
 
     def loadAnalyseFile(self):
-        self.frequencies = self.file.loadAnalyseFile()
+        self.minFrequency, self.maxFrequency, self.stepFrequency = self.file.loadAnalyseFile()
 
     def setMaterial_by_Entity(self, entity_id, material):
         if self.file.getImportType() == 0:
@@ -240,6 +243,9 @@ class Project:
 
     def getFrequencies(self):
         return self.frequencies
+
+    def getMinMaxStepFrequency(self):
+        return self.minFrequency, self.maxFrequency, self.stepFrequency
 
     def getModes(self):
         return self.modes

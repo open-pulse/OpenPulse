@@ -8,8 +8,8 @@ import configparser
 import numpy as np
 
 class AnalyseSetupInput(QDialog):
-    def __init__(self, typeID, title, subtitle, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, typeID, title, subtitle, min_freq = 0, max_freq = 0, step_freq = 0):
+        super().__init__()
         self.analyseID = typeID
 
         if self.analyseID == 1:
@@ -25,9 +25,9 @@ class AnalyseSetupInput(QDialog):
 
         self.complete = False
         self.frequencies = []
-        self.min_frequency = 0
-        self.max_frequency = 0
-        self.step_frequency = 0
+        self.min_frequency = min_freq
+        self.max_frequency = max_freq
+        self.step_frequency = step_freq
         self.damping = [0,0,0,0]
         self.modes = 0
 
@@ -55,6 +55,10 @@ class AnalyseSetupInput(QDialog):
 
         self.label_title.setText(title)
         self.label_subtitle.setText(subtitle)
+        if self.step_frequency != 0:
+            self.lineEdit_min.setText(str(self.min_frequency))
+            self.lineEdit_max.setText(str(self.max_frequency))
+            self.lineEdit_step.setText(str(self.step_frequency))
 
         self.exec_()
 
