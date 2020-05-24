@@ -6,10 +6,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-class AnalyseHarmonicInput(QDialog):
+class AnalyseAcousticHarmonicInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/analyseHarmonicStructuralInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/analyseHarmonicAcousticInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -41,6 +41,7 @@ class AnalyseHarmonicInput(QDialog):
 
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
+        print(self.index)
 
     def check(self):
         self.close()

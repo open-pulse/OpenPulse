@@ -6,7 +6,8 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.uix.user_input.analyseHarmonicInput import AnalyseHarmonicInput
+from pulse.uix.user_input.analyseStructuralHarmonicInput import AnalyseStructuralHarmonicInput
+from pulse.uix.user_input.analyseAcousticHarmonicInput import AnalyseAcousticHarmonicInput
 from pulse.uix.user_input.analyseModalInput import AnalyseModalInput
 
 class AnalyseTypeInput(QDialog):
@@ -25,9 +26,13 @@ class AnalyseTypeInput(QDialog):
         #Type 0 == Harmonic Structural Direct
         #Type 1 == Harmonic Structural Modal
         #Type 2 == Modal Structural
+        #Type 3 == Harmonic Acoustic Direct
 
         self.pushButton_harmonic_structural = self.findChild(QPushButton, 'pushButton_harmonic_structural')
         self.pushButton_harmonic_structural.clicked.connect(self.harmonic_structural)
+
+        self.pushButton_acoustic_structural = self.findChild(QPushButton, 'pushButton_harmonic_acoustic')
+        self.pushButton_acoustic_structural.clicked.connect(self.harmonic_acoustic)
 
         self.pushButton_modal_structural = self.findChild(QPushButton, 'pushButton_modal_structural')
         self.pushButton_modal_structural.clicked.connect(self.modal_structural)
@@ -48,13 +53,26 @@ class AnalyseTypeInput(QDialog):
         msg_box.exec_()
 
     def harmonic_structural(self):
-        select = AnalyseHarmonicInput()
+        select = AnalyseStructuralHarmonicInput()
+        print("Harmonic Structural")
         self.typeID = select.index
         self.type = "Harmonic Analysis - Structural"
         if self.typeID == 0:
             self.method = "Direct"
         else:
             self.method = "Mode Superposition"
+        self.close()
+
+    def harmonic_acoustic(self):
+        select = AnalyseAcousticHarmonicInput()
+        print("Harmonic Acoustic")
+        self.typeID = select.index
+        self.type = "Harmonic Analysis - Acoustic"
+        if self.typeID == 0:
+            self.method = "Direct"
+            print("TypeID - ok")
+        # else:
+        #     self.method = "Mode Superposition"
         self.close()
 
     def modal_structural(self):

@@ -14,6 +14,7 @@ class Fluid:
         self.density = density
         self.sound_velocity = sound_velocity
         self.color = kwargs.get("color", None)
+        self.identifier = kwargs.get("identifier", -1)
 
     @property
     def impedance(self):

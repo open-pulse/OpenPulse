@@ -309,7 +309,7 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.impedance_radiation = values
 
-    def set_acoustic_boundary_condition_by_node(self, nodes, acoustic_boundary_condition):
+    def set_acoustic_pressure_BC_by_node(self, nodes, acoustic_boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.acoustic_boundary_condition = acoustic_boundary_condition
             self.AcousticBCnodes.append(node)

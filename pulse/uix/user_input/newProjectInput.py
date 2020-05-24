@@ -28,8 +28,10 @@ class NewProjectInput(QDialog):
         self.openPulsePath = "{}\\OpenPulse".format(self.userPath)
         self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
         self.materialListName = "materialList.dat"
+        self.fluidListName = "fluidList.dat"
         self.projectFileName = "project.ini"
         self.materialListPath = ""
+        self.fluidListPath = ""
 
         self.button_create_project = self.findChild(QDialogButtonBox, 'button_create_project')
         self.button_create_project.accepted.connect(self.accept_project)
@@ -131,6 +133,7 @@ class NewProjectInput(QDialog):
             os.makedirs(path)
 
         self.createMaterialFile(path)
+        self.createFluidFile(path)
         self.createProjectFile(path)
         
         if self.currentTab == 0:
@@ -139,7 +142,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, geometryPath=new_geometry_path)
+            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, geometryPath=new_geometry_path)
             return True
         elif self.currentTab == 1:
             cord_file = self.line_import_cord.text().split('/')[-1]
@@ -150,7 +153,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_conn.text(), new_conn_path)
             element_size = 0
             import_type = 1
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, connPath=new_conn_path, cordPath=new_cord_path)
+            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, connPath=new_conn_path, cordPath=new_cord_path)
             return True
         return False
 
@@ -178,7 +181,8 @@ class NewProjectInput(QDialog):
             'Geometry File': geometry_file_name,
             'Cord File': cord_file_name,
             'Conn File': conn_file_name,
-            'MaterialList File': self.materialListName
+            'MaterialList File': self.materialListName,
+            'FluidList File': self.fluidListName
         }
         with open(path, 'w') as configfile:
             config.write(configfile)
@@ -214,4 +218,37 @@ class NewProjectInput(QDialog):
             'Color': '[0,255,255]' #Cyan
         }
         with open(self.materialListPath, 'w') as configfile:
+            config.write(configfile)
+
+    def createFluidFile(self, project_path):
+        self.fluidListPath = "{}\\{}".format(project_path, self.fluidListName)
+        config = configparser.ConfigParser()
+
+        config['AIR'] = {
+            'Name': 'air',
+            'Identifier': 1,
+            'Fluid Density': 1.2041,
+            'Sound velocity': 343.21,
+            'Impedance': 413.25,
+            'Color': '[0,0,255]' #Blue
+        }
+
+        config['HYDROGEN'] = {
+            'Name': 'hydrogen',
+            'Identifier': 2,
+            'Fluid Density': 0.087,
+            'Sound velocity': 1321.1,
+            'Impedance': 114.93,
+            'Color': '[255,0,255]' #Magenta
+        }
+
+        config['METHANE'] = {
+            'Name': 'methane',
+            'Identifier': 3,
+            'Fluid Density': 0.657,
+            'Sound velocity': 446,
+            'Impedance': 293.02,
+            'Color': '[0,255,255]' #Cyan
+        }
+        with open(self.fluidListPath, 'w') as configfile:
             config.write(configfile)
