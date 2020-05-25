@@ -14,36 +14,36 @@ from pulse.animation.plot_function import plot_results
 
 start = time()
 # Fluid setup
-sound_velocity = 343.21
-density = 1.2041
+sound_velocity = 350#343.21
+density = 25#1.2041
 hydrogen = Fluid('air', density, sound_velocity)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008)
 # Mesh init
 mesh = Mesh()
-run = 2
+run = 1
 if run==1:
     mesh.generate('examples/iges_files/tube_2.iges', 0.01)
     mesh.set_acoustic_pressure_BC_by_node([50], [1])
     # Anechoic termination
-    mesh.add_impedance_specific_to_node(1086, 343 * 1.2)
+    mesh.set_specific_impedance_BC_by_node(1086, sound_velocity*density)
     # Rigid termination on nodes
-    # mesh.set_volume_velocity_by_node([1087, 1137, 1187], [0])
+    # mesh.set_volume_velocity_BC_by_node([1136, 1186, 1236], [0])
 if run==2:
     mesh.load_mesh('examples/validation_acoustic/coord.dat', 'examples/validation_acoustic/connect.dat')
     # Acoustic boundary conditions - Prescribe pressure
     mesh.set_acoustic_pressure_BC_by_node([1], [1])
     # Anechoic termination
-    mesh.add_impedance_specific_to_node(1047, 343 * 1.2)
+    mesh.set_specific_impedance_BC_by_node(1047, sound_velocity*density)
     # Rigid termination on nodes
-    # mesh.set_volume_velocity_by_node([1087, 1137, 1187], [0])
+    # mesh.set_volume_velocity_by_BC_node([1087, 1137, 1187], [0])
 
 mesh.set_fluid_by_element('all', hydrogen)
 mesh.set_cross_section_by_element('all', cross_section)
 
 # Analisys Frequencies
-f_max = 200
-df = 2
+f_max = 250
+df = 1
 frequencies = np.arange(df, f_max+df, df)
 
 # ACT = AssemblyAcoustic(mesh)
@@ -64,7 +64,6 @@ if run==1:
     p_b1 = get_acoustic_frf(mesh, direct, 1136)
     p_b2 = get_acoustic_frf(mesh, direct, 1186)
     p_b3 = get_acoustic_frf(mesh, direct, 1236)
-
     text_out = "Node 1086 (output)"
     text_b1 = "Node 1136 (branch 1)"
     text_b2 = "Node 1186 (branch 2)"
@@ -75,7 +74,6 @@ elif run==2:
     p_b1 = get_acoustic_frf(mesh, direct, 1087)
     p_b2 = get_acoustic_frf(mesh, direct, 1137)
     p_b3 = get_acoustic_frf(mesh, direct, 1187)
-
     text_out = "Node 1047 (output)"
     text_b1 = "Node 1087 (branch 1)"
     text_b2 = "Node 1137 (branch 2)"
@@ -133,7 +131,7 @@ plt.grid(True)
 plt.tight_layout()
 plt.show()
 
-column = 48
+column = 150
 
 pressures, _, _, _ = get_acoustic_response(mesh, direct, column)
 

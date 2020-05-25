@@ -21,12 +21,12 @@ class Node:
         self.damper = [0,0,0,0,0,0]
 
         # Acoustic physical quantities
-        self.acoustic_boundary_condition = None
+        self.acoustic_pressure = None
         self.volume_velocity = 0
 
-        self.impedance_specific = 0
-        self.impedance_acoustic = 0
-        self.impedance_specific_radiation = 0
+        self.specific_impedance = 0
+        self.acoustic_impedance = 0
+        self.radiation_impedance = 0
         
         self.global_index = global_index
         self.external_index = external_index
@@ -85,10 +85,10 @@ class Node:
         return self.acoustic_boundary_condition
     
     def get_acoustic_boundary_condition_indexes(self):
-        return [i for i, j in enumerate([self.acoustic_boundary_condition]) if j is not None]
+        return [i for i, j in enumerate([self.acoustic_pressure]) if j is not None]
     
     def get_acoustic_boundary_condition_values(self):
-        return [i for i in [self.acoustic_boundary_condition] if i is not None]
+        return [i for i in [self.acoustic_pressure] if i is not None]
     
     def haveAcousticBoundaryCondition(self):
         return self.acoustic_boundary_condition.count(None) != 1
@@ -111,12 +111,12 @@ class Node:
     def admittance(self, area_fluid, frequencies):
         # Only one impedance can be given.
         # More than one must raise an error
-        if self.impedance_acoustic != 0:
-            Z = self.impedance_acoustic
-        elif self.impedance_specific != 0:
-            Z = self.impedance_specific / area_fluid
-        elif self.impedance_acoustic != 0:
-            Z = self.impedance_acoustic / area_fluid
+        if self.acoustic_impedance != 0:
+            Z = self.acoustic_impedance
+        elif self.specific_impedance != 0:
+            Z = self.specific_impedance / area_fluid
+        elif self.radiation_impedance != 0:
+            Z = self.radiation_impedance / area_fluid
         
         if isinstance(Z, np.float64):
             admittance = 1/Z * np.ones_like(frequencies)

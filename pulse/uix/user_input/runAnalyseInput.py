@@ -46,13 +46,12 @@ class RunAnalyseInput(QDialog):
 
     def run(self):
         inicio = time()
-        print(self.analyseTypeID)
         if self.analyseTypeID == 0:
             if self.analysis_type == "Harmonic Analysis - Structural":
-                self.solution = self.solve.direct_method(self.frequencies, self.damping) #Harmonic Structural Direct
+                self.solution = self.solve.direct_method(self.frequencies, self.damping) #Harmonic Structural - Direct Method
             elif self.analysis_type == "Harmonic Analysis - Acoustic":
                 self.solution = self.solve.direct_method() #Harmonic Acoustic Direct
-        elif self.analyseTypeID == 1: #Harmonic Structural Modal
+        elif self.analyseTypeID == 1: #Harmonic Structural - Mode Superposition
             self.solution = self.solve.mode_superposition(self.frequencies, self.modes, self.damping)
         elif self.analyseTypeID == 2: #Modal Structural
             self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)

@@ -293,23 +293,23 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
     
-    def set_volume_velocity_by_node(self, nodes, volume_velocity):
+    def set_volume_velocity_BC_by_node(self, nodes, volume_velocity):
         for node in slicer(self.nodes, nodes):
             node.volume_velocity = volume_velocity
 
-    def add_impedance_specific_to_node(self, nodes, values):
+    def set_specific_impedance_BC_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.impedance_specific = values
+            node.specific_impedance = values
 
-    def add_impedance_acoustic_to_node(self, nodes, values):
+    def set_acoustic_impedance_BC_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.impedance_acoustic = values
+            node.acoustic_impedance = values
     
-    def add_impedance_radiation_to_node(self, nodes, values):
+    def set_radiation_impedance_BC_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.impedance_radiation = values
+            node.radiation_impedance = values
 
-    def set_acoustic_pressure_BC_by_node(self, nodes, acoustic_boundary_condition):
+    def set_acoustic_pressure_BC_by_node(self, nodes, acoustic_pressure):
         for node in slicer(self.nodes, nodes):
-            node.acoustic_boundary_condition = acoustic_boundary_condition
+            node.acoustic_pressure = acoustic_pressure
             self.AcousticBCnodes.append(node)

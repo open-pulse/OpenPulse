@@ -8,6 +8,9 @@ class SolutionAcoustic:
 
     def __init__(self, mesh, frequencies):
 
+        if frequencies[0]==0:
+            frequencies[0] = float(1e-4)
+
         self.assembly = AssemblyAcoustic(mesh)
         self.frequencies = frequencies
 

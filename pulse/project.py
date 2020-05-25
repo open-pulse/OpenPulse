@@ -62,7 +62,7 @@ class Project:
         self._cordPath = cordPath
 
         self._entityPath = "{}\\{}".format(self._projectPath, "entity.dat")
-        self._nodePath = "{}\\{}".format(self._projectPath, "node.dat")
+        self._nodePath = "{}\\{}".format(self._projectPath, "node_structural.dat")
 
         if self._importType == 0:
             self.mesh.generate(self._geometryPath, self._elementSize)
@@ -99,7 +99,7 @@ class Project:
         self._cordPath = "{}\\{}".format(self._projectPath, cordFile)
 
         self._entityPath = "{}\\{}".format(self._projectPath, "entity.dat")
-        self._nodePath = "{}\\{}".format(self._projectPath, "node.dat")
+        self._nodePath = "{}\\{}".format(self._projectPath, "node_structural.dat")
 
         if self._importType == 0:
             self.mesh.generate(self._geometryPath, self._elementSize)
@@ -240,7 +240,7 @@ class Project:
 
             # nodal_pressure = None
             # if len(pressure) == 1:
-            #     if force[0] != 'None':
+            #     if pressure[0] != 'None':
             #         nodal_pressure = float(pressure)
 
             # if nodal_pressure != None:
@@ -398,9 +398,9 @@ class Project:
     def getStructuralElements(self):
         return self.mesh.structural_elements
 
-    ## START OF ACOUSTIC METHODS
+    # # START OF ACOUSTIC METHODS
 
-    # def addPressureBoundaryConditionInFile(self, nodes_id, bc):
+    # def addPressureBCInFile(self, nodes_id, bc):
     #     config = configparser.ConfigParser()
     #     config.read(self._nodePath)
     #     for node_id in nodes_id:
@@ -411,6 +411,21 @@ class Project:
     #                 'displacement': "({})".format(bc[0])
     #                 'impedance': ""
     #                 'volume velocity': ""
+    #             }
+    #     with open(self._nodePath, 'w') as configfile:
+    #         config.write(configfile)
+
+    # def addPressureInFile(self, nodes_id, force):
+    #     config = configparser.ConfigParser()
+    #     config.read(self._nodePath)
+    #     for node_id in nodes_id:
+    #         if str(node_id) in config.sections():
+    #             config[str(node_id)]['force'] = "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
+    #         else:
+    #             config[str(node_id)] = {
+    #                 'displacement': "",
+    #                 'rotation': "",
+    #                 'force': "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
     #             }
     #     with open(self._nodePath, 'w') as configfile:
     #         config.write(configfile)
@@ -467,22 +482,22 @@ class Project:
         for entity in self.mesh.entities:
             self.addFluidInFile(entity.getTag(), fluid.identifier)
 
-    def setAcousticPressureBC_by_Node(self, node_id, bc):
-        self.mesh.set_acoustic_pressure_BC_by_node(node_id, bc)
-        # self.addAcousticBoundaryConditionInFile(node_id, bc)
+    def setAcousticPressureBC_by_Node(self, node_id, value):
+        self.mesh.set_acoustic_pressure_BC_by_node(node_id, value)
+        # self.addPressureBCInFile(node_id, bc)
     
-    # def setVolumeVelocity_by_Node(self, node_id, volume_velocity):
-    #     self.mesh.set_volume_velocity_by_node(node_id, volume_velocity)
-    #     self.addVolumeVelocityInFile(node_id, volume_velocity)
+    def setVolumeVelocityBC_by_Node(self, node_id, volume_velocity):
+        self.mesh.set_volume_velocity_BC_by_node(node_id, volume_velocity)
+        # self.addVolumeVelocityInFile(node_id, volume_velocity)
 
-    def setImpedanceSpecific_by_Node(self, node_id, impedance_specific):
-        self.mesh.add_impedance_specific_to_node(node_id, impedance_specific)
+    def setSpecificImpedance_by_Node(self, node_id, specific_impedance):
+        self.mesh.set_specific_impedance_BC_by_node(node_id, specific_impedance)
 
-    # def setImpedanceAcoustic_by_Node(self, node_id, impedance_acoustic):
-    #     self.mesh.add_impedance_acoustic_to_node(node_id, impedance_acoustic)
+    # def setAcousticImpedance_by_Node(self, node_id, acoustic_impedance):
+    #     self.mesh.set_acoustic_impedance_BC_by_node(node_id, acoustic_impedance)
 
-    # def setImpedanceRadiation_by_Node(self, node_id, impedance_radiation):
-    #     self.mesh.add_impedance_radiation_to_node(node_id, impedance_radiation)
+    # def setRadiationImpedance_by_Node(self, node_id, radiation_impedance):
+    #     self.mesh.set_radiation_impedance_BC_by_node(node_id, radiation_impedance)
 
 
     def loadFluid_by_Entity(self, entity_id, fluid):
@@ -516,13 +531,6 @@ class Project:
             entity.fluid = fluid
 
 ## END OF ACOUSTIC METHODS
-
-
-
-
-
-
-
 
     def getMesh(self):
         return self.mesh
@@ -600,19 +608,17 @@ class Project:
     def getDamping(self):
         return self.damping
 
+    def getStructuralSolve(self):
+        return SolutionStructural(self.mesh)
+
     def setStructuralSolution(self, value):
         self.solution_structural = value
-    
+
     def getStructuralSolution(self):
         return self.solution_structural
 
-    def getStructuralSolve(self):
-        self.solution_structural = SolutionStructural(self.mesh)
-        return self.solution_structural
-
     def getAcousticSolve(self):
-        self.solution_acoustic = SolutionAcoustic(self.mesh, self.frequencies)
-        return self.solution_acoustic
+        return SolutionAcoustic(self.mesh, self.frequencies)
 
     def setAcousticSolution(self, value):
         self.solution_acoustic = value

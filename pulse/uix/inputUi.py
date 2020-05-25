@@ -9,7 +9,7 @@ from pulse.uix.user_input.analyseOutputResultsInput import AnalyseOutputResultsI
 from pulse.uix.user_input.runAnalyseInput import RunAnalyseInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-# from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
+from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 
 from pulse.uix.user_input.plotModeShapeInput import PlotModeShapeInput
@@ -94,30 +94,42 @@ class InputUi:
             return
 
         self.project.setStructuralBoundaryCondition_by_Node(dof.nodes, dof.dof)
-        print("[Set Prescribed DOF] - defined in the poins {}".format(dof.nodes))
+        print("[Set Prescribed DOF] - defined in the point(s) {}".format(dof.nodes))
         self.opv.transformPoints(dof.nodes)
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        impedance = SpecificImpedanceInput(point_id)
+        read = SpecificImpedanceInput(point_id)
 
-        if impedance.impedance is None:
+        if read.impedance is None:
             return
 
-        self.project.setImpedanceSpecific_by_Node(impedance.nodes, impedance.impedance)
-        print("[Set Specific Impedance] - defined in the poins {}".format(impedance.nodes))
-        self.opv.transformPoints(impedance.nodes)
+        self.project.setSpecificImpedance_by_Node(read.nodes, read.impedance)
+        print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes))
+        self.opv.transformPoints(read.nodes)
 
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
-        pressure = AcousticPressureInput(point_id)
+        read = AcousticPressureInput(point_id)
 
-        if pressure.pressure is None:
+        if read.pressure is None:
             return
 
-        self.project.setAcousticPressureBC_by_Node(pressure.nodes, pressure.pressure)
-        print("[Set Acoustic Pressure] - defined in the poins {}".format(pressure.nodes))
-        self.opv.transformPoints(pressure.nodes)
+        self.project.setAcousticPressureBC_by_Node(read.nodes, read.pressure)
+        print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes))
+        self.opv.transformPoints(read.nodes)
+
+    def setVolumeVelocity(self):
+        point_id = self.opv.getListPickedPoints()
+        read = VolumeVelocityInput(point_id)
+
+        if read.volume_velocity is None:
+            return
+
+        self.project.setVolumeVelocityBC_by_Node(read.nodes, read.volume_velocity)
+        print("[Set volume Velocity Source] - defined in the point(s) {}".format(read.nodes))
+        self.opv.transformPoints(read.nodes)
+
 
 
     def setNodalLoads(self):
@@ -128,7 +140,7 @@ class InputUi:
             return
 
         self.project.setForce_by_Node(loads.nodes, loads.loads)
-        print("[Set Nodal Load] - defined in the poins {}".format(loads.nodes))
+        print("[Set Nodal Load] - defined in the point(s) {}".format(loads.nodes))
         self.opv.transformPoints(loads.nodes)
 
     def addMassSpringDamper(self):
@@ -141,7 +153,7 @@ class InputUi:
         self.project.setMass_by_Node(msd.nodes, msd.mass)
         self.project.setSpring_by_Node(msd.nodes, msd.spring)
         self.project.setDamper_by_Node(msd.nodes, msd.damper)
-        print("[Set Mass/Spring/Damper] - defined in the poins {}".format(msd.nodes))
+        print("[Set Mass/Spring/Damper] - defined in the point(s) {}".format(msd.nodes))
 
     def analyseTypeInput(self):
         analyseType = AnalyseTypeInput()
@@ -189,7 +201,10 @@ class InputUi:
                 damping = self.project.getDamping()
             elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
                 solve = self.project.getAcousticSolve()
-
+        elif analyseTypeID == 2:
+            solve = self.project.getStructuralSolve()
+            modes = self.project.getModes()
+                
         if analyseTypeID is None:
             return
         if len(frequencies) == 0:
@@ -203,13 +218,16 @@ class InputUi:
                     return
                 self.project.setStructuralSolution(solution.solution)
             elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                print("I'm here!")
-                solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, frequencies, [], [], )
+                solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, frequencies, [], [])
                 if solution.solution is None:
                     return
                 self.project.setAcousticSolution(solution.solution)
 
         if analyseTypeID == 2:
+            solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, [], modes, [])
+            if solution.solution is None:
+                return
+            self.project.setStructuralSolution(solution.solution)
             self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
 
     def plotModeShapes(self):
@@ -222,7 +240,7 @@ class InputUi:
             plot = PlotModeShapeInput(frequencies)
             if plot.mode_index is None:
                 return
-            self.opv.change_to_modal_analyse(plot.mode_index)
+            self.opv.change_to_modal_analysis(plot.mode_index)
         else:
             return
 
@@ -239,12 +257,27 @@ class InputUi:
             if analyseTypeID == 0:
                 self.opv.change_to_direct_method(plot.frequency)
             else:
-                self.opv.change_to_modal_superposition(plot.frequency)
+                self.opv.change_to_mode_superposition(plot.frequency)
         else:
             return
 
     def plotPressureField(self):
-        pass
+        solution = self.project.getAcousticSolution()
+        analyseTypeID = self.project.getAnalysisTypeID()
+        analysis_type = self.project.getAnalysisType()
+        frequencies = self.project.getFrequencies()
+        if analyseTypeID == 0 or analyseTypeID == 1:
+            if solution is None:
+                return
+            plot = PlotHarmonicResponseInput(frequencies)
+            if plot.frequency is None:
+                return
+            if analyseTypeID == 0 and analysis_type  == "Harmonic Analysis - Acoustic":
+                    self.opv.change_to_direct_method(plot.frequency, Acoustic=True)
+            # else:
+            #     self.opv.change_to_mode_superposition(plot.frequency)
+        # else:
+            return
 
     def plotStressField(self):
         pass

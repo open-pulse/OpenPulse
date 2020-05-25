@@ -9,7 +9,7 @@ def get_structural_frf(mesh, solution, node, dof):
     return results
 
 def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
-
+   
     data = np.real(solution)
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
     cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])

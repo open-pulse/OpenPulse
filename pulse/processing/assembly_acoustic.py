@@ -69,7 +69,7 @@ class AssemblyAcoustic:
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
-            if np.sum(node.impedance_specific + node.impedance_acoustic + node.impedance_specific_radiation) == 0:
+            if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) == 0:
                 continue
             else:
                 position = node.global_index

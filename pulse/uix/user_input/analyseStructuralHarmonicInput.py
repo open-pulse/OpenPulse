@@ -41,7 +41,6 @@ class AnalyseStructuralHarmonicInput(QDialog):
 
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
-        print(self.index)
 
     def check(self):
         self.close()

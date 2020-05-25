@@ -11,6 +11,7 @@ from pulse.opv.point import Point
 from pulse.opv.element import Element
 from pulse.opv.colorTable import ColorTable
 from pulse.postprocessing.plot_structural_data import get_structural_response
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.mouseInteractorPoint import MouseInteractorPoint
 from pulse.uix.vtk.mouseInteractorElement import MouseInteractorElement
@@ -269,9 +270,9 @@ class OPVUi(QVTKRenderWindowInteractor):
                 if self.TypeID == 1:
                     self.change_to_direct_method(self.currentFrequencyIndice)
                 elif self.TypeID == 2:
-                    self.change_to_modal_superposition(self.currentFrequencyIndice)
+                    self.change_to_mode_superposition(self.currentFrequencyIndice)
                 elif self.TypeID == 3:
-                    self.change_to_modal_analyse(self.currentFrequencyIndice)
+                    self.change_to_modal_analysis(self.currentFrequencyIndice)
                 
 
     def _atualizar_slider(self):
@@ -339,12 +340,15 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_points.ResetCamera()
         self.afterChangePlot()
 
-    def change_to_direct_method(self, frequency_indice):
+    def change_to_direct_method(self, frequency_indice, Acoustic=False):
         self.beforeChangePlot()
         self.change_frequency(frequency_indice)
         self.TypeID = 1
         self.in_result = True
-        factor = self.plot_direct_method(self.project.getStructuralSolution(), frequency_indice)
+        if Acoustic:
+            factor = self.plot_direct_method(self.project.getAcousticSolution(), frequency_indice, Acoustic)
+        else:
+            factor = self.plot_direct_method(self.project.getStructuralSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
@@ -352,7 +356,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
 
-    def change_to_modal_superposition(self, frequency_indice):
+    def change_to_mode_superposition(self, frequency_indice):
         self.beforeChangePlot()
         self.change_frequency(frequency_indice)
         self.TypeID = 2
@@ -365,12 +369,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
 
-    def change_to_modal_analyse(self, frequency_indice):
+    def change_to_modal_analysis(self, frequency_indice):
         self.beforeChangePlot()
         self.change_frequency(frequency_indice)
         self.TypeID = 3
         self.in_result = True
-        factor = self.plot_modal_analyse(self.project.getStructuralSolution(), frequency_indice)
+        factor = self.plot_mode_shapes(self.project.getStructuralSolution(), frequency_indice)
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
@@ -378,21 +382,22 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
 
-    def plot_modal_analyse(self, modal, frequency_indice):
+    def plot_mode_shapes(self, modal, frequency_indice):
+        
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
+        connect, coord, r_def, factor = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
-        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
+        plot = PostProcessingLines(self.project, connect, coord, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
-                point = Point(node, u_def=coord_def[node.global_index,1:])
+                point = Point(node, u_def=coord[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
@@ -406,17 +411,17 @@ class OPVUi(QVTKRenderWindowInteractor):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
+        connect, coord, r_def, factor  = get_structural_response(self.project.getMesh(), modal, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
-        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
+        plot = PostProcessingLines(self.project, connect, coord, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
-                point = Point(node, u_def=coord_def[node.global_index,1:])
+                point = Point(node, u_def=coord[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
@@ -426,21 +431,25 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.renderer_post_processing.AddActor(scale)
         return factor
 
-    def plot_direct_method(self, direct, frequency_indice):
+    def plot_direct_method(self, direct, frequency_indice, Acoustic=False):
         for actor in self.renderer_post_processing.GetActors():
             self.renderer_post_processing.RemoveActor(actor)
 
-        connect, coord_def, r_def, factor  = get_structural_response(self.project.getMesh(), direct, frequency_indice, gain=self.sliderScale)
+        if Acoustic:
+            _, connect, coord, r_def  = get_acoustic_response(self.project.getMesh(), direct, frequency_indice)
+            factor = 1
+        else:
+            connect, coord, r_def, factor  = get_structural_response(self.project.getMesh(), direct, frequency_indice, gain=self.sliderScale)
         colorTable = ColorTable(self.project, r_def)
         self.create_colorBarActor(colorTable)
-        plot = PostProcessingLines(self.project, connect, coord_def, colorTable)
+        plot = PostProcessingLines(self.project, connect, coord, colorTable)
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
             if sum([value for value in node.structural_boundary_condition if value != None])==0:
                 point = Point(node)
             else:
-                point = Point(node, u_def=coord_def[node.global_index,1:])
+                point = Point(node, u_def=coord[node.global_index,1:])
             point.assembly()
             self.renderer_post_processing.AddActor(point.get_actor())
         self.renderer_post_processing.AddActor(self.colorbar)
