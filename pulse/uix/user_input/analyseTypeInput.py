@@ -50,11 +50,15 @@ class AnalyseTypeInput(QDialog):
     def harmonic_structural(self):
         select = AnalyseHarmonicInput()
         self.typeID = select.index
-        self.type = "Harmonic Analysis - Structural"
+        
         if self.typeID == 0:
             self.method = "Direct"
-        else:
+        elif self.typeID == 1:
             self.method = "Mode Superposition"
+        else:
+            return
+        
+        self.type = "Harmonic Analysis - Structural"
         self.close()
 
     def modal_structural(self):

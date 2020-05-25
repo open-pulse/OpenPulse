@@ -14,6 +14,7 @@ class TreeUi(QTreeWidget):
         self._createItems()
         self._configItems()
         self._addItems()
+        self._updateItems()
 
     def _createNames(self):
         self.name_top_modelSetup = "Model Setup"
@@ -147,12 +148,14 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().addMassSpringDamper()
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analyseTypeInput()
+            self._updateItems()
         elif item.text(0) == self.name_child_analisysSetup:
             self.mainWindow.getInputWidget().analyseSetup()
         elif item.text(0) == self.name_child_selectTheOutputResults:
             self.mainWindow.getInputWidget().analyseOutputResults()
         elif item.text(0) == self.name_child_runAnalysis:
             self.mainWindow.getInputWidget().runAnalyse()
+            self._updateItems()
         elif item.text(0) == self.name_child_plotModeShapes:
             self.mainWindow.getInputWidget().plotModeShapes()
         elif item.text(0) == self.name_child_plotHarmonicResponse:
@@ -163,3 +166,17 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plotStressField()
         elif item.text(0) == self.name_child_plotFrequencyResponse:
             self.mainWindow.getInputWidget().plotFrequencyResponse()
+
+    def _updateItems(self):
+        project = self.mainWindow.getProject()
+        if project.getSolution() is None:
+            self.item_child_plotModeShapes.setDisabled(True)
+            self.item_child_plotHarmonicResponse.setDisabled(True)
+            self.item_child_plotFrequencyResponse.setDisabled(True)
+        else:
+            analyseTypeID = project.getAnalysisTypeID()
+            if analyseTypeID == 0 or analyseTypeID == 1:
+                self.item_child_plotFrequencyResponse.setDisabled(False)
+                self.item_child_plotHarmonicResponse.setDisabled(False)
+            elif analyseTypeID == 2:
+                self.item_child_plotModeShapes.setDisabled(False)

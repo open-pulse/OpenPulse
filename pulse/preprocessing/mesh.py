@@ -21,6 +21,7 @@ class Mesh:
         self.entities = []
         self.nodesBC = []
         self.connectivity_matrix = []
+        self.radius = {}
         self.nodal_coordinates_matrix = []
 
     def generate(self, path, element_size):
@@ -184,6 +185,15 @@ class Mesh:
                 nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
         self.nodal_coordinates_matrix = nodal_coordinates
         return
+
+    def getRadius(self):
+        for index, element in enumerate(self.elements.values()):
+            first = element.first_node.global_index
+            last  = element.last_node.global_index
+            radius = element.cross_section.external_diameter
+            self.radius[first] = radius
+            self.radius[last] = radius
+        return self.radius
 
     def get_connectivity_matrix(self, reordering=True):
     # Returns the connectivity matrix for all elements
