@@ -11,6 +11,7 @@ class RendererEntity(vtkRendererBase):
         self.opv = opv
         self.actors = {}
         self.squarePickerActor = ActorSquare2D((0,0), (0,0))
+        self.plotRadius = False
 
     def updateInfoText(self):
         listActorsIDs = self.getListPickedEntities()
@@ -51,7 +52,7 @@ class RendererEntity(vtkRendererBase):
     def plot(self):
         self.reset()
         for entity in self.project.getEntities():
-            plot = ActorLine(entity)
+            plot = ActorLine(entity, self.plotRadius)
             plot.build()
             self.actors[plot.getActor()] = entity.getTag()
             self._renderer.AddActor(plot.getActor())
@@ -68,3 +69,9 @@ class RendererEntity(vtkRendererBase):
 
     def update(self):
         self.opv.update()
+
+    def setPlotRadius(self, value):
+        self.plotRadius = value
+
+    def getPlotRadius(self):
+        return self.plotRadius

@@ -56,6 +56,7 @@ class InputUi:
         else:
             self.project.setCrossSection(cross.section)
             print("[Set CrossSection] - defined in all the entities")
+        self.opv.updateEntityRadius()
 
     def setElementType(self):
         ElementTypeInput()

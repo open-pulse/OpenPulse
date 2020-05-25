@@ -3,15 +3,18 @@ from pulse.uix.vtk.vtkActorBase import vtkActorBase
 from pulse.preprocessing.entity import Entity
 
 class ActorLine(vtkActorBase):
-    def __init__(self, entity = Entity(-1)):
+    def __init__(self, entity = Entity(-1), plotRadius = False):
         super().__init__()
 
+        self.entity = entity
         self.color = entity.getColor()
         self.normalizedColor = entity.getNormalizedColor()
         self.nodesList = entity.getNodes()
         self.elementsList = entity.getElements()
         self.tag = entity.getTag()
+        self.plotRadius = plotRadius
         self.radius = 0.01
+        self.changeRadius()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()
@@ -22,6 +25,11 @@ class ActorLine(vtkActorBase):
         self._colorFilter.SetNumberOfComponents(3)
 
         self._mapper = vtk.vtkPolyDataMapper()
+
+    def changeRadius(self):
+        if self.plotRadius:
+            if self.entity.cross is not None:
+                self.radius = self.entity.cross.external_diameter
 
     def source(self):
         for node in self.nodesList:

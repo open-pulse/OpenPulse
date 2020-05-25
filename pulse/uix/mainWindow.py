@@ -79,13 +79,18 @@ class MainWindow(QMainWindow):
         self.entities_action.setStatusTip('Plot Entities')
         self.entities_action.triggered.connect(self.plot_entities)
 
+        self.entities_action_radius = QAction('&Entity with Cross-section', self)        
+        self.entities_action_radius.setShortcut('Ctrl+2')
+        self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
+        self.entities_action_radius.triggered.connect(self.plot_entities_radius)
+
         self.elements_action = QAction('&Elements', self)        
-        self.elements_action.setShortcut('Ctrl+2')
+        self.elements_action.setShortcut('Ctrl+3')
         self.elements_action.setStatusTip('Plot Elements')
         self.elements_action.triggered.connect(self.plot_elements)
 
         self.points_action = QAction('&Points', self)        
-        self.points_action.setShortcut('Ctrl+3')
+        self.points_action.setShortcut('Ctrl+4')
         self.points_action.setStatusTip('Plot Points')
         self.points_action.triggered.connect(self.plot_points)
 
@@ -184,6 +189,7 @@ class MainWindow(QMainWindow):
         projectMenu.addAction(self.exit_action)
 
         graphicMenu.addAction(self.entities_action)
+        graphicMenu.addAction(self.entities_action_radius)
         graphicMenu.addAction(self.elements_action)
         graphicMenu.addAction(self.points_action)
 
@@ -262,6 +268,11 @@ class MainWindow(QMainWindow):
         self.opv_widget.resetInfo()
 
     def plot_entities(self):
+        self.opv_widget.plotEntities()
+        self.opv_widget.changePlotToEntities()
+
+    def plot_entities_radius(self):
+        self.opv_widget.plotEntities(True)
         self.opv_widget.changePlotToEntities()
 
     def plot_elements(self):

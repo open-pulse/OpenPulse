@@ -168,7 +168,8 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.rendererAnalyse.resetCamera()
         self.afterChangePlot()
 
-    def plotEntities(self):
+    def plotEntities(self, plotRadius = False):
+        self.rendererEntity.setPlotRadius(plotRadius)
         self.rendererEntity.plot()
 
     def plotElements(self):
@@ -182,6 +183,9 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def getListPickedPoints(self):
         return self.rendererPoint.getListPickedPoints()
+
+    def updateEntityRadius(self):
+        self.plotEntities(self.rendererEntity.getPlotRadius())
 
     def changeColorEntities(self, entity_id, color):
         self.rendererEntity.changeColorEntities(entity_id, color)
