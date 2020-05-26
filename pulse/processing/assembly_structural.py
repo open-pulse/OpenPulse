@@ -75,24 +75,25 @@ class AssemblyStructural:
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
+            
             # processing mass added
-            if np.sum(node.spring) == 0:
-                continue
-            else:
+            if np.sum(node.spring) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Klump.append(node.spring)
                 ind_Klump.append(position)
             # processing mass added
-            if np.sum(node.mass) == 0:
-                continue
-            else:
+            if np.sum(node.mass) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Mlump.append(node.mass)
                 ind_Mlump.append(position)
             # processing damper added
-            if np.sum(node.damper) == 0:
-                continue
-            else:
+            if np.sum(node.damper) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Clump.append(node.damper)
                 ind_Clump.append(position)
@@ -120,7 +121,7 @@ class AssemblyStructural:
         Kr_lump = full_K[:, prescribed_indexes]
         Mr_lump = full_M[:, prescribed_indexes]
         Cr_lump = full_C[:, prescribed_indexes]
-        print(flag_Clump)
+
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
     def get_all_matrices(self):

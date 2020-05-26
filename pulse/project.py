@@ -120,9 +120,7 @@ class Project:
                 self.loadRadiationImpedanceBC_by_Node(key, RadImp)
 
     def loadAnalysisFile(self):
-        # print(self.minFrequency, self.maxFrequency, self.stepFrequency)
         self.minFrequency, self.maxFrequency, self.stepFrequency = self.file.loadAnalysisFile()
-        # print(self.minFrequency, self.maxFrequency, self.stepFrequency)
 
     def setMaterial_by_Entity(self, entity_id, material):
         if self.file.getImportType() == 0:

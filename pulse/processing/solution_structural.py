@@ -119,7 +119,8 @@ class SolutionStructural:
 
             if sum(self.prescribed_values)>0:
                 self.flag_Modal_prescribed_NonNull_DOFs = True
-                self.warning_Modal_prescribedDOFs = "The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\nThe null value has been attributed to those DOFs with non-zero values."
+                self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                                                      "The null value has been attributed to those DOFs with non-zero values."]
 
         return natural_frequencies, modal_shape
 
@@ -232,9 +233,10 @@ class SolutionStructural:
         solution = self._reinsert_prescribed_dofs(solution, self.prescribed_indexes, self.prescribed_values)
 
         if self.flag_Clump:
-            self.warning_Clump = ["There are external dampers connecting nodes to the ground. The damping, treated as a viscous\n" +  
-                                    " non-proportional model, will be ignored in mode superposition. It's recommended to solve\n" +
-                                    " the harmonic analysis through direct method if you want to get more accurate results!"]
+            self.warning_Clump = ["There are external dampers connecting nodes to the ground. The damping,\n"+
+                                    "treated as a viscous non-proportional model, will be ignored in mode \n"+
+                                    "superposition. It's recommended to solve the harmonic analysis through \n"+
+                                    "direct method if you want to get more accurate results!"]
 
         return solution
 

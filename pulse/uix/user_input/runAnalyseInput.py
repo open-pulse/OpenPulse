@@ -62,12 +62,12 @@ class RunAnalyseInput(QDialog):
         text += "Press ESC to continue..."
         self.label_title.setText(text)
 
-        # WARNINGS FROM ANALYSE
+        # WARNINGS FROM ANALYSES
         if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
             self.error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
 
-        if self.solve.flag_Clump:
-            self.error(self.solve.warning_Clump, title = "WARNING")
+        if self.solve.flag_Clump and self.analyseTypeID==1:
+            self.error(self.solve.warning_Clump[0], title = "WARNING")
 
         if self.solve.flag_Modal_prescribed_NonNull_DOFs:
-            self.error(self.solve.warning_Modal_prescribedDOFs, title = "WARNING")
+            self.error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")

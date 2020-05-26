@@ -158,10 +158,6 @@ class InputUi:
     def addMassSpringDamper(self):
         point_id = self.opv.getListPickedPoints()
         msd = MassSpringDamperInput(point_id)
-
-        if msd.mass is None:
-            return
-
         self.project.setMass_by_Node(msd.nodes, msd.mass)
         self.project.setSpring_by_Node(msd.nodes, msd.spring)
         self.project.setDamper_by_Node(msd.nodes, msd.damper)
