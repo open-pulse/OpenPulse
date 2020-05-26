@@ -135,23 +135,23 @@ class AssemblyStructural:
         return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
     def get_global_loads(self, frequencies, loads_matrix3D=False):
-
+        
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         loads = np.zeros(total_dof)
 
         # distributed loads
         for element in self.mesh.structural_elements.values():
-            if np.sum(element.loaded_forces) == 0:
-                continue
-            position = element.global_dof
-            loads[position] += element.force_vector_gcs()
+            if np.sum(element.loaded_forces) != 0:
+                # continue
+                position = element.global_dof
+                loads[position] += element.force_vector_gcs()
 
         # nodal loads
         for node in self.mesh.nodes.values():
-            if np.sum(node.forces) == 0:
-                continue
-            position = node.global_dof
-            loads[position] += node.forces
+            if np.sum(node.forces) != 0:
+                # continue
+                position = node.global_dof
+                loads[position] += node.forces
             
         unprescribed_indexes = self.get_unprescribed_indexes()
         loads = loads[unprescribed_indexes]
@@ -160,5 +160,5 @@ class AssemblyStructural:
             loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
         else:
             loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
-
+     
         return loads

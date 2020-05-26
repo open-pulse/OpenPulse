@@ -320,42 +320,42 @@ class InputUi:
         if self.project.getAnalysisTypeID() == 2:
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                message = "It's mandatory to set a CrossSection to all\n elements before trying to run any Analysis!"
+                message = "You should to set a CrossSection to all\n elements before trying to run any Analysis!"
                 self.error(message)
                 return True
             if self.project.mesh.flag_setMaterial == True:
-                message = "It's mandatory to set a Material to all elements\n before trying to run any Analysis!"
+                message = "You should to set a Material to all elements\n before trying to run any Analysis!"
                 self.error(message)
                 return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                message = "It's mandatory to set a CrossSection to all \nelements before trying to run any Analysis!"
+                message = "You should to set a CrossSection to all \nelements before trying to run any Analysis!"
                 self.error(message)
                 return True
             if self.project.mesh.flag_setMaterial == True:
-                message = "It's mandatory to set a Material to all \nelements before trying to run any Analysis!"
+                message = "You should to set a Material to all \nelements before trying to run any Analysis!"
                 self.error(message)
                 return True
             elif self.project.mesh.sum_loads == 0:
                 if self.project.mesh.sum_prescribedDOFs == 0:
-                    message = "It's mandatory to apply an external load to the \nmodel before trying to solve the Harmonic Analysis!"
+                    message = "You should to apply an external load to the \nmodel before trying to solve the Harmonic Analysis!"
                     self.error(message)
                     return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
             self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                message = "It's mandatory to set a CrossSection to all \nelements before trying to run any Analysis!"
+                message = "You should to set a CrossSection to all \nelements before trying to run any Analysis!"
                 self.error(message)
                 return True
             elif self.project.mesh.flag_setFluid == True:
-                message = "It's mandatory to set a Fluid to all elements \nbefore trying to run any Analysis!"
+                message = "You should to set a Fluid to all elements \nbefore trying to run any Analysis!"
                 self.error(message)
                 return True
             elif self.project.mesh.sum_acousticPressures == 0:
-                message = "It's mandatory to apply an Acoustic Pressure to \na node before trying to solve the Harmonic Analysis!"
+                message = "You should to apply an Acoustic Pressure to \na node before trying to solve the Harmonic Analysis!"
                 self.error(message)
                 return True
 
