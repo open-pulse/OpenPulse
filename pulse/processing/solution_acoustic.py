@@ -14,7 +14,11 @@ class SolutionAcoustic:
         self.assembly = AssemblyAcoustic(mesh)
         self.frequencies = frequencies
 
-        self.Kadd_lump, self.K, self.Kr, self.K_lump, self.Kr_lump = self.assembly.get_all_matrices(self.frequencies)
+        # self.Kadd_lump, self.K, self.Kr, self.K_lump, self.Kr_lump = self.assembly.get_all_matrices(self.frequencies)
+
+        self.K, self.Kr = self.assembly.get_global_matrices(self.frequencies)
+        self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices(self.frequencies)
+        self.Kadd_lump = [ self.K[i] + self.K_lump[i] for i in range(len(self.frequencies))]
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()

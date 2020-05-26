@@ -1,6 +1,7 @@
 from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox
 
 from pulse.processing.assembly_structural import AssemblyStructural
 
@@ -112,8 +113,10 @@ class SolutionStructural:
 
             modal_shape = self._reinsert_prescribed_dofs( modal_shape, self.prescribed_indexes, np.zeros_like(self.prescribed_values) )
             if sum(self.prescribed_values)>0:
-                print("Warning: prescribed DOFs of non-zero values has been ignored in the modal analysis.")
-                print("         The null value has been attributed to those DOFs with non-zero values.")
+
+                warning = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis." + 
+                           "The null value has been attributed to those DOFs with non-zero values."]
+                self.error(warning, title="WARNING")
 
         return natural_frequencies, modal_shape
 
@@ -179,8 +182,9 @@ class SolutionStructural:
         alphaH, betaH, alphaV, betaV = global_damping_values
 
         if np.sum(self.prescribed_values)>0:
-            print("Warning: The Harmonic Analysis of prescribed DOF's problems had been solved through the Direct Method!")
             solution = self.direct_method(frequencies, global_damping_values=global_damping_values, lump_damping_values=lump_damping_values)
+            warning = "The Harmonic Analysis of prescribed DOF's problems \nhad been solved through the Direct Method!"
+            self.error(warning, title="WARNING")
             return solution
         else:
             F = self.assembly.get_global_loads( frequencies, loads_matrix3D=fastest)
@@ -226,9 +230,11 @@ class SolutionStructural:
         solution = self._reinsert_prescribed_dofs(solution, self.prescribed_indexes, self.prescribed_values)
 
         if flag_Clump:
-                print("WARNING: There are external dampers connecting nodes to the ground. The damping, treated as \n" +  
-                "         a viscous non-proportional model, will be ignored in mode superposition. It's recommended \n" +
-                "         to solve the harmonic analysis through direct method if you want to get more accurate results!")
+            
+            warning = ["There are external dampers connecting nodes to the ground. The damping, treated as a viscous\n" +  
+                      " non-proportional model, will be ignored in mode superposition. It's recommended to solve\n" +
+                      " the harmonic analysis through direct method if you want to get more accurate results!"]
+            self.error(warning, title="WARNING")
 
         return solution
 
@@ -267,3 +273,10 @@ class SolutionStructural:
         else:
             load_reactions = []
         return load_reactions
+
+    def error(self, msg, title = "Error"):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()

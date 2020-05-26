@@ -36,7 +36,7 @@ class AnalyseTypeInput(QDialog):
 
         self.pushButton_modal_structural = self.findChild(QPushButton, 'pushButton_modal_structural')
         self.pushButton_modal_structural.clicked.connect(self.modal_structural)
-
+        self.complete = False
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -57,9 +57,9 @@ class AnalyseTypeInput(QDialog):
         self.typeID = select.index
         self.type = "Harmonic Analysis - Structural"
         if self.typeID == 0:
-            self.method = "Direct"
+            self.method = "Direct Method"
         else:
-            self.method = "Mode Superposition"
+            self.method = "Mode Superposition Method"
         self.close()
 
     def harmonic_acoustic(self):
@@ -67,7 +67,7 @@ class AnalyseTypeInput(QDialog):
         self.typeID = select.index
         self.type = "Harmonic Analysis - Acoustic"
         if self.typeID == 0:
-            self.method = "Direct"
+            self.method = "Direct Method"
         # else:
         #     self.method = "Mode Superposition"
         self.close()
@@ -79,4 +79,5 @@ class AnalyseTypeInput(QDialog):
         self.modes = modal.modes
         self.typeID = 2
         self.type = "Modal Analysis - Structural"
+        self.complete = modal.complete
         self.close()

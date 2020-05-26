@@ -102,14 +102,14 @@ class AssemblyAcoustic:
 
         return K_lump, Kr_lump
         
-    def get_all_matrices(self, frequencies):
+    # def get_all_matrices(self, frequencies):
         
-        K, Kr = self.get_global_matrices(frequencies)
-        K_lump, Kr_lump = self.get_lumped_matrices(frequencies)
+    #     K, Kr = self.get_global_matrices(frequencies)
+    #     K_lump, Kr_lump = self.get_lumped_matrices(frequencies)
         
-        Kadd_lump = [ K[i] + K_lump[i] for i in range(len(frequencies))]
+    #     Kadd_lump = [ K[i] + K_lump[i] for i in range(len(frequencies))]
 
-        return Kadd_lump, K, Kr, K_lump, Kr_lump
+    #     return Kadd_lump, K, Kr, K_lump, Kr_lump
 
     def get_global_volume_velocity(self, frequencies):
 

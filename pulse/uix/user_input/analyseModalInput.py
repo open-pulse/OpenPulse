@@ -21,7 +21,7 @@ class AnalyseModalInput(QDialog):
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
-
+        self.complete = False
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -54,6 +54,7 @@ class AnalyseModalInput(QDialog):
             else:
                 self.error("Value error")
                 return
+        self.complete = True
         self.close()
 
     def button_clicked(self):

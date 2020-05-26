@@ -218,6 +218,7 @@ class Project:
 
     def setFrequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
+            self.minFrequency, self.maxFrequency, self.stepFrequency = min_, max_, step_
             self.file.addFrequencyInFile(min_, max_, step_)
         self.frequencies = frequencies
 

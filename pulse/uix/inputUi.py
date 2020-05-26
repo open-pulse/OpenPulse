@@ -5,6 +5,7 @@ from pulse.uix.user_input.loadsInput import LoadsInput
 from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
 from pulse.uix.user_input.analyseTypeInput import AnalyseTypeInput
 from pulse.uix.user_input.analyseSetupInput import AnalyseSetupInput
+from pulse.uix.user_input.analyseModalInput import AnalyseModalInput
 from pulse.uix.user_input.analyseOutputResultsInput import AnalyseOutputResultsInput
 from pulse.uix.user_input.runAnalyseInput import RunAnalyseInput
 from pulse.uix.user_input.dofInput import DOFInput
@@ -19,6 +20,8 @@ from pulse.uix.user_input.plotFrequencyResponseInput import PlotFrequencyRespons
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.project import Project
+
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox
 
 class InputUi:
     def __init__(self, project, parent=None):
@@ -166,24 +169,30 @@ class InputUi:
         print("[Set Mass/Spring/Damper] - defined in the point(s) {}".format(msd.nodes))
 
     def analyseTypeInput(self):
-        analyseType = AnalyseTypeInput()
-        if analyseType.typeID is None:
+        analysis_input = AnalyseTypeInput()
+        if analysis_input.typeID is None:
             return
-        self.project.setAnalysisType(analyseType.typeID, analyseType.type, analyseType.method)
-        self.project.setModes(analyseType.modes)
+ 
+        self.project.setAnalysisType(analysis_input.typeID, analysis_input.type, analysis_input.method)
+        self.project.setModes(analysis_input.modes)
 
-        if analyseType.typeID == 0 or analyseType.typeID == 1:
+        if analysis_input.typeID == 0 or analysis_input.typeID == 1:
             self.analyseSetup()
-        elif analyseType.typeID == 2:
-            self.runAnalyse()
+        elif analysis_input.typeID == 2:
+            if not analysis_input.complete:
+                return
+            else:
+                self.runAnalyse()
    
     def analyseSetup(self):
 
         if self.project.getAnalysisTypeID() is None:
             return
-        
-        minFrequency, maxFrequency, stepFrequency = self.project.getMinMaxStepFrequency()
-        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod(), min_freq = minFrequency, max_freq = maxFrequency, step_freq = stepFrequency)
+
+        self.project.loadAnalysisFile()
+        f_min, f_max, df = self.project.minFrequency, self.project.maxFrequency, self.project.stepFrequency
+        TypeID, AnalysisType, AnalysisMethod = self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod() 
+        setup = AnalyseSetupInput(TypeID, AnalysisType, AnalysisMethod, min_freq = f_min, max_freq = f_max, step_freq = df)
       
         if not setup.complete:
             return
@@ -316,33 +325,48 @@ class InputUi:
         if self.project.getAnalysisTypeID() == 2:
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a CrossSection to all\n elements before trying to run any Analysis!"
+                self.error(message)
                 return True
             if self.project.mesh.flag_setMaterial == True:
-                print("Warning: you should to set a Material to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a Material to all elements\n before trying to run any Analysis!"
+                self.error(message)
                 return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a CrossSection to all \nelements before trying to run any Analysis!"
+                self.error(message)
                 return True
             if self.project.mesh.flag_setMaterial == True:
-                print("Warning: you should to set a Material to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a Material to all \nelements before trying to run any Analysis!"
+                self.error(message)
                 return True
             elif self.project.mesh.sum_loads == 0:
                 if self.project.mesh.sum_prescribedDOFs == 0:
-                    print("Warning: you should to set an external nodal load to the model before trying to solve a Harmonic Analysis!")
+                    message = "It's mandatory to apply an external load to the \nmodel before trying to solve the Harmonic Analysis!"
+                    self.error(message)
                     return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
             self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a CrossSection to all \nelements before trying to run any Analysis!"
+                self.error(message)
                 return True
             elif self.project.mesh.flag_setFluid == True:
-                print("Warning: you should to set a Fluid to all elements before trying to run any Analysis!")
+                message = "It's mandatory to set a Fluid to all elements \nbefore trying to run any Analysis!"
+                self.error(message)
                 return True
             elif self.project.mesh.sum_acousticPressures == 0:
-                print("Warning: you should to set an Acoustic Pressure to a node before trying to solve a Harmonic Analysis!")
+                message = "It's mandatory to apply an Acoustic Pressure to \na node before trying to solve the Harmonic Analysis!"
+                self.error(message)
                 return True
+
+    def error(self, msg, title = "ERROR: INSUFFICIENT MODEL INPUTS!"):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()

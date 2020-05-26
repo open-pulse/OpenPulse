@@ -94,6 +94,7 @@ class AnalyseSetupInput(QDialog):
             if self.analyseID == 1:
                 if self.lineEdit_modes.text() == "":
                     self.error("Insert a value (modes)")
+                    return
                 else:
                     if self.isInteger(self.lineEdit_modes.text()):
                         self.modes = int(self.lineEdit_modes.text())
