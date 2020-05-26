@@ -31,7 +31,8 @@ class Mesh:
         self.flag_setFluid = False
         self.sum_loads = 0
         self.sum_prescribedDOFs = 0
-        self.sum_acousticPressures = False
+        self.sum_acousticPressures = 0
+        self.sum_volumeVelocity = 0
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -306,6 +307,7 @@ class Mesh:
     def set_volume_velocity_BC_by_node(self, nodes, volume_velocity):
         for node in slicer(self.nodes, nodes):
             node.volume_velocity = volume_velocity
+            self.sum_volumeVelocity += volume_velocity
 
     def set_specific_impedance_BC_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
