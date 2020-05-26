@@ -63,11 +63,11 @@ class RunAnalyseInput(QDialog):
         self.label_title.setText(text)
 
         # WARNINGS FROM ANALYSES
-        if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
-            self.error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
-
-        if self.solve.flag_Clump and self.analyseTypeID==1:
-            self.error(self.solve.warning_Clump[0], title = "WARNING")
-
-        if self.solve.flag_Modal_prescribed_NonNull_DOFs:
-            self.error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")
+        if self.analysis_type == "Harmonic Analysis - Structural":
+            if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
+                self.error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
+            if self.solve.flag_Clump and self.analyseTypeID==1:
+                self.error(self.solve.warning_Clump[0], title = "WARNING")
+        if self.analysis_type == "Modal Analysis - Structural":
+            if self.solve.flag_Modal_prescribed_NonNull_DOFs:
+                self.error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")
