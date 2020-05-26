@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set Element Type</string>
+   <string> Set: Element Type</string>
   </property>
   <property name="whatsThis">
    <string/>

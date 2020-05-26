@@ -8,8 +8,9 @@ from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 
 class AssemblyStructural:
-    def __init__(self, mesh):
+    def __init__(self, mesh, **kwargs):
         self.mesh = mesh
+        self.acoustic_solution = kwargs.get("acoustic_solution", None)
 
     def get_prescribed_indexes(self):
         global_prescribed = []

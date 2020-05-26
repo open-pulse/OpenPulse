@@ -387,7 +387,11 @@ class Project:
         return self.damping
 
     def getStructuralSolve(self):
-        return SolutionStructural(self.mesh)
+        if self.getAnalysisType == "Harmonic Analysis - Coupled":
+            results = SolutionStructural(self.mesh, acoustic_solution=self.getAcousticSolve())
+        else:
+            results = SolutionStructural(self.mesh)
+        return results
 
     def setStructuralSolution(self, value):
         self.solution_structural = value

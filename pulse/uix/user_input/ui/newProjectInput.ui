@@ -41,7 +41,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>New Project</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;New Project&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -63,7 +63,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Project Name</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Project Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -117,7 +117,7 @@
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>.iges</string>
+      <string>Import Geometry</string>
      </attribute>
      <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">
@@ -166,9 +166,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_4">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>91</width>
+        <x>8</x>
+        <y>2</y>
+        <width>85</width>
         <height>21</height>
        </rect>
       </property>
@@ -176,7 +176,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Import Geometry</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Geometry File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -194,14 +194,26 @@
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
         <widget class="QLineEdit" name="line_element_size">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
          <property name="inputMethodHints">
           <set>Qt::ImhNone</set>
          </property>
          <property name="maxLength">
           <number>20</number>
          </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="cursorPosition">
+          <number>0</number>
+         </property>
          <property name="placeholderText">
-          <string>Element Size</string>
+          <string>          Element Size</string>
          </property>
         </widget>
        </item>
@@ -210,9 +222,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_7">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>8</x>
         <y>30</y>
-        <width>91</width>
+        <width>85</width>
         <height>21</height>
        </rect>
       </property>
@@ -220,7 +232,26 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Element Size</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Element Size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_15">
+      <property name="geometry">
+       <rect>
+        <x>234</x>
+        <y>30</y>
+        <width>83</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Unit: [m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -229,14 +260,14 @@
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>cord/conn</string>
+      <string>Import Mesh</string>
      </attribute>
      <widget class="QWidget" name="verticalLayoutWidget_9">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>124</x>
         <y>0</y>
-        <width>281</width>
+        <width>257</width>
         <height>22</height>
        </rect>
       </property>
@@ -280,15 +311,15 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>91</width>
-        <height>21</height>
+        <width>123</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_11">
        <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Cord</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Nodal Coordinates File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -297,9 +328,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_12">
       <property name="geometry">
        <rect>
-        <x>100</x>
+        <x>124</x>
         <y>30</y>
-        <width>281</width>
+        <width>257</width>
         <height>22</height>
        </rect>
       </property>
@@ -343,15 +374,15 @@
        <rect>
         <x>0</x>
         <y>30</y>
-        <width>91</width>
-        <height>21</height>
+        <width>123</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_14">
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Conn</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Connectivity Matrix File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>

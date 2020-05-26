@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set Prescribed DOFs</string>
+   <string> Set: Radiation Impedance</string>
   </property>
   <property name="windowIcon">
    <iconset>

@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set Material</string>
+   <string>Set: Fluid</string>
   </property>
   <property name="windowIcon">
    <iconset>

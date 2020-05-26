@@ -72,6 +72,16 @@ class AnalyseTypeInput(QDialog):
         #     self.method = "Mode Superposition"
         self.close()
 
+    # def harmonic_coupled(self):
+    #     select = AnalyseCoupledHarmonicInput()
+    #     self.typeID = select.index
+    #     self.type = "Harmonic Analysis - Coupled"
+    #     if self.typeID == 0:
+    #         self.method = "Direct Method"
+    #     # else:
+    #     #     self.method = "Mode Superposition"
+    #     self.close()
+
     def modal_structural(self):
         modal = AnalyseModalInput()
         if modal.modes is None:
