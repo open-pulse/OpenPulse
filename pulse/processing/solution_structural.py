@@ -1,7 +1,6 @@
 from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox
 
 from pulse.processing.assembly_structural import AssemblyStructural
 
@@ -19,6 +18,11 @@ class SolutionStructural:
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
+        self.flag_Modal_prescribed_NonNull_DOFs = False
+        self.flag_ModeSup_prescribed_NonNull_DOFs = False
+        self.warning_Clump = ""
+        self.warning_ModeSup_prescribedDOFs = ""
+        self.warning_Modal_prescribedDOFs = ""
 
 
     def _reinsert_prescribed_dofs(self, solution, prescribed_indexes, prescribed_values):
@@ -112,11 +116,10 @@ class SolutionStructural:
         if not harmonic_analysis:
 
             modal_shape = self._reinsert_prescribed_dofs( modal_shape, self.prescribed_indexes, np.zeros_like(self.prescribed_values) )
-            if sum(self.prescribed_values)>0:
 
-                warning = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis." + 
-                           "The null value has been attributed to those DOFs with non-zero values."]
-                self.error(warning, title="WARNING")
+            if sum(self.prescribed_values)>0:
+                self.flag_Modal_prescribed_NonNull_DOFs = True
+                self.warning_Modal_prescribedDOFs = "The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\nThe null value has been attributed to those DOFs with non-zero values."
 
         return natural_frequencies, modal_shape
 
@@ -183,14 +186,13 @@ class SolutionStructural:
 
         if np.sum(self.prescribed_values)>0:
             solution = self.direct_method(frequencies, global_damping_values=global_damping_values, lump_damping_values=lump_damping_values)
-            warning = "The Harmonic Analysis of prescribed DOF's problems \nhad been solved through the Direct Method!"
-            self.error(warning, title="WARNING")
+            self.flag_ModeSup_prescribed_NonNull_DOFs = True
+            self.warning_ModeSup_prescribedDOFs = "The Harmonic Analysis of prescribed DOF's problems \nhad been solved through the Direct Method!"
             return solution
         else:
             F = self.assembly.get_global_loads( frequencies, loads_matrix3D=fastest)
             Kadd_lump = self.Kadd_lump
             Madd_lump = self.Madd_lump
-            flag_Clump = self.flag_Clump
 
         #TODO: in the future version implement lets F_loaded operational
 
@@ -229,16 +231,15 @@ class SolutionStructural:
 
         solution = self._reinsert_prescribed_dofs(solution, self.prescribed_indexes, self.prescribed_values)
 
-        if flag_Clump:
-            
-            warning = ["There are external dampers connecting nodes to the ground. The damping, treated as a viscous\n" +  
-                      " non-proportional model, will be ignored in mode superposition. It's recommended to solve\n" +
-                      " the harmonic analysis through direct method if you want to get more accurate results!"]
-            self.error(warning, title="WARNING")
+        if self.flag_Clump:
+            self.warning_Clump = ["There are external dampers connecting nodes to the ground. The damping, treated as a viscous\n" +  
+                                    " non-proportional model, will be ignored in mode superposition. It's recommended to solve\n" +
+                                    " the harmonic analysis through direct method if you want to get more accurate results!"]
 
         return solution
 
     def get_reactions_at_fixed_nodes(self, frequencies, U, global_damping_values=(0,0,0,0)):
+
         ''' This method returns reaction forces/moments at fixed points.
             load_reactions = [lines=frequencies; columns=reactions_at_node]'''
 
@@ -273,10 +274,3 @@ class SolutionStructural:
         else:
             load_reactions = []
         return load_reactions
-
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()

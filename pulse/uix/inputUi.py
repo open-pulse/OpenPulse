@@ -5,7 +5,6 @@ from pulse.uix.user_input.loadsInput import LoadsInput
 from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
 from pulse.uix.user_input.analyseTypeInput import AnalyseTypeInput
 from pulse.uix.user_input.analyseSetupInput import AnalyseSetupInput
-from pulse.uix.user_input.analyseModalInput import AnalyseModalInput
 from pulse.uix.user_input.analyseOutputResultsInput import AnalyseOutputResultsInput
 from pulse.uix.user_input.runAnalyseInput import RunAnalyseInput
 from pulse.uix.user_input.dofInput import DOFInput

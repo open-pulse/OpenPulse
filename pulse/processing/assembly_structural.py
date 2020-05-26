@@ -120,7 +120,7 @@ class AssemblyStructural:
         Kr_lump = full_K[:, prescribed_indexes]
         Mr_lump = full_M[:, prescribed_indexes]
         Cr_lump = full_C[:, prescribed_indexes]
-
+        print(flag_Clump)
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
     def get_all_matrices(self):

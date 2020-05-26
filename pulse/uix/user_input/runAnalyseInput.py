@@ -61,3 +61,13 @@ class RunAnalyseInput(QDialog):
         text += "Time elapsed: {} [s]\n".format(fim-inicio)
         text += "Press ESC to continue..."
         self.label_title.setText(text)
+
+        # WARNINGS FROM ANALYSE
+        if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
+            self.error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
+
+        if self.solve.flag_Clump:
+            self.error(self.solve.warning_Clump, title = "WARNING")
+
+        if self.solve.flag_Modal_prescribed_NonNull_DOFs:
+            self.error(self.solve.warning_Modal_prescribedDOFs, title = "WARNING")
