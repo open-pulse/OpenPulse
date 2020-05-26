@@ -180,6 +180,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         elif type_ == 3:
             text += "Modal Analysis - Structural\n"
             text += "Mode: {}\n".format(mode)
+        if type_ == 4:
+            text += "Harmonic Analysis - Acoustic\n"
+            text += "Direct Method\n"
         text += "Frequency: {} [Hz]\n".format(frequencies[frequency])
         text += "Magnification factor {:.1f}x\n".format(factor)
         self.textActorPostProcessing.SetInput(text)
@@ -352,7 +355,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(self.style_post_processing)
         self.GetRenderWindow().AddRenderer(self.renderer_post_processing)
         self.resetCamera()
-        self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
+        if Acoustic:
+            self.update_text_actor_post_processing(4, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
+        else:
+            self.update_text_actor_post_processing(1, frequency_indice, self.project.getFrequencies(), factor, self.project.getModes())
         self.updateTextUnit(self.project.getUnit())
         self.afterChangePlot()
 
@@ -394,7 +400,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
-            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+            if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
                 point = Point(node)
             else:
                 point = Point(node, u_def=coord[node.global_index,1:])
@@ -418,7 +424,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
-            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+            if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
                 point = Point(node)
             else:
                 point = Point(node, u_def=coord[node.global_index,1:])
@@ -446,7 +452,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         plot.assembly()
         self.renderer_post_processing.AddActor(plot.get_actor())
         for node in self.project.getStructuralBCNodes():
-            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+            if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
                 point = Point(node)
             else:
                 point = Point(node, u_def=coord[node.global_index,1:])
@@ -519,7 +525,7 @@ class OPVUi(QVTKRenderWindowInteractor):
                 nodeAll.append(node_id)
             elif node.haveBoundaryCondition():
                 nodeBC.append(node_id)
-                if sum([value for value in node.structural_boundary_condition if value != None])==0:
+                if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
                     colorBC = [0,0,0]
                 else:
                     colorBC = [1,1,1]

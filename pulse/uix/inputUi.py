@@ -9,6 +9,7 @@ from pulse.uix.user_input.analyseOutputResultsInput import AnalyseOutputResultsI
 from pulse.uix.user_input.runAnalyseInput import RunAnalyseInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
+from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 
@@ -57,7 +58,7 @@ class InputUi:
                 return
             for entity in entities_id:
                 self.project.setFluid_by_Entity(entity, fld.fluid)
-            print("[Set Material] - {} defined in the entities {}".format(fld.fluid.name, entities_id))
+            print("[Set Fluid] - {} defined in the entities {}".format(fld.fluid.name, entities_id))
             self.opv.changeColorEntities(entities_id, fld.fluid.getNormalizedColorRGB())
         else:
             self.project.setFluid(fld.fluid)
@@ -104,7 +105,7 @@ class InputUi:
         if read.impedance is None:
             return
 
-        self.project.setSpecificImpedance_by_Node(read.nodes, read.impedance)
+        self.project.setSpecificImpedanceBC_by_Node(read.nodes, read.impedance)
         print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes))
         self.opv.transformPoints(read.nodes)
 
@@ -112,10 +113,10 @@ class InputUi:
         point_id = self.opv.getListPickedPoints()
         read = AcousticPressureInput(point_id)
 
-        if read.pressure is None:
+        if read.acoustic_pressure is None:
             return
 
-        self.project.setAcousticPressureBC_by_Node(read.nodes, read.pressure)
+        self.project.setAcousticPressureBC_by_Node(read.nodes, read.acoustic_pressure)
         print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes))
         self.opv.transformPoints(read.nodes)
 
@@ -127,10 +128,19 @@ class InputUi:
             return
 
         self.project.setVolumeVelocityBC_by_Node(read.nodes, read.volume_velocity)
-        print("[Set volume Velocity Source] - defined in the point(s) {}".format(read.nodes))
+        print("[Set Volume Velocity Source] - defined in the point(s) {}".format(read.nodes))
         self.opv.transformPoints(read.nodes)
 
+    def setRadiationImpedance(self):
+        point_id = self.opv.getListPickedPoints()
+        read = RadiationImpedanceInput(point_id)
 
+        if read.radiation_impedance is None:
+            return
+
+        self.project.setRadiationImpedanceBC_by_Node(read.nodes, read.radiation_impedance)
+        print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes))
+        self.opv.transformPoints(read.nodes)
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
@@ -159,36 +169,40 @@ class InputUi:
         analyseType = AnalyseTypeInput()
         if analyseType.typeID is None:
             return
-        
         self.project.setAnalysisType(analyseType.typeID, analyseType.type, analyseType.method)
         self.project.setModes(analyseType.modes)
-        
+
         if analyseType.typeID == 0 or analyseType.typeID == 1:
             self.analyseSetup()
         elif analyseType.typeID == 2:
             self.runAnalyse()
-
+   
     def analyseSetup(self):
+
         if self.project.getAnalysisTypeID() is None:
             return
-        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod())
         
+        minFrequency, maxFrequency, stepFrequency = self.project.getMinMaxStepFrequency()
+        setup = AnalyseSetupInput(self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod(), min_freq = minFrequency, max_freq = maxFrequency, step_freq = stepFrequency)
+      
         if not setup.complete:
             return
-
+    
         elif self.project.getAnalysisTypeID() == 0 or self.project.getAnalysisTypeID() == 1:
             if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-                self.project.setFrequencies(setup.frequencies)
+                self.project.setFrequencies(setup.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
                 self.project.setModes(setup.modes)
                 self.project.setDamping(setup.damping)
             elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                self.project.setFrequencies(setup.frequencies)
-                # print(setup.frequencies)
+                self.project.setFrequencies(setup.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
 
     def analyseOutputResults(self):
         AnalyseOutputResultsInput()
 
     def runAnalyse(self):
+
+        if self._check_is_there_a_problem():
+            return
 
         analyseTypeID = self.project.getAnalysisTypeID()
         analysis_type = self.project.getAnalysisType()
@@ -296,3 +310,39 @@ class InputUi:
     def newProject(self):
         result = NewProjectInput(self.project)
         return result.create
+
+    def _check_is_there_a_problem(self):
+  
+        if self.project.getAnalysisTypeID() == 2:
+            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                return True
+            if self.project.mesh.flag_setMaterial == True:
+                print("Warning: you should to set a Material to all elements before trying to run any Analysis!")
+                return True
+
+        if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
+            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                return True
+            if self.project.mesh.flag_setMaterial == True:
+                print("Warning: you should to set a Material to all elements before trying to run any Analysis!")
+                return True
+            elif self.project.mesh.sum_loads == 0:
+                if self.project.mesh.sum_prescribedDOFs == 0:
+                    print("Warning: you should to set an external nodal load to the model before trying to solve a Harmonic Analysis!")
+                    return True
+
+        if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
+            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                print("Warning: you should to set a CrossSection to all elements before trying to run any Analysis!")
+                return True
+            elif self.project.mesh.flag_setFluid == True:
+                print("Warning: you should to set a Fluid to all elements before trying to run any Analysis!")
+                return True
+            elif self.project.mesh.sum_acousticPressures == 0:
+                print("Warning: you should to set an Acoustic Pressure to a node before trying to solve a Harmonic Analysis!")
+                return True

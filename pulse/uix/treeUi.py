@@ -29,6 +29,7 @@ class TreeUi(QTreeWidget):
         self.name_child_setAcousticPressure = "Set Acoustic Pressure"
         self.name_child_setVolumeVelocity = "Set Volume Velocity"
         self.name_child_setSpecificImpedance = "Set Specific Impedance"
+        self.name_child_setRadiationImpedance = "Set Radiation Impedance"
         
         self.name_top_analysis = "Analysis"
         self.name_child_selectAnalysisType = "Select Analysis Type"
@@ -85,6 +86,7 @@ class TreeUi(QTreeWidget):
         self.item_child_setAcousticPressure = QTreeWidgetItem([self.name_child_setAcousticPressure])
         self.item_child_setVolumeVelocity = QTreeWidgetItem([self.name_child_setVolumeVelocity])
         self.item_child_setSpecificImpedance = QTreeWidgetItem([self.name_child_setSpecificImpedance])
+        self.item_child_setRadiationImpedance = QTreeWidgetItem([self.name_child_setRadiationImpedance])
 
         self.item_top_analysis = QTreeWidgetItem([self.name_top_analysis])
         self.item_child_selectAnalysisType = QTreeWidgetItem([self.name_child_selectAnalysisType])
@@ -140,7 +142,8 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_setFluid)             
         self.addTopLevelItem(self.item_child_setAcousticPressure) 
         self.addTopLevelItem(self.item_child_setVolumeVelocity)     
-        self.addTopLevelItem(self.item_child_setSpecificImpedance)   
+        self.addTopLevelItem(self.item_child_setSpecificImpedance)
+        self.addTopLevelItem(self.item_child_setRadiationImpedance)     
 
         self.addTopLevelItem(self.item_top_analysis)
         self.addTopLevelItem(self.item_child_selectAnalysisType)
@@ -160,12 +163,14 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().setMaterial()
         elif item.text(0) == self.name_child_setFluid: 
             self.mainWindow.getInputWidget().setFluid()
-        elif item.text(0) == self.name_child_setSpecificImpedance:
-            self.mainWindow.getInputWidget().setSpecificImpedance()
         elif item.text(0) == self.name_child_setAcousticPressure:
             self.mainWindow.getInputWidget().setAcousticPressure()
         elif item.text(0) == self.name_child_setVolumeVelocity: 
             self.mainWindow.getInputWidget().setVolumeVelocity()
+        elif item.text(0) == self.name_child_setSpecificImpedance:
+            self.mainWindow.getInputWidget().setSpecificImpedance()
+        elif item.text(0) == self.name_child_setRadiationImpedance:
+            self.mainWindow.getInputWidget().setRadiationImpedance()
         elif item.text(0) == self.name_child_setCrossSection:
             self.mainWindow.getInputWidget().setCrossSection()
         elif item.text(0) == self.name_child_setElementType:

@@ -119,26 +119,31 @@ class MainWindow(QMainWindow):
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
-        #Structural Model Setup
+        #Acoustic Model Setup
         self.setFluid_action = QAction('&Set Fluid', self)        
         self.setFluid_action.setShortcut('Ctrl+Alt+1')
         self.setFluid_action.setStatusTip('Set Fluid')
         self.setFluid_action.triggered.connect(self.getInputWidget().setFluid)
 
-        self.setAcousticPressure_action = QAction('&Set Fluid', self)        
+        self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
         self.setAcousticPressure_action.setShortcut('Ctrl+Alt+2')
         self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
-        self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setFluid)
+        self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
 
-        self.setVolumeVelocity_action = QAction('&Set Fluid', self)        
+        self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
         self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+3')
         self.setVolumeVelocity_action.setStatusTip('Set Volume Velocity')
-        self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setFluid)
+        self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setVolumeVelocity)
 
-        self.setSpecificImpedance_action = QAction('&Set Fluid', self)        
+        self.setSpecificImpedance_action = QAction('&Set Specific Impedance', self)        
         self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+4')
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
-        self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setFluid)
+        self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
+
+        self.setRadiationImpedance_action = QAction('&Set Radiation Impedance', self)        
+        self.setRadiationImpedance_action.setShortcut('Ctrl+Alt+5')
+        self.setRadiationImpedance_action.setStatusTip('Set Radiation Impedance')
+        self.setRadiationImpedance_action.triggered.connect(self.getInputWidget().setRadiationImpedance)
 
         #Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
@@ -218,6 +223,7 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setAcousticPressure_action)
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
+        modelSetup.addAction(self.setRadiationImpedance_action)
 
         analysisMenu.addAction(self.selectAnalysisType_action)
         analysisMenu.addAction(self.analysisSetup_action)

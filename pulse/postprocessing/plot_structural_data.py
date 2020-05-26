@@ -29,6 +29,8 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=
     
     if Normalize:
         r_max = max(r_def)
+        if r_max==0:
+            r_max=1
     else:
         r_max, scf = 1, 1
 

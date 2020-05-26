@@ -6,21 +6,21 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-class AcousticPressureInput(QDialog):
+class RadiationImpedanceInput(QDialog):
     def __init__(self, list_node_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/acousticpressureInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/radiationimpedanceInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.acoustic_pressure = None
+        self.radiation_impedance = None
         self.nodes = []
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
-        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
+        self.lineEdit_impedance = self.findChild(QLineEdit, 'lineEdit_impedance')
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check)
@@ -62,6 +62,7 @@ class AcousticPressureInput(QDialog):
         except:
             return False
 
+
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -74,13 +75,13 @@ class AcousticPressureInput(QDialog):
             self.error("Wrong input for Node ID's!", "Error Node ID's")
             return
 
-        acoustic_pressure = None
-        if self.lineEdit_pressure.text() != "":
-            if self.isFloat(self.lineEdit_pressure.text()):
-                acoustic_pressure = float(self.lineEdit_pressure.text())
+        radiation_impedance = None
+        if self.lineEdit_impedance.text() != "":
+            if self.isFloat(self.lineEdit_impedance.text()):
+                radiation_impedance = float(self.lineEdit_impedance.text())
             else:
-                self.error("Wrong input (pressure)!", "Error")
+                self.error("Wrong input (radiation impedance)!", "Error")
                 return
 
-        self.acoustic_pressure = acoustic_pressure
+        self.radiation_impedance = radiation_impedance
         self.close()

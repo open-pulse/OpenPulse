@@ -26,6 +26,12 @@ class Mesh:
         self.AcousticBCnodes = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
+        self.flag_setMaterial = False
+        self.flag_setCrossSection = False
+        self.flag_setFluid = False
+        self.sum_loads = 0
+        self.sum_prescribedDOFs = 0
+        self.sum_acousticPressures = False
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -249,9 +255,9 @@ class Mesh:
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
-    
+        
     # Structural physical quantities
-    def set_material_by_element(self, elements, material):
+    def set_material_by_element(self, elements, material):       
         for element in slicer(self.structural_elements, elements):
             element.material = material
 
@@ -259,13 +265,15 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_material_by_element(elements, material)
 
-    def set_force_by_element(self, elements, loaded_force):
+    def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
-            element.loaded_forces = loaded_force
+            element.loaded_forces = loads
+            self.sum_loads += sum([i for i in loads if i is not None])
     
-    def set_force_by_node(self, nodes, loaded_force):
+    def set_force_by_node(self, nodes, loads):
         for node in slicer(self.nodes, nodes):
-            node.forces = loaded_force
+            node.forces = loads
+            self.sum_loads += sum([i for i in loads if i is not None])
 
     def add_mass_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -279,9 +287,11 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.damper = values
 
-    def set_structural_boundary_condition_by_node(self, nodes, boundary_condition):
+    def set_prescribed_DOFs_BC_by_node(self, nodes, boundary_condition):
+        
         for node in slicer(self.nodes, nodes):
-            node.structural_boundary_condition = boundary_condition
+            node.prescribed_DOFs_BC = boundary_condition
+            self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])
             self.StructuralBCnodes.append(node)
 
     # Acoustic physical quantities
@@ -313,3 +323,28 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = acoustic_pressure
             self.AcousticBCnodes.append(node)
+            self.sum_acousticPressures += acoustic_pressure
+
+    def check_Material_and_CrossSection_in_all_elements(self):
+        self.flag_setMaterial = False
+        self.flag_setCrossSection = False
+        for element in self.structural_elements.values():
+            if element.material is None:
+                self.flag_setMaterial = True
+                return
+            if element.cross_section is None:
+                self.flag_setCrossSection = True
+                return
+        return
+
+    def check_Fluid_and_CrossSection_in_all_elements(self):
+        self.flag_setFluid = False
+        self.flag_setCrossSection = False
+        for element in self.acoustic_elements.values():
+            if element.fluid is None:
+                self.flag_setFluid = True
+                return
+            if element.cross_section is None:
+                self.flag_setCrossSection = True
+                return
+        return
