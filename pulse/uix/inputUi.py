@@ -359,7 +359,7 @@ class InputUi:
                 self.error(message)
                 return True
 
-    def error(self, msg, title = "ERROR: INSUFFICIENT MODEL INPUTS!"):
+    def error(self, msg, title = " ERROR: INSUFFICIENT MODEL INPUTS! "):
         msg_box = QMessageBox()
         msg_box.setIcon(QMessageBox.Critical)
         msg_box.setText(msg)

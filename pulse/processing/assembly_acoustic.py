@@ -9,6 +9,7 @@ from pulse.preprocessing.element_acoustic import ENTRIES_PER_ELEMENT, DOF_PER_EL
 class AssemblyAcoustic:
     def __init__(self, mesh):
         self.mesh = mesh
+        self.flag = False
 
     def get_prescribed_indexes(self):
         global_prescribed = []
@@ -61,6 +62,9 @@ class AssemblyAcoustic:
     def get_lumped_matrices(self, frequencies):
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
+
+        prescribed_indexes = self.get_prescribed_indexes()
+        unprescribed_indexes = self.get_unprescribed_indexes()
         
         data_Klump = []
         ind_Klump = []
@@ -69,11 +73,10 @@ class AssemblyAcoustic:
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
-            if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) == 0:
-                continue
-            else:
+            if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) != 0:
+            #     continue
+            # else:
                 position = node.global_index
-
                 area_fluid = []
 
                 for element in elements:
@@ -91,11 +94,12 @@ class AssemblyAcoustic:
                     data_Klump = node.admittance(area_fluid, frequencies)
                 else:
                     data_Klump = np.c_[data_Klump, node.admittance(area_fluid, frequencies)]
+                self.flag = True
 
-        full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
-
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = self.get_unprescribed_indexes()
+        if self.flag:
+            full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof], dtype=float) for data in data_Klump]
+        else:
+            full_K = [csr_matrix((total_dof, total_dof), dtype=float) for freq in frequencies]
 
         K_lump = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
@@ -117,10 +121,10 @@ class AssemblyAcoustic:
         volume_velocity = np.zeros([len(frequencies), total_dof])
 
         for node in self.mesh.nodes.values():
-            if np.sum(node.volume_velocity) == 0:
-                continue
-            position = node.global_index
-            volume_velocity[:, position] += node.get_prescribed_volume_velocity(frequencies)
+            if np.sum(node.volume_velocity) != 0:
+                # continue
+                position = node.global_index
+                volume_velocity[:, position] += node.get_prescribed_volume_velocity(frequencies)
         
         unprescribed_indexes = self.get_unprescribed_indexes()
         volume_velocity = volume_velocity[:, unprescribed_indexes]
