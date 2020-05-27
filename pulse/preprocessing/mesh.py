@@ -33,6 +33,7 @@ class Mesh:
         self.sum_prescribedDOFs = 0
         self.sum_acousticPressures = 0
         self.sum_volumeVelocity = 0
+        self.radius = {}
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -326,6 +327,15 @@ class Mesh:
             node.acoustic_pressure = acoustic_pressure
             self.AcousticBCnodes.append(node)
             self.sum_acousticPressures += acoustic_pressure
+    
+    def getRadius(self):
+        for element in self.structural_elements.values():
+            first = element.first_node.global_index
+            last  = element.last_node.global_index
+            radius = element.cross_section.external_radius
+            self.radius[first] = radius
+            self.radius[last] = radius
+        return self.radius
 
     def check_Material_and_CrossSection_in_all_elements(self):
         self.flag_setMaterial = False

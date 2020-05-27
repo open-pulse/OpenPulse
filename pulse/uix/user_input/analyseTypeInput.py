@@ -68,7 +68,8 @@ class AnalyseTypeInput(QDialog):
         self.type = "Harmonic Analysis - Acoustic"
         if self.typeID == 0:
             self.method = "Direct Method"
-        # else:
+        else:
+            return
         #     self.method = "Mode Superposition"
         self.close()
 

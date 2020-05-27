@@ -258,7 +258,7 @@ class InputUi:
             plot = PlotModeShapeInput(frequencies)
             if plot.mode_index is None:
                 return
-            self.opv.change_to_modal_analysis(plot.mode_index)
+            self.opv.changeAndPlotAnalyse(plot.mode_index)
         else:
             return
 
@@ -273,9 +273,12 @@ class InputUi:
             if plot.frequency is None:
                 return
             if analyseTypeID == 0:
-                self.opv.change_to_direct_method(plot.frequency)
+                if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
+                    self.opv.changeAndPlotAnalyse(plot.frequency)
+                else:
+                    self.opv.changeAndPlotAnalyse(plot.frequency, acoustic=True)
             else:
-                self.opv.change_to_mode_superposition(plot.frequency)
+                self.opv.changeAndPlotAnalyse(plot.frequency)    
         else:
             return
 
@@ -291,7 +294,7 @@ class InputUi:
             if plot.frequency is None:
                 return
             if analyseTypeID == 0 and analysis_type  == "Harmonic Analysis - Acoustic":
-                    self.opv.change_to_direct_method(plot.frequency, Acoustic=True)
+                    self.opv.changeAndPlotAnalyse(plot.frequency, acoustic=True)
             # else:
             #     self.opv.change_to_mode_superposition(plot.frequency)
         # else:

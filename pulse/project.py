@@ -18,7 +18,7 @@ class Project:
         self._projectName = ""
 
         #Analysis
-        self.analysisTypeID = None
+        self.analysisID = None
         self.analysisType = ""
         self.analysisMethod = ""
         self.damping = [0,0,0,0]
@@ -36,7 +36,7 @@ class Project:
 
     def resetInfo(self):
         self.mesh = Mesh()
-        self.analysisTypeID = None
+        self.analysisID = None
         self.analysisType = ""
         self.analysisMethod = ""
         self.damping = [0,0,0,0]
@@ -209,10 +209,10 @@ class Project:
         self.mesh.add_damper_to_node(node_id, damper)
 
     def getNodesBC(self):
-        return self.mesh.nodesBC
+        return self.mesh.StructuralBCnodes
 
     def getElements(self):
-        return self.mesh.elements
+        return self.mesh.structural_elements
 
     def setFrequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
@@ -367,12 +367,12 @@ class Project:
         return self._projectName
 
     def setAnalysisType(self, value, _type, _method = ""):
-        self.analysisTypeID = value
+        self.analysisID = value
         self.analysisType = _type
         self.analysisMethod = _method
 
     def getAnalysisTypeID(self): 
-        return self.analysisTypeID
+        return self.analysisID
 
     def getAnalysisType(self):
         return self.analysisType

@@ -4,6 +4,7 @@ from math import pi
 class CrossSection:
     def __init__(self, external_diameter, thickness, internal_diameter = 0):
         self.external_diameter = external_diameter
+        self.external_radius = external_diameter/2
         self.thickness = thickness
         self.internal_diameter = internal_diameter
 

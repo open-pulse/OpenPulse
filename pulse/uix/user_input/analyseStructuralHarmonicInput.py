@@ -30,6 +30,7 @@ class AnalyseStructuralHarmonicInput(QDialog):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check()
         elif event.key() == Qt.Key_Escape:
+            self.index = -1
             self.close()
 
     def error(self, msg, title = "Error"):
