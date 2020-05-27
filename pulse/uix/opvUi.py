@@ -100,7 +100,7 @@ class OPVUi(QVTKRenderWindowInteractor):
     def _updateSlider(self):
         if self.rendererAnalyse.getInUse():
             if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                if self.project.getAcousticSolution() is None:
+                if self.project.getAcousticSolution() is not None:
                     self.sliderEnable = False
                     return
             if not self.sliderEnable:
