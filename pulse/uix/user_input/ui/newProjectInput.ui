@@ -122,8 +122,8 @@
      <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>0</y>
+        <x>98</x>
+        <y>4</y>
         <width>281</width>
         <height>22</height>
        </rect>
@@ -134,6 +134,30 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>279</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>279</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -142,9 +166,9 @@
       <property name="geometry">
        <rect>
         <x>380</x>
-        <y>0</y>
-        <width>81</width>
-        <height>21</height>
+        <y>4</y>
+        <width>82</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -155,6 +179,24 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
          </property>
          <property name="text">
           <string>Import</string>
@@ -167,7 +209,7 @@
       <property name="geometry">
        <rect>
         <x>8</x>
-        <y>2</y>
+        <y>6</y>
         <width>85</width>
         <height>21</height>
        </rect>
@@ -187,7 +229,7 @@
        <rect>
         <x>100</x>
         <y>30</y>
-        <width>131</width>
+        <width>133</width>
         <height>22</height>
        </rect>
       </property>
@@ -213,7 +255,7 @@
           <number>0</number>
          </property>
          <property name="placeholderText">
-          <string>          Element Size</string>
+          <string>      &lt; Insert a value &gt;</string>
          </property>
         </widget>
        </item>
@@ -243,7 +285,7 @@
        <rect>
         <x>234</x>
         <y>30</y>
-        <width>83</width>
+        <width>67</width>
         <height>21</height>
        </rect>
       </property>
@@ -266,7 +308,7 @@
       <property name="geometry">
        <rect>
         <x>124</x>
-        <y>0</y>
+        <y>2</y>
         <width>257</width>
         <height>22</height>
        </rect>
@@ -277,6 +319,30 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -284,10 +350,10 @@
      <widget class="QWidget" name="verticalLayoutWidget_10">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>0</y>
+        <x>384</x>
+        <y>2</y>
         <width>81</width>
-        <height>21</height>
+        <height>22</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -299,6 +365,30 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Import</string>
          </property>
@@ -309,8 +399,8 @@
      <widget class="QWidget" name="verticalLayoutWidget_11">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
+        <x>2</x>
+        <y>2</y>
         <width>123</width>
         <height>23</height>
        </rect>
@@ -329,7 +419,7 @@
       <property name="geometry">
        <rect>
         <x>124</x>
-        <y>30</y>
+        <y>32</y>
         <width>257</width>
         <height>22</height>
        </rect>
@@ -340,6 +430,18 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -347,10 +449,10 @@
      <widget class="QWidget" name="verticalLayoutWidget_13">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>30</y>
+        <x>384</x>
+        <y>32</y>
         <width>81</width>
-        <height>21</height>
+        <height>22</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -361,6 +463,24 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
          </property>
          <property name="text">
           <string>Import</string>
@@ -373,7 +493,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>30</y>
+        <y>32</y>
         <width>123</width>
         <height>23</height>
        </rect>
