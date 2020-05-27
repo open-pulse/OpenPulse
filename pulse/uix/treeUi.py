@@ -127,7 +127,6 @@ class TreeUi(QTreeWidget):
 
         self.item_child_setElementType.setDisabled(True)
         self.item_child_selectTheOutputResults.setDisabled(True)
-        # self.item_child_plotPressureField.setDisabled(True)
         self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
@@ -205,14 +204,25 @@ class TreeUi(QTreeWidget):
 
     def _updateItems(self):
         project = self.mainWindow.getProject()
+
         if project.getStructuralSolution() is None:
             self.item_child_plotModeShapes.setDisabled(True)
             self.item_child_plotHarmonicResponse.setDisabled(True)
             self.item_child_plotFrequencyResponse.setDisabled(True)
-        else:
-            analyseTypeID = project.getAnalysisTypeID()
-            if analyseTypeID == 0 or analyseTypeID == 1:
+
+        if project.getAcousticSolution() is None:
+            self.item_child_plotModeShapes.setDisabled(True)
+            self.item_child_plotHarmonicResponse.setDisabled(True)
+            self.item_child_plotFrequencyResponse.setDisabled(True)
+            self.item_child_plotPressureField.setDisabled(True)
+        
+        if project.getStructuralSolution() is not None or project.getAcousticSolution() is not None:
+            analysisType = project.getAnalysisType()
+            if analysisType == 'Harmonic Analysis - Structural':
                 self.item_child_plotFrequencyResponse.setDisabled(False)
                 self.item_child_plotHarmonicResponse.setDisabled(False)
-            elif analyseTypeID == 2:
+            elif analysisType == 'Harmonic Analysis - Acoustic':
+                self.item_child_plotFrequencyResponse.setDisabled(False)
+                self.item_child_plotPressureField.setDisabled(False)
+            elif analysisType == 'Modal Analysis - Structural':
                 self.item_child_plotModeShapes.setDisabled(False) 
