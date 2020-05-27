@@ -171,6 +171,8 @@ class InputUi:
  
         self.project.setAnalysisType(analysis_input.typeID, analysis_input.type, analysis_input.method)
         self.project.setModes(analysis_input.modes)
+        self.project.setAcousticSolution(None)
+        self.project.setStructuralSolution(None)
 
         if analysis_input.typeID == 0 or analysis_input.typeID == 1:
             self.analyseSetup()
