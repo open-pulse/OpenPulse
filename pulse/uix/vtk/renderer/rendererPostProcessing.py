@@ -67,7 +67,6 @@ class RendererPostProcessing(vtkRendererBase):
             text += self.project.analysisMethod + "\n"
         else:
             frequencies = self.project.getNaturalFrequencies()
-            # text += "Modal Analysis - Structural\n"
             text += "Mode: {}\n".format(mode)
         text += "Frequency: {:.3f} [Hz]\n".format(frequencies[self.frequencyIndice])
         text += "Magnification factor {:.1f}x\n".format(self.valueFactor)
