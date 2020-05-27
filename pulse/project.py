@@ -235,7 +235,7 @@ class Project:
     def _setEntityCross(self, entity_id, cross):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
-                entity.cross = cross
+                entity.crossSection = cross
                 return
 
     def _setAllEntityMaterial(self, material):
@@ -244,7 +244,7 @@ class Project:
             
     def _setAllEntityCross(self, cross):
         for entity in self.mesh.entities:
-            entity.cross = cross
+            entity.crossSection = cross
 
     def getStructuralBCNodes(self):
         return self.mesh.StructuralBCnodes

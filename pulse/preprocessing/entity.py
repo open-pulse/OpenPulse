@@ -7,7 +7,7 @@ class Entity:
         self.elements = []
         self.material = None
         self.fluid = None
-        self.cross = None
+        self.crossSection = None
 
     def insertNode(self, node):
         self.nodes.append(node)
@@ -35,7 +35,7 @@ class Entity:
         return self.material.getNormalizedColorRGB()
 
     def getCrossSection(self):
-        return self.cross
+        return self.crossSection
 
     def getMaterial(self):
         return self.material
