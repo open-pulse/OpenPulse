@@ -4,12 +4,18 @@ from math import pi
 class CrossSection:
     def __init__(self, external_diameter, thickness, internal_diameter = 0):
         self.external_diameter = external_diameter
+        self.external_radius = external_diameter/2
         self.thickness = thickness
         self.internal_diameter = internal_diameter
 
     # @property
     # def thickness(self):
     #     return (self.external_diameter - self.internal_diameter)/2
+
+    @property
+    def area_fluid(self):
+        self.internal_diameter = self.external_diameter - 2*self.thickness
+        return self.internal_diameter**2 * pi / 4
 
     @property
     def area(self):
@@ -38,6 +44,9 @@ class CrossSection:
 
     def getExternalDiameter(self):
         return self.external_diameter
+
+    def getThickness(self):
+        return self.thickness
 
     def getInternalDiameter(self):
         self.internal_diameter = self.external_diameter - 2*self.thickness

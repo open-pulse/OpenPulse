@@ -7,23 +7,24 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 
-class Assembly:
-    def __init__(self, mesh):
+class AssemblyStructural:
+    def __init__(self, mesh, **kwargs):
         self.mesh = mesh
+        self.acoustic_solution = kwargs.get("acoustic_solution", None)
 
     def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
             # print(node.global_index)
             starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-            dofs = np.array(node.get_structural_boundary_condition_indexes()) + starting_position
+            dofs = np.array(node.get_prescribed_DOFs_BC_indexes()) + starting_position
             global_prescribed.extend(dofs)
         return global_prescribed
 
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_structural_boundary_condition_values())
+            global_prescribed.extend(node.get_prescribed_DOFs_BC_values())
         return global_prescribed
 
     def get_unprescribed_indexes(self):
@@ -36,13 +37,13 @@ class Assembly:
     def get_global_matrices(self):
  
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        number_elements = len(self.mesh.elements)
+        number_elements = len(self.mesh.structural_elements)
 
-        rows, cols = self.mesh.get_global_indexes()
+        rows, cols = self.mesh.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for index, element in enumerate(self.mesh.elements.values()):
+        for index, element in enumerate(self.mesh.structural_elements.values()):
 
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()            
 
@@ -75,24 +76,25 @@ class Assembly:
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
+            
             # processing mass added
-            if np.sum(node.spring) == 0:
-                continue
-            else:
+            if np.sum(node.spring) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Klump.append(node.spring)
                 ind_Klump.append(position)
             # processing mass added
-            if np.sum(node.mass) == 0:
-                continue
-            else:
+            if np.sum(node.mass) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Mlump.append(node.mass)
                 ind_Mlump.append(position)
             # processing damper added
-            if np.sum(node.damper) == 0:
-                continue
-            else:
+            if np.sum(node.damper) != 0:
+            #     continue
+            # else:
                 position = node.global_dof
                 data_Clump.append(node.damper)
                 ind_Clump.append(position)
@@ -134,23 +136,23 @@ class Assembly:
         return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
     def get_global_loads(self, frequencies, loads_matrix3D=False):
-
+        
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         loads = np.zeros(total_dof)
 
         # distributed loads
-        for element in self.mesh.elements.values():
-            if np.sum(element.loaded_forces) == 0:
-                continue
-            position = element.global_dof
-            loads[position] += element.force_vector_gcs()
+        for element in self.mesh.structural_elements.values():
+            if np.sum(element.loaded_forces) != 0:
+                # continue
+                position = element.global_dof
+                loads[position] += element.force_vector_gcs()
 
         # nodal loads
         for node in self.mesh.nodes.values():
-            if np.sum(node.forces) == 0:
-                continue
-            position = node.global_dof
-            loads[position] += node.forces
+            if np.sum(node.forces) != 0:
+                # continue
+                position = node.global_dof
+                loads[position] += node.forces
             
         unprescribed_indexes = self.get_unprescribed_indexes()
         loads = loads[unprescribed_indexes]
@@ -159,5 +161,5 @@ class Assembly:
             loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
         else:
             loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
-
+     
         return loads

@@ -7,10 +7,10 @@ from PyQt5 import uic
 from time import time
 import configparser
 
-from pulse.processing.solution import *
+from pulse.processing.solution_structural import *
 
 class RunAnalyseInput(QDialog):
-    def __init__(self, solve, analyseType, frequencies, modes, damping,*args, **kwargs):
+    def __init__(self, solve, analyseTypeID, analysis_type, frequencies, modes, damping,*args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/runAnalyseInput.ui', self)
 
@@ -22,7 +22,8 @@ class RunAnalyseInput(QDialog):
         self.naturalFrequencies = []
 
         self.solve = solve
-        self.analyseType = analyseType
+        self.analyseTypeID = analyseTypeID
+        self.analysis_type = analysis_type
         self.frequencies = frequencies
         self.damping = damping
         self.modes = modes
@@ -45,14 +46,28 @@ class RunAnalyseInput(QDialog):
 
     def run(self):
         inicio = time()
-        if self.analyseType == 0:  #Harmonic Structural Direct
-            self.solution = self.solve.direct_method(self.frequencies, self.damping)
-        elif self.analyseType == 1: #Harmonic Structural Modal
-            self.solution = self.solve.modal_superposition(self.frequencies, self.modes, self.damping)
-        elif self.analyseType == 2: #Modal Structural
+        if self.analyseTypeID == 0:
+            if self.analysis_type == "Harmonic Analysis - Structural":
+                self.solution = self.solve.direct_method(self.frequencies, self.damping) #Harmonic Structural - Direct Method
+            elif self.analysis_type == "Harmonic Analysis - Acoustic":
+                self.solution = self.solve.direct_method() #Harmonic Acoustic Direct
+        elif self.analyseTypeID == 1: #Harmonic Structural - Mode Superposition
+            self.solution = self.solve.mode_superposition(self.frequencies, self.modes, self.damping)
+        elif self.analyseTypeID == 2: #Modal Structural
             self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)
+
         fim = time()
         text = "Solution finished!\n"
         text += "Time elapsed: {} [s]\n".format(fim-inicio)
         text += "Press ESC to continue..."
         self.label_title.setText(text)
+
+        # WARNINGS FROM ANALYSES
+        if self.analysis_type == "Harmonic Analysis - Structural":
+            if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
+                self.error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
+            if self.solve.flag_Clump and self.analyseTypeID==1:
+                self.error(self.solve.warning_Clump[0], title = "WARNING")
+        if self.analysis_type == "Modal Analysis - Structural":
+            if self.solve.flag_Modal_prescribed_NonNull_DOFs:
+                self.error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")

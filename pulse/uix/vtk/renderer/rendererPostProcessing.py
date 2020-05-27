@@ -4,7 +4,8 @@ from pulse.uix.vtk.actor.actorAnalyse import ActorAnalyse
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.colorTable import ColorTable
-from pulse.postprocessing.plot_data import get_displacement_matrix
+from pulse.postprocessing.plot_structural_data import get_structural_response
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 import vtk
 
 class RendererPostProcessing(vtkRendererBase):
@@ -25,27 +26,31 @@ class RendererPostProcessing(vtkRendererBase):
         for actor in self._renderer.GetActors():
             self._renderer.RemoveActor(actor)
 
-    def plot(self):
+    def plot(self, acoustic=False):
         self.reset()
-        connect, coord_def, r_def, self.valueFactor  = get_displacement_matrix(self.project.getMesh(), self.project.getSolution(), self.frequencyIndice, gain=self.sliderFactor)
+        if acoustic:
+            _, connect, coord, r_def = get_acoustic_response(self.project.getMesh(), self.project.getAcousticSolution(), self.frequencyIndice)
+        else:
+            connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.getMesh(), self.project.getStructuralSolution(), self.frequencyIndice, gain=self.sliderFactor)            
 
+        # self.valueFactor
         colorTable = ColorTable(self.project, r_def)
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.getEntities():
-        #     plot = ActorAnalyse(self.project, entity, connect, coord_def, colorTable)
+        #     plot = ActorAnalyse(self.project, entity, connect, coord, colorTable)
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalyse(self.project, connect, coord_def, colorTable)
+        plot = ActorAnalyse(self.project, connect, coord, colorTable)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
         for node in self.project.getNodesBC():
-            if sum([value for value in node.structural_boundary_condition if value != None])==0:
+            if sum([value for value in node.prescribed_DOFs_BC  if value != None])==0:
                 point = ActorPoint(node)
             else:
-                point = ActorPoint(node, u_def=coord_def[node.global_index,1:])
+                point = ActorPoint(node, u_def=coord[node.global_index,1:])
             point.build()
             self._renderer.AddActor(point.getActor())
         self._renderer.AddActor(self.colorbar)
@@ -55,22 +60,15 @@ class RendererPostProcessing(vtkRendererBase):
         self.createScaleActor()
 
     def updateInfoText(self):
-        text = ""
-        analyseType = self.project.getAnalysisTypeID()
         mode = self.project.getModes()
         frequencies = self.project.getFrequencies()
-        if analyseType == 2:
+        text = self.project.analysisType + "\n"
+        if self.project.analysisID != 2:
+            text += self.project.analysisMethod + "\n"
+        else:
             frequencies = self.project.getNaturalFrequencies()
-        if analyseType == 0:
-            text += "Harmonic Analysis - Structural\n"
-            text += "Direct Method\n"
-        elif analyseType == 1:
-            text += "Harmonic Analysis - Structural\n"
-            text += "Modal Superposition\n"
-        elif analyseType == 2:
-            text += "Modal Analysis - Structural\n"
             text += "Mode: {}\n".format(mode)
-        text += "Frequency: {} [Hz]\n".format(frequencies[self.frequencyIndice])
+        text += "Frequency: {:.3f} [Hz]\n".format(frequencies[self.frequencyIndice])
         text += "Magnification factor {:.1f}x\n".format(self.valueFactor)
         self.createInfoText(text)
 

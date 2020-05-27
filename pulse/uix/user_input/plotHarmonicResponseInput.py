@@ -58,7 +58,11 @@ class PlotHarmonicResponseInput(QDialog):
             return
         else:
             frequency_selected = float(self.lineEdit.text())
-            self.frequency = self.frequency_to_index[frequency_selected]
+            if frequency_selected in self.frequencies:
+                self.frequency = self.frequency_to_index[frequency_selected]
+            else:
+                self.error("  You typed an invalid frequency!  ")
+                return
             
         self.close()
 

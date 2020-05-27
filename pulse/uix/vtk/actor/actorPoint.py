@@ -34,7 +34,7 @@ class ActorPoint(vtkActorBase):
         if self.node.haveBoundaryCondition() and self.node.haveForce():
             self.color = [0,1,0]
         elif self.node.haveBoundaryCondition():
-            if sum([value for value in self.node.structural_boundary_condition if value != None])==0:
+            if sum([value for value in self.node.prescribed_DOFs_BC if value != None])==0:
                 self.color = [0,0,0]
             else:
                 self.color = [1,1,1]

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-class AnalyseHarmonicInput(QDialog):
+class AnalyseStructuralHarmonicInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/analyseHarmonicStructuralInput.ui', self)

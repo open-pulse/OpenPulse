@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set Nodal Loads</string>
+   <string> Set: Nodal Loads</string>
   </property>
   <property name="windowIcon">
    <iconset>

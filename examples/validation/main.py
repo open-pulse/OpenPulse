@@ -6,9 +6,9 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import Assembly 
-from pulse.processing.solution import Solution
-from pulse.postprocessing.plot_data import get_frf, get_displacement_matrix
+from pulse.processing.assembly_structural import AssemblyStructural 
+from pulse.processing.solution_structural import SolutionStructural
+from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
 from pulse.animation.plot_function import plot_results
 
 ''' 
@@ -28,10 +28,10 @@ mesh = Mesh()
 run = 2
 if run==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_structural_boundary_condition_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
 if run==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    mesh.set_structural_boundary_condition_by_node([1, 1200, 1325], np.zeros(6))
+    mesh.set_prescribed_DOFs_BC_by_node([1, 1200, 1325], np.zeros(6))
 
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
@@ -39,14 +39,14 @@ mesh.set_cross_section_by_element('all', cross_section)
 # mesh.set_boundary_condition_by_node([361], np.array([0.1,None,None,None,None,None]))
 mesh.set_force_by_node([361], np.array([1,0,0,0,0,0]))
 
-# mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
-# mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
-# mesh.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
+mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
+mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))
+mesh.add_damper_to_node([342],0*np.array([1e3,1e3,1e3,0,0,0]))
 
 # assemble = Assembly(mesh)
 # K, M, Kr, Mr = assemble.get_global_matrices()
 
-solu = Solution(mesh)
+solu = SolutionStructural(mesh)
 natural_frequencies, mode_shapes = solu.modal_analysis(modes=200, harmonic_analysis=True)
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
@@ -55,7 +55,7 @@ df = 2
 frequencies = np.arange(0, f_max+df, df)
 modes = 200
 direct = solu.direct_method(frequencies, is_viscous_lumped=True)
-modal = solu.modal_superposition(frequencies, modes, fastest=True)
+modal = solu.mode_superposition(frequencies, modes, fastest=True)
 
 column = 85
 
@@ -63,7 +63,7 @@ ms_results = np.real(modal)
 
 load_reactions = solu.get_reactions_at_fixed_nodes(frequencies, direct)
 load_reactions = np.real(load_reactions)
-_, coord_def, _, _ = get_displacement_matrix(mesh, modal, column, Normalize=False)
+_, coord_def, _, _ = get_structural_response(mesh, modal, column, Normalize=False)
 
 plot_results( mesh,
               coord_def,
@@ -79,8 +79,8 @@ plot_results( mesh,
 # GETTING FRF
 response_node = 361
 local_DOF = 0
-response_DM = get_frf(mesh, direct, response_node, local_DOF)
-response_MS = get_frf(mesh, modal, response_node, local_DOF)
+response_DM = get_structural_frf(mesh, direct, response_node, local_DOF)
+response_MS = get_structural_frf(mesh, modal, response_node, local_DOF)
 
 DOF_label = dict(zip(np.arange(6), ["Ux", "Uy", "Uz", "Rx", "Ry", "Rz"]))
 Unit_label = dict(zip(np.arange(6), ["[m]", "[m]", "[m]", "[rad]", "[rad]", "[rad]"]))

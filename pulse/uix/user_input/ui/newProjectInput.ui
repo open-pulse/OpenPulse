@@ -41,7 +41,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>New Project</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;New Project&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -63,7 +63,7 @@
      <item>
       <widget class="QLabel" name="label_2">
        <property name="text">
-        <string>Project Name</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Project Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
      </item>
@@ -117,13 +117,13 @@
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>.iges</string>
+      <string>Import Geometry</string>
      </attribute>
      <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>0</y>
+        <x>98</x>
+        <y>4</y>
         <width>281</width>
         <height>22</height>
        </rect>
@@ -134,6 +134,30 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>279</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>279</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -142,9 +166,9 @@
       <property name="geometry">
        <rect>
         <x>380</x>
-        <y>0</y>
-        <width>81</width>
-        <height>21</height>
+        <y>4</y>
+        <width>82</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -156,6 +180,24 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>80</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
+         </property>
          <property name="text">
           <string>Import</string>
          </property>
@@ -166,9 +208,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_4">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>91</width>
+        <x>8</x>
+        <y>6</y>
+        <width>85</width>
         <height>21</height>
        </rect>
       </property>
@@ -176,7 +218,7 @@
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Import Geometry</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Geometry File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -187,21 +229,33 @@
        <rect>
         <x>100</x>
         <y>30</y>
-        <width>131</width>
+        <width>133</width>
         <height>22</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_8">
        <item>
         <widget class="QLineEdit" name="line_element_size">
+         <property name="enabled">
+          <bool>true</bool>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
          <property name="inputMethodHints">
           <set>Qt::ImhNone</set>
          </property>
          <property name="maxLength">
           <number>20</number>
          </property>
+         <property name="frame">
+          <bool>true</bool>
+         </property>
+         <property name="cursorPosition">
+          <number>0</number>
+         </property>
          <property name="placeholderText">
-          <string>Element Size</string>
+          <string>      &lt; Insert a value &gt;</string>
          </property>
         </widget>
        </item>
@@ -210,9 +264,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_7">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>8</x>
         <y>30</y>
-        <width>91</width>
+        <width>85</width>
         <height>21</height>
        </rect>
       </property>
@@ -220,7 +274,26 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Element Size</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Element Size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="verticalLayoutWidget_15">
+      <property name="geometry">
+       <rect>
+        <x>234</x>
+        <y>30</y>
+        <width>67</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_15">
+       <item>
+        <widget class="QLabel" name="label_7">
+         <property name="text">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Unit: [m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -229,14 +302,14 @@
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>cord/conn</string>
+      <string>Import Mesh</string>
      </attribute>
      <widget class="QWidget" name="verticalLayoutWidget_9">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>0</y>
-        <width>281</width>
+        <x>124</x>
+        <y>2</y>
+        <width>257</width>
         <height>22</height>
        </rect>
       </property>
@@ -246,6 +319,30 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>1</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="baseSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -253,10 +350,10 @@
      <widget class="QWidget" name="verticalLayoutWidget_10">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>0</y>
+        <x>384</x>
+        <y>2</y>
         <width>81</width>
-        <height>21</height>
+        <height>22</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -268,6 +365,30 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
+         </property>
+         <property name="layoutDirection">
+          <enum>Qt::LeftToRight</enum>
+         </property>
+         <property name="autoFillBackground">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Import</string>
          </property>
@@ -278,17 +399,17 @@
      <widget class="QWidget" name="verticalLayoutWidget_11">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>91</width>
-        <height>21</height>
+        <x>2</x>
+        <y>2</y>
+        <width>123</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_11">
        <item>
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Cord</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Nodal Coordinates File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
@@ -297,9 +418,9 @@
      <widget class="QWidget" name="verticalLayoutWidget_12">
       <property name="geometry">
        <rect>
-        <x>100</x>
-        <y>30</y>
-        <width>281</width>
+        <x>124</x>
+        <y>32</y>
+        <width>257</width>
         <height>22</height>
        </rect>
       </property>
@@ -309,6 +430,18 @@
          <property name="enabled">
           <bool>false</bool>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>20</height>
+          </size>
+         </property>
         </widget>
        </item>
       </layout>
@@ -316,10 +449,10 @@
      <widget class="QWidget" name="verticalLayoutWidget_13">
       <property name="geometry">
        <rect>
-        <x>380</x>
-        <y>30</y>
+        <x>384</x>
+        <y>32</y>
         <width>81</width>
-        <height>21</height>
+        <height>22</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -330,6 +463,24 @@
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>75</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="sizeIncrement">
+          <size>
+           <width>0</width>
+           <height>1</height>
+          </size>
          </property>
          <property name="text">
           <string>Import</string>
@@ -342,16 +493,16 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>30</y>
-        <width>91</width>
-        <height>21</height>
+        <y>32</y>
+        <width>123</width>
+        <height>23</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_14">
        <item>
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Conn</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Connectivity Matrix File:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>

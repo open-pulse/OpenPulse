@@ -25,9 +25,11 @@ class AnalyseSetupInput(QDialog):
 
         self.complete = False
         self.frequencies = []
+
         self.min_frequency = min_freq
         self.max_frequency = max_freq
         self.step_frequency = step_freq
+
         self.damping = [0,0,0,0]
         self.modes = 0
 
@@ -92,6 +94,7 @@ class AnalyseSetupInput(QDialog):
             if self.analyseID == 1:
                 if self.lineEdit_modes.text() == "":
                     self.error("Insert a value (modes)")
+                    return
                 else:
                     if self.isInteger(self.lineEdit_modes.text()):
                         self.modes = int(self.lineEdit_modes.text())

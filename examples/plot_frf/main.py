@@ -6,8 +6,7 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import get_global_matrices
-from pulse.processing.solution import direct_method, modal_superposition
+from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_data import get_frf
 
 
@@ -18,14 +17,15 @@ mesh = Mesh()
 mesh.load_mesh('coord.dat', 'connect.dat')
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
-mesh.set_boundary_condition_by_node([1, 1200, 1325], np.zeros(6))
+mesh.set_prescribed_DOFs_BC_by_node([1, 1200, 1325], np.zeros(6))
 mesh.set_force_by_node([361], np.array([1,0,0,0,0,0]))
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 frequencies = np.arange(0, 202, 2)
 modes = 200
-direct = direct_method(mesh, frequencies)
-modal = modal_superposition(mesh, frequencies, modes)
+solution = SolutionStructural(mesh)
+direct = solution.direct_method(frequencies)
+modal = solution.modal_superposition(frequencies, modes)
 
 # GETTING FRF
 node = 711

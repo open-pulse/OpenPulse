@@ -3,7 +3,9 @@ from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
-from pulse.postprocessing.plot_data import get_displacement_matrix
+
+from pulse.postprocessing.plot_structural_data import get_structural_response
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
 from pulse.uix.vtk.renderer.rendererElement import RendererElement
@@ -155,7 +157,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererPoint.resetCamera()
         self.afterChangePlot()
 
-    def changeAndPlotAnalyse(self, frequency_indice):
+    def changeAndPlotAnalyse(self, frequency_indice, acoustic=False):
         self.beforeChangePlot()
         self.changeFrequency(frequency_indice)
         self.rendererAnalyse.setFrequencyIndice(self.currentFrequencyIndice)
@@ -163,7 +165,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererAnalyse.setInUse(True)
         self.SetInteractorStyle(self.rendererAnalyse.getStyle())
         self.GetRenderWindow().AddRenderer(self.rendererAnalyse.getRenderer())
-        self.rendererAnalyse.plot()
+        self.rendererAnalyse.plot(acoustic=acoustic)
         if self.needResetCamera:
             self.rendererAnalyse.resetCamera()
         self.afterChangePlot()
@@ -198,7 +200,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def transformPoints(self, points_id):
         self.rendererPoint.transformPoints(points_id)
-
+        
     def savePNG(self, path):
         imageFilter = vtk.vtkWindowToImageFilter()
         imageFilter.SetInput(self.GetRenderWindow())
@@ -206,3 +208,38 @@ class OPVUi(QVTKRenderWindowInteractor):
         writer.SetFileName(path)
         writer.SetInputConnection(imageFilter.GetOutputPort())
         writer.Write()
+
+   
+    # def transformPoints(self, points_id):
+    #     nodeAll = []
+    #     nodeBC = []
+    #     nodeF = []
+    #     nodeND = []
+    #     for node_id in points_id:
+    #         node = self.project.getNode(node_id)
+    #         if node.haveBoundaryCondition() and node.haveForce():
+    #             nodeAll.append(node_id)
+    #         elif node.haveBoundaryCondition():
+    #             nodeBC.append(node_id)
+    #             if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
+    #                 colorBC = [0,0,0]
+    #             else:
+    #                 colorBC = [1,1,1]
+    #             self.changeColorPoints(nodeBC, colorBC)
+    #         elif node.haveForce():
+    #             nodeF.append(node_id)
+    #             colorF = [1,1,0]
+    #             self.changeColorPoints(nodeF, colorF)
+    #         else:
+    #             nodeND.append(node_id)
+
+    #     colorAll = [0,1,0]
+    #     colorND = [0,0,1]
+    #     self.changeColorPoints(nodeAll, colorAll)
+    #     self.changeColorPoints(nodeND, colorND)
+
+    #     self.transformPointsToCube(nodeND)
+    #     self.transformPointsToSphere(nodeAll)
+    #     self.transformPointsToSphere(nodeBC)
+    #     self.transformPointsToSphere(nodeF)
+

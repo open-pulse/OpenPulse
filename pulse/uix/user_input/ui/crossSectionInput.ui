@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set Cross Section</string>
+   <string>Set: Cross-Section</string>
   </property>
   <property name="windowIcon">
    <iconset>

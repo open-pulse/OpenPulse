@@ -3,13 +3,13 @@ import numpy as np
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 
 # this is temporary, and will be changed a lot
-def get_frf(mesh, solution, node, dof):
+def get_structural_frf(mesh, solution, node, dof):
     position = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
     results = np.abs(solution[position])
     return results
 
-def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
-
+def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
+   
     data = np.real(solution)
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
     cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])
@@ -29,6 +29,8 @@ def get_displacement_matrix(mesh, solution, column, scf=0.2, gain=[], Normalize=
     
     if Normalize:
         r_max = max(r_def)
+        if r_max==0:
+            r_max=1
     else:
         r_max, scf = 1, 1
 

@@ -14,7 +14,8 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 def plot_results( mesh,
                   data,  
                   scf = 0.4,
-                  out_OpenPulse = True, 
+                  out_OpenPulse = True,
+                  Acoustic = False, 
                   Show_nodes = True, 
                   Undeformed = True, 
                   Deformed = False, 
@@ -25,27 +26,35 @@ def plot_results( mesh,
     coordinates = mesh.nodal_coordinates_matrix
 
     if data[:,1:].any():
-        if out_OpenPulse:
-            u_def = data[:,1:] - coordinates[:,1:]
-            u_x, u_y, u_z = u_def[:,-3], u_def[:,-2], u_def[:,-1]
+        if not Acoustic:
+            if out_OpenPulse:
+                u_def = data[:,1:] - coordinates[:,1:]
+                u_x, u_y, u_z = u_def[:,-3], u_def[:,-2], u_def[:,-1]
+            else:
+                u_def = data
+                u_x, u_y, u_z = np.real(u_def[:,-3]), np.real(u_def[:,-2]), np.real(u_def[:,-1])
+
+            r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
+            r_max = max(r)
+            x_p, y_p, z_p = coordinates[:,-3], coordinates[:,-2], coordinates[:,-1]
+            Coord_dn = np.transpose(np.array([x_p, y_p, z_p]) + np.array([u_x, u_y, u_z])*scf/r_max)
+            x_def, y_def, z_def = Coord_dn[:,0], Coord_dn[:,1],Coord_dn[:,2] 
+
         else:
-            u_def = data
-            u_x, u_y, u_z = np.real(u_def[:,-3]), np.real(u_def[:,-2]), np.real(u_def[:,-1])
-
-        r = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
-        r_max = max(r)
-
-        x_p, y_p, z_p = coordinates[:,-3], coordinates[:,-2], coordinates[:,-1]
-        Coord_dn = np.transpose(np.array([x_p, y_p, z_p]) + np.array([u_x, u_y, u_z])*scf/r_max)
-        x_def,y_def,z_def = Coord_dn[:,0], Coord_dn[:,1],Coord_dn[:,2] 
-        
+            r = data[:,1]
+            r_max = max(r)
+            x_p, y_p, z_p = coordinates[:,-3], coordinates[:,-2], coordinates[:,-1]
+            x_def, y_def, z_def = x_p, y_p, z_p
+            u_x, u_y, u_z = np.zeros_like(x_p), np.zeros_like(y_p), np.zeros_like(z_p)
+            Coord_dn = np.transpose(np.array([x_p, y_p, z_p]))
+                    
         ax_lim = np.zeros((2,3))
         ax_lim[0,:] = Coord_dn.min(axis=0) 
         ax_lim[1,:] = Coord_dn.max(axis=0) 
 
         a, lw, e_lw, marker_size = 1.1, 2, 0, 50
         
-        norm = plt.Normalize(-0.0, max(r),clip=False)
+        norm = plt.Normalize(0, max(r), clip=False)
         # norm = plt.Normalize(min(r), max(r),clip=True)
         cmap = matplotlib.cm.get_cmap('jet')
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
@@ -78,7 +87,6 @@ def plot_results( mesh,
 
         cb = fig.colorbar(m, shrink=0.8)
         cb.set_label('Amplitude [-]', fontdict=font)
-        # dict(zip(coordinates[:,0], coordinates[:,1:]))
 
         connectivity = np.array(connectivity[:,-2:],int)
         n_el = len(connectivity[:,1])
