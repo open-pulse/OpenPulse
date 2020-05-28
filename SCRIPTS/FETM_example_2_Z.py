@@ -140,7 +140,7 @@ f_com=np.loadtxt("test_geom_2_branch1_out_equal_d_Z.txt")[:,0]
 p_out_b1_com_3d=np.loadtxt("test_geom_2_branch1_out_equal_d_Z.txt")[:,1]
 p_out_b2_com_3d=np.loadtxt("test_geom_2_branch2_out_equal_d_Z.txt")[:,1]
 p_out_b3_com_3d=np.loadtxt("test_geom_2_branch3_out_equal_d_Z.txt")[:,1] 
-p_out_com_3d=np.loadtxt("test_geom_2_pout_equal_d_Z.txt")[:,1]
+p_out_com_3d=np.loadtxt("test_geom_2_out_equal_d_Z.txt")[:,1]
  
 plt.rcParams.update({'font.size': 12})
 
