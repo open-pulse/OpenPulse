@@ -84,15 +84,15 @@ class MainWindow(QMainWindow):
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_radius)
 
-        self.elements_action = QAction('&Elements', self)        
-        self.elements_action.setShortcut('Ctrl+3')
-        self.elements_action.setStatusTip('Plot Elements')
-        self.elements_action.triggered.connect(self.plot_elements)
-
         self.points_action = QAction('&Points', self)        
-        self.points_action.setShortcut('Ctrl+4')
+        self.points_action.setShortcut('Ctrl+3')
         self.points_action.setStatusTip('Plot Points')
         self.points_action.triggered.connect(self.plot_points)
+
+        self.elements_action = QAction('&Elements', self)        
+        self.elements_action.setShortcut('Ctrl+4')
+        self.elements_action.setStatusTip('Plot Elements')
+        self.elements_action.triggered.connect(self.plot_elements)
 
         #Structural Model Setup
         self.setMaterial_action = QAction('&Set Material', self)        
@@ -216,8 +216,8 @@ class MainWindow(QMainWindow):
 
         graphicMenu.addAction(self.entities_action)
         graphicMenu.addAction(self.entities_action_radius)
-        graphicMenu.addAction(self.elements_action)
         graphicMenu.addAction(self.points_action)
+        graphicMenu.addAction(self.elements_action)
 
         modelSetup.addAction(self.setMaterial_action)
         modelSetup.addAction(self.setCrossSection_action)
