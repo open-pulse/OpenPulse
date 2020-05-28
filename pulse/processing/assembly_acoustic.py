@@ -34,7 +34,7 @@ class AssemblyAcoustic:
 
     def get_global_matrices(self, frequencies):
 
-        ones = np.ones(len(frequencies))
+        ones = np.ones_like(frequencies)
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.acoustic_elements)
@@ -105,15 +105,6 @@ class AssemblyAcoustic:
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump
-        
-    # def get_all_matrices(self, frequencies):
-        
-    #     K, Kr = self.get_global_matrices(frequencies)
-    #     K_lump, Kr_lump = self.get_lumped_matrices(frequencies)
-        
-    #     Kadd_lump = [ K[i] + K_lump[i] for i in range(len(frequencies))]
-
-    #     return Kadd_lump, K, Kr, K_lump, Kr_lump
 
     def get_global_volume_velocity(self, frequencies):
 

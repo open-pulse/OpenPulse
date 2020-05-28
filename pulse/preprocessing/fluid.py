@@ -19,6 +19,10 @@ class Fluid:
     @property
     def impedance(self):
         return self.density * self.sound_velocity
+
+    @property
+    def bulk_modulus(self):
+        return self.density * self.sound_velocity**2
     
     def getColorRGB(self):
         temp = self.color[1:-1] #Remove "[ ]"

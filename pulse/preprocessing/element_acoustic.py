@@ -1,4 +1,5 @@
 import numpy as np
+from math import pi, sqrt, sin, cos
 from pulse.preprocessing.node import Node, distance
 
 DOF_PER_NODE = 1
@@ -11,6 +12,7 @@ class Element:
     def __init__(self, first_node, last_node, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
+        self.material = kwargs.get('material', None) 
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
@@ -36,10 +38,14 @@ class Element:
         cols = rows.T
         return rows, cols
         
+    def sound_velocity_correction(self):
+        factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
+        return 1 / sqrt(1 + factor)
+        
     def matrix(self, frequencies, ones):
-        kLe = 2*PI*frequencies*self.length / self.fluid.sound_velocity 
-        matrix = ((1j/(np.sin(kLe)*self.impedance))*np.array([-np.cos(kLe), ones, ones, -np.cos(kLe)])).T
-        # matrix = np.zeros([len(frequencies), ENTRIES_PER_ELEMENT], dtype = complex)
-        # for i, value in enumerate(kLe):
-        #     matrix[i,:] = 1j / (sin(value) * Z) * np.array([-cos(value), 1, 1, -cos(value)])   
+        sound_velocity = self.fluid.sound_velocity * self.sound_velocity_correction()
+        kLe = 2*pi*frequencies*self.length / sound_velocity
+        sine = np.sin(kLe, dtype='float64')
+        cossine = np.cos(kLe, dtype='float64')
+        matrix = ((1j/(sine*self.impedance))*np.array([-cossine, ones, ones, -cossine])).T
         return matrix

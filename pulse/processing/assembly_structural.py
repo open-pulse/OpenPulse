@@ -10,7 +10,7 @@ from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 class AssemblyStructural:
     def __init__(self, mesh, **kwargs):
         self.mesh = mesh
-        self.acoustic_solution = kwargs.get("acoustic_solution", None)
+        self.acoustic_solution = kwargs.get('acoustic_solution', None) 
 
     def get_prescribed_indexes(self):
         global_prescribed = []
@@ -135,10 +135,11 @@ class AssemblyStructural:
 
         return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
-    def get_global_loads(self, frequencies, loads_matrix3D=False):
+    def get_global_loads(self, frequencies, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        loads = np.zeros(total_dof)
+        loads = np.zeros(total_dof, dtype = complex)
+        pressure_loads = np.zeros([total_dof, len(frequencies)], dtype = complex)
 
         # distributed loads
         for element in self.mesh.structural_elements.values():
@@ -146,20 +147,32 @@ class AssemblyStructural:
                 # continue
                 position = element.global_dof
                 loads[position] += element.force_vector_gcs()
-
+        
         # nodal loads
         for node in self.mesh.nodes.values():
             if np.sum(node.forces) != 0:
                 # continue
                 position = node.global_dof
                 loads[position] += node.forces
-            
+        
         unprescribed_indexes = self.get_unprescribed_indexes()
         loads = loads[unprescribed_indexes]
+        
+        if not self.acoustic_solution is None:
+            for element in self.mesh.structural_elements.values():
+                pressure_first = self.acoustic_solution[element.first_node.global_index, :]
+                pressure_last = self.acoustic_solution[element.last_node.global_index, :]
+                pressure_avg = (pressure_first + pressure_last) / 2
+                position = element.global_dof
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(frequencies, pressure_avg, pressure_external)
+        
+        pressure_loads = pressure_loads[unprescribed_indexes,:]
 
         if loads_matrix3D:
             loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
+            loads += pressure_loads.reshape((1,pressure_loads.shape[0],len(frequencies))).T
         else:
-            loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
+            loads = loads.reshape(-1, 1) @ np.ones((1, len(frequencies)))
+            loads += pressure_loads
      
         return loads

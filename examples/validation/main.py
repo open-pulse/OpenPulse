@@ -28,10 +28,10 @@ mesh = Mesh()
 run = 2
 if run==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_structural_boundary_condition_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
 if run==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    mesh.set_structural_boundary_condition_by_node([1, 1200, 1325], np.zeros(6))
+    mesh.set_prescribed_DOFs_BC_by_node([1, 1200, 1325], np.zeros(6))
 
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)

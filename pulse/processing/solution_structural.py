@@ -9,10 +9,7 @@ class SolutionStructural:
     def __init__(self, mesh, **kwargs):
 
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        if self.acoustic_solution is not None:
-            self.assembly = AssemblyStructural(mesh, acoustic_solution=self.acoustic_solution)
-        else:
-            self.assembly = AssemblyStructural(mesh)
+        self.assembly = AssemblyStructural(mesh, acoustic_solution=self.acoustic_solution)
 
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
