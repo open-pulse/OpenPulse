@@ -40,15 +40,7 @@ n2_conect = connect_g2[:,2]
 "Length elements vector"
 node_diff=[]
 Le_v=np.zeros([nel])
-#for i,ii,iii in zip(n1_conect-1,n2_conect-1,el_numb):
-#    node_dif= (coord_g2[i][1:]) - (coord_g2[ii][1:])
-#    node_diff.append(node_dif)
-#    Le=np.linalg.norm(node_diff[iii])
-#    Le_v[iii]=Le
-#Le_v=np.zeros([len(node_diff)])
-#for j in range(len(node_diff)):
-#    Le=np.linalg.norm(node_diff[j])
-#    Le_v[j]=Le
+
 #%% Frequency range
 "sound gas velocity m/s"
 c0=350.337
@@ -60,14 +52,7 @@ d=0.034
 d_b=0.022
 "Fluid area"
 S=np.pi*(d/2)**2
-"Bend duct angle [radians]"
-theta=np.deg2rad(90)
-"Bend duct curvature ratio [m]"
-cr_bd=0.05
-cr_bd_2=0.1
-"Bend duct arc length"
-al_bd=theta*cr_bd
-al_bd_2=theta*cr_bd_2
+
 "Acoustic impedance"
 Z=(rho0*c0)/S
 step_f=1
