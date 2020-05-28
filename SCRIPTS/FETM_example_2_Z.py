@@ -60,14 +60,7 @@ d=0.034
 d_b=0.022
 "Fluid area"
 S=np.pi*(d/2)**2
-"Bend duct angle [radians]"
-theta=np.deg2rad(90)
-"Bend duct curvature ratio [m]"
-cr_bd=0.05
-cr_bd_2=0.1
-"Bend duct arc length"
-al_bd=theta*cr_bd
-al_bd_2=theta*cr_bd_2
+
 "Acoustic impedance"
 Z=(rho0*c0)/S
 step_f=1
