@@ -136,6 +136,8 @@ p_nodes_all=np.insert(p_nodes,0,1,0)
 
 #%% LOAD AND PLOTS
 
+p_ref=20*1e-6
+
 f_com=np.loadtxt("test_geom_2_branch1_out_equal_d_Z.txt")[:,0] 
 p_out_b1_com_3d=np.loadtxt("test_geom_2_branch1_out_equal_d_Z.txt")[:,1]
 p_out_b2_com_3d=np.loadtxt("test_geom_2_branch2_out_equal_d_Z.txt")[:,1]
@@ -277,3 +279,6 @@ if __name__ == "__main__":
                 
                 
         
+
+
+# %%
