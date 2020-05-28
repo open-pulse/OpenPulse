@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
 
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
-        #self.showMaximized()
+        self.showMaximized()
         self.setWindowIcon(self.pulse_icon)
         self._change_window_title()
 

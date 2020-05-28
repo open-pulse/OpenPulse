@@ -37,8 +37,8 @@ class Element:
         return rows, cols
         
     def matrix(self, frequencies, ones):
-        kLe = 2*PI*frequencies*self.length / self.fluid.sound_velocity 
-        matrix = ((1j/(np.sin(kLe)*self.impedance))*np.array([-np.cos(kLe), ones, ones, -np.cos(kLe)])).T
+        kLe = 2*PI*frequencies*(self.length / self.fluid.sound_velocity) 
+        matrix = ((1j/(np.sin(kLe, dtype='float64')*self.impedance))*np.array([-np.cos(kLe, dtype='float64'), ones, ones, -np.cos(kLe, dtype='float64')])).T
         # matrix = np.zeros([len(frequencies), ENTRIES_PER_ELEMENT], dtype = complex)
         # for i, value in enumerate(kLe):
         #     matrix[i,:] = 1j / (sin(value) * Z) * np.array([-cos(value), 1, 1, -cos(value)])   

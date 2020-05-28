@@ -206,15 +206,6 @@ class Mesh:
         self.nodal_coordinates_matrix = nodal_coordinates
         return
 
-    def getRadius(self):
-        for index, element in enumerate(self.elements.values()):
-            first = element.first_node.global_index
-            last  = element.last_node.global_index
-            radius = element.cross_section.external_diameter
-            self.radius[first] = radius
-            self.radius[last] = radius
-        return self.radius
-
     def get_connectivity_matrix(self, reordering=True):
         # Returns the connectivity matrix for all elements
         # output -> [index, first_node(internal), last_node(internal)] if reordering=True

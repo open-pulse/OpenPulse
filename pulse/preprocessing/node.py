@@ -118,7 +118,7 @@ class Node:
         elif self.radiation_impedance != 0:
             Z = self.radiation_impedance / area_fluid
         
-        if isinstance(Z, np.float64):
+        if isinstance(Z, float):
             admittance = 1/Z * np.ones_like(frequencies)
         elif len(Z) != len(frequencies):
             #error!!

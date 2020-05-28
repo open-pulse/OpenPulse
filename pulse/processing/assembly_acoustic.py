@@ -34,7 +34,7 @@ class AssemblyAcoustic:
 
     def get_global_matrices(self, frequencies):
 
-        ones = np.ones(len(frequencies))
+        ones = np.ones(len(frequencies), dtype='float64')
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.acoustic_elements)
@@ -49,7 +49,7 @@ class AssemblyAcoustic:
             # data arrangement: pressures are arranged in columns and each row corresponds to one frequency of the analysis
             data_k[:, start:end] = element.matrix(frequencies, ones)
             
-        full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype = complex) for data in data_k]
+        full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
 
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()
@@ -74,8 +74,6 @@ class AssemblyAcoustic:
         # processing external elements by node
         for node in self.mesh.nodes.values():
             if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) != 0:
-            #     continue
-            # else:
                 position = node.global_index
                 area_fluid = []
 
@@ -97,23 +95,15 @@ class AssemblyAcoustic:
                 self.flag = True
 
         if self.flag:
-            full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof], dtype=float) for data in data_Klump]
+            full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
         else:
-            full_K = [csr_matrix((total_dof, total_dof), dtype=float) for freq in frequencies]
+            full_K = [csr_matrix((total_dof, total_dof)) for _ in frequencies]
 
         K_lump = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump
         
-    # def get_all_matrices(self, frequencies):
-        
-    #     K, Kr = self.get_global_matrices(frequencies)
-    #     K_lump, Kr_lump = self.get_lumped_matrices(frequencies)
-        
-    #     Kadd_lump = [ K[i] + K_lump[i] for i in range(len(frequencies))]
-
-    #     return Kadd_lump, K, Kr, K_lump, Kr_lump
 
     def get_global_volume_velocity(self, frequencies):
 
