@@ -80,7 +80,7 @@ Z_v=(rho0*c0)/S_v
 "Anechoic termination"
 z_nod= np.array([1047-1]) #%%levar em consideração que insert aumenta o tamano do array
 S_adm=S_v[-1] #%last element section
-A=S_adm/(1.2*343)
+A=S_adm/(rho0*c0)
 A_v=np.zeros([nel-len(z_nod),1])
 #for aa in range(len(z_nod)):
 A_v=np.insert(A_v,z_nod,A)
