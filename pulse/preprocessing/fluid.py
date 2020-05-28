@@ -7,7 +7,6 @@ def load_fluid(name):
 def save_fluid(material):
     pass
 
-
 class Fluid:
     def __init__(self,  name, density, sound_velocity, **kwargs):
         self.name = name
@@ -20,6 +19,10 @@ class Fluid:
     def impedance(self):
         return self.density * self.sound_velocity
     
+    @property
+    def bulk_modulus(self):
+        return self.density * self.sound_velocity**2
+
     def getColorRGB(self):
         temp = self.color[1:-1] #Remove "[ ]"
         tokens = temp.split(',')

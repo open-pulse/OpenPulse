@@ -1,4 +1,5 @@
 import numpy as np
+from pulse.utils import error
 
 DOF_PER_NODE_STRUCTURAL = 6
 DOF_PER_NODE_ACOUSTIC = 1
@@ -120,9 +121,9 @@ class Node:
         
         if isinstance(Z, float):
             admittance = 1/Z * np.ones_like(frequencies)
-        elif len(Z) != len(frequencies):
-            #error!!
-            pass
+        elif len([Z]) != len(frequencies):
+            error(" The vectors Z and frequencies must be the same to calculate the admittance properly!")
+            return
         else:
             admittance = np.divide(1,Z)
 

@@ -250,3 +250,17 @@ class Element:
             Fe += (NN.T @ self.loaded_forces.T) * det_jacobian * weigth
 
         return Fe
+
+    def force_vector_acoustic_gcs(self, frequencies, pressure_avg, pressure_external):
+
+        A = self.cross_section.area
+        Do = self.cross_section.external_diameter
+        Di = self.cross_section.internal_diameter
+        stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
+        aux = np.zeros([DOF_PER_ELEMENT, 1])
+        aux[0], aux[6] = 1, -1
+        R = self.rotation_matrix()
+        aux = R.T @ aux
+        F_p = (1 - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
+
+        return F_p

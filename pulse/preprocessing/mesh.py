@@ -263,6 +263,8 @@ class Mesh:
     def set_material_by_element(self, elements, material):       
         for element in slicer(self.structural_elements, elements):
             element.material = material
+        for element in slicer(self.acoustic_elements, elements):
+            element.material = material
 
     def set_material_by_line(self, lines, material):
         for elements in slicer(self.line_to_elements, lines):

@@ -22,9 +22,7 @@ class SolutionAcoustic:
         self.prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
 
-        # self.Kadd_lump, self.K, self.Kr, self.K_lump, self.Kr_lump = self.assembly.get_all_matrices(self.frequencies)
-
-
+      
     def _reinsert_prescribed_dofs(self, solution):
         rows = solution.shape[0] + len(self.prescribed_indexes)
         cols = solution.shape[1]

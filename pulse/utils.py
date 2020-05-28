@@ -1,7 +1,7 @@
 from functools import wraps
 from time import time
 from scipy.sparse import issparse
-
+from PyQt5.QtWidgets import QMessageBox
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -48,6 +48,13 @@ def m_to_mm(m):
 
 def mm_to_m(mm):
     return float(mm) / 1000
+
+def error(self, msg, title = " Error "):
+    msg_box = QMessageBox()
+    msg_box.setIcon(QMessageBox.Critical)
+    msg_box.setText(msg)
+    msg_box.setWindowTitle(title)
+    msg_box.exec_()
 
 def sparse_is_equal(a, b):
     if not (issparse(a) and issparse(b)):
