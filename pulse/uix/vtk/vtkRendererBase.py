@@ -45,8 +45,11 @@ class vtkRendererBase(ABC):
         if width == -1 and height == -1:
             #Empiric values
             width, height = self._renderer.GetSize()
-            height = 35
-            width -= 250
+            height -= 100
+            width = 20
+            # width, height = self._renderer.GetSize()
+            # height = 35
+            # width -= 250
         self._textActor.SetInput(text)
         self._textActor.SetDisplayPosition(width, height)
         self._renderer.AddActor2D(self._textActor)
