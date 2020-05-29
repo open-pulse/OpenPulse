@@ -65,29 +65,28 @@ class VolumeVelocityInput(QDialog):
             except:
                 pass
             self.nodes_typed = list(map(int, tokens))
-
-            try:
-                for node in self.nodes_typed:
-                    self.nodes[node].external_index
-            except:
-                message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-                error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                return
-        
-            volume_velocity = None
-            if self.lineEdit_volume_velocity.text() != "":
-                if self.isFloat(self.lineEdit_volume_velocity.text()):
-                    volume_velocity = float(self.lineEdit_volume_velocity.text())
-                else:
-                    error("Wrong input for the Volume Velocity Source(s)!", title = " ERROR ")
-                    return
-            else:
-                error("You must to input a valid value for the Volume Velocity Source!", title = " ERROR ")
-                return
-
         except Exception:
             error("Wrong input for Node ID's!", title = "Error Node ID's")
             return
-        
+
+        try:
+            for node in self.nodes_typed:
+                self.nodes[node].external_index
+        except:
+            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
+            error(message[0], title = " INCORRECT NODE ID INPUT! ")
+            return
+    
+        volume_velocity = None
+        if self.lineEdit_volume_velocity.text() != "":
+            if self.isFloat(self.lineEdit_volume_velocity.text()):
+                volume_velocity = float(self.lineEdit_volume_velocity.text())
+            else:
+                error("Wrong input for the Volume Velocity Source(s)!", title = " ERROR ")
+                return
+        else:
+            error("You must to input a valid value for the Volume Velocity Source!", title = " ERROR ")
+            return
+
         self.volume_velocity = volume_velocity
         self.close()

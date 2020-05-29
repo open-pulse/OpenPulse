@@ -65,28 +65,27 @@ class AcousticPressureInput(QDialog):
             except:
                 pass
             self.nodes_typed = list(map(int, tokens))
-
-            try:
-                for node in self.nodes_typed:
-                    self.nodes[node].external_index
-            except:
-                message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-                error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                return
-
-            acoustic_pressure = None
-            if self.lineEdit_acoustic_pressure.text() != "":
-                if self.isFloat(self.lineEdit_acoustic_pressure.text()):
-                    acoustic_pressure = float(self.lineEdit_acoustic_pressure.text())
-                else:
-                    error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
-                    return
-            else:
-                error("You must to input a valid value for the Acoustic Pressure!", title = " ERROR ")
-                return
-
         except Exception:
             error("Wrong input for Node ID's!", title = "Error Node ID's")
+            return
+
+        try:
+            for node in self.nodes_typed:
+                self.nodes[node].external_index
+        except:
+            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
+            error(message[0], title = " INCORRECT NODE ID INPUT! ")
+            return
+
+        acoustic_pressure = None
+        if self.lineEdit_acoustic_pressure.text() != "":
+            if self.isFloat(self.lineEdit_acoustic_pressure.text()):
+                acoustic_pressure = float(self.lineEdit_acoustic_pressure.text())
+            else:
+                error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
+                return
+        else:
+            error("You must to input a valid value for the Acoustic Pressure!", title = " ERROR ")
             return
 
         self.acoustic_pressure = acoustic_pressure

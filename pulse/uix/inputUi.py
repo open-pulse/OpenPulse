@@ -91,14 +91,14 @@ class InputUi:
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
-        dof = DOFInput(point_id)
+        dof = DOFInput(self.project.mesh.nodes, point_id)
 
         if dof.dof is None:
             return
 
-        self.project.setStructuralBoundaryCondition_by_Node(dof.nodes, dof.dof)
-        print("[Set Prescribed DOF] - defined in the point(s) {}".format(dof.nodes))
-        self.opv.transformPoints(dof.nodes)
+        self.project.setStructuralBoundaryCondition_by_Node(dof.nodes_typed, dof.dof)
+        print("[Set Prescribed DOF] - defined in the point(s) {}".format(dof.nodes_typed))
+        self.opv.transformPoints(dof.nodes_typed)
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
@@ -146,22 +146,27 @@ class InputUi:
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
-        loads = LoadsInput(point_id)
+        loads = LoadsInput(self.project.mesh.nodes, point_id)
 
         if loads.loads is None:
             return
 
-        self.project.setForce_by_Node(loads.nodes, loads.loads)
-        print("[Set Nodal Load] - defined in the point(s) {}".format(loads.nodes))
-        self.opv.transformPoints(loads.nodes)
+        self.project.setForce_by_Node(loads.nodes_typed, loads.loads)
+        print("[Set Nodal Load] - defined in the point(s) {}".format(loads.nodes_typed))
+        self.opv.transformPoints(loads.nodes_typed)
 
     def addMassSpringDamper(self):
         point_id = self.opv.getListPickedPoints()
-        msd = MassSpringDamperInput(point_id)
-        self.project.setMass_by_Node(msd.nodes, msd.mass)
-        self.project.setSpring_by_Node(msd.nodes, msd.spring)
-        self.project.setDamper_by_Node(msd.nodes, msd.damper)
-        print("[Set Mass/Spring/Damper] - defined in the point(s) {}".format(msd.nodes))
+        msd = MassSpringDamperInput(self.project.mesh.nodes, point_id)
+        if msd.input_mass:
+            self.project.setMass_by_Node(msd.nodes_typed, msd.mass)
+            print("[Set Mass] - defined in the point(s) {}".format(msd.nodes_typed))
+        if msd.input_spring:
+            self.project.setSpring_by_Node(msd.nodes_typed, msd.spring)
+            print("[Set Spring] - defined in the point(s) {}".format(msd.nodes_typed))
+        if msd.input_damper:
+            self.project.setDamper_by_Node(msd.nodes_typed, msd.damper)
+            print("[Set Damper] - defined in the point(s) {}".format(msd.nodes_typed))         
 
     def analyseTypeInput(self):
         analysis_input = AnalyseTypeInput()

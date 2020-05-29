@@ -57,7 +57,6 @@ class SpecificImpedanceInput(QDialog):
         except:
             return False
 
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -66,28 +65,27 @@ class SpecificImpedanceInput(QDialog):
             except:
                 pass
             self.nodes_typed = list(map(int, tokens))
-
-            try:
-                for node in self.nodes_typed:
-                    self.nodes[node].external_index
-            except:
-                message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-                error(message[0], title = " INCORRECT NODE ID INPUT ")
-                return
-
-            specific_impedance = None
-            if self.lineEdit_specific_impedance.text() != "":
-                if self.isFloat(self.lineEdit_specific_impedance.text()):
-                    specific_impedance = float(self.lineEdit_specific_impedance.text())
-                else:
-                    error("Wrong input for the Specific Acoustic Impedance!", title = " ERROR ")
-                    return
-            else:
-                error("You must to input a valid value for the Specific Acoustic Impedance!", title = " ERROR ")
-                return
-
         except Exception:
             error("Wrong input for Node ID's!", title = "Error Node ID's")
+            return
+
+        try:
+            for node in self.nodes_typed:
+                self.nodes[node].external_index
+        except:
+            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
+            error(message[0], title = " INCORRECT NODE ID INPUT ")
+            return
+
+        specific_impedance = None
+        if self.lineEdit_specific_impedance.text() != "":
+            if self.isFloat(self.lineEdit_specific_impedance.text()):
+                specific_impedance = float(self.lineEdit_specific_impedance.text())
+            else:
+                error("Wrong input for the Specific Acoustic Impedance!", title = " ERROR ")
+                return
+        else:
+            error("You must to input a valid value for the Specific Acoustic Impedance!", title = " ERROR ")
             return
 
         self.specific_impedance = specific_impedance
