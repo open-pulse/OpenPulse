@@ -293,7 +293,6 @@ class Mesh:
             node.damper = values
 
     def set_prescribed_DOFs_BC_by_node(self, nodes, boundary_condition):
-        
         for node in slicer(self.nodes, nodes):
             node.prescribed_DOFs_BC = boundary_condition
             self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])

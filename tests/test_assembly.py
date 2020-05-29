@@ -6,7 +6,7 @@ from pulse.utils import sparse_is_equal
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
-from pulse.processing.assembly import Assembly 
+from pulse.processing.assembly_structural import AssemblyStructural 
 
 # Setting up model
 @pytest.fixture
@@ -16,10 +16,10 @@ def model():
     mesh = Mesh()
     mesh.generate('iges_files\\tube_1.iges', 0.01)
 
-    mesh.set_structural_boundary_condition_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
     mesh.set_material_by_element('all', steel)
     mesh.set_cross_section_by_element('all', cross_section)
-    assembly = Assembly(mesh)
+    assembly = AssemblyStructural(mesh)
 
     # We need to separate it in multiple atribute or functions as soon as possible. 
     names = ['Kadd_lump', 'Madd_lump', 'K', 'M', 'Kr', 'Mr', 'K_lump', 'M_lump', 'C_lump', 'Kr_lump', 'Mr_lump', 'Cr_lump']
