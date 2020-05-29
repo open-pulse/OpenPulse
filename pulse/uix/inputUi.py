@@ -19,8 +19,7 @@ from pulse.uix.user_input.plotFrequencyResponseInput import PlotFrequencyRespons
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.project import Project
-
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox
+from pulse.utils import error
 
 class InputUi:
     def __init__(self, project, parent=None):
@@ -103,47 +102,47 @@ class InputUi:
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        read = SpecificImpedanceInput(point_id)
+        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id)
 
-        if read.impedance is None:
+        if read.specific_impedance is None:
             return
 
-        self.project.setSpecificImpedanceBC_by_Node(read.nodes, read.impedance)
-        print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes))
-        self.opv.transformPoints(read.nodes)
+        self.project.setSpecificImpedanceBC_by_Node(read.nodes_typed, read.specific_impedance)
+        print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes_typed))
+        self.opv.transformPoints(read.nodes_typed)
 
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
-        read = AcousticPressureInput(point_id)
+        read = AcousticPressureInput(self.project.mesh.nodes, point_id)
 
         if read.acoustic_pressure is None:
             return
 
-        self.project.setAcousticPressureBC_by_Node(read.nodes, read.acoustic_pressure)
-        print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes))
-        self.opv.transformPoints(read.nodes)
+        self.project.setAcousticPressureBC_by_Node(read.nodes_typed, read.acoustic_pressure)
+        print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes_typed))
+        self.opv.transformPoints(read.nodes_typed)
 
     def setVolumeVelocity(self):
         point_id = self.opv.getListPickedPoints()
-        read = VolumeVelocityInput(point_id)
+        read = VolumeVelocityInput(self.project.mesh.nodes, point_id)
 
         if read.volume_velocity is None:
             return
 
-        self.project.setVolumeVelocityBC_by_Node(read.nodes, read.volume_velocity)
-        print("[Set Volume Velocity Source] - defined in the point(s) {}".format(read.nodes))
-        self.opv.transformPoints(read.nodes)
+        self.project.setVolumeVelocityBC_by_Node(read.nodes_typed, read.volume_velocity)
+        print("[Set Volume Velocity Source] - defined in the point(s) {}".format(read.nodes_typed))
+        self.opv.transformPoints(read.nodes_typed)
 
     def setRadiationImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        read = RadiationImpedanceInput(point_id)
+        read = RadiationImpedanceInput(self.project.mesh.nodes, point_id)
 
         if read.radiation_impedance is None:
             return
 
-        self.project.setRadiationImpedanceBC_by_Node(read.nodes, read.radiation_impedance)
-        print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes))
-        self.opv.transformPoints(read.nodes)
+        self.project.setRadiationImpedanceBC_by_Node(read.nodes_typed, read.radiation_impedance)
+        print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes_typed))
+        self.opv.transformPoints(read.nodes_typed)
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
@@ -325,48 +324,41 @@ class InputUi:
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
             if self.project.mesh.flag_setMaterial == True:
                 message = "You should to set a Material to all elements\n before trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 message = "You should to set a Cross-Section to all \nelements before trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
             if self.project.mesh.flag_setMaterial == True:
                 message = "You should to set a Material to all \nelements before trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
             elif self.project.mesh.sum_loads == 0:
                 if self.project.mesh.sum_prescribedDOFs == 0:
                     message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
-                    self.error(message)
+                    error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                     return True
 
         if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
             self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 message = "You should to set a Cross-Section to all \nelements before trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
             elif self.project.mesh.flag_setFluid == True:
                 message = "You should to set a Fluid to all elements \nbefore trying to run any Analysis!"
-                self.error(message)
+                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                 return True
             elif self.project.mesh.sum_volumeVelocity == 0:
                 if self.project.mesh.sum_acousticPressures == 0:
                     message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
-                    self.error(message)
+                    error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
                     return True
-
-    def error(self, msg, title = " ERROR: INSUFFICIENT MODEL INPUTS! "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()

@@ -11,7 +11,6 @@ def split_sequence(sequence, size):
         subsequences.append(subsequence)
     return subsequences
 
-
 def slicer(iterable, argument):
     if isinstance(argument, str) and argument == 'all':
         if isinstance(iterable, dict):
@@ -27,10 +26,9 @@ def slicer(iterable, argument):
     elif hasattr(argument, '__iter__'):
         for i in argument:
             yield iterable[i]
-
+            
     else:
         raise AttributeError('Argument not supported')
-
 
 def timer(function):
     @wraps(function)
@@ -42,14 +40,13 @@ def timer(function):
         return values
     return wrapper
     
-
 def m_to_mm(m):
     return float(m) * 1000
 
 def mm_to_m(mm):
     return float(mm) / 1000
 
-def error(self, msg, title = " Error "):
+def error( msg, title = " ERROR "):
     msg_box = QMessageBox()
     msg_box.setIcon(QMessageBox.Critical)
     msg_box.setText(msg)

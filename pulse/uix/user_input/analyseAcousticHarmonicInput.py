@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QComboBox, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QComboBox, QPushButton
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -32,12 +32,12 @@ class AnalyseAcousticHarmonicInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
+    # def error(self, msg, title = "Error"):
+    #     msg_box = QMessageBox()
+    #     msg_box.setIcon(QMessageBox.Critical)
+    #     msg_box.setText(msg)
+    #     msg_box.setWindowTitle(title)
+    #     msg_box.exec_()
 
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()

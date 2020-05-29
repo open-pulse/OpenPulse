@@ -220,9 +220,6 @@ class Project:
             self.file.addFrequencyInFile(min_, max_, step_)
         self.frequencies = frequencies
 
-    def getMinMaxStepFrequency(self):
-        return self.minFrequency, self.maxFrequency, self.stepFrequency
-
     def loadStructuralBondaryCondition_by_Node(self, node_id, bc):
         self.mesh.set_prescribed_DOFs_BC_by_node(node_id, bc)
 

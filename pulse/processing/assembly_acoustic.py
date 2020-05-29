@@ -1,9 +1,8 @@
 from time import time
 import numpy as np
 from scipy.sparse import csr_matrix, csc_matrix
-from PyQt5.QtWidgets import QMessageBox
+from pulse.utils import timer, error
 
-from pulse.utils import timer
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.element_acoustic import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
@@ -83,7 +82,7 @@ class AssemblyAcoustic:
                         area_fluid.append(element.cross_section.area_fluid)
 
                 if np.var(area_fluid) != 0:
-                    self.error(" All the elements should to have an uniform Cross-Section! ")
+                    error(" All the elements should to have an uniform Cross-Section! ")
                     return
                 else:
                     area_fluid = np.mean(area_fluid)
@@ -103,8 +102,7 @@ class AssemblyAcoustic:
         K_lump = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
 
-        return K_lump, Kr_lump
-        
+        return K_lump, Kr_lump  
 
     def get_global_volume_velocity(self, frequencies):
 
@@ -113,7 +111,6 @@ class AssemblyAcoustic:
 
         for node in self.mesh.nodes.values():
             if np.sum(node.volume_velocity) != 0:
-                # continue
                 position = node.global_index
                 volume_velocity[:, position] += node.get_prescribed_volume_velocity(frequencies)
         
@@ -121,10 +118,3 @@ class AssemblyAcoustic:
         volume_velocity = volume_velocity[:, unprescribed_indexes]
 
         return volume_velocity
-
-    def error(self, msg, title = " Error "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()

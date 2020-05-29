@@ -122,7 +122,7 @@ class Node:
         if isinstance(Z, float):
             admittance = 1/Z * np.ones_like(frequencies)
         elif len([Z]) != len(frequencies):
-            error(" The vectors Z and frequencies must be the same to calculate the admittance properly!")
+            error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
             return
         else:
             admittance = np.divide(1,Z)

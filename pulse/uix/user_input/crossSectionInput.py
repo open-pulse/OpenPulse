@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+from pulse.utils import error
 
 from pulse.preprocessing.cross_section import CrossSection
 
@@ -55,13 +56,6 @@ class CrossSectionInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
@@ -73,24 +67,33 @@ class CrossSectionInput(QDialog):
         if self.currentTab == 0 or True:
             #Pipe
             if self.lineEdit_outerDiameter.text() == "":
-                self.error("Insert some value (Outer Diameter)!", "Pipe Error")
+                error("Insert some value (OUTER DIAMETER)!", title="INPUT CROSS-SECTION ERROR")
                 return
             elif self.lineEdit_thickness.text() == "":
-                pass
+                error("Insert some value (THICKENSS)!", title="INPUT CROSS-SECTION ERROR")
+                return
             elif self.lineEdit_offset_y.text() == "":
+                # error("Insert some value (Offset y)!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 pass
             elif self.lineEdit_offset_z.text() == "":
+                # error("Insert some value (Offset z)!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 pass
 
             outerDiameter = 0
             thickness = 0
             offset_y = 0
             offset_z = 0
+
             try:
                 outerDiameter = float(self.lineEdit_outerDiameter.text())
+            except Exception:
+                error("Wrong input for OUTER DIAMETER!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
+            
+            try:
                 thickness = float(self.lineEdit_thickness.text())
             except Exception:
-                self.error("Wrong input!", "Pipe Error")
+                error("Wrong input for THICKENSS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
 
             self.section = CrossSection(outerDiameter, thickness)
