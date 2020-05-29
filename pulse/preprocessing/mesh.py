@@ -46,7 +46,24 @@ class Mesh:
         self._load_neighbours()
         self._order_global_indexes()
     
-    # generate
+    def neighbour_elements_diameter(self):
+        neighbour_diameters = dict()
+
+        for index, element in self.structural_elements.items():
+            first = element.first_node.external_index
+            last = element.last_node.external_index
+            neighbour_diameters.setdefault(first, [])
+            neighbour_diameters.setdefault(last, [])
+
+            external = element.cross_section.external_diameter
+            internal = element.cross_section.internal_diameter
+
+            neighbour_diameters[first].append((index, external, internal))
+            neighbour_diameters[last].append((index, external, internal))
+
+        return neighbour_diameters
+    
+    
     def _initialize_gmsh(self, path):
         gmsh.initialize('', False)
         gmsh.open(path)
