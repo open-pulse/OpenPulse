@@ -95,6 +95,14 @@ class CrossSectionInput(QDialog):
             except Exception:
                 error("Wrong input for THICKENSS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
+        
+            if outerDiameter<thickness:
+                error("The OUTER DIAMETER must be greater than THICKNESS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
+
+            elif thickness == 0.0:
+                error("The THICKNESS must be greater than zero!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
 
             self.section = CrossSection(outerDiameter, thickness)
             self.close()
