@@ -39,11 +39,14 @@ class TreeUi(QTreeWidget):
         self.name_child_runAnalysis = "Run Analysis"
 
         self.name_top_resultsViewer = "Results Viewer"
-        self.name_child_plotModeShapes = "Plot Mode Shapes"
-        self.name_child_plotHarmonicResponse = "Plot Harmonic Response"
+        self.name_child_plotStructuralModeShapes = "Plot Structural Mode Shapes"
+        self.name_child_plotStructuralHarmonicResponse = "Plot Structural Harmonic Response"
+        self.name_child_plotAcousticModeShapes = "Plot Acoustic Mode Shapes"
         self.name_child_plotPressureField = "Plot Pressure Field"
+        self.name_child_plotStructuralFrequencyResponseFunction = "Plot Structural Frequency Response Function"
+        self.name_child_plotAcousticFrequencyResponseFunction = "Plot Acoustic Frequency Response Function"
+
         self.name_child_plotStressField = "Plot Stress Field"
-        self.name_child_plotFrequencyResponse = "Plot Frequency Response"
 
     def _createIcons(self):
         self.icon_child_setMaterial = QIcon()
@@ -96,11 +99,13 @@ class TreeUi(QTreeWidget):
         self.item_child_runAnalysis = QTreeWidgetItem([self.name_child_runAnalysis])
 
         self.item_top_resultsViewer = QTreeWidgetItem([self.name_top_resultsViewer])
-        self.item_child_plotModeShapes = QTreeWidgetItem([self.name_child_plotModeShapes])
-        self.item_child_plotHarmonicResponse = QTreeWidgetItem([self.name_child_plotHarmonicResponse])
+        self.item_child_plotStructuralModeShapes = QTreeWidgetItem([self.name_child_plotStructuralModeShapes])
+        self.item_child_plotStructuralHarmonicResponse = QTreeWidgetItem([self.name_child_plotStructuralHarmonicResponse])
+        self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
         self.item_child_plotPressureField = QTreeWidgetItem([self.name_child_plotPressureField])
         self.item_child_plotStressField = QTreeWidgetItem([self.name_child_plotStressField])
-        self.item_child_plotFrequencyResponse = QTreeWidgetItem([self.name_child_plotFrequencyResponse])
+        self.item_child_plotStructuralFrequencyResponseFunction = QTreeWidgetItem([self.name_child_plotStructuralFrequencyResponseFunction])
+        self.item_child_plotAcousticFrequencyResponseFunction = QTreeWidgetItem([self.name_child_plotAcousticFrequencyResponseFunction])
 
     def _configItems(self):
         self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
@@ -152,11 +157,14 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_runAnalysis)
 
         self.addTopLevelItem(self.item_top_resultsViewer)
-        self.addTopLevelItem(self.item_child_plotModeShapes)
-        self.addTopLevelItem(self.item_child_plotHarmonicResponse)
+        self.addTopLevelItem(self.item_child_plotStructuralModeShapes)
+        self.addTopLevelItem(self.item_child_plotStructuralHarmonicResponse)
+        self.addTopLevelItem(self.item_child_plotAcousticModeShapes)
         self.addTopLevelItem(self.item_child_plotPressureField)
+        self.addTopLevelItem(self.item_child_plotStructuralFrequencyResponseFunction)
+        self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponseFunction)
+
         self.addTopLevelItem(self.item_child_plotStressField)
-        self.addTopLevelItem(self.item_child_plotFrequencyResponse)
 
     def on_click_item(self, item, column):
         if item.text(0) == self.name_child_setMaterial:
@@ -182,47 +190,57 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_addMassSpringDamper:
             self.mainWindow.getInputWidget().addMassSpringDamper()
         elif item.text(0) == self.name_child_selectAnalysisType:
-            self.mainWindow.getInputWidget().analyseTypeInput()
+            self.mainWindow.getInputWidget().analysisTypeInput()
             self._updateItems()
         elif item.text(0) == self.name_child_analisysSetup:
-            self.mainWindow.getInputWidget().analyseSetup()
+            self.mainWindow.getInputWidget().analysisSetup()
         elif item.text(0) == self.name_child_selectTheOutputResults:
-            self.mainWindow.getInputWidget().analyseOutputResults()
+            self.mainWindow.getInputWidget().analysisOutputResults()
         elif item.text(0) == self.name_child_runAnalysis:
-            self.mainWindow.getInputWidget().runAnalyse()
+            self.mainWindow.getInputWidget().runAnalysis()
             self._updateItems()
-        elif item.text(0) == self.name_child_plotModeShapes:
-            self.mainWindow.getInputWidget().plotModeShapes()
-        elif item.text(0) == self.name_child_plotHarmonicResponse:
-            self.mainWindow.getInputWidget().plotHarmonicResponse()
+        elif item.text(0) == self.name_child_plotStructuralModeShapes:
+            self.mainWindow.getInputWidget().plotStructuralModeShapes()
+        elif item.text(0) == self.name_child_plotStructuralHarmonicResponse:
+            self.mainWindow.getInputWidget().plotStructuralHarmonicResponse()
+        elif item.text(0) == self.name_child_plotAcousticModeShapes:
+            self.mainWindow.getInputWidget().plotAcousticModeShapes()
         elif item.text(0) == self.name_child_plotPressureField:
             self.mainWindow.getInputWidget().plotPressureField()
         elif item.text(0) == self.name_child_plotStressField:
             self.mainWindow.getInputWidget().plotStressField()
-        elif item.text(0) == self.name_child_plotFrequencyResponse:
-            self.mainWindow.getInputWidget().plotFrequencyResponse()
+        elif item.text(0) == self.name_child_plotStructuralFrequencyResponseFunction:
+            self.mainWindow.getInputWidget().plotStructuralFrequencyResponseFunction()
+        elif item.text(0) == self.name_child_plotAcousticFrequencyResponseFunction:
+            self.mainWindow.getInputWidget().plotAcousticFrequencyResponseFunction()
 
     def _updateItems(self):
         project = self.mainWindow.getProject()
 
         if project.getStructuralSolution() is None:
-            self.item_child_plotModeShapes.setDisabled(True)
-            self.item_child_plotHarmonicResponse.setDisabled(True)
-            self.item_child_plotFrequencyResponse.setDisabled(True)
+            self.item_child_plotStructuralModeShapes.setDisabled(True)
+            self.item_child_plotStructuralHarmonicResponse.setDisabled(True)
+            self.item_child_plotStructuralFrequencyResponseFunction.setDisabled(True)
 
         if project.getAcousticSolution() is None:
-            self.item_child_plotModeShapes.setDisabled(True)
-            self.item_child_plotHarmonicResponse.setDisabled(True)
-            self.item_child_plotFrequencyResponse.setDisabled(True)
+            self.item_child_plotAcousticModeShapes.setDisabled(True)
+            self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(True)
             self.item_child_plotPressureField.setDisabled(True)
         
         if project.getStructuralSolution() is not None or project.getAcousticSolution() is not None:
-            analysisType = project.getAnalysisType()
-            if analysisType == 'Harmonic Analysis - Structural':
-                self.item_child_plotFrequencyResponse.setDisabled(False)
-                self.item_child_plotHarmonicResponse.setDisabled(False)
-            elif analysisType == 'Harmonic Analysis - Acoustic':
-                self.item_child_plotFrequencyResponse.setDisabled(False)
+        
+            if project.analysis_ID == 0 or project.analysis_ID == 1:
+                self.item_child_plotStructuralFrequencyResponseFunction.setDisabled(False)
+                self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
+            elif project.analysis_ID == 2:
+                self.item_child_plotStructuralModeShapes.setDisabled(False)
+            elif project.analysis_ID == 4:
+                self.item_child_plotAcousticModeShapes.setDisabled(False)
+            elif project.analysis_ID == 3:
+                self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
                 self.item_child_plotPressureField.setDisabled(False)
-            elif analysisType == 'Modal Analysis - Structural':
-                self.item_child_plotModeShapes.setDisabled(False) 
+            elif project.analysis_ID in [5,6]:
+                self.item_child_plotStructuralFrequencyResponseFunction.setDisabled(False)
+                self.item_child_plotAcousticFrequencyResponseFunction.setDisabled(False)
+                self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
+                self.item_child_plotPressureField.setDisabled(False)     

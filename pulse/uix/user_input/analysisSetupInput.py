@@ -7,15 +7,15 @@ from PyQt5 import uic
 import configparser
 import numpy as np
 
-class AnalyseSetupInput(QDialog):
-    def __init__(self, typeID, title, subtitle, min_freq = 0, max_freq = 0, step_freq = 0):
+class AnalysisSetupInput(QDialog):
+    def __init__(self, analysis_ID, title, subtitle, min_freq = 0, max_freq = 0, step_freq = 0):
         super().__init__()
-        self.analyseID = typeID
+        self.analysis_ID = analysis_ID
 
-        if self.analyseID == 1:
-            uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput_modal.ui', self)
-        else:
-            uic.loadUi('pulse/uix/user_input/ui/analyseSetupInput.ui', self)
+        if self.analysis_ID in [1,6]:
+            uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_ModeSuperpositionMethod.ui', self)
+        elif self.analysis_ID in [0,3,5]:
+            uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_DirectMethod.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -36,7 +36,7 @@ class AnalyseSetupInput(QDialog):
         self.label_title = self.findChild(QLabel, 'label_title')
         self.label_subtitle = self.findChild(QLabel, 'label_subtitle')
 
-        if self.analyseID == 1:
+        if self.analysis_ID == 1:
             self.lineEdit_modes = self.findChild(QLineEdit, 'lineEdit_modes')
 
         self.lineEdit_av = self.findChild(QLineEdit, 'lineEdit_av')
@@ -89,9 +89,9 @@ class AnalyseSetupInput(QDialog):
 
     def check(self):
         _min = _max = _step = 0
-        if self.analyseID == 0 or self.analyseID == 1:
+        if self.analysis_ID not in [2,4]:
             #Verify Modes
-            if self.analyseID == 1:
+            if self.analysis_ID == 1:
                 if self.lineEdit_modes.text() == "":
                     self.error("Insert a value (modes)")
                     return
@@ -163,11 +163,10 @@ class AnalyseSetupInput(QDialog):
 
         self.damping = [ah, bh, av, bv]
 
-        if self.analyseID == 0 or self.analyseID == 1:
-            self.min_frequency = _min
-            self.max_frequency = _max
-            self.step_frequency = _step
-            self.frequencies = np.arange(_min, _max+_step, _step)
+        self.min_frequency = _min
+        self.max_frequency = _max
+        self.step_frequency = _step
+        self.frequencies = np.arange(_min, _max+_step, _step)
         
         self.complete = True
         self.close()

@@ -18,9 +18,9 @@ class Project:
         self._projectName = ""
 
         #Analysis
-        self.analysisID = None
-        self.analysisType = ""
-        self.analysisMethod = ""
+        self.analysis_ID = None
+        self.analysis_type_label = ""
+        self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = []
@@ -36,9 +36,9 @@ class Project:
 
     def resetInfo(self):
         self.mesh = Mesh()
-        self.analysisID = None
-        self.analysisType = ""
-        self.analysisMethod = ""
+        self.analysis_ID = None
+        self.analysis_type_label = ""
+        self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = []
@@ -366,19 +366,19 @@ class Project:
     def getProjectName(self):
         return self._projectName
 
-    def setAnalysisType(self, value, _type, _method = ""):
-        self.analysisID = value
-        self.analysisType = _type
-        self.analysisMethod = _method
+    def setAnalysisType(self, ID, analysis_text, method_text = ""):
+        self.analysis_ID = ID
+        self.analysis_type_label = analysis_text
+        self.analysis_method_label = method_text
 
-    def getAnalysisTypeID(self): 
-        return self.analysisID
+    def getAnalysisID(self): 
+        return self.analysis_ID
 
-    def getAnalysisType(self):
-        return self.analysisType
+    def getAnalysisTypeLabel(self):
+        return self.analysis_type_label
 
-    def getAnalysisMethod(self):
-        return self.analysisMethod
+    def getAnalysisMethodLabel(self):
+        return self.analysis_method_label
 
     def setDamping(self, value):
         self.damping = value
@@ -387,8 +387,8 @@ class Project:
         return self.damping
 
     def getStructuralSolve(self):
-        if self.getAnalysisType == "Harmonic Analysis - Coupled":
-            results = SolutionStructural(self.mesh, acoustic_solution=self.getAcousticSolve())
+        if self.analysis_ID in [5,6]:
+            results = SolutionStructural(self.mesh, acoustic_solution=self.solution_acoustic)
         else:
             results = SolutionStructural(self.mesh)
         return results
@@ -415,14 +415,12 @@ class Project:
         return self.naturalFrequencies
 
     def getUnit(self):
-        analysis = self.getAnalysisTypeID()
-        if analysis == 0 or analysis == 1:
-            if self.getAnalysisType()  == "Harmonic Analysis - Acoustic":
+        analysis = self.analysis_ID
+        if analysis >=0 and analysis <= 6:
+            if analysis==2 or analysis==6:
                 return "Pa"
             else:
                 return "m"
-        else:
-            return "m"
 
     def isFloat(self, number):
         try:

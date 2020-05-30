@@ -22,7 +22,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererEntity = RendererEntity(self.project, self)
         self.rendererElement = RendererElement(self.project, self)
         self.rendererPoint = RendererPoint(self.project, self)
-        self.rendererAnalyse = RendererPostProcessing(self.project, self)
+        self.rendererAnalysis = RendererPostProcessing(self.project, self)
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
         self.sliderScale = 1
@@ -68,7 +68,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.slider2d.SetEndCapLength(0.01)
         #self.slider2d.SetTitleText('Scale')
 
-        width, _ = self.rendererAnalyse.getSize()
+        width, _ = self.rendererAnalysis.getSize()
 
         self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
         self.slider2d.GetPoint1Coordinate().SetValue(width-250,20)
@@ -95,15 +95,15 @@ class OPVUi(QVTKRenderWindowInteractor):
         if truncNumber != self.sliderScale:
             self.sliderScale = truncNumber
             self.needResetCamera = False
-            self.changeAndPlotAnalyse(self.currentFrequencyIndice)
+            self.changeAndPlotAnalysis(self.currentFrequencyIndice)
 
     def _updateSlider(self):
-        if self.rendererAnalyse.getInUse():
-            if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
+        if self.rendererAnalysis.getInUse():
+            if self.project.analysis_ID == 3:
                 if self.project.getAcousticSolution() is not None:
                     self.sliderEnable = False
                     return
-            if not self.sliderEnable:
+            elif not self.sliderEnable:
                 self.sliderEnable = True
                 self._createSlider()
         else:
@@ -120,13 +120,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.rendererEntity.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererElement.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererPoint.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.rendererAnalyse.getRenderer())
+        self.GetRenderWindow().RemoveRenderer(self.rendererAnalysis.getRenderer())
 
     def clearRendereresUse(self):
         self.rendererEntity.setInUse(False)
         self.rendererElement.setInUse(False)
         self.rendererPoint.setInUse(False)
-        self.rendererAnalyse.setInUse(False)
+        self.rendererAnalysis.setInUse(False)
 
     def beforeChangePlot(self):
         self.clearRendereres()
@@ -161,17 +161,17 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererPoint.resetCamera()
         self.afterChangePlot()
 
-    def changeAndPlotAnalyse(self, frequency_indice, acoustic=False):
+    def changeAndPlotAnalysis(self, frequency_indice, acoustic=False):
         self.beforeChangePlot()
         self.changeFrequency(frequency_indice)
-        self.rendererAnalyse.setFrequencyIndice(self.currentFrequencyIndice)
-        self.rendererAnalyse.setSliderFactor(self.sliderScale)
-        self.rendererAnalyse.setInUse(True)
-        self.SetInteractorStyle(self.rendererAnalyse.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererAnalyse.getRenderer())
-        self.rendererAnalyse.plot(acoustic=acoustic)
+        self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        self.rendererAnalysis.setSliderFactor(self.sliderScale)
+        self.rendererAnalysis.setInUse(True)
+        self.SetInteractorStyle(self.rendererAnalysis.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
+        self.rendererAnalysis.plot(acoustic=acoustic)
         if self.needResetCamera:
-            self.rendererAnalyse.resetCamera()
+            self.rendererAnalysis.resetCamera()
         self.afterChangePlot()
 
     def plotEntities(self, plotRadius = False):

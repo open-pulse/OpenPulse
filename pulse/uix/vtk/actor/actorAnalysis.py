@@ -2,7 +2,7 @@ import vtk
 import numpy as np
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
-class ActorAnalyse(vtkActorBase):
+class ActorAnalysis(vtkActorBase):
     def __init__(self, project, connect, coord_def, color_table):
         super().__init__()
 

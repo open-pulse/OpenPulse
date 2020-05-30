@@ -3,10 +3,10 @@ from pulse.uix.user_input.fluidInput import FluidInput
 from pulse.uix.user_input.crossSectionInput import CrossSectionInput
 from pulse.uix.user_input.loadsInput import LoadsInput
 from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
-from pulse.uix.user_input.analyseTypeInput import AnalyseTypeInput
-from pulse.uix.user_input.analyseSetupInput import AnalyseSetupInput
-from pulse.uix.user_input.analyseOutputResultsInput import AnalyseOutputResultsInput
-from pulse.uix.user_input.runAnalyseInput import RunAnalyseInput
+from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
+from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
+from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResultsInput
+from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
@@ -15,7 +15,8 @@ from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 
 from pulse.uix.user_input.plotModeShapeInput import PlotModeShapeInput
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
-from pulse.uix.user_input.plotFrequencyResponseInput import PlotFrequencyResponseInput
+from pulse.uix.user_input.plotStructuralFrequencyResponseFunctionInput import PlotStructuralFrequencyResponseFunctionInput
+from pulse.uix.user_input.plotAcousticFrequencyResponseFunctionInput import PlotAcousticFrequencyResponseFunctionInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.project import Project
@@ -168,202 +169,243 @@ class InputUi:
             self.project.setDamper_by_Node(msd.nodes_typed, msd.damper)
             print("[Set Damper] - defined in the point(s) {}".format(msd.nodes_typed))         
 
-    def analyseTypeInput(self):
-        analysis_input = AnalyseTypeInput()
-        if analysis_input.typeID is None:
+    def analysisTypeInput(self):
+
+        inputs = AnalysisTypeInput()
+        self.analysis_ID = inputs.analysis_ID
+        self.analysis_type_label = inputs.analysis_type_label
+        self.analysis_method_label = inputs.analysis_method_label
+
+        if self.analysis_ID is None:
             return
  
-        self.project.setAnalysisType(analysis_input.typeID, analysis_input.type, analysis_input.method)
-        self.project.setModes(analysis_input.modes)
+        self.project.setAnalysisType(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
+        self.project.setModes(inputs.modes)
         self.project.setAcousticSolution(None)
         self.project.setStructuralSolution(None)
 
-        if analysis_input.typeID == 0 or analysis_input.typeID == 1:
-            self.analyseSetup()
-        elif analysis_input.typeID == 2:
-            if not analysis_input.complete:
+        if self.analysis_ID in [2,4]:
+            if not inputs.complete:
                 return
             else:
-                self.runAnalyse()
-   
-    def analyseSetup(self):
+                self.runAnalysis()
+        else:
+            self.analysisSetup()
+        
+    def analysisSetup(self):
 
-        if self.project.getAnalysisTypeID() is None:
+        if self.project.analysis_ID is None:
             return
 
         self.project.loadAnalysisFile()
         f_min, f_max, df = self.project.minFrequency, self.project.maxFrequency, self.project.stepFrequency
-        TypeID, AnalysisType, AnalysisMethod = self.project.getAnalysisTypeID(), self.project.getAnalysisType(), self.project.getAnalysisMethod() 
-        setup = AnalyseSetupInput(TypeID, AnalysisType, AnalysisMethod, min_freq = f_min, max_freq = f_max, step_freq = df)
-      
+        setup = AnalysisSetupInput(self.analysis_ID, self.analysis_type_label, self.analysis_method_label, min_freq = f_min, max_freq = f_max, step_freq = df)
+        self.frequencies = setup.frequencies
         if not setup.complete:
             return
-    
-        elif self.project.getAnalysisTypeID() == 0 or self.project.getAnalysisTypeID() == 1:
-            if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-                self.project.setFrequencies(setup.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
-                self.project.setModes(setup.modes)
-                self.project.setDamping(setup.damping)
-            elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                self.project.setFrequencies(setup.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
 
-    def analyseOutputResults(self):
-        AnalyseOutputResultsInput()
+        self.project.setFrequencies(self.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
 
-    def runAnalyse(self):
+        if self.analysis_ID != 3:
+            self.project.setModes(setup.modes)
+            self.project.setDamping(setup.damping)
+        else:
+            return
+      
+    def analysisOutputResults(self):
+        AnalysisOutputResultsInput()
+
+    def runAnalysis(self):
         if self._check_is_there_a_problem():
             return
-        analyseTypeID = self.project.getAnalysisTypeID()
-        analysis_type = self.project.getAnalysisType()
-        frequencies = self.project.getFrequencies()
-
-        if analyseTypeID == 0 or analyseTypeID == 1:
-            if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-                solve = self.project.getStructuralSolve()
-                modes = self.project.getModes()
-                damping = self.project.getDamping()
-            elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                solve = self.project.getAcousticSolve()
-        elif analyseTypeID == 2:
-            solve = self.project.getStructuralSolve()
-            modes = self.project.getModes()
-                
-        if analyseTypeID is None:
-            return
-        if len(frequencies) == 0:
-            if analyseTypeID == 0 or analyseTypeID == 1:
+        
+        if len(self.frequencies) == 0:
+            if self.analysis_ID in [0,1,3,5,6]:
                 return
 
-        if analyseTypeID == 0 or analyseTypeID == 1:
-            if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-                solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, frequencies, modes, damping)
-                if solution.solution is None:
-                    return
-                self.project.setStructuralSolution(solution.solution)
-            elif self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
-                solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, frequencies, [], [])
-                if solution.solution is None:
-                    return
-                self.project.setAcousticSolution(solution.solution)
+        if self.analysis_ID == 2:
+            solve = self.project.getStructuralSolve()
+            modes = self.project.getModes()
+        elif self.analysis_ID == 4:
+            solve = self.project.getAcousticSolve()
+            modes = self.project.getModes()
+        elif self.analysis_ID == 3:
+            solve = self.project.getAcousticSolve()
+        elif self.analysis_ID in [5,6]:
+            solve = self.project.getAcousticSolve()
+            modes = self.project.getModes()
+            damping = self.project.getDamping()
+        else:
+            solve = self.project.getStructuralSolve()
+            modes = self.project.getModes()
+            damping = self.project.getDamping()
 
-        if analyseTypeID == 2:
-            solution = RunAnalyseInput(solve, analyseTypeID, analysis_type, [], modes, [])
+        if self.analysis_ID == 2:
+            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [])
             if solution.solution is None:
                 return
             self.project.setStructuralSolution(solution.solution)
             self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
 
-    def plotModeShapes(self):
+        elif self.analysis_ID == 4:
+            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [])
+            if solution.solution is None:
+                return
+            self.project.setAcousticSolution(solution.solution)
+            self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
+
+        elif self.analysis_ID == 3:
+            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [])
+            if solution.solution is None:
+                return
+            self.project.setAcousticSolution(solution.solution)
+        elif self.analysis_ID in [5,6]:
+            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, project=self.project)
+            # if solution.solution_structural is None:
+            #     return
+            self.project.setStructuralSolution(solution.solution_structural)
+
+        else:
+            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping)
+            if solution.solution is None:
+                return
+            self.project.setStructuralSolution(solution.solution)
+ 
+    def plotStructuralModeShapes(self):
         solution = self.project.getStructuralSolution()
-        analyseTypeID = self.project.getAnalysisTypeID()
-        frequencies = self.project.getNaturalFrequencies()
-        if analyseTypeID == 2:
+        if self.analysis_ID == 2:
             if solution is None:
                 return
-            plot = PlotModeShapeInput(frequencies)
+            plot = PlotModeShapeInput(self.frequencies)
             if plot.mode_index is None:
                 return
-            self.opv.changeAndPlotAnalyse(plot.mode_index)
+            self.opv.changeAndPlotAnalysis(plot.mode_index)
         else:
             return
 
-    def plotHarmonicResponse(self):
+    def plotStructuralHarmonicResponse(self):
         solution = self.project.getStructuralSolution()
-        analyseTypeID = self.project.getAnalysisTypeID()
-        frequencies = self.project.getFrequencies()
-        if analyseTypeID == 0 or analyseTypeID == 1:
+        if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = PlotHarmonicResponseInput(frequencies)
+            plot = PlotHarmonicResponseInput(self.frequencies)
             if plot.frequency is None:
                 return
-            if analyseTypeID == 0:
-                if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-                    self.opv.changeAndPlotAnalyse(plot.frequency)
-                else:
-                    self.opv.changeAndPlotAnalyse(plot.frequency, acoustic=True)
-            else:
-                self.opv.changeAndPlotAnalyse(plot.frequency)    
+            self.opv.changeAndPlotAnalysis(plot.frequency)
+        else:
+            return
+
+    def plotAcousticModeShapes(self):
+        solution = self.project.getAcousticSolution()
+        if self.analysis_ID == 2:
+            if solution is None:
+                return
+            plot = PlotModeShapeInput(self.frequencies)
+            if plot.mode_index is None:
+                return
+            self.opv.changeAndPlotAnalysis(plot.mode_index)
         else:
             return
 
     def plotPressureField(self):
         solution = self.project.getAcousticSolution()
-        analyseTypeID = self.project.getAnalysisTypeID()
-        analysis_type = self.project.getAnalysisType()
-        frequencies = self.project.getFrequencies()
-        if analyseTypeID == 0 or analyseTypeID == 1:
+        if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return
-            plot = PlotHarmonicResponseInput(frequencies)
+            plot = PlotHarmonicResponseInput(self.frequencies)
             if plot.frequency is None:
                 return
-            if analyseTypeID == 0 and analysis_type  == "Harmonic Analysis - Acoustic":
-                    self.opv.changeAndPlotAnalyse(plot.frequency, acoustic=True)
-            # else:
-            #     self.opv.change_to_mode_superposition(plot.frequency)
-        # else:
+            self.opv.changeAndPlotAnalysis(plot.frequency, acoustic=True)
+        else:
             return
 
-    def plotStressField(self):
-        pass
-
-    def plotFrequencyResponse(self):
-        analyseTypeID = self.project.getAnalysisTypeID()
-        if analyseTypeID == 0 or analyseTypeID == 1:
+    def plotStructuralFrequencyResponseFunction(self):
+        if self.analysis_ID in [0,1,5,6]:
             solution = self.project.getStructuralSolution()
             if solution is None:
                 return
-            analyseMethod = self.project.getAnalysisMethod()
-            frequencies = self.project.getFrequencies()
-            mesh = self.project.getMesh()
-            PlotFrequencyResponseInput(mesh, analyseMethod, frequencies, solution)
+            PlotStructuralFrequencyResponseFunctionInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
+
+    def plotAcousticFrequencyResponseFunction(self):
+        if self.analysis_ID in [3,5,6]:
+            solution = self.project.getAcousticSolution()
+            if solution is None:
+                return
+            PlotAcousticFrequencyResponseFunctionInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
+
+    def plotStressField(self):
+        pass
 
     def newProject(self):
         result = NewProjectInput(self.project)
         return result.create
 
     def _check_is_there_a_problem(self):
-  
-        if self.project.getAnalysisTypeID() == 2:
+
+        title = " ERROR: INSUFFICIENT MODEL INPUTS! "
+
+        cross_section_message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
+        material_message = "You should to set a Material to all elements\n before trying to run any Analysis!"
+        fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!"
+        structural_message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
+        acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
+          
+        if self.analysis_ID == 2:
             self.project.mesh.check_Material_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+                error(cross_section_message, title = title)
                 return True
             if self.project.mesh.flag_setMaterial == True:
-                message = "You should to set a Material to all elements\n before trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+                error(material_message, title = title)
                 return True
-
-        if self.project.getAnalysisType() == "Harmonic Analysis - Structural":
-            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
-                message = "You should to set a Cross-Section to all \nelements before trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
-                return True
-            if self.project.mesh.flag_setMaterial == True:
-                message = "You should to set a Material to all \nelements before trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
-                return True
-            elif self.project.mesh.sum_loads == 0:
-                if self.project.mesh.sum_prescribedDOFs == 0:
-                    message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
-                    error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
-                    return True
-
-        if self.project.getAnalysisType() == "Harmonic Analysis - Acoustic":
+        
+        elif self.analysis_ID == 4:
             self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
-                message = "You should to set a Cross-Section to all \nelements before trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+                error(cross_section_message, title = title)
+                return True
+            if self.project.mesh.flag_setFluid == True:
+                error(fluid_message, title = title)
+                return True
+        
+        elif self.analysis_ID == 3:
+            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                error(cross_section_message, title = title)
                 return True
             elif self.project.mesh.flag_setFluid == True:
-                message = "You should to set a Fluid to all elements \nbefore trying to run any Analysis!"
-                error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+                error(fluid_message, title = title)
                 return True
             elif self.project.mesh.sum_volumeVelocity == 0:
                 if self.project.mesh.sum_acousticPressures == 0:
-                    message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
-                    error(message, title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+                    error(acoustic_message, title = title)
+                    return True
+
+        elif self.analysis_ID == 0 or self.analysis_ID == 1:
+            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                error(cross_section_message, title = title)
+                return True
+            if self.project.mesh.flag_setMaterial == True:
+                error(material_message, title = title)
+                return True
+            elif self.project.mesh.sum_loads == 0:
+                if self.project.mesh.sum_prescribedDOFs == 0:
+                    error(structural_message, title = title)
+                    return True
+
+        elif self.analysis_ID == 5 or self.analysis_ID == 6:
+            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            if self.project.mesh.flag_setCrossSection == True:
+                error(cross_section_message, title = title)
+                return True
+            elif self.project.mesh.flag_setMaterial == True:
+                error(material_message, title = title)
+                return True
+            elif self.project.mesh.flag_setFluid == True:
+                error(fluid_message, title = title)
+            elif self.project.mesh.sum_volumeVelocity == 0:
+                if self.project.mesh.sum_acousticPressures == 0:
+                    error(acoustic_message, title = title)
                     return True

@@ -130,7 +130,7 @@ class AssemblyStructural:
 
         return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
-    def get_global_loads(self, frequencies, loads_matrix3D=False):
+    def get_global_loads(self, frequencies, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         loads = np.zeros(total_dof, dtype = complex)

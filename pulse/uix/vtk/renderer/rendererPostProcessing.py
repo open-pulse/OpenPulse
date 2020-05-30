@@ -1,6 +1,6 @@
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
-from pulse.uix.vtk.actor.actorAnalyse import ActorAnalyse
+from pulse.uix.vtk.actor.actorAnalysis import ActorAnalysis
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.colorTable import ColorTable
@@ -38,11 +38,11 @@ class RendererPostProcessing(vtkRendererBase):
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.getEntities():
-        #     plot = ActorAnalyse(self.project, entity, connect, coord, colorTable)
+        #     plot = ActorAnalysis(self.project, entity, connect, coord, colorTable)
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalyse(self.project, connect, coord, colorTable)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
@@ -62,9 +62,9 @@ class RendererPostProcessing(vtkRendererBase):
     def updateInfoText(self):
         mode = self.project.getModes()
         frequencies = self.project.getFrequencies()
-        text = self.project.analysisType + "\n"
-        if self.project.analysisID != 2:
-            text += self.project.analysisMethod + "\n"
+        text = self.project.analysis_type_label + "\n"
+        if self.project.analysis_ID not in [2,4]:
+            text += self.project.analysis_method_label + "\n"
         else:
             frequencies = self.project.getNaturalFrequencies()
             text += "Mode: {}\n".format(mode)
