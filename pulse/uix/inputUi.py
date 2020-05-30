@@ -195,6 +195,7 @@ class InputUi:
             self.analysisSetup()
         
     def analysisSetup(self):
+        
         self.f_min = 0
         self.f_max = 0
         self.f_step = 0
