@@ -100,9 +100,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def _updateSlider(self):
         if self.rendererAnalysis.getInUse():
             if self.project.analysis_ID == 3:
-                if self.project.getAcousticSolution() is not None:
-                    self.sliderEnable = False
-                    return
+                self.sliderEnable = False
+                return
             elif not self.sliderEnable:
                 self.sliderEnable = True
                 self._createSlider()

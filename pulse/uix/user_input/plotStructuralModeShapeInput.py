@@ -6,10 +6,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-class PlotModeShapeInput(QDialog):
+class PlotStructuralModeShapeInput(QDialog):
     def __init__(self, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotModeShapeInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotStructuralModeShapeInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

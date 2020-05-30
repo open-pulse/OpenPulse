@@ -47,10 +47,10 @@ class SnaptoCursor(object):
             self.ax.figure.canvas.draw_idle()
 
 
-class PlotAcousticFrequencyResponseFunctionInput(QDialog):
+class PlotAcousticFrequencyResponseInput(QDialog):
     def __init__(self, mesh, analysisMethod, frequencies, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotAcousticFrequencyResponseFunctionInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotAcousticFrequencyResponseInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -153,7 +153,7 @@ class PlotAcousticFrequencyResponseFunctionInput(QDialog):
         first_legend = plt.legend(handles=[first_plot], loc='upper right')
         plt.gca().add_artist(first_legend)
 
-        ax.set_title(('Frequency Response Function: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
         if self.mag:
             ax.set_ylabel(("Pressure amplitude [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')

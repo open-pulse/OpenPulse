@@ -21,7 +21,7 @@ class SaveData:
         self.J = J
         self.dofs_free = dofs_free
         self.dofs_prescribed = kwargs.get("dofs_prescribed", None)
-        self.natural_frequencies = kwargs.get("natural_frequencies", None)
+        self.natural_frequencies_structural = kwargs.get("natural_frequencies", None)
         self.eigenVectors = kwargs.get("eigenVectors", None)
         self.eigenVectors_Uxyz = kwargs.get("eigenVectors_Uxyz", None)
         self.eigenVectors_Rxyz = kwargs.get("eigenVectors_Rxyz", None)
@@ -66,8 +66,8 @@ class SaveData:
         f.create_dataset('/global_matrices/dofs_free', data = self.dofs_free, dtype = 'float64')
         if self.dofs_prescribed.all() != None:
             f.create_dataset('/results/dofs_prescribed', data = self.dofs_prescribed, dtype = 'float64')
-        if self.natural_frequencies.all() != None:    
-            f.create_dataset('/results/natural_frequencies', data = self.natural_frequencies, dtype = 'float64')
+        if self.natural_frequencies_structural.all() != None:    
+            f.create_dataset('/results/natural_frequencies', data = self.natural_frequencies_structural, dtype = 'float64')
         if self.eigenVectors.all() != None:
             f.create_dataset('/results/eigenVectors', data = self.eigenVectors, dtype = 'float64')
         if self.eigenVectors_Uxyz.all() != None:

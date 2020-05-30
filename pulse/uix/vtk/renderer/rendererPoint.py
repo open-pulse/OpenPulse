@@ -87,7 +87,7 @@ class RendererPoint(vtkRendererBase):
                 nodeAll.append(node_id)
             elif node.haveBoundaryCondition():
                 nodeBC.append(node_id)
-                if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
+                if sum([value for value in node.prescribed_dofs_bc if value != None])==0:
                     colorBC = [0,0,0]
                 else:
                     colorBC = [1,1,1]

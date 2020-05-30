@@ -47,7 +47,7 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.AddActor(plot.getActor())
 
         for node in self.project.getNodesBC():
-            if sum([value for value in node.prescribed_DOFs_BC  if value != None])==0:
+            if sum([value for value in node.prescribed_dofs_bc  if value != None])==0:
                 point = ActorPoint(node)
             else:
                 point = ActorPoint(node, u_def=coord[node.global_index,1:])
@@ -66,9 +66,9 @@ class RendererPostProcessing(vtkRendererBase):
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
         else:
-            frequencies = self.project.getNaturalFrequencies()
+            frequencies = self.project.getStructuralNaturalFrequencies()
             text += "Mode: {}\n".format(mode)
-        text += "Frequency: {:.3f} [Hz]\n".format(frequencies[self.frequencyIndice])
+        text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
         text += "Magnification factor {:.1f}x\n".format(self.valueFactor)
         self.createInfoText(text)
 

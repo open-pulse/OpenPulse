@@ -193,15 +193,15 @@ class MainWindow(QMainWindow):
         self.plotSressField_action.setStatusTip('Plot Stress Field')
         self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
 
-        self.plotStructuralFrequencyResponseFunction_action = QAction('&Plot Structural Frequency Response Function', self)        
-        self.plotStructuralFrequencyResponseFunction_action.setShortcut('Ctrl+T')
-        self.plotStructuralFrequencyResponseFunction_action.setStatusTip('Plot Structural Frequency Response Function')
-        self.plotStructuralFrequencyResponseFunction_action.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponseFunction)
+        self.plotStructuralFrequencyResponse = QAction('&Plot Structural Frequency Response', self)        
+        self.plotStructuralFrequencyResponse.setShortcut('Ctrl+T')
+        self.plotStructuralFrequencyResponse.setStatusTip('Plot Structural Frequency Response')
+        self.plotStructuralFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
-        self.plotAcousticFrequencyResponseFunction_action = QAction('&Plot Acoustic Frequency Response Function', self)        
-        self.plotAcousticFrequencyResponseFunction_action.setShortcut('Ctrl+U')
-        self.plotAcousticFrequencyResponseFunction_action.setStatusTip('Plot Acoustic Frequency Response Function')
-        self.plotAcousticFrequencyResponseFunction_action.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponseFunction)
+        self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
+        self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')
+        self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
+        self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
     def _create_menu_bar(self):
         menuBar = self.menuBar()
@@ -245,8 +245,8 @@ class MainWindow(QMainWindow):
         resultsViewerMenu.addAction(self.plotStructuralHarmonicResponse_action)
         resultsViewerMenu.addAction(self.plotPressureField_action)
         resultsViewerMenu.addAction(self.plotSressField_action)
-        resultsViewerMenu.addAction(self.plotStructuralFrequencyResponseFunction_action)
-        resultsViewerMenu.addAction(self.plotAcousticFrequencyResponseFunction_action)
+        resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
+        resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
 
         helpMenu.addAction(self.help_action)
 

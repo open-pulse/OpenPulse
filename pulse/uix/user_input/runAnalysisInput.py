@@ -29,7 +29,8 @@ class RunAnalysisInput(QDialog):
         self.solution = None
         self.solution_acoustic = None
         self.solution_structural = None
-        self.naturalFrequencies = []
+        self.natural_frequencies_acoustic = []
+        self.natural_frequencies_structural = []
 
         self.label_title = self.findChild(QLabel, 'label_title')
 
@@ -59,9 +60,9 @@ class RunAnalysisInput(QDialog):
             self.solve = self.project.getStructuralSolve()
             self.solution_structural = self.solve.mode_superposition(self.frequencies, self.modes, self.damping) 
         elif self.analysis_ID == 2: # Structural Modal Analysis
-            self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)
+            self.natural_frequencies_structural, self.solution = self.solve.modal_analysis(modes = self.modes)
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
-            self.naturalFrequencies, self.solution = self.solve.modal_analysis(modes = self.modes)
+            self.natural_frequencies_acoustic, self.solution = self.solve.modal_analysis(modes = self.modes)
         dt = time() - t0
 
         text = "Solution finished!\n"

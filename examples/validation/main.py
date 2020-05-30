@@ -28,16 +28,16 @@ mesh = Mesh()
 run = 2
 if run==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
 if run==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    mesh.set_prescribed_DOFs_BC_by_node([1, 1200, 1325], np.zeros(6))
+    mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6))
 
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
 
 # mesh.set_boundary_condition_by_node([361], np.array([0.1,None,None,None,None,None]))
-mesh.set_force_by_node([361], np.array([1,0,0,0,0,0]))
+mesh.set_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
 
 mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))

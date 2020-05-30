@@ -1,25 +1,23 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from pulse.utils import error
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-import numpy as np
 
-class PlotHarmonicResponseInput(QDialog):
+class PlotAcousticModeShapeInput(QDialog):
     def __init__(self, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotHarmonicResponseInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotStructuralModeShapeInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+
         self.frequencies = frequencies
-        self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
-        self.frequency = None
+        self.mode_index = None
 
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
         self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
@@ -39,7 +37,21 @@ class PlotHarmonicResponseInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def isInteger(self, value):
+    def error(self, msg, title = "Error"):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Critical)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()
+
+    def isFloat(self, value):
+        try:
+            float(value)
+            return True
+        except:
+            return False
+
+    def isInt(self, value):
         try:
             int(value)
             return True
@@ -48,16 +60,21 @@ class PlotHarmonicResponseInput(QDialog):
 
     def check(self):
         if self.lineEdit.text() == "":
-            error("Select a frequency")
+            self.error("Select a frequency or enter a valid mode number.")
             return
         else:
-            frequency_selected = float(self.lineEdit.text())
-            if frequency_selected in self.frequencies:
-                self.frequency = self.frequency_to_index[frequency_selected]
-            else:
-                error("  You typed an invalid frequency!  ")
+            if float(self.lineEdit.text()) in self.frequencies:
+                frequency = float(self.lineEdit.text())
+                self.mode_index = self.frequencies.index(frequency)
+            elif not self.isInt(self.lineEdit.text()):
+                self.error("Please, enter a valid mode number or natural frequency!")
                 return
-            
+            elif int(self.lineEdit.text())>0 and int(self.lineEdit.text())<=len(self.frequencies):
+                    self.mode_index = int(self.lineEdit.text())-1
+            else:
+                self.error("Please, enter a valid mode number or natural frequency!")
+                return
+
         self.close()
 
     def load(self):

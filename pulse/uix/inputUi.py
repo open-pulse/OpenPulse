@@ -13,10 +13,11 @@ from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 
-from pulse.uix.user_input.plotModeShapeInput import PlotModeShapeInput
+from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
+from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
-from pulse.uix.user_input.plotStructuralFrequencyResponseFunctionInput import PlotStructuralFrequencyResponseFunctionInput
-from pulse.uix.user_input.plotAcousticFrequencyResponseFunctionInput import PlotAcousticFrequencyResponseFunctionInput
+from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
+from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.project import Project
@@ -218,10 +219,10 @@ class InputUi:
     def runAnalysis(self):
         if self._check_is_there_a_problem():
             return
-        
-        if len(self.frequencies) == 0:
-            if self.analysis_ID in [0,1,3,5,6]:
-                return
+
+        if self.analysis_ID in [0,1,3,5,6]:
+            if len(self.frequencies) == 0:
+                return          
 
         if self.analysis_ID == 2:
             solve = self.project.getStructuralSolve()
@@ -245,14 +246,14 @@ class InputUi:
             if solution.solution is None:
                 return
             self.project.setStructuralSolution(solution.solution)
-            self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
+            self.project.setStructuralNaturalFrequencies(solution.natural_frequencies_structural.tolist())
 
         elif self.analysis_ID == 4:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [])
             if solution.solution is None:
                 return
             self.project.setAcousticSolution(solution.solution)
-            self.project.setNaturalFrequencies(solution.naturalFrequencies.tolist())
+            self.project.setAcousticNaturalFrequencies(solution.natural_frequencies_acoustic.tolist())
 
         elif self.analysis_ID == 3:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [])
@@ -276,7 +277,7 @@ class InputUi:
         if self.analysis_ID == 2:
             if solution is None:
                 return
-            plot = PlotModeShapeInput(self.frequencies)
+            plot = PlotStructuralModeShapeInput(self.project.natural_frequencies_structural)
             if plot.mode_index is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.mode_index)
@@ -300,7 +301,7 @@ class InputUi:
         if self.analysis_ID == 2:
             if solution is None:
                 return
-            plot = PlotModeShapeInput(self.frequencies)
+            plot = PlotAcousticModeShapeInput(self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.mode_index)
@@ -319,19 +320,19 @@ class InputUi:
         else:
             return
 
-    def plotStructuralFrequencyResponseFunction(self):
+    def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.getStructuralSolution()
             if solution is None:
                 return
-            PlotStructuralFrequencyResponseFunctionInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotStructuralFrequencyResponseInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
 
-    def plotAcousticFrequencyResponseFunction(self):
+    def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.getAcousticSolution()
             if solution is None:
                 return
-            PlotAcousticFrequencyResponseFunctionInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotAcousticFrequencyResponseInput(self.project.getMesh(), self.analysis_method_label, self.frequencies, solution)
 
     def plotStressField(self):
         pass
@@ -351,7 +352,7 @@ class InputUi:
         acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
           
         if self.analysis_ID == 2:
-            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            self.project.mesh.check_material_and_cross_section_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 error(cross_section_message, title = title)
                 return True
@@ -360,7 +361,7 @@ class InputUi:
                 return True
         
         elif self.analysis_ID == 4:
-            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 error(cross_section_message, title = title)
                 return True
@@ -369,7 +370,7 @@ class InputUi:
                 return True
         
         elif self.analysis_ID == 3:
-            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 error(cross_section_message, title = title)
                 return True
@@ -382,7 +383,7 @@ class InputUi:
                     return True
 
         elif self.analysis_ID == 0 or self.analysis_ID == 1:
-            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
+            self.project.mesh.check_material_and_cross_section_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 error(cross_section_message, title = title)
                 return True
@@ -395,8 +396,8 @@ class InputUi:
                     return True
 
         elif self.analysis_ID == 5 or self.analysis_ID == 6:
-            self.project.mesh.check_Material_and_CrossSection_in_all_elements()
-            self.project.mesh.check_Fluid_and_CrossSection_in_all_elements()
+            self.project.mesh.check_material_and_cross_section_in_all_elements()
+            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
             if self.project.mesh.flag_setCrossSection == True:
                 error(cross_section_message, title = title)
                 return True

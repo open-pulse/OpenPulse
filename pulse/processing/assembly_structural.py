@@ -16,14 +16,14 @@ class AssemblyStructural:
         global_prescribed = []
         for node in self.mesh.nodes.values():
             starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-            dofs = np.array(node.get_prescribed_DOFs_BC_indexes()) + starting_position
+            dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
             global_prescribed.extend(dofs)
         return global_prescribed
 
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_prescribed_DOFs_BC_values())
+            global_prescribed.extend(node.get_prescribed_dofs_bc_values())
         return global_prescribed
 
     def get_unprescribed_indexes(self):

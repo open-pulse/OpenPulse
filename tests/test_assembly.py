@@ -16,7 +16,7 @@ def model():
     mesh = Mesh()
     mesh.generate('iges_files\\tube_1.iges', 0.01)
 
-    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
     mesh.set_material_by_element('all', steel)
     mesh.set_cross_section_by_element('all', cross_section)
     assembly = AssemblyStructural(mesh)

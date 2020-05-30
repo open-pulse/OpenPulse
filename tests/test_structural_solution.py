@@ -16,7 +16,7 @@ def mesh_():
     mesh = Mesh()
     mesh.generate('iges_files\\tube_1.iges', 0.01)
 
-    mesh.set_prescribed_DOFs_BC_by_node([40, 1424, 1324], np.zeros(6))
+    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
     mesh.set_material_by_element('all', steel)
     mesh.set_cross_section_by_element('all', cross_section)
 
@@ -27,7 +27,7 @@ def test_modal_analysis(mesh_):
     solution = SolutionStructural(mesh_)
     natural_frequencies, modal_shape = solution.modal_analysis(modes=200, harmonic_analysis=True)
     correct_natural_frequencies = np.load('matrices\\structural_solution\\natural_frequencies.npy')
-    correct_modal_shape = np.load('matrices\\structural_solution\\modal_shape.npy')
+    correct_modal_shape = np.load('matrices\\structural_solution\\mode_shapes.npy')
     
     assert np.allclose(natural_frequencies, correct_natural_frequencies)
     assert np.allclose(modal_shape, correct_modal_shape)
@@ -47,6 +47,6 @@ def test_mode_superposition(mesh_):
     modes = 200
 
     mode_superposition = solution.mode_superposition(frequencies, modes, fastest=True)
-    correct_mode_superposition = np.load('matrices\\structural_solution\\modal_superposition.npy')
+    correct_mode_superposition = np.load('matrices\\structural_solution\\mode_superposition.npy')
 
     assert np.allclose(mode_superposition, correct_mode_superposition)
