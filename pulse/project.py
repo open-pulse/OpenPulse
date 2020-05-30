@@ -23,16 +23,16 @@ class Project:
         self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
-        self.frequencies = []
+        self.frequencies = None
         self.minFrequency = 0
         self.maxFrequency = 0
         self.stepFrequency = 0
         self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
-        # self.notrun = True
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
+        self.load_project = False
 
     def resetInfo(self):
         self.mesh = Mesh()
@@ -41,7 +41,7 @@ class Project:
         self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
-        self.frequencies = []
+        self.frequencies = None
         self.minFrequency = 0
         self.maxFrequency = 0
         self.stepFrequency = 0
@@ -50,7 +50,7 @@ class Project:
         self.solution_acoustic = None
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
-        # self.notrun = True
+        self.load_project = False
 
     def newProject(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
         self.resetInfo()
@@ -64,7 +64,9 @@ class Project:
         self.file.createEntityFile(self.getEntities())
 
     def loadProject(self, projectFilePath):
+
         self.resetInfo()
+        self.load_project = True
         self.file.load(projectFilePath)
 
         if self.file.getImportType() == 0:

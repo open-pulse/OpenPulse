@@ -28,6 +28,7 @@ class InputUi:
         self.project = project
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
+        self.analysis_ID = None
 
     def setMaterial(self):
         mat = MaterialInput(self.project.getMaterialListPath())
@@ -194,18 +195,28 @@ class InputUi:
             self.analysisSetup()
         
     def analysisSetup(self):
+        self.f_min = 0
+        self.f_max = 0
+        self.f_step = 0
 
         if self.project.analysis_ID is None:
             return
+        if self.project.file._projectName == "":
+            return
 
         self.project.loadAnalysisFile()
-        f_min, f_max, df = self.project.minFrequency, self.project.maxFrequency, self.project.stepFrequency
-        setup = AnalysisSetupInput(self.analysis_ID, self.analysis_type_label, self.analysis_method_label, min_freq = f_min, max_freq = f_max, step_freq = df)
+        self.f_min, self.f_max, self.f_step = self.project.minFrequency, self.project.maxFrequency, self.project.stepFrequency
+        setup = AnalysisSetupInput(self.analysis_ID, self.analysis_type_label, self.analysis_method_label, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
+        
         self.frequencies = setup.frequencies
+        self.f_min = setup.min_frequency
+        self.f_max = setup.max_frequency
+        self.f_step = setup.step_frequency
+
         if not setup.complete:
             return
 
-        self.project.setFrequencies(self.frequencies, setup.min_frequency, setup.max_frequency, setup.step_frequency)
+        self.project.setFrequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
 
         if self.analysis_ID != 3:
             self.project.setModes(setup.modes)
@@ -217,9 +228,10 @@ class InputUi:
         AnalysisOutputResultsInput()
 
     def runAnalysis(self):
+        if self.analysis_ID is None:
+            return
         if self._check_is_there_a_problem():
             return
-
         if self.analysis_ID in [0,1,3,5,6]:
             if len(self.frequencies) == 0:
                 return          
