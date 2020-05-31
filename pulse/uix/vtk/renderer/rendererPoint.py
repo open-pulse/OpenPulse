@@ -16,11 +16,14 @@ class RendererPoint(vtkRendererBase):
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
+            height, width = -1, -1
         elif len(listActorsIDs) == 1:
             node = self.project.getNode(int(listActorsIDs[0]))
             text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listActorsIDs[0], node.x, node.y, node.z, node.getStructuralBondaryCondition()[0], node.getStructuralBondaryCondition()[1], node.getStructuralBondaryCondition()[2], node.getStructuralBondaryCondition()[3], node.getStructuralBondaryCondition()[4], node.getStructuralBondaryCondition()[5])
+            height, width  = 880, 20
         else:
             text = "Selected Points:\n"
+            width = 20
             i = 0
             for ids in listActorsIDs:
                 if i == 30:
@@ -31,8 +34,9 @@ class RendererPoint(vtkRendererBase):
                 else:
                     text += "{}  ".format(ids)
                 i+=1
+            height = 900-i
         
-        self.createInfoText(text)
+        self.createInfoText(text, width=width, height=height)
 
     def plot(self):
         self.reset()

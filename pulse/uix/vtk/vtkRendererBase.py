@@ -14,6 +14,9 @@ class vtkRendererBase(ABC):
         self._inUse = False
         self.squarePickerActor = ActorSquare2D((0,0), (0,0))
         self._usePicker = True
+        self.textProperty = vtk.vtkTextProperty()
+        self.textProperty.SetFontSize(16)
+        self.textProperty.SetItalic(1)
 
     def resetCamera(self):
         self._renderer.ResetCamera()
@@ -45,12 +48,13 @@ class vtkRendererBase(ABC):
         if width == -1 and height == -1:
             #Empiric values
             width, height = self._renderer.GetSize()
-            height -= 100
+            height -= 140
             width = 20
             # width, height = self._renderer.GetSize()
             # height = 35
             # width -= 250
         self._textActor.SetInput(text)
+        self._textActor.SetTextProperty(self.textProperty)
         self._textActor.SetDisplayPosition(width, height)
         self._renderer.AddActor2D(self._textActor)
 

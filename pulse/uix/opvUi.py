@@ -26,7 +26,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
         self.sliderScale = 1
-        self.sliderEnable = True
+        self.sliderEnable = False
         self.currentFrequencyIndice = -1
         self.needResetCamera = True
 
@@ -71,9 +71,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         width, _ = self.rendererAnalysis.getSize()
 
         self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint1Coordinate().SetValue(width-250,20)
+        self.slider2d.GetPoint1Coordinate().SetValue(width-1410,815)
         self.slider2d.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint2Coordinate().SetValue(width-50, 20)
+        self.slider2d.GetPoint2Coordinate().SetValue(width-1210, 815)
 
         self.slider2d.SetTubeWidth(tubeWidth)
         self.slider2d.SetSliderLength(sliderLength)
@@ -99,14 +99,13 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def _updateSlider(self):
         if self.rendererAnalysis.getInUse():
-            if self.project.analysis_ID == 3:
+            if self.project.plot_pressure_field:
+                self._createSlider()
+                self.sliderW.SetEnabled(False)
                 self.sliderEnable = False
-                return
             elif not self.sliderEnable:
                 self.sliderEnable = True
                 self._createSlider()
-        else:
-            self.sliderEnable = False
     
     def changeFrequency(self, frequency_indice):
         if self.currentFrequencyIndice != frequency_indice:

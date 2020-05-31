@@ -177,7 +177,7 @@ class InputUi:
         self.analysis_ID = inputs.analysis_ID
         self.analysis_type_label = inputs.analysis_type_label
         self.analysis_method_label = inputs.analysis_method_label
-
+ 
         if self.analysis_ID is None:
             return
  
@@ -286,6 +286,7 @@ class InputUi:
             self.project.setStructuralSolution(solution.solution)
  
     def plotStructuralModeShapes(self):
+        self.project.plot_pressure_field = False
         solution = self.project.getStructuralSolution()
         if self.analysis_ID == 2:
             if solution is None:
@@ -298,6 +299,7 @@ class InputUi:
             return
 
     def plotStructuralHarmonicResponse(self):
+        self.project.plot_pressure_field = False
         solution = self.project.getStructuralSolution()
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
@@ -310,6 +312,7 @@ class InputUi:
             return
 
     def plotAcousticModeShapes(self):
+        self.project.plot_pressure_field = True
         solution = self.project.getAcousticSolution()
         if self.analysis_ID == 2:
             if solution is None:
@@ -322,6 +325,7 @@ class InputUi:
             return
 
     def plotPressureField(self):
+        self.project.plot_pressure_field = True
         solution = self.project.getAcousticSolution()
         if self.analysis_ID in [3,5,6]:
             if solution is None:

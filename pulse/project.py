@@ -32,7 +32,7 @@ class Project:
         self.solution_acoustic = None
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
-        self.load_project = False
+        self.plot_pressure_field = False
 
     def resetInfo(self):
         self.mesh = Mesh()
@@ -50,7 +50,7 @@ class Project:
         self.solution_acoustic = None
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
-        self.load_project = False
+        self.plot_pressure_field = False
 
     def newProject(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
         self.resetInfo()
@@ -66,7 +66,6 @@ class Project:
     def loadProject(self, projectFilePath):
 
         self.resetInfo()
-        self.load_project = True
         self.file.load(projectFilePath)
 
         if self.file.getImportType() == 0:
@@ -422,7 +421,7 @@ class Project:
     def getUnit(self):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
-            if analysis in [2,6]:
+            if analysis in [3,5,6] and self.plot_pressure_field:
                 return "Pa"
             else:
                 return "m"
