@@ -174,6 +174,8 @@ class InputUi:
     def analysisTypeInput(self):
 
         inputs = AnalysisTypeInput()
+        if inputs.method_ID == -1:
+            return
         self.analysis_ID = inputs.analysis_ID
         self.analysis_type_label = inputs.analysis_type_label
         self.analysis_method_label = inputs.analysis_method_label
