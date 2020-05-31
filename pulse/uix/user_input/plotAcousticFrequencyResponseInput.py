@@ -156,7 +156,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
         if self.mag:
-            ax.set_ylabel(("Pressure amplitude [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')
+            ax.set_ylabel(("Pressure Magnitude [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')
         else:
             ax.set_ylabel(("Real part of Pressure Spectrum [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')
         plt.show()
