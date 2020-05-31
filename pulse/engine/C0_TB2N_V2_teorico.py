@@ -56,7 +56,7 @@ It can be made with N>100, but with some differences.
     #di = 0.04
     #nr = 64
     offset = np.array([0.008,0.000])
-    A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12 = sec.sectcalc(do,di,nr,offset,0.)
+    A, I1, I2, I12, J, Q1, Q2, RES1, RES2, RES12 = sec.sectcalc(do,di,nr,offset,pois)
     Jm = I1 + I2
     #
     #Mp = np.array([[mu, 0., 0.], [0., (1./RES1)*mu, (1./RES12)*mu], [0., (1./RES12)*mu, (1./RES2)*mu]])
