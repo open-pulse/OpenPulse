@@ -25,7 +25,7 @@ Ref.:1) Hughes, T.J.R., The Finite Element Method - Linear Static
      2) Pilkey, W. D., Analysis and Design of Elastic Beam - Computational Methods, John Wiley & Son, 2002.
 Notes:
 - The kinematic conditions do not include warping.
-- The elementary matrices are not rotated.
+- The elementary matrices are rotated.
 - Hughes2Ansys convention -> x1:x2, x2:x3, x3:x1, tet1:tet2, tet2:tet3, tet3:tet1.
 - The shear correction factor 'al' used in the calculation of [Ke] was adapted from Pilkey's book. 
 It is performed numerical integration over the cross-section to obtain the section's constants and the
