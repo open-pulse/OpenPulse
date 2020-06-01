@@ -47,16 +47,16 @@ Calculation at the external surface.
     Pe[1] = P[n2-1]
     Pm = (Pe[0] + Pe[1])/2
     #
-    Sh = (2*Pm*(di**2) - p0*(do**2 + di**2))/(do**2 - di**2) 
+    Sh = (2*Pm*(di**2) - p0*(do**2 + di**2))/(do**2 - di**2) #Tensão normal devido a pressão interna. po = pressão externa
     #
-    Fe = KD @ Ue
+    Fe = KD @ Ue  #Vetor de forças elementares
     # Fe = [FX1, FY1, FZ1, MX1, MY1, MZ1, FX2, FY2, FZ2, MX2, MY2, MZ2]
     #
-    SX1 = (Fe[0]/A) + (np.sqrt(Fe[4]**2 + Fe[5]**2)*(do/2)/I) + Sh
-    SX2 = (Fe[6]/A) + (np.sqrt(Fe[10]**2 + Fe[11]**2)*(do/2)/I) + Sh
+    SX1 = (Fe[0]/A) + (np.sqrt(Fe[4]**2 + Fe[5]**2)*(do/2)/I) + Sh #Tensão axial máxima para o nó 1
+    SX2 = (Fe[6]/A) + (np.sqrt(Fe[10]**2 + Fe[11]**2)*(do/2)/I) + Sh #Tensão axial máxima para o nó 2
     #
-    SS1 = (Fe[3]*(do/2)/J) + 2*(np.sqrt(Fe[1]**2 + Fe[2]**2))/A
-    SS2 = (Fe[9]*(do/2)/J) + 2*(np.sqrt(Fe[7]**2 + Fe[8]**2))/A
+    SS1 = (Fe[3]*(do/2)/J) + 2*(np.sqrt(Fe[1]**2 + Fe[2]**2))/A #Tensão cisalhante máxima para o nó 1
+    SS2 = (Fe[9]*(do/2)/J) + 2*(np.sqrt(Fe[7]**2 + Fe[8]**2))/A #Tensão cisalhante máxima para o nó 2
 
     return SX1, SS1, SX2, SS2
     #
@@ -73,7 +73,7 @@ for el in range(nel):
     SVEC[n1-1,0:2] = SVEC[n1,0:2] + np.array([SX1, SS1])
     SVEC[n2-1,0:2] = SVEC[n1,0:2] + np.array([SX2, SS2])
 for i in range(nel):
-    SVEC[i,:]=SVEC[i,:]/a[i]
+    SVEC[i,:]=SVEC[i,:]/a[i]  #Média por nó!!!!
     #
 
 
