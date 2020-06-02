@@ -1,6 +1,6 @@
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
-from pulse.uix.vtk.actor.actorAnalyse import ActorAnalyse
+from pulse.uix.vtk.actor.actorAnalysis import ActorAnalysis
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.colorTable import ColorTable
@@ -38,16 +38,16 @@ class RendererPostProcessing(vtkRendererBase):
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.getEntities():
-        #     plot = ActorAnalyse(self.project, entity, connect, coord, colorTable)
+        #     plot = ActorAnalysis(self.project, entity, connect, coord, colorTable)
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalyse(self.project, connect, coord, colorTable)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
         for node in self.project.getNodesBC():
-            if sum([value for value in node.prescribed_DOFs_BC  if value != None])==0:
+            if sum([value for value in node.prescribed_dofs_bc  if value != None])==0:
                 point = ActorPoint(node)
             else:
                 point = ActorPoint(node, u_def=coord[node.global_index,1:])
@@ -62,32 +62,43 @@ class RendererPostProcessing(vtkRendererBase):
     def updateInfoText(self):
         mode = self.project.getModes()
         frequencies = self.project.getFrequencies()
-        text = self.project.analysisType + "\n"
-        if self.project.analysisID != 2:
-            text += self.project.analysisMethod + "\n"
+        text = self.project.analysis_type_label + "\n"
+        if self.project.analysis_ID not in [2,4]:
+            text += self.project.analysis_method_label + "\n"
         else:
-            frequencies = self.project.getNaturalFrequencies()
+            frequencies = self.project.getStructuralNaturalFrequencies()
             text += "Mode: {}\n".format(mode)
-        text += "Frequency: {:.3f} [Hz]\n".format(frequencies[self.frequencyIndice])
-        text += "Magnification factor {:.1f}x\n".format(self.valueFactor)
-        self.createInfoText(text)
+        text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
+        text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
+        self.createInfoText(text, width=20, height=840)
 
     def updateUnitText(self):
         self._renderer.RemoveActor2D(self.textActorUnit)
         unit = self.project.getUnit()
         text = "Unit: [{}]".format(unit)
         self.textActorUnit.SetInput(text)
+        textProperty = vtk.vtkTextProperty()
+        textProperty.SetFontSize(18)
+        textProperty.SetBold(1)
+        textProperty.SetItalic(1)
+        self.textActorUnit.SetTextProperty(textProperty)
         width, height = self._renderer.GetSize()
-        self.textActorUnit.SetDisplayPosition(width-100,height-30)
+        self.textActorUnit.SetDisplayPosition(width-90,height-35)
         self._renderer.AddActor2D(self.textActorUnit)
 
     def createColorBarActor(self, colorTable):
+        textProperty = vtk.vtkTextProperty()
+        textProperty.SetFontSize(15)
+        textProperty.SetItalic(1)
+        self.colorbar.SetLabelTextProperty(textProperty)
         self.colorbar.SetMaximumNumberOfColors(400)
         self.colorbar.SetLookupTable(colorTable)
         self.colorbar.SetWidth(0.04)
         self.colorbar.SetTextPositionToPrecedeScalarBar()
-        self.colorbar.SetPosition(0.90, 0.1)
-        self.colorbar.SetLabelFormat("%.1g")
+        self.colorbar.SetPosition(0.95, 0.1)
+        self.colorbar.SetLabelFormat("%1.0e ")
+        self.colorbar.UnconstrainedFontSizeOn()       
+        # print(self.colorbar.GetLabelTextProperty().GetFontSize())
         self.colorbar.VisibilityOn()
 
     def createScaleActor(self):

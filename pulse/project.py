@@ -18,39 +18,39 @@ class Project:
         self._projectName = ""
 
         #Analysis
-        self.analysisID = None
-        self.analysisType = ""
-        self.analysisMethod = ""
+        self.analysis_ID = None
+        self.analysis_type_label = ""
+        self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
-        self.frequencies = []
+        self.frequencies = None
         self.minFrequency = 0
         self.maxFrequency = 0
         self.stepFrequency = 0
-        self.naturalFrequencies = []
+        self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
-        # self.notrun = True
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
+        self.plot_pressure_field = False
 
     def resetInfo(self):
         self.mesh = Mesh()
-        self.analysisID = None
-        self.analysisType = ""
-        self.analysisMethod = ""
+        self.analysis_ID = None
+        self.analysis_type_label = ""
+        self.analysis_method_label = ""
         self.damping = [0,0,0,0]
         self.modes = 0
-        self.frequencies = []
+        self.frequencies = None
         self.minFrequency = 0
         self.maxFrequency = 0
         self.stepFrequency = 0
-        self.naturalFrequencies = []
+        self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
-        # self.notrun = True
+        self.plot_pressure_field = False
 
     def newProject(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
         self.resetInfo()
@@ -64,6 +64,7 @@ class Project:
         self.file.createEntityFile(self.getEntities())
 
     def loadProject(self, projectFilePath):
+
         self.resetInfo()
         self.file.load(projectFilePath)
 
@@ -153,11 +154,11 @@ class Project:
             self.file.addCrossSectionInFile(entity.getTag(), cross_section)
 
     def setStructuralBoundaryCondition_by_Node(self, node_id, bc):
-        self.mesh.set_prescribed_DOFs_BC_by_node(node_id, bc)
+        self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
         self.file.addBoundaryConditionInFile(node_id, bc)
 
     def setForce_by_Node(self, node_id, force):
-        self.mesh.set_force_by_node(node_id, force)
+        self.mesh.set_load_bc_by_node(node_id, force)
         self.file.addForceInFile(node_id, force)
 
     def setMass_by_Node(self, node_id, mass):
@@ -197,7 +198,7 @@ class Project:
         self._setEntityCross(entity_id, cross_section)
 
     def loadForce_by_Node(self, node_id, force):
-        self.mesh.set_force_by_node(node_id, force)
+        self.mesh.set_load_bc_by_node(node_id, force)
 
     def loadMass_by_Node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
@@ -209,7 +210,7 @@ class Project:
         self.mesh.add_damper_to_node(node_id, damper)
 
     def getNodesBC(self):
-        return self.mesh.StructuralBCnodes
+        return self.mesh.structural_nodes_with_bc
 
     def getElements(self):
         return self.mesh.structural_elements
@@ -221,7 +222,7 @@ class Project:
         self.frequencies = frequencies
 
     def loadStructuralBondaryCondition_by_Node(self, node_id, bc):
-        self.mesh.set_prescribed_DOFs_BC_by_node(node_id, bc)
+        self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
 
     def _setEntityMaterial(self, entity_id, material):
         for entity in self.mesh.entities:
@@ -243,8 +244,8 @@ class Project:
         for entity in self.mesh.entities:
             entity.crossSection = cross
 
-    def getStructuralBCNodes(self):
-        return self.mesh.StructuralBCnodes
+    def getNode_with_StructuralBC(self):
+        return self.mesh.structural_nodes_with_bc
 
     def getStructuralElements(self):
         return self.mesh.structural_elements
@@ -265,38 +266,38 @@ class Project:
             self.file.addFluidInFile(entity.getTag(), fluid.identifier)
 
     def setAcousticPressureBC_by_Node(self, node_id, acoustic_pressure):
-        self.mesh.set_acoustic_pressure_BC_by_node(node_id, acoustic_pressure)
+        self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)
         self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
     
     def setVolumeVelocityBC_by_Node(self, node_id, volume_velocity):
-        self.mesh.set_volume_velocity_BC_by_node(node_id, volume_velocity)
+        self.mesh.set_volume_velocity_bc_by_node(node_id, volume_velocity)
         self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
 
     def setSpecificImpedanceBC_by_Node(self, node_id, specific_impedance):
-        self.mesh.set_specific_impedance_BC_by_node(node_id, specific_impedance)
+        self.mesh.set_specific_impedance_bc_by_node(node_id, specific_impedance)
         self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
 
     def setRadiationImpedanceBC_by_Node(self, node_id, radiation_impedance):
-        self.mesh.set_radiation_impedance_BC_by_node(node_id, radiation_impedance)
+        self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)
         self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
 
-    def getAcousticBCNodes(self):
+    def getNodes_with_AcousticBC(self):
         return self.mesh.nodesAcousticBC
 
     def getAcousticElements(self):
         return self.mesh.acoustic_elements
 
     def loadAcousticPressureBC_by_Node(self, node_id, bc):
-        self.mesh.set_acoustic_pressure_BC_by_node(node_id, bc)
+        self.mesh.set_acoustic_pressure_bc_by_node(node_id, bc)
 
     def loadVolumeVelocityBC_by_Node(self, node_id, force):
-        self.mesh.set_volume_velocity_BC_by_node(node_id, force)
+        self.mesh.set_volume_velocity_bc_by_node(node_id, force)
 
     def loadSpecificImpedanceBC_by_Node(self, node_id, force):
-        self.mesh.set_specific_impedance_BC_by_node(node_id, force)
+        self.mesh.set_specific_impedance_bc_by_node(node_id, force)
 
     def loadRadiationImpedanceBC_by_Node(self, node_id, force):
-        self.mesh.set_radiation_impedance_BC_by_node(node_id, force)
+        self.mesh.set_radiation_impedance_bc_by_node(node_id, force)
 
     def _setEntityFluid(self, entity_id, fluid):
         for entity in self.mesh.entities:
@@ -366,19 +367,19 @@ class Project:
     def getProjectName(self):
         return self._projectName
 
-    def setAnalysisType(self, value, _type, _method = ""):
-        self.analysisID = value
-        self.analysisType = _type
-        self.analysisMethod = _method
+    def setAnalysisType(self, ID, analysis_text, method_text = ""):
+        self.analysis_ID = ID
+        self.analysis_type_label = analysis_text
+        self.analysis_method_label = method_text
 
-    def getAnalysisTypeID(self): 
-        return self.analysisID
+    def getAnalysisID(self): 
+        return self.analysis_ID
 
-    def getAnalysisType(self):
-        return self.analysisType
+    def getAnalysisTypeLabel(self):
+        return self.analysis_type_label
 
-    def getAnalysisMethod(self):
-        return self.analysisMethod
+    def getAnalysisMethodLabel(self):
+        return self.analysis_method_label
 
     def setDamping(self, value):
         self.damping = value
@@ -387,8 +388,8 @@ class Project:
         return self.damping
 
     def getStructuralSolve(self):
-        if self.getAnalysisType == "Harmonic Analysis - Coupled":
-            results = SolutionStructural(self.mesh, acoustic_solution=self.getAcousticSolve())
+        if self.analysis_ID in [5,6]:
+            results = SolutionStructural(self.mesh, acoustic_solution=self.solution_acoustic)
         else:
             results = SolutionStructural(self.mesh)
         return results
@@ -408,21 +409,22 @@ class Project:
     def getAcousticSolution(self):
         return self.solution_acoustic
 
-    def setNaturalFrequencies(self, value):
-        self.naturalFrequencies = value
+    def setAcousticNaturalFrequencies(self, value):
+        self.natural_frequencies_acoustic = value
+    
+    def setStructuralNaturalFrequencies(self, value):
+        self.natural_frequencies_structural  = value
 
-    def getNaturalFrequencies(self):
-        return self.naturalFrequencies
+    def getStructuralNaturalFrequencies(self):
+        return self.natural_frequencies_structural
 
     def getUnit(self):
-        analysis = self.getAnalysisTypeID()
-        if analysis == 0 or analysis == 1:
-            if self.getAnalysisType()  == "Harmonic Analysis - Acoustic":
+        analysis = self.analysis_ID
+        if analysis >=0 and analysis <= 6:
+            if analysis in [3,5,6] and self.plot_pressure_field:
                 return "Pa"
             else:
                 return "m"
-        else:
-            return "m"
 
     def isFloat(self, number):
         try:

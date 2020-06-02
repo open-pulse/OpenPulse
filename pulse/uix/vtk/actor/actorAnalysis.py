@@ -2,7 +2,7 @@ import vtk
 import numpy as np
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
-class ActorAnalyse(vtkActorBase):
+class ActorAnalysis(vtkActorBase):
     def __init__(self, project, connect, coord_def, color_table):
         super().__init__()
 
@@ -52,7 +52,7 @@ class ActorAnalyse(vtkActorBase):
 
         self.radiusArray.SetName("TubeRadius")
         self.radiusArray.SetNumberOfTuples(len(indice))
-        radius = self.project.mesh.getRadius()
+        radius = self.project.mesh.get_radius()
         for i in range(len(indice)):
             id_ = int(indice[i])
             self.radiusArray.SetTuple1(id_, radius[id_])

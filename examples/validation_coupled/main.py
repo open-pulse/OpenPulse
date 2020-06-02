@@ -32,17 +32,17 @@ run = 2
 anechoic_termination = False
 if run==1:
     mesh.generate('examples/iges_files/tube_2.iges', 0.01)
-    mesh.set_acoustic_pressure_BC_by_node([50], 1)
+    mesh.set_acoustic_pressure_bc_by_node([50], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_BC_by_node(1086, sound_velocity * density)
+        mesh.set_specific_impedance_bc_by_node(1086, sound_velocity * density)
 if run==2:
     mesh.load_mesh('examples/validation_acoustic/coord.dat', 'examples/validation_acoustic/connect.dat')
     # Acoustic boundary conditions - Prescribe pressure
-    mesh.set_acoustic_pressure_BC_by_node([1], 1)
+    mesh.set_acoustic_pressure_bc_by_node([1], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_BC_by_node(1047, sound_velocity*density)
+        mesh.set_specific_impedance_bc_by_node(1047, sound_velocity*density)
 
 mesh.set_fluid_by_element('all', hydrogen)
 mesh.set_material_by_element('all', steel)
@@ -156,7 +156,7 @@ plot_results( mesh,
 
 #%%
 ## Structural Coupled ##
-mesh.set_prescribed_DOFs_BC_by_node([1136, 1236, 1086], np.zeros(6))
+mesh.set_prescribed_dofs_bc_by_node([1136, 1236, 1086], np.zeros(6))
 
 mesh.add_spring_to_node([427],1*np.array([1e9,1e9,1e9,0,0,0]))
 mesh.add_mass_to_node([204],0*np.array([80,80,80,0,0,0]))

@@ -14,7 +14,7 @@ class Node:
         self.z = z
 
         # Structural physical quantities
-        self.prescribed_DOFs_BC = [None, None, None, None, None, None]
+        self.prescribed_dofs_bc = [None, None, None, None, None, None]
         self.forces = [0,0,0,0,0,0]
         
         self.mass   = [0,0,0,0,0,0]
@@ -48,25 +48,25 @@ class Node:
         return np.linalg.norm(self.coordinates - other.coordinates)
 
     # Structural Boundary Condition
-    def set_prescribed_DOFs_BC(self, boundary_condition):
-        self.prescribed_DOFs_BC = boundary_condition
+    def set_prescribed_dofs_bc(self, boundary_condition):
+        self.prescribed_dofs_bc = boundary_condition
 
     def getStructuralBondaryCondition(self):
-        return self.prescribed_DOFs_BC
+        return self.prescribed_dofs_bc
 
-    def get_prescribed_DOFs_BC_indexes(self):
-        return [i for i, j in enumerate(self.prescribed_DOFs_BC) if j is not None]
+    def get_prescribed_dofs_bc_indexes(self):
+        return [i for i, j in enumerate(self.prescribed_dofs_bc) if j is not None]
 
-    def get_prescribed_DOFs_BC_values(self):
-        return [i for i in self.prescribed_DOFs_BC if i is not None]
+    def get_prescribed_dofs_bc_values(self):
+        return [i for i in self.prescribed_dofs_bc if i is not None]
 
     def haveBoundaryCondition(self):
-        if None in self.prescribed_DOFs_BC:
-            if list(self.prescribed_DOFs_BC).count(None) != 6:
+        if None in self.prescribed_dofs_bc:
+            if list(self.prescribed_dofs_bc).count(None) != 6:
                 return True
             else:
                 return False
-        elif len(self.prescribed_DOFs_BC) == 6:
+        elif len(self.prescribed_dofs_bc) == 6:
             return True
     
     def haveForce(self):

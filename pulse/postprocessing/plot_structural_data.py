@@ -3,9 +3,12 @@ import numpy as np
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 
 # this is temporary, and will be changed a lot
-def get_structural_frf(mesh, solution, node, dof):
+def get_structural_frf(mesh, solution, node, dof, absolute=True, real=False):
     position = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
-    results = np.abs(solution[position])
+    if absolute:
+        results = np.abs(solution[position])
+    if real:
+        results = np.real(solution[position])
     return results
 
 def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=True):

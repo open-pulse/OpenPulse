@@ -47,7 +47,7 @@ class SnaptoCursor(object):
 
 
 class PlotFrequencyResponseInput(QDialog):
-    def __init__(self, mesh, analyseMethod, frequencies, solution, *args, **kwargs):
+    def __init__(self, mesh, analysisMethod, frequencies, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotFrequencyResponseInput.ui', self)
 
@@ -57,7 +57,7 @@ class PlotFrequencyResponseInput(QDialog):
 
         self.mesh = mesh
         
-        self.analyseMethod = analyseMethod
+        self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
         self.nodeID = 0
@@ -191,7 +191,7 @@ class PlotFrequencyResponseInput(QDialog):
         first_legend = plt.legend(handles=[first_plot], loc='upper right')
         plt.gca().add_artist(first_legend)
 
-        ax.set_title(('Frequency Response Function: {} Method').format(self.analyseMethod), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('Frequency Response Function: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
         ax.set_ylabel(("FRF's magnitude [{}]").format(self.unit_label), fontsize = 16, fontweight = 'bold')
         

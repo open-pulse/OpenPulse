@@ -9,7 +9,6 @@ from pulse.preprocessing.element_acoustic import ENTRIES_PER_ELEMENT, DOF_PER_EL
 class AssemblyAcoustic:
     def __init__(self, mesh):
         self.mesh = mesh
-        # self.flag = False
 
     def get_prescribed_indexes(self):
         global_prescribed = []
@@ -68,6 +67,7 @@ class AssemblyAcoustic:
         
         data_Klump = []
         ind_Klump = []
+        area_fluid = None
 
         elements = self.mesh.acoustic_elements.values()
 
@@ -92,13 +92,12 @@ class AssemblyAcoustic:
                     data_Klump = node.admittance(area_fluid, frequencies)
                 else:
                     data_Klump = np.c_[data_Klump, node.admittance(area_fluid, frequencies)]
-                self.flag = True
 
-        if float(area_fluid) != []:
-            full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
-        else:
+        if area_fluid is None:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in frequencies]
-
+        else:
+            full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
+        
         K_lump = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
 

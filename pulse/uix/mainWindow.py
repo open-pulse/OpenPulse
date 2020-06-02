@@ -155,33 +155,33 @@ class MainWindow(QMainWindow):
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
         self.selectAnalysisType_action.setShortcut('Alt+Q')
         self.selectAnalysisType_action.setStatusTip('Select Analysis Type')
-        self.selectAnalysisType_action.triggered.connect(self.getInputWidget().analyseTypeInput)
+        self.selectAnalysisType_action.triggered.connect(self.getInputWidget().analysisTypeInput)
         
         self.analysisSetup_action = QAction('&Analysis Setup', self)        
         self.analysisSetup_action.setShortcut('Alt+W')
         self.analysisSetup_action.setStatusTip('Analysis Setup')
-        self.analysisSetup_action.triggered.connect(self.getInputWidget().analyseSetup)
+        self.analysisSetup_action.triggered.connect(self.getInputWidget().analysisSetup)
 
         self.selectOutput_action = QAction('&Select the Outputs Results', self)        
         self.selectOutput_action.setShortcut('Alt+E')
         self.selectOutput_action.setStatusTip('Select the Outputs Results')
-        self.selectOutput_action.triggered.connect(self.getInputWidget().analyseOutputResults)
+        self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
         self.runAnalysis_action.setShortcut('Alt+R')
         self.runAnalysis_action.setStatusTip('Run Analysis')
-        self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalyse)
+        self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
 
         #Results Viewer
-        self.plotModeShapes_action = QAction('&Plot Mode Shapes', self)        
-        self.plotModeShapes_action.setShortcut('Ctrl+Q')
-        self.plotModeShapes_action.setStatusTip('Plot Mode Shapes')
-        self.plotModeShapes_action.triggered.connect(self.getInputWidget().plotModeShapes)
+        self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
+        self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
+        self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
+        self.plotStructuralModeShapes_action.triggered.connect(self.getInputWidget().plotStructuralModeShapes)
 
-        self.plotHarmonicResponse_action = QAction('&Plot Harmonic Response', self)        
-        self.plotHarmonicResponse_action.setShortcut('Ctrl+W')
-        self.plotHarmonicResponse_action.setStatusTip('Plot Harmonic Response')
-        self.plotHarmonicResponse_action.triggered.connect(self.getInputWidget().plotHarmonicResponse)
+        self.plotStructuralHarmonicResponse_action = QAction('&Plot Structural Harmonic Response', self)        
+        self.plotStructuralHarmonicResponse_action.setShortcut('Ctrl+W')
+        self.plotStructuralHarmonicResponse_action.setStatusTip('Plot Structural Harmonic Response')
+        self.plotStructuralHarmonicResponse_action.triggered.connect(self.getInputWidget().plotStructuralHarmonicResponse)
 
         self.plotPressureField_action = QAction('&Plot Pressure Field', self)        
         self.plotPressureField_action.setShortcut('Ctrl+E')
@@ -193,11 +193,15 @@ class MainWindow(QMainWindow):
         self.plotSressField_action.setStatusTip('Plot Stress Field')
         self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
 
-        self.plotFrequencyResponse_action = QAction('&Plot Frequency Response', self)        
-        self.plotFrequencyResponse_action.setShortcut('Ctrl+T')
-        self.plotFrequencyResponse_action.setStatusTip('Plot Frequency Response')
-        self.plotFrequencyResponse_action.triggered.connect(self.getInputWidget().plotFrequencyResponse)
+        self.plotStructuralFrequencyResponse = QAction('&Plot Structural Frequency Response', self)        
+        self.plotStructuralFrequencyResponse.setShortcut('Ctrl+T')
+        self.plotStructuralFrequencyResponse.setStatusTip('Plot Structural Frequency Response')
+        self.plotStructuralFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
+        self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
+        self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')
+        self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
+        self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
 
     def _create_menu_bar(self):
         menuBar = self.menuBar()
@@ -237,11 +241,12 @@ class MainWindow(QMainWindow):
         analysisMenu.addAction(self.selectOutput_action)
         analysisMenu.addAction(self.runAnalysis_action)
 
-        resultsViewerMenu.addAction(self.plotModeShapes_action)
-        resultsViewerMenu.addAction(self.plotHarmonicResponse_action)
+        resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
+        resultsViewerMenu.addAction(self.plotStructuralHarmonicResponse_action)
         resultsViewerMenu.addAction(self.plotPressureField_action)
         resultsViewerMenu.addAction(self.plotSressField_action)
-        resultsViewerMenu.addAction(self.plotFrequencyResponse_action)
+        resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
+        resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
 
         helpMenu.addAction(self.help_action)
 

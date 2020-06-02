@@ -16,11 +16,14 @@ class RendererPoint(vtkRendererBase):
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
+            height, width = -1, -1
         elif len(listActorsIDs) == 1:
             node = self.project.getNode(int(listActorsIDs[0]))
             text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listActorsIDs[0], node.x, node.y, node.z, node.getStructuralBondaryCondition()[0], node.getStructuralBondaryCondition()[1], node.getStructuralBondaryCondition()[2], node.getStructuralBondaryCondition()[3], node.getStructuralBondaryCondition()[4], node.getStructuralBondaryCondition()[5])
+            height, width  = 880, 20
         else:
             text = "Selected Points:\n"
+            width = 20
             i = 0
             for ids in listActorsIDs:
                 if i == 30:
@@ -31,8 +34,9 @@ class RendererPoint(vtkRendererBase):
                 else:
                     text += "{}  ".format(ids)
                 i+=1
+            height = 900-i
         
-        self.createInfoText(text)
+        self.createInfoText(text, width=width, height=height)
 
     def plot(self):
         self.reset()
@@ -87,7 +91,7 @@ class RendererPoint(vtkRendererBase):
                 nodeAll.append(node_id)
             elif node.haveBoundaryCondition():
                 nodeBC.append(node_id)
-                if sum([value for value in node.prescribed_DOFs_BC if value != None])==0:
+                if sum([value for value in node.prescribed_dofs_bc if value != None])==0:
                     colorBC = [0,0,0]
                 else:
                     colorBC = [1,1,1]

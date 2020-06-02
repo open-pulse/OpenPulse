@@ -16,14 +16,14 @@ class AssemblyStructural:
         global_prescribed = []
         for node in self.mesh.nodes.values():
             starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-            dofs = np.array(node.get_prescribed_DOFs_BC_indexes()) + starting_position
+            dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
             global_prescribed.extend(dofs)
         return global_prescribed
 
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_prescribed_DOFs_BC_values())
+            global_prescribed.extend(node.get_prescribed_dofs_bc_values())
         return global_prescribed
 
     def get_unprescribed_indexes(self):
@@ -130,7 +130,7 @@ class AssemblyStructural:
 
         return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
 
-    def get_global_loads(self, frequencies, loads_matrix3D=False):
+    def get_global_loads(self, frequencies, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         loads = np.zeros(total_dof, dtype = complex)

@@ -22,7 +22,7 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.entities = []
-        self.StructuralBCnodes = []
+        self.structural_nodes_with_bc = []
         self.AcousticBCnodes = []
         self.connectivity_matrix = []
         self.radius = {}
@@ -292,7 +292,7 @@ class Mesh:
             element.loaded_forces = loads
             self.sum_loads += sum([i for i in loads if i is not None])
     
-    def set_force_by_node(self, nodes, loads):
+    def set_load_bc_by_node(self, nodes, loads):
         for node in slicer(self.nodes, nodes):
             node.forces = loads
             self.sum_loads += sum([i for i in loads if i is not None])
@@ -309,11 +309,11 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.damper = values
 
-    def set_prescribed_DOFs_BC_by_node(self, nodes, boundary_condition):
+    def set_prescribed_dofs_bc_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
-            node.prescribed_DOFs_BC = boundary_condition
+            node.prescribed_dofs_bc = boundary_condition
             self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])
-            self.StructuralBCnodes.append(node)
+            self.structural_nodes_with_bc.append(node)
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
@@ -324,30 +324,30 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
     
-    def set_volume_velocity_BC_by_node(self, nodes, volume_velocity):
+    def set_volume_velocity_bc_by_node(self, nodes, volume_velocity):
         for node in slicer(self.nodes, nodes):
             node.volume_velocity = volume_velocity
             self.sum_volumeVelocity += volume_velocity
 
-    def set_specific_impedance_BC_by_node(self, nodes, values):
+    def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.specific_impedance = values
 
-    def set_acoustic_impedance_BC_by_node(self, nodes, values):
+    def set_acoustic_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.acoustic_impedance = values
     
-    def set_radiation_impedance_BC_by_node(self, nodes, values):
+    def set_radiation_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.radiation_impedance = values
 
-    def set_acoustic_pressure_BC_by_node(self, nodes, acoustic_pressure):
+    def set_acoustic_pressure_bc_by_node(self, nodes, acoustic_pressure):
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = acoustic_pressure
             self.AcousticBCnodes.append(node)
             self.sum_acousticPressures += acoustic_pressure
     
-    def getRadius(self):
+    def get_radius(self):
         for element in self.structural_elements.values():
             first = element.first_node.global_index
             last  = element.last_node.global_index
@@ -356,7 +356,7 @@ class Mesh:
             self.radius[last] = radius
         return self.radius
 
-    def check_Material_and_CrossSection_in_all_elements(self):
+    def check_material_and_cross_section_in_all_elements(self):
         self.flag_setMaterial = False
         self.flag_setCrossSection = False
         for element in self.structural_elements.values():
@@ -368,7 +368,7 @@ class Mesh:
                 return
         return
 
-    def check_Fluid_and_CrossSection_in_all_elements(self):
+    def check_fluid_and_cross_section_in_all_elements(self):
         self.flag_setFluid = False
         self.flag_setCrossSection = False
         for element in self.acoustic_elements.values():

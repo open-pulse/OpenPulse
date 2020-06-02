@@ -23,7 +23,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Select Analysis Type </string>
+   <string>Modal Analysis Setup</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -124,7 +124,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Modal Analysis - Structural</string>
+      <string>Modal Analysis - Acoustic</string>
      </property>
      <property name="icon">
       <iconset>
