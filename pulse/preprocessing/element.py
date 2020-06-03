@@ -35,6 +35,7 @@ class Element:
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
+        self.type = kwargs.get('type', 'pipe1')
 
     @property
     def length(self):
@@ -76,6 +77,7 @@ class Element:
 
     def rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
+        # Rotation Matrix
         gamma = 0
         delta_x = self.last_node.x - self.first_node.x
         delta_y = self.last_node.y - self.first_node.y
@@ -84,16 +86,25 @@ class Element:
         L_ = sqrt(delta_x**2 + delta_y**2)
         L  = sqrt(delta_x**2 + delta_y**2 + delta_z**2)
 
+        if L_ > 0.0001*L:
+            sine = delta_y/L_
+            cossine = delta_x/L_
+        else:
+            sine = 0
+            cossine = 1
+
         C = np.zeros((3,3))
         if L_ != 0.:
-            C[0,] = np.array([ [delta_x / L, delta_y / L, delta_z / L] ])
+            C[0,] = np.array([[cossine * L_ / L,
+                               sine * L_ / L,
+                               delta_z / L] ])
 
-            C[1,] = np.array([ [-delta_x*delta_z * sin(gamma) / (L_ * L) - delta_y * cos(gamma) / L_,
-                                -delta_y*delta_z * sin(gamma) / (L_ * L) + delta_x * cos(gamma) / L_,
-                                L_ * sin(gamma) / L] ])
+            C[1,] = np.array([[-cossine * delta_z * sin(gamma) / L - sine * cos(gamma),
+                               -sine * delta_z * sin(gamma) / L + cossine * cos(gamma),
+                               L_ * sin(gamma) / L] ])
 
-            C[2,] = np.array([ [-delta_x*delta_z * cos(gamma) / (L_ * L) + delta_y * sin(gamma) / L_,
-                                -delta_y*delta_z * cos(gamma) / (L_ * L) - delta_x * sin(gamma) / L_,
+            C[2,] = np.array([ [-cossine * delta_z * cos(gamma) / L + sine * sin(gamma),
+                                -sine * delta_z * cos(gamma) / L - cossine * sin(gamma),
                                 L_ * cos(gamma) / L] ])
         else:
             C[0,0] = 0.
@@ -108,148 +119,173 @@ class Element:
             C[2,1] = -sin(gamma)
             C[2,2] = 0.
 
-        T_tild_e = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
-        T_tild_e[0:3, 0:3] = C
-        T_tild_e[3:6, 3:6] = C
-        T_tild_e[6:9, 6:9] = C
-        T_tild_e[9:12, 9:12] = C
+        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = C
 
-        return T_tild_e
+        return R
     
     def stiffness_matrix(self):
         """ Element striffness matrix in the element coordinate system."""
-        L   = self.length
+        L = self.length
 
         E = self.material.young_modulus
         mu = self.material.mu_parameter
 
+        # Area properties
         A = self.cross_section.area
-        I1 = self.cross_section.moment_area
+        Iy = self.cross_section.second_moment_area_y
+        Iz = self.cross_section.second_moment_area_z
         J = self.cross_section.polar_moment_area
-        shear_area_1 = self.cross_section.shear_area(L, E)
+        res_y = self.cross_section.res_y
+        res_z = self.cross_section.res_z
 
-        I2 = I1
-        shear_area_2 = shear_area_1
+        # Shear coefficiets
+        aly = 1/res_y
+        alz = 1/res_z
+        
+        if self.type == 'pipe1':
+            Qy = 0
+            Qz = 0
+            Iyz = 0
+            principal_axis = self.cross_section.principal_axis
+        elif self.type == 'pipe2':
+            Qy = self.cross_section.first_moment_area_y
+            Qz = self.cross_section.first_moment_area_z
+            Iyz = self.cross_section.second_moment_area_yz
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            print('Only pipe1 and pipe2 element types are allowed.')
+            pass
+            
+        # Determinant of Jacobian (linear 1D trasform)
+        det_jacob = L / 2
+        inv_jacob = 1 / det_jacob
 
-        #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
-        inv_jacobian = 1 / det_jacobian
+        # Constitutive matrices (element with constant geometry along x-axis)
+        # Torsion and shear
+        Dts = mu*np.array([[J,   -Qy,   Qz],
+                           [-Qy, aly*A,  0  ],
+                           [Qz,   0,  alz*A]])
+        # Axial and Bending
+        Dab = E*np.array([[A,  Qy , -Qz],
+                          [Qy, Iy , -Iyz],
+                          [-Qz,-Iyz, Iz]])
 
-        #Constitutive matrices (element with constant geometry along x-axis)
-        D_shear = np.diag([mu * shear_area_1, mu * shear_area_2])
-        D_bending = np.diag([E * I1, E * I2])
+        ## Numerical integration by Gauss Quadracture
+        integrations_points = 1
+        points, weigths = gauss_quadracture( integrations_points )
 
-        # Numerical integration by Gauss Quadracture
-        number_integrations_points = 1
-        points, weigths = gauss_quadracture(number_integrations_points)
-
-        Kbe = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        Kse = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        Kae = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        Kte = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+        Kabe = 0
+        Ktse = 0
 
         for point, weigth in zip( points, weigths ):
+
             # Shape function and its derivative
-            phi, derivative_phi = shape_function(point)
-            dphi = inv_jacobian * derivative_phi
+            phi, derivative_phi = shape_function( point )
+            dphi = inv_jacob * derivative_phi
 
-            B_bending = np.zeros((2,12))
-            B_bending[[0,1],[4,5]] = dphi[0]
-            B_bending[[0,1],[10,11]] = dphi[1]
+            # Axial and Bending B-matrix
+            Bab = np.zeros([3, 12])
+            Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
+            Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
 
-            B_shear = np.zeros((2,12))
-            B_shear[[0,1],[1,2]] = dphi[0]
-            B_shear[0,5] = -phi[0]
-            B_shear[[0,1],[7,8]] = dphi[1]
-            B_shear[0,11] = -phi[1]
-            B_shear[1,4] = phi[0]
-            B_shear[1,10] = phi[1]
+            # Torsional and Shear B-matrix
+            Bts = np.zeros((3,12))
+            Bts[[0,1,2],[3,1,2]] = dphi[0] # 1st node
+            Bts[[1],[5]] = -phi[0]
+            Bts[[2],[4]] = phi[0]
+            Bts[[0,1,2],[9,7,8]] = dphi[1] # 2nd node
+            Bts[[1],[11]] = -phi[1]
+            Bts[[2],[10]] = phi[1]
 
-            B_axial = np.zeros((1,12))
-            B_axial[0,0] = dphi[0]
-            B_axial[0,6] = dphi[1]
-
-            B_torsional = np.zeros((1,12))
-            B_torsional[0,3] = dphi[0]
-            B_torsional[0,9] = dphi[1] 
+            Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
+            Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
             
-            Kbe += (B_bending.T @ D_bending @ B_bending) * det_jacobian * weigth
-            Kse += (B_shear.T @ D_shear @ B_shear) * det_jacobian * weigth
-            Kae += E * A * (B_axial.T @ B_axial) * det_jacobian * weigth
-            Kte += mu * J * (B_torsional.T @ B_torsional) * det_jacobian * weigth
+        Ke = Kabe + Ktse
 
-        Ke = Kbe + Kse + Kae + Kte 
-
-        return Ke
+        return principal_axis.T @ Ke @ principal_axis
 
     def mass_matrix(self):
         """ Element mass matrix in the element coordinate system."""
         L   = self.length
-
         rho = self.material.density
 
+        # Area properties
         A = self.cross_section.area
-        I1 = self.cross_section.moment_area
+        Iy = self.cross_section.second_moment_area_y
+        Iz = self.cross_section.second_moment_area_z
         J = self.cross_section.polar_moment_area
 
-        I2 = I1
+        if self.type == 'pipe1':
+            Qy = 0
+            Qz = 0
+            Iyz = 0
+            principal_axis = self.cross_section.principal_axis
+        elif self.type == 'pipe2':
+            Qy = self.cross_section.first_moment_area_y
+            Qz = self.cross_section.first_moment_area_z
+            Iyz = self.cross_section.second_moment_area_yz
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            print('Only pipe1 and pipe2 element types are allowed.')
+            pass
 
-        #Determinant of Jacobian (linear 1D trasform)
-        det_jacobian = L / 2
+        # Determinant of Jacobian (linear 1D trasform)
+        det_jacob = L / 2
     
-        #Inertial matrices (element with constant geometry along x-axis)
-        G_translation = rho * A * np.eye(3)
-        G_rotation = rho * np.diag([J, I1, I2])
+        # Inertial matrices
+        Ggm = np.zeros([6, 6])
+        Ggm[np.diag_indices(6)] = np.array([A, A, A, J, Iy, Iz]) / 2
+        Ggm[0, 4] = Qy
+        Ggm[1, 3] = -Qy
+        Ggm[2, 3] = Qz
+        Ggm[0, 5] = -Qz
+        Ggm[4, 5] = -Iyz
+        Ggm = rho*( Ggm + Ggm.T )
 
-        ## Numerical integration by Gauss Quadracture
-        number_integrations_points = 2
-        points, weigths = gauss_quadracture(number_integrations_points)
-        
-        #
-        Me = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        Mass_rotation = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        Mass_translation = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+        # Numerical integration by Gauss Quadracture
+        integrations_points = 2
+        points, weigths = gauss_quadracture( integrations_points )
+
+        Me = 0
+        N = np.zeros((DOF_PER_NODE_STRUCTURAL, 2 * DOF_PER_NODE_STRUCTURAL))
 
         for point, weigth in zip(points, weigths):
-            phi, _ = shape_function(point)
+            phi, _ = shape_function( point )
 
-            N_translation = np.zeros((3,12))
-            N_translation[[0,1,2],[0,1,2]] = phi[0]
-            N_translation[[0,1,2],[6,7,8]] = phi[1]
+            N = np.c_[phi[0] * np.eye( DOF_PER_NODE_STRUCTURAL ), phi[1] * np.eye( DOF_PER_NODE_STRUCTURAL )] 
 
-            N_rotation = np.zeros((3,12))
-            N_rotation[[0,1,2],[3,4,5]] = phi[0]
-            N_rotation[[0,1,2],[9,10,11]] = phi[1]
-            
-            Mass_translation += (N_translation.T @ G_translation @ N_translation) * det_jacobian * weigth
-            Mass_rotation += N_rotation.T @ G_rotation @ N_rotation * det_jacobian * weigth
+            Me += (N.T @ Ggm @ N) * det_jacob * weigth
 
-        Me = Mass_translation + Mass_rotation
-
-        return Me
+        return principal_axis.T @ Me @ principal_axis
     
     def force_vector(self):
         ## Numerical integration by Gauss Quadracture
         L = self.length
-        number_integrations_points = 2
-        points, weigths = gauss_quadracture(number_integrations_points)
+        integrations_points = 2
+        points, weigths = gauss_quadracture(integrations_points)
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacobian = L / 2
 
-        Fe = np.zeros((DOF_PER_ELEMENT))
-        NN = np.zeros((DOF_PER_NODE_STRUCTURAL, 2*DOF_PER_NODE_STRUCTURAL))
-
+        Fe = 0
         for point, weigth in zip(points, weigths):
             phi, _ = shape_function(point)
 
-            NN[0 : DOF_PER_NODE_STRUCTURAL, 0 : DOF_PER_NODE_STRUCTURAL] = phi[0] * np.identity(DOF_PER_NODE_STRUCTURAL)
-            NN[0 : DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_STRUCTURAL: 2*DOF_PER_NODE_STRUCTURAL] = phi[1] * np.identity(DOF_PER_NODE_STRUCTURAL)
+            N = np.c_[phi[0] * np.eye( DOF_PER_NODE_STRUCTURAL ), phi[1] * np.eye( DOF_PER_NODE_STRUCTURAL )] 
 
-            Fe += (NN.T @ self.loaded_forces.T) * det_jacobian * weigth
-
-        return Fe
+            Fe += (N.T @ self.loaded_forces.T) * det_jacobian * weigth
+        
+        if self.type == 'pipe1':
+            principal_axis = self.cross_section.principal_axis
+        elif self.type == 'pipe2':
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            print('Only pipe1 and pipe2 element types are allowed.')
+            pass
+        
+        return principal_axis.T @ Fe
 
     def force_vector_acoustic_gcs(self, frequencies, pressure_avg, pressure_external):
 
@@ -260,7 +296,16 @@ class Element:
         aux = np.zeros([DOF_PER_ELEMENT, 1])
         aux[0], aux[6] = 1, -1
         R = self.rotation_matrix()
-        aux = R.T @ aux
+
+        if self.type == 'pipe1':
+            principal_axis = self.cross_section.principal_axis
+        elif self.type == 'pipe2':
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            print('Only pipe1 and pipe2 element types are allowed.')
+            pass
+
+        aux = R.T @ principal_axis.T @ aux
         F_p = (1 - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p
