@@ -372,60 +372,70 @@ class InputUi:
           
         if self.analysis_ID == 2:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
+            if self.project.mesh.check_setCrossSection:
                 error(cross_section_message, title = title)
                 return True
-            if self.project.mesh.flag_setMaterial == True:
+            if self.project.mesh.check_setMaterial:
                 error(material_message, title = title)
                 return True
         
         elif self.analysis_ID == 4:
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
+            if self.project.mesh.check_setCrossSection:
                 error(cross_section_message, title = title)
                 return True
-            if self.project.mesh.flag_setFluid == True:
+            if self.project.mesh.check_setFluid:
                 error(fluid_message, title = title)
                 return True
-        
-        elif self.analysis_ID == 3:
-            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
-                error(cross_section_message, title = title)
-                return True
-            elif self.project.mesh.flag_setFluid == True:
-                error(fluid_message, title = title)
-                return True
-            elif self.project.mesh.sum_volumeVelocity == 0:
-                if self.project.mesh.sum_acousticPressures == 0:
-                    error(acoustic_message, title = title)
-                    return True
 
         elif self.analysis_ID == 0 or self.analysis_ID == 1:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
+            self.project.mesh.check_nodes_attributes()
+            # print(self.project.mesh.is_there_prescribed_dofs)
+            # print(self.project.mesh.is_there_loads)
+            if self.project.mesh.check_setCrossSection:
                 error(cross_section_message, title = title)
                 return True
-            if self.project.mesh.flag_setMaterial == True:
+            if self.project.mesh.check_setMaterial:
                 error(material_message, title = title)
                 return True
-            elif self.project.mesh.sum_loads == 0:
-                if self.project.mesh.sum_prescribedDOFs == 0:
+            elif not self.project.mesh.is_there_loads:
+                if not self.project.mesh.is_there_prescribed_dofs:
                     error(structural_message, title = title)
+                    return True
+    
+        elif self.analysis_ID == 3:
+            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
+            self.project.mesh.check_nodes_attributes()
+            # print(self.project.mesh.is_there_acoustic_pressure)
+            # print(self.project.mesh.is_there_volume_velocity)
+            if self.project.mesh.check_setCrossSection:
+                error(cross_section_message, title = title)
+                return True
+            elif self.project.mesh.check_setFluid:
+                error(fluid_message, title = title)
+                return True
+            elif not self.project.mesh.is_there_volume_velocity:
+                if not self.project.mesh.is_there_acoustic_pressure:
+                    error(acoustic_message, title = title)
                     return True
 
         elif self.analysis_ID == 5 or self.analysis_ID == 6:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            if self.project.mesh.flag_setCrossSection == True:
+            self.project.mesh.check_nodes_attributes()
+            # print(self.project.mesh.is_there_acoustic_pressure)
+            # print(self.project.mesh.is_there_volume_velocity)
+            if self.project.mesh.check_setCrossSection:
                 error(cross_section_message, title = title)
                 return True
-            elif self.project.mesh.flag_setMaterial == True:
+            elif self.project.mesh.check_setMaterial:
                 error(material_message, title = title)
                 return True
-            elif self.project.mesh.flag_setFluid == True:
+            elif self.project.mesh.check_setFluid:
                 error(fluid_message, title = title)
-            elif self.project.mesh.sum_volumeVelocity == 0:
-                if self.project.mesh.sum_acousticPressures == 0:
+            elif not self.project.mesh.is_there_volume_velocity:
+                if not self.project.mesh.is_there_acoustic_pressure:
                     error(acoustic_message, title = title)
                     return True
+

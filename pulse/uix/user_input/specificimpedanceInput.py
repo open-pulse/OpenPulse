@@ -43,20 +43,6 @@ class SpecificImpedanceInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -79,9 +65,9 @@ class SpecificImpedanceInput(QDialog):
 
         specific_impedance = None
         if self.lineEdit_specific_impedance.text() != "":
-            if self.isFloat(self.lineEdit_specific_impedance.text()):
+            try:
                 specific_impedance = float(self.lineEdit_specific_impedance.text())
-            else:
+            except Exception:
                 error("Wrong input for the Specific Acoustic Impedance!", title = " ERROR ")
                 return
         else:

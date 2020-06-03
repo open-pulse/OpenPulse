@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>581</width>
-    <height>312</height>
+    <height>487</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -19,11 +19,17 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="maximumSize">
+   <size>
+    <width>581</width>
+    <height>487</height>
+   </size>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set: Fluid</string>
+   <string>Set: Material</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -38,8 +44,14 @@
      <x>0</x>
      <y>0</y>
      <width>581</width>
-     <height>311</height>
+     <height>487</height>
     </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>581</width>
+     <height>487</height>
+    </size>
    </property>
    <property name="font">
     <font>
@@ -50,7 +62,7 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>0</y>
+      <y>158</y>
       <width>581</width>
       <height>41</height>
      </rect>
@@ -68,7 +80,7 @@
      <property name="geometry">
       <rect>
        <x>480</x>
-       <y>10</y>
+       <y>12</y>
        <width>82</width>
        <height>17</height>
       </rect>
@@ -89,7 +101,7 @@
      <property name="geometry">
       <rect>
        <x>370</x>
-       <y>10</y>
+       <y>12</y>
        <width>82</width>
        <height>17</height>
       </rect>
@@ -107,7 +119,7 @@
      <property name="geometry">
       <rect>
        <x>20</x>
-       <y>10</y>
+       <y>12</y>
        <width>271</width>
        <height>16</height>
       </rect>
@@ -118,7 +130,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Attribute material to:</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:11pt; font-weight:600;&quot;&gt;Attribute Fluid to:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -132,10 +144,22 @@
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>40</y>
+      <y>198</y>
       <width>581</width>
       <height>231</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>581</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>581</width>
+      <height>16777215</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Panel</enum>
@@ -167,17 +191,17 @@
     </column>
     <column>
      <property name="text">
-      <string>Fluid Density</string>
+      <string>Fluid density [kg/m³]</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Sound Velocity</string>
+      <string>Sound velocity [m/s]</string>
      </property>
     </column>
     <column>
      <property name="text">
-      <string>Impedance</string>
+      <string>Impedance [kg/m²s]</string>
      </property>
     </column>
     <column>
@@ -189,18 +213,303 @@
    <widget class="QPushButton" name="pushButton_confirm">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>280</y>
-      <width>301</width>
-      <height>23</height>
+      <x>146</x>
+      <y>446</y>
+      <width>291</width>
+      <height>29</height>
      </rect>
     </property>
-    <property name="text">
-     <string>Confirm</string>
+    <property name="font">
+     <font>
+      <pointsize>9</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 0, 0);
+selection-background-color: rgb(62, 255, 62);</string>
+    </property>
+    <property name="text">
+     <string>Confirm the Fluid attibution</string>
+    </property>
+    <property name="shortcut">
+     <string>Shift+C</string>
+    </property>
+    <property name="default">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QFrame" name="frame_3">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>581</width>
+      <height>159</height>
+     </rect>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <widget class="QLineEdit" name="lineEdit_color">
+     <property name="geometry">
+      <rect>
+       <x>434</x>
+       <y>96</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="Name_label">
+     <property name="geometry">
+      <rect>
+       <x>70</x>
+       <y>34</y>
+       <width>47</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QFrame" name="frame_2">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>581</width>
+       <height>29</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <widget class="QLabel" name="Add_new_fluid_label">
+      <property name="geometry">
+       <rect>
+        <x>174</x>
+        <y>6</y>
+        <width>271</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>11</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10.5pt; font-weight:600;&quot;&gt;Add a new Fluid to the list:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_fluid_density">
+     <property name="geometry">
+      <rect>
+       <x>236</x>
+       <y>52</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_name">
+     <property name="geometry">
+      <rect>
+       <x>36</x>
+       <y>52</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="color_label">
+     <property name="geometry">
+      <rect>
+       <x>460</x>
+       <y>78</y>
+       <width>61</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Color&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_impedance">
+     <property name="geometry">
+      <rect>
+       <x>434</x>
+       <y>52</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="fluid_density_label">
+     <property name="geometry">
+      <rect>
+       <x>218</x>
+       <y>34</y>
+       <width>149</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Fluid density [kg/m³]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="impedance_label">
+     <property name="geometry">
+      <rect>
+       <x>418</x>
+       <y>34</y>
+       <width>147</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Impedance [kg/m²s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_addFluid">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>204</x>
+       <y>126</y>
+       <width>177</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>9</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="cursor">
+      <cursorShape>ArrowCursor</cursorShape>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Add New Fluid</string>
+     </property>
+     <property name="shortcut">
+      <string>Shift+A</string>
+     </property>
+     <property name="checkable">
+      <bool>false</bool>
+     </property>
+     <property name="autoDefault">
+      <bool>true</bool>
+     </property>
+     <property name="default">
+      <bool>false</bool>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_id">
+     <property name="geometry">
+      <rect>
+       <x>36</x>
+       <y>96</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_sound_velocity">
+     <property name="geometry">
+      <rect>
+       <x>236</x>
+       <y>96</y>
+       <width>113</width>
+       <height>20</height>
+      </rect>
+     </property>
+    </widget>
+    <widget class="QLabel" name="ID_label">
+     <property name="geometry">
+      <rect>
+       <x>68</x>
+       <y>78</y>
+       <width>47</width>
+       <height>15</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="sound_velocity_label">
+     <property name="geometry">
+      <rect>
+       <x>218</x>
+       <y>78</y>
+       <width>149</width>
+       <height>16</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Sound velocity [m/s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>treeWidget</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>lineEdit_name</tabstop>
+  <tabstop>lineEdit_id</tabstop>
+  <tabstop>lineEdit_fluid_density</tabstop>
+  <tabstop>lineEdit_sound_velocity</tabstop>
+  <tabstop>lineEdit_impedance</tabstop>
+  <tabstop>lineEdit_color</tabstop>
+  <tabstop>pushButton_addFluid</tabstop>
+  <tabstop>radioButton_entity</tabstop>
+  <tabstop>radioButton_all</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

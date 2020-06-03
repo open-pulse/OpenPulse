@@ -50,21 +50,6 @@ class DOFInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -86,63 +71,63 @@ class DOFInput(QDialog):
             return
 
         if self.lineEdit_all.text() != "":
-            if self.isFloat(self.lineEdit_all.text()):
-                dof = float(self.lineEdit_all.text())
-                self.dof = [dof, dof, dof, dof, dof, dof]
+            try:
+                value_dof = float(self.lineEdit_all.text())
+                self.dof = [value_dof, value_dof, value_dof, value_dof, value_dof, value_dof]
                 self.close()
-            else:
+            except Exception:
                 error("Wrong input (All Dofs)!", title = "Error (All Dofs)")
                 return
  
         else:
             ux = uy = uz = None
             if self.lineEdit_ux.text() != "":
-                if self.isFloat(self.lineEdit_ux.text()):
+                try:
                     ux = float(self.lineEdit_ux.text())
-                else:
+                except Exception:
                     error("Wrong input (ux)!", title = "Error")
                     return
             
             if self.lineEdit_uy.text() != "":
-                if self.isFloat(self.lineEdit_uy.text()):
+                try:
                     uy = float(self.lineEdit_uy.text())
-                else:
+                except Exception:
                     error("Wrong input (uy)!", title = "Error")
                     return
 
             if self.lineEdit_uz.text() != "":
-                if self.isFloat(self.lineEdit_uz.text()):
+                try:
                     uz = float(self.lineEdit_uz.text())
-                else:
+                except Exception:
                     error("Wrong input (uz)!", title = "Error")
                     return
 
-            
             rx = ry = rz = None
             if self.lineEdit_rx.text() != "":
-                if self.isFloat(self.lineEdit_rx.text()):
+                try:
                     rx = float(self.lineEdit_rx.text())
-                else:
+                except Exception:
                     error("Wrong input (rx)!", title = "Error")
                     return
             
             if self.lineEdit_ry.text() != "":
-                if self.isFloat(self.lineEdit_ry.text()):
+                try:
                     ry = float(self.lineEdit_ry.text())
-                else:
+                except Exception:
                     error("Wrong input (ry)!", title = "Error")
                     return
 
             if self.lineEdit_rz.text() != "":
-                if self.isFloat(self.lineEdit_rz.text()):
+                try:
                     rz = float(self.lineEdit_rz.text())
-                else:
+                except Exception:
                     error("Wrong input (rz)!", title = "Error")
                     return
             
-            if ux==uy==uz==rx==ry==rz==None and self.lineEdit_all.text() == "":
-                error("You must to prescribe at least one DOF to confirm the input!", title = " ERROR ")
-                return
-
-            self.dof = [ux, uy, uz, rx, ry, rz]
+            dofs_inputs = [ux, uy, uz, rx, ry, rz]
+                
+            if dofs_inputs.count(None) == 6:
+                error(("The values assigned to the DOFs of the Node(s) [{}] have been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
+                
+            self.dof = dofs_inputs
             self.close()

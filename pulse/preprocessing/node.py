@@ -97,14 +97,15 @@ class Node:
     def set_prescribed_volume_velocity(self, volume_velocity):
         self.volume_velocity = volume_velocity
 
-    def get_prescribed_volume_velocity(self, frequencies):
-        if isinstance(self.volume_velocity, np.float64):
-            return self.volume_velocity * np.ones_like(frequencies)
-        elif len(self.volume_velocity) != len(frequencies):
-            #error!!
-            pass
+    #TODO: load a table of real+imaginary components    
 
-        return self.volume_velocity
+    def get_prescribed_volume_velocity(self, frequencies):
+        # if isinstance(self.volume_velocity, np.float64):
+            return self.volume_velocity * np.ones_like(frequencies)
+        # elif len(self.volume_velocity) != len(frequencies):
+        #     #error!!
+        #     pass
+        # return self.volume_velocity
 
     def haveVolumeVelocity(self):
         return self.volume_velocity.count(0) != 1

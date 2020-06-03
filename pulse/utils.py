@@ -53,6 +53,25 @@ def error( msg, title = " ERROR "):
     msg_box.setWindowTitle(title)
     msg_box.exec_()
 
+def isInteger(value):
+    try:
+        int(value)
+        return True
+    except:
+        return False
+
+def isFloat(value):
+    try:
+        float(value)
+        return True
+    except:
+        return False
+
+def getColorRGB(color):
+    temp = color[1:-1] #Remove "[ ]"
+    tokens = temp.split(',')
+    return list(map(int, tokens))
+
 def sparse_is_equal(a, b):
     if not (issparse(a) and issparse(b)):
         raise TypeError('a and b should be sparse matrices')

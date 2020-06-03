@@ -175,7 +175,7 @@ class ProjectFile:
                         name = str(material_list[material]['name'])
                         identifier = str(material_list[material]['identifier'])
                         density =  str(material_list[material]['density'])
-                        youngmodulus =  str(material_list[material]['youngmodulus'])
+                        youngmodulus =  str(material_list[material]['young modulus'])
                         poisson =  str(material_list[material]['poisson'])
                         color =  str(material_list[material]['color'])
                         youngmodulus = float(youngmodulus)*(10**(9))

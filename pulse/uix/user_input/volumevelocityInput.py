@@ -43,20 +43,6 @@ class VolumeVelocityInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -79,9 +65,9 @@ class VolumeVelocityInput(QDialog):
     
         volume_velocity = None
         if self.lineEdit_volume_velocity.text() != "":
-            if self.isFloat(self.lineEdit_volume_velocity.text()):
+            try:
                 volume_velocity = float(self.lineEdit_volume_velocity.text())
-            else:
+            except Exception:
                 error("Wrong input for the Volume Velocity Source(s)!", title = " ERROR ")
                 return
         else:

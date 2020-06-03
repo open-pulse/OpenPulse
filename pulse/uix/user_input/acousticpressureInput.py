@@ -79,13 +79,13 @@ class AcousticPressureInput(QDialog):
 
         acoustic_pressure = None
         if self.lineEdit_acoustic_pressure.text() != "":
-            if self.isFloat(self.lineEdit_acoustic_pressure.text()):
+            try:
                 acoustic_pressure = float(self.lineEdit_acoustic_pressure.text())
-            else:
+            except Exception:
                 error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
                 return
         else:
-            error("You must to input a valid value for the Acoustic Pressure!", title = " ERROR ")
+            error(("The pressure(s) assigned to the Node(s): {} has been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
             return
 
         self.acoustic_pressure = acoustic_pressure

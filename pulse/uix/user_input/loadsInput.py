@@ -48,20 +48,6 @@ class LoadsInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -82,53 +68,59 @@ class LoadsInput(QDialog):
             error(message[0], title = " INCORRECT NODE ID INPUT! ")
             return
 
-        fx = fy = fz = 0.0
+        fx = fy = fz = None
         if self.lineEdit_fx.text() != "":
-            if self.isFloat(self.lineEdit_fx.text()):
+            try:
                 fx = float(self.lineEdit_fx.text())
-            else:
+            except Exception:
                 error("Wrong input (fx)!", "Error")
                 return
         
         if self.lineEdit_fy.text() != "":
-            if self.isFloat(self.lineEdit_fy.text()):
+            try:
                 fy = float(self.lineEdit_fy.text())
-            else:
+            except Exception:
                 error("Wrong input (fy)!", "Error")
                 return
 
         if self.lineEdit_fz.text() != "":
-            if self.isFloat(self.lineEdit_fz.text()):
+            try:
                 fz = float(self.lineEdit_fz.text())
-            else:
+            except Exception:
                 error("Wrong input (fz)!", "Error")
                 return
         
-        mx = my = mz = 0.0
+        mx = my = mz = None
         if self.lineEdit_mx.text() != "":
-            if self.isFloat(self.lineEdit_mx.text()):
+            try:
                 mx = float(self.lineEdit_mx.text())
-            else:
+            except Exception:
                 error("Wrong input (mx)!", "Error")
                 return
         
         if self.lineEdit_my.text() != "":
-            if self.isFloat(self.lineEdit_my.text()):
+            try:
                 my = float(self.lineEdit_my.text())
-            else:
+            except Exception:
                 error("Wrong input (my)!", "Error")
                 return
 
         if self.lineEdit_mz.text() != "":
-            if self.isFloat(self.lineEdit_mz.text()):
+            try:
                 mz = float(self.lineEdit_mz.text())
-            else:
+            except Exception:
                 error("Wrong input (mz)!", "Error")
                 return
 
-        if fx==fy==fz==mx==my==mz==0.0:
-            error("You must to prescribe at least one DOF to confirm the input!", title = " ERROR ")
+        loads_inputs = [fx, fy, fz, mx, my, mz]
+        
+        if loads_inputs.count(None) == 6:
+            error("You must to inform at least one nodal load to confirm the input!", title = " ERROR ")
             return
+            
+        for index, value in enumerate(loads_inputs):
+            if value == None:
+                loads_inputs[index] = 0.0
 
-        self.loads = [fx, fy, fz, mx, my, mz]
+        self.loads = loads_inputs
         self.close()
