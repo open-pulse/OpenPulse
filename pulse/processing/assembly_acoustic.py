@@ -76,6 +76,7 @@ class AssemblyAcoustic:
             if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) != 0:
                 position = node.global_index
                 area_fluid = []
+                self.flag = True
 
                 for element in elements:
                     if element.first_node.global_index == position or element.last_node.global_index == position:
@@ -92,9 +93,8 @@ class AssemblyAcoustic:
                     data_Klump = node.admittance(area_fluid, frequencies)
                 else:
                     data_Klump = np.c_[data_Klump, node.admittance(area_fluid, frequencies)]
-                self.flag = True
-
-        if float(area_fluid) != []:
+        
+        if self.flag:
             full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
         else:
             full_K = [csr_matrix((total_dof, total_dof)) for _ in frequencies]

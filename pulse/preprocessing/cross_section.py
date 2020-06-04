@@ -3,7 +3,7 @@ from math import pi, sqrt, cos, sin, atan
 from numpy.linalg import inv, pinv, norm
 from scipy.sparse import csc_matrix
 
-def gauss_quadracture2D():
+def gauss_quadrature2D():
     c = 1/sqrt(3)
     points=np.zeros([4,2])
     points[0,0]=-c
@@ -15,12 +15,12 @@ def gauss_quadracture2D():
     points[1,1]=-c
     points[2,1]=c
     points[3,1]=c
-    weigth = 1
-    return points, weigth
+    weight = 1
+    return points, weight
 
 def shape_function(ksi,eta):
     """
-    - Quadratic shape funtions and its derivatives
+    - Quadratic shape functions and its derivatives
     for calculation of section properties.
     - Q9 element.
     """
@@ -72,8 +72,6 @@ class CrossSection:
         self.external_radius = external_diameter/2
         self.internal_diameter = external_diameter - 2*thickness
 
-        self.area_fluid = 0
-
         # Area properties
         self.area = 0
         self.first_moment_area_y = 0
@@ -95,8 +93,9 @@ class CrossSection:
         # Principal Bending Axis Rotation
         self.principal_axis = None
 
-    def set_area_fluid(self):
-        self.area_fluid = (self.internal_diameter**2) * pi / 4
+    @property
+    def area_fluid(self):
+        return (self.internal_diameter**2) * pi / 4
 
     def getExternalDiameter(self):
         return self.external_diameter
@@ -148,7 +147,7 @@ class CrossSection:
     
     def area_properties(self):
         coordinate = self.mesh_coordinate()
-        points, weigth = gauss_quadracture2D()
+        points, weight = gauss_quadrature2D()
         connectivity = self.mesh_connectivity()
         
         # Geometry properties
@@ -164,11 +163,11 @@ class CrossSection:
                     y += coordinate[index, 0] * phi[i]
                     z += coordinate[index, 1] * phi[i]
                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-                dA = det_jacobian * weigth
+                dA = det_jacobian * weight
                 A += dA
                 Iy += z**2 * dA
                 Iz += y**2 * dA
-                I12 += y * z * dA
+                Iyz += y * z * dA
                 Qy += z * dA
                 Qz += y * dA
 
@@ -185,9 +184,9 @@ class CrossSection:
 
     def shear_properties(self, poisson_ratio = 0, element_type = 'pipe1'):
         coordinate = self.mesh_coordinate()
-        points, weigth = gauss_quadracture2D()
+        points, weight = gauss_quadrature2D()
         connectivity = self.mesh_connectivity()
-        self.area_properties()
+        
 
         if element_type == 'pipe1':
             # for the pipe1 element, offset and its dependence need to be updated as below
@@ -226,7 +225,7 @@ class CrossSection:
                     y += coordinate[index, 0] * phi[i]
                     z += coordinate[index, 1] * phi[i]
                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-                dA = det_jacobian * weigth
+                dA = det_jacobian * weight
                 inv_jacobian = np.linalg.inv(jacobian)
                 dphig = inv_jacobian @ dphi
                 ke +=  dphig.T @ dphig * dA
@@ -268,7 +267,7 @@ class CrossSection:
                     psi_ye[i] = psi_y[index]
                     psi_ze[i] = psi_z[index]
                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-                dA = det_jacobian * weigth
+                dA = det_jacobian * weight
                 inv_jacobian = inv(jacobian)
                 dphig = inv_jacobian @ dphi
                 vector_aux = np.array([y**2 - z**2, 2*y * z])
@@ -291,7 +290,7 @@ class CrossSection:
         self.z_shear = (psi_y.T @ FT)/ccg
 
     def offset_rotation(self, element_type = 'pipe1'):
-        if element_type is not 'pipe1':
+        if element_type is 'pipe2':
             self.principal_axis = np.eye(12)
         else:
             y_c = self.y_centroid
@@ -328,6 +327,11 @@ class CrossSection:
                 self.principal_axis = T
     
     def update_properties(self, poisson_ratio = 0, element_type = 'pipe1'):
-        self.shear_properties(poisson_ratio = poisson_ratio, element_type = element_type)
-        self.offset_rotation(element_type = 'pipe1')
-        self.set_area_fluid()
+        self.area_properties()
+
+        if element_type == 'pipe1':
+            self.shear_properties(poisson_ratio = 0, element_type = None)
+            self.offset_rotation(element_type = 'pipe1')
+            self.shear_properties(poisson_ratio = 0, element_type = element_type)
+        else:
+            self.shear_properties(poisson_ratio = poisson_ratio, element_type = element_type)

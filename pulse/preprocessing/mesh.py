@@ -35,6 +35,7 @@ class Mesh:
         self.sum_acousticPressures = 0
         self.sum_volumeVelocity = 0
         self.radius = {}
+        self.element_type = ""
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -266,11 +267,23 @@ class Mesh:
         for node in self.nodes.values():
             node.global_index = None
 
+    def set_element_type(self, element_type):
+        self.element_type = element_type
+        for element in slicer(self.structural_elements, 'all'):
+            element.element_type = element_type
+
     def set_cross_section_by_element(self, elements, cross_section):
+        dict_cross_section = {}
         for element in slicer(self.structural_elements, elements):
-            element.cross_section = cross_section
+            poisson_ratio =  element.material.poisson_ratio
+            if poisson_ratio in dict_cross_section:
+                element.cross_section = dict_cross_section[poisson_ratio]
+            else:
+                cross_section.update_properties(poisson_ratio = poisson_ratio, element_type = self.element_type)
+                element.cross_section = cross_section
+                dict_cross_section.update({poisson_ratio : cross_section})
         for element in slicer(self.acoustic_elements, elements):
-            element.cross_section = cross_section
+            element.cross_section = dict_cross_section[element.material.poisson_ratio]
 
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):

@@ -35,7 +35,7 @@ class Element:
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
-        self.type = kwargs.get('type', 'pipe1')
+        self.element_type = kwargs.get('element_type', 'pipe1')
 
     @property
     def length(self):
@@ -144,12 +144,12 @@ class Element:
         aly = 1/res_y
         alz = 1/res_z
         
-        if self.type == 'pipe1':
+        if self.element_type == 'pipe1':
             Qy = 0
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.type == 'pipe2':
+        elif self.element_type == 'pipe2':
             Qy = self.cross_section.first_moment_area_y
             Qz = self.cross_section.first_moment_area_z
             Iyz = self.cross_section.second_moment_area_yz
@@ -217,12 +217,12 @@ class Element:
         Iz = self.cross_section.second_moment_area_z
         J = self.cross_section.polar_moment_area
 
-        if self.type == 'pipe1':
+        if self.element_type == 'pipe1':
             Qy = 0
             Qz = 0
             Iyz = 0
             principal_axis = self.cross_section.principal_axis
-        elif self.type == 'pipe2':
+        elif self.element_type == 'pipe2':
             Qy = self.cross_section.first_moment_area_y
             Qz = self.cross_section.first_moment_area_z
             Iyz = self.cross_section.second_moment_area_yz
@@ -277,9 +277,9 @@ class Element:
 
             Fe += (N.T @ self.loaded_forces.T) * det_jacobian * weigth
         
-        if self.type == 'pipe1':
+        if self.element_type == 'pipe1':
             principal_axis = self.cross_section.principal_axis
-        elif self.type == 'pipe2':
+        elif self.element_type == 'pipe2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
             print('Only pipe1 and pipe2 element types are allowed.')
@@ -297,9 +297,9 @@ class Element:
         aux[0], aux[6] = 1, -1
         R = self.rotation_matrix()
 
-        if self.type == 'pipe1':
+        if self.element_type == 'pipe1':
             principal_axis = self.cross_section.principal_axis
-        elif self.type == 'pipe2':
+        elif self.element_type == 'pipe2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
             print('Only pipe1 and pipe2 element types are allowed.')
