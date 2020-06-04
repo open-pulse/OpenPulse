@@ -20,7 +20,7 @@ from pulse.animation.plot_function import plot_results
 
 # PREPARING MESH
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
-cross_section = CrossSection(0.05, 0.008)
+cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
 mesh = Mesh()
 # connect = mesh.connectivity_matrix
 # coord = mesh.nodal_coordinates_matrix 
@@ -33,6 +33,7 @@ if run==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
     mesh.set_prescribed_DOFs_BC_by_node([1, 1200, 1325], np.zeros(6))
 
+mesh.set_element_type('pipe2')
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
 
