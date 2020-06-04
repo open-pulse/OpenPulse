@@ -9,8 +9,8 @@ class ActorLine(vtkActorBase):
         self.entity = entity
         self.color = entity.getColor()
         self.normalizedColor = entity.getNormalizedColor()
-        self.nodesList = entity.getNodes()
-        self.elementsList = entity.getElements()
+        self.nodesList = entity.get_nodes()
+        self.elementsList = entity.get_elements()
         self.tag = entity.getTag()
         self.plotRadius = plotRadius
         self.radius = 0.01

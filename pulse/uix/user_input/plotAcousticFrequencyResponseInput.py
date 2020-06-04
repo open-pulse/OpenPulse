@@ -65,11 +65,14 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
         self.mag = False
         self.real = False
-
+        self.imag = False
+    
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
         self.checkBox_mag = self.findChild(QCheckBox, 'checkBox_mag')
         self.checkBox_real = self.findChild(QCheckBox, 'checkBox_real')
+        self.checkBox_imag = self.findChild(QCheckBox, 'checkBox_imag')
+        self.checkBox_dB = self.findChild(QCheckBox, 'checkBox_dB')
 
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
@@ -110,14 +113,27 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         if self.checkBox_real.isChecked() and self.checkBox_mag.isChecked() == True:
             error("You must check only one plot representation data option!", title = " WARNING ")
             return
+        elif self.checkBox_real.isChecked()==False and self.checkBox_mag.isChecked()==False and self.checkBox_imag.isChecked()==False:
+            error("You must check at least one plot representation data option!", title = " WARNING ")
+            return
         elif self.checkBox_mag.isChecked():
             self.mag = True
             self.real = False
-
+            self.imag = False
         elif self.checkBox_real.isChecked():
             self.real = True
             self.mag = False
+            self.imag = False
+        elif self.checkBox_imag.isChecked():
+            self.mag = False
+            self.real = False
+            self.imag = True
         
+        if self.checkBox_dB.isChecked():
+            self.scale_dB = True
+        elif not self.checkBox_dB.isChecked():
+            self.scale_dB = False
+
         self.plot()
 
     def dB(self, data):
@@ -125,7 +141,8 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         return 20*np.log10(data/p_ref)
 
     def plot(self):
-        dB = True
+
+        dB = self.scale_dB
 
         if dB:
             unit_label = "dB"
@@ -133,10 +150,10 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             unit_label = "Pa"            
 
         frequencies = self.frequencies
-        dof_response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.mag, real=self.real, dB=dB)
+        dof_response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.mag, real=self.real, imag=self.imag, dB=dB)
         fig = plt.figure(figsize=[12,8])
         ax = fig.add_subplot(1,1,1)
-        mng = plt.get_current_fig_manager()
+        # mng = plt.get_current_fig_manager()
         # mng.window.state('zoomed')
 
         #cursor = Cursor(ax)
@@ -154,9 +171,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         plt.gca().add_artist(first_legend)
 
         ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
+        ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
         if self.mag:
-            ax.set_ylabel(("Pressure Magnitude [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')
-        else:
-            ax.set_ylabel(("Real part of Pressure Spectrum [{}]").format(unit_label), fontsize = 16, fontweight = 'bold')
+            ax.set_ylabel(("Pressure Magnitude [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
+        elif self.real:
+            ax.set_ylabel(("Real part of Pressure Spectrum [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
+        elif self.imag:
+            ax.set_ylabel(("Imaginary part of Pressure Spectrum [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
         plt.show()

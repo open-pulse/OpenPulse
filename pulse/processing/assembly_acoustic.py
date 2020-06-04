@@ -21,7 +21,8 @@ class AssemblyAcoustic:
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_acoustic_boundary_condition_values())
+            if node.acoustic_pressure is not None:
+                global_prescribed.extend([node.acoustic_pressure])
         return global_prescribed
 
     def get_unprescribed_indexes(self):

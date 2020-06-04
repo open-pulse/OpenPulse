@@ -1,12 +1,14 @@
 import numpy as np
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 
-def get_acoustic_frf(mesh, solution, node, absolute=True, real=False, dB=True):
+def get_acoustic_frf(mesh, solution, node, absolute=True, real=False, imag=False, dB=True):
     position = mesh.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
     if absolute:
         results = np.abs(solution[position])
     if real:
         results = np.real(solution[position])
+    elif imag:
+        results = np.imag(solution[position])
     if dB:
         p_ref = 20e-6
         results = 20*np.log10(np.abs(results/p_ref))

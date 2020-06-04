@@ -10,7 +10,7 @@ class ActorAnalysis(vtkActorBase):
         self.connect = connect
         self.coord_def = coord_def
         self.colorTable = color_table
-        self.elements = self.project.getElements()
+        self.elements = self.project.get_elements()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()

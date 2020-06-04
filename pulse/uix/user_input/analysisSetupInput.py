@@ -26,9 +26,9 @@ class AnalysisSetupInput(QDialog):
         self.complete = False
         self.frequencies = []
 
-        self.min_frequency = f_min
-        self.max_frequency = f_max
-        self.step_frequency = f_step
+        self.f_min = f_min
+        self.f_max = f_max
+        self.f_step = f_step
 
         self.damping = [0,0,0,0]
         self.modes = 0
@@ -44,9 +44,9 @@ class AnalysisSetupInput(QDialog):
         self.lineEdit_ah = self.findChild(QLineEdit, 'lineEdit_ah')
         self.lineEdit_bh = self.findChild(QLineEdit, 'lineEdit_bh')
         
-        self.lineEdit_min = self.findChild(QLineEdit, 'lineEdit_min')
-        self.lineEdit_max = self.findChild(QLineEdit, 'lineEdit_max')
-        self.lineEdit_step = self.findChild(QLineEdit, 'lineEdit_step')
+        self.lineEdit_fmin = self.findChild(QLineEdit, 'lineEdit_min')
+        self.lineEdit_fmax = self.findChild(QLineEdit, 'lineEdit_max')
+        self.lineEdit_fstep = self.findChild(QLineEdit, 'lineEdit_step')
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check)
@@ -57,10 +57,10 @@ class AnalysisSetupInput(QDialog):
 
         self.label_title.setText(title)
         self.label_subtitle.setText(subtitle)
-        if self.step_frequency != 0:
-            self.lineEdit_min.setText(str(self.min_frequency))
-            self.lineEdit_max.setText(str(self.max_frequency))
-            self.lineEdit_step.setText(str(self.step_frequency))
+        if self.f_step != 0:
+            self.lineEdit_fmin.setText(str(self.f_min))
+            self.lineEdit_fmax.setText(str(self.f_max))
+            self.lineEdit_fstep.setText(str(self.f_step))
 
         self.exec_()
 
@@ -88,7 +88,7 @@ class AnalysisSetupInput(QDialog):
             return False
 
     def check(self):
-        _min = _max = _step = 0
+        input_fmin = input_fmax = input_fstep = 0
         if self.analysis_ID not in [2,4]:
             #Verify Modes
             if self.analysis_ID == 1:
@@ -96,42 +96,49 @@ class AnalysisSetupInput(QDialog):
                     self.error("Insert a value (modes)")
                     return
                 else:
-                    if self.isInteger(self.lineEdit_modes.text()):
+                    try:
                         self.modes = int(self.lineEdit_modes.text())
-                    else:
+                    except Exception:
                         self.error("Value error (modes)")
                         return
 
-            if self.lineEdit_min.text() == "":
+            if self.lineEdit_fmin.text() == "":
                 self.error("Insert a value (freq min)")
                 return
             else:
-                if float(self.lineEdit_min.text())>=0:
-                    _min = float(self.lineEdit_min.text())
-                else:
+                try:
+                    if float(self.lineEdit_fmin.text())>=0:
+                        input_fmin = float(self.lineEdit_fmin.text())
+                except Exception:
                     self.error("Value error (freq min)")
                     return
 
-            if self.lineEdit_max.text() == "":
+            if self.lineEdit_fmax.text() == "":
                 self.error("Insert a value (freq max)")
                 return
             else:
-                if float(self.lineEdit_max.text()) > float(self.lineEdit_min.text()) + float(self.lineEdit_step.text()):
-                    _max = float(self.lineEdit_max.text())
-                else:
+                try:
+                    if float(self.lineEdit_fmax.text()) > float(self.lineEdit_fmin.text()) + float(self.lineEdit_fstep.text()):
+                        input_fmax = float(self.lineEdit_fmax.text())
+                except Exception:
                     self.error("Value error (freq max)")
                     return
 
-            if self.lineEdit_step.text() == "":
+            if self.lineEdit_fstep.text() == "":
                 self.error("Insert a value (freq df)")
                 return
             else:
-                if float(self.lineEdit_step.text())<0 or float(self.lineEdit_step.text())>=float(self.lineEdit_max.text()):
-                    self.error("Value error (freq df)")
-                    return
-                else:
-                    _step = float(self.lineEdit_step.text())
-
+                try:
+                    input_fstep = float(self.lineEdit_fstep.text())
+                except Exception:
+                    try:
+                        if float(self.lineEdit_fstep.text())<0 or float(self.lineEdit_fstep.text())>=float(self.lineEdit_fmax.text()):
+                            self.error(" The value assigned to f_step must be\n greater than 0 and less than f_max! ")
+                            return
+                    except Exception:
+                        self.error("Value error (freq df)")
+                        return
+                
         av = bv = ah = bh = 0
         if self.lineEdit_av.text() != "":
             if self.isInteger(self.lineEdit_av.text()):
@@ -163,10 +170,10 @@ class AnalysisSetupInput(QDialog):
 
         self.damping = [ah, bh, av, bv]
 
-        self.min_frequency = _min
-        self.max_frequency = _max
-        self.step_frequency = _step
-        self.frequencies = np.arange(_min, _max+_step, _step)
+        self.f_min = input_fmin
+        self.f_max = input_fmax
+        self.f_step = input_fstep
+        self.frequencies = np.arange(input_fmin, input_fmax+input_fstep, input_fstep)
         
         self.complete = True
         self.close()

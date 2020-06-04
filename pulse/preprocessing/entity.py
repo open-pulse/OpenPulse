@@ -15,10 +15,10 @@ class Entity:
     def insertEdge(self, edge):
         self.elements.append(edge)
         
-    def getNodes(self):
+    def get_nodes(self):
         return self.nodes
 
-    def getElements(self):
+    def get_elements(self):
         return self.elements
 
     def getTag(self):

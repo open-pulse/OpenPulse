@@ -142,7 +142,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, geometryPath=new_geometry_path)
+            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, geometryPath=new_geometry_path)
             return True
         elif self.currentTab == 1:
             cord_file = self.line_import_cord.text().split('/')[-1]
@@ -153,7 +153,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_conn.text(), new_conn_path)
             element_size = 0
             import_type = 1
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, connPath=new_conn_path, cordPath=new_cord_path)
+            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, connPath=new_conn_path, cordPath=new_cord_path)
             return True
         return False
 

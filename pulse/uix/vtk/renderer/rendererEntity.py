@@ -20,7 +20,7 @@ class RendererEntity(vtkRendererBase):
             text = ""
             height, width = -1, -1
         elif len(listActorsIDs) == 1:
-            entity = self.project.getEntity(listActorsIDs[0])
+            entity = self.project.get_entity(listActorsIDs[0])
             material_name = "Undefined"
             diam_ext = "Undefined"
             thickness = "Undefined"
@@ -55,7 +55,7 @@ class RendererEntity(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        for entity in self.project.getEntities():
+        for entity in self.project.get_entities():
             plot = ActorLine(entity, self.plotRadius)
             plot.build()
             self.actors[plot.getActor()] = entity.getTag()

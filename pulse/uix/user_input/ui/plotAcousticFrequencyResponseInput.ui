@@ -10,11 +10,11 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>204</height>
+    <height>250</height>
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+   <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>204</height>
+    <height>250</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>204</height>
+    <height>250</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>401</width>
-     <height>241</height>
+     <height>265</height>
     </rect>
    </property>
    <property name="font">
@@ -108,7 +108,7 @@
       <x>0</x>
       <y>40</y>
       <width>401</width>
-      <height>165</height>
+      <height>209</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -167,15 +167,18 @@
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
-       <x>64</x>
-       <y>124</y>
+       <x>60</x>
+       <y>172</y>
        <width>281</width>
-       <height>23</height>
+       <height>27</height>
       </rect>
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
        <weight>75</weight>
+       <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -186,18 +189,28 @@
     <widget class="QWidget" name="verticalLayoutWidget_3">
      <property name="geometry">
       <rect>
-       <x>84</x>
-       <y>53</y>
-       <width>271</width>
-       <height>57</height>
+       <x>54</x>
+       <y>58</y>
+       <width>295</width>
+       <height>100</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QCheckBox" name="checkBox_mag">
+        <property name="maximumSize">
+         <size>
+          <width>270</width>
+          <height>20</height>
+         </size>
+        </property>
         <property name="font">
          <font>
+          <family>Arial</family>
           <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
          </font>
         </property>
         <property name="text">
@@ -216,13 +229,70 @@
       </item>
       <item>
        <widget class="QCheckBox" name="checkBox_real">
+        <property name="maximumSize">
+         <size>
+          <width>270</width>
+          <height>20</height>
+         </size>
+        </property>
         <property name="font">
          <font>
+          <family>Arial</family>
           <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
          </font>
         </property>
         <property name="text">
          <string>Plot the real part of acoustic pressure</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_imag">
+        <property name="maximumSize">
+         <size>
+          <width>290</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Plot the imaginary part of acoustic pressure</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_dB">
+        <property name="maximumSize">
+         <size>
+          <width>270</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>dB Y-axis scale</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>

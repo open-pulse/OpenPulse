@@ -6,6 +6,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.projectFile import ProjectFile
+from pulse.utils import error
 import numpy as np
 import configparser
 import os
@@ -24,17 +25,17 @@ class Project:
         self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = None
-        self.minFrequency = 0
-        self.maxFrequency = 0
-        self.stepFrequency = 0
+        self.f_min = 0
+        self.f_max = 0
+        self.f_step = 0
         self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
-        self.flag_setMaterial = False
-        self.flag_setCrossSection = False
+        self.flag_set_material = False
+        self.flag_set_crossSection = False
         self.plot_pressure_field = False
 
-    def resetInfo(self):
+    def reset_info(self):
         self.mesh = Mesh()
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -42,383 +43,395 @@ class Project:
         self.damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = None
-        self.minFrequency = 0
-        self.maxFrequency = 0
-        self.stepFrequency = 0
+        self.f_min = 0
+        self.f_max = 0
+        self.f_step = 0
         self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
-        self.flag_setMaterial = False
-        self.flag_setCrossSection = False
+        self.flag_set_material = False
+        self.flag_set_crossSection = False
         self.plot_pressure_field = False
 
-    def newProject(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
-        self.resetInfo()
+    def new_project(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
+        self.reset_info()
         self.file.new(projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath, cordPath, connPath)
+        self._projectName = projectName
 
         if self.file.getImportType() == 0:
             self.mesh.generate(self.file.geometryPath, self.file.elementSize)
         elif self.file.getImportType() == 1:
             self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
 
-        self.file.createEntityFile(self.getEntities())
+        self.file.createEntityFile(self.get_entities())
 
-    def loadProject(self, projectFilePath):
+    def load_project(self, projectFilePath):
 
-        self.resetInfo()
+        self.reset_info()
         self.file.load(projectFilePath)
+        self._projectName = self.file._projectName
 
         if self.file.getImportType() == 0:
             self.mesh.generate(self.file.geometryPath, self.file.elementSize)
         elif self.file.getImportType() == 1:
             self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
 
-        self.loadEntityFile()
-        self.loadStructuralBCFile()
-        self.loadAcousticBCFile()
-        self.loadAnalysisFile()
+        self.load_structural_bc_file()
+        self.load_acoustic_bc_file()
+        self.load_entity_file()
 
-    def loadEntityFile(self):
+        if self.file.tempPath is None:
+            self.load_analysis_file()
+        else:
+            self.load_frequencies_from_table()
+  
+
+    def load_entity_file(self):
         material, cross, fluid = self.file.getDictOfEntitiesFromFile()
         for key, mater in material.items():
-            self.loadMaterial_by_Entity(key, mater)
+            self.load_material_by_entity(key, mater)
         for key, crossSection in cross.items():
-            self.loadCrossSection_by_Entity(key, crossSection)
+            self.load_crossSection_by_entity(key, crossSection)
         for key, fld in fluid.items():
-            self.loadFluid_by_Entity(key, fld)
+            self.load_fluid_by_entity(key, fld)
 
-    def loadStructuralBCFile(self):
-        boundary, force, mass, spring, damper = self.file.getDictOfStructuralBCFromFile()
-        for key, bc in boundary.items():
+    def load_structural_bc_file(self):
+        prescribed_dofs, external_loads, mass, spring, damper = self.file.get_dict_of_structural_bc_from_file()
+        for key, bc in prescribed_dofs.items():
             if bc.count(None) != 6:
-                self.loadStructuralBondaryCondition_by_Node(key, bc)
-        for key, fr in force.items():
+                self.load_prescribed_dofs_bc_by_node(key, bc)
+        for key, fr in external_loads.items():
             if sum(fr) > 0:
-                self.loadForce_by_Node(key, fr)
+                self.load_structural_loads_by_node(key, fr)
         for key, ms in mass.items():
             if sum(ms) > 0:
-                self.loadMass_by_Node(key, ms)
+                self.load_mass_by_node(key, ms)
         for key, sp in spring.items():
             if sum(sp) > 0:
-                self.loadSpring_by_Node(key, sp)
+                self.load_spring_by_node(key, sp)
         for key, dm in damper.items():
             if sum(dm) > 0:
-                self.loadDamper_by_Node(key, dm)
+                self.load_damper_by_node(key, dm)
 
-    def loadAcousticBCFile(self):
+    def load_acoustic_bc_file(self):
         pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.getDictOfAcousticBCFromFile()
         for key, ActPres in pressure.items():
-            if ActPres != None:
-                self.loadAcousticPressureBC_by_Node(key, ActPres)
+            if ActPres is not None:
+                self.load_acoustic_pressure_bc_by_node(key, ActPres)
         for key, VelVol in volume_velocity.items():
             if VelVol != 0:
-                self.loadVolumeVelocityBC_by_Node(key, VelVol)
+                self.load_volume_velocity_bc_by_node(key, VelVol)
         for key, SpecImp in specific_impedance.items():
             if SpecImp != 0:
-                self.loadSpecificImpedanceBC_by_Node(key, SpecImp)
+                self.load_specific_impedance_bc_by_node(key, SpecImp)
         for key, RadImp in radiation_impedance.items():
             if RadImp != 0:
-                self.loadRadiationImpedanceBC_by_Node(key, RadImp)
+                self.load_radiation_impedance_bc_by_node(key, RadImp)
 
-    def loadAnalysisFile(self):
-        self.minFrequency, self.maxFrequency, self.stepFrequency = self.file.loadAnalysisFile()
+    def load_analysis_file(self):
+        self.f_min, self.f_max, self.f_step = self.file.load_analysis_file()
 
-    def setMaterial_by_Entity(self, entity_id, material):
+    def load_frequencies_from_table(self):
+        self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
+        self.frequencies = self.file.frequencies 
+
+    def set_material_by_entity(self, entity_id, material):
         if self.file.getImportType() == 0:
             self.mesh.set_material_by_line(entity_id, material)
         elif self.file.getImportType() == 1:
             self.mesh.set_material_by_element('all', material)
 
-        self._setEntityMaterial(entity_id, material)
+        self._set_entity_material(entity_id, material)
         self.file.addMaterialInFile(entity_id, material.identifier)
 
-    def setCrossSection_by_Entity(self, entity_id, cross_section):
+    def set_crossSection_by_entity(self, entity_id, cross_section):
         if self.file.getImportType() == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
         elif self.file.getImportType() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
-        self._setEntityCross(entity_id, cross_section)
+        self._set_entity_crossSection(entity_id, cross_section)
         self.file.addCrossSectionInFile(entity_id, cross_section)
 
-    def setMaterial(self, material):
+    def set_material(self, material):
         self.mesh.set_material_by_element('all', material)
-        self._setAllEntityMaterial(material)
+        self._set_all_entity_material(material)
         for entity in self.mesh.entities:
             self.file.addMaterialInFile(entity.getTag(), material.identifier)
 
-    def setCrossSection(self, cross_section):
+    def set_crossSection(self, cross_section):
         self.mesh.set_cross_section_by_element('all', cross_section)
-        self._setAllEntityCross(cross_section)
+        self._set_all_entity_crossSection(cross_section)
         for entity in self.mesh.entities:
             self.file.addCrossSectionInFile(entity.getTag(), cross_section)
 
-    def setStructuralBoundaryCondition_by_Node(self, node_id, bc):
+    def set_prescribed_dofs_bc_by_node(self, node_id, bc):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
         self.file.addBoundaryConditionInFile(node_id, bc)
 
-    def setForce_by_Node(self, node_id, force):
+    def set_force_by_node(self, node_id, force):
         self.mesh.set_load_bc_by_node(node_id, force)
         self.file.addForceInFile(node_id, force)
 
-    def setMass_by_Node(self, node_id, mass):
+    def set_mass_by_node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
         self.file.addMassInFile(node_id, mass)
 
-    def setSpring_by_Node(self, node_id, spring):
+    def set_spring_by_node(self, node_id, spring):
         self.mesh.add_spring_to_node(node_id, spring)
         self.file.addSpringInFile(node_id, spring)
 
-    def setDamper_by_Node(self, node_id, damper):
+    def set_damper_by_node(self, node_id, damper):
         self.mesh.add_damper_to_node(node_id, damper)
         self.file.addDamperInFile(node_id, damper)
 
-    def loadMaterial_by_Entity(self, entity_id, material):
+    def load_material_by_entity(self, entity_id, material):
         if self.file.getImportType() == 0:
             self.mesh.set_material_by_line(entity_id, material)
         elif self.file.getImportType() == 1:
             self.mesh.set_material_by_element('all', material)
 
-        self._setEntityMaterial(entity_id, material)
+        self._set_entity_material(entity_id, material)
 
-    def loadFluid_by_Entity(self, entity_id, fluid):
+    def load_fluid_by_entity(self, entity_id, fluid):
         if self.file.getImportType() == 0:
             self.mesh.set_fluid_by_line(entity_id, fluid)
         elif self.file.getImportType() == 1:
             self.mesh.set_fluid_by_element('all', fluid)
 
-        self._setEntityFluid(entity_id, fluid)
+        self._set_entity_fluid(entity_id, fluid)
 
-    def loadCrossSection_by_Entity(self, entity_id, cross_section):
+    def load_crossSection_by_entity(self, entity_id, cross_section):
         if self.file.getImportType() == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
         elif self.file.getImportType() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
-        self._setEntityCross(entity_id, cross_section)
+        self._set_entity_crossSection(entity_id, cross_section)
 
-    def loadForce_by_Node(self, node_id, force):
-        self.mesh.set_load_bc_by_node(node_id, force)
+    def load_structural_loads_by_node(self, node_id, load):
+        self.mesh.set_structural_load_bc_by_node(node_id, load)
 
-    def loadMass_by_Node(self, node_id, mass):
+    def load_mass_by_node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
 
-    def loadSpring_by_Node(self, node_id, spring):
+    def load_spring_by_node(self, node_id, spring):
         self.mesh.add_spring_to_node(node_id, spring)
 
-    def loadDamper_by_Node(self, node_id, damper):
+    def load_damper_by_node(self, node_id, damper):
         self.mesh.add_damper_to_node(node_id, damper)
 
-    def getNodesBC(self):
+    def get_nodes_bc(self):
         return self.mesh.structural_nodes_with_bc
 
-    def getElements(self):
+    def get_elements(self):
         return self.mesh.structural_elements
 
-    def setFrequencies(self, frequencies, min_, max_, step_):
+    def set_frequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
-            self.minFrequency, self.maxFrequency, self.stepFrequency = min_, max_, step_
+            self.f_min, self.f_max, self.f_step = min_, max_, step_
             self.file.addFrequencyInFile(min_, max_, step_)
         self.frequencies = frequencies
 
-    def loadStructuralBondaryCondition_by_Node(self, node_id, bc):
+    def load_prescribed_dofs_bc_by_node(self, node_id, bc):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
 
-    def _setEntityMaterial(self, entity_id, material):
+    def _set_entity_material(self, entity_id, material):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
                 entity.material = material
                 return
 
-    def _setEntityCross(self, entity_id, cross):
+    def _set_entity_crossSection(self, entity_id, cross):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
                 entity.crossSection = cross
                 return
 
-    def _setAllEntityMaterial(self, material):
+    def _set_all_entity_material(self, material):
         for entity in self.mesh.entities:
             entity.material = material
             
-    def _setAllEntityCross(self, cross):
+    def _set_all_entity_crossSection(self, cross):
         for entity in self.mesh.entities:
             entity.crossSection = cross
 
-    def getNode_with_StructuralBC(self):
+    def get_nodes_with_prescribed_dofs_bc(self):
         return self.mesh.structural_nodes_with_bc
 
-    def getStructuralElements(self):
+    def get_structural_elements(self):
         return self.mesh.structural_elements
 
-    def setFluid_by_Entity(self, entity_id, fluid):
+    def set_fluid_by_entity(self, entity_id, fluid):
         if self.file.getImportType() == 0:
             self.mesh.set_fluid_by_line(entity_id, fluid)
         elif self.file.getImportType() == 1:
             self.mesh.set_fluid_by_element('all', fluid)
 
-        self._setEntityFluid(entity_id, fluid)
+        self._set_entity_fluid(entity_id, fluid)
         self.file.addFluidInFile(entity_id, fluid.identifier)
 
-    def setFluid(self, fluid):
+    def set_fluid(self, fluid):
         self.mesh.set_fluid_by_element('all', fluid)
-        self._setAllEntityFluid(fluid)
+        self._set_all_entity_fluid(fluid)
         for entity in self.mesh.entities:
             self.file.addFluidInFile(entity.getTag(), fluid.identifier)
 
-    def setAcousticPressureBC_by_Node(self, node_id, acoustic_pressure):
-        self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)
-        self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
+    def set_acoustic_pressure_bc_by_node(self, node_id, acoustic_pressure):
+        self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)        
+        if isinstance(acoustic_pressure, np.ndarray):
+            self.file.addAcousticPressureBCInFile(node_id, self.file.tempPath)
+        else:
+            self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
     
-    def setVolumeVelocityBC_by_Node(self, node_id, volume_velocity):
+    def set_volume_velocity_bc_by_node(self, node_id, volume_velocity):
         self.mesh.set_volume_velocity_bc_by_node(node_id, volume_velocity)
         self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
 
-    def setSpecificImpedanceBC_by_Node(self, node_id, specific_impedance):
+    def set_specific_impedance_bc_by_node(self, node_id, specific_impedance):
         self.mesh.set_specific_impedance_bc_by_node(node_id, specific_impedance)
         self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
 
-    def setRadiationImpedanceBC_by_Node(self, node_id, radiation_impedance):
+    def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)
         self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
 
-    def getNodes_with_AcousticBC(self):
+    def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
 
-    def getAcousticElements(self):
+    def get_acoustic_elements(self):
         return self.mesh.acoustic_elements
 
-    def loadAcousticPressureBC_by_Node(self, node_id, bc):
+    def load_acoustic_pressure_bc_by_node(self, node_id, bc):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, bc)
 
-    def loadVolumeVelocityBC_by_Node(self, node_id, force):
+    def load_volume_velocity_bc_by_node(self, node_id, force):
         self.mesh.set_volume_velocity_bc_by_node(node_id, force)
 
-    def loadSpecificImpedanceBC_by_Node(self, node_id, force):
+    def load_specific_impedance_bc_by_node(self, node_id, force):
         self.mesh.set_specific_impedance_bc_by_node(node_id, force)
 
-    def loadRadiationImpedanceBC_by_Node(self, node_id, force):
+    def load_radiation_impedance_bc_by_node(self, node_id, force):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, force)
 
-    def _setEntityFluid(self, entity_id, fluid):
+    def _set_entity_fluid(self, entity_id, fluid):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
                 entity.fluid = fluid
                 return
 
-    def _setAllEntityFluid(self, fluid):
+    def _set_all_entity_fluid(self, fluid):
         for entity in self.mesh.entities:
             entity.fluid = fluid
 
-## END OF ACOUSTIC METHODS
-
-    def getMesh(self):
+    def get_mesh(self):
         return self.mesh
 
-    def getNodesColor(self):
+    def get_nodes_color(self):
         return self.mesh.nodes_color
 
-    def getNodes(self):
+    def get_nodes(self):
         return self.mesh.nodes
 
-    def getEntities(self):
+    def get_entities(self):
         return self.mesh.entities
 
-    def getNode(self, node_id):
+    def get_node(self, node_id):
         return self.mesh.nodes[node_id]
 
-    def getEntity(self, entity_id):
+    def get_entity(self, entity_id):
         for entity in self.mesh.entities:
             if entity.getTag() == entity_id:
                 return entity
 
-    def getElementSize(self):
+    def get_element_size(self):
         return self.file.elementSize
 
-    def checkEntityMaterial(self):
-        for entity in self.getEntities():
+    def check_entity_material(self):
+        for entity in self.get_entities():
             if entity.getMaterial() is None:
                 return False
         return True
 
-    def checkEntityCross(self):
-        for entity in self.getEntities():
+    def check_entity_crossSection(self):
+        for entity in self.get_entities():
             if entity.getCrossSection() is None:
                 return False
         return True
 
-    def setModes(self, modes):
+    def set_modes(self, modes):
         self.modes = modes
 
-    def getFrequencies(self):
+    def get_frequencies(self):
         return self.frequencies
 
-    def getMinMaxStepFrequency(self):
-        return self.minFrequency, self.maxFrequency, self.stepFrequency
+    def get_frequency_setup(self):
+        return self.f_min, self.f_max, self.f_step
 
-    def getModes(self):
+    def get_modes(self):
         return self.modes
 
-    def getMaterialListPath(self):
+    def get_material_list_path(self):
         return self.file.materialListPath
     
-    def getFluidListPath(self):
+    def get_fluid_list_path(self):
         return self.file._fluidListPath
 
-    def getProjectName(self):
+    def get_project_name(self):
         return self._projectName
 
-    def setAnalysisType(self, ID, analysis_text, method_text = ""):
+    def set_analysis_type(self, ID, analysis_text, method_text = ""):
         self.analysis_ID = ID
         self.analysis_type_label = analysis_text
         self.analysis_method_label = method_text
 
-    def getAnalysisID(self): 
+    def get_analysis_id(self): 
         return self.analysis_ID
 
-    def getAnalysisTypeLabel(self):
+    def get_analysis_type_label(self):
         return self.analysis_type_label
 
-    def getAnalysisMethodLabel(self):
+    def get_analysis_method_label(self):
         return self.analysis_method_label
 
-    def setDamping(self, value):
+    def set_damping(self, value):
         self.damping = value
 
-    def getDamping(self):
+    def get_damping(self):
         return self.damping
 
-    def getStructuralSolve(self):
+    def get_structural_solve(self):
         if self.analysis_ID in [5,6]:
             results = SolutionStructural(self.mesh, acoustic_solution=self.solution_acoustic)
         else:
             results = SolutionStructural(self.mesh)
         return results
 
-    def setStructuralSolution(self, value):
+    def set_structural_solution(self, value):
         self.solution_structural = value
 
-    def getStructuralSolution(self):
+    def get_structural_solution(self):
         return self.solution_structural
 
-    def getAcousticSolve(self):
+    def get_acoustic_solve(self):
         return SolutionAcoustic(self.mesh, self.frequencies)
 
-    def setAcousticSolution(self, value):
+    def set_acoustic_solution(self, value):
         self.solution_acoustic = value
     
-    def getAcousticSolution(self):
+    def get_acoustic_solution(self):
         return self.solution_acoustic
 
-    def setAcousticNaturalFrequencies(self, value):
+    def set_acoustic_natural_frequencies(self, value):
         self.natural_frequencies_acoustic = value
     
-    def setStructuralNaturalFrequencies(self, value):
+    def set_structural_natural_frequencies(self, value):
         self.natural_frequencies_structural  = value
 
-    def getStructuralNaturalFrequencies(self):
+    def get_structural_natural_frequencies(self):
         return self.natural_frequencies_structural
 
-    def getUnit(self):
+    def get_unit(self):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
             if analysis in [3,5,6] and self.plot_pressure_field:
@@ -426,9 +439,9 @@ class Project:
             else:
                 return "m"
 
-    def isFloat(self, number):
-        try:
-            float(number)
-            return True
-        except Exception:
-            return False   
+    # def isFloat(self, number):
+    #     try:
+    #         float(number)
+    #         return True
+    #     except Exception:
+    #         return False   
