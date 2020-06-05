@@ -1,7 +1,7 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 
-from pulse.preprocessing.element import Element
+# from pulse.preprocessing.element import Element
 
 class EdgesWidget(QTreeWidget):
     def __init__(self, edges):

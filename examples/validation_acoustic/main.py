@@ -22,25 +22,26 @@ density = 24.85
 hydrogen = Fluid('hydrogen', density, sound_velocity)
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
-cross_section = CrossSection(0.05, 0.008)
+cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
 # Mesh init
 mesh = Mesh()
 run = 2
-anechoic_termination = False
+anechoic_termination = True
 if run==1:
     mesh.generate('examples/iges_files/tube_2.iges', 0.01)
-    mesh.set_acoustic_pressure_bc_by_node([50], 1)
+    mesh.set_acoustic_pressure_BC_by_node([50], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_bc_by_node(1086, sound_velocity * density)
+        mesh.set_specific_impedance_BC_by_node(1086, sound_velocity * density)
 if run==2:
     mesh.load_mesh('examples/validation_acoustic/coord.dat', 'examples/validation_acoustic/connect.dat')
     # Acoustic boundary conditions - Prescribe pressure
-    mesh.set_acoustic_pressure_bc_by_node([1], 1)
+    mesh.set_acoustic_pressure_BC_by_node([1], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_bc_by_node(1047, sound_velocity*density)
+        mesh.set_specific_impedance_BC_by_node(1047, sound_velocity*density)
 
+mesh.set_element_type('pipe_1')
 mesh.set_fluid_by_element('all', hydrogen)
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
@@ -53,11 +54,8 @@ frequencies = np.arange(df, f_max+df, df)
 solution_acoustic = SolutionAcoustic(mesh, frequencies)
 
 direct = solution_acoustic.direct_method()
-
 #%% Acoustic validation
-p_ref = 20e-6
 
-dB = lambda p : 20 * np.log10(np.abs(p / p_ref))
 if run==1:
     p_out = get_acoustic_frf(mesh, direct, 1086)
     p_b1 = get_acoustic_frf(mesh, direct, 1136)
@@ -92,11 +90,13 @@ else:
     p_out_com_3d=np.loadtxt("examples/validation_acoustic/test_geom_2_out_equal_d.txt", comments='%')[:,1:]
  
 plt.rcParams.update({'font.size': 12})
+p_ref = 20e-6
 
+dB = lambda p : 20 * np.log10(np.abs(p / p_ref))
 #Axis plots and legends
 plt.subplot(2, 2, 1)
 plt.title(text_out)
-plt.plot(frequencies, dB(p_out))
+plt.plot(frequencies, p_out)
 plt.plot(f_com, dB(p_out_com_3d[:, 0] + 1j *p_out_com_3d[:, 1]),'-.')
 plt.legend(['FETM - OpenPulse','FEM 3D - Comsol'],loc='best')
 plt.xlabel('Frequency [Hz]')
@@ -106,7 +106,7 @@ plt.grid(True)
 
 plt.subplot(2, 2, 2)
 plt.title(text_b1)
-plt.plot(frequencies, dB(p_b1))
+plt.plot(frequencies, p_b1)
 plt.plot(f_com, dB(p_out_b1_com_3d[:, 0] + 1j *p_out_b1_com_3d[:, 1]),'-.')
 plt.legend(['FETM - OpenPulse','FEM 3D - Comsol'],loc='best')
 plt.xlabel('Frequency [Hz]')
@@ -116,7 +116,7 @@ plt.grid(True)
 
 plt.subplot(2, 2, 3)
 plt.title(text_b2)
-plt.plot(frequencies, dB(p_b2))
+plt.plot(frequencies, p_b2)
 plt.plot(f_com, dB(p_out_b2_com_3d[:, 0] + 1j *p_out_b2_com_3d[:, 1]),'-.')
 plt.legend(['FETM - OpenPulse','FEM 3D - Comsol'],loc='best')
 plt.xlabel('Frequency [Hz]')
@@ -126,7 +126,7 @@ plt.grid(True)
 
 plt.subplot(2, 2, 4)
 plt.title(text_b3)
-plt.plot(frequencies, dB(p_b3))
+plt.plot(frequencies, p_b3)
 plt.plot(f_com, dB(p_out_b3_com_3d[:, 0] + 1j *p_out_b3_com_3d[:, 1]),'-.')
 plt.legend(['FETM - OpenPulse','FEM 3D - Comsol',],loc='best')
 plt.xlabel('Frequency [Hz]')

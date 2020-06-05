@@ -170,7 +170,7 @@ class Project:
         self.file.addBoundaryConditionInFile(node_id, bc)
 
     def set_force_by_node(self, node_id, force):
-        self.mesh.set_load_bc_by_node(node_id, force)
+        self.mesh.set_structural_load_bc_by_node(node_id, force)
         self.file.addForceInFile(node_id, force)
 
     def set_mass_by_node(self, node_id, mass):

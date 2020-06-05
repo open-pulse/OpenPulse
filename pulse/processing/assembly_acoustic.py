@@ -4,7 +4,7 @@ from scipy.sparse import csr_matrix, csc_matrix
 from pulse.utils import timer, error
 
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.element_acoustic import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 class AssemblyAcoustic:
     def __init__(self, mesh):

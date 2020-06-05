@@ -18,7 +18,7 @@ mesh.load_mesh('coord.dat', 'connect.dat')
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
 mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6))
-mesh.set_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
+mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
 
 # SOLVING THE PROBLEM BY TWO AVALIABLE METHODS
 frequencies = np.arange(0, 202, 2)

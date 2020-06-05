@@ -460,26 +460,26 @@ class ProjectFile:
                 value = float(volume_velocity[0])
         return value
 
-    def addBoundaryConditionInFile(self, nodesID_list, boundaryCondition):
-        if boundaryCondition.count(None) == 6:
-            return
+    def addBoundaryConditionInFile(self, nodesID_list, dofs):
+        # if dofs.count(None) == 6:
+        #     return
         config = configparser.ConfigParser()
         config.read(self._nodeStructuralPath)
         for node_id in nodesID_list:
             if str(node_id) in config.sections():
-                config[str(node_id)]['displacement'] = "({},{},{})".format(boundaryCondition[0], boundaryCondition[1], boundaryCondition[2])
-                config[str(node_id)]['rotation'] = "({},{},{})".format(boundaryCondition[3], boundaryCondition[4], boundaryCondition[5])
+                config[str(node_id)]['displacement'] = "({},{},{})".format(dofs[0], dofs[1], dofs[2])
+                config[str(node_id)]['rotation'] = "({},{},{})".format(dofs[3], dofs[4], dofs[5])
             else:
                 config[str(node_id)] = {
-                    'displacement': "({},{},{})".format(boundaryCondition[0], boundaryCondition[1], boundaryCondition[2]),
-                    'rotation': "({},{},{})".format(boundaryCondition[3], boundaryCondition[4], boundaryCondition[5]),
+                    'displacement': "({},{},{})".format(dofs[0], dofs[1], dofs[2]),
+                    'rotation': "({},{},{})".format(dofs[3], dofs[4], dofs[5]),
                 }
         with open(self._nodeStructuralPath, 'w') as configfile:
             config.write(configfile)
 
     def addForceInFile(self, nodesID_list, force):
-        if sum(force) == 0:
-            return
+        # if sum(force) == 0:
+        #     return
         config = configparser.ConfigParser()
         config.read(self._nodeStructuralPath)
         for node_id in nodesID_list:

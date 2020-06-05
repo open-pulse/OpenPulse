@@ -8,7 +8,7 @@ DOF_PER_ELEMENT = DOF_PER_NODE * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 PI = pi
 
-class Element:
+class AcousticElement:
     def __init__(self, first_node, last_node, **kwargs):
         self.first_node = first_node
         self.last_node = last_node

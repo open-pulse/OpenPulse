@@ -28,12 +28,11 @@ class AcousticPressureInput(QDialog):
         self.nodes = nodes
         self.acoustic_pressure = None
         self.nodes_typed = []
+        self.remove_acoustic_pressure = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-
         self.lineEdit_acoustic_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
-
-        self.line_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
+        self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
         self.toolButton_load_table.clicked.connect(self.load_table)
@@ -49,11 +48,11 @@ class AcousticPressureInput(QDialog):
         
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
         self.name = basename(self.path)
-        self.line_load_table_path.setText(str(self.path))
+        self.lineEdit_load_table_path.setText(str(self.path))
         path = '{}\\{}'.format(self.projectPath, self.projectName)
-        load_table_file_name = self.line_load_table_path.text().split('/')[-1]
+        load_table_file_name = self.lineEdit_load_table_path.text().split('/')[-1]
         self.new_load_path_table = "{}\\{}".format(path, load_table_file_name)
-        copyfile(self.line_load_table_path.text(), self.new_load_path_table)
+        copyfile(self.lineEdit_load_table_path.text(), self.new_load_path_table)
         loaded_file = np.loadtxt(self.new_load_path_table, delimiter=",")
         self.acoustic_pressure = loaded_file[:,1] + 1j*loaded_file[:,2]
         if loaded_file.shape[1]>2:
@@ -114,9 +113,17 @@ class AcousticPressureInput(QDialog):
                     error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
                     return
             else:
-                error(("The pressure(s) assigned to the Node(s): {} has been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
-                return
+                Qclose = QMessageBox.question(
+                    self,
+                    "WARNING",
+                    ("Are you want to delete any Acoustic Pressure \nassigned to the Node {} ?").format(str(self.nodes_typed)[1:-1]),
+                    QMessageBox.Cancel | QMessageBox.Yes, QMessageBox.Yes)
+                if Qclose == QMessageBox.Yes:
+                    self.remove_acoustic_pressure = True 
+                else:
+                    self.remove_acoustic_pressure = False
+                    return          
+                # error(("The pressure(s) assigned to the Node(s): {} has been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
 
             self.acoustic_pressure = acoustic_pressure
-            
         self.close()

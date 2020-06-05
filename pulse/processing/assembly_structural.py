@@ -4,7 +4,7 @@ from scipy.sparse import csr_matrix
 
 from pulse.utils import timer
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
-from pulse.preprocessing.element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 
 class AssemblyStructural:

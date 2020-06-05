@@ -17,8 +17,9 @@ class DOFInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.nodes = nodes
-        self.dof = None
+        self.dof = [None, None, None, None, None, None]
         self.nodes_typed = []
+        self.remove_prescribed_dofs = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
@@ -127,7 +128,17 @@ class DOFInput(QDialog):
             dofs_inputs = [ux, uy, uz, rx, ry, rz]
                 
             if dofs_inputs.count(None) == 6:
-                error(("The values assigned to the DOFs of the Node(s) [{}] have been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
+                Qclose = QMessageBox.question(
+                    self,
+                    "WARNING",
+                    ("Are you want to delete any prescribed DOF \nassigned to the Node {} ?").format(str(self.nodes_typed)[1:-1]),
+                    QMessageBox.Cancel | QMessageBox.Yes, QMessageBox.Yes)
+                if Qclose == QMessageBox.Yes:
+                    self.remove_prescribed_dofs = True 
+                else:
+                    self.remove_prescribed_dofs = False
+                    return  
+                # error(("The values assigned to the DOFs of the Node(s) [{}] have been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
                 
             self.dof = dofs_inputs
             self.close()

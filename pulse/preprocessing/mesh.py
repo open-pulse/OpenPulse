@@ -6,9 +6,8 @@ import numpy as np
 
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
-from pulse.preprocessing.element import Element, NODES_PER_ELEMENT
-from pulse.preprocessing.element import Element as StructuralElement, NODES_PER_ELEMENT
-from pulse.preprocessing.element_acoustic import Element as AcousticElement, NODES_PER_ELEMENT
+from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
+from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
 
 class Mesh:
@@ -28,6 +27,7 @@ class Mesh:
         self.radius = {}
         self.nodal_coordinates_matrix = []
         self.radius = {}
+        self.element_type = "pipe_1"
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -259,16 +259,39 @@ class Mesh:
         for node in self.nodes.values():
             node.global_index = None
 
-    def set_cross_section_by_element(self, elements, cross_section):
-        for element in slicer(self.structural_elements, elements):
-            element.cross_section = cross_section
-        for element in slicer(self.acoustic_elements, elements):
-            element.cross_section = cross_section
+    def set_element_type(self, element_type):
+        self.element_type = element_type
+        for element in slicer(self.structural_elements, 'all'):
+            element.element_type = element_type
+    
+    select = 1
+    if select == 1:
+
+        def set_cross_section_by_element(self, elements, cross_section):
+            dict_cross_section = {}
+            for element in slicer(self.structural_elements, elements):
+                poisson_ratio =  element.material.poisson_ratio
+                if poisson_ratio in dict_cross_section:
+                    element.cross_section = dict_cross_section[poisson_ratio]
+                else:
+                    cross_section.update_properties(poisson_ratio = poisson_ratio, element_type = self.element_type)
+                    element.cross_section = cross_section
+                    dict_cross_section.update({poisson_ratio : cross_section})
+            for element in slicer(self.acoustic_elements, elements):
+                element.cross_section = dict_cross_section[element.material.poisson_ratio]
+
+    elif select == 2:
+
+        def set_cross_section_by_element(self, elements, cross_section):
+            for element in slicer(self.structural_elements, elements):
+                element.cross_section = cross_section
+            for element in slicer(self.acoustic_elements, elements):
+                element.cross_section = cross_section
 
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
-        
+            
     # Structural physical quantities
     def set_material_by_element(self, elements, material):       
         for element in slicer(self.structural_elements, elements):
@@ -400,4 +423,3 @@ class Mesh:
                 if node.volume_velocity != 0:
                     self.is_there_volume_velocity = True
                     return    
-        

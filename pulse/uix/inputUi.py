@@ -100,8 +100,9 @@ class InputUi:
         point_id = self.opv.getListPickedPoints()
         dof = DOFInput(self.project.mesh.nodes, point_id)
 
-        if dof.dof is None:
-            return
+        if dof.dof.count(None)==6:
+            if not dof.remove_prescribed_dofs:
+                return
 
         self.project.set_prescribed_dofs_bc_by_node(dof.nodes_typed, dof.dof)
         print("[Set Prescribed DOF] - defined in the point(s) {}".format(dof.nodes_typed))
@@ -112,7 +113,8 @@ class InputUi:
         read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project._projectName)
         
         if read.acoustic_pressure is None:
-            return
+            if not read.remove_acoustic_pressure:
+                return
         
         if read.new_load_path_table is not None:
             self.project.file.tempPath = read.new_load_path_table
