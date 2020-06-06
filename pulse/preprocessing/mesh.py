@@ -3,6 +3,7 @@ from random import choice
 
 import gmsh 
 import numpy as np
+from time import time
 
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -27,7 +28,7 @@ class Mesh:
         self.radius = {}
         self.nodal_coordinates_matrix = []
         self.radius = {}
-        self.element_type = "pipe_1"
+        self.element_type = "pipe_1" # defined as default
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -200,9 +201,9 @@ class Mesh:
         self.get_connectivity_matrix()
 
     def get_nodal_coordinates_matrix(self, reordering=True):
-    # Returns the coordinates matrix for all nodes
-    # output -> [index(internal), coord_x, coord_y, coord_z] if reordering=True
-    # output -> [index(external), coord_x, coord_y, coord_z] if reordering=False
+    # Process the coordinates matrix for all nodes
+    # if reordering=True  -> [index(internal), coord_x, coord_y, coord_z] 
+    # if reordering=False -> [index(external), coord_x, coord_y, coord_z] 
         number_nodes = len(self.nodes)
         nodal_coordinates = np.zeros((number_nodes, 4))
         if reordering:
@@ -217,9 +218,9 @@ class Mesh:
         return
 
     def get_connectivity_matrix(self, reordering=True):
-        # Returns the connectivity matrix for all elements
-        # output -> [index, first_node(internal), last_node(internal)] if reordering=True
-        # output -> [index, first_node(external), last_node(external)] if reordering=False 
+        # process the connectivity matrix for all elements
+        # if reordering=True  -> [index, first_node(internal), last_node(internal)] 
+        # if reordering=False -> [index, first_node(external), last_node(external)]  
         number_elements = len(self.structural_elements)
         connectivity = np.zeros((number_elements, NODES_PER_ELEMENT+1))
         if reordering:
@@ -266,8 +267,9 @@ class Mesh:
     
     select = 1
     if select == 1:
-
+        
         def set_cross_section_by_element(self, elements, cross_section):
+            t0 = time()
             dict_cross_section = {}
             for element in slicer(self.structural_elements, elements):
                 poisson_ratio =  element.material.poisson_ratio
@@ -279,14 +281,19 @@ class Mesh:
                     dict_cross_section.update({poisson_ratio : cross_section})
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = dict_cross_section[element.material.poisson_ratio]
+            dt = time() - t0
+            print("Total time: {}s".format(dt))
 
     elif select == 2:
 
         def set_cross_section_by_element(self, elements, cross_section):
+            t0 = time()
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
+            dt = time() - t0
+            print("Total time: {}s".format(dt))
 
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):

@@ -22,20 +22,22 @@ t0 = time()
 # PREPARING MESH
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 offset = [0.005, 0.005]
-cross_section = CrossSection(0.05, 0.008, offset_y = offset[0], offset_z = offset[1])
+cross_section = CrossSection(0.05, 0.008, offset_y = offset[0], offset_z = offset[1], division_number=64)
 mesh = Mesh()
 
-run = 2
-if run==1:
+load_file = 2
+if load_file==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
     mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
-if run==2:
+if load_file==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
     mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6))
 
 mesh.set_element_type('pipe_1')
 mesh.set_material_by_element('all', steel)
 mesh.set_cross_section_by_element('all', cross_section)
+dt = time()-t0
+print('Total elapsed time:', dt,'[s]')
 
 mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
 
@@ -46,10 +48,8 @@ frequencies = np.arange(0, f_max+df, df)
 modes = 200
 direct = solution.direct_method(frequencies, is_viscous_lumped=True)
 modal = solution.mode_superposition(frequencies, modes, fastest=True)
-tf = time()
-print('Total elapsed time:', (tf-t0),'[s]')
 
-run=2
+run=3
 
 if run==1:
     # nodal respose (node, dof_corrected)
@@ -95,3 +95,5 @@ ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m]"), fontsize = 16, fontweight = 'bold')
 plt.legend(['Direct - OpenPulse','Mode Superposition - OpenPulse', 'Direct - Ansys'], loc="best")
 plt.show()
+
+# %%
