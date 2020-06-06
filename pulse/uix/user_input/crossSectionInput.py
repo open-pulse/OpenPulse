@@ -95,6 +95,18 @@ class CrossSectionInput(QDialog):
             except Exception:
                 error("Wrong input for THICKENSS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
+
+            try:
+                offset_y = float(self.lineEdit_offset_y.text())
+            except Exception:
+                error("Wrong input for OFFSET Y!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
+            
+            try:
+                offset_z = float(self.lineEdit_offset_z.text())
+            except Exception:
+                error("Wrong input for OFFSET Z!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
         
             if outerDiameter<thickness:
                 error("The OUTER DIAMETER must be greater than THICKNESS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
@@ -103,9 +115,16 @@ class CrossSectionInput(QDialog):
             elif thickness == 0.0:
                 error("The THICKNESS must be greater than zero!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
-
-            self.section = CrossSection(outerDiameter, thickness)
+            
+            elif abs(offset_y) > (outerDiameter/2):
+                error("The OFFSET_Y must be less than external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
+            
+            elif abs(offset_z) > (outerDiameter/2):
+                error("The OFFSET_Y must be less than external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                return
+                      
+            self.section = CrossSection(outerDiameter, thickness, offset_y=offset_y, offset_z=offset_z)
             self.close()
-
         else:
             pass

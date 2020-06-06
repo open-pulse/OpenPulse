@@ -274,7 +274,7 @@ class MainWindow(QMainWindow):
         working_area.setSizes([100,300])
 
     def new_call(self):
-        if self.inputWidget.newProject():
+        if self.inputWidget.new_project():
             self.reset_info()
             self._change_window_title(self.project.get_project_name())
             self.draw()

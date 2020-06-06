@@ -82,7 +82,7 @@ if select == 1:
         def __init__(self, external_diameter, thickness, offset_y = 0, offset_z = 0, division_number = 64):
             self.external_diameter = external_diameter
             self.thickness = thickness
-            self.offset = np.array([offset_y, offset_z])
+            self.offset = [offset_y, offset_z]
             self.offset_virtual = None
             self.division_number = division_number
 

@@ -25,8 +25,8 @@ class ProjectFile:
         self.tempPath = None
 
         self._entityFileName = "entity.dat"
-        self._nodeStructuralFileName = "node_structural_BC.dat"
-        self._nodeAcousticFileName = "node_acoustic_BC.dat"
+        self._nodeStructuralFileName = "structural_boundary_conditions_info.dat"
+        self._nodeAcousticFileName = "acoustic_boundary_conditions_info.dat"
         self._projectBaseName = "project.ini"
 
     def _reset(self):
@@ -144,10 +144,11 @@ class ProjectFile:
         config = configparser.ConfigParser()
         for entity in entities:
             config[str(entity.getTag())] = {
-                'MaterialID': '',
+                'Material ID': '',
                 'Outer Diameter': '',
                 'Thickness': '',
-                'Fluid_ID': ''
+                'Offset [e_y, e_z]': '',
+                'Fluid ID': ''
             }
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
@@ -167,9 +168,9 @@ class ProjectFile:
         dict_fluid = {}
 
         for entity in entityFile.sections():
-            material_id = entityFile[entity]['MaterialID']
-            diam_ext = entityFile[entity]['outer diameter']
-            thickness = entityFile[entity]['thickness']
+            material_id = entityFile[entity]['Material ID']
+            diam_ext = entityFile[entity]['Outer Diameter']
+            thickness = entityFile[entity]['Thickness']
             if material_id.isnumeric():
                 material_id = int(material_id)
                 for material in material_list.sections():
@@ -190,7 +191,7 @@ class ProjectFile:
                 cross = CrossSection(diam_ext, thickness)
                 dict_cross[int(entity)] = cross
 
-            fluid_id = entityFile[entity]['Fluid_ID']
+            fluid_id = entityFile[entity]['Fluid ID']
 
             if fluid_id.isnumeric():
                 fluid_id = int(fluid_id)
@@ -210,22 +211,23 @@ class ProjectFile:
     def addCrossSectionInFile(self, entity_id, cross_section):
         config = configparser.ConfigParser()
         config.read(self._entityPath)
-        config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
-        config[str(entity_id)]['thickness'] = str(cross_section.thickness)
+        config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
+        config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
+        config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
     def addMaterialInFile(self, entity_id, material_id):
         config = configparser.ConfigParser()
         config.read(self._entityPath)
-        config[str(entity_id)]['MaterialID'] = str(material_id)
+        config[str(entity_id)]['Material ID'] = str(material_id)
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
     def addFluidInFile(self, entity_id, fluid_id):
         config = configparser.ConfigParser()
         config.read(self._entityPath)
-        config[str(entity_id)]['Fluid_ID'] = str(fluid_id)
+        config[str(entity_id)]['Fluid ID'] = str(fluid_id)
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
