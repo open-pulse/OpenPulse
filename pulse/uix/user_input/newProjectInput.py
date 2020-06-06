@@ -142,7 +142,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, geometryPath=new_geometry_path)
+            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, geometryPath=new_geometry_path)
             return True
         elif self.currentTab == 1:
             cord_file = self.line_import_cord.text().split('/')[-1]
@@ -153,7 +153,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_conn.text(), new_conn_path)
             element_size = 0
             import_type = 1
-            self.project.newProject(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, connPath=new_conn_path, cordPath=new_cord_path)
+            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.materialListPath, self.fluidListPath, connPath=new_conn_path, cordPath=new_cord_path)
             return True
         return False
 
@@ -195,7 +195,7 @@ class NewProjectInput(QDialog):
             'Name': 'steel',
             'Identifier': 1,
             'Density': 7860,
-            'YoungModulus': 210,
+            'Young Modulus': 210,
             'Poisson': 0.3,
             'Color': '[0,0,255]' #Blue
         }
@@ -204,7 +204,7 @@ class NewProjectInput(QDialog):
             'Name': 'stainless_steel',
             'Identifier': 2,
             'Density': 7750,
-            'YoungModulus': 193,
+            'Young Modulus': 193,
             'Poisson': 0.31,
             'Color': '[255,255,0]' #Yelow
         }
@@ -213,7 +213,7 @@ class NewProjectInput(QDialog):
             'Name': 'Ni-Co-Cr_steel',
             'Identifier': 3,
             'Density': 8220,
-            'YoungModulus': 212,
+            'Young Modulus': 212,
             'Poisson': 0.315,
             'Color': '[0,255,255]' #Cyan
         }
@@ -227,7 +227,7 @@ class NewProjectInput(QDialog):
         config['AIR'] = {
             'Name': 'air',
             'Identifier': 1,
-            'Fluid Density': 1.2041,
+            'Fluid density': 1.2041,
             'Sound velocity': 343.21,
             'Impedance': 413.25,
             'Color': '[0,0,255]' #Blue
@@ -236,7 +236,7 @@ class NewProjectInput(QDialog):
         config['HYDROGEN'] = {
             'Name': 'hydrogen',
             'Identifier': 2,
-            'Fluid Density': 0.087,
+            'Fluid density': 0.087,
             'Sound velocity': 1321.1,
             'Impedance': 114.93,
             'Color': '[255,0,255]' #Magenta
@@ -245,7 +245,7 @@ class NewProjectInput(QDialog):
         config['METHANE'] = {
             'Name': 'methane',
             'Identifier': 3,
-            'Fluid Density': 0.657,
+            'Fluid density': 0.657,
             'Sound velocity': 446,
             'Impedance': 293.02,
             'Color': '[0,255,255]' #Cyan

@@ -144,9 +144,9 @@ class AssemblyStructural:
                 
         # nodal loads
         for node in self.mesh.nodes.values():
-            if np.sum(node.forces) != 0:
+            if np.sum(node.loads) != 0:
                 position = node.global_dof
-                loads[position] += node.forces
+                loads[position] += node.loads
             
         unprescribed_indexes = self.get_unprescribed_indexes()
         loads = loads[unprescribed_indexes]

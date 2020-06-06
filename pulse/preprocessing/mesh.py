@@ -27,13 +27,6 @@ class Mesh:
         self.connectivity_matrix = []
         self.radius = {}
         self.nodal_coordinates_matrix = []
-        self.flag_setMaterial = False
-        self.flag_setCrossSection = False
-        self.flag_setFluid = False
-        self.sum_loads = 0
-        self.sum_prescribedDOFs = 0
-        self.sum_acousticPressures = 0
-        self.sum_volumeVelocity = 0
         self.radius = {}
 
     def generate(self, path, element_size):
@@ -290,12 +283,10 @@ class Mesh:
     def set_force_by_element(self, elements, loads):
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
-            self.sum_loads += sum([i for i in loads if i is not None])
     
-    def set_load_bc_by_node(self, nodes, loads):
+    def set_structural_load_bc_by_node(self, nodes, loads):
         for node in slicer(self.nodes, nodes):
-            node.forces = loads
-            self.sum_loads += sum([i for i in loads if i is not None])
+            node.loads = loads
 
     def add_mass_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -312,7 +303,7 @@ class Mesh:
     def set_prescribed_dofs_bc_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs_bc = boundary_condition
-            self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])
+            # self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])
             self.structural_nodes_with_bc.append(node)
 
     # Acoustic physical quantities
@@ -327,7 +318,7 @@ class Mesh:
     def set_volume_velocity_bc_by_node(self, nodes, volume_velocity):
         for node in slicer(self.nodes, nodes):
             node.volume_velocity = volume_velocity
-            self.sum_volumeVelocity += volume_velocity
+            # self.sum_volumeVelocity += volume_velocity
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -345,7 +336,11 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = acoustic_pressure
             self.AcousticBCnodes.append(node)
-            self.sum_acousticPressures += acoustic_pressure
+    
+    def load_acoustic_pressure_table(self, path, nodes):
+        load = np.loadtxt(path, delimiter=",")
+        acoustic_pressure = load[:,1] + 1j*load[:,2]
+        self.set_acoustic_pressure_bc_by_node(nodes, acoustic_pressure)
     
     def get_radius(self):
         for element in self.structural_elements.values():
@@ -357,25 +352,52 @@ class Mesh:
         return self.radius
 
     def check_material_and_cross_section_in_all_elements(self):
-        self.flag_setMaterial = False
-        self.flag_setCrossSection = False
+        self.check_set_material = False
+        self.check_set_crossSection = False
         for element in self.structural_elements.values():
             if element.material is None:
-                self.flag_setMaterial = True
+                self.check_set_material = True
                 return
             if element.cross_section is None:
-                self.flag_setCrossSection = True
+                self.check_set_crossSection = True
                 return
         return
 
     def check_fluid_and_cross_section_in_all_elements(self):
-        self.flag_setFluid = False
-        self.flag_setCrossSection = False
+        self.check_set_fluid = False
+        self.check_set_crossSection = False
         for element in self.acoustic_elements.values():
             if element.fluid is None:
-                self.flag_setFluid = True
+                self.check_set_fluid = True
                 return
             if element.cross_section is None:
-                self.flag_setCrossSection = True
+                self.check_set_crossSection = True
                 return
         return
+    
+    def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
+        self.is_there_loads = False
+        self.is_there_prescribed_dofs = False
+        self.is_there_acoustic_pressure = False
+        self.is_there_volume_velocity = False
+        for node in self.nodes.values():
+
+            if structural:
+                if sum(node.loads) != 0:
+                    self.is_there_loads = True
+                    return
+
+                if node.prescribed_dofs_bc.count(None) != 6:
+                    if sum([i for i in node.prescribed_dofs_bc if i is not None]) != 0:
+                        self.is_there_prescribed_dofs = True
+                        return
+
+            if acoustic or coupled:
+                if node.acoustic_pressure is not None:
+                    self.is_there_acoustic_pressure = True
+                    return
+
+                if node.volume_velocity != 0:
+                    self.is_there_volume_velocity = True
+                    return    
+        

@@ -81,10 +81,13 @@
       <string>The Entity</string>
      </property>
      <property name="checked">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
     <widget class="QRadioButton" name="radioButton_all">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>220</x>
@@ -103,6 +106,9 @@
      </property>
      <property name="text">
       <string>All</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
      </property>
     </widget>
     <widget class="QLabel" name="label">
@@ -196,19 +202,17 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="currentIndex">
+      <number>0</number>
+     </property>
      <item>
       <property name="text">
-       <string>Pipe 288a</string>
+       <string>Pipe 1</string>
       </property>
      </item>
      <item>
       <property name="text">
-       <string>Pipe 288b</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Pipe 288c</string>
+       <string>Pipe 2</string>
       </property>
      </item>
      <item>

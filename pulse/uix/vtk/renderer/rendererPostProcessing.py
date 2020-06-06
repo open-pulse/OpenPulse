@@ -29,15 +29,15 @@ class RendererPostProcessing(vtkRendererBase):
     def plot(self, acoustic=False):
         self.reset()
         if acoustic:
-            _, connect, coord, r_def = get_acoustic_response(self.project.getMesh(), self.project.getAcousticSolution(), self.frequencyIndice)
+            _, connect, coord, r_def = get_acoustic_response(self.project.get_mesh(), self.project.get_acoustic_solution(), self.frequencyIndice)
         else:
-            connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.getMesh(), self.project.getStructuralSolution(), self.frequencyIndice, gain=self.sliderFactor)            
+            connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.get_mesh(), self.project.get_structural_solution(), self.frequencyIndice, gain=self.sliderFactor)            
 
         # self.valueFactor
         colorTable = ColorTable(self.project, r_def)
         self.createColorBarActor(colorTable)
 
-        # for entity in self.project.getEntities():
+        # for entity in self.project.get_entities():
         #     plot = ActorAnalysis(self.project, entity, connect, coord, colorTable)
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
@@ -46,7 +46,7 @@ class RendererPostProcessing(vtkRendererBase):
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
-        for node in self.project.getNodesBC():
+        for node in self.project.get_nodes_bc():
             if sum([value for value in node.prescribed_dofs_bc  if value != None])==0:
                 point = ActorPoint(node)
             else:
@@ -60,21 +60,25 @@ class RendererPostProcessing(vtkRendererBase):
         self.createScaleActor()
 
     def updateInfoText(self):
-        mode = self.project.getModes()
-        frequencies = self.project.getFrequencies()
+        mode = self.project.get_modes()
+        frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
         else:
-            frequencies = self.project.getStructuralNaturalFrequencies()
+            frequencies = self.project.get_structural_natural_frequencies()
             text += "Mode: {}\n".format(mode)
         text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
-        text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
-        self.createInfoText(text, width=20, height=840)
+        if not self.project.plot_pressure_field:
+            text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
+            height = 840
+        else:
+            height = 880
+        self.createInfoText(text, width=20, height=height)
 
     def updateUnitText(self):
         self._renderer.RemoveActor2D(self.textActorUnit)
-        unit = self.project.getUnit()
+        unit = self.project.get_unit()
         text = "Unit: [{}]".format(unit)
         self.textActorUnit.SetInput(text)
         textProperty = vtk.vtkTextProperty()

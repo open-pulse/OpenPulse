@@ -18,7 +18,7 @@ class RendererPoint(vtkRendererBase):
             text = ""
             height, width = -1, -1
         elif len(listActorsIDs) == 1:
-            node = self.project.getNode(int(listActorsIDs[0]))
+            node = self.project.get_node(int(listActorsIDs[0]))
             text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listActorsIDs[0], node.x, node.y, node.z, node.getStructuralBondaryCondition()[0], node.getStructuralBondaryCondition()[1], node.getStructuralBondaryCondition()[2], node.getStructuralBondaryCondition()[3], node.getStructuralBondaryCondition()[4], node.getStructuralBondaryCondition()[5])
             height, width  = 880, 20
         else:
@@ -40,14 +40,14 @@ class RendererPoint(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        for entity in self.project.getEntities():
+        for entity in self.project.get_entities():
             plot = ActorLine(entity)
             plot.setRadius(0.001)
             plot.build()
             self._renderer.AddActor(plot.getActor())
             self.actors[plot.getActor()] = -1
 
-        for key, node in self.project.getNodes().items():
+        for key, node in self.project.get_nodes().items():
             plot = ActorPoint(node, key)
             plot.build()
             self.actors[plot.getActor()] = key
@@ -86,7 +86,7 @@ class RendererPoint(vtkRendererBase):
         nodeF = []
         nodeND = []
         for node_id in points_id:
-            node = self.project.getNode(node_id)
+            node = self.project.get_node(node_id)
             if node.haveBoundaryCondition() and node.haveForce():
                 nodeAll.append(node_id)
             elif node.haveBoundaryCondition():

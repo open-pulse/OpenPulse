@@ -30,29 +30,42 @@ class SolutionAcoustic:
 
         full_solution = np.zeros((rows, cols), dtype=complex)
         full_solution[unprescribed_indexes, :] = solution
-        full_solution[self.prescribed_indexes, :] = np.ones(cols)*np.array(self.prescribed_values).reshape(-1, 1)
 
+        for index, values in enumerate(self.prescribed_values):
+            if isinstance(values, float): #change to complex as soon as possible
+                full_solution[self.prescribed_indexes[index], :] = np.ones(cols)*np.array(values).reshape(-1, 1)       
+            elif isinstance(values, np.ndarray):
+                full_solution[self.prescribed_indexes[index], :] = np.array(values).reshape(1, -1)
+            else:
+                print("Table loaded has invalid data type!")
+                return
+        
         return full_solution
 
     def get_combined_volume_velocity(self):
 
         volume_velocity = self.assembly.get_global_volume_velocity(self.frequencies)
-        
-        unprescribed_indexes = self.assembly.get_unprescribed_indexes()
-        prescribed_values = self.assembly.get_prescribed_values()
-        
-        Kr = [(sparse.toarray())[unprescribed_indexes, :] for sparse in self.Kr]
+                
+        Kr = [(sparse.toarray())[self.unprescribed_indexes, :] for sparse in self.Kr]
 
-        Kr_lump = [(sparse.toarray())[unprescribed_indexes, :] for sparse in self.Kr_lump]
+        Kr_lump = [(sparse.toarray())[self.unprescribed_indexes, :] for sparse in self.Kr_lump]
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
-
-        for i in range(len(self.frequencies)):
-
-            volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * prescribed_values, axis=1)
-
+        
+        for values in self.prescribed_values:
+            if isinstance(values, float): #change to complex as soon as possible
+                for i in range(len(self.frequencies)):
+                    volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * values, axis=1)    
+            elif isinstance(values, np.ndarray):
+                array_values = np.array(values).copy()
+                for i in range(len(self.frequencies)):
+                    volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * array_values[i], axis=1)
+            else:
+                print("Table loaded has invalid data type!")
+                return
+        
         volume_velocity_combined = volume_velocity.T - volume_velocity_eq
         
         return volume_velocity_combined

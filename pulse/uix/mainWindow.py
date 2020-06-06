@@ -95,15 +95,15 @@ class MainWindow(QMainWindow):
         self.elements_action.triggered.connect(self.plot_elements)
 
         #Structural Model Setup
-        self.setMaterial_action = QAction('&Set Material', self)        
-        self.setMaterial_action.setShortcut('Alt+1')
-        self.setMaterial_action.setStatusTip('Set Material')
-        self.setMaterial_action.triggered.connect(self.getInputWidget().setMaterial)
+        self.set_material_action = QAction('&Set Material', self)        
+        self.set_material_action.setShortcut('Alt+1')
+        self.set_material_action.setStatusTip('Set Material')
+        self.set_material_action.triggered.connect(self.getInputWidget().set_material)
 
-        self.setCrossSection_action = QAction('&Set Cross-Section', self)        
-        self.setCrossSection_action.setShortcut('Alt+2')
-        self.setCrossSection_action.setStatusTip('Set Cross-Section')
-        self.setCrossSection_action.triggered.connect(self.getInputWidget().setCrossSection)
+        self.set_crossSection_action = QAction('&Set Cross-Section', self)        
+        self.set_crossSection_action.setShortcut('Alt+2')
+        self.set_crossSection_action.setStatusTip('Set Cross-Section')
+        self.set_crossSection_action.triggered.connect(self.getInputWidget().set_crossSection)
 
         self.setElementType_action = QAction('&Set Element Type', self)        
         self.setElementType_action.setShortcut('Alt+3')
@@ -126,10 +126,10 @@ class MainWindow(QMainWindow):
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
         #Acoustic Model Setup
-        self.setFluid_action = QAction('&Set Fluid', self)        
-        self.setFluid_action.setShortcut('Ctrl+Alt+1')
-        self.setFluid_action.setStatusTip('Set Fluid')
-        self.setFluid_action.triggered.connect(self.getInputWidget().setFluid)
+        self.set_fluid_action = QAction('&Set Fluid', self)        
+        self.set_fluid_action.setShortcut('Ctrl+Alt+1')
+        self.set_fluid_action.setStatusTip('Set Fluid')
+        self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
         self.setAcousticPressure_action.setShortcut('Ctrl+Alt+2')
@@ -223,14 +223,14 @@ class MainWindow(QMainWindow):
         graphicMenu.addAction(self.points_action)
         graphicMenu.addAction(self.elements_action)
 
-        modelSetup.addAction(self.setMaterial_action)
-        modelSetup.addAction(self.setCrossSection_action)
+        modelSetup.addAction(self.set_material_action)
+        modelSetup.addAction(self.set_crossSection_action)
         modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.setDOF_action)
         modelSetup.addAction(self.setForce_action)
         modelSetup.addAction(self.setMass_action)
 
-        modelSetup.addAction(self.setFluid_action)
+        modelSetup.addAction(self.set_fluid_action)
         modelSetup.addAction(self.setAcousticPressure_action)
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
@@ -275,8 +275,8 @@ class MainWindow(QMainWindow):
 
     def new_call(self):
         if self.inputWidget.newProject():
-            self.resetInfo()
-            self._change_window_title(self.project.getProjectName())
+            self.reset_info()
+            self._change_window_title(self.project.get_project_name())
             self.draw()
 
     def import_call(self):
@@ -286,9 +286,9 @@ class MainWindow(QMainWindow):
             projectPath = ""
         path, _type = QFileDialog.getOpenFileName(None, 'Open file', projectPath, 'OpenPulse Project (*.ini)')
         if path != "":
-            self.resetInfo()
-            self.project.loadProject(path)
-            self._change_window_title(self.project.getProjectName())
+            self.reset_info()
+            self.project.load_project(path)
+            self._change_window_title(self.project.get_project_name())
             self.draw()
 
     def savePNG_call(self):
@@ -300,9 +300,9 @@ class MainWindow(QMainWindow):
         if path != "":
             self.getOPVWidget().savePNG(path)
 
-    def resetInfo(self):
+    def reset_info(self):
         return
-        self.opv_widget.resetInfo()
+        self.opv_widget.reset_info()
 
     def plot_entities(self):
         self.opv_widget.plotEntities()

@@ -22,6 +22,8 @@ class ProjectFile:
         self._entityPath = ""
         self._analysisPath = ""
 
+        self.tempPath = None
+
         self._entityFileName = "entity.dat"
         self._nodeStructuralFileName = "node_structural_BC.dat"
         self._nodeAcousticFileName = "node_acoustic_BC.dat"
@@ -83,7 +85,7 @@ class ProjectFile:
         self._nodeAcousticPath = "{}\\{}".format(self._projectPath, self._nodeAcousticFileName)
 
     #Frequency Setup Analysis
-    def loadAnalysisFile(self):
+    def load_analysis_file(self):
         min_ = 0
         max_ = 0
         step_ = 0
@@ -175,7 +177,7 @@ class ProjectFile:
                         name = str(material_list[material]['name'])
                         identifier = str(material_list[material]['identifier'])
                         density =  str(material_list[material]['density'])
-                        youngmodulus =  str(material_list[material]['youngmodulus'])
+                        youngmodulus =  str(material_list[material]['young modulus'])
                         poisson =  str(material_list[material]['poisson'])
                         color =  str(material_list[material]['color'])
                         youngmodulus = float(youngmodulus)*(10**(9))
@@ -229,7 +231,7 @@ class ProjectFile:
 
     #Nodes File
 
-    def getDictOfStructuralBCFromFile(self):
+    def get_dict_of_structural_bc_from_file(self):
         node_structural_list = configparser.ConfigParser()
         node_structural_list.read(self._nodeStructuralPath)
 
@@ -246,7 +248,7 @@ class ProjectFile:
                 #Have boundary condition
                 displacement = node_structural_list[str(node)]['displacement']
                 rotation = node_structural_list[str(node)]['rotation']
-                bc = self._getBoundaryFromString(displacement, rotation)
+                bc = self._get_prescribed_dofs_bc_from_string(displacement, rotation)
                 dict_boundary[node_id] = bc
             if "force" in keys:
                 #Have forces
@@ -387,7 +389,7 @@ class ProjectFile:
         dm = [cx, cy, cz, crx, cry, crz]
         return dm
 
-    def _getBoundaryFromString(self, displacement, rotation):
+    def _get_prescribed_dofs_bc_from_string(self, displacement, rotation):
         displacement = displacement[1:-1].split(',')
         rotation = rotation[1:-1].split(',')
 
@@ -410,13 +412,29 @@ class ProjectFile:
         BC = [ux,uy,uz,rx,ry,rz]
         return BC
 
-    def _getAcousticPressureBCFromString(self, acoustic_pressure):
-        acoustic_pressure = acoustic_pressure[1:-1].split(',')
-        value = None
-        if len(acoustic_pressure) == 1:
-            if acoustic_pressure[0] != 'None':
-                value = float(acoustic_pressure[0])
-        return value
+    def _getAcousticPressureBCFromString(self, value):
+        
+        value = value[1:-1].split(',')
+        load_file_path = value[0].split(self._projectName)
+        project_path = str(self._projectPath).split(self._projectName)
+        
+        output = None
+        if len(value) == 1:
+            if load_file_path[0] == project_path[0]:
+                data = np.loadtxt(value[0], delimiter=",")
+                output = data[:,1] + 1j*data[:,2]
+                self.frequencies = data[:,0]
+                self.f_min = self.frequencies[0]
+                self.f_max = self.frequencies[-1]
+                self.f_step = self.frequencies[1] - self.frequencies[0]
+                self.tempPath = value
+
+            elif value[0] != 'None':
+                try:
+                    output = float(value[0])
+                except Exception:
+                    return
+        return output
 
     def _getSpecificImpedanceBCFromString(self, specific_impedance):
         specific_impedance = specific_impedance[1:-1].split(',')
@@ -526,10 +544,10 @@ class ProjectFile:
         config.read(self._nodeAcousticPath)
         for node_id in nodes_id:
             if str(node_id) in config.sections():
-                config[str(node_id)]['acoustic pressure'] = "({})".format(pressure)
+                config[str(node_id)]['acoustic pressure'] = "[{}]".format(pressure)
             else:
                 config[str(node_id)] = {
-                    'acoustic pressure': "({})".format(pressure)
+                    'acoustic pressure': "[{}]".format(pressure)
                 }
         with open(self._nodeAcousticPath, 'w') as configfile:
             config.write(configfile)
@@ -539,10 +557,10 @@ class ProjectFile:
         config.read(self._nodeAcousticPath)
         for node_id in nodes_id:
             if str(node_id) in config.sections():
-                config[str(node_id)]['specific impedance'] = "({})".format(specific_impedance)
+                config[str(node_id)]['specific impedance'] = "[{}]".format(specific_impedance)
             else:
                 config[str(node_id)] = {
-                    'specific impedance': "({})".format(specific_impedance)
+                    'specific impedance': "[{}]".format(specific_impedance)
                 }
         with open(self._nodeAcousticPath, 'w') as configfile:
             config.write(configfile)
@@ -552,10 +570,10 @@ class ProjectFile:
         config.read(self._nodeAcousticPath)
         for node_id in nodes_id:
             if str(node_id) in config.sections():
-                config[str(node_id)]['volume velocity'] = "({})".format(volume_velocity)
+                config[str(node_id)]['volume velocity'] = "[{}]".format(volume_velocity)
             else:
                 config[str(node_id)] = {
-                    'volume velocity': "({})".format(volume_velocity)
+                    'volume velocity': "[{}]".format(volume_velocity)
                 }
         with open(self._nodeAcousticPath, 'w') as configfile:
             config.write(configfile)
@@ -565,10 +583,10 @@ class ProjectFile:
         config.read(self._nodeAcousticPath)
         for node_id in nodes_id:
             if str(node_id) in config.sections():
-                config[str(node_id)]['radiation impedance'] = "({})".format(radiation_impedance)
+                config[str(node_id)]['radiation impedance'] = "[{}]".format(radiation_impedance)
             else:
                 config[str(node_id)] = {
-                    'radiation impedance': "({})".format(radiation_impedance)
+                    'radiation impedance': "[{}]".format(radiation_impedance)
                 }
         with open(self._nodeAcousticPath, 'w') as configfile:
             config.write(configfile)

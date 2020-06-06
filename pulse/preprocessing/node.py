@@ -15,7 +15,7 @@ class Node:
 
         # Structural physical quantities
         self.prescribed_dofs_bc = [None, None, None, None, None, None]
-        self.forces = [0,0,0,0,0,0]
+        self.loads = [0,0,0,0,0,0]
         
         self.mass   = [0,0,0,0,0,0]
         self.spring = [0,0,0,0,0,0]
@@ -70,13 +70,13 @@ class Node:
             return True
     
     def haveForce(self):
-        return self.forces.count(0) != 6
+        return self.loads.count(0) != 6
 
-    def set_prescribed_forces(self, forces):
-        self.forces = forces
+    def set_prescribed_loads(self, loads):
+        self.loads = loads
 
-    def get_prescribed_forces(self):
-        return self.forces
+    def get_prescribed_loads(self):
+        return self.loads
     
     # Acoustic Boundary Condition
     def set_acoustic_boundary_condition(self, acoustic_boundary_condition):
@@ -88,7 +88,7 @@ class Node:
     def get_acoustic_boundary_condition_indexes(self):
         return [i for i, j in enumerate([self.acoustic_pressure]) if j is not None]
     
-    def get_acoustic_boundary_condition_values(self):
+    def get_acoustic_pressure_bc_values(self):
         return [i for i in [self.acoustic_pressure] if i is not None]
     
     def haveAcousticBoundaryCondition(self):
@@ -97,14 +97,15 @@ class Node:
     def set_prescribed_volume_velocity(self, volume_velocity):
         self.volume_velocity = volume_velocity
 
-    def get_prescribed_volume_velocity(self, frequencies):
-        if isinstance(self.volume_velocity, np.float64):
-            return self.volume_velocity * np.ones_like(frequencies)
-        elif len(self.volume_velocity) != len(frequencies):
-            #error!!
-            pass
+    #TODO: load a table of real+imaginary components    
 
-        return self.volume_velocity
+    def get_prescribed_volume_velocity(self, frequencies):
+        # if isinstance(self.volume_velocity, np.float64):
+            return self.volume_velocity * np.ones_like(frequencies)
+        # elif len(self.volume_velocity) != len(frequencies):
+        #     #error!!
+        #     pass
+        # return self.volume_velocity
 
     def haveVolumeVelocity(self):
         return self.volume_velocity.count(0) != 1
