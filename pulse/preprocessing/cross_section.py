@@ -79,13 +79,17 @@ if select == 1:
         return  mat_phi, mat_dphi
 
     class CrossSection:
-        def __init__(self, external_diameter, thickness, offset_y = 0, offset_z = 0, division_number = 64):
+        def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio, element_type='pipe_1', division_number = 64):
             self.external_diameter = external_diameter
             self.thickness = thickness
             self.offset = [offset_y, offset_z]
-            self.offset_virtual = None
+            self.offset_y = offset_y
+            self.offset_z = offset_z 
+            self.poisson_ratio = poisson_ratio
+            self.element_type = element_type
             self.division_number = division_number
-
+            self.offset_virtual = None
+            
             self.external_radius = external_diameter/2
             self.internal_diameter = external_diameter - 2*thickness
 
@@ -162,7 +166,7 @@ if select == 1:
             coordinate[ind + 2, 1] = r_i * sine - offset[1]
             return coordinate
         
-        def preprocessing(self, element_type = None):
+        def preprocessing(self, el_type = None):
             
             N = self.division_number*Nint_points
             _, weight = gauss_quadrature2D()
@@ -171,7 +175,7 @@ if select == 1:
             phi = self.mat_phi
             dphi = self.mat_dphi
 
-            if element_type == 'pipe_1':
+            if el_type == 'pipe_1':
                 # for the pipe_1 element, offset and its dependence need to be updated as below
                 self.offset_virtual = self.offset + np.array([self.y_centroid, self.z_centroid]) 
                 coordinate = self.mesh_coordinate()
@@ -196,8 +200,8 @@ if select == 1:
             detjac = (aux[:,0]*aux[:,3])-(aux[:,1]*aux[:,2])
             return jac, inv_jac, detjac*weight, y, z
                 
-        def area_properties(self, element_type):
-            self.jac, self.inv_jac, self.dA, self.y, self.z = self.preprocessing(element_type = element_type)
+        def area_properties(self, el_type):
+            self.jac, self.inv_jac, self.dA, self.y, self.z = self.preprocessing(el_type = el_type)
 
             A = np.sum(self.dA)
             Iy = np.sum(((self.z**2)*self.dA))
@@ -224,9 +228,9 @@ if select == 1:
             self.rows_ind = I.reshape(-1)
             self.cols_ind = J.reshape(-1)
                                 
-        def shear_properties(self, poisson_ratio = 0, element_type = 'pipe_1'):
+        def shear_properties(self, poisson_ratio = 0, el_type = 'pipe_1'):
             
-            self.area_properties(element_type)
+            self.area_properties(el_type)
             self.assembly_indexes()
 
             phi = self.mat_phi
@@ -335,8 +339,8 @@ if select == 1:
             self.y_shear = -(psi_z.T @ FT)/ccg
             self.z_shear = (psi_y.T @ FT)/ccg
 
-        def offset_rotation(self, element_type = 'pipe_1'):
-            if element_type is 'pipe_2':
+        def offset_rotation(self, el_type = 'pipe_1'):
+            if el_type is 'pipe_2':
                 self.principal_axis = np.eye(12)
             else:
                 y_c = self.y_centroid
@@ -347,7 +351,13 @@ if select == 1:
                     Iy = self.second_moment_area_y 
                     Iz = self.second_moment_area_z
                     Iyz = self.second_moment_area_yz
-                    angle = atan(2*Iyz/(Iz-Iy))/2
+                    if Iz==Iy:
+                        if Iyz>0:
+                            angle = pi/2
+                        elif Iyz<0:
+                            angle = -pi/2
+                    else:
+                        angle = atan(2*Iyz/(Iz-Iy))/2
                     # Rotational part of transformation matrix
                     rotation = np.array([[ 1. ,      0.   ,    0.    ],
                                         [ 0. ,cos(angle) ,sin(angle)],
@@ -372,22 +382,22 @@ if select == 1:
                     T[6:9,9:12]  = translation
                     self.principal_axis = T
         
-        def update_properties(self, poisson_ratio = 0, element_type = 'pipe_1'):
+        def update_properties(self):
             # self.area_properties(None)
-            if element_type == 'pipe_1':
-                self.shear_properties(poisson_ratio = 0, element_type = None)
-                self.offset_rotation(element_type = 'pipe_1')
-                self.shear_properties(poisson_ratio = 0, element_type = element_type)
+            if self.element_type == 'pipe_1':
+                self.shear_properties(poisson_ratio = 0, el_type = None)
+                self.offset_rotation(el_type = 'pipe_1')
+                self.shear_properties(poisson_ratio = 0, el_type = self.element_type)
             else:
-                self.shear_properties(poisson_ratio = poisson_ratio, element_type = element_type)
+                self.shear_properties(poisson_ratio=self.poisson_ratio, el_type=self.element_type)
 
 if __name__ == "__main__":
 
     external_diameter = 0.05
     thickness = 0.002
     offset = [0, 0]
-    cross = CrossSection(external_diameter, thickness, offset_y = offset[0], offset_z = offset[1], division_number = 64)
-    cross.update_properties(poisson_ratio = 0.3, element_type = 'pipe_1')
+    cross = CrossSection(external_diameter, thickness, offset[0], offset[1], 0.3, element_type = 'pipe', division_number = 64)
+    cross.update_properties(el_type = 'pipe_1')
 
     # %timeit cross.update_properties(poisson_ratio = 0.3, element_type = 'pipe_1')
 

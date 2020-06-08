@@ -7,8 +7,6 @@ from PyQt5 import uic
 import configparser
 from pulse.utils import error
 
-from pulse.preprocessing.cross_section import CrossSection
-
 class CrossSectionInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,7 +16,13 @@ class CrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.external_diameter = 0
+        self.thickness = 0
+        self.offset_y = 0
+        self.offset_z = 0 
+
         self.section = None
+        self.complete = False
         self.flagAll = False
         self.flagEntity = False
         self.currentTab = 0
@@ -72,15 +76,7 @@ class CrossSectionInput(QDialog):
             elif self.lineEdit_thickness.text() == "":
                 error("Insert some value (THICKENSS)!", title="INPUT CROSS-SECTION ERROR")
                 return
-            elif self.lineEdit_offset_y.text() == "":
-                # error("Insert some value (Offset y)!", title=">>> INPUT CROSS-SECTION ERROR <<<")
-                pass
-            elif self.lineEdit_offset_z.text() == "":
-                # error("Insert some value (Offset z)!", title=">>> INPUT CROSS-SECTION ERROR <<<")
-                pass
 
-            outerDiameter = 0
-            thickness = 0
             offset_y = 0
             offset_z = 0
 
@@ -89,25 +85,26 @@ class CrossSectionInput(QDialog):
             except Exception:
                 error("Wrong input for OUTER DIAMETER!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
-            
             try:
                 thickness = float(self.lineEdit_thickness.text())
             except Exception:
                 error("Wrong input for THICKENSS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
 
-            try:
-                offset_y = float(self.lineEdit_offset_y.text())
-            except Exception:
-                error("Wrong input for OFFSET Y!", title=">>> INPUT CROSS-SECTION ERROR <<<")
-                return
-            
-            try:
-                offset_z = float(self.lineEdit_offset_z.text())
-            except Exception:
-                error("Wrong input for OFFSET Z!", title=">>> INPUT CROSS-SECTION ERROR <<<")
-                return
-        
+            if self.lineEdit_offset_y.text() != "":
+                try:
+                    offset_y = float(self.lineEdit_offset_y.text())
+                except Exception:
+                    error("Wrong input for OFFSET Y!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                    return
+
+            if self.lineEdit_offset_z.text() != "":
+                try:
+                    offset_z = float(self.lineEdit_offset_z.text())
+                except Exception:
+                    error("Wrong input for OFFSET Z!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                    return
+                
             if outerDiameter<thickness:
                 error("The OUTER DIAMETER must be greater than THICKNESS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
@@ -116,15 +113,19 @@ class CrossSectionInput(QDialog):
                 error("The THICKNESS must be greater than zero!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
             
-            elif abs(offset_y) > (outerDiameter/2):
-                error("The OFFSET_Y must be less than external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+            elif abs(offset_y) > 0.5*(outerDiameter/2):
+                error("The OFFSET_Y must be less than 50{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
             
-            elif abs(offset_z) > (outerDiameter/2):
-                error("The OFFSET_Y must be less than external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+            elif abs(offset_z) > 0.5*(outerDiameter/2):
+                error("The OFFSET_Y must be less than 50{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
                       
-            self.section = CrossSection(outerDiameter, thickness, offset_y=offset_y, offset_z=offset_z)
+            self.external_diameter = outerDiameter
+            self.thickness = thickness
+            self.offset_y = offset_y
+            self.offset_z = offset_z 
+            self.complete = True
             self.close()
         else:
             pass

@@ -223,9 +223,9 @@ class MainWindow(QMainWindow):
         graphicMenu.addAction(self.points_action)
         graphicMenu.addAction(self.elements_action)
 
+        modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.set_material_action)
         modelSetup.addAction(self.set_crossSection_action)
-        modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.setDOF_action)
         modelSetup.addAction(self.setForce_action)
         modelSetup.addAction(self.setMass_action)

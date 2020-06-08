@@ -1,4 +1,4 @@
-from pulse.preprocessing.material import Material
+# from pulse.preprocessing.material import Material
 
 class Entity:
     def __init__(self, tag):
@@ -8,6 +8,7 @@ class Entity:
         self.material = None
         self.fluid = None
         self.crossSection = None
+        self.element_type = None
 
     def insertNode(self, node):
         self.nodes.append(node)
@@ -36,6 +37,9 @@ class Entity:
 
     def getCrossSection(self):
         return self.crossSection
+    
+    def getElementType(self):
+        return self.element_type
 
     def getMaterial(self):
         return self.material

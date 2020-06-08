@@ -142,12 +142,14 @@ class ProjectFile:
 
     def createEntityFile(self, entities):
         config = configparser.ConfigParser()
+
         for entity in entities:
             config[str(entity.getTag())] = {
                 'Material ID': '',
                 'Outer Diameter': '',
                 'Thickness': '',
                 'Offset [e_y, e_z]': '',
+                'Element Type': '',
                 'Fluid ID': ''
             }
         with open(self._entityPath, 'w') as configfile:
@@ -165,12 +167,21 @@ class ProjectFile:
 
         dict_material = {}
         dict_cross = {}
+        dict_element_type = {}
         dict_fluid = {}
 
         for entity in entityFile.sections():
+
+            element_type = entityFile[entity]['Element Type']
+
+            if element_type in ['pipe_1', 'pipe_2', 'shell']:
+                dict_element_type[int(entity)] = element_type
+            else:
+                print('Error - load element type from file!')
+                return
+
             material_id = entityFile[entity]['Material ID']
-            diam_ext = entityFile[entity]['Outer Diameter']
-            thickness = entityFile[entity]['Thickness']
+
             if material_id.isnumeric():
                 material_id = int(material_id)
                 for material in material_list.sections():
@@ -185,11 +196,26 @@ class ProjectFile:
                         temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
                         dict_material[int(entity)] = temp_material
             
-            if self.isFloat(diam_ext) and self.isFloat(thickness):
-                diam_ext = float(diam_ext)
-                thickness = float(thickness)
-                cross = CrossSection(diam_ext, thickness)
-                dict_cross[int(entity)] = cross
+            diam_ext = entityFile[entity]['Outer Diameter']
+            thickness = entityFile[entity]['Thickness']
+
+            offset = entityFile[entity]['Offset [e_y, e_z]']
+            offset_y, offset_z = self._get_offset_from_string(offset) 
+            # print(offset_y, offset_z)
+
+            try:
+                if self.isFloat(diam_ext) and self.isFloat(thickness):
+                    diam_ext = float(diam_ext)
+                    thickness = float(thickness)
+                    offset_y = float(offset_y)
+                    offset_z = float(offset_z)
+                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z, poisson, element_type=element_type)
+                    dict_cross[int(entity)] = cross
+            except Exception:
+                print('Error - load cross-section parameters from file!')
+                return
+
+
 
             fluid_id = entityFile[entity]['Fluid ID']
 
@@ -206,14 +232,21 @@ class ProjectFile:
                         temp_fluid = Fluid(name, float(fluid_density), float(sound_velocity), color=color, identifier=int(identifier))
                         dict_fluid[int(entity)] = temp_fluid
         
-        return dict_material, dict_cross, dict_fluid
+        return dict_material, dict_cross, dict_element_type, dict_fluid
 
-    def addCrossSectionInFile(self, entity_id, cross_section):
+    def addCrossSectionInFile(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
         config.read(self._entityPath)
         config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
         config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
         config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
+        with open(self._entityPath, 'w') as configfile:
+            config.write(configfile)
+    
+    def add_element_type_in_file(self, entity_id, element_type):
+        config = configparser.ConfigParser()
+        config.read(self._entityPath)
+        config[str(entity_id)]['Element Type'] = element_type
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
@@ -310,6 +343,16 @@ class ProjectFile:
                 dict_radiation_impedance[node_id] = radImpedance
         
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
+
+    def _get_offset_from_string(self, offset):
+        offset = offset[1:-1].split(',')
+        offset_y = offset_z = 0.0
+        if len(offset) == 2:
+            if offset[0] != '0.0':
+                offset_y = float(offset[0])
+            if offset[1] != '0.0':
+                offset_z = float(offset[1])
+        return offset_y, offset_z
 
     def _getForceFromString(self, force):
         force = force[1:-1].split(',')

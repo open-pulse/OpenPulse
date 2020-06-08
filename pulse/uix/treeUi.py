@@ -128,15 +128,15 @@ class TreeUi(QTreeWidget):
         self.item_top_resultsViewer.setTextAlignment(0, Qt.AlignHCenter)
         self.item_top_resultsViewer.setBackground(0, self.brush_top)
 
-        self.item_child_setElementType.setDisabled(True)
+        # self.item_child_setElementType.setDisabled(True)
         self.item_child_selectTheOutputResults.setDisabled(True)
         self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
+        self.addTopLevelItem(self.item_child_setElementType)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
-        self.addTopLevelItem(self.item_child_setElementType)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
         self.addTopLevelItem(self.item_child_setNodalLoads)
         self.addTopLevelItem(self.item_child_addMassSpringDamper)

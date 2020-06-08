@@ -20,6 +20,8 @@ from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStruct
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
+from pulse.preprocessing.cross_section import CrossSection
+from pulse.preprocessing.entity import Entity
 from pulse.project import Project
 from pulse.utils import error
 
@@ -33,6 +35,21 @@ class InputUi:
         self.f_min = 0
         self.f_max = 0
         self.f_step = 0
+
+    def setElementType(self):
+        typeinput = ElementTypeInput()
+        # if element.element_type is None:
+        #     return
+        if typeinput.flagEntity:
+            entities_id = self.opv.getListPickedEntities()
+            if len(entities_id) == 0:
+                return
+            for entity in entities_id:
+                self.project.set_element_type_by_entity(entity, typeinput.element_type)
+            print("[Set Element Type] - defined in the entities {}".format(entities_id))
+        else:
+            self.project.set_element_type_to_all(typeinput.element_type)
+            print("[Set Element Type] - defined in all the entities")
 
     def set_material(self):
         mat = MaterialInput(self.project.get_material_list_path())
@@ -77,24 +94,30 @@ class InputUi:
             self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
 
     def set_crossSection(self):
-        cross = CrossSectionInput()
-        if cross.section is None:
+        cross_input = CrossSectionInput()
+        all_lines = self.project.mesh.all_lines
+             
+        if not cross_input.complete:
             return
-
-        if cross.flagEntity:
-            entities_id = self.opv.getListPickedEntities()
-            if len(entities_id) == 0:
-                return
-            for entity in entities_id:
-                self.project.set_crossSection_by_entity(entity, cross.section)
-            print("[Set CrossSection] - defined in the entities {}".format(entities_id))
         else:
-            self.project.set_crossSection(cross.section)
-            print("[Set CrossSection] - defined in all the entities")
-        self.opv.updateEntityRadius()
+            ext_diam = cross_input.external_diameter
+            thickness = cross_input.thickness
+            offset_y = cross_input.offset_y
+            offset_z = cross_input.offset_z
 
-    def setElementType(self):
-        ElementTypeInput()
+        if cross_input.flagEntity:
+            lines_id = self.opv.getListPickedEntities()
+            if len(lines_id) == 0:
+                return
+  
+            self.project.set_cross_section_mapped(lines_id, ext_diam, thickness, offset_y, offset_z)
+            # self.project.set_crossSection_by_entity(ent, cross)
+            print("[Set Cross-section] - defined in the lines {}".format(lines_id))
+        else:
+            self.project.set_cross_section_mapped(all_lines, ext_diam, thickness, offset_y, offset_z)
+            # self.project.set_crossSection(cross_input.section)
+            print("[Set Cross-section] - defined in all the entities")
+        self.opv.updateEntityRadius()
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
@@ -212,10 +235,6 @@ class InputUi:
         
     def analysisSetup(self):
         
-        # self.f_min = 0
-        # self.f_max = 0
-        # self.f_step = 0
-
         if self.project.analysis_ID is None:
             return
         if self.project.file._projectName == "":
@@ -251,6 +270,10 @@ class InputUi:
     def runAnalysis(self):
         if self.analysis_ID is None:
             return
+
+        if self.project.is_file_loaded:
+            self.project.load_mapped_cross_section()
+
         if self._check_is_there_a_problem():
             return
         if self.analysis_ID in [0,1,3,5,6]:
