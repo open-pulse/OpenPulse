@@ -29,3 +29,6 @@ class RendererElement(vtkRendererBase):
 
     def update(self):
         self.opv.update()
+
+    def getListPickedElements(self):
+        return self._style.getListPickedActors()
