@@ -99,8 +99,11 @@ class Project:
         group_etype_material_cross_section = defaultdict(list)
 
         for line in entities:
-    
+
             e_type  = dict_tag_entity[line].element_type
+            if e_type is None:
+                e_type = 'pipe_1'
+                self.acoustic_analysis = True
             poisson = dict_tag_entity[line].material.poisson_ratio
             
             index_etype = dict_etype_index[e_type]

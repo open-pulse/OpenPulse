@@ -113,12 +113,12 @@ class CrossSectionInput(QDialog):
                 error("The THICKNESS must be greater than zero!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
             
-            elif abs(offset_y) > 0.5*(outerDiameter/2):
-                error("The OFFSET_Y must be less than 50{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+            elif abs(offset_y) > 0.2*(outerDiameter/2):
+                error("The OFFSET_Y must be less than 20{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
             
-            elif abs(offset_z) > 0.5*(outerDiameter/2):
-                error("The OFFSET_Y must be less than 50{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+            elif abs(offset_z) > 0.2*(outerDiameter/2):
+                error("The OFFSET_Y must be less than 20{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
                       
             self.external_diameter = outerDiameter
