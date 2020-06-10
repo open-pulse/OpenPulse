@@ -183,10 +183,10 @@ class MainWindow(QMainWindow):
         self.plotStructuralHarmonicResponse_action.setStatusTip('Plot Structural Harmonic Response')
         self.plotStructuralHarmonicResponse_action.triggered.connect(self.getInputWidget().plotStructuralHarmonicResponse)
 
-        self.plotPressureField_action = QAction('&Plot Pressure Field', self)        
-        self.plotPressureField_action.setShortcut('Ctrl+E')
-        self.plotPressureField_action.setStatusTip('Plot Pressure Field')
-        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotPressureField)
+        self.plotAcousticHarmonicResponse_action = QAction('&Plot Acoustic Harmonic Response', self)        
+        self.plotAcousticHarmonicResponse_action.setShortcut('Ctrl+E')
+        self.plotAcousticHarmonicResponse_action.setStatusTip('Plot Acoustic Harmonic Response')
+        self.plotAcousticHarmonicResponse_action.triggered.connect(self.getInputWidget().plotAcousticHarmonicResponse)
 
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
         self.plotSressField_action.setShortcut('Ctrl+R')
@@ -201,7 +201,12 @@ class MainWindow(QMainWindow):
         self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
         self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
-        self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotStructuralFrequencyResponse)
+        self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
+
+        self.plot_TL_NR = QAction('&Plot Transmission Loss or Noise Reduction', self)        
+        self.plot_TL_NR.setShortcut('Ctrl+V')
+        self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Noise Reduction')
+        self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
     def _create_menu_bar(self):
         menuBar = self.menuBar()
@@ -243,10 +248,11 @@ class MainWindow(QMainWindow):
 
         resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
         resultsViewerMenu.addAction(self.plotStructuralHarmonicResponse_action)
-        resultsViewerMenu.addAction(self.plotPressureField_action)
+        resultsViewerMenu.addAction(self.plotAcousticHarmonicResponse_action)
         resultsViewerMenu.addAction(self.plotSressField_action)
         resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
         resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        resultsViewerMenu.addAction(self.plot_TL_NR)
 
         helpMenu.addAction(self.help_action)
 
@@ -271,7 +277,7 @@ class MainWindow(QMainWindow):
 
         working_area.addWidget(self.info_widget)
         working_area.addWidget(self.opv_widget)
-        working_area.setSizes([100,300])
+        working_area.setSizes([100,400])
 
     def new_call(self):
         if self.inputWidget.new_project():

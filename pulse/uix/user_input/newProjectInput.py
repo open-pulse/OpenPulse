@@ -79,7 +79,7 @@ class NewProjectInput(QDialog):
             self.error("This Project Already Exists!")
             return
 
-        if self.currentTab == 0: #Iges
+        if self.currentTab == 0: #.iges
             if self.line_import_geometry.text() == "":
                 self.error("Error: Import Geometry!")
                 return

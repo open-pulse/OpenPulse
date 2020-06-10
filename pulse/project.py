@@ -145,7 +145,8 @@ class Project:
         map_cross_sections_to_elements = defaultdict(list)
         # Element type to Entities
         for key, el_type in dict_element_types.items():
-            self.load_element_type_by_entity(key, el_type)
+            if self.file.element_type_is_structural:
+                self.load_element_type_by_entity(key, el_type)
         # Material to Entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
@@ -164,8 +165,9 @@ class Project:
         
         self.map_cross_section = map_cross_section
         self.map_cross_sections_to_elements = map_cross_sections_to_elements
-
-        if len(map_cross_sections_to_elements) in [1,2,3]:    
+        Ncross = len(map_cross_sections_to_elements)
+        # times = 0.3*(Ncross+1)
+        if Ncross < 10: 
             for key, elements in map_cross_sections_to_elements.items():
                 cross_strings = key[1:-1].split(',')
                 vals = [float(value) for value in cross_strings]
@@ -189,7 +191,6 @@ class Project:
     def load_mapped_cross_section(self):
         label_etypes = ['pipe_1', 'pipe_2', 'shell']
         indexes = [0, 1, 2]
-        # dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
 
         for key, elements in self.map_cross_sections_to_elements.items():

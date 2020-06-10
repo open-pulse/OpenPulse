@@ -273,38 +273,15 @@ class Mesh:
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
     
-    select = 1
-    if select == 1:
-        
-        def set_cross_section_by_element(self, elements, cross_section):
-            t0 = time()
-            # dict_cross_section = {}
-            cross_section.update_properties()
-            for element in slicer(self.structural_elements, elements):
-                element.cross_section = cross_section
-                # poisson_ratio =  element.material.poisson_ratio
-                # if poisson_ratio in dict_cross_section:
-                    # element.cross_section = dict_cross_section[poisson_ratio]
-                # else:
-                    # cross_section.update_properties(element_type = self.element_type)
-                    # element.cross_section = cross_section
-                    # dict_cross_section.update({poisson_ratio : cross_section})
-            for element in slicer(self.acoustic_elements, elements):
-                element.cross_section = cross_section
-                # element.cross_section = dict_cross_section[element.material.poisson_ratio]
-            dt = time() - t0
-            print("Total time: {}s".format(dt))
-
-    elif select == 2:
-
-        def set_cross_section_by_element(self, elements, cross_section):
-            t0 = time()
-            for element in slicer(self.structural_elements, elements):
-                element.cross_section = cross_section
-            for element in slicer(self.acoustic_elements, elements):
-                element.cross_section = cross_section
-            dt = time() - t0
-            print("Total time: {}s".format(dt))
+    def set_cross_section_by_element(self, elements, cross_section):
+        t0 = time()
+        cross_section.update_properties()
+        for element in slicer(self.structural_elements, elements):
+            element.cross_section = cross_section
+        for element in slicer(self.acoustic_elements, elements):
+            element.cross_section = cross_section
+        dt = time() - t0
+        print("Total time: {}s".format(dt))
         
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):

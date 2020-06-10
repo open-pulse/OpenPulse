@@ -23,6 +23,7 @@ class ProjectFile:
         self._analysisPath = ""
 
         self.tempPath = None
+        self.element_type_is_structural = False
 
         self._entityFileName = "entity.dat"
         self._nodeStructuralFileName = "structural_boundary_conditions_info.dat"
@@ -40,6 +41,7 @@ class ProjectFile:
         self._cordPath = ""
         self._nodeStructuralPath = ""
         self._nodeAcousticPath = ""
+        self.element_type_is_structural = False
 
     def new(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
         self._projectPath = projectPath
@@ -174,12 +176,12 @@ class ProjectFile:
 
             element_type = entityFile[entity]['Element Type']
 
-            if element_type in ['pipe_1', 'pipe_2', 'shell']:
+            if element_type != "":
                 dict_element_type[int(entity)] = element_type
+                self.element_type_is_structural = True
             else:
-                print('Error - load element type from file!')
-                return
-
+                dict_element_type[int(entity)] = 'pipe_1'
+    
             material_id = entityFile[entity]['Material ID']
 
             if material_id.isnumeric():
@@ -198,10 +200,8 @@ class ProjectFile:
             
             diam_ext = entityFile[entity]['Outer Diameter']
             thickness = entityFile[entity]['Thickness']
-
             offset = entityFile[entity]['Offset [e_y, e_z]']
             offset_y, offset_z = self._get_offset_from_string(offset) 
-            # print(offset_y, offset_z)
 
             try:
                 if self.isFloat(diam_ext) and self.isFloat(thickness):
@@ -214,8 +214,6 @@ class ProjectFile:
             except Exception:
                 print('Error - load cross-section parameters from file!')
                 return
-
-
 
             fluid_id = entityFile[entity]['Fluid ID']
 

@@ -18,6 +18,7 @@ from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralMode
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.preprocessing.cross_section import CrossSection
@@ -367,7 +368,7 @@ class InputUi:
         else:
             return
 
-    def plotPressureField(self):
+    def plotAcousticHarmonicResponse(self):
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
@@ -393,6 +394,13 @@ class InputUi:
             if solution is None:
                 return
             PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+
+    def plot_TL_NR(self):
+        if self.analysis_ID in [3,5,6]:
+            solution = self.project.get_acoustic_solution()
+            if solution is None:
+                return
+            Plot_TL_NR_Input(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
 
     def plotStressField(self):
         pass

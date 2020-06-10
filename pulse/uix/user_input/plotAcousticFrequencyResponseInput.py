@@ -63,15 +63,17 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.solution = solution
         self.nodeID = 0
 
-        self.mag = False
-        self.real = False
-        self.imag = False
-    
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.radioButton_mag = self.findChild(QRadioButton, 'radioButton_mag')
+        self.radioButton_real = self.findChild(QRadioButton, 'radioButton_real')
+        self.radioButton_imag = self.findChild(QRadioButton, 'radioButton_imag')
+        self.radioButton_mag.toggled.connect(self.radioButtonEvent_mag_real_imag)
+        self.radioButton_real.toggled.connect(self.radioButtonEvent_mag_real_imag)
+        self.radioButton_imag.toggled.connect(self.radioButtonEvent_mag_real_imag)
+        self.mag = self.radioButton_mag.isChecked()
+        self.real = self.radioButton_real.isChecked()
+        self.imag = self.radioButton_imag.isChecked()
 
-        self.checkBox_mag = self.findChild(QCheckBox, 'checkBox_mag')
-        self.checkBox_real = self.findChild(QCheckBox, 'checkBox_real')
-        self.checkBox_imag = self.findChild(QCheckBox, 'checkBox_imag')
         self.checkBox_dB = self.findChild(QCheckBox, 'checkBox_dB')
 
         self.pushButton = self.findChild(QPushButton, 'pushButton')
@@ -109,26 +111,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         except Exception:
             error("Wrong input for Node ID's!", title="Error Node ID's")
             return
-        
-        if self.checkBox_real.isChecked() and self.checkBox_mag.isChecked() == True:
-            error("You must check only one plot representation data option!", title = " WARNING ")
-            return
-        elif self.checkBox_real.isChecked()==False and self.checkBox_mag.isChecked()==False and self.checkBox_imag.isChecked()==False:
-            error("You must check at least one plot representation data option!", title = " WARNING ")
-            return
-        elif self.checkBox_mag.isChecked():
-            self.mag = True
-            self.real = False
-            self.imag = False
-        elif self.checkBox_real.isChecked():
-            self.real = True
-            self.mag = False
-            self.imag = False
-        elif self.checkBox_imag.isChecked():
-            self.mag = False
-            self.real = False
-            self.imag = True
-        
+                
         if self.checkBox_dB.isChecked():
             self.scale_dB = True
         elif not self.checkBox_dB.isChecked():
@@ -139,6 +122,12 @@ class PlotAcousticFrequencyResponseInput(QDialog):
     def dB(self, data):
         p_ref = 20e-6 
         return 20*np.log10(data/p_ref)
+
+    def radioButtonEvent_mag_real_imag(self):
+        self.mag = self.radioButton_mag.isChecked()
+        self.real = self.radioButton_real.isChecked()
+        self.imag = self.radioButton_imag.isChecked()
+        print(self.mag, self.real, self.imag)
 
     def plot(self):
 
