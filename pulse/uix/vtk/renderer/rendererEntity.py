@@ -2,11 +2,12 @@ from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
 from pulse.uix.vtk.actor.actorLine import ActorLine
 from pulse.uix.vtk.actor.actorSquare2D import ActorSquare2D
+from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
 
 class RendererEntity(vtkRendererBase):
     def __init__(self, project, opv):
-        super().__init__(vtkInteractorBase(self))
+        super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
         self.actors = {}
@@ -67,6 +68,7 @@ class RendererEntity(vtkRendererBase):
             actor.GetProperty().SetColor(color)
         self.updateInfoText()
         self._style.clear()
+        self.update()
 
     def getListPickedEntities(self):
         return self._style.getListPickedActors()

@@ -12,7 +12,8 @@ def constrain(number, floor, ceil):
         return number
 
 class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
-    def __init__(self):
+    def __init__(self, renderer):
+        self.__renderer = renderer
         self.__selectionColor = (255, 0, 0, 255)
         self.__pixelData = vtk.vtkUnsignedCharArray()  
         self.__selectedActors = set()
@@ -141,6 +142,9 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
             actors = self.getSelectedActors()
             function(actors, *args, **kwargs)
 
+        self.__renderer.updateInfoText()
+        self.__renderer.update()
+
     def highlight(self, actors):
         for actor in actors:
             if actor in self.__selectedActorsProperties:
@@ -160,3 +164,11 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
     def clear(self):
         self.lowlight(self.getSelectedActors())
         self.__selectedActors = set()
+
+    def getListPickedActors(self):
+        listActorsIDs = []
+        for actor in self.getSelectedActors():
+            if self.__renderer.actors[actor] == -1:
+                continue
+            listActorsIDs.append(self.__renderer.actors[actor])
+        return listActorsIDs
