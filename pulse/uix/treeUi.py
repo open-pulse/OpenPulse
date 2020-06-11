@@ -46,7 +46,7 @@ class TreeUi(QTreeWidget):
         self.name_child_plotAcousticModeShapes = "Plot Acoustic Mode Shapes"
         self.name_child_plotAcousticHarmonicResponse = "Plot Acoustic Harmonic Response"
         self.name_child_plotAcousticFrequencyResponse = "Plot Acoustic Frequency Response"
-        self.name_child_plot_TL_NR = "Plot Transmission Loss or Noise Reduction"
+        self.name_child_plot_TL_NR = "Plot Transmission Loss or Attenuation"
 
 
     def _createIcons(self):

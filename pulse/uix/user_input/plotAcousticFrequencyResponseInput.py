@@ -140,7 +140,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
         frequencies = self.frequencies
         dof_response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.mag, real=self.real, imag=self.imag, dB=dB)
-        fig = plt.figure(figsize=[12,8])
+        fig = plt.figure(figsize=[12,6])
         ax = fig.add_subplot(1,1,1)
         # mng = plt.get_current_fig_manager()
         # mng.window.state('zoomed')
