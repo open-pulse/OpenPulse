@@ -1,11 +1,12 @@
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
 from pulse.uix.vtk.actor.actorElement import ActorElement
+from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
 
 class RendererElement(vtkRendererBase):
     def __init__(self, project, opv):
-        super().__init__(vtkInteractorBase(self))
+        super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
         self.actors = {}

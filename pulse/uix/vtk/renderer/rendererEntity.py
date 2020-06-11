@@ -63,12 +63,11 @@ class RendererEntity(vtkRendererBase):
             self._renderer.AddActor(plot.getActor())
 
     def changeColorEntities(self, entity_id, color):
+        self._style.clear()
         actors = [key  for (key, value) in self.actors.items() if value in entity_id]
         for actor in actors:
             actor.GetProperty().SetColor(color)
         self.updateInfoText()
-        self._style.clear()
-        self.update()
 
     def getListPickedEntities(self):
         return self._style.getListPickedActors()

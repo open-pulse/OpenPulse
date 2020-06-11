@@ -2,11 +2,12 @@ from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
 from pulse.uix.vtk.actor.actorLine import ActorLine
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
+from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
 
 class RendererPoint(vtkRendererBase):
     def __init__(self, project, opv):
-        super().__init__(vtkInteractorBase(self))
+        super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
         self.actors = {}
@@ -81,6 +82,7 @@ class RendererPoint(vtkRendererBase):
             actor.GetMapper().SetInputConnection(cube.GetOutputPort())
 
     def transformPoints(self, points_id):
+        self._style.clear()
         nodeAll = []
         nodeBC = []
         nodeF = []
@@ -114,7 +116,6 @@ class RendererPoint(vtkRendererBase):
         self.transformPointsToSphere(nodeF)
 
         self.updateInfoText()
-        self._style.clear()
 
     def getListPickedPoints(self):
         return self._style.getListPickedActors()
