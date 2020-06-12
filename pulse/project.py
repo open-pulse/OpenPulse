@@ -183,7 +183,8 @@ class Project:
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[-1]]
             cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], vals[4], element_type=el_type)
-            self._set_entity_crossSection(entities, cross_section)
+            for entity in entities:
+                self._set_entity_crossSection(entity, cross_section)
         
         for key, fld in fluid.items():
             self.load_fluid_by_entity(key, fld)

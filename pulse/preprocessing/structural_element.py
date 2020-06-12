@@ -152,7 +152,7 @@ if select == 1:
                 Qz = 0
                 Iyz = 0
                 principal_axis = self.cross_section.principal_axis
-            elif self.element_type == 'pipe2':
+            elif self.element_type == 'pipe_2':
                 Qy = self.cross_section.first_moment_area_y
                 Qz = self.cross_section.first_moment_area_z
                 Iyz = self.cross_section.second_moment_area_yz

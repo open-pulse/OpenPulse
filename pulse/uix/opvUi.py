@@ -71,9 +71,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         width, _ = self.rendererAnalysis.getSize()
 
         self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint1Coordinate().SetValue(width-1410,815)
+        self.slider2d.GetPoint1Coordinate().SetValue(width-1510,815)
         self.slider2d.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint2Coordinate().SetValue(width-1210, 815)
+        self.slider2d.GetPoint2Coordinate().SetValue(width-1300, 815)
 
         self.slider2d.SetTubeWidth(tubeWidth)
         self.slider2d.SetSliderLength(sliderLength)

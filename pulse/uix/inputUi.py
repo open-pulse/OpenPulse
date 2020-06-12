@@ -96,8 +96,7 @@ class InputUi:
 
     def set_crossSection(self):
         cross_input = CrossSectionInput()
-        all_lines = self.project.mesh.all_lines
-             
+
         if not cross_input.complete:
             return
         else:
@@ -115,6 +114,7 @@ class InputUi:
             # self.project.set_crossSection_by_entity(ent, cross)
             print("[Set Cross-section] - defined in the lines {}".format(lines_id))
         else:
+            all_lines = self.project.mesh.all_lines
             self.project.set_cross_section_mapped(all_lines, ext_diam, thickness, offset_y, offset_z)
             # self.project.set_crossSection(cross_input.section)
             print("[Set Cross-section] - defined in all the entities")

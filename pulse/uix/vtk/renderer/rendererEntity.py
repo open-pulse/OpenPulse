@@ -24,13 +24,17 @@ class RendererEntity(vtkRendererBase):
             material_name = "Undefined"
             diam_ext = "Undefined"
             thickness = "Undefined"
+            offset_y = "Undefined"
+            offset_z = "Undefined"
             if entity.getMaterial() is not None:
                 material_name = entity.getMaterial().getName()
             if entity.getCrossSection() is not None:
                 diam_ext = entity.getCrossSection().getExternalDiameter()
                 thickness = entity.getCrossSection().getThickness()
-            text = "Line ID  {}\nMaterial:  {}\nExternal Diameter:  {} [m]\nThickness:  {} [m]".format(listActorsIDs[0], material_name, diam_ext, thickness)
-            height, width  = 880, 20
+                offset_y = entity.getCrossSection().offset_y
+                offset_z = entity.getCrossSection().offset_z
+            text = "Line ID  {}\nMaterial:  {}\nExternal Diameter:  {} [m]\nThickness:  {} [m]\nOffset y: {} [m]\nOffset z: {} [m]".format(listActorsIDs[0], material_name, diam_ext, thickness, offset_y, offset_z)
+            height, width  = 845, 20
         else:
             text = "Selected Lines:\n"
             width = 20

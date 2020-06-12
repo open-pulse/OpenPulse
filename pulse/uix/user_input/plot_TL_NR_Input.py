@@ -194,7 +194,7 @@ class Plot_TL_NR_Input(QDialog):
 
         if self.flagTL:
             if True in check_name_TL:
-                self.messages("Please, it's recommended checking the file name before export the results!", title=" Warning ")
+                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
                 return
             self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
             data_to_export = np.array([freq, TL]).T
@@ -202,7 +202,7 @@ class Plot_TL_NR_Input(QDialog):
             np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         else:
             if True in check_name_NR:
-                self.messages("Please, it's recommended checking the file name before export the results!", title=" Warning ")
+                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
                 return
             self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
             data_to_export = np.array([freq, NR]).T

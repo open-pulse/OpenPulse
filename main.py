@@ -24,7 +24,7 @@ element_type = 'pipe_1'
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 mesh = Mesh()
 
-load_file = 2
+load_file = 1
 if load_file==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
     mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
@@ -34,13 +34,16 @@ if load_file==2:
 
 mesh.set_element_type_by_element('all', element_type)
 mesh.set_material_by_element('all', steel)
-offset = [0.005, 0.005]
+offset = [0, 0.005]
 cross_section = CrossSection(0.05, 0.008, offset[0], offset[1], steel.poisson_ratio, element_type=element_type, division_number=64)
 mesh.set_cross_section_by_element('all', cross_section)
 dt = time()-t0
 print('Total elapsed time:', dt,'[s]')
 
-mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
+if load_file==1:
+    mesh.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0]))
+elif load_file==2:
+    mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
 
 solution = SolutionStructural(mesh)
 f_max = 200
@@ -49,35 +52,45 @@ frequencies = np.arange(0, f_max+df, df)
 modes = 200
 direct = solution.direct_method(frequencies, is_viscous_lumped=True)
 modal = solution.mode_superposition(frequencies, modes, fastest=True)
+natural_frequencies, modal_shape = solution.modal_analysis(modes=20)
 
 run=3
 
-if run==1:
-    # nodal respose (node, dof_corrected)
-    nodes_response = 436 # Desired nodal to get response.
-    local_dofs_response  = 0 # Get the response at the following degree of freedom
-if run==2:
-     # nodal respose (node, dof_corrected)
-    nodes_response = 187 # Desired nodal to get response.
-    local_dofs_response  = 1 # Get the response at the following degree of freedom
-if run==3:
-     # nodal respose (node, dof_corrected)
-    nodes_response = 711 # Desired nodal to get response.
-    local_dofs_response  = 2 # Get the response at the following degree of freedom
+if load_file==1:   
 
-response_dof = (nodes_response - 1) *  6 + local_dofs_response
-Xd = direct[response_dof,:]
-Xs = modal[response_dof,:]
+    if run==1:
+        # nodal respose (node, dof_corrected)
+        node_response = 435 # Desired node to get response.
+        local_dof_response  = 0 # Get the response at the following degree of freedom
+    if run==2:
+        # nodal respose (node, dof_corrected)
+        node_response = 185 # Desired node to get response.
+        local_dof_response  = 2 # Get the response at the following degree of freedom
+    if run==3:
+        # nodal respose (node, dof_corrected)
+        node_response = 709 # Desired node to get response.
+        local_dof_response  = 1 # Get the response at the following degree of freedom
 
-if offset[0]<0 and offset[1]<0:
-    test_label = "ey_{}mm_ez_{}mm".format(int(np.abs(offset[0])*1000),int(np.abs(offset[1])*1000))
-elif  offset[0]<0:
-    test_label = "ey_{}mm_ez_{}mm".format(int(np.abs(offset[0])*1000),int(offset[1]*1000))
-elif  offset[1]<0:
-    test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(np.abs(offset[1])*1000))
-else:
-    test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
+elif load_file==2:
 
+    if run==1:
+        # nodal respose (node, dof_corrected)
+        node_response = 436 # Desired node to get response.
+        local_dof_response  = 0 # Get the response at the following degree of freedom
+    if run==2:
+        # nodal respose (node, dof_corrected)
+        node_response = 187 # Desired node to get response.
+        local_dof_response  = 1 # Get the response at the following degree of freedom
+    if run==3:
+        # nodal respose (node, dof_corrected)
+        node_response = 711 # Desired node to get response.
+        local_dof_response  = 2 # Get the response at the following degree of freedom
+
+
+Xd = get_structural_frf(mesh, direct, node_response, local_dof_response)
+Xs = get_structural_frf(mesh, modal, node_response, local_dof_response)
+
+test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
 
 if run==1:
     file1 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_Ux_node_436.csv", "r")

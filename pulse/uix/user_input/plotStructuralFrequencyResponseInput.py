@@ -172,6 +172,11 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
     def plot(self):
 
+        file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_0mm_ez_0mm/FRF_Fx_1N_Ux_node_436.csv", "r")
+        # file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_5mm_ez_5mm/FRF_Fx_1N_Uy_node_187.csv", "r")
+        # file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_5mm_ez_5mm/FRF_Fx_1N_Uz_node_711.csv", "r")
+        data = np.loadtxt(file_open, delimiter="," , skiprows=2)
+
         frequencies = self.frequencies
         dof_response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
         fig = plt.figure(figsize=[10,6])
@@ -187,6 +192,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             first_plot, = plt.plot(frequencies, dof_response, color=[1,0,0], linewidth=2, label=legend_label)
         else:    
             first_plot, = plt.semilogy(frequencies, dof_response, color=[1,0,0], linewidth=2, label=legend_label)
+            second_plot, = plt.semilogy(data[:,0], np.abs(data[:,1]+1j*data[:,2]), color=[0,0,1], linewidth=1)
         
         first_legend = plt.legend(handles=[first_plot], loc='upper right')
         plt.gca().add_artist(first_legend)
