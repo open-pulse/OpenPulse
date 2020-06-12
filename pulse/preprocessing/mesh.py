@@ -179,7 +179,7 @@ class Mesh:
     def load_mesh(self, coordinates, connectivity):
 
         coordinates = np.loadtxt(coordinates)
-        connectivity = np.loadtxt(connectivity, dtype=int)
+        connectivity = np.loadtxt(connectivity, dtype=int).reshape(-1,3)
 
         newEntity = Entity(1)
         map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
