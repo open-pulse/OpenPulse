@@ -286,7 +286,7 @@ class Mesh:
         for element in slicer(self.acoustic_elements, elements):
             element.cross_section = cross_section
         dt = time() - t0
-        print("Total time: {}s".format(dt))
+        print("Time to process Cross-section: {}s".format(dt))
         
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):
