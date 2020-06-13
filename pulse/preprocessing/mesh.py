@@ -333,7 +333,7 @@ class Mesh:
             node.prescribed_dofs_bc = boundary_condition
             self.structural_nodes_with_bc.append(node)
 
-    def set_fluid_mass_adding_effect(self, reset=False):
+    def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
         if reset and flag:
             self.flag_fluid_mass_effect = False
