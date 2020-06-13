@@ -110,7 +110,7 @@ class Project:
             elements = self.mesh.line_to_elements[line]
             group_cross_section_lines[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(line)
             group_etype_material_cross_section[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(elements)
-        print(group_cross_section_lines)
+        # print(group_cross_section_lines)
         for key, elements in group_etype_material_cross_section.items():
 
             cross_strings = key[1:-1].split(',')

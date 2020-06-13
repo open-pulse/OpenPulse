@@ -244,6 +244,9 @@ class Plot_TL_NR_Input(QDialog):
 
     def plot(self):
 
+        fig = plt.figure(figsize=[12,7])
+        ax = fig.add_subplot(1,1,1)
+
         frequencies = self.frequencies
         TL, NR = self.get_TL_NR()
 
@@ -254,8 +257,6 @@ class Plot_TL_NR_Input(QDialog):
             results = NR
             analysis_label = "ATTENUATION"
          
-        fig = plt.figure(figsize=[12,8])
-        ax = fig.add_subplot(1,1,1)
         # mng = plt.get_current_fig_manager()
         # mng.window.state('zoomed')
 

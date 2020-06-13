@@ -382,18 +382,20 @@ class InputUi:
             return
 
     def plotStructuralFrequencyResponse(self):
+        point_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStructuralFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotStructuralFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, point_id)
 
     def plotAcousticFrequencyResponse(self):
+        point_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, point_id)
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:

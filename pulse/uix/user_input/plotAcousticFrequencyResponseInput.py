@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QToolButton, QWidget, QFileDialog, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QMessageBox
 from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -6,6 +6,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+import os
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 import matplotlib.pyplot as plt
 import numpy as np
@@ -48,13 +49,14 @@ class SnaptoCursor(object):
 
 
 class PlotAcousticFrequencyResponseInput(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, solution, *args, **kwargs):
+    def __init__(self, mesh, analysisMethod, frequencies, solution, list_node_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotAcousticFrequencyResponseInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+        self.userPath = os.path.expanduser('~')
 
         self.mesh = mesh
         
@@ -62,24 +64,61 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.frequencies = frequencies
         self.solution = solution
         self.nodeID = 0
+        self.imported_data = None
+
+        self.writeNodes(list_node_ids)
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-        self.radioButton_mag = self.findChild(QRadioButton, 'radioButton_mag')
-        self.radioButton_real = self.findChild(QRadioButton, 'radioButton_real')
-        self.radioButton_imag = self.findChild(QRadioButton, 'radioButton_imag')
-        self.radioButton_mag.toggled.connect(self.radioButtonEvent_mag_real_imag)
-        self.radioButton_real.toggled.connect(self.radioButtonEvent_mag_real_imag)
-        self.radioButton_imag.toggled.connect(self.radioButtonEvent_mag_real_imag)
-        self.mag = self.radioButton_mag.isChecked()
-        self.real = self.radioButton_real.isChecked()
-        self.imag = self.radioButton_imag.isChecked()
+        self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
+        self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
+        self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
+        self.radioButton_plotAbs.toggled.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotReal.toggled.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotImag.toggled.connect(self.radioButtonEvent_YAxis)
+        self.plotAbs = self.radioButton_plotAbs.isChecked()
+        self.plotReal = self.radioButton_plotReal.isChecked()
+        self.plotImag = self.radioButton_plotImag.isChecked()
+
+        self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
+        self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
+        self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
+
+        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
+        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
+        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
+        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        
+        self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
+        self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
+        self.radioButton_Absolute.toggled.connect(self.radioButtonEvent_save_data)
+        self.radioButton_Real_Imaginary.toggled.connect(self.radioButtonEvent_save_data)
+        self.save_Absolute = self.radioButton_Absolute.isChecked()
+        self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
+
+        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
+        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
+        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
+        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults) 
 
         self.checkBox_dB = self.findChild(QCheckBox, 'checkBox_dB')
-
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
         self.exec_()
+
+    def reset_imported_data(self):
+        self.imported_data = None
+        self.messages("The plot data has been reseted.")
+    
+    def writeNodes(self, list_node_ids):
+        text = ""
+        for node in list_node_ids:
+            text += "{}, ".format(node)
+        self.lineEdit_nodeID.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -87,7 +126,44 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def check(self):
+    def radioButtonEvent_YAxis(self):
+        self.plotAbs = self.radioButton_plotAbs.isChecked()
+        self.plotReal = self.radioButton_plotReal.isChecked()
+        self.plotImag = self.radioButton_plotImag.isChecked()
+
+    def radioButtonEvent_save_data(self):
+        self.save_Absolute = self.radioButton_Absolute.isChecked()
+        self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
+
+    def messages(self, msg, title = " Information "):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()
+
+    def choose_path_import_results(self):
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.import_name = basename(self.import_path)
+        self.lineEdit_ImportResultsPath.setText(str(self.import_path))
+    
+    def ImportResults(self):
+        self.imported_data = np.loadtxt(self.import_path, delimiter=",")
+        self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+        self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+        self.messages("The results has been imported.")
+
+    def choose_path_export_results(self):
+        self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
+        self.save_name = basename(self.save_path)
+        self.lineEdit_SaveResultsPath.setText(str(self.save_path))
+        if self.lineEdit_FileName.text() != "":
+            self.export_path_folder = self.save_path + "/" 
+        else:
+            error("Inform a file name before trying export the results!")
+            return
+
+    def check(self, export=False):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
             try:
@@ -116,55 +192,94 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             self.scale_dB = True
         elif not self.checkBox_dB.isChecked():
             self.scale_dB = False
+        
+        if not export:
+            self.plot()
 
-        self.plot()
+
+    def ExportResults(self):
+
+        self.check(export=True)
+        freq = self.frequencies
+        self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+        if self.save_Absolute:
+            response = get_acoustic_frf(self.mesh, self.solution, self.nodeID)
+            header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa], Absolute [Pa]"
+            data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
+        elif self.save_Real_Imaginary:
+            response = get_acoustic_frf(self.mesh, self.solution, self.nodeID)
+            header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa]"
+            data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
+            
+        np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
+        self.messages("The results has been exported.")
 
     def dB(self, data):
         p_ref = 20e-6 
         return 20*np.log10(data/p_ref)
 
-    def radioButtonEvent_mag_real_imag(self):
-        self.mag = self.radioButton_mag.isChecked()
-        self.real = self.radioButton_real.isChecked()
-        self.imag = self.radioButton_imag.isChecked()
-        print(self.mag, self.real, self.imag)
-
     def plot(self):
 
-        dB = self.scale_dB
-
-        if dB:
-            unit_label = "dB"
-        else:
-            unit_label = "Pa"            
+        fig = plt.figure(figsize=[12,7])
+        ax = fig.add_subplot(1,1,1)  
 
         frequencies = self.frequencies
-        dof_response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.mag, real=self.real, imag=self.imag, dB=dB)
-        fig = plt.figure(figsize=[12,6])
-        ax = fig.add_subplot(1,1,1)
+        response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
+
+        if self.scale_dB :
+            if self.plotAbs:
+                response = self.dB(response)
+                ax.set_ylabel("Acoustic Response - Absolute [dB]", fontsize = 14, fontweight = 'bold')
+            else:
+                if self.plotReal:
+                    ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
+                elif self.plotImag:
+                    ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
+                self.messages("The dB scalling can only be applied with the absolute \nY-axis representation, therefore, it will be ignored.")
+        else:
+            if self.plotAbs:
+                ax.set_ylabel("Acoustic Response - Absolute [Pa]", fontsize = 14, fontweight = 'bold')
+            elif self.plotReal:
+                ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
+            elif self.plotImag:
+                ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
+
         # mng = plt.get_current_fig_manager()
         # mng.window.state('zoomed')
 
         #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, dof_response, show_cursor=True)
+        cursor = SnaptoCursor(ax, frequencies, response, show_cursor=True)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
         legend_label = "Acoustic Pressure at node {}".format(self.nodeID)
-
-        if dof_response.all()==0:
-            first_plot, = plt.plot(frequencies, dof_response, color=[1,0,0], linewidth=2, label=legend_label)
-        else:    
-            first_plot, = plt.plot(frequencies, dof_response, color=[1,0,0], linewidth=2, label=legend_label)
         
-        first_legend = plt.legend(handles=[first_plot], loc='upper right')
-        plt.gca().add_artist(first_legend)
+        if self.imported_data is None:
+                
+            first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+
+        else:
+
+            data = self.imported_data
+            imported_Xvalues = data[:,0]
+
+            if self.plotAbs:
+                imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2]) 
+                if self.scale_dB :
+                    imported_Yvalues = self.dB(imported_Yvalues)
+            elif self.plotReal:
+                imported_Yvalues = data[:,1]
+            elif self.plotImag:
+                imported_Yvalues = data[:,2]
+            
+            first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
+            second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+
+        plt.gca().add_artist(_legends)
 
         ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
-        if self.mag:
-            ax.set_ylabel(("Pressure Magnitude [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
-        elif self.real:
-            ax.set_ylabel(("Real part of Pressure Spectrum [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
-        elif self.imag:
-            ax.set_ylabel(("Imaginary part of Pressure Spectrum [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
+
         plt.show()
