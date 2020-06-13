@@ -37,6 +37,7 @@ class StructuralElement:
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.fluid = kwargs.get('fluid', None)
+        self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
 
     @property
     def length(self):
@@ -220,7 +221,7 @@ class StructuralElement:
         Ais = self.cross_section.area_insulation
         rho_insulation = self.cross_section.density_insulation
                     
-        if self.fluid is not None:
+        if self.fluid is not None and self.adding_mass_effect:
             rho_fluid = self.fluid.density
             Ai = self.cross_section.area_fluid
             Gfl = rho_fluid*np.array([[Ai, 0, 0],[0, Ai, 0],[0, 0, Ai]], dtype='float64') 

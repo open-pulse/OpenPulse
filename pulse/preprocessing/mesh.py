@@ -30,6 +30,7 @@ class Mesh:
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
+        self.flag_fluid_mass_effect = False
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -331,6 +332,17 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs_bc = boundary_condition
             self.structural_nodes_with_bc.append(node)
+
+    def set_fluid_mass_adding_effect(self, reset=False):
+        flag = self.flag_fluid_mass_effect
+        if reset and flag:
+            self.flag_fluid_mass_effect = False
+            for element in self.structural_elements.values():
+                element.adding_mass_effect = False
+        elif not reset:
+            self.flag_fluid_mass_effect = True
+            for element in self.structural_elements.values():
+                element.adding_mass_effect = True
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):

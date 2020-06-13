@@ -282,6 +282,7 @@ class InputUi:
                 return          
 
         if self.analysis_ID == 2:
+            self.project.mesh.set_fluid_mass_adding_effect(reset=True)
             solve = self.project.get_structural_solve()
             modes = self.project.get_modes()
         elif self.analysis_ID == 4:
@@ -290,10 +291,12 @@ class InputUi:
         elif self.analysis_ID == 3:
             solve = self.project.get_acoustic_solve()
         elif self.analysis_ID in [5,6]:
+            self.project.mesh.set_fluid_mass_adding_effect()
             solve = self.project.get_acoustic_solve()
             modes = self.project.get_modes()
             damping = self.project.get_damping()
         else:
+            self.project.mesh.set_fluid_mass_adding_effect(reset=True)
             solve = self.project.get_structural_solve()
             modes = self.project.get_modes()
             damping = self.project.get_damping()
