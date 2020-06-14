@@ -349,6 +349,29 @@
         <string>Plot the spectrum of TL or NR</string>
        </property>
       </widget>
+      <widget class="QToolButton" name="toolButton_ResetPlot">
+       <property name="geometry">
+        <rect>
+         <x>344</x>
+         <y>6</y>
+         <width>81</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(159, 247, 245);</string>
+       </property>
+       <property name="text">
+        <string>Reset plot</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_export_import">
       <attribute name="title">

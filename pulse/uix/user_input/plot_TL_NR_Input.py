@@ -88,6 +88,8 @@ class Plot_TL_NR_Input(QDialog):
         self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
         self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
         self.toolButton_ExportResults.clicked.connect(self.ExportResults)
+        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
 
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
@@ -139,6 +141,17 @@ class Plot_TL_NR_Input(QDialog):
             return
         
         return node_typed[0], True
+    
+    def messages(self, msg, title = " Information "):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()
+
+    def reset_imported_data(self):
+        self.imported_data = None
+        self.messages("The plot data has been reseted.")
 
     def radioButtonEvent_TL_NR(self):
         self.flagTL = self.radioButton_TL.isChecked()
@@ -283,10 +296,3 @@ class Plot_TL_NR_Input(QDialog):
         elif self.flagNR:
             ax.set_ylabel(("Attenuation [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
         plt.show()
-
-    def messages(self, msg, title = " Information "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
