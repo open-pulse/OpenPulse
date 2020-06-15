@@ -10,14 +10,14 @@ You can try it out now by running the tutorial on binder.
 
 ## Documentation
 
-Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://www.overleaf.com/read/qknbtmvyfxyn), [Matrix Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc) and [Analysis Types]. [Teste](https://open-pulse.github.io/OpenPulse/openpulse.yml)
+Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://www.overleaf.com/read/qknbtmvyfxyn), [Matrix Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc) and [Analysis Types]. 
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
 
 ## Requirements
 
-    Python v. 3.7 
+    Python v. 3.7.7 
     scipy
     matplotlib
     numpy
@@ -26,6 +26,8 @@ If you have any questions you can open a new issue with the tag 'question'.
     
 
 ## Installing
+
+    *Install Python 3.7.7*
 
     pip install -r requirements.txt
     
