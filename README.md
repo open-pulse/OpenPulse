@@ -27,8 +27,15 @@ If you have any questions you can open a new issue with the tag 'question'.
 
 ## Installing
 
-    *Install Python 3.7.7*
+- Install Python 3.7.7 ([download](https://www.python.org/downloads/release/python-377/)).
 
+- Install OpenPulse: clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (). 
+   
+ ...
+ 
+ ... 
+ 
+ 
     pip install -r requirements.txt
     
 ## Authors
