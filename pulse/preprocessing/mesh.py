@@ -25,7 +25,6 @@ class Mesh:
         self.structural_nodes_with_bc = []
         self.AcousticBCnodes = []
         self.connectivity_matrix = []
-        self.radius = {}
         self.nodal_coordinates_matrix = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
@@ -386,8 +385,14 @@ class Mesh:
             first = element.first_node.global_index
             last  = element.last_node.global_index
             radius = element.cross_section.external_radius
-            self.radius[first] = radius
-            self.radius[last] = radius
+            if self.radius.get(first, -1) == -1:
+                self.radius[first] = radius
+            elif self.radius[first] < radius:
+                self.radius[first] = radius
+            if self.radius.get(last, -1) == -1:
+                self.radius[last] = radius
+            elif self.radius[last] < radius:
+                self.radius[last] = radius
         return self.radius
 
     def check_material_and_cross_section_in_all_elements(self):
