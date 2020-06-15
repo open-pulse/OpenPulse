@@ -120,9 +120,19 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         x1, y1 = self.clickPosition
         x2, y2 = self.mousePosition
+
         picker = vtk.vtkAreaPicker()
         picker.AreaPick(x1, y1, x2, y2, renderer)
-        pickedActors = set(picker.GetProp3Ds())
+
+        tolerance = 5
+        tooSmall = (abs(x1-x2) < tolerance) or (abs(y1-y2) < tolerance)
+        clickedInside = picker.GetActor() is not None
+        
+        if tooSmall and clickedInside:
+            pickedActors = set()
+            pickedActors.add(picker.GetActor())
+        else:
+            pickedActors = set(picker.GetProp3Ds())
 
         controlPressed = self.GetInteractor().GetControlKey()
         shiftPressed = self.GetInteractor().GetShiftKey()
