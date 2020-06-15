@@ -116,6 +116,7 @@ if select == 1:
 
             # Principal Bending Axis Rotation
             self.principal_axis = None
+            self.principal_axis_translation = None
 
         @property
         def area_fluid(self):
@@ -379,14 +380,16 @@ if select == 1:
                     #
                     R = np.zeros([12, 12])
                     R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
+                    self.principal_axis_translation = T
                     self.principal_axis = R @ T
                 else:
                     translation = np.array([[ 0  , z_c,-y_c],
                                             [-z_s,  0 , 0  ],
                                             [y_s ,  0 , 0  ]])
-                    T = np.eye(12)
+                    T = self.principal_axis_rotation = np.eye(12)
                     T[0:3,3:6]   = translation
                     T[6:9,9:12]  = translation
+                    self.principal_axis_translation = T
                     self.principal_axis = T
         
         def update_properties(self):

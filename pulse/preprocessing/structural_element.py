@@ -39,6 +39,12 @@ class StructuralElement:
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
 
+        self._Dab = None
+        self._Bab = None
+        self._Dts = None
+        self._Bts = None
+        self._rot = None
+
     @property
     def length(self):
         return distance(self.first_node, self.last_node) 
@@ -57,7 +63,7 @@ class StructuralElement:
         return rows, cols
 
     def matrices_gcs(self):
-        R = self.rotation_matrix()
+        self._rot = R = self.rotation_matrix()
         Rt = R.T
         stiffness = Rt @ self.stiffness_matrix() @ R
         mass = Rt @ self.mass_matrix() @ R
@@ -169,10 +175,12 @@ class StructuralElement:
         Dts = mu*np.array([[J,   -Qy,   Qz],
                         [-Qy, aly*A,  0  ],
                         [Qz,   0,  alz*A]])
+        self._Dts = Dts
         # Axial and Bending
         Dab = E*np.array([[A,  Qy , -Qz],
                         [Qy, Iy , -Iyz],
                         [-Qz,-Iyz, Iz]])
+        self._Dab = Dab
 
         ## Numerical integration by Gauss Quadracture
         integrations_points = 1
@@ -191,6 +199,7 @@ class StructuralElement:
             Bab = np.zeros([3, 12])
             Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
             Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
+            self._Bab = Bab
 
             # Torsional and Shear B-matrix
             Bts = np.zeros((3,12))
@@ -200,6 +209,7 @@ class StructuralElement:
             Bts[[0,1,2],[9,7,8]] = dphi[1] # 2nd node
             Bts[[1],[11]] = -phi[1]
             Bts[[2],[10]] = phi[1]
+            self._Bts = Bts
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
