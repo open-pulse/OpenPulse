@@ -203,9 +203,9 @@ class MainWindow(QMainWindow):
         self.plotAcousticFrequencyResponse.setStatusTip('Plot Acoustic Frequency Response')
         self.plotAcousticFrequencyResponse.triggered.connect(self.getInputWidget().plotAcousticFrequencyResponse)
 
-        self.plot_TL_NR = QAction('&Plot Transmission Loss or Noise Reduction', self)        
+        self.plot_TL_NR = QAction('&Plot Transmission Loss or Attenuation', self)        
         self.plot_TL_NR.setShortcut('Ctrl+V')
-        self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Noise Reduction')
+        self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
     def _create_menu_bar(self):

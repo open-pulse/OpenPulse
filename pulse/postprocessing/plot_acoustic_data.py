@@ -11,7 +11,6 @@ def get_acoustic_frf(mesh, solution, node, absolute=False, real=False, imag=Fals
         results = np.imag(solution[position])
     else:
         results = solution[position]
-
     if dB:
         p_ref = 20e-6
         results = 20*np.log10(np.abs(results/p_ref))

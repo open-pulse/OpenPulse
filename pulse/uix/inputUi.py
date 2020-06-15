@@ -97,8 +97,7 @@ class InputUi:
 
     def set_crossSection(self):
         cross_input = CrossSectionInput()
-        all_lines = self.project.mesh.all_lines
-             
+
         if not cross_input.complete:
             return
         else:
@@ -116,6 +115,7 @@ class InputUi:
             # self.project.set_crossSection_by_entity(ent, cross)
             print("[Set Cross-section] - defined in the lines {}".format(lines_id))
         else:
+            all_lines = self.project.mesh.all_lines
             self.project.set_cross_section_mapped(all_lines, ext_diam, thickness, offset_y, offset_z)
             # self.project.set_crossSection(cross_input.section)
             print("[Set Cross-section] - defined in all the entities")
@@ -283,6 +283,7 @@ class InputUi:
                 return          
 
         if self.analysis_ID == 2:
+            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
             solve = self.project.get_structural_solve()
             modes = self.project.get_modes()
         elif self.analysis_ID == 4:
@@ -291,10 +292,12 @@ class InputUi:
         elif self.analysis_ID == 3:
             solve = self.project.get_acoustic_solve()
         elif self.analysis_ID in [5,6]:
+            self.project.mesh.enable_fluid_mass_adding_effect()
             solve = self.project.get_acoustic_solve()
             modes = self.project.get_modes()
             damping = self.project.get_damping()
         else:
+            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
             solve = self.project.get_structural_solve()
             modes = self.project.get_modes()
             damping = self.project.get_damping()
@@ -383,18 +386,20 @@ class InputUi:
             return
 
     def plotStructuralFrequencyResponse(self):
+        point_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStructuralFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotStructuralFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, point_id)
 
     def plotAcousticFrequencyResponse(self):
+        point_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+            PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, point_id)
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:

@@ -79,7 +79,7 @@ if select == 1:
         return  mat_phi, mat_dphi
 
     class CrossSection:
-        def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio, element_type='pipe_1', division_number = 64):
+        def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio, element_type='pipe_1', division_number = 64, **kwargs):
             self.external_diameter = external_diameter
             self.thickness = thickness
             self.offset = [offset_y, offset_z]
@@ -92,6 +92,9 @@ if select == 1:
             
             self.external_radius = external_diameter/2
             self.internal_diameter = external_diameter - 2*thickness
+
+            self.insulation_thickness = kwargs.get('insulation_thickness', 0)
+            self.density_insulation = kwargs.get('density_insulation', 0)
 
             # Area properties
             self.area = 0
@@ -117,6 +120,10 @@ if select == 1:
         @property
         def area_fluid(self):
             return (self.internal_diameter**2) * pi / 4
+
+        @property
+        def area_insulation(self):
+            return (((self.external_diameter+2*self.insulation_thickness)**2)-(self.external_diameter**2)) * pi / 4
 
         def getExternalDiameter(self):
             return self.external_diameter

@@ -17,8 +17,6 @@ class ElementTypeInput(QDialog):
 
         self.index = 0
         self.element_type = 'pipe_1'
-        self.flagAll = False
-        self.flagEntity = False
 
         self.comboBox = self.findChild(QComboBox, 'comboBox')
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
@@ -28,6 +26,8 @@ class ElementTypeInput(QDialog):
         self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_entity.toggled.connect(self.radioButtonEvent)
+        self.flagAll = self.radioButton_all.isChecked()
+        self.flagEntity = self.radioButton_entity.isChecked()
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_2.clicked.connect(self.button_clicked)

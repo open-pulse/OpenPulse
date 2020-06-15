@@ -30,6 +30,7 @@ class Mesh:
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
+        self.flag_fluid_mass_effect = False
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -132,12 +133,15 @@ class Mesh:
             last_node  = self.nodes[map_nodes[connect[1]]]
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node)
 
-    def _map_lines_to_elements(self):
-        mapping = self.map_elements
-        for dim, tag in gmsh.model.getEntities(1):
-            elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
-            self.line_to_elements[tag] = np.array([mapping[element] for element in elements_of_entity], dtype=int)
- 
+    def _map_lines_to_elements(self, mesh_loaded=False):
+        if mesh_loaded:
+            self.line_to_elements[1] = list(self.structural_elements.keys())
+        else:    
+            mapping = self.map_elements
+            for dim, tag in gmsh.model.getEntities(1):
+                elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
+                self.line_to_elements[tag] = np.array([mapping[element] for element in elements_of_entity], dtype=int)
+
     def _finalize_gmsh(self):
         gmsh.finalize()
 
@@ -176,7 +180,7 @@ class Mesh:
     def load_mesh(self, coordinates, connectivity):
 
         coordinates = np.loadtxt(coordinates)
-        connectivity = np.loadtxt(connectivity, dtype=int)
+        connectivity = np.loadtxt(connectivity, dtype=int).reshape(-1,3)
 
         newEntity = Entity(1)
         map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
@@ -201,6 +205,8 @@ class Mesh:
 
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self.all_lines.append(1)
+        self._map_lines_to_elements(mesh_loaded=True)
 
     def get_nodal_coordinates_matrix(self, reordering=True):
     # Process the coordinates matrix for all nodes
@@ -281,7 +287,7 @@ class Mesh:
         for element in slicer(self.acoustic_elements, elements):
             element.cross_section = cross_section
         dt = time() - t0
-        print("Total time: {}s".format(dt))
+        print("Time to process Cross-section: {} [s]".format(round(dt, 6)))
         
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):
@@ -325,12 +331,24 @@ class Mesh:
     def set_prescribed_dofs_bc_by_node(self, nodes, boundary_condition):
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs_bc = boundary_condition
-            # self.sum_prescribedDOFs += sum([i for i in boundary_condition if i is not None])
             self.structural_nodes_with_bc.append(node)
+
+    def enable_fluid_mass_adding_effect(self, reset=False):
+        flag = self.flag_fluid_mass_effect
+        if reset and flag:
+            self.flag_fluid_mass_effect = False
+            for element in self.structural_elements.values():
+                element.adding_mass_effect = False
+        elif not reset:
+            self.flag_fluid_mass_effect = True
+            for element in self.structural_elements.values():
+                element.adding_mass_effect = True
 
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
         for element in slicer(self.acoustic_elements, elements):
+            element.fluid = fluid
+        for element in slicer(self.structural_elements, elements):
             element.fluid = fluid
     
     def set_fluid_by_line(self, lines, fluid):
@@ -340,7 +358,6 @@ class Mesh:
     def set_volume_velocity_bc_by_node(self, nodes, volume_velocity):
         for node in slicer(self.nodes, nodes):
             node.volume_velocity = volume_velocity
-            # self.sum_volumeVelocity += volume_velocity
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):

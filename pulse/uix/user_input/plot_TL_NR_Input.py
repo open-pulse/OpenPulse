@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton
+from PyQt5.QtWidgets import QMessageBox, QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton
 from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -59,11 +59,11 @@ class Plot_TL_NR_Input(QDialog):
 
         self.mesh = mesh
         self.userPath = os.path.expanduser('~')
+        self.path = ""
         
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
-        self.nodeID = 0
 
         self.mag = False
         self.real = False
@@ -72,15 +72,27 @@ class Plot_TL_NR_Input(QDialog):
         self.flagNR = False
         self.input_node = None
         self.output_node = None
+        self.imported_data = None
         self.elements = self.mesh.acoustic_elements
         self.dict_elements_diameter = self.mesh.neighbour_elements_diameter()
     
         self.lineEdit_inputNodeID = self.findChild(QLineEdit, 'lineEdit_inputNodeID')   
         self.lineEdit_outputNodeID = self.findChild(QLineEdit, 'lineEdit_outputNodeID')
-        self.lineEdit_resultsPath = self.findChild(QLineEdit, 'lineEdit_resultsPath')
+        self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
+        self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
+        self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
 
-        self.toolButton_import_results = self.findChild(QToolButton, 'toolButton_Import')
-        self.toolButton_import_results.clicked.connect(self.import_results)
+        self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
+        self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
+        self.toolButton_ChooseFolderExport = self.findChild(QToolButton, 'toolButton_ChooseFolderExport')
+        self.toolButton_ChooseFolderExport.clicked.connect(self.choose_path_export_results)
+        self.toolButton_ExportResults = self.findChild(QToolButton, 'toolButton_ExportResults')
+        self.toolButton_ExportResults.clicked.connect(self.ExportResults)
+        self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
+        self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
+
+        self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
+        self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
 
         self.radioButton_TL = self.findChild(QRadioButton, 'radioButton_TL')
         self.radioButton_NR = self.findChild(QRadioButton, 'radioButton_NR')
@@ -89,15 +101,13 @@ class Plot_TL_NR_Input(QDialog):
         self.flagTL = self.radioButton_TL.isChecked()
         self.flagNR = self.radioButton_NR.isChecked()
 
+        self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
+        self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)
+
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
         self.exec_()
-
-    def import_results(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.name = basename(self.path)
-        self.lineEdit_resultsPath.setText(str(self.path))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -119,7 +129,7 @@ class Plot_TL_NR_Input(QDialog):
                 except:
                     message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
                     error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                    return
+                    return 
             elif len(node_typed) == 0:
                 error("Please, enter a valid Node ID!")
                 return
@@ -129,21 +139,89 @@ class Plot_TL_NR_Input(QDialog):
         except Exception:
             error("Wrong input for Node ID's!", title="Error Node ID's")
             return
-        return node_typed[0]
+        
+        return node_typed[0], True
+    
+    def messages(self, msg, title = " Information "):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.setText(msg)
+        msg_box.setWindowTitle(title)
+        msg_box.exec_()
+
+    def reset_imported_data(self):
+        self.imported_data = None
+        self.messages("The plot data has been reseted.")
 
     def radioButtonEvent_TL_NR(self):
         self.flagTL = self.radioButton_TL.isChecked()
         self.flagNR = self.radioButton_NR.isChecked()
 
-    def check(self):
-        self.input_node = self.check_node(self.lineEdit_inputNodeID)
-        self.output_node = self.check_node(self.lineEdit_outputNodeID)
-        print(self.input_node, self.output_node)
-        self.plot()
+    def check(self, export=False):
+        self.input_node, input_ok = self.check_node(self.lineEdit_inputNodeID)
+        self.output_node, output_ok = self.check_node(self.lineEdit_outputNodeID)
+        if input_ok and output_ok and not export:
+            self.plot()
+        else:
+            return
 
-    def dB(self, data):
-        p_ref = 20e-6 
-        return 20*np.log10(data/p_ref)
+    def choose_path_import_results(self):
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.import_name = basename(self.import_path)
+        self.lineEdit_ImportResultsPath.setText(str(self.import_path))
+    
+    def ImportResults(self):
+        self.imported_data = np.loadtxt(self.import_path, delimiter=",")
+        self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+        self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+        self.messages("The results has been imported.")
+
+    def choose_path_export_results(self):
+        self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
+        self.save_name = basename(self.save_path)
+        self.lineEdit_SaveResultsPath.setText(str(self.save_path))
+        if self.lineEdit_FileName.text() != "":
+            self.export_path_folder = self.save_path + "/" 
+        else:
+            error("Inform a file name before trying export the results!")
+            return
+    
+    def ExportResults(self):
+        self.check(export=True)
+        TL, NR = self.get_TL_NR()
+        freq = self.frequencies
+
+        check_name_TL = []
+        check_name_NR = []
+        for a in ["NR", "Nr", "nr", "attenuation", "Attenuation", "ATTENUATION"]:
+            if a in self.lineEdit_FileName.text():
+                check_name_TL.append(True)
+            else:
+                check_name_TL.append(False)
+
+        for a in ["TL", "Tl","tl", "tranmission", "loss", "Transmission", "Loss", "TRANSMISSION", "LOSS"]:
+            if a in self.lineEdit_FileName.text():
+                check_name_NR.append(True)
+            else:
+                check_name_NR.append(False)
+
+        if self.flagTL:
+            if True in check_name_TL:
+                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
+                return
+            self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+            data_to_export = np.array([freq, TL]).T
+            header = "Frequency[Hz], TL - Magnitude [dB]"
+            np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
+        else:
+            if True in check_name_NR:
+                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
+                return
+            self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+            data_to_export = np.array([freq, NR]).T
+            header = "Frequency[Hz], NR - Magnitude [dB]"
+            np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
+        self.messages("The results has been exported.")
 
     def get_minor_external_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]
@@ -157,9 +235,7 @@ class Plot_TL_NR_Input(QDialog):
         ind = internal_diameter.index(min(internal_diameter))
         return internal_diameter[ind], density[ind], sound_velocity[ind]
 
-    def plot(self):
-
-        frequencies = self.frequencies
+    def get_TL_NR(self):
         P_input = get_acoustic_frf(self.mesh, self.solution, self.input_node)
         P_output = get_acoustic_frf(self.mesh, self.solution, self.output_node)
         
@@ -168,45 +244,51 @@ class Plot_TL_NR_Input(QDialog):
 
         d_in, rho_in, c0_in = self.get_minor_external_diameter_from_node(self.input_node)
         d_out, rho_out, c0_out = self.get_minor_external_diameter_from_node(self.output_node)
-                
-        if self.flagTL:
-            if P_input2.all()!=0:
-                alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
-                TL = -10*np.log10(alpha_T)
-                results = TL
-                analysis_label = "TRANSMISSION LOSS"
-            else:
-                message = "The input pressure must be different from zero value!"
-                error(message, title=" Input pressure value Error ")
-        else:
-            if P_input2.all()!=0:
-                delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
-                NR = 10*np.log10(delta)
-                results = NR
-                analysis_label = "SOUND ATTENUATION"
-            else:
-                message = "The input pressure must be different from zero value!"
-                error(message, title=" Input pressure value Error ")               
 
-        fig = plt.figure(figsize=[12,8])
+        if P_input2.all()!=0:
+            alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
+            TL = -10*np.log10(alpha_T)
+            delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
+            NR = 10*np.log10(delta)
+        else:
+            message = "The input pressure must be different from zero value!"
+            error(message, title=" Input pressure value Error ")
+        return TL, NR
+
+    def plot(self):
+
+        fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
+
+        frequencies = self.frequencies
+        TL, NR = self.get_TL_NR()
+
+        if self.flagTL:
+            results = TL
+            analysis_label = "TRANSMISSION LOSS"
+        else:
+            results = NR
+            analysis_label = "ATTENUATION"
+         
         # mng = plt.get_current_fig_manager()
         # mng.window.state('zoomed')
 
         #cursor = Cursor(ax)
         cursor = SnaptoCursor(ax, frequencies, results, show_cursor=True)
         plt.connect('motion_notify_event', cursor.mouse_move)
-
-        legend_label = "Acoustic Pressure at node {}".format(self.nodeID)
-
-        if results.all()==0:
-            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
-        else:    
-            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
-        
-        first_legend = plt.legend(handles=[first_plot], loc='upper right')
-        plt.gca().add_artist(first_legend)
         unit_label = "dB"
+        legend_label = "Input Node ID: {} || Output Node ID: {}".format(self.input_node, self.output_node)
+
+        if self.imported_data is None:
+            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+        else:    
+            first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2)
+            second_plot, = plt.plot(self.imported_data[:,0], self.imported_data[:,1], color=[0,0,1], linewidth=2, linestyle="--")
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
+        
+        plt.gca().add_artist(_legends)
+
         ax.set_title(('SPECTRUM OF THE {}').format(analysis_label), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
         if self.flagTL:
