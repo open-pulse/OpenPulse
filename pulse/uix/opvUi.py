@@ -68,12 +68,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.slider2d.SetEndCapLength(0.01)
         #self.slider2d.SetTitleText('Scale')
 
-        width, _ = self.rendererAnalysis.getSize()
+        width, height = self.rendererAnalysis.getSize()
+        height -= 30
+        width = 20
 
         self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint1Coordinate().SetValue(width-1410,815)
+        self.slider2d.GetPoint1Coordinate().SetValue(width,height)
         self.slider2d.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        self.slider2d.GetPoint2Coordinate().SetValue(width-1210, 815)
+        self.slider2d.GetPoint2Coordinate().SetValue(width + 200, height)
 
         self.slider2d.SetTubeWidth(tubeWidth)
         self.slider2d.SetSliderLength(sliderLength)

@@ -19,7 +19,6 @@ class RendererEntity(vtkRendererBase):
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
-            height, width = -1, -1
         elif len(listActorsIDs) == 1:
             entity = self.project.get_entity(listActorsIDs[0])
             material_name = "Undefined"
@@ -31,10 +30,8 @@ class RendererEntity(vtkRendererBase):
                 diam_ext = entity.getCrossSection().getExternalDiameter()
                 thickness = entity.getCrossSection().getThickness()
             text = "Line ID  {}\nMaterial:  {}\nExternal Diameter:  {} [m]\nThickness:  {} [m]".format(listActorsIDs[0], material_name, diam_ext, thickness)
-            height, width  = 880, 20
         else:
             text = "Selected Lines:\n"
-            width = 20
             i = 0
             for ids in listActorsIDs:
                 if i == 30:
@@ -45,8 +42,7 @@ class RendererEntity(vtkRendererBase):
                 else:
                     text += "{}  ".format(ids)
                 i+=1
-            height = 900-i
-        self.createInfoText(text, width=width, height=height)
+        self.createInfoText(text)
 
     def reset(self):
         for actor in self._renderer.GetActors():

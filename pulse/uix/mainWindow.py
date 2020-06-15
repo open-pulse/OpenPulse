@@ -286,14 +286,8 @@ class MainWindow(QMainWindow):
             self.draw()
 
     def import_call(self):
-        userPath = expanduser('~')
-        projectPath = "{}\\OpenPulse\\Projects".format(userPath)
-        if not exists(projectPath):
-            projectPath = ""
-        path, _type = QFileDialog.getOpenFileName(None, 'Open file', projectPath, 'OpenPulse Project (*.ini)')
-        if path != "":
-            self.reset_info()
-            self.project.load_project(path)
+        loaded = self.inputWidget.loadProject()
+        if loaded:
             self._change_window_title(self.project.get_project_name())
             self.draw()
 

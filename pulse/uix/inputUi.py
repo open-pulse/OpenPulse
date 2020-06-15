@@ -12,6 +12,7 @@ from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
+from pulse.uix.user_input.loadProjectInput import LoadProjectInput
 
 from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
 from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
@@ -408,6 +409,10 @@ class InputUi:
     def new_project(self):
         result = NewProjectInput(self.project)
         return result.create
+
+    def loadProject(self):
+        load = LoadProjectInput(self.project)
+        return load.complete
 
     def _check_is_there_a_problem(self):
 

@@ -1,3 +1,4 @@
+from PyQt5.QtWidgets import QProgressBar, QLabel
 from pulse.preprocessing.mesh import Mesh
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
@@ -87,6 +88,41 @@ class Project:
             self.load_analysis_file()
         else:
             self.load_frequencies_from_table()
+
+    def load_project_progress_bar(self, projectFilePath, progressBar, textLabel):
+
+        progressBar.setValue(0)
+        textLabel.setText("Loading Project File...")
+        self.reset_info()
+        self.file.load(projectFilePath)
+        progressBar.setValue(10)
+        textLabel.setText("Generating Mesh...")
+        self._projectName = self.file._projectName
+
+        if self.file.getImportType() == 0:
+            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
+        elif self.file.getImportType() == 1:
+            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
+        progressBar.setValue(30)
+        textLabel.setText("Loading Structural B.C File...")
+
+        self.load_structural_bc_file()
+        progressBar.setValue(50)
+        textLabel.setText("Loading Acoustic B.C File...")
+        self.load_acoustic_bc_file()
+        progressBar.setValue(70)
+        textLabel.setText("Loading Entity File...")
+        self.load_entity_file()
+        progressBar.setValue(90)
+
+        if self.file.tempPath is None:
+            textLabel.setText("Loading Analysis File...")
+            self.load_analysis_file()
+        else:
+            textLabel.setText("Loading Frequencies from Table...")
+            self.load_frequencies_from_table()
+        progressBar.setValue(100)
+        textLabel.setText("Complete!")
   
     def set_cross_section_mapped(self, entities, ext_diam, thickness, offset_y, offset_z):
         

@@ -42,17 +42,16 @@ class vtkRendererBase(ABC):
     def setInUse(self, value):
         self._inUse = value
 
-    def createInfoText(self, text, width = -1, height = -1):
+    def createInfoText(self, text):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
-        if width == -1 and height == -1:
-            #Empiric values
-            width, height = self._renderer.GetSize()
-            height -= 140
-            width = 20
-            # width, height = self._renderer.GetSize()
-            # height = 35
-            # width -= 250
+        #Empiric values
+        width, height = self._renderer.GetSize()
+        height -= 150
+        width = 20
+        # width, height = self._renderer.GetSize()
+        # height = 35
+        # width -= 250
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
         self._textActor.SetDisplayPosition(width, height)
