@@ -43,7 +43,7 @@ python pulse.py
 
 ## Authors
 
-The authors are members of MOPT - Multidisciplinary Optimization Group, from Federal University of Santa Catarina (Florianópolis, SC. Brazil).
+The authors are members of MOPT - Multidisciplinary Optimization Group, from Federal University of Santa Catarina (Florianópolis, SC, Brazil).
 
     Olavo M. Silva,
     Jacson G. Vargas,
