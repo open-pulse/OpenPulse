@@ -31,7 +31,8 @@ class AcousticPressureInput(QDialog):
         self.remove_acoustic_pressure = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
-        self.lineEdit_acoustic_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
+        self.lineEdit_acoustic_pressure_real = self.findChild(QLineEdit, 'lineEdit_pressure_real')
+        self.lineEdit_acoustic_pressure_imag = self.findChild(QLineEdit, 'lineEdit_pressure_imag')
         self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
@@ -105,14 +106,30 @@ class AcousticPressureInput(QDialog):
                 error("Invalid acoustic pressure table!")
                 return
         else:
+
             acoustic_pressure = None
-            if self.lineEdit_acoustic_pressure.text() != "":
+            acoustic_pressure_real = 0
+            acoustic_pressure_imag = 0
+            if self.lineEdit_acoustic_pressure_real.text() != "":
                 try:
-                    acoustic_pressure = float(self.lineEdit_acoustic_pressure.text())
+                    acoustic_pressure_real = float(self.lineEdit_acoustic_pressure_real.text())
+                    self.flag_real = True
                 except Exception:
                     error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
                     return
-            else:
+
+            if self.lineEdit_acoustic_pressure_imag.text() != "":
+                try:
+                    acoustic_pressure_imag = float(self.lineEdit_acoustic_pressure_imag.text())
+                    self.flag_imag = True
+                except Exception:
+                    error("Wrong input for the Acoustic Pressure!", title = " ERROR ")
+                    return
+
+            if self.flag_real or self.flag_imag:
+                acoustic_pressure = acoustic_pressure_real + 1j*acoustic_pressure_imag
+            
+            if self.lineEdit_acoustic_pressure_real.text() == "" and self.lineEdit_acoustic_pressure_imag.text() == "":
                 Qclose = QMessageBox.question(
                     self,
                     "WARNING",
@@ -126,4 +143,5 @@ class AcousticPressureInput(QDialog):
                 # error(("The pressure(s) assigned to the Node(s): {} has been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
 
             self.acoustic_pressure = acoustic_pressure
+        print("ainda passei aqui")
         self.close()

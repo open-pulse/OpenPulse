@@ -19,6 +19,18 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>391</width>
+    <height>281</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>391</width>
+    <height>281</height>
+   </size>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
@@ -159,6 +171,15 @@
        <height>181</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="focusPolicy">
       <enum>Qt::StrongFocus</enum>
      </property>
@@ -190,9 +211,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_12">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>30</x>
          <y>40</y>
-         <width>101</width>
+         <width>111</width>
          <height>111</height>
         </rect>
        </property>
@@ -201,33 +222,75 @@
          <widget class="QLabel" name="label_20">
           <property name="font">
            <font>
-            <underline>false</underline>
-            <strikeout>false</strikeout>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Outer Diameter:</string>
+           <string>Outer diameter:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_21">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Thickness:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_22">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Offset y:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_23">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>Offset z:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -236,9 +299,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_10">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>158</x>
          <y>10</y>
-         <width>171</width>
+         <width>101</width>
          <height>31</height>
         </rect>
        </property>
@@ -247,12 +310,15 @@
          <widget class="QLabel" name="label_18">
           <property name="font">
            <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
             <weight>75</weight>
+            <italic>true</italic>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Values</string>
+           <string>VALUES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -264,9 +330,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_11">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>30</x>
          <y>10</y>
-         <width>101</width>
+         <width>111</width>
          <height>31</height>
         </rect>
        </property>
@@ -275,12 +341,15 @@
          <widget class="QLabel" name="label_19">
           <property name="font">
            <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
             <weight>75</weight>
+            <italic>true</italic>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Entries</string>
+           <string>ENTRIES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -292,20 +361,30 @@
       <widget class="QWidget" name="verticalLayoutWidget_7">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>158</x>
          <y>40</y>
-         <width>171</width>
-         <height>111</height>
+         <width>101</width>
+         <height>113</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <widget class="QLineEdit" name="lineEdit_outerDiameter"/>
+         <widget class="QLineEdit" name="lineEdit_outerDiameter">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_thickness">
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -314,12 +393,18 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_offset_z">
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -328,7 +413,7 @@
       <widget class="QWidget" name="verticalLayoutWidget_9">
        <property name="geometry">
         <rect>
-         <x>310</x>
+         <x>278</x>
          <y>10</y>
          <width>41</width>
          <height>31</height>
@@ -339,12 +424,15 @@
          <widget class="QLabel" name="label_17">
           <property name="font">
            <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
             <weight>75</weight>
+            <italic>true</italic>
             <bold>true</bold>
            </font>
           </property>
           <property name="text">
-           <string>Units</string>
+           <string>UNITS</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -356,15 +444,36 @@
       <widget class="QWidget" name="verticalLayoutWidget_8">
        <property name="geometry">
         <rect>
-         <x>310</x>
+         <x>278</x>
          <y>40</y>
          <width>41</width>
-         <height>111</height>
+         <height>113</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_8">
+        <property name="spacing">
+         <number>6</number>
+        </property>
+        <property name="bottomMargin">
+         <number>3</number>
+        </property>
         <item>
          <widget class="QLabel" name="label_13">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>18</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>[m]</string>
           </property>
@@ -375,6 +484,15 @@
         </item>
         <item>
          <widget class="QLabel" name="label_14">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
            <string>[m]</string>
           </property>
@@ -385,8 +503,17 @@
         </item>
         <item>
          <widget class="QLabel" name="label_15">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>[%]</string>
+           <string>[m]</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -395,8 +522,17 @@
         </item>
         <item>
          <widget class="QLabel" name="label_16">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>9</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
           <property name="text">
-           <string>[%]</string>
+           <string>[m]</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -413,9 +549,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_18">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>50</x>
          <y>40</y>
-         <width>101</width>
+         <width>75</width>
          <height>111</height>
         </rect>
        </property>
@@ -425,12 +561,18 @@
           <property name="text">
            <string>Area:</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_32">
           <property name="text">
            <string>Iyy:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -439,12 +581,18 @@
           <property name="text">
            <string>Izz:</string>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="label_34">
           <property name="text">
            <string>Iyz:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -453,13 +601,19 @@
       <widget class="QWidget" name="verticalLayoutWidget_17">
        <property name="geometry">
         <rect>
-         <x>310</x>
+         <x>290</x>
          <y>40</y>
          <width>41</width>
          <height>111</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_17">
+        <property name="spacing">
+         <number>4</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QLabel" name="label_27">
           <property name="text">
@@ -505,9 +659,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_14">
        <property name="geometry">
         <rect>
-         <x>20</x>
+         <x>50</x>
          <y>10</y>
-         <width>101</width>
+         <width>75</width>
          <height>31</height>
         </rect>
        </property>
@@ -521,7 +675,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Entries</string>
+           <string>ENTRIES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -533,9 +687,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_13">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>144</x>
          <y>10</y>
-         <width>171</width>
+         <width>119</width>
          <height>31</height>
         </rect>
        </property>
@@ -549,7 +703,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Values</string>
+           <string>VALUES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -561,7 +715,7 @@
       <widget class="QWidget" name="verticalLayoutWidget_16">
        <property name="geometry">
         <rect>
-         <x>310</x>
+         <x>290</x>
          <y>10</y>
          <width>41</width>
          <height>31</height>
@@ -577,7 +731,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Units</string>
+           <string>UNITS</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -589,9 +743,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_15">
        <property name="geometry">
         <rect>
-         <x>130</x>
+         <x>144</x>
          <y>40</y>
-         <width>171</width>
+         <width>119</width>
          <height>111</height>
         </rect>
        </property>
@@ -601,12 +755,18 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_iyy">
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -615,12 +775,363 @@
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
           </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
          </widget>
         </item>
         <item>
          <widget class="QLineEdit" name="lineEdit_iyz">
           <property name="focusPolicy">
            <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_3">
+      <attribute name="title">
+       <string>Insulation</string>
+      </attribute>
+      <widget class="QWidget" name="verticalLayoutWidget_19">
+       <property name="geometry">
+        <rect>
+         <x>148</x>
+         <y>64</y>
+         <width>97</width>
+         <height>89</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_19">
+        <property name="spacing">
+         <number>11</number>
+        </property>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_InsulationDensity">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="lineEdit_InsulationThickness">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_20">
+       <property name="geometry">
+        <rect>
+         <x>54</x>
+         <y>64</y>
+         <width>77</width>
+         <height>87</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_20">
+        <item>
+         <widget class="QLabel" name="label_35">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+            <underline>false</underline>
+            <strikeout>false</strikeout>
+           </font>
+          </property>
+          <property name="text">
+           <string>Density:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_36">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Thickness:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_21">
+       <property name="geometry">
+        <rect>
+         <x>262</x>
+         <y>64</y>
+         <width>52</width>
+         <height>85</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_21">
+        <item>
+         <widget class="QLabel" name="label_37">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+            <underline>false</underline>
+            <strikeout>false</strikeout>
+           </font>
+          </property>
+          <property name="text">
+           <string>[kg/m³]</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_38">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>50</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>[m]</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_24">
+       <property name="geometry">
+        <rect>
+         <x>54</x>
+         <y>22</y>
+         <width>77</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_24">
+        <item>
+         <widget class="QLabel" name="label_41">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="text">
+           <string>ENTRIES</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_23">
+       <property name="geometry">
+        <rect>
+         <x>148</x>
+         <y>22</y>
+         <width>97</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_23">
+        <item>
+         <widget class="QLabel" name="label_40">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="text">
+           <string>VALUES</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_25">
+       <property name="geometry">
+        <rect>
+         <x>262</x>
+         <y>22</y>
+         <width>53</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_25">
+        <item>
+         <widget class="QLabel" name="label_42">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>29</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="text">
+           <string>UNITS</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
           </property>
          </widget>
         </item>
@@ -632,10 +1143,19 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>200</y>
+       <y>202</y>
        <width>171</width>
-       <height>23</height>
+       <height>27</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>Confirm</string>
@@ -644,6 +1164,20 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEdit_outerDiameter</tabstop>
+  <tabstop>lineEdit_thickness</tabstop>
+  <tabstop>lineEdit_offset_y</tabstop>
+  <tabstop>lineEdit_offset_z</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>lineEdit_area</tabstop>
+  <tabstop>lineEdit_iyy</tabstop>
+  <tabstop>lineEdit_izz</tabstop>
+  <tabstop>lineEdit_iyz</tabstop>
+  <tabstop>lineEdit_InsulationDensity</tabstop>
+  <tabstop>lineEdit_InsulationThickness</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

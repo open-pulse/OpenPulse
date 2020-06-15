@@ -474,7 +474,8 @@ class ProjectFile:
 
             elif value[0] != 'None':
                 try:
-                    output = float(value[0])
+                    output = complex(value[0])
+                    
                 except Exception:
                     return
         return output
