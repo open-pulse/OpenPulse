@@ -189,16 +189,16 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                 try:
                     self.nodeID = self.mesh.nodes[node_typed[0]].external_index
                 except:
-                    self.error("Incorrect Node ID input!")
+                    error("Incorrect Node ID input!")
                     return
             elif len(node_typed) == 0:
-                self.error("Please, enter a valid Node ID!")
+                error("Please, enter a valid Node ID!")
                 return
             else:
-                self.error("Multiple Node IDs", "Error Node ID's")
+                error("Multiple Node IDs", "Error Node ID's")
                 return
         except Exception:
-            self.error("Wrong input for Node ID's!", "Error Node ID's")
+            error("Wrong input for Node ID's!", "Error Node ID's")
             return
 
         if self.radioButton_ux.isChecked():
