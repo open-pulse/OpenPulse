@@ -58,4 +58,6 @@ The authors are members of MOPT - Multidisciplinary Optimization Group, from Fed
     José L. Souza,
     Ana P. Rocha.
 
+![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true)
+
 **
