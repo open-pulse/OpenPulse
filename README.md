@@ -35,7 +35,7 @@ python pulse.py
     
 ## Documentation
 
-- Theory Reference for [1D Acoustics using FETM](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM](https://), [Solution Types](https://) and [Matrix Assembly Technique using Python](https://www.overleaf.com/read/kzbbgbvpjjqc).
+- Theory Reference for [1D Acoustics using FETM](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM](https://), [Solution Types](https://) and [Matrix Assembly Technique using Python](https://open-pulse.github.io/OpenPulse/doc/Assembly.pdf).
 
 - [User Guide for Structural Analysis (Portuguese)](https://open-pulse.github.io/OpenPulse/doc/TEMP_Structural_UserGuide.pdf).
 
