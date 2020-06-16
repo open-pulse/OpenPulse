@@ -32,7 +32,7 @@ class SolutionAcoustic:
         full_solution[unprescribed_indexes, :] = solution
 
         for index, values in enumerate(self.prescribed_values):
-            if isinstance(values, complex): #change to complex as soon as possible
+            if isinstance(values, complex):
                 full_solution[self.prescribed_indexes[index], :] = np.ones(cols)*np.array(values).reshape(-1, 1)       
             elif isinstance(values, np.ndarray):
                 full_solution[self.prescribed_indexes[index], :] = np.array(values).reshape(1, -1)
@@ -55,7 +55,7 @@ class SolutionAcoustic:
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
         
         for values in self.prescribed_values:
-            if isinstance(values, complex): #change to complex as soon as possible
+            if isinstance(values, complex):
                 for i in range(len(self.frequencies)):
                     volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * values, axis=1)    
             elif isinstance(values, np.ndarray):

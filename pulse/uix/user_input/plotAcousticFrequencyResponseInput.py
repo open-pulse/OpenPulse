@@ -254,8 +254,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         legend_label = "Acoustic Pressure at node {}".format(self.nodeID)
         
         if self.imported_data is None:
-                
-            first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+
+            if self.plotAbs and not self.scale_dB:
+                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+            else:
+                first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
             _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
 
         else:
@@ -271,9 +274,13 @@ class PlotAcousticFrequencyResponseInput(QDialog):
                 imported_Yvalues = data[:,1]
             elif self.plotImag:
                 imported_Yvalues = data[:,2]
-            
-            first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
-            second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+                
+            if self.plotAbs and not self.scale_dB:
+                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2)
+                second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")            
+            else:
+                first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
+                second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
 
             _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')
 

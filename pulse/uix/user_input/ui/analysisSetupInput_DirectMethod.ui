@@ -75,12 +75,15 @@
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
-       <italic>false</italic>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Analysis setup:</string>
+      <string>ANALYSIS SETUP:</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -134,8 +137,11 @@
       </property>
       <property name="font">
        <font>
+        <family>Arial</family>
         <pointsize>10</pointsize>
-        <italic>false</italic>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
        </font>
       </property>
       <property name="text">
@@ -159,8 +165,11 @@
       </property>
       <property name="font">
        <font>
+        <family>Arial</family>
         <pointsize>10</pointsize>
-        <italic>false</italic>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
        </font>
       </property>
       <property name="text">
@@ -183,6 +192,14 @@
        <height>171</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="currentIndex">
       <number>0</number>
      </property>
@@ -193,9 +210,9 @@
       <widget class="QWidget" name="verticalLayoutWidget_13">
        <property name="geometry">
         <rect>
-         <x>120</x>
+         <x>146</x>
          <y>10</y>
-         <width>171</width>
+         <width>123</width>
          <height>21</height>
         </rect>
        </property>
@@ -209,7 +226,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Values</string>
+           <string>VALUES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -221,7 +238,7 @@
       <widget class="QWidget" name="verticalLayoutWidget_14">
        <property name="geometry">
         <rect>
-         <x>300</x>
+         <x>282</x>
          <y>10</y>
          <width>61</width>
          <height>21</height>
@@ -237,7 +254,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Units</string>
+           <string>UNITS</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -249,7 +266,7 @@
       <widget class="QWidget" name="verticalLayoutWidget_15">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>24</x>
          <y>10</y>
          <width>101</width>
          <height>21</height>
@@ -265,7 +282,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Entries</string>
+           <string>ENTRIES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -277,7 +294,7 @@
       <widget class="QWidget" name="verticalLayoutWidget_16">
        <property name="geometry">
         <rect>
-         <x>10</x>
+         <x>24</x>
          <y>40</y>
          <width>101</width>
          <height>91</height>
@@ -319,28 +336,67 @@
       <widget class="QWidget" name="verticalLayoutWidget_17">
        <property name="geometry">
         <rect>
-         <x>120</x>
+         <x>144</x>
          <y>40</y>
-         <width>171</width>
-         <height>91</height>
+         <width>125</width>
+         <height>95</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_17">
         <item>
-         <widget class="QLineEdit" name="lineEdit_min"/>
+         <widget class="QLineEdit" name="lineEdit_min">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_max"/>
+         <widget class="QLineEdit" name="lineEdit_max">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_step"/>
+         <widget class="QLineEdit" name="lineEdit_step">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
       <widget class="QWidget" name="verticalLayoutWidget_18">
        <property name="geometry">
         <rect>
-         <x>300</x>
+         <x>282</x>
          <y>40</y>
          <width>61</width>
          <height>91</height>
@@ -403,7 +459,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Model</string>
+           <string>MODEL</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -431,7 +487,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Entries</string>
+           <string>ENTRIES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -459,7 +515,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Values</string>
+           <string>VALUES</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -487,7 +543,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Units</string>
+           <string>UNITS</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -610,6 +666,14 @@ Hysteretic</string>
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
          <widget class="QLabel" name="label_13">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>50</weight>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="text">
            <string>α_h:</string>
           </property>
@@ -620,6 +684,13 @@ Hysteretic</string>
         </item>
         <item>
          <widget class="QLabel" name="label_12">
+          <property name="font">
+           <font>
+            <weight>50</weight>
+            <italic>false</italic>
+            <bold>false</bold>
+           </font>
+          </property>
           <property name="text">
            <string>β_h:</string>
           </property>
@@ -636,15 +707,42 @@ Hysteretic</string>
          <x>190</x>
          <y>40</y>
          <width>101</width>
-         <height>48</height>
+         <height>47</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_9">
+        <property name="spacing">
+         <number>3</number>
+        </property>
         <item>
-         <widget class="QLineEdit" name="lineEdit_av"/>
+         <widget class="QLineEdit" name="lineEdit_av">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_bv"/>
+         <widget class="QLineEdit" name="lineEdit_bv">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -718,15 +816,42 @@ Hysteretic</string>
          <x>190</x>
          <y>90</y>
          <width>101</width>
-         <height>48</height>
+         <height>47</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_12">
+        <property name="spacing">
+         <number>3</number>
+        </property>
         <item>
-         <widget class="QLineEdit" name="lineEdit_ah"/>
+         <widget class="QLineEdit" name="lineEdit_ah">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
         <item>
-         <widget class="QLineEdit" name="lineEdit_bh"/>
+         <widget class="QLineEdit" name="lineEdit_bh">
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -740,6 +865,15 @@ Hysteretic</string>
        <width>161</width>
        <height>23</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>Confirm</string>

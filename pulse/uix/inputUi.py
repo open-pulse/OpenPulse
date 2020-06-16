@@ -33,6 +33,11 @@ class InputUi:
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
         self.analysis_ID = None
+        self.material_error = False
+        self.ext_diam = 0
+        self.thickness = 0
+        self.offset_y = 0
+        self.offset_z = 0
 
         self.f_min = 0
         self.f_max = 0
@@ -96,7 +101,11 @@ class InputUi:
             self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
 
     def set_crossSection(self):
-        cross_input = CrossSectionInput()
+
+        if self.material_error:
+            cross_input = CrossSectionInput(external_diameter=self.ext_diam, thickness=self.thickness, offset_y=self.offset_y, offset_z=self.offset_z)
+        else:
+            cross_input = CrossSectionInput()
 
         if not cross_input.complete:
             return
@@ -105,6 +114,14 @@ class InputUi:
             thickness = cross_input.thickness
             offset_y = cross_input.offset_y
             offset_z = cross_input.offset_z
+
+        self.project.mesh.check_material_and_cross_section_in_all_elements(check_only_material=True)
+
+        if self.project.mesh.check_set_material:
+            error("You should to set a Material to all elements\n before trying to run any Analysis!", title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
+            self.ext_diam, self.thickness, self.offset_y, self.offset_z = ext_diam, thickness, offset_y, offset_z
+            self.material_error = True
+            return
 
         if cross_input.flagEntity:
             lines_id = self.opv.getListPickedEntities()
@@ -120,6 +137,7 @@ class InputUi:
             # self.project.set_crossSection(cross_input.section)
             print("[Set Cross-section] - defined in all the entities")
         self.opv.updateEntityRadius()
+        self.ext_diam, self.thickness, self.offset_y, self.offset_z = 0, 0, 0, 0
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()

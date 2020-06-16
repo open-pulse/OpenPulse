@@ -8,7 +8,7 @@ import configparser
 from pulse.utils import error
 
 class CrossSectionInput(QDialog):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/crossSectionInput.ui', self)
 
@@ -16,10 +16,10 @@ class CrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.external_diameter = 0
-        self.thickness = 0
-        self.offset_y = 0
-        self.offset_z = 0 
+        self.external_diameter = external_diameter
+        self.thickness = thickness
+        self.offset_y = offset_y
+        self.offset_z = offset_z
 
         self.section = None
         self.complete = False
@@ -51,6 +51,12 @@ class CrossSectionInput(QDialog):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
         self.currentTab = self.tabWidget.currentIndex()
+
+        if self.external_diameter!=0 and self.thickness!=0:
+            self.lineEdit_outerDiameter.setText(str(self.external_diameter))
+            self.lineEdit_thickness.setText(str(self.thickness))
+            self.lineEdit_offset_y.setText(str(self.offset_y))
+            self.lineEdit_offset_z.setText(str(self.offset_z))
 
         self.exec_()
 

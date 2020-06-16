@@ -140,7 +140,10 @@ class Project:
             if e_type is None:
                 e_type = 'pipe_1'
                 self.acoustic_analysis = True
+            
             poisson = dict_tag_entity[line].material.poisson_ratio
+            if poisson is None:
+                poisson = 0
             
             index_etype = dict_etype_index[e_type]
             elements = self.mesh.line_to_elements[line]

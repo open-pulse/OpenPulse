@@ -143,5 +143,4 @@ class AcousticPressureInput(QDialog):
                 # error(("The pressure(s) assigned to the Node(s): {} has been deleted.").format(str(self.nodes_typed)[1:-1]), title = " WARNING ")
 
             self.acoustic_pressure = acoustic_pressure
-        print("ainda passei aqui")
         self.close()

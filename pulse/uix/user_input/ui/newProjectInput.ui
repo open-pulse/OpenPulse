@@ -80,7 +80,11 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_3">
      <item>
-      <widget class="QLineEdit" name="line_project_name"/>
+      <widget class="QLineEdit" name="line_project_name">
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </item>
     </layout>
    </widget>
@@ -157,6 +161,9 @@
            <width>0</width>
            <height>1</height>
           </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -254,8 +261,11 @@
          <property name="cursorPosition">
           <number>0</number>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
          <property name="placeholderText">
-          <string>      &lt; Insert a value &gt;</string>
+          <string>&lt; Insert a value &gt;</string>
          </property>
         </widget>
        </item>
@@ -342,6 +352,9 @@
            <width>0</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </item>
@@ -442,6 +455,9 @@
            <height>20</height>
           </size>
          </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
         </widget>
        </item>
       </layout>
@@ -512,6 +528,17 @@
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>line_project_name</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>toolButton_import_geometry</tabstop>
+  <tabstop>line_element_size</tabstop>
+  <tabstop>line_cord</tabstop>
+  <tabstop>line_conn</tabstop>
+  <tabstop>line_import_geometry</tabstop>
+  <tabstop>toolButton_import_cord</tabstop>
+  <tabstop>toolButton_import_conn</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

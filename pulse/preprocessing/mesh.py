@@ -390,16 +390,29 @@ class Mesh:
             self.radius[last] = radius
         return self.radius
 
-    def check_material_and_cross_section_in_all_elements(self):
+    def check_material_and_cross_section_in_all_elements(self, check_only_material=False):
         self.check_set_material = False
         self.check_set_crossSection = False
-        for element in self.structural_elements.values():
-            if element.material is None:
-                self.check_set_material = True
-                return
-            if element.cross_section is None:
-                self.check_set_crossSection = True
-                return
+        self.check_poisson = False
+        if check_only_material:
+            for element in self.structural_elements.values():
+                if element.material is None:
+                    self.check_set_material = True
+                    return
+                if element.material.poisson_ratio == 0:
+                    self.check_poisson = True
+                    return
+        else:
+            for element in self.structural_elements.values():
+                if element.material is None:
+                    self.check_set_material = True
+                    return
+                if element.material.poisson_ratio == 0:
+                    self.check_poisson = True
+                    return
+                if element.cross_section is None:
+                    self.check_set_crossSection = True
+                    return
         return
 
     def check_fluid_and_cross_section_in_all_elements(self):

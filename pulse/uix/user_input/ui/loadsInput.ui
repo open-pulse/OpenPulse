@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>391</width>
-    <height>382</height>
+    <height>381</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,6 +18,18 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>391</width>
+    <height>381</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>391</width>
+    <height>381</height>
+   </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
@@ -68,20 +80,22 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>12</y>
        <width>371</width>
        <height>16</height>
       </rect>
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
        <pointsize>10</pointsize>
-       <italic>false</italic>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Insert values for nodal loads:
-</string>
+      <string>INSERT VALUES FOR NODAL LOADS:</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -109,15 +123,24 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>48</x>
        <y>10</y>
-       <width>91</width>
-       <height>21</height>
+       <width>71</width>
+       <height>23</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Node ID's:</string>
         </property>
@@ -131,17 +154,29 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>124</x>
        <y>10</y>
-       <width>251</width>
-       <height>22</height>
+       <width>191</width>
+       <height>24</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QLineEdit" name="lineEdit_nodeID">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
         </property>
        </widget>
       </item>
@@ -151,7 +186,7 @@
      <property name="geometry">
       <rect>
        <x>40</x>
-       <y>50</y>
+       <y>44</y>
        <width>91</width>
        <height>21</height>
       </rect>
@@ -161,12 +196,15 @@
        <widget class="QLabel" name="label_3">
         <property name="font">
          <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
           <weight>75</weight>
+          <italic>true</italic>
           <bold>true</bold>
          </font>
         </property>
         <property name="text">
-         <string>Loads</string>
+         <string>LOADS</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -179,7 +217,7 @@
      <property name="geometry">
       <rect>
        <x>140</x>
-       <y>50</y>
+       <y>44</y>
        <width>131</width>
        <height>21</height>
       </rect>
@@ -189,12 +227,15 @@
        <widget class="QLabel" name="label_4">
         <property name="font">
          <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
           <weight>75</weight>
+          <italic>true</italic>
           <bold>true</bold>
          </font>
         </property>
         <property name="text">
-         <string>Values</string>
+         <string>VALUES</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -207,7 +248,7 @@
      <property name="geometry">
       <rect>
        <x>280</x>
-       <y>50</y>
+       <y>44</y>
        <width>71</width>
        <height>21</height>
       </rect>
@@ -217,12 +258,15 @@
        <widget class="QLabel" name="label_5">
         <property name="font">
          <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
           <weight>75</weight>
+          <italic>true</italic>
           <bold>true</bold>
          </font>
         </property>
         <property name="text">
-         <string>Units</string>
+         <string>UNITS</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -243,6 +287,14 @@
      <layout class="QVBoxLayout" name="verticalLayout_6">
       <item>
        <widget class="QLabel" name="label_6">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Fx:</string>
         </property>
@@ -253,6 +305,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_7">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Fy:</string>
         </property>
@@ -263,6 +323,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_8">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Fz:</string>
         </property>
@@ -273,6 +341,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_10">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Mx:</string>
         </property>
@@ -283,6 +359,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_11">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>My:</string>
         </property>
@@ -293,6 +377,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_9">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Mz:</string>
         </property>
@@ -314,22 +406,46 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_7">
       <item>
-       <widget class="QLineEdit" name="lineEdit_fx"/>
+       <widget class="QLineEdit" name="lineEdit_fx">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_fy"/>
+       <widget class="QLineEdit" name="lineEdit_fy">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_fz"/>
+       <widget class="QLineEdit" name="lineEdit_fz">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_mx"/>
+       <widget class="QLineEdit" name="lineEdit_mx">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_my"/>
+       <widget class="QLineEdit" name="lineEdit_my">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_mz"/>
+       <widget class="QLineEdit" name="lineEdit_mz">
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -345,6 +461,14 @@
      <layout class="QVBoxLayout" name="verticalLayout_8">
       <item>
        <widget class="QLabel" name="label_13">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N]</string>
         </property>
@@ -355,6 +479,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_14">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N]</string>
         </property>
@@ -365,6 +497,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_15">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N]</string>
         </property>
@@ -375,6 +515,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_16">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N.m]</string>
         </property>
@@ -385,6 +533,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_17">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N.m]</string>
         </property>
@@ -395,6 +551,14 @@
       </item>
       <item>
        <widget class="QLabel" name="label_12">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>[N.m]</string>
         </property>
@@ -421,10 +585,10 @@
     <widget class="QWidget" name="verticalLayoutWidget_11">
      <property name="geometry">
       <rect>
-       <x>20</x>
+       <x>26</x>
        <y>250</y>
-       <width>91</width>
-       <height>21</height>
+       <width>85</width>
+       <height>27</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_11">
@@ -432,6 +596,15 @@
        <widget class="QLabel" name="label_19">
         <property name="enabled">
          <bool>false</bool>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
         </property>
         <property name="text">
          <string>Load Table:</string>
@@ -446,10 +619,10 @@
     <widget class="QWidget" name="verticalLayoutWidget_12">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>250</y>
+       <x>114</x>
+       <y>252</y>
        <width>181</width>
-       <height>22</height>
+       <height>23</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -458,6 +631,21 @@
         <property name="enabled">
          <bool>false</bool>
         </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>21</height>
+         </size>
+        </property>
+        <property name="sizeIncrement">
+         <size>
+          <width>0</width>
+          <height>21</height>
+         </size>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
      </layout>
@@ -465,10 +653,10 @@
     <widget class="QWidget" name="verticalLayoutWidget_13">
      <property name="geometry">
       <rect>
-       <x>300</x>
-       <y>250</y>
+       <x>302</x>
+       <y>252</y>
        <width>71</width>
-       <height>21</height>
+       <height>23</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_13">
@@ -483,8 +671,17 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
-         <string>Open</string>
+         <string>Search</string>
         </property>
         <property name="autoRaise">
          <bool>false</bool>
@@ -515,8 +712,17 @@
        <x>110</x>
        <y>300</y>
        <width>171</width>
-       <height>23</height>
+       <height>29</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>Confirm</string>
