@@ -1,4 +1,4 @@
-# Open Source Software for Pulsation Analysis of Pipelines (OpenPulse)
+# OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
 *v1.0*
 
@@ -7,23 +7,6 @@ OpenPulse is a software written in Python for numerical modelling of low-frequen
 After defining the FEM mesh for the model, you can plot the piping system geometry and run simulations such as modal analysis and harmonic analysis. It is possible to plot deformed shapes, frequency plots of acoustical and structural responses, stress fields and local stresses of desired sections.
 
 You can try it out now by running the tutorial on binder.
-
-## Documentation
-
-Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Matrix Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc) and [Analysis Types]. 
-
-## Questions
-If you have any questions you can open a new issue with the tag 'question'.
-
-## Requirements
-
-    Python v. 3.7.7 
-    scipy
-    matplotlib
-    numpy
-    PyQt5
-    vtk
-    
 
 ## Installing
 
@@ -40,6 +23,28 @@ In the same folder, enter the following command in the terminal:
 ```
 python pulse.py
 ```
+
+## Requirements
+
+    Python v. 3.7.7 
+    scipy
+    matplotlib
+    numpy
+    PyQt5
+    vtk
+    
+## Documentation
+
+- Theory Reference for [1D Acoustics using FETM](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM](https://), [Solution Types](https://) and [Matrix Assembly Technique using Python](https://www.overleaf.com/read/kzbbgbvpjjqc).
+
+- [User Guide for Structural Analysis](https://).
+
+- [User Guide for Acoustic Analysis](https://).
+
+- [User Guide for Coupled Analysis](https://).
+
+## Questions
+If you have any questions you can open a new issue with the tag 'question'.
 
 ## Authors
 
