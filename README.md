@@ -10,14 +10,14 @@ You can try it out now by running the tutorial on binder.
 
 ## Documentation
 
-Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://www.overleaf.com/read/qknbtmvyfxyn), [Matrix Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc) and [Analysis Types].
+Access the Theory Reference for [Acoustic Gas Pulsation](https://www.overleaf.com/read/yxkdxvtpzgwd), [Structural Vibration](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Matrix Assembly Technique](https://www.overleaf.com/read/kzbbgbvpjjqc) and [Analysis Types]. 
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
 
 ## Requirements
 
-    Python v. 3.7 
+    Python v. 3.7.7 
     scipy
     matplotlib
     numpy
@@ -27,25 +27,30 @@ If you have any questions you can open a new issue with the tag 'question'.
 
 ## Installing
 
-    pip install -r requirements.txt
-    
+- **Install Python 3.7.7** ([download](https://www.python.org/downloads/release/python-377/)).
+
+- **Install OpenPulse**.
+Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (an easy way to do this is to enter the folder, press shift and right click, then "Open PowerShell here"). So, enter the command: 
+```
+pip install -r requirements.txt
+```
+
+- **Run OpenPulse**.
+In the same folder, enter the following command in the terminal:
+```
+python pulse.py
+```
+
 ## Authors
+
+The authors are members of MOPT - Multidisciplinary Optimization Group, from Federal University of Santa Catarina (Florianópolis, SC, Brazil).
+
     Olavo M. Silva,
+    Jacson G. Vargas,
     Diego M. Tuozzo, 
     Lucas V. Q. Kulakauskas,
-    Jacson G. Vargas,
     Andre F. Fernandes,
     José L. Souza,
     Ana P. Rocha.
-
-## Running the examples
-
-**
-
-## Built With
-
-**
-
-## License
 
 **
