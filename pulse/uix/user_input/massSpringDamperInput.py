@@ -89,7 +89,7 @@ class MassSpringDamperInput(QDialog):
 
         if self.input_mass or self.input_spring or self.input_damper:
             self.close()
-        except Exception:
+        else:
             error("You must to input at least one valid value before to confirm the input!", title = " ERROR ")
             return
 
@@ -140,7 +140,7 @@ class MassSpringDamperInput(QDialog):
         
         if cx==cy==cz==crx==cry==crz==0.0:
             return False   
-        except Exception:
+        else:
             self.damper = [cx, cy, cz, crx, cry, crz]
             self.input_damper = True
 
@@ -194,7 +194,7 @@ class MassSpringDamperInput(QDialog):
         
         if kx==ky==kz==krx==kry==krz==0.0:
             return False   
-        except Exception:
+        else:
             self.spring = [kx, ky, kz, krx, kry, krz]
             self.input_spring = True
 
@@ -248,7 +248,7 @@ class MassSpringDamperInput(QDialog):
         
         if mx==my==mz==ix==iy==iz==0.0:
             return False   
-        except Exception:
+        else:
             self.mass = [mx, my, mz, ix, iy, iz]
             self.input_mass = True
 
