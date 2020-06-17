@@ -89,58 +89,58 @@ class MassSpringDamperInput(QDialog):
 
         if self.input_mass or self.input_spring or self.input_damper:
             self.close()
-        else:
+        except Exception:
             error("You must to input at least one valid value before to confirm the input!", title = " ERROR ")
             return
 
     def checkDamper(self):
         cx = cy = cz = 0.0
         if self.lineEdit_cx.text() != "":
-            if self.isFloat(self.lineEdit_cx.text()):
+            try:
                 cx = float(self.lineEdit_cx.text())
-            else:
+            except Exception:
                 error("Wrong input (cx)!", title="Error")
                 return False
         
         if self.lineEdit_cy.text() != "":
-            if self.isFloat(self.lineEdit_cy.text()):
+            try:
                 cy = float(self.lineEdit_cy.text())
-            else:
+            except Exception:
                 error("Wrong input (cy)!", title="Error")
                 return False
 
         if self.lineEdit_cz.text() != "":
-            if self.isFloat(self.lineEdit_cz.text()):
+            try:
                 cz = float(self.lineEdit_cz.text())
-            else:
+            except Exception:
                 error("Wrong input (cz)!", title="Error")
                 return False
 
         crx = cry = crz = 0.0
         if self.lineEdit_crx.text() != "":
-            if self.isFloat(self.lineEdit_crx.text()):
+            try:
                 crx = float(self.lineEdit_crx.text())
-            else:
+            except Exception:
                 error("Wrong input (crx)!", title="Error")
                 return False
         
         if self.lineEdit_cry.text() != "":
-            if self.isFloat(self.lineEdit_cry.text()):
+            try:
                 cry = float(self.lineEdit_cry.text())
-            else:
+            except Exception:
                 error("Wrong input (cry)!", title="Error")
                 return False
 
         if self.lineEdit_crz.text() != "":
-            if self.isFloat(self.lineEdit_crz.text()):
+            try:
                 crz = float(self.lineEdit_crz.text())
-            else:
+            except Exception:
                 error("Wrong input (crz)!", title="Error")
                 return False
         
         if cx==cy==cz==crx==cry==crz==0.0:
             return False   
-        else:
+        except Exception:
             self.damper = [cx, cy, cz, crx, cry, crz]
             self.input_damper = True
 
@@ -150,51 +150,51 @@ class MassSpringDamperInput(QDialog):
 
         kx = ky = kz = 0.0
         if self.lineEdit_kx.text() != "":
-            if self.isFloat(self.lineEdit_kx.text()):
+            try:
                 kx = float(self.lineEdit_kx.text())
-            else:
+            except Exception:
                 error("Wrong input (kx)!", title="Error")
                 return False
         
         if self.lineEdit_ky.text() != "":
-            if self.isFloat(self.lineEdit_ky.text()):
+            try:
                 ky = float(self.lineEdit_ky.text())
-            else:
+            except Exception:
                 error("Wrong input (ky)!", title="Error")
                 return False
 
         if self.lineEdit_kz.text() != "":
-            if self.isFloat(self.lineEdit_kz.text()):
+            try:
                 kz = float(self.lineEdit_kz.text())
-            else:
+            except Exception:
                 error("Wrong input (kz)!", title="Error")
                 return False
 
         krx = kry = krz = 0.0
         if self.lineEdit_krx.text() != "":
-            if self.isFloat(self.lineEdit_krx.text()):
+            try:
                 krx = float(self.lineEdit_krx.text())
-            else:
+            except Exception:
                 error("Wrong input (krx)!", title="Error")
                 return False
         
         if self.lineEdit_kry.text() != "":
-            if self.isFloat(self.lineEdit_kry.text()):
+            try:
                 kry = float(self.lineEdit_kry.text())
-            else:
+            except Exception:
                 error("Wrong input (kry)!", title="Error")
                 return False
 
         if self.lineEdit_krz.text() != "":
-            if self.isFloat(self.lineEdit_krz.text()):
+            try:
                 krz = float(self.lineEdit_krz.text())
-            else:
+            except Exception:
                 error("Wrong input (krz)!", title="Error")
                 return False
         
         if kx==ky==kz==krx==kry==krz==0.0:
             return False   
-        else:
+        except Exception:
             self.spring = [kx, ky, kz, krx, kry, krz]
             self.input_spring = True
 
@@ -204,51 +204,51 @@ class MassSpringDamperInput(QDialog):
         
         mx = my = mz = 0.0
         if self.lineEdit_mx.text() != "":
-            if self.isFloat(self.lineEdit_mx.text()):
+            try:
                 mx = float(self.lineEdit_mx.text())
-            else:
+            except Exception:
                 error("Wrong input (mx)!", title="Error")
                 return False
         
         if self.lineEdit_my.text() != "":
-            if self.isFloat(self.lineEdit_my.text()):
+            try:
                 my = float(self.lineEdit_my.text())
-            else:
+            except Exception:
                 error("Wrong input (my)!", title="Error")
                 return False
 
         if self.lineEdit_mz.text() != "":
-            if self.isFloat(self.lineEdit_mz.text()):
+            try:
                 mz = float(self.lineEdit_mz.text())
-            else:
+            except Exception:
                 error("Wrong input (mz)!", title="Error")
                 return False
 
         ix = iy = iz = 0.0
         if self.lineEdit_ix.text() != "":
-            if self.isFloat(self.lineEdit_ix.text()):
+            try:
                 ix = float(self.lineEdit_ix.text())
-            else:
+            except Exception:
                 error("Wrong input (ix)!", title="Error")
                 return False
         
         if self.lineEdit_iy.text() != "":
-            if self.isFloat(self.lineEdit_iy.text()):
+            try:
                 iy = float(self.lineEdit_iy.text())
-            else:
+            except Exception:
                 error("Wrong input (iy)!", title="Error")
                 return False
 
         if self.lineEdit_iz.text() != "":
-            if self.isFloat(self.lineEdit_iz.text()):
+            try:
                 iz = float(self.lineEdit_iz.text())
-            else:
+            except Exception:
                 error("Wrong input (iz)!", title="Error")
                 return False
         
         if mx==my==mz==ix==iy==iz==0.0:
             return False   
-        else:
+        except Exception:
             self.mass = [mx, my, mz, ix, iy, iz]
             self.input_mass = True
 
