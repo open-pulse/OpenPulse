@@ -49,27 +49,27 @@ column = 50
 
 _, coord_def, _, _ = get_structural_response(mesh, direct, column, Normalize=False)
 
-# plot_results( mesh,
-#               coord_def,
-#               scf = 0.5,
-#               out_OpenPulse = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = False, 
-#               Animate_Mode = True, 
-#               Save = False)
+plot_results( mesh,
+              coord_def,
+              scf = 0.5,
+              out_OpenPulse = True, 
+              Show_nodes = True, 
+              Undeformed = True, 
+              Deformed = False, 
+              Animate_Mode = False, 
+              Save = False)
 
 # Stress
 acoustic_solution = np.zeros([len(mesh.nodes.keys()), len(frequencies)], dtype=complex)
 stress = Stress(mesh, frequencies, direct, acoustic_solution = acoustic_solution)
 start = time()
-stress.get3()
+stress.get()
 end = time()
 
 print("Stress calculation time:", end - start,'[s]')
 # plot stress
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_axial, column)
-print("Normal axial")
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_axial, column)
+print("Internal load axial")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
 # plot_results( mesh,
@@ -81,73 +81,57 @@ print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plo
 #               Deformed = True, 
 #               Animate_Mode = False, 
 #               Save = False)
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_bending_y, column)
+print("Internal load bending y")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_bending_z,column)
+print("Internal load bending z")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_torsion, column)
+print("Internal load Torsion")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_transversal_xy, column)
+print("Internal load Transversal xy")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_transversal_xz, column)
+print("Internal load Transversal xz")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+
+############################
+
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_axial, column)
+print("Stress axial")
+print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
 stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_bending_y, column)
-print("Normal bending y")
+print("Stress bending y")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
 
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_bending_z, column)
-print("Normal bending z")
+stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_bending_z,column)
+print("Stress bending z")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
 
 stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_torsion, column)
 print("Shear Torsion")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
 
 stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_transversal_xy, column)
 print("Shear Transversal xy")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
 
 stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_transversal_xz, column)
 print("Shear Transversal xz")
 print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
