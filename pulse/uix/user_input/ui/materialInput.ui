@@ -237,7 +237,7 @@
 selection-background-color: rgb(62, 255, 62);</string>
     </property>
     <property name="text">
-     <string>Confirm the material attibution</string>
+     <string>Confirm the material attribution</string>
     </property>
     <property name="shortcut">
      <string>Shift+C</string>

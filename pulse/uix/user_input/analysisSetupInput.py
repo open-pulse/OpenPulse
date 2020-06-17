@@ -139,36 +139,36 @@ class AnalysisSetupInput(QDialog):
                         self.error("Value error (freq df)")
                         return
                 
-        av = bv = ah = bh = 0
+        a_v = b_v = a_h = b_h = 0
         if self.lineEdit_av.text() != "":
-            if self.isInteger(self.lineEdit_av.text()):
-                av = int(self.lineEdit_av.text())
-            else:
-                self.error("Value error (av)")
+            try:
+                a_v = float(self.lineEdit_av.text())
+            except Exception:
+                self.error("Value error (a_v)")
                 return
 
         if self.lineEdit_bv.text() != "":
-            if self.isInteger(self.lineEdit_bv.text()):
-                bv = int(self.lineEdit_bv.text())
-            else:
-                self.error("Value error (bv)")
+            try:
+                b_v = float(self.lineEdit_bv.text())
+            except Exception:
+                self.error("Value error (b_v)")
                 return
 
         if self.lineEdit_ah.text() != "":
-            if self.isInteger(self.lineEdit_ah.text()):
-                ah = int(self.lineEdit_ah.text())
-            else:
-                self.error("Value error (ah)")
+            try:
+                a_h = float(self.lineEdit_ah.text())
+            except Exception:
+                self.error("Value error (a_h)")
                 return
 
         if self.lineEdit_bh.text() != "":
-            if self.isInteger(self.lineEdit_bh.text()):
-                bh = int(self.lineEdit_bh.text())
-            else:
-                self.error("Value error (bh)")
+            try:
+                b_h = float(self.lineEdit_bh.text())
+            except Exception:
+                self.error("Value error (b_h)")
                 return
 
-        self.damping = [ah, bh, av, bv]
+        self.damping = [a_h, b_h, a_v, b_v]
 
         self.f_min = input_fmin
         self.f_max = input_fmax

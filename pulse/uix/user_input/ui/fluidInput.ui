@@ -237,7 +237,7 @@
 selection-background-color: rgb(62, 255, 62);</string>
     </property>
     <property name="text">
-     <string>Confirm the Fluid attibution</string>
+     <string>Confirm the Fluid attribution</string>
     </property>
     <property name="shortcut">
      <string>Shift+C</string>
