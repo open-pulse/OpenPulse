@@ -21,12 +21,15 @@ class NewProjectInput(QDialog):
 
         self.project = project
         self.create = False
+        self.stop = False
 
         self.currentTab = 0
 
         self.userPath = os.path.expanduser('~')
-        self.openPulsePath = "{}\\OpenPulse".format(self.userPath)
-        self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
+        # self.openPulsePath = "{}\\OpenPulse".format(self.userPath)
+        # self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
+        self.openPulsePath = ""
+        self.projectPath = ""
         self.materialListName = "materialList.dat"
         self.fluidListName = "fluidList.dat"
         self.projectFileName = "project.ini"
@@ -38,6 +41,7 @@ class NewProjectInput(QDialog):
         self.button_create_project.rejected.connect(self.reject_project)
 
         self.line_project_name = self.findChild(QLineEdit, 'line_project_name')
+        self.lineEdit_project_folder = self.findChild(QLineEdit, 'lineEdit_project_folder')
         self.line_import_geometry = self.findChild(QLineEdit, 'line_import_geometry')
         self.line_element_size = self.findChild(QLineEdit, 'line_element_size')
 
@@ -53,6 +57,9 @@ class NewProjectInput(QDialog):
         self.toolButton_import_conn = self.findChild(QToolButton, 'toolButton_import_conn')
         self.toolButton_import_conn.clicked.connect(self.import_conn)
 
+        self.toolButton_search_project_folder = self.findChild(QToolButton, 'toolButton_search_project_folder')
+        self.toolButton_search_project_folder.clicked.connect(self.search_project_folder)
+
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
         self.currentTab = self.tabWidget.currentIndex()
@@ -60,19 +67,38 @@ class NewProjectInput(QDialog):
         self.exec_()
 
     def createProjectFolder(self):
+        if self.line_project_name.text() == "":
+            self.error("Insert the Project Name!")
+            self.stop = True
+            return
+        
+        if self.lineEdit_project_folder.text() == "":
+            self.error("Select the Project Folder!")
+            self.stop = True
+            return
+
         if not os.path.exists(self.openPulsePath):
             os.mkdir(self.openPulsePath)
 
         if not os.path.exists(self.projectPath):
             os.mkdir(self.projectPath)
 
+        self.stop = False
+
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
+    def search_project_folder(self):
+
+        self.path_project = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
+        self.openPulsePath = "{}\\OpenPulse".format(self.path_project)
+        self.projectPath = "{}\\OpenPulse\\Projects".format(self.path_project)
+        # self.name = basename(self.path)
+        self.lineEdit_project_folder.setText(str(self.path_project))        
+
     def accept_project(self):
         self.createProjectFolder()
-        if self.line_project_name.text() == "":
-            self.error("Insert the Project Name!")
+        if self.stop:
             return
 
         if self.line_project_name.text() in os.listdir(self.projectPath):
@@ -107,17 +133,17 @@ class NewProjectInput(QDialog):
 
     def import_geometry(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Iges Files (*.iges)')
-        self.name = basename(self.path)
+        # self.name = basename(self.path)
         self.line_import_geometry.setText(str(self.path))
 
     def import_cord(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.name = basename(self.path)
+        # self.name = basename(self.path)
         self.line_import_cord.setText(str(self.path))
 
     def import_conn(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.name = basename(self.path)
+        # self.name = basename(self.path)
         self.line_import_conn.setText(str(self.path))
 
     def error(self, msg, title = "Error"):

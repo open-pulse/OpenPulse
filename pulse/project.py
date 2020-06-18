@@ -19,6 +19,7 @@ class Project:
         self.file = ProjectFile()
 
         self._projectName = ""
+        self.project_path = ""
 
         #Analysis
         self.analysis_ID = None
@@ -84,7 +85,7 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
 
-        if self.file.tempPath is None:
+        if self.file.temp_table_name is None:
             self.load_analysis_file()
         else:
             self.load_frequencies_from_table()
@@ -115,7 +116,7 @@ class Project:
         self.load_entity_file()
         progressBar.setValue(90)
 
-        if self.file.tempPath is None:
+        if self.file.temp_table_name is None:
             textLabel.setText("Loading Analysis File...")
             self.load_analysis_file()
         else:
@@ -459,7 +460,7 @@ class Project:
     def set_acoustic_pressure_bc_by_node(self, node_id, acoustic_pressure):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)        
         if isinstance(acoustic_pressure, np.ndarray):
-            self.file.addAcousticPressureBCInFile(node_id, self.file.tempPath)
+            self.file.addAcousticPressureBCInFile(node_id, self.file.temp_table_name)
         else:
             self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
     

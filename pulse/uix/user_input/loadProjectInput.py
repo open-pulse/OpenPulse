@@ -20,6 +20,8 @@ class LoadProjectInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.userPath = expanduser('~')
+        self.path = ""
         self.complete = False
 
         self.line_import_project = self.findChild(QLineEdit, 'line_import_project')
@@ -35,15 +37,15 @@ class LoadProjectInput(QDialog):
         self.exec_()
 
     def import_project(self):
-        userPath = expanduser('~')
-        projectPath = "{}\\OpenPulse\\Projects".format(userPath)
-        if not exists(projectPath):
-            projectPath = ""
-        path, _type = QFileDialog.getOpenFileName(None, 'Open file', projectPath, 'OpenPulse Project (*.ini)')
-        if path != "":
+
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'OpenPulse Project (*.ini)')
+
+        if self.path != "":
+            self.projectPath = os.path.dirname(self.path)
+            # print(self.projectPath)
             self.progressBar.setVisible(True)
             self.text_label.setVisible(True)
-            self.line_import_project.setText(str(path))
-            self.project.load_project_progress_bar(path, self.progressBar, self.text_label)
+            self.line_import_project.setText(str(self.path))
+            self.project.load_project_progress_bar(self.path, self.progressBar, self.text_label)
             self.complete = True
             self.close()

@@ -12,7 +12,7 @@ from shutil import copyfile
 from pulse.utils import error
 
 class AcousticPressureInput(QDialog):
-    def __init__(self, nodes, list_node_ids, projectName, *args, **kwargs):
+    def __init__(self, nodes, list_node_ids, project_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/acousticpressureInput.ui', self)
 
@@ -21,9 +21,10 @@ class AcousticPressureInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.userPath = os.path.expanduser('~')
-        self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
-        self.projectName = projectName
-        self.new_load_path_table = None
+        print(self.userPath)
+        self.project_path = project_path
+        # self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
+        self.new_load_path_table = ""
 
         self.nodes = nodes
         self.acoustic_pressure = None
@@ -47,14 +48,22 @@ class AcousticPressureInput(QDialog):
 
     def load_table(self):
         
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.name = basename(self.path)
-        self.lineEdit_load_table_path.setText(str(self.path))
-        path = '{}\\{}'.format(self.projectPath, self.projectName)
-        load_table_file_name = self.lineEdit_load_table_path.text().split('/')[-1]
-        self.new_load_path_table = "{}\\{}".format(path, load_table_file_name)
-        copyfile(self.lineEdit_load_table_path.text(), self.new_load_path_table)
+        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+
+        if self.path_imported_table == "":
+            return
+
+        self.acoustic_pressure_table_name = os.path.basename(self.path_imported_table)
+        self.lineEdit_load_table_path.setText(self.path_imported_table)
+        
+        if "\\" in self.project_path:
+            self.new_load_path_table = "{}\\{}".format(self.project_path, self.acoustic_pressure_table_name)
+        elif "/" in self.project_path:
+            self.new_load_path_table = "{}/{}".format(self.project_path, self.acoustic_pressure_table_name)
+
+        copyfile(self.path_imported_table, self.new_load_path_table)
         loaded_file = np.loadtxt(self.new_load_path_table, delimiter=",")
+
         self.acoustic_pressure = loaded_file[:,1] + 1j*loaded_file[:,2]
         if loaded_file.shape[1]>2:
             self.frequencies = loaded_file[:,0]

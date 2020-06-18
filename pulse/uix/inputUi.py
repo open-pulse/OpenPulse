@@ -43,6 +43,16 @@ class InputUi:
         self.f_max = 0
         self.f_step = 0
 
+    def new_project(self):
+        new_project_input = NewProjectInput(self.project)
+        self.project.project_path = new_project_input.projectPath
+        return new_project_input.create
+
+    def loadProject(self):
+        load = LoadProjectInput(self.project)
+        self.project.project_path = load.projectPath
+        return load.complete
+
     def setElementType(self):
         typeinput = ElementTypeInput()
         # if element.element_type is None:
@@ -153,18 +163,20 @@ class InputUi:
 
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
-        read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project._projectName)
+        read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project.project_path)
         
         if read.acoustic_pressure is None:
             if not read.remove_acoustic_pressure:
                 return
         
-        if read.new_load_path_table is not None:
-            self.project.file.tempPath = read.new_load_path_table
+        if read.new_load_path_table != "":
+            self.project.file.temp_table_name = read.acoustic_pressure_table_name
             self.project.file.f_min = read.f_min
             self.project.file.f_max = read.f_max
             self.project.file.f_step = read.df
             self.project.file.frequencies = read.frequencies
+        else:
+            self.project.file.temp_table_name = None
 
         self.project.set_acoustic_pressure_bc_by_node(read.nodes_typed, read.acoustic_pressure)
         print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes_typed))
@@ -260,7 +272,7 @@ class InputUi:
         if self.project.file._projectName == "":
             return
         
-        if self.project.file.tempPath is None:
+        if self.project.file.temp_table_name is None:
             self.project.load_analysis_file()
             self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step
         else:
@@ -428,14 +440,6 @@ class InputUi:
 
     def plotStressField(self):
         pass
-
-    def new_project(self):
-        result = NewProjectInput(self.project)
-        return result.create
-
-    def loadProject(self):
-        load = LoadProjectInput(self.project)
-        return load.complete
 
     def _check_is_there_a_problem(self):
 

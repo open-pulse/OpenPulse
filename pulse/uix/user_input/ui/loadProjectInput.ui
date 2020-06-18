@@ -7,44 +7,28 @@
     <x>0</x>
     <y>0</y>
     <width>473</width>
-    <height>105</height>
+    <height>102</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>473</width>
+    <height>102</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>473</width>
+    <height>102</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QWidget" name="verticalLayoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>471</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QLabel" name="label">
-      <property name="font">
-       <font>
-        <weight>75</weight>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Load Project</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QProgressBar" name="progressBar">
    <property name="geometry">
     <rect>
-     <x>10</x>
+     <x>18</x>
      <y>70</y>
      <width>141</width>
      <height>20</height>
@@ -66,9 +50,9 @@
   <widget class="QWidget" name="verticalLayoutWidget_2">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>170</x>
      <y>70</y>
-     <width>301</width>
+     <width>291</width>
      <height>21</height>
     </rect>
    </property>
@@ -89,7 +73,7 @@
    <property name="geometry">
     <rect>
      <x>10</x>
-     <y>40</y>
+     <y>36</y>
      <width>85</width>
      <height>21</height>
     </rect>
@@ -97,6 +81,15 @@
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QLabel" name="label_3">
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="text">
        <string>Project File</string>
       </property>
@@ -111,7 +104,7 @@
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>40</y>
+     <y>36</y>
      <width>281</width>
      <height>22</height>
     </rect>
@@ -150,48 +143,75 @@
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget_6">
+  <widget class="QToolButton" name="toolButton_import_project">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>40</y>
-     <width>82</width>
+     <x>384</x>
+     <y>36</y>
+     <width>75</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>75</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>75</width>
+     <height>22</height>
+    </size>
+   </property>
+   <property name="sizeIncrement">
+    <size>
+     <width>0</width>
+     <height>1</height>
+    </size>
+   </property>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Import</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>4</x>
+     <y>6</y>
+     <width>469</width>
      <height>23</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout_6">
-    <item>
-     <widget class="QToolButton" name="toolButton_import_project">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>80</width>
-        <height>20</height>
-       </size>
-      </property>
-      <property name="sizeIncrement">
-       <size>
-        <width>0</width>
-        <height>1</height>
-       </size>
-      </property>
-      <property name="text">
-       <string>Import</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
+   <property name="font">
+    <font>
+     <family>Arial</family>
+     <pointsize>10</pointsize>
+     <weight>75</weight>
+     <italic>true</italic>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
  </widget>
  <resources/>

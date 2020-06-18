@@ -1,11 +1,10 @@
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
-
+from pulse.utils import error
 import configparser
 import os
 import numpy as np
-
 
 class ProjectFile:
     def __init__(self):
@@ -21,8 +20,8 @@ class ProjectFile:
         self._nodeAcousticPath = ""
         self._entityPath = ""
         self._analysisPath = ""
+        self.temp_table_name = None
 
-        self.tempPath = None
         self.element_type_is_structural = False
 
         self._entityFileName = "entity.dat"
@@ -58,6 +57,7 @@ class ProjectFile:
         self._nodeAcousticPath = "{}\\{}".format(self._projectPath, self._nodeAcousticFileName)
 
     def load(self, projectFilePath):
+        self.projectFilePath = projectFilePath
         projectFilePath = projectFilePath.replace('/', '\\')
         projectFolderPath = os.path.dirname(projectFilePath)
         config = configparser.ConfigParser()
@@ -138,7 +138,6 @@ class ProjectFile:
                 'frequency step': step_,
             }
 
-        # print(temp_projectBaseFilePath)
         with open(temp_projectBaseFilePath, 'w') as configfile:
             config.write(configfile)
 
@@ -339,7 +338,7 @@ class ProjectFile:
                 radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
                 radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
                 dict_radiation_impedance[node_id] = radImpedance
-        
+
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
 
     def _get_offset_from_string(self, offset):
@@ -456,28 +455,34 @@ class ProjectFile:
         return BC
 
     def _getAcousticPressureBCFromString(self, value):
-        
+        load_path_table = ""
         value = value[1:-1].split(',')
-        load_file_path = value[0].split(self._projectName)
-        project_path = str(self._projectPath).split(self._projectName)
         
         output = None
         if len(value) == 1:
-            if load_file_path[0] == project_path[0]:
-                data = np.loadtxt(value[0], delimiter=",")
-                output = data[:,1] + 1j*data[:,2]
-                self.frequencies = data[:,0]
-                self.f_min = self.frequencies[0]
-                self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0]
-                self.tempPath = value
+            if value[0] != 'None':
 
-            elif value[0] != 'None':
                 try:
                     output = complex(value[0])
-                    
                 except Exception:
-                    return
+
+                    try:
+                        path = os.path.dirname(self.projectFilePath)
+                        # path = path.repalce("/", "\\")
+                        if "/" in path:
+                            load_path_table = "{}/{}".format(path, value[0])
+                        elif "\\" in path:
+                            load_path_table = "{}\\{}".format(path, value[0])
+
+                        data = np.loadtxt(load_path_table, delimiter=",")
+                        output = data[:,1] + 1j*data[:,2]
+                        self.frequencies = data[:,0]
+                        self.f_min = self.frequencies[0]
+                        self.f_max = self.frequencies[-1]
+                        self.f_step = self.frequencies[1] - self.frequencies[0]
+                    except Exception:
+                        error("The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+                        
         return output
 
     def _getSpecificImpedanceBCFromString(self, specific_impedance):
