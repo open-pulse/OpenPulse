@@ -311,6 +311,10 @@ class InputUi:
         if self.analysis_ID in [0,1,3,5,6]:
             if len(self.frequencies) == 0:
                 return          
+        # Temporary: breaking code execution to avoid errors in interface usage
+        if self.analysis_ID == 4:
+            error("The Acoustic Modal Analysis is under development \nand, therefore, it is not currently available.", title=" WARNING ")
+            return
 
         if self.analysis_ID == 2:
             self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
