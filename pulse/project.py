@@ -616,12 +616,7 @@ class Project:
         if analysis >=0 and analysis <= 6:
             if analysis in [3,5,6] and self.plot_pressure_field:
                 return "Pa"
-            else:
+            elif analysis in [0,1]:
                 return "m"
-
-    # def isFloat(self, number):
-    #     try:
-    #         float(number)
-    #         return True
-    #     except Exception:
-    #         return False   
+            else:
+                return "-"  
