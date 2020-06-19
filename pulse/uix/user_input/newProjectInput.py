@@ -232,17 +232,45 @@ class NewProjectInput(QDialog):
             'Density': 7750,
             'Young Modulus': 193,
             'Poisson': 0.31,
-            'Color': '[255,255,0]' #Yelow
+            'Color': '[126,46,31]' #Wood color
         }
 
-        config['NI-CO-CR_STEEL'] = {
-            'Name': 'Ni-Co-Cr_steel',
+        config['NI-CO-CR_ALLOY'] = {
+            'Name': 'Ni-Co-Cr_alloy',
             'Identifier': 3,
             'Density': 8220,
             'Young Modulus': 212,
             'Poisson': 0.315,
             'Color': '[0,255,255]' #Cyan
         }
+
+        config['CAST_IRON'] = {
+            'Name': 'cast_iron',
+            'Identifier': 4,
+            'Density': 7200,
+            'Young Modulus': 110,
+            'Poisson': 0.28,
+            'Color': '[50,50,50]' #Dark Grey
+        }
+
+        config['ALUMINUM'] = {
+            'Name': 'aluminum',
+            'Identifier': 5,
+            'Density': 2770,
+            'Young Modulus': 71,
+            'Poisson': 0.333,
+            'Color': '[160,160,160]' #Grey
+        }
+
+        config['BRASS'] = {
+            'Name': 'brass',
+            'Identifier': 6,
+            'Density': 8150,
+            'Young Modulus': 96,
+            'Poisson': 0.345,
+            'Color': '[181,166,66]' #Brass color
+        }
+
         with open(self.materialListPath, 'w') as configfile:
             config.write(configfile)
 

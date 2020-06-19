@@ -42,7 +42,6 @@ class LoadProjectInput(QDialog):
 
         if self.path != "":
             self.projectPath = os.path.dirname(self.path)
-            # print(self.projectPath)
             self.progressBar.setVisible(True)
             self.text_label.setVisible(True)
             self.line_import_project.setText(str(self.path))

@@ -455,6 +455,7 @@ class ProjectFile:
         return BC
 
     def _getAcousticPressureBCFromString(self, value):
+        
         load_path_table = ""
         value = value[1:-1].split(',')
         
@@ -468,12 +469,10 @@ class ProjectFile:
 
                     try:
                         path = os.path.dirname(self.projectFilePath)
-                        # path = path.repalce("/", "\\")
                         if "/" in path:
                             load_path_table = "{}/{}".format(path, value[0])
                         elif "\\" in path:
                             load_path_table = "{}\\{}".format(path, value[0])
-
                         data = np.loadtxt(load_path_table, delimiter=",")
                         output = data[:,1] + 1j*data[:,2]
                         self.frequencies = data[:,0]
