@@ -57,6 +57,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
         self.userPath = os.path.expanduser('~')
+        self.save_path = ""
 
         self.mesh = mesh
         
@@ -157,11 +158,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
         self.save_name = basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
-        if self.lineEdit_FileName.text() != "":
-            self.export_path_folder = self.save_path + "/" 
-        else:
-            error("Inform a file name before trying export the results!")
-            return
 
     def check(self, export=False):
         try:
@@ -198,6 +194,16 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
 
     def ExportResults(self):
+
+        if self.lineEdit_FileName.text() != "":
+            if self.save_path != "":
+                self.export_path_folder = self.save_path + "/"
+            else:
+                error("Plese, choose a folder before trying export the results!")
+                return
+        else:
+            error("Inform a file name before trying export the results!")
+            return
 
         self.check(export=True)
         freq = self.frequencies

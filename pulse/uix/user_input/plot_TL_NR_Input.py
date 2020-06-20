@@ -60,6 +60,7 @@ class Plot_TL_NR_Input(QDialog):
         self.mesh = mesh
         self.userPath = os.path.expanduser('~')
         self.path = ""
+        self.save_path = ""
         
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
@@ -180,13 +181,19 @@ class Plot_TL_NR_Input(QDialog):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
         self.save_name = basename(self.save_path)
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
+    
+    def ExportResults(self):
+
         if self.lineEdit_FileName.text() != "":
-            self.export_path_folder = self.save_path + "/" 
+            if self.save_path != "":
+                self.export_path_folder = self.save_path + "/"
+            else:
+                error("Plese, choose a folder before trying export the results!")
+                return
         else:
             error("Inform a file name before trying export the results!")
             return
-    
-    def ExportResults(self):
+            
         self.check(export=True)
         TL, NR = self.get_TL_NR()
         freq = self.frequencies

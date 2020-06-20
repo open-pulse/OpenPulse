@@ -130,14 +130,12 @@ class AnalysisSetupInput(QDialog):
             else:
                 try:
                     input_fstep = float(self.lineEdit_fstep.text())
-                except Exception:
-                    try:
-                        if float(self.lineEdit_fstep.text())<0 or float(self.lineEdit_fstep.text())>=float(self.lineEdit_fmax.text()):
+                    if float(self.lineEdit_fstep.text())<=0 or float(self.lineEdit_fstep.text())>=float(self.lineEdit_fmax.text()):
                             self.error(" The value assigned to f_step must be\n greater than 0 and less than f_max! ")
                             return
-                    except Exception:
-                        self.error("Value error (freq df)")
-                        return
+                except Exception:
+                    self.error("Value error (freq df)")
+                    return
                 
         a_v = b_v = a_h = b_h = 0
         if self.lineEdit_av.text() != "":
