@@ -125,64 +125,13 @@ class Project:
         progressBar.setValue(100)
         textLabel.setText("Complete!")
   
-    def set_cross_section_mapped(self, entities, ext_diam, thickness, offset_y, offset_z):
-        
-        label_etypes = ['pipe_1', 'pipe_2', 'shell']
-        indexes = [0, 1, 2]
-        dict_etype_index = dict(zip(label_etypes,indexes))
-        dict_index_etype = dict(zip(indexes,label_etypes))
-        dict_tag_entity = self.mesh.get_dict_of_entities()
-        group_cross_section_lines = defaultdict(list)
-        group_etype_material_cross_section = defaultdict(list)
-
-        for line in entities:
-
-            e_type  = dict_tag_entity[line].element_type
-            if e_type is None:
-                e_type = 'pipe_1'
-                self.acoustic_analysis = True
-            
-            poisson = dict_tag_entity[line].material.poisson_ratio
-            if poisson is None:
-                poisson = 0
-            
-            index_etype = dict_etype_index[e_type]
-            elements = self.mesh.line_to_elements[line]
-            group_cross_section_lines[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(line)
-            group_etype_material_cross_section[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(elements)
-        # print(group_cross_section_lines)
-        for key, elements in group_etype_material_cross_section.items():
-
-            cross_strings = key[1:-1].split(',')
-            vals = [float(value) for value in cross_strings]
-            el_type = dict_index_etype[vals[-1]]
-            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], vals[4], element_type=el_type)
-
-            list_lines = group_cross_section_lines[key]
-            
-            for line in list_lines:
-                self._set_entity_crossSection(line, cross_section)
-                self.file.addCrossSectionInFile(line, cross_section)
-
-            list_flatten = [item for sublist in elements for item in sublist]
-            self.mesh.set_cross_section_by_element(list_flatten, cross_section)
-
     def set_Entity(self, tag):
         return Entity(tag)
 
-    # def set_CrossSection(self, ext_diam, thickness, offset_y, offset_z, poisson, el_type):
-    #     return CrossSection(ext_diam, thickness, offset_y, offset_z, poisson, element_type=el_type)
-
     def load_entity_file(self):
-        label_etypes = ['pipe_1', 'pipe_2', 'shell']
-        indexes = [0, 1, 2]
-        dict_etype_index = dict(zip(label_etypes,indexes))
-        dict_index_etype = dict(zip(indexes,label_etypes))
-        
+
         dict_materials, dict_cross_sections, dict_element_types, fluid = self.file.getDictOfEntitiesFromFile()
-        
-        map_cross_section = defaultdict(list)
-        map_cross_sections_to_elements = defaultdict(list)
+
         # Element type to Entities
         for key, el_type in dict_element_types.items():
             if self.file.element_type_is_structural:
@@ -192,55 +141,51 @@ class Project:
             self.load_material_by_entity(key, mat)
         # Cross-section to Entities
         for key, cross in dict_cross_sections.items():
-            diam = cross.external_diameter
-            thick = cross.thickness
-            offset_y = cross.offset_y
-            offset_z = cross.offset_z
-            poisson = dict_materials[key].poisson_ratio
-            index_etype = dict_etype_index[dict_element_types[key]]
-
-            elements = self.mesh.line_to_elements[key]
-            map_cross_section[str([diam, thick, offset_y, offset_z, poisson, index_etype])].append(key)
-            map_cross_sections_to_elements[str([diam, thick, offset_y, offset_z, poisson, index_etype])].append(elements)
-        
-        self.map_cross_section = map_cross_section
-        self.map_cross_sections_to_elements = map_cross_sections_to_elements
-        Ncross = len(map_cross_sections_to_elements)
-        # times = 0.3*(Ncross+1)
-        if Ncross < 10: 
-            for key, elements in map_cross_sections_to_elements.items():
-                cross_strings = key[1:-1].split(',')
-                vals = [float(value) for value in cross_strings]
-                el_type = dict_index_etype[vals[-1]]
-                cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], vals[4], element_type=el_type)
-                list_flatten = [item for sublist in elements for item in sublist]
-                self.mesh.set_cross_section_by_element(list_flatten, cross_section)
-        else:
-            self.is_file_loaded = True
-            
-        for key, entities in map_cross_section.items():
-            cross_strings = key[1:-1].split(',')
-            vals = [float(value) for value in cross_strings]
-            el_type = dict_index_etype[vals[-1]]
-            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], vals[4], element_type=el_type)
-            for entity in entities:
-                self._set_entity_crossSection(entity, cross_section)
-        
+            self.load_crossSection_by_entity(key, cross)
+            # self._set_entity_crossSection(key, cross)
+        # Fluid to Entities
         for key, fld in fluid.items():
             self.load_fluid_by_entity(key, fld)
 
-    def load_mapped_cross_section(self):
+    def load_mapped_cross_section(self):        
         label_etypes = ['pipe_1', 'pipe_2', 'shell']
         indexes = [0, 1, 2]
+        dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
+        dict_tag_entity = self.mesh.get_dict_of_entities()
+        map_cross_section_to_lines = defaultdict(list)
+        map_cross_section_to_elements = defaultdict(list)
 
-        for key, elements in self.map_cross_sections_to_elements.items():
+        for line, entity in dict_tag_entity.items():
+
+            ext_diam = entity.crossSection.external_diameter
+            thickness = entity.crossSection.thickness
+            offset_y = entity.crossSection.offset_y
+            offset_z = entity.crossSection.offset_z
+
+            e_type  = entity.element_type
+            if e_type is None:
+                e_type = 'pipe_1'
+                self.acoustic_analysis = True
+            
+            poisson = entity.material.poisson_ratio
+            if poisson is None:
+                poisson = 0
+            
+            index_etype = dict_etype_index[e_type]
+            elements = self.mesh.line_to_elements[line]
+            map_cross_section_to_lines[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(line)
+            map_cross_section_to_elements[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(elements)
+
+
+        for key, elements in map_cross_section_to_elements.items():
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[-1]]
-            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], vals[4], element_type=el_type)
+            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type)
             list_flatten = [item for sublist in elements for item in sublist]
-            self.mesh.set_cross_section_by_element(list_flatten, cross_section)    
+            self.mesh.set_cross_section_by_element(list_flatten, cross_section, update_cross_section=True)  
+                  
 
     def load_structural_bc_file(self):
         prescribed_dofs, external_loads, mass, spring, damper = self.file.get_dict_of_structural_bc_from_file()
@@ -303,6 +248,15 @@ class Project:
         for entity in self.mesh.entities:
             self.file.addCrossSectionInFile(entity.getTag(), cross_section)
 
+    def set_crossSection_by_entity(self, entity_id, cross_section):
+        if self.file.getImportType() == 0:
+            self.mesh.set_cross_section_by_line(entity_id, cross_section)
+        elif self.file.getImportType() == 1:
+            self.mesh.set_cross_section_by_element('all', cross_section)
+
+        self._set_entity_crossSection(entity_id, cross_section)
+        self.file.addCrossSectionInFile(entity_id, cross_section)
+
     def set_element_type_to_all(self, element_type):
         self.mesh.set_element_type_by_element('all', element_type)
         self._set_all_entity_element_type(element_type)
@@ -317,15 +271,6 @@ class Project:
 
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
-
-    def set_crossSection_by_entity(self, entity_id, cross_section):
-        if self.file.getImportType() == 0:
-            self.mesh.set_cross_section_by_line(entity_id, cross_section)
-        elif self.file.getImportType() == 1:
-            self.mesh.set_cross_section_by_element('all', cross_section)
-
-        self._set_entity_crossSection(entity_id, cross_section)
-        self.file.addCrossSectionInFile(entity_id, cross_section)
 
     def set_prescribed_dofs_bc_by_node(self, node_id, bc):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)

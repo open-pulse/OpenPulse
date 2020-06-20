@@ -208,7 +208,7 @@ class ProjectFile:
                     thickness = float(thickness)
                     offset_y = float(offset_y)
                     offset_z = float(offset_z)
-                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z, poisson, element_type=element_type)
+                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
                     dict_cross[int(entity)] = cross
             except Exception:
                 print('Error - load cross-section parameters from file!')

@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from pulse.utils import error
+from pulse.preprocessing.cross_section import CrossSection
 
 class CrossSectionInput(QDialog):
     def __init__(self, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
@@ -126,11 +127,8 @@ class CrossSectionInput(QDialog):
             elif abs(offset_z) > 0.2*(outerDiameter/2):
                 error("The OFFSET_Y must be less than 20{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
-                      
-            self.external_diameter = outerDiameter
-            self.thickness = thickness
-            self.offset_y = offset_y
-            self.offset_z = offset_z 
+
+            self.cross_section = CrossSection(outerDiameter, thickness, offset_y, offset_z)
             self.complete = True
             self.close()
         else:

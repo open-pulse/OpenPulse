@@ -79,7 +79,7 @@ if select == 1:
         return  mat_phi, mat_dphi
 
     class CrossSection:
-        def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio, element_type='pipe_1', division_number = 64, **kwargs):
+        def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio=0, element_type='pipe_1', division_number = 64, **kwargs):
             self.external_diameter = external_diameter
             self.thickness = thickness
             self.offset = [offset_y, offset_z]

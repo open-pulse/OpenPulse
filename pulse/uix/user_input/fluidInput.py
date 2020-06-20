@@ -152,7 +152,7 @@ class FluidInput(QDialog):
             identifier = int(self.clicked_item.text(1))
             fluid_density = float(self.clicked_item.text(2))
             sound_velocity = float(self.clicked_item.text(3))
-            impedance = float(self.clicked_item.text(4))
+            # impedance = float(self.clicked_item.text(4))
             color = self.clicked_item.text(5)
             new_fluid = Fluid(name, fluid_density, sound_velocity, identifier=identifier, color=color)
             self.fluid = new_fluid
@@ -197,10 +197,10 @@ class FluidInput(QDialog):
         id_string = self.lineEdit_id.text()
         fluid_density_string = self.lineEdit_fluid_density.text()
         sound_velocity_string = self.lineEdit_sound_velocity.text()
-        impedance_string = self.lineEdit_impedance.text()
+        # impedance_string = self.lineEdit_impedance.text()
         color_string = self.lineEdit_color.text()
         self.adding = True
-        self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, impedance_string, color_string)
+        self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, color_string)
 
     def check_edit_fluid(self):
         if self.editing:
@@ -208,13 +208,13 @@ class FluidInput(QDialog):
             id_string = self.lineEdit_id_edit.text()
             fluid_density_string = self.lineEdit_fluid_density_edit.text()
             sound_velocity_string = self.lineEdit_sound_velocity_edit.text()
-            impedance_string = self.lineEdit_impedance_edit.text()
+            # impedance_string = self.lineEdit_impedance_edit.text()
             color_string = self.lineEdit_color_edit.text()
-            self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, impedance_string, color_string)        
+            self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, color_string)        
         else:
             return
             
-    def check_add_edit(self, name_string, id_string, fluid_density_string, sound_velocity_string, impedance_string, color_string):
+    def check_add_edit(self, name_string, id_string, fluid_density_string, sound_velocity_string, color_string):
 
         if name_string == "":
             error("Insert a fluid name!")
@@ -280,17 +280,14 @@ class FluidInput(QDialog):
                 error("Value error (sound velocity)")
                 return
 
-        if impedance_string == "":
-            error("Insert the acoustic impedance of the fluid!")
-            return
-        else:
             try:
-                impedance = str(impedance_string)
-                if float(impedance)<0:
-                    error("The input value for Acoustic Impedance must be a positive number")
-                    return
+                impedance = str(float(fluid_density_string)*float(sound_velocity_string))
+                if self.adding:
+                    self.lineEdit_impedance.setText(impedance)
+                elif self.editing:
+                    self.lineEdit_impedance_edit.setText(impedance)
             except Exception:
-                error("Value error (Poisson)")
+                error("Some error has occurred during impedance calculation.")
                 return 
 
         if color_string == "":

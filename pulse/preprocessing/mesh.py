@@ -278,16 +278,17 @@ class Mesh:
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
     
-    def set_cross_section_by_element(self, elements, cross_section):
-        t0 = time()
-        cross_section.update_properties()
+    def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False):
+        if update_cross_section:
+            t0 = time()
+            cross_section.update_properties()
+            dt = time() - t0
+            print("Time to process Cross-section: {} [s]".format(round(dt, 6)))
         for element in slicer(self.structural_elements, elements):
             element.cross_section = cross_section
         for element in slicer(self.acoustic_elements, elements):
             element.cross_section = cross_section
-        dt = time() - t0
-        print("Time to process Cross-section: {} [s]".format(round(dt, 6)))
-        
+
     def set_cross_section_by_line(self, lines, cross_section):
         for elements in slicer(self.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
@@ -395,30 +396,32 @@ class Mesh:
                 self.radius[last] = radius
         return self.radius
 
-    def check_material_and_cross_section_in_all_elements(self, check_only_material=False):
+    def check_material_all_elements(self):
+        self.check_set_material = False
+        self.check_poisson = False
+        for element in self.structural_elements.values():
+            if element.material is None:
+                self.check_set_material = True
+                return
+
+    def check_poisson_all_elements(self):
+        self.check_poisson = False
+        for element in self.structural_elements.values():
+            if element.material.poisson_ratio == 0:
+                self.check_poisson = True
+                return
+
+    def check_material_and_cross_section_in_all_elements(self):
         self.check_set_material = False
         self.check_set_crossSection = False
         self.check_poisson = False
-        if check_only_material:
-            for element in self.structural_elements.values():
-                if element.material is None:
-                    self.check_set_material = True
-                    return
-                if element.material.poisson_ratio == 0:
-                    self.check_poisson = True
-                    return
-        else:
-            for element in self.structural_elements.values():
-                if element.material is None:
-                    self.check_set_material = True
-                    return
-                if element.material.poisson_ratio == 0:
-                    self.check_poisson = True
-                    return
-                if element.cross_section is None:
-                    self.check_set_crossSection = True
-                    return
-        return
+        for element in self.structural_elements.values():
+            if element.material is None:
+                self.check_set_material = True
+                return
+            if element.cross_section is None:
+                self.check_set_crossSection = True
+                return
 
     def check_fluid_and_cross_section_in_all_elements(self):
         self.check_set_fluid = False
@@ -430,7 +433,6 @@ class Mesh:
             if element.cross_section is None:
                 self.check_set_crossSection = True
                 return
-        return
     
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         self.is_there_loads = False

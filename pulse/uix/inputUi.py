@@ -33,11 +33,6 @@ class InputUi:
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
         self.analysis_ID = None
-        self.material_error = False
-        self.ext_diam = 0
-        self.thickness = 0
-        self.offset_y = 0
-        self.offset_z = 0
 
         self.f_min = 0
         self.f_max = 0
@@ -112,42 +107,25 @@ class InputUi:
 
     def set_crossSection(self):
 
-        if self.material_error:
-            cross_input = CrossSectionInput(external_diameter=self.ext_diam, thickness=self.thickness, offset_y=self.offset_y, offset_z=self.offset_z)
-        else:
-            cross_input = CrossSectionInput()
+        cross_input = CrossSectionInput()
 
         if not cross_input.complete:
             return
         else:
-            ext_diam = cross_input.external_diameter
-            thickness = cross_input.thickness
-            offset_y = cross_input.offset_y
-            offset_z = cross_input.offset_z
-
-        self.project.mesh.check_material_and_cross_section_in_all_elements(check_only_material=True)
-
-        if self.project.mesh.check_set_material:
-            error("You should to set a Material to all elements\n before trying to run any Analysis!", title = " ERROR: INSUFFICIENT MODEL INPUTS! ")
-            self.ext_diam, self.thickness, self.offset_y, self.offset_z = ext_diam, thickness, offset_y, offset_z
-            self.material_error = True
-            return
+            cross_section = cross_input.cross_section
 
         if cross_input.flagEntity:
-            lines_id = self.opv.getListPickedEntities()
-            if len(lines_id) == 0:
+            entities_id = self.opv.getListPickedEntities()
+            if len(entities_id) == 0:
                 return
-  
-            self.project.set_cross_section_mapped(lines_id, ext_diam, thickness, offset_y, offset_z)
-            # self.project.set_crossSection_by_entity(ent, cross)
-            print("[Set Cross-section] - defined in the lines {}".format(lines_id))
+            for entity in entities_id:
+                self.project.set_crossSection_by_entity(entity, cross_section)
+            print("[Set Cross-section] - defined in the lines {}".format(entities_id))
         else:
-            all_lines = self.project.mesh.all_lines
-            self.project.set_cross_section_mapped(all_lines, ext_diam, thickness, offset_y, offset_z)
-            # self.project.set_crossSection(cross_input.section)
+
+            self.project.set_crossSection(cross_section)
             print("[Set Cross-section] - defined in all the entities")
         self.opv.updateEntityRadius()
-        self.ext_diam, self.thickness, self.offset_y, self.offset_z = 0, 0, 0, 0
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
@@ -300,14 +278,19 @@ class InputUi:
         AnalysisOutputResultsInput()
 
     def runAnalysis(self):
+        
         if self.analysis_ID is None:
             return
-
-        if self.project.is_file_loaded:
-            self.project.load_mapped_cross_section()
+        
+        # self.project.mesh.check_material_all_elements()
+        # if self.project.mesh.check_set_material:
+        #     return
+        # else:
+            # self.project.load_mapped_cross_section()
 
         if self._check_is_there_a_problem():
             return
+        self.project.load_mapped_cross_section()
         if self.analysis_ID in [0,1,3,5,6]:
             if len(self.frequencies) == 0:
                 return          
@@ -457,31 +440,34 @@ class InputUi:
           
         if self.analysis_ID == 2:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
-            if self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
             if self.project.mesh.check_set_material:
                 error(material_message, title = title)
                 return True
-        
-        elif self.analysis_ID == 4:
-            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            if self.project.mesh.check_set_crossSection:
+            elif self.project.mesh.check_set_crossSection:
                 error(cross_section_message, title = title)
                 return True
-            if self.project.mesh.check_set_fluid:
+        
+        elif self.analysis_ID == 4:
+            self.project.mesh.check_material_all_elements()
+            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
+            if self.project.mesh.check_set_material:
+                error(material_message, title = title)
+                return True
+            elif self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_set_crossSection:
+                error(cross_section_message, title = title)
                 return True
 
         elif self.analysis_ID == 0 or self.analysis_ID == 1:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
             self.project.mesh.check_nodes_attributes(structural=True)
-
-            if self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
             if self.project.mesh.check_set_material:
                 error(material_message, title = title)
+                return True
+            elif self.project.mesh.check_set_crossSection:
+                error(cross_section_message, title = title)
                 return True
             elif not self.project.mesh.is_there_loads:
                 if not self.project.mesh.is_there_prescribed_dofs:
@@ -489,14 +475,17 @@ class InputUi:
                     return True
     
         elif self.analysis_ID == 3:
+            self.project.mesh.check_material_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
             self.project.mesh.check_nodes_attributes(acoustic=True)
-
-            if self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-            elif self.project.mesh.check_set_fluid:
+            if self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_set_material:
+                error(material_message, title = title)
+                return True
+            elif self.project.mesh.check_set_crossSection:
+                error(cross_section_message, title = title)
                 return True
             elif not self.project.mesh.is_there_volume_velocity:
                 if not self.project.mesh.is_there_acoustic_pressure:
@@ -507,15 +496,15 @@ class InputUi:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
             self.project.mesh.check_nodes_attributes(coupled=True)
-
-            if self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-            elif self.project.mesh.check_set_material:
+            if self.project.mesh.check_set_material:
                 error(material_message, title = title)
                 return True
             elif self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_set_crossSection:
+                error(cross_section_message, title = title)
+                return True
             elif not self.project.mesh.is_there_volume_velocity:
                 if not self.project.mesh.is_there_acoustic_pressure:
                     error(acoustic_message, title = title)
