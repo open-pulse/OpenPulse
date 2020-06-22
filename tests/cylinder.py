@@ -225,5 +225,5 @@ f_out = cil.flow_head_end(N)['out_flow'] + cil.flow_crank_end(N)['out_flow']
 f_in += cil2.flow_head_end(N)['in_flow'] + cil2.flow_crank_end(N)['in_flow']
 f_out += cil2.flow_head_end(N)['out_flow'] + cil2.flow_crank_end(N)['out_flow']
 
-fig = go.Figure(data=[go.Scatter(x=x,y=v)])
+fig = go.Figure(data=[go.Scatter(x=t,y=f_in),go.Scatter(x=t,y=f_out)])
 plot(fig, auto_open=True)
