@@ -60,6 +60,4 @@ print("Stress calculation time:", end - start,'[s]')
 
 stress_data = get_stress_data(mesh, column)
 
-stress_data = np.loadtxt("SX.lis")
-
 pipe_plot(mesh, coord_def, stress_data[:,[0,3]], scf=0.1)
