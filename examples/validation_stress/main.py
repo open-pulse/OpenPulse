@@ -2,6 +2,7 @@
 from time import time
 import numpy as np 
 import matplotlib.pyplot as plt 
+import seaborn as sns
 
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
@@ -9,6 +10,7 @@ from pulse.preprocessing.mesh import Mesh
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 from pulse.postprocessing.plot_structural_data import get_structural_response
+from pulse.postprocessing.plot_stress import *
 from pulse.postprocessing.stress import Stress
 from pulse.animation.plot_function import plot_results
 
@@ -49,89 +51,15 @@ column = 50
 
 _, coord_def, _, _ = get_structural_response(mesh, direct, column, Normalize=False)
 
-plot_results( mesh,
-              coord_def,
-              scf = 0.5,
-              out_OpenPulse = True, 
-              Show_nodes = True, 
-              Undeformed = True, 
-              Deformed = False, 
-              Animate_Mode = False, 
-              Save = False)
-
 # Stress
-acoustic_solution = np.zeros([len(mesh.nodes.keys()), len(frequencies)], dtype=complex)
-stress = Stress(mesh, frequencies, direct, acoustic_solution = acoustic_solution)
+stress = Stress(mesh, frequencies, direct)
 start = time()
 stress.get()
 end = time()
-
 print("Stress calculation time:", end - start,'[s]')
-# plot stress
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_axial, column)
-print("Internal load axial")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
 
-# plot_results( mesh,
-#               stress_plot,
-#               out_OpenPulse = True,
-#               Acoustic = True, 
-#               Show_nodes = True, 
-#               Undeformed = False, 
-#               Deformed = True, 
-#               Animate_Mode = False, 
-#               Save = False)
+stress_data = get_stress_data(mesh, column)
 
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_bending_y, column)
-print("Internal load bending y")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+stress_data = np.loadtxt("SX.lis")
 
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_bending_z,column)
-print("Internal load bending z")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_torsion, column)
-print("Internal load Torsion")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_transversal_xy, column)
-print("Internal load Transversal xy")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.internal_load_transversal_xz, column)
-print("Internal load Transversal xz")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-############################
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_axial, column)
-print("Stress axial")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_bending_y, column)
-print("Stress bending y")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.normal_bending_z,column)
-print("Stress bending z")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_torsion, column)
-print("Shear Torsion")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_transversal_xy, column)
-print("Shear Transversal xy")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
-
-
-stress_plot, _, _, _ = get_acoustic_response(mesh, stress.shear_transversal_xz, column)
-print("Shear Transversal xz")
-print("Value min: ", np.min(stress_plot[:,1]),"\nValue max: ", np.max(stress_plot[:,1]))
+pipe_plot(mesh, coord_def, stress_data[:,[0,3]], scf=0.1)

@@ -21,35 +21,13 @@ class Stress:
         self.acoustic_solution = kwargs.get('acoustic_solution', deepcopy(zeros))
         self.external_pressure = kwargs.get('external_pressure', 0)
 
-        self.internal_load_axial = deepcopy(zeros)
-        self.internal_load_bending_y = deepcopy(zeros)
-        self.internal_load_bending_z = deepcopy(zeros)
-
-        self.internal_load_torsion = deepcopy(zeros)
-        self.internal_load_transversal_xy = deepcopy(zeros)
-        self.internal_load_transversal_xz = deepcopy(zeros)
-
-        self.normal_axial = deepcopy(zeros)
-        self.normal_bending_y = deepcopy(zeros)
-        self.normal_bending_z = deepcopy(zeros)
-
-        self.shear_torsion = deepcopy(zeros)
-        self.shear_transversal_xy = deepcopy(zeros)
-        self.shear_transversal_xz = deepcopy(zeros)
-
     def get(self):
-
         elements = self.mesh.structural_elements.values()
 
         for element in elements:
-            ro = element.cross_section.external_diameter/2
-            area = element.cross_section.area
-            Iy = element.cross_section.second_moment_area_y
-            Iz = element.cross_section.second_moment_area_z
-            J = element.cross_section.polar_moment_area
 
+            # Internal Loads
             structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
-            first_global_index = element.first_node.global_index
 
             u = self.structural_solution[structural_dofs, :]
             
@@ -65,18 +43,17 @@ class Stress:
             normal = Dab @ Bab @ T @ rot @ u
             shear = Dts @ Bts @ T @ rot @ u
 
-            self.internal_load_axial[first_global_index] = normal[0]
-            self.internal_load_bending_y[first_global_index] = normal[1]
-            self.internal_load_bending_z[first_global_index] = normal[2]
+            element.internal_load = np.r_[normal, shear]
+            # Stress
+            ro = element.cross_section.external_diameter/2
+            area = element.cross_section.area
+            Iy = element.cross_section.second_moment_area_y
+            Iz = element.cross_section.second_moment_area_z
+            J = element.cross_section.polar_moment_area
 
-            self.internal_load_torsion[first_global_index] = shear[0]
-            self.internal_load_transversal_xz[first_global_index] = shear[1]
-            self.internal_load_transversal_xy[first_global_index] = shear[2]
-
-            self.normal_axial[first_global_index] = normal[0] / area
-            self.normal_bending_y[first_global_index] = normal[1] * ro / Iy
-            self.normal_bending_z[first_global_index] = normal[2] * ro / Iz
-
-            self.shear_torsion[first_global_index] = shear[0] * ro / J
-            self.shear_transversal_xz[first_global_index] = shear[1] / area
-            self.shear_transversal_xy[first_global_index] = shear[2] / area
+            element.stress = np.c_[normal[0]/area,
+                                   normal[2] * ro/Iy,
+                                   normal[1] * ro/Iz,
+                                   shear[0] * ro/J,
+                                   shear[1]/area,
+                                   shear[2]/area].T

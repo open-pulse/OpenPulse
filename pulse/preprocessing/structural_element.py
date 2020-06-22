@@ -45,6 +45,9 @@ class StructuralElement:
         self._Bts = None
         self._rot = None
 
+        self.stress = None
+        self.internal_load = None
+
     @property
     def length(self):
         return distance(self.first_node, self.last_node) 
