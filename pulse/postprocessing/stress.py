@@ -21,11 +21,13 @@ class Stress:
         self.acoustic_solution = kwargs.get('acoustic_solution', deepcopy(zeros))
         self.external_pressure = kwargs.get('external_pressure', 0)
 
-    def get(self):
+    def get(self, global_damping_values=(0,0,0,0)):
+        _, betaH, _, betaV = global_damping_values
         elements = self.mesh.structural_elements.values()
+        omega = 2 * pi * self.frequencies.reshape(1,-1)
+        damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
 
         for element in elements:
-
             # Internal Loads
             structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
 
@@ -43,7 +45,7 @@ class Stress:
             normal = Dab @ Bab @ T @ rot @ u
             shear = Dts @ Bts @ T @ rot @ u
 
-            element.internal_load = np.r_[normal, shear]
+            element.internal_load = np.multiply(np.r_[normal, shear],damping)
             # Stress
             ro = element.cross_section.external_diameter/2
             area = element.cross_section.area
@@ -51,9 +53,9 @@ class Stress:
             Iz = element.cross_section.second_moment_area_z
             J = element.cross_section.polar_moment_area
 
-            element.stress = np.c_[normal[0]/area,
-                                   normal[2] * ro/Iy,
-                                   normal[1] * ro/Iz,
-                                   shear[0] * ro/J,
-                                   shear[1]/area,
-                                   shear[2]/area].T
+            element.stress = np.c_[element.internal_load[0]/area,
+                                   element.internal_load[2] * ro/Iy,
+                                   element.internal_load[1] * ro/Iz,
+                                   element.internal_load[3] * ro/J,
+                                   element.internal_load[4]/area,
+                                   element.internal_load[5]/area].T

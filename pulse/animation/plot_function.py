@@ -12,10 +12,11 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 """
 
 def plot_results( mesh,
-                  data,  
+                  data,
+                  data_stress = None,
                   scf = 0.4,
                   out_OpenPulse = True,
-                  Acoustic = False, 
+                  Acoustic = False,
                   Show_nodes = True, 
                   Undeformed = True, 
                   Deformed = False, 
@@ -52,9 +53,19 @@ def plot_results( mesh,
         ax_lim[0,:] = Coord_dn.min(axis=0) 
         ax_lim[1,:] = Coord_dn.max(axis=0) 
 
-        a, lw, e_lw, marker_size = 1.1, 2, 0, 50
+        a, lw, e_lw, marker_size = 1.1, 5, 0, 50
         
-        norm = plt.Normalize(0, max(r), clip=False)
+        m = matplotlib.cm.ScalarMappable(cmap='jet')
+        m.set_array([])
+
+        if data_stress is not None:
+            s = data_stress[:,1]
+            m.set_array(s)
+            norm = plt.Normalize(min(s), max(s), clip=False)
+        else:
+            m.set_array(r)
+            norm = plt.Normalize(0, max(r), clip=False)
+        
         # norm = plt.Normalize(min(r), max(r),clip=True)
         cmap = matplotlib.cm.get_cmap('jet')
         line = Line3DCollection([], cmap=cmap, norm=norm, lw=lw)
@@ -80,10 +91,6 @@ def plot_results( mesh,
         ax.set_ylabel(('Position y[m]'),fontdict=font)
         ax.set_zlabel(('Position z[m]'),fontdict=font)
         plt.tight_layout()
-
-        m = matplotlib.cm.ScalarMappable(cmap='jet')
-        m.set_array([])
-        m.set_array(r)
 
         cb = fig.colorbar(m, shrink=0.8)
         cb.set_label('Amplitude [-]', fontdict=font)
@@ -119,12 +126,18 @@ def plot_results( mesh,
             ax.add_collection3d(line)
             segments = segments_p + segments_u*(scf/r_max)
             line.set_segments(segments)
-            line.set_array(r_m)
+            if data_stress is not None:
+                line.set_array(s)
+            else:
+                line.set_array(r_m)
         
             if Show_nodes:
-    
-                ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
 
+                if data_stress is not None:
+                    ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=s,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
+                else:
+                    ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
+    
         if Animate_Mode:
 
             frames = 180
@@ -135,8 +148,10 @@ def plot_results( mesh,
 
             # Set-up scatter3D plot  
             if Show_nodes:
-
-                graph = ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=1,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
+                if data_stress is not None:
+                    graph = ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=s,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
+                else:
+                    graph = ax.scatter3D(x_def,y_def,z_def,zdir='z',zorder=2,marker='s',norm=norm,c=r,cmap=cmap,alpha=1,edgecolors='face',lw=e_lw,s=marker_size)
     
             # initialization function: plot the background of each frame
 
@@ -150,10 +165,14 @@ def plot_results( mesh,
             def animate(i):
 
                 segments_i = segments_p + segments_u*(scf/r_max)*np.cos(2 * np.pi * (i*4/frames)*t)
-                r_i = r_m*np.abs(np.cos(2 * np.pi * (i*4/frames)*t))
-
                 line.set_segments(segments_i)
-                line.set_array(r_i)
+                if data_stress is not None:
+                    s_i = s*np.abs(np.cos(2 * np.pi * (i*4/frames)*t))
+                    line.set_array(s_i)
+                else:
+                    r_i = r_m*np.abs(np.cos(2 * np.pi * (i*4/frames)*t))
+                    line.set_array(r_i)
+
                 line.set_zorder(2)
 
                 if Show_nodes:

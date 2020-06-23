@@ -9,8 +9,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.mesh import Mesh
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
-from pulse.postprocessing.plot_structural_data import get_structural_response
-from pulse.postprocessing.plot_stress import *
+from pulse.postprocessing.plot_structural_data import get_structural_response, get_stress_data
 from pulse.postprocessing.stress import Stress
 from pulse.animation.plot_function import plot_results
 
@@ -44,20 +43,28 @@ f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 modes = 200
-direct = solution.direct_method(frequencies, is_viscous_lumped=True)
+
+global_damping_values = (0, 1e-3, 0, 0)
+
+direct = solution.direct_method(frequencies, is_viscous_lumped=True, global_damping_values = global_damping_values)
 tf = time()
 print('Structural direct solution time:', (tf-t0),'[s]')
 column = 50
 
 _, coord_def, _, _ = get_structural_response(mesh, direct, column, Normalize=False)
 
-# Stress
 stress = Stress(mesh, frequencies, direct)
-start = time()
-stress.get()
-end = time()
-print("Stress calculation time:", end - start,'[s]')
+stress.get(global_damping_values = global_damping_values)
+stress_data = get_stress_data(mesh, column, real=True)
+stress_plot = stress_data[:,[0,2]]
 
-stress_data = get_stress_data(mesh, column)
-
-pipe_plot(mesh, coord_def, stress_data[:,[0,3]], scf=0.1)
+plot_results( mesh,
+              coord_def,
+              data_stress = stress_plot,
+              scf = 0.20,
+              out_OpenPulse = True, 
+              Show_nodes = False, 
+              Undeformed = False, 
+              Deformed = False, 
+              Animate_Mode = True, 
+              Save = False)

@@ -56,3 +56,29 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=
     coord_def[:,3] = coord[:,3] + u_z*factor
         
     return connect, coord_def, r_def, factor
+
+def get_stress_data(mesh, column, absolute=False, real=False, imaginary=False):
+    
+    elements = mesh.structural_elements
+    stresses = [np.r_[i, elements[i].stress[:, column]] for i in elements ]
+    if absolute:
+        return np.abs(np.array(stresses))
+    elif real:
+        return np.real(np.array(stresses))
+    elif imaginary:
+        return np.imag(np.array(stresses))
+    else:
+        return np.array(stresses)
+
+def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
+    
+    elements = mesh.structural_elements
+    internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
+    if absolute:
+        return np.abs(np.array(internal_loads))
+    elif real:
+        return np.real(np.array(internal_loads))
+    elif imaginary:
+        return np.imag(np.array(internal_loads))
+    else:
+        return np.array(internal_loads)
