@@ -19,11 +19,23 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>391</width>
+    <height>291</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>391</width>
+    <height>291</height>
+   </size>
+  </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: Volume Velocity Source</string>
+   <string> Set: Volume Velocity</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -38,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>391</width>
-     <height>411</height>
+     <height>297</height>
     </rect>
    </property>
    <property name="font">
@@ -75,12 +87,15 @@
      </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
-       <italic>false</italic>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>Insert values for Volume Velocity Source:</string>
+      <string>Insert values for Volume Velocity:</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -108,15 +123,24 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>10</y>
-       <width>91</width>
-       <height>21</height>
+       <x>42</x>
+       <y>17</y>
+       <width>79</width>
+       <height>23</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QLabel" name="label_2">
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="text">
          <string>Node ID's:</string>
         </property>
@@ -130,151 +154,41 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>120</x>
-       <y>10</y>
-       <width>251</width>
-       <height>22</height>
+       <x>122</x>
+       <y>17</y>
+       <width>203</width>
+       <height>24</height>
       </rect>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="QLineEdit" name="lineEdit_nodeID">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
         </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_3">
-     <property name="geometry">
-      <rect>
-       <x>25</x>
-       <y>50</y>
-       <width>101</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_3">
-      <item>
-       <widget class="QLabel" name="label_3">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
         <property name="text">
-         <string>Physical quantity</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_4">
-     <property name="geometry">
-      <rect>
-       <x>145</x>
-       <y>50</y>
-       <width>131</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_4">
-      <item>
-       <widget class="QLabel" name="label_4">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Values</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_5">
-     <property name="geometry">
-      <rect>
-       <x>295</x>
-       <y>50</y>
-       <width>71</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5">
-      <item>
-       <widget class="QLabel" name="label_5">
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Units</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_7">
-     <property name="geometry">
-      <rect>
-       <x>145</x>
-       <y>70</y>
-       <width>131</width>
-       <height>51</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_7">
-      <item>
-       <widget class="QLineEdit" name="lineEdit_volume_velocity"/>
-      </item>
-     </layout>
-    </widget>
-    <widget class="Line" name="line">
-     <property name="geometry">
-      <rect>
-       <x>10</x>
-       <y>130</y>
-       <width>371</width>
-       <height>16</height>
-      </rect>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="QWidget" name="verticalLayoutWidget_11">
-     <property name="geometry">
-      <rect>
-       <x>20</x>
-       <y>160</y>
-       <width>91</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout_11">
-      <item>
-       <widget class="QLabel" name="label_19">
-        <property name="enabled">
-         <bool>false</bool>
-        </property>
-        <property name="text">
-         <string>Load Table:</string>
+         <string/>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -287,113 +201,409 @@
      <property name="geometry">
       <rect>
        <x>110</x>
-       <y>210</y>
+       <y>208</y>
        <width>171</width>
-       <height>23</height>
+       <height>27</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="text">
       <string>Confirm</string>
      </property>
     </widget>
-    <widget class="Line" name="line_2">
+    <widget class="QTabWidget" name="tabWidget">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>190</y>
+       <y>54</y>
        <width>371</width>
-       <height>20</height>
+       <height>140</height>
       </rect>
      </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_6">
-     <property name="enabled">
-      <bool>true</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>30</x>
-       <y>71</y>
-       <width>91</width>
-       <height>51</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>Volume velocity:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-    <widget class="QLabel" name="label_13">
-     <property name="geometry">
-      <rect>
-       <x>295</x>
-       <y>70</y>
-       <width>71</width>
-       <height>51</height>
-      </rect>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>140</height>
+      </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>71</width>
-       <height>16777215</height>
+       <width>16777215</width>
+       <height>140</height>
       </size>
      </property>
-     <property name="text">
-      <string>[m³/s]</string>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-    </widget>
-    <widget class="QLineEdit" name="lineEdit_9">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>121</x>
-       <y>161</y>
-       <width>181</width>
-       <height>20</height>
-      </rect>
-     </property>
-    </widget>
-    <widget class="QToolButton" name="toolButton">
-     <property name="enabled">
-      <bool>false</bool>
-     </property>
-     <property name="geometry">
-      <rect>
-       <x>310</x>
-       <y>160</y>
-       <width>61</width>
-       <height>21</height>
-      </rect>
-     </property>
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string>Open</string>
-     </property>
-     <property name="autoRaise">
-      <bool>false</bool>
-     </property>
-     <property name="arrowType">
-      <enum>Qt::NoArrow</enum>
-     </property>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Single value</string>
+      </attribute>
+      <widget class="QWidget" name="gridLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>18</x>
+         <y>26</y>
+         <width>333</width>
+         <height>61</height>
+        </rect>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="1" column="2">
+         <widget class="QLineEdit" name="lineEdit_volume_velocity_imag">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QLineEdit" name="lineEdit_volume_velocity_real">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="3">
+         <widget class="QLabel" name="label_13">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>100</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>[m³/s]</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="3">
+         <widget class="QLabel" name="label_5">
+          <property name="minimumSize">
+           <size>
+            <width>50</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="text">
+           <string>Unit</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="2">
+         <widget class="QLabel" name="label_8">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="text">
+           <string>Imaginary</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="label_7">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>15</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <property name="text">
+           <string>Real</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_6">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>Volume Velocity</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Import table</string>
+      </attribute>
+      <widget class="QToolButton" name="toolButton_load_table">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>72</y>
+         <width>85</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Search</string>
+       </property>
+       <property name="autoRaise">
+        <bool>false</bool>
+       </property>
+       <property name="arrowType">
+        <enum>Qt::NoArrow</enum>
+       </property>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget_11">
+       <property name="geometry">
+        <rect>
+         <x>11</x>
+         <y>34</y>
+         <width>83</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_11">
+        <item>
+         <widget class="QLabel" name="label_19">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>10</pointsize>
+            <weight>75</weight>
+            <italic>true</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Load Table:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLineEdit" name="line_load_table_path">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>96</x>
+         <y>34</y>
+         <width>255</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>8</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
     </widget>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEdit_volume_velocity_real</tabstop>
+  <tabstop>lineEdit_volume_velocity_imag</tabstop>
+  <tabstop>pushButton_confirm</tabstop>
+  <tabstop>line_load_table_path</tabstop>
+  <tabstop>toolButton_load_table</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

@@ -74,7 +74,18 @@ class AssemblyAcoustic:
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
-            if np.sum(node.specific_impedance + node.acoustic_impedance + node.radiation_impedance) != 0:
+
+            if node.specific_impedance is None:
+                node_specific_impedance = 0
+            else:
+                node_specific_impedance = node.specific_impedance
+
+            if node.radiation_impedance is None:
+                node_radiation_impedance = 0
+            else:
+                node_radiation_impedance = node.radiation_impedance
+
+            if np.sum(node_specific_impedance + node_radiation_impedance) != 0:
                 position = node.global_index
                 area_fluid = []
 
@@ -107,12 +118,12 @@ class AssemblyAcoustic:
     def get_global_volume_velocity(self, frequencies):
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
-        volume_velocity = np.zeros([len(frequencies), total_dof])
+        volume_velocity = np.zeros([len(frequencies), total_dof], dtype=complex)
 
         for node in self.mesh.nodes.values():
-            if np.sum(node.volume_velocity) != 0:
+            if node.volume_velocity is not None:
                 position = node.global_index
-                volume_velocity[:, position] += node.get_prescribed_volume_velocity(frequencies)
+                volume_velocity[:, position] += node.get_volume_velocity(frequencies)
         
         unprescribed_indexes = self.get_unprescribed_indexes()
         volume_velocity = volume_velocity[:, unprescribed_indexes]

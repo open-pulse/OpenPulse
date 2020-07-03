@@ -23,10 +23,10 @@ class Node:
 
         # Acoustic physical quantities
         self.acoustic_pressure = None
-        self.volume_velocity = 0
+        self.volume_velocity = None
 
-        self.specific_impedance = 0
-        self.acoustic_impedance = 0
+        self.specific_impedance = None
+        # self.acoustic_impedance = 0
         self.radiation_impedance = 0
         
         self.global_index = global_index
@@ -99,13 +99,15 @@ class Node:
 
     #TODO: load a table of real+imaginary components    
 
-    def get_prescribed_volume_velocity(self, frequencies):
-        # if isinstance(self.volume_velocity, np.float64):
+    def get_volume_velocity(self, frequencies):
+        if isinstance(self.volume_velocity, np.ndarray):
+            if len(self.volume_velocity) == len(frequencies):
+                return self.volume_velocity
+            else:
+                error("The frequencies vector should have same length.\n Please, check the frequency analysis setup.")
+                return
+        else:
             return self.volume_velocity * np.ones_like(frequencies)
-        # elif len(self.volume_velocity) != len(frequencies):
-        #     #error!!
-        #     pass
-        # return self.volume_velocity
 
     def haveVolumeVelocity(self):
         return self.volume_velocity.count(0) != 1
@@ -113,19 +115,26 @@ class Node:
     def admittance(self, area_fluid, frequencies):
         # Only one impedance can be given.
         # More than one must raise an error
-        if self.acoustic_impedance != 0:
-            Z = self.acoustic_impedance
-        elif self.specific_impedance != 0:
+
+        if self.specific_impedance is not None:
             Z = self.specific_impedance / area_fluid
         elif self.radiation_impedance != 0:
             Z = self.radiation_impedance / area_fluid
         
-        if isinstance(Z, float):
+        if isinstance(self.specific_impedance, np.ndarray):
+            admittance = np.divide(1,Z)
+        elif isinstance(self.specific_impedance, complex) or isinstance(self.specific_impedance, float):
             admittance = 1/Z * np.ones_like(frequencies)
         elif len([Z]) != len(frequencies):
             error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
             return
-        else:
-            admittance = np.divide(1,Z)
+
+        # if isinstance(Z, float):
+        #     admittance = 1/Z * np.ones_like(frequencies)
+        # elif len([Z]) != len(frequencies):
+        #     error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
+        #     return
+        # else:
+        #     admittance = np.divide(1,Z)
 
         return admittance.reshape([len(frequencies),1])

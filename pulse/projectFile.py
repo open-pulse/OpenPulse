@@ -321,17 +321,23 @@ class ProjectFile:
             if "acoustic pressure" in keys:
                 #Have acoustic pressure
                 pressure = node_acoustic_list[str(node)]['acoustic pressure']
-                actPressure = self._getAcousticPressureBCFromString(pressure)
+                message = "The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis."
+                # actPressure = self._getAcousticPressureBCFromString(pressure)
+                actPressure = self._get_acoustic_bc_from_string(pressure, message)
                 dict_pressure[node_id] = actPressure
             if "volume velocity" in keys:
                 #Have volume velocity
                 volume_velocity = node_acoustic_list[str(node)]['volume velocity']
-                volVelocity = self._getVolumeVelocityBCFromString(volume_velocity)
+                message = "The loaded volume velocity table has invalid data \nstructure, therefore, it will be ignored in analysis."
+                # volVelocity = self._getVolumeVelocityBCFromString(volume_velocity)
+                volVelocity = self._get_acoustic_bc_from_string(volume_velocity, message)
                 dict_volume_velocity[node_id] = volVelocity
             if "specific impedance" in keys:
                 #Have specific impedance
                 specific_impedance = node_acoustic_list[str(node)]['specific impedance']
-                specImpedance = self._getSpecificImpedanceBCFromString(specific_impedance)
+                message = "The loaded specific impedance table has invalid data \nstructure, therefore, it will be ignored in analysis."
+                # specImpedance = self._getSpecificImpedanceBCFromString(specific_impedance)
+                specImpedance = self._get_acoustic_bc_from_string(specific_impedance, message)
                 dict_specific_impedance[node_id] = specImpedance
             if "radiation impedance" in keys:
                 #Have forces
@@ -454,7 +460,7 @@ class ProjectFile:
         BC = [ux,uy,uz,rx,ry,rz]
         return BC
 
-    def _getAcousticPressureBCFromString(self, value):
+    def _get_acoustic_bc_from_string(self, value, message):
         
         load_path_table = ""
         value = value[1:-1].split(',')
@@ -480,17 +486,69 @@ class ProjectFile:
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
                     except Exception:
-                        error("The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+                        error(message)
                         
         return output
 
-    def _getSpecificImpedanceBCFromString(self, specific_impedance):
-        specific_impedance = specific_impedance[1:-1].split(',')
-        value = 0
-        if len(specific_impedance) == 1:
-            if specific_impedance[0] != '0.0':
-                value = float(specific_impedance[0])
-        return value
+    # def _getAcousticPressureBCFromString(self, value):
+        
+    #     load_path_table = ""
+    #     value = value[1:-1].split(',')
+        
+    #     output = None
+    #     if len(value) == 1:
+    #         if value[0] != 'None':
+
+    #             try:
+    #                 output = complex(value[0])
+    #             except Exception:
+
+    #                 try:
+    #                     path = os.path.dirname(self.projectFilePath)
+    #                     if "/" in path:
+    #                         load_path_table = "{}/{}".format(path, value[0])
+    #                     elif "\\" in path:
+    #                         load_path_table = "{}\\{}".format(path, value[0])
+    #                     data = np.loadtxt(load_path_table, delimiter=",")
+    #                     output = data[:,1] + 1j*data[:,2]
+    #                     self.frequencies = data[:,0]
+    #                     self.f_min = self.frequencies[0]
+    #                     self.f_max = self.frequencies[-1]
+    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
+    #                 except Exception:
+    #                     error("The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+                        
+    #     return output
+
+    # def _getSpecificImpedanceBCFromString(self, value):
+
+    #     load_path_table = ""
+    #     value = value[1:-1].split(',')
+        
+    #     output = None
+    #     if len(value) == 1:
+    #         if value[0] != 'None':
+
+    #             try:
+    #                 output = complex(value[0])
+    #             except Exception:
+
+    #                 try:
+    #                     path = os.path.dirname(self.projectFilePath)
+    #                     if "/" in path:
+    #                         load_path_table = "{}/{}".format(path, value[0])
+    #                     elif "\\" in path:
+    #                         load_path_table = "{}\\{}".format(path, value[0])
+    #                     data = np.loadtxt(load_path_table, delimiter=",")
+    #                     output = data[:,1] + 1j*data[:,2]
+    #                     self.frequencies = data[:,0]
+    #                     self.f_min = self.frequencies[0]
+    #                     self.f_max = self.frequencies[-1]
+    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
+    #                 except Exception:
+    #                     error("The loaded specific impedance table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+                        
+    #     return output
 
     def _getRadiationImpedanceBCFromString(self, radiation_impedance):
         radiation_impedance = radiation_impedance[1:-1].split(',')
@@ -500,13 +558,35 @@ class ProjectFile:
                 value = float(radiation_impedance[0])
         return value
 
-    def _getVolumeVelocityBCFromString(self, volume_velocity):
-        volume_velocity = volume_velocity[1:-1].split(',')
-        value = 0
-        if len(volume_velocity) == 1:
-            if volume_velocity[0] != '0.0':
-                value = float(volume_velocity[0])
-        return value
+    # def _getVolumeVelocityBCFromString(self, value):
+
+    #     load_path_table = ""
+    #     value = value[1:-1].split(',')
+        
+    #     output = None
+    #     if len(value) == 1:
+    #         if value[0] != 'None':
+
+    #             try:
+    #                 output = complex(value[0])
+    #             except Exception:
+
+    #                 try:
+    #                     path = os.path.dirname(self.projectFilePath)
+    #                     if "/" in path:
+    #                         load_path_table = "{}/{}".format(path, value[0])
+    #                     elif "\\" in path:
+    #                         load_path_table = "{}\\{}".format(path, value[0])
+    #                     data = np.loadtxt(load_path_table, delimiter=",")
+    #                     output = data[:,1] + 1j*data[:,2]
+    #                     self.frequencies = data[:,0]
+    #                     self.f_min = self.frequencies[0]
+    #                     self.f_max = self.frequencies[-1]
+    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
+    #                 except Exception:
+    #                     error("The loaded volume velocity table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+                        
+    #     return output
 
     def addBoundaryConditionInFile(self, nodesID_list, dofs):
         # if dofs.count(None) == 6:

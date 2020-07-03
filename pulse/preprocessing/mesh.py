@@ -456,6 +456,6 @@ class Mesh:
                     self.is_there_acoustic_pressure = True
                     return
 
-                if node.volume_velocity != 0:
+                if node.volume_velocity is not None:
                     self.is_there_volume_velocity = True
                     return    

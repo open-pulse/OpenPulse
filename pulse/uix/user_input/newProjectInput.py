@@ -26,10 +26,9 @@ class NewProjectInput(QDialog):
         self.currentTab = 0
 
         self.userPath = os.path.expanduser('~')
-        # self.openPulsePath = "{}\\OpenPulse".format(self.userPath)
-        # self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
+        self.project_path = ""
         self.openPulsePath = ""
-        self.projectPath = ""
+
         self.materialListName = "materialList.dat"
         self.fluidListName = "fluidList.dat"
         self.projectFileName = "project.ini"
@@ -77,11 +76,14 @@ class NewProjectInput(QDialog):
             self.stop = True
             return
 
-        if not os.path.exists(self.openPulsePath):
-            os.mkdir(self.openPulsePath)
+        if not os.path.exists(self.project_path):
+            os.mkdir(self.project_path)
 
-        if not os.path.exists(self.projectPath):
-            os.mkdir(self.projectPath)
+        # if not os.path.exists(self.openPulsePath):
+        #     os.mkdir(self.openPulsePath)
+
+        # if not os.path.exists(self.projectPath):
+        #     os.mkdir(self.projectPath)
 
         self.stop = False
 
@@ -90,18 +92,18 @@ class NewProjectInput(QDialog):
 
     def search_project_folder(self):
 
-        self.path_project = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
-        self.openPulsePath = "{}\\OpenPulse".format(self.path_project)
-        self.projectPath = "{}\\OpenPulse\\Projects".format(self.path_project)
+        self.project_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
+        self.openPulsePath = "{}\\OpenPulse".format(self.project_path)
+        # self.projectPath = "{}\\OpenPulse\\Projects".format(self.path_project)
         # self.name = basename(self.path)
-        self.lineEdit_project_folder.setText(str(self.path_project))        
+        self.lineEdit_project_folder.setText(str(self.project_path))        
 
     def accept_project(self):
         self.createProjectFolder()
         if self.stop:
             return
 
-        if self.line_project_name.text() in os.listdir(self.projectPath):
+        if self.line_project_name.text() in os.listdir(self.project_path):
             self.error("This Project Already Exists!")
             return
 
@@ -154,7 +156,7 @@ class NewProjectInput(QDialog):
         msg_box.exec_()
 
     def createProject(self):
-        path = '{}\\{}'.format(self.projectPath, self.line_project_name.text())
+        path = '{}\\{}'.format(self.project_path, self.line_project_name.text())
         if not os.path.exists(path):
             os.makedirs(path)
 

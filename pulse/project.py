@@ -211,10 +211,10 @@ class Project:
             if ActPres is not None:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
         for key, VelVol in volume_velocity.items():
-            if VelVol != 0:
+            if VelVol is not None:
                 self.load_volume_velocity_bc_by_node(key, VelVol)
         for key, SpecImp in specific_impedance.items():
-            if SpecImp != 0:
+            if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
         for key, RadImp in radiation_impedance.items():
             if RadImp != 0:
@@ -411,11 +411,19 @@ class Project:
     
     def set_volume_velocity_bc_by_node(self, node_id, volume_velocity):
         self.mesh.set_volume_velocity_bc_by_node(node_id, volume_velocity)
-        self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
+        if isinstance(volume_velocity, np.ndarray):
+            self.file.addVolumeVelocityBCInFile(node_id, self.file.temp_table_name)
+        else:
+            self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
+        # self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
 
     def set_specific_impedance_bc_by_node(self, node_id, specific_impedance):
         self.mesh.set_specific_impedance_bc_by_node(node_id, specific_impedance)
-        self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
+        if isinstance(specific_impedance, np.ndarray):
+            self.file.addSpecificImpedanceBCInFile(node_id, self.file.temp_table_name)
+        else:
+            self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
+        # self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
 
     def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)

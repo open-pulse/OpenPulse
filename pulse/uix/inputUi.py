@@ -38,14 +38,18 @@ class InputUi:
         self.f_max = 0
         self.f_step = 0
 
+        self.acoustic_pressure_frequencies = None
+        self.volume_velocity_frequencies = None 
+        self.specific_impedance_frequencies = None
+
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
-        self.project.project_path = new_project_input.projectPath
+        self.project.project_path = new_project_input.project_path
         return new_project_input.create
 
     def loadProject(self):
         load = LoadProjectInput(self.project)
-        self.project.project_path = load.projectPath
+        self.project.project_path = load.loaded_project_path
         return load.complete
 
     def setElementType(self):
@@ -153,6 +157,7 @@ class InputUi:
             self.project.file.f_max = read.f_max
             self.project.file.f_step = read.df
             self.project.file.frequencies = read.frequencies
+            self.acoustic_pressure_frequencies = read.frequencies
         else:
             self.project.file.temp_table_name = None
 
@@ -162,10 +167,21 @@ class InputUi:
 
     def setVolumeVelocity(self):
         point_id = self.opv.getListPickedPoints()
-        read = VolumeVelocityInput(self.project.mesh.nodes, point_id)
+        read = VolumeVelocityInput(self.project.mesh.nodes, point_id, self.project.project_path)
 
         if read.volume_velocity is None:
-            return
+            if not read.remove_volume_velocity:
+                return
+
+        if read.new_load_path_table != "":
+            self.project.file.temp_table_name = read.volume_velocity_table_name
+            self.project.file.f_min = read.f_min
+            self.project.file.f_max = read.f_max
+            self.project.file.f_step = read.df
+            self.project.file.frequencies = read.frequencies
+            self.volume_velocity_frequencies = read.frequencies            
+        else:
+            self.project.file.temp_table_name = None
 
         self.project.set_volume_velocity_bc_by_node(read.nodes_typed, read.volume_velocity)
         print("[Set Volume Velocity Source] - defined in the point(s) {}".format(read.nodes_typed))
@@ -173,15 +189,57 @@ class InputUi:
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id)
+        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id, self.project.project_path)
 
         if read.specific_impedance is None:
-            return
+            if not read.remove_specific_impedance:
+                return
+
+        if read.new_load_path_table != "":
+            self.project.file.temp_table_name = read.specific_impedance_table_name
+            self.project.file.f_min = read.f_min
+            self.project.file.f_max = read.f_max
+            self.project.file.f_step = read.df
+            self.project.file.frequencies = read.frequencies
+            self.specific_impedance_frequencies = read.frequencies
+        else:
+            self.project.file.temp_table_name = None
 
         self.project.set_specific_impedance_bc_by_node(read.nodes_typed, read.specific_impedance)
         print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes_typed))
         self.opv.transformPoints(read.nodes_typed)
 
+    def check_acoustic_bc_tables(self):
+
+        if self.acoustic_pressure_frequencies is not None:
+            if self.volume_velocity_frequencies is not None:
+                if self.specific_impedance_frequencies is not None:
+                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        error("Check frequency setup of all imported tables.")
+                        return
+                else:
+                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies:
+                        pass
+                    else:
+                        error("Check frequency setup of imported tables (Acoustic Pressure and Volume Velocity).")
+                        return    
+            else:
+                if self.specific_impedance_frequencies is not None:
+                    if self.acoustic_pressure_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        error("Check frequency setup of imported tables (Acoustic Pressure and Specific Impedance).")
+                        return
+        else:
+            if self.volume_velocity_frequencies is not None:
+                if self.specific_impedance_frequencies is not None:
+                    if self.volume_velocity_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        error("Check frequency setup of imported tables (Volume Velocity and Specific Impedance).")
+                        return
 
     def setRadiationImpedance(self):
         point_id = self.opv.getListPickedPoints()
@@ -280,6 +338,7 @@ class InputUi:
     def runAnalysis(self):
         
         if self.analysis_ID is None:
+            error("Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model.")
             return
         
         # self.project.mesh.check_material_all_elements()

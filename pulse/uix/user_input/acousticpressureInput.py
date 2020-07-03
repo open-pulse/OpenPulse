@@ -2,7 +2,7 @@ import os
 from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget
-# from PyQt5.QtWidgets import QTreeWidget, QRadioButton, QTreeWidgetItem,  
+from pulse.utils import error
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
@@ -21,15 +21,15 @@ class AcousticPressureInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.userPath = os.path.expanduser('~')
-        print(self.userPath)
         self.project_path = project_path
-        # self.projectPath = "{}\\OpenPulse\\Projects".format(self.userPath)
         self.new_load_path_table = ""
 
         self.nodes = nodes
         self.acoustic_pressure = None
         self.nodes_typed = []
         self.remove_acoustic_pressure = False
+        self.flag_real = False
+        self.flag_imag = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
         self.lineEdit_acoustic_pressure_real = self.findChild(QLineEdit, 'lineEdit_pressure_real')
@@ -43,7 +43,6 @@ class AcousticPressureInput(QDialog):
         self.pushButton_confirm.clicked.connect(self.check)
 
         self.writeNodes(list_node_ids)
-
         self.exec_()
 
     def load_table(self):
@@ -96,6 +95,7 @@ class AcousticPressureInput(QDialog):
             if self.lineEdit_nodeID.text()=="":
                 error("Inform a valid Node ID before confirm th input!", title = "Error Node ID's")
                 return
+                
         except Exception:
             error("Wrong input for Node ID's!", title = "Error Node ID's")
             return
@@ -119,6 +119,7 @@ class AcousticPressureInput(QDialog):
             acoustic_pressure = None
             acoustic_pressure_real = 0
             acoustic_pressure_imag = 0
+            
             if self.lineEdit_acoustic_pressure_real.text() != "":
                 try:
                     acoustic_pressure_real = float(self.lineEdit_acoustic_pressure_real.text())

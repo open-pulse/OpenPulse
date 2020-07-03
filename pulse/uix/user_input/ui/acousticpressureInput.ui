@@ -123,7 +123,7 @@
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>28</x>
+       <x>40</x>
        <y>17</y>
        <width>79</width>
        <height>23</height>
@@ -154,7 +154,7 @@
     <widget class="QWidget" name="verticalLayoutWidget_2">
      <property name="geometry">
       <rect>
-       <x>108</x>
+       <x>120</x>
        <y>17</y>
        <width>203</width>
        <height>24</height>
@@ -225,8 +225,20 @@
        <x>10</x>
        <y>50</y>
        <width>371</width>
-       <height>143</height>
+       <height>140</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>140</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>140</height>
+      </size>
      </property>
      <property name="font">
       <font>
@@ -244,55 +256,12 @@
       <attribute name="title">
        <string>Single value</string>
       </attribute>
-      <widget class="QLabel" name="label_4">
-       <property name="geometry">
-        <rect>
-         <x>124</x>
-         <y>18</y>
-         <width>125</width>
-         <height>20</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>VALUES</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
       <widget class="QWidget" name="gridLayoutWidget">
        <property name="geometry">
         <rect>
-         <x>40</x>
-         <y>38</y>
-         <width>286</width>
+         <x>14</x>
+         <y>26</y>
+         <width>344</width>
          <height>61</height>
         </rect>
        </property>
@@ -418,7 +387,7 @@
            <enum>QFrame::Raised</enum>
           </property>
           <property name="text">
-           <string>UNIT</string>
+           <string>Unit</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
@@ -512,7 +481,7 @@
            </font>
           </property>
           <property name="text">
-           <string>Pressure:</string>
+           <string>Acoustic Pressure:</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
