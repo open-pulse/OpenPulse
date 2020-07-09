@@ -22,6 +22,9 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__leftButtonClicked = False 
         self.__altKeyClicked = False
 
+        self.clickPosition = (0,0)
+        self.mousePosition = (0,0)
+
         self.createObservers()
 
     def getSelectedActors(self):
@@ -42,6 +45,7 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
     
     def leftButtonPressEvent(self, obj, event):
         self.clickPosition = self.GetInteractor().GetEventPosition()
+        self.mousePosition = self.clickPosition
         self.__leftButtonClicked = True
         self.createSelectionBox()
     
