@@ -26,7 +26,7 @@ class NewProjectInput(QDialog):
         self.currentTab = 0
 
         self.userPath = os.path.expanduser('~')
-        self.project_path = ""
+        self.project_file_path = ""
         self.openPulsePath = ""
 
         self.materialListName = "materialList.dat"
@@ -76,14 +76,8 @@ class NewProjectInput(QDialog):
             self.stop = True
             return
 
-        if not os.path.exists(self.project_path):
-            os.mkdir(self.project_path)
-
-        # if not os.path.exists(self.openPulsePath):
-        #     os.mkdir(self.openPulsePath)
-
-        # if not os.path.exists(self.projectPath):
-        #     os.mkdir(self.projectPath)
+        if not os.path.exists(self.project_file_path):
+            os.mkdir(self.project_file_path)
 
         self.stop = False
 
@@ -92,18 +86,18 @@ class NewProjectInput(QDialog):
 
     def search_project_folder(self):
 
-        self.project_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
-        self.openPulsePath = "{}\\OpenPulse".format(self.project_path)
+        self.project_file_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
+        self.openPulsePath = "{}\\OpenPulse".format(self.project_file_path)
         # self.projectPath = "{}\\OpenPulse\\Projects".format(self.path_project)
         # self.name = basename(self.path)
-        self.lineEdit_project_folder.setText(str(self.project_path))        
+        self.lineEdit_project_folder.setText(str(self.project_file_path))        
 
     def accept_project(self):
         self.createProjectFolder()
         if self.stop:
             return
 
-        if self.line_project_name.text() in os.listdir(self.project_path):
+        if self.line_project_name.text() in os.listdir(self.project_file_path):
             self.error("This Project Already Exists!")
             return
 
@@ -156,7 +150,7 @@ class NewProjectInput(QDialog):
         msg_box.exec_()
 
     def createProject(self):
-        path = '{}\\{}'.format(self.project_path, self.line_project_name.text())
+        path = '{}\\{}'.format(self.project_file_path, self.line_project_name.text())
         if not os.path.exists(path):
             os.makedirs(path)
 
@@ -185,8 +179,8 @@ class NewProjectInput(QDialog):
             return True
         return False
 
-    def createProjectFile(self, project_path):
-        path = "{}\\{}".format(project_path, self.projectFileName)
+    def createProjectFile(self, project_file_path):
+        path = "{}\\{}".format(project_file_path, self.projectFileName)
         geometry_file_name = ""
         cord_file_name = ""
         conn_file_name = ""
@@ -215,8 +209,8 @@ class NewProjectInput(QDialog):
         with open(path, 'w') as configfile:
             config.write(configfile)
 
-    def createMaterialFile(self, project_path):
-        self.materialListPath = "{}\\{}".format(project_path, self.materialListName)
+    def createMaterialFile(self, project_file_path):
+        self.materialListPath = "{}\\{}".format(project_file_path, self.materialListName)
         config = configparser.ConfigParser()
 
         config['STEEL'] = {
@@ -276,15 +270,15 @@ class NewProjectInput(QDialog):
         with open(self.materialListPath, 'w') as configfile:
             config.write(configfile)
 
-    def createFluidFile(self, project_path):
-        self.fluidListPath = "{}\\{}".format(project_path, self.fluidListName)
+    def createFluidFile(self, project_file_path):
+        self.fluidListPath = "{}\\{}".format(project_file_path, self.fluidListName)
         config = configparser.ConfigParser()
 
         config['AIR'] = {
             'Name': 'air',
             'Identifier': 1,
             'Fluid density': 1.2041,
-            'Sound velocity': 343.21,
+            'Speed of sound': 343.21,
             'Impedance': 413.25,
             'Color': '[0,0,255]' #Blue
         }
@@ -293,7 +287,7 @@ class NewProjectInput(QDialog):
             'Name': 'hydrogen',
             'Identifier': 2,
             'Fluid density': 0.087,
-            'Sound velocity': 1321.1,
+            'Speed of sound': 1321.1,
             'Impedance': 114.93,
             'Color': '[255,0,255]' #Magenta
         }
@@ -302,7 +296,7 @@ class NewProjectInput(QDialog):
             'Name': 'methane',
             'Identifier': 3,
             'Fluid density': 0.657,
-            'Sound velocity': 446,
+            'Speed of sound': 446,
             'Impedance': 293.02,
             'Color': '[0,255,255]' #Cyan
         }

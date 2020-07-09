@@ -1,5 +1,6 @@
 import vtk
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
+import numpy as np
 
 class ActorPoint(vtkActorBase):
     def __init__(self, node, tag = -1, u_def=[]):
@@ -31,14 +32,17 @@ class ActorPoint(vtkActorBase):
         self._mapper = vtk.vtkPolyDataMapper()
 
     def setColor(self):
-        if self.node.haveBoundaryCondition() and self.node.haveForce():
+        if self.node.there_is_prescribed_dofs and self.node.there_is_nodal_loads:
             self.color = [0,1,0]
-        elif self.node.haveBoundaryCondition():
-            if sum([value for value in self.node.prescribed_dofs_bc if value != None])==0:
-                self.color = [0,0,0]
-            else:
-                self.color = [1,1,1]
-        elif self.node.haveForce():
+        elif self.node.there_is_prescribed_dofs:
+            if True in [True if value is not None else False for value in self.node.prescribed_dofs_bc]:
+                if True in [True if isinstance(value, np.ndarray) else False for value in self.node.prescribed_dofs_bc]:
+                    self.color = [1,1,1]
+                elif sum([value if value is not None else complex(0) for value in self.node.prescribed_dofs_bc]) != complex(0):
+                    self.color = [1,1,1]
+                else:
+                    self.color = [0,0,0]
+        elif self.node.there_is_nodal_loads:
             self.color = [0,1,1]
         else:
             self.special = False

@@ -19,7 +19,7 @@ class Project:
         self.file = ProjectFile()
 
         self._projectName = ""
-        self.project_path = ""
+        self.project_file_path = ""
 
         #Analysis
         self.analysis_ID = None
@@ -189,12 +189,23 @@ class Project:
 
     def load_structural_bc_file(self):
         prescribed_dofs, external_loads, mass, spring, damper = self.file.get_dict_of_structural_bc_from_file()
-        for key, bc in prescribed_dofs.items():
-            if bc.count(None) != 6:
-                self.load_prescribed_dofs_bc_by_node(key, bc)
-        for key, fr in external_loads.items():
-            if sum(fr) > 0:
-                self.load_structural_loads_by_node(key, fr)
+        
+        for key, dofs in prescribed_dofs.items():
+            if isinstance(dofs, list):
+                try:
+                    self.load_prescribed_dofs_bc_by_node(key, dofs)
+                except Exception:
+                    error("There is some error while loading prescribed data.")
+            # if bc.count(None) != 6:
+            #     self.load_prescribed_dofs_bc_by_node(key, bc)
+
+        for key, loads in external_loads.items():
+            if isinstance(loads, list):
+                try:
+                    self.load_structural_loads_by_node(key, loads)
+                except Exception:
+                    error("There is some error while loading nodal loads data.")
+
         for key, ms in mass.items():
             if sum(ms) > 0:
                 self.load_mass_by_node(key, ms)
@@ -272,25 +283,30 @@ class Project:
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
 
-    def set_prescribed_dofs_bc_by_node(self, node_id, bc):
-        self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
-        self.file.addBoundaryConditionInFile(node_id, bc)
+    def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
+        labels = ["displacements", "rotations"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_force_by_node(self, node_id, force):
-        self.mesh.set_structural_load_bc_by_node(node_id, force)
-        self.file.addForceInFile(node_id, force)
+    def set_loads_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_structural_load_bc_by_node(node_id, values)
+        labels = ["forces", "moments"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_mass_by_node(self, node_id, mass):
-        self.mesh.add_mass_to_node(node_id, mass)
-        self.file.addMassInFile(node_id, mass)
+    def set_lumped_inertia_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_mass_to_node(node_id, values)
+        labels = ["masses", "moments of inertia"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_spring_by_node(self, node_id, spring):
-        self.mesh.add_spring_to_node(node_id, spring)
-        self.file.addSpringInFile(node_id, spring)
+    def set_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_spring_to_node(node_id, values)
+        labels = ["linear stiffness", "torsional stiffness"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_damper_by_node(self, node_id, damper):
-        self.mesh.add_damper_to_node(node_id, damper)
-        self.file.addDamperInFile(node_id, damper)
+    def set_lumped_damping_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_damper_to_node(node_id, values)
+        labels = ["linear damping", "torsional damping"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
     def load_material_by_entity(self, entity_id, material):
         if self.file.getImportType() == 0:
@@ -324,8 +340,8 @@ class Project:
 
         self._set_entity_element_type(entity_id, element_type)
 
-    def load_structural_loads_by_node(self, node_id, load):
-        self.mesh.set_structural_load_bc_by_node(node_id, load)
+    def load_structural_loads_by_node(self, node_id, values):
+        self.mesh.set_structural_load_bc_by_node(node_id, values)
 
     def load_mass_by_node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)

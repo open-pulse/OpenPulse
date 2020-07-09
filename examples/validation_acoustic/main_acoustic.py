@@ -14,9 +14,9 @@ from pulse.animation.plot_function import plot_results
 
 start = time()
 # Fluid setup
-sound_velocity = 350#343.21
+speed_of_sound = 350#343.21
 density = 25#1.2041
-hydrogen = Fluid('air', density, sound_velocity)
+hydrogen = Fluid('air', density, speed_of_sound)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008)
 # Mesh init
@@ -26,7 +26,7 @@ if run==1:
     mesh.generate('examples/iges_files/tube_2.iges', 0.01)
     mesh.set_acoustic_pressure_bc_by_node([50], [1])
     # Anechoic termination
-    mesh.set_specific_impedance_bc_by_node(1086, sound_velocity*density)
+    mesh.set_specific_impedance_bc_by_node(1086, speed_of_sound*density)
     # Rigid termination on nodes
     # mesh.set_volume_velocity_bc_by_node([1136, 1186, 1236], [0])
 if run==2:
@@ -34,7 +34,7 @@ if run==2:
     # Acoustic boundary conditions - Prescribe pressure
     mesh.set_acoustic_pressure_bc_by_node([1], [1])
     # Anechoic termination
-    mesh.set_specific_impedance_bc_by_node(1047, sound_velocity*density)
+    mesh.set_specific_impedance_bc_by_node(1047, speed_of_sound*density)
     # Rigid termination on nodes
     # mesh.set_volume_velocity_bc_by_node([1087, 1137, 1187], [0])
 

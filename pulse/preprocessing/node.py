@@ -15,7 +15,13 @@ class Node:
 
         # Structural physical quantities
         self.prescribed_dofs_bc = [None, None, None, None, None, None]
-        self.loads = [0,0,0,0,0,0]
+        self.loads = [None, None, None, None, None, None]
+
+        self.there_is_nodal_loads = False
+        self.loaded_table_for_nodal_loads = False
+        
+        self.there_is_prescribed_dofs = False
+        self.loaded_table_for_prescribed_dofs = False
         
         self.mass   = [0,0,0,0,0,0]
         self.spring = [0,0,0,0,0,0]
@@ -26,7 +32,6 @@ class Node:
         self.volume_velocity = None
 
         self.specific_impedance = None
-        # self.acoustic_impedance = 0
         self.radiation_impedance = 0
         
         self.global_index = global_index
@@ -58,20 +63,26 @@ class Node:
         return [i for i, j in enumerate(self.prescribed_dofs_bc) if j is not None]
 
     def get_prescribed_dofs_bc_values(self):
-        return [i for i in self.prescribed_dofs_bc if i is not None]
+        return [value for value in self.prescribed_dofs_bc if value is not None]
 
-    def haveBoundaryCondition(self):
-        if None in self.prescribed_dofs_bc:
-            if list(self.prescribed_dofs_bc).count(None) != 6:
-                return True
-            else:
-                return False
-        elif len(self.prescribed_dofs_bc) == 6:
-            return True
+    # def haveBoundaryCondition(self):
+    #     if None in self.prescribed_dofs_bc:
+    #         if list(self.prescribed_dofs_bc).count(None) != 6:
+    #             return True
+    #         else:
+    #             return False
+    #     elif len(self.prescribed_dofs_bc) == 6:
+    #         return True
     
-    def haveForce(self):
-        return self.loads.count(0) != 6
-
+    # def haveForce(self):
+    #     for bc in self.loads:
+    #         if isinstance(bc, complex):
+    #             return True
+    #         elif isinstance(bc, np.ndarray):
+    #             return True
+    #         else:
+    #             return False
+                
     def set_prescribed_loads(self, loads):
         self.loads = loads
 

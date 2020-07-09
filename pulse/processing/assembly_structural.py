@@ -6,7 +6,6 @@ from pulse.utils import timer
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
-
 class AssemblyStructural:
     def __init__(self, mesh, **kwargs):
         self.mesh = mesh
@@ -23,7 +22,8 @@ class AssemblyStructural:
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_prescribed_dofs_bc_values())
+            if node.there_is_prescribed_dofs:
+                global_prescribed.extend(node.get_prescribed_dofs_bc_values())
         return global_prescribed
 
     def get_unprescribed_indexes(self):
@@ -133,7 +133,7 @@ class AssemblyStructural:
     def get_global_loads(self, frequencies, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        loads = np.zeros(total_dof, dtype = complex)
+        loads = np.zeros((total_dof, len(frequencies)), dtype = complex)
         pressure_loads = np.zeros([total_dof, len(frequencies)], dtype = complex)
 
         # distributed loads
@@ -144,12 +144,18 @@ class AssemblyStructural:
                 
         # nodal loads
         for node in self.mesh.nodes.values():
-            if np.sum(node.loads) != 0:
+            if node.there_is_nodal_loads:
+
                 position = node.global_dof
-                loads[position] += node.loads
+                if node.loaded_table_for_nodal_loads:
+                    temp_loads = [np.zeros_like(frequencies) if bc is None else bc for bc in node.loads]
+                else:
+                    temp_loads = [np.zeros_like(frequencies) if bc is None else np.ones_like(frequencies)*bc for bc in node.loads]
+                
+                loads[position, :] += temp_loads
             
         unprescribed_indexes = self.get_unprescribed_indexes()
-        loads = loads[unprescribed_indexes]
+        loads = loads[unprescribed_indexes,:]
 
         if self.acoustic_solution is not None:
             for element in self.mesh.structural_elements.values():
@@ -162,10 +168,11 @@ class AssemblyStructural:
         pressure_loads = pressure_loads[unprescribed_indexes,:]
 
         if loads_matrix3D:
-            loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
+            # loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
+            loads = loads.reshape((len(frequencies), total_dof, 1))
             loads += pressure_loads.reshape((1,pressure_loads.shape[0],len(frequencies))).T
         else:
-            loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
+            # loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
             loads += pressure_loads
      
         return loads

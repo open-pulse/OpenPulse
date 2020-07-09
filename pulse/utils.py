@@ -2,6 +2,7 @@ from functools import wraps
 from time import time
 from scipy.sparse import issparse
 from PyQt5.QtWidgets import QMessageBox
+import configparser
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -24,6 +25,7 @@ def slicer(iterable, argument):
         yield iterable[argument]
     
     elif hasattr(argument, '__iter__'):
+        # print("entrada 3")
         for i in argument:
             yield iterable[i]
             
@@ -52,6 +54,45 @@ def error( msg, title = " ERROR "):
     msg_box.setText(msg)
     msg_box.setWindowTitle(title)
     msg_box.exec_()
+
+def info_messages(msg, title = " INFORMATION "):
+    msg_box = QMessageBox()
+    msg_box.setIcon(QMessageBox.Information)
+    msg_box.setText(msg)
+    msg_box.setWindowTitle(title)
+    msg_box.exec_()
+
+def remove_bc_from_file(nodes_typed, path, key_strings, message):
+        try:
+
+            _bc_list = configparser.ConfigParser()
+            _bc_list.read(path)
+
+            for node in nodes_typed:
+        
+                node_id = str(node)
+                if not node_id in _bc_list.sections():
+                    return
+                keys = list(_bc_list[node_id].keys())
+
+                if key_strings[0] in keys and key_strings[1] in keys:
+                    _bc_list.remove_option(section=node_id, option=key_strings[0])
+                    _bc_list.remove_option(section=node_id, option=key_strings[1])  
+                        
+            if list(_bc_list[node_id].keys())==[]:
+                _bc_list.remove_section(node_id)
+
+            with open(path, 'w') as configfile:
+                _bc_list.write(configfile)
+
+            info_messages(message)
+
+        except Exception as e:
+            error(str(e))
+
+def write_file_inside_project_folder(path, config):
+        with open(path, 'w') as configfile:
+            config.write(configfile)
 
 def isInteger(value):
     try:

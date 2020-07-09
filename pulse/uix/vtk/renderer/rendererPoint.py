@@ -4,6 +4,7 @@ from pulse.uix.vtk.actor.actorLine import ActorLine
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
+import numpy as np
 
 class RendererPoint(vtkRendererBase):
     def __init__(self, project, opv):
@@ -85,16 +86,21 @@ class RendererPoint(vtkRendererBase):
         nodeND = []
         for node_id in points_id:
             node = self.project.get_node(node_id)
-            if node.haveBoundaryCondition() and node.haveForce():
+
+            if node.there_is_prescribed_dofs and node.there_is_nodal_loads:
                 nodeAll.append(node_id)
-            elif node.haveBoundaryCondition():
+
+            elif node.there_is_prescribed_dofs:
                 nodeBC.append(node_id)
-                if sum([value for value in node.prescribed_dofs_bc if value != None])==0:
-                    colorBC = [0,0,0]
-                else:
+                if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
                     colorBC = [1,1,1]
+                elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs_bc]) != complex(0):
+                    colorBC = [1,1,1]
+                else:
+                    colorBC = [0,0,0]
                 self.changeColorPoints(nodeBC, colorBC)
-            elif node.haveForce():
+
+            elif node.there_is_nodal_loads:
                 nodeF.append(node_id)
                 colorF = [1,1,0]
                 self.changeColorPoints(nodeF, colorF)

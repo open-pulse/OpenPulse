@@ -88,9 +88,9 @@ class ProjectFile:
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
-        min_ = 0
-        max_ = 0
-        step_ = 0
+        f_min = 0
+        f_max = 0
+        f_step = 0
         temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
         config = configparser.ConfigParser()
         config.read(temp_projectBaseFilePath)
@@ -98,10 +98,10 @@ class ProjectFile:
         if "Frequency Setup" in sections:
             keys = list(config['Frequency Setup'].keys())
             if "frequency min" in keys and "frequency max" in keys and "frequency step" in keys:
-                min_ = config['Frequency Setup']['frequency min']
-                max_ = config['Frequency Setup']['frequency max']
-                step_ = config['Frequency Setup']['frequency step']
-        return float(min_), float(max_), float(step_)
+                f_min = config['Frequency Setup']['frequency min']
+                f_max = config['Frequency Setup']['frequency max']
+                f_step = config['Frequency Setup']['frequency step']
+        return float(f_min), float(f_max), float(f_step)
 
     def addFrequencyInFile(self, min_, max_, step_):
         min_ = str(min_)
@@ -223,10 +223,10 @@ class ProjectFile:
                         name = str(fluid_list[fluid]['name'])
                         identifier = str(fluid_list[fluid]['identifier'])
                         fluid_density =  str(fluid_list[fluid]['fluid density'])
-                        sound_velocity =  str(fluid_list[fluid]['sound velocity'])
+                        speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
                         # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
                         color =  str(fluid_list[fluid]['color'])
-                        temp_fluid = Fluid(name, float(fluid_density), float(sound_velocity), color=color, identifier=int(identifier))
+                        temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
                         dict_fluid[int(entity)] = temp_fluid
         
         return dict_material, dict_cross, dict_element_type, dict_fluid
@@ -261,49 +261,61 @@ class ProjectFile:
         with open(self._entityPath, 'w') as configfile:
             config.write(configfile)
 
-    #Nodes File
-
     def get_dict_of_structural_bc_from_file(self):
         node_structural_list = configparser.ConfigParser()
         node_structural_list.read(self._nodeStructuralPath)
 
-        dict_boundary = {}
-        dict_forces = {}
-        dict_mass = {}
-        dict_spring = {}
-        dict_damper = {}
+        self.dict_prescribed_dofs = {}
+        self.dict_nodal_loads = {}
+        self.dict_lumped_inertia = {}
+        self.dict_lumped_stiffness = {}
+        self.dict_lumped_damping = {}
 
         for node in node_structural_list.sections():
             node_id = int(node)
             keys = list(node_structural_list[node].keys())
-            if "displacement" in keys and "rotation" in keys:
-                #Have boundary condition
-                displacement = node_structural_list[str(node)]['displacement']
-                rotation = node_structural_list[str(node)]['rotation']
-                bc = self._get_prescribed_dofs_bc_from_string(displacement, rotation)
-                dict_boundary[node_id] = bc
-            if "force" in keys:
-                #Have forces
-                force = node_structural_list[str(node)]['force']
-                fr = self._getForceFromString(force)
-                dict_forces[node_id] = fr
-            if "mass" in keys:
-                #Have forces
-                mass = node_structural_list[str(node)]['mass']
-                ms = self._getMassFromString(mass)
-                dict_mass[node_id] = ms
-            if "spring" in keys:
-                #Have forces
-                spring = node_structural_list[str(node)]['spring']
-                sp = self._getSpringFromString(spring)
-                dict_spring[node_id] = sp
-            if "damper" in keys:
-                #Have forces
-                damper = node_structural_list[str(node)]['damper']
-                dm = self._getForceFromString(damper)
-                dict_damper[node_id] = dm
+
+            if "displacements" in keys and "rotations" in keys:
+                displacement_strings = node_structural_list[str(node)]['displacements']
+                rotation_strings = node_structural_list[str(node)]['rotations']
+                prescribed_dofs = self._get_structural_bc_from_string(displacement_strings, rotation_strings)
+                if prescribed_dofs == []:
+                    return
+                self.dict_prescribed_dofs[node_id] = prescribed_dofs
+            
+            if "forces" in keys and "moments" in keys:
+                forces_strings = node_structural_list[str(node)]['forces'] 
+                moments_strings = node_structural_list[str(node)]['moments']
+                nodal_loads = self._get_structural_bc_from_string(forces_strings, moments_strings)
+                if nodal_loads == []:
+                    return
+                self.dict_nodal_loads[node_id] = nodal_loads
+            
+            if "masses" in keys and "moments of inertia" in keys:
+                masses = node_structural_list[str(node)]['masses']
+                moments_of_inertia = node_structural_list[str(node)]['moments of inertia']
+                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia)
+                if lumped_inertia == []:
+                    return
+                self.dict_lumped_inertia[node_id] = lumped_inertia
+
+            if "linear stiffness" in keys and "torsional stiffness" in keys:
+                linear_stiffness = node_structural_list[str(node)]['linear stiffness']
+                torsional_stiffness = node_structural_list[str(node)]['torsional stiffness']
+                lumped_stiffness = self._get_structural_bc_from_string(linear_stiffness, torsional_stiffness)
+                if lumped_stiffness == []:
+                    return
+                self.dict_lumped_stiffness[node_id] = lumped_stiffness
+
+            if "linear damping" in keys and "torsional damping":
+                linear_damping = node_structural_list[str(node)]['linear damping']
+                torsional_damping = node_structural_list[str(node)]['torsional damping']
+                lumped_damping = self._get_structural_bc_from_string(linear_damping, torsional_damping)
+                if lumped_damping == []:
+                    return
+                self.dict_lumped_damping[node_id] = lumped_damping
         
-        return dict_boundary, dict_forces, dict_mass, dict_spring, dict_damper
+        return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping
 
     def getDictOfAcousticBCFromFile(self):
 
@@ -318,29 +330,26 @@ class ProjectFile:
         for node in node_acoustic_list.sections():
             node_id = int(node)
             keys = list(node_acoustic_list[node].keys())
+            
             if "acoustic pressure" in keys:
-                #Have acoustic pressure
                 pressure = node_acoustic_list[str(node)]['acoustic pressure']
                 message = "The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                # actPressure = self._getAcousticPressureBCFromString(pressure)
                 actPressure = self._get_acoustic_bc_from_string(pressure, message)
                 dict_pressure[node_id] = actPressure
+
             if "volume velocity" in keys:
-                #Have volume velocity
                 volume_velocity = node_acoustic_list[str(node)]['volume velocity']
                 message = "The loaded volume velocity table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                # volVelocity = self._getVolumeVelocityBCFromString(volume_velocity)
                 volVelocity = self._get_acoustic_bc_from_string(volume_velocity, message)
                 dict_volume_velocity[node_id] = volVelocity
+
             if "specific impedance" in keys:
-                #Have specific impedance
                 specific_impedance = node_acoustic_list[str(node)]['specific impedance']
                 message = "The loaded specific impedance table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                # specImpedance = self._getSpecificImpedanceBCFromString(specific_impedance)
                 specImpedance = self._get_acoustic_bc_from_string(specific_impedance, message)
                 dict_specific_impedance[node_id] = specImpedance
+
             if "radiation impedance" in keys:
-                #Have forces
                 radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
                 radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
                 dict_radiation_impedance[node_id] = radImpedance
@@ -356,109 +365,6 @@ class ProjectFile:
             if offset[1] != '0.0':
                 offset_z = float(offset[1])
         return offset_y, offset_z
-
-    def _getForceFromString(self, force):
-        force = force[1:-1].split(',')
-        Fx = Fy = Fz = Mx = My = Mz = 0.0
-        if len(force) == 6:
-            if force[0] != '0.0':
-                Fx = float(force[0])
-            if force[1] != '0.0':
-                Fy = float(force[1])
-            if force[2] != '0.0':
-                Fz = float(force[2])
-            if force[3] != '0.0':
-                Mx = float(force[3])
-            if force[4] != '0.0':
-                My = float(force[4])
-            if force[5] != '0.0':
-                Mz = float(force[5])
-            
-        Fr = [Fx, Fy, Fz, Mx, My, Mz]
-        return Fr
-
-    def _getMassFromString(self, mass):
-        mass = mass[1:-1].split(',')
-        mx = my = mz = ix = iy = iz = 0.0
-        if len(mass) == 6:
-            if mass[0] != '0.0':
-                mx = float(mass[0])
-            if mass[1] != '0.0':
-                my = float(mass[1])
-            if mass[2] != '0.0':
-                mz = float(mass[2])
-            if mass[3] != '0.0':
-                ix = float(mass[3])
-            if mass[4] != '0.0':
-                iy = float(mass[4])
-            if mass[5] != '0.0':
-                iz = float(mass[5])
-            
-        ms = [mx, my, mz, ix, iy, iz]
-        return ms
-
-    def _getSpringFromString(self, spring):
-        spring = spring[1:-1].split(',')
-        kx = ky = kz = krx = kry = krz = 0.0
-        if len(spring) == 6:
-            if spring[0] != '0.0':
-                kx = float(spring[0])
-            if spring[1] != '0.0':
-                ky = float(spring[1])
-            if spring[2] != '0.0':
-                kz = float(spring[2])
-            if spring[3] != '0.0':
-                krx = float(spring[3])
-            if spring[4] != '0.0':
-                kry = float(spring[4])
-            if spring[5] != '0.0':
-                krz = float(spring[5])
-            
-        sp = [kx, ky, kz, krx, kry, krz]
-        return sp
-
-    def _getDamperFromString(self, damper):
-        damper = damper[1:-1].split(',')
-        cx = cy = cz = crx = cry = crz = 0.0
-        if len(damper) == 6:
-            if damper[0] != '0.0':
-                cx = float(damper[0])
-            if damper[1] != '0.0':
-                cy = float(damper[1])
-            if damper[2] != '0.0':
-                cz = float(damper[2])
-            if damper[3] != '0.0':
-                crx = float(damper[3])
-            if damper[4] != '0.0':
-                cry = float(damper[4])
-            if damper[5] != '0.0':
-                crz = float(damper[5])
-            
-        dm = [cx, cy, cz, crx, cry, crz]
-        return dm
-
-    def _get_prescribed_dofs_bc_from_string(self, displacement, rotation):
-        displacement = displacement[1:-1].split(',')
-        rotation = rotation[1:-1].split(',')
-
-        ux = uy = uz = rx = ry = rz = None
-        if len(displacement) == 3:
-            if displacement[0] != 'None':
-                ux = float(displacement[0])
-            if displacement[1] != 'None':
-                uy = float(displacement[1])
-            if displacement[2] != 'None':
-                uz = float(displacement[2])
-        if len(rotation) == 3:
-            if rotation[0] != 'None':
-                rx = float(rotation[0])
-            if rotation[1] != 'None':
-                ry = float(rotation[1])
-            if rotation[2] != 'None':
-                rz = float(rotation[2])
-
-        BC = [ux,uy,uz,rx,ry,rz]
-        return BC
 
     def _get_acoustic_bc_from_string(self, value, message):
         
@@ -485,70 +391,79 @@ class ProjectFile:
                         self.f_min = self.frequencies[0]
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
+                        
                     except Exception:
                         error(message)
+                        # error(str(e), title="ERROR WHILE LOADING ACOUSTIC BOUNDARY CONDITIONS")
                         
         return output
 
-    # def _getAcousticPressureBCFromString(self, value):
+    def _get_structural_bc_from_string(self, first, last):
         
-    #     load_path_table = ""
-    #     value = value[1:-1].split(',')
-        
-    #     output = None
-    #     if len(value) == 1:
-    #         if value[0] != 'None':
+        first = first[1:-1].split(',')
+        last = last[1:-1].split(',')
+          
+        bc_1 = bc_2 = bc_3 = bc_4 = bc_5 = bc_6 = None
 
-    #             try:
-    #                 output = complex(value[0])
-    #             except Exception:
+        if len(first)==3 and len(last)==3:
 
-    #                 try:
-    #                     path = os.path.dirname(self.projectFilePath)
-    #                     if "/" in path:
-    #                         load_path_table = "{}/{}".format(path, value[0])
-    #                     elif "\\" in path:
-    #                         load_path_table = "{}\\{}".format(path, value[0])
-    #                     data = np.loadtxt(load_path_table, delimiter=",")
-    #                     output = data[:,1] + 1j*data[:,2]
-    #                     self.frequencies = data[:,0]
-    #                     self.f_min = self.frequencies[0]
-    #                     self.f_max = self.frequencies[-1]
-    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
-    #                 except Exception:
-    #                     error("The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis.")
+            try:
+
+                if first[0] != 'None':
+                    bc_1 = complex(first[0])
+                if first[1] != 'None':
+                    bc_2 = complex(first[1])
+                if first[2] != 'None':
+                    bc_3 = complex(first[2])
+
+                if last[0] != 'None':
+                    bc_4 = complex(last[0])
+                if last[1] != 'None':
+                    bc_5 = complex(last[1])
+                if last[2] != 'None':
+                    bc_6 = complex(last[2])
+                
+                output = [bc_1, bc_2, bc_3, bc_4, bc_5, bc_6]
+
+            except Exception:
+
+                output = []
+
+                try:  
+
+                    for i in range(3):
+                        tables_first = self.structural_tables_load(first[i])
+                        output.append(tables_first)
+
+                    for i in range(3):
+                        tables_last = self.structural_tables_load(last[i])
+                        output.append(tables_last)
+
+                except Exception as e:
+                    error(str(e), title="ERROR WHILE LOADING STRUCTURAL BOUNDARY CONDITIONS")
                         
-    #     return output
+        return output
 
-    # def _getSpecificImpedanceBCFromString(self, value):
 
-    #     load_path_table = ""
-    #     value = value[1:-1].split(',')
-        
-    #     output = None
-    #     if len(value) == 1:
-    #         if value[0] != 'None':
+    def structural_tables_load(self, table_name):
 
-    #             try:
-    #                 output = complex(value[0])
-    #             except Exception:
+        if table_name == "None":
+            return None
 
-    #                 try:
-    #                     path = os.path.dirname(self.projectFilePath)
-    #                     if "/" in path:
-    #                         load_path_table = "{}/{}".format(path, value[0])
-    #                     elif "\\" in path:
-    #                         load_path_table = "{}\\{}".format(path, value[0])
-    #                     data = np.loadtxt(load_path_table, delimiter=",")
-    #                     output = data[:,1] + 1j*data[:,2]
-    #                     self.frequencies = data[:,0]
-    #                     self.f_min = self.frequencies[0]
-    #                     self.f_max = self.frequencies[-1]
-    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
-    #                 except Exception:
-    #                     error("The loaded specific impedance table has invalid data \nstructure, therefore, it will be ignored in analysis.")
-                        
-    #     return output
+        load_path_table = ""
+        path = os.path.dirname(self.projectFilePath)
+        if "/" in path:
+            load_path_table = "{}/{}".format(path, table_name)
+        elif "\\" in path:
+            load_path_table = "{}\\{}".format(path, table_name)
+        data = np.loadtxt(load_path_table, delimiter=",")
+        output = data[:,1] + 1j*data[:,2]
+        self.frequencies = data[:,0]
+        self.f_min = self.frequencies[0]
+        self.f_max = self.frequencies[-1]
+        self.f_step = self.frequencies[1] - self.frequencies[0]
+        return output
+
 
     def _getRadiationImpedanceBCFromString(self, radiation_impedance):
         radiation_impedance = radiation_impedance[1:-1].split(',')
@@ -558,67 +473,55 @@ class ProjectFile:
                 value = float(radiation_impedance[0])
         return value
 
-    # def _getVolumeVelocityBCFromString(self, value):
-
-    #     load_path_table = ""
-    #     value = value[1:-1].split(',')
-        
-    #     output = None
-    #     if len(value) == 1:
-    #         if value[0] != 'None':
-
-    #             try:
-    #                 output = complex(value[0])
-    #             except Exception:
-
-    #                 try:
-    #                     path = os.path.dirname(self.projectFilePath)
-    #                     if "/" in path:
-    #                         load_path_table = "{}/{}".format(path, value[0])
-    #                     elif "\\" in path:
-    #                         load_path_table = "{}\\{}".format(path, value[0])
-    #                     data = np.loadtxt(load_path_table, delimiter=",")
-    #                     output = data[:,1] + 1j*data[:,2]
-    #                     self.frequencies = data[:,0]
-    #                     self.f_min = self.frequencies[0]
-    #                     self.f_max = self.frequencies[-1]
-    #                     self.f_step = self.frequencies[1] - self.frequencies[0]
-    #                 except Exception:
-    #                     error("The loaded volume velocity table has invalid data \nstructure, therefore, it will be ignored in analysis.")
-                        
-    #     return output
-
     def addBoundaryConditionInFile(self, nodesID_list, dofs):
-        # if dofs.count(None) == 6:
-        #     return
+
         config = configparser.ConfigParser()
         config.read(self._nodeStructuralPath)
         for node_id in nodesID_list:
             if str(node_id) in config.sections():
-                config[str(node_id)]['displacement'] = "({},{},{})".format(dofs[0], dofs[1], dofs[2])
-                config[str(node_id)]['rotation'] = "({},{},{})".format(dofs[3], dofs[4], dofs[5])
+                config[str(node_id)]['displacements'] = "({},{},{})".format(dofs[0], dofs[1], dofs[2])
+                config[str(node_id)]['rotations'] = "({},{},{})".format(dofs[3], dofs[4], dofs[5])
             else:
                 config[str(node_id)] = {
-                    'displacement': "({},{},{})".format(dofs[0], dofs[1], dofs[2]),
-                    'rotation': "({},{},{})".format(dofs[3], dofs[4], dofs[5]),
-                }
-        with open(self._nodeStructuralPath, 'w') as configfile:
+                                        'displacements': "({},{},{})".format(dofs[0], dofs[1], dofs[2]),
+                                        'rotations': "({},{},{})".format(dofs[3], dofs[4], dofs[5])
+                                        }
+        self.write_structural_bc(self._nodeStructuralPath, config)
+    
+    def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
+
+        config = configparser.ConfigParser()
+        config.read(self._nodeStructuralPath)
+        for node_id in nodesID_list:
+            if str(node_id) in config.sections():
+                if loaded_table:
+                    config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
+                    config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
+                    self.write_structural_bc(self._nodeStructuralPath, config)
+                else:
+                    config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
+                    config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
+                    self.write_structural_bc(self._nodeStructuralPath, config)
+            else:
+                if loaded_table:
+                    config[str(node_id)] =  {
+                                            labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
+                                            labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
+                                            }
+                    self.write_structural_bc(self._nodeStructuralPath, config)
+                else:
+                    config[str(node_id)] =  {
+                                            labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
+                                            labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])
+                                            }
+                    self.write_structural_bc(self._nodeStructuralPath, config)
+
+
+    def write_structural_bc(self, path, config):
+        with open(path, 'w') as configfile:
             config.write(configfile)
 
-    def addForceInFile(self, nodesID_list, force):
-        # if sum(force) == 0:
-        #     return
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
-        for node_id in nodesID_list:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['force'] = "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
-            else:
-                config[str(node_id)] = {
-                    'force': "({}, {}, {}, {}, {}, {})".format(force[0], force[1], force[2], force[3], force[4], force[5])
-                }
-        with open(self._nodeStructuralPath, 'w') as configfile:
-            config.write(configfile)
+
 
     def addMassInFile(self, nodesID_list, mass):
         if sum(mass) == 0:

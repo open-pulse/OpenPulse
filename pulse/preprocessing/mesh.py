@@ -9,7 +9,7 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error
 
 class Mesh:
     def __init__(self):
@@ -312,9 +312,25 @@ class Mesh:
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    def set_structural_load_bc_by_node(self, nodes, loads):
-        for node in slicer(self.nodes, nodes):
-            node.loads = loads
+    def set_structural_load_bc_by_node(self, nodes_id, values):
+        # print("nodes:", nodes_id, values)
+
+        for node in slicer(self.nodes, nodes_id):
+            node.loads = values
+            # Checking imported tables 
+            check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
+            if True in check_array:
+                node.loaded_table_for_nodal_loads = True
+                node.there_is_nodal_loads = True
+                return
+            else:
+                node.loaded_table_for_nodal_loads = False
+            # Checking complex single values    
+            check_values = [True if bc is not None else False for bc in values]
+            if True in check_values:
+                node.there_is_nodal_loads = True
+            else:
+                node.there_is_nodal_loads = False
 
     def add_mass_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -328,10 +344,24 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.damper = values
 
-    def set_prescribed_dofs_bc_by_node(self, nodes, boundary_condition):
+    def set_prescribed_dofs_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.prescribed_dofs_bc = boundary_condition
+            node.prescribed_dofs_bc = values
             self.structural_nodes_with_bc.append(node)
+            # Checking imported tables 
+            check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
+            if True in check_array:
+                node.loaded_table_for_prescribed_dofs = True
+                node.there_is_prescribed_dofs = True
+                return
+            else:
+                node.loaded_table_for_prescribed_dofs = False
+            # Checking complex single values    
+            check_values = [True if bc is not None else False for bc in values]
+            if True in check_values:
+                node.there_is_prescribed_dofs = True
+            else:
+                node.there_is_prescribed_dofs = False
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
@@ -442,12 +472,20 @@ class Mesh:
         for node in self.nodes.values():
 
             if structural:
-                if sum(node.loads) != 0:
+                if node.there_is_nodal_loads:#node.loads.count(None) != 6:
                     self.is_there_loads = True
                     return
 
-                if node.prescribed_dofs_bc.count(None) != 6:
-                    if sum([i for i in node.prescribed_dofs_bc if i is not None]) != 0:
+                if node.there_is_prescribed_dofs:#node.prescribed_dofs_bc.count(None) != 6:
+                    # if sum([i for i in node.prescribed_dofs_bc if i is not None]) != 0:
+                    #     self.is_there_prescribed_dofs = True
+                    #     return
+
+                    if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
+                        self.is_there_prescribed_dofs = True
+                        return
+
+                    elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs_bc]) != complex(0):
                         self.is_there_prescribed_dofs = True
                         return
 

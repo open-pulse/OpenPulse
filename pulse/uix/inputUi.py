@@ -41,16 +41,18 @@ class InputUi:
         self.acoustic_pressure_frequencies = None
         self.volume_velocity_frequencies = None 
         self.specific_impedance_frequencies = None
+        self.nodal_loads_frequencies = None
+        self.prescribed_dofs_frequencies = None
 
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
-        self.project.project_path = new_project_input.project_path
+        self.project.project_file_path = new_project_input.project_file_path
         return new_project_input.create
 
     def loadProject(self):
-        load = LoadProjectInput(self.project)
-        self.project.project_path = load.loaded_project_path
-        return load.complete
+        load_project = LoadProjectInput(self.project)
+        self.project.project_file_path = load_project.project_file_path
+        return load_project.complete
 
     def setElementType(self):
         typeinput = ElementTypeInput()
@@ -130,34 +132,55 @@ class InputUi:
             self.project.set_crossSection(cross_section)
             print("[Set Cross-section] - defined in all the entities")
         self.opv.updateEntityRadius()
+    
+    def _load_frequencies_from_table(self, obj):
+            self.project.file.f_min = obj.f_min
+            self.project.file.f_max = obj.f_max
+            self.project.file.f_step = obj.f_step
+            self.project.file.frequencies = obj.frequencies
+            self.project.file.temp_table_name = obj.imported_table_name  
+            return obj.frequencies 
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
-        dof = DOFInput(self.project.mesh.nodes, point_id)
+        read = DOFInput(self.project, point_id, self.opv.transformPoints)
 
-        if dof.dof.count(None)==6:
-            if not dof.remove_prescribed_dofs:
-                return
+        if read.prescribed_dofs is None:
+            return
+        # if read.imported_table:
+        #     self.project.set_prescribed_dofs_bc_by_node(read.nodes_typed, read.prescribed_dofs, read.imported_table, table_name=read.basenames)
+        #     self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)         
+        # else:
+        #     self.project.set_prescribed_dofs_bc_by_node(read.nodes_typed, read.prescribed_dofs, read.imported_table)
 
-        self.project.set_prescribed_dofs_bc_by_node(dof.nodes_typed, dof.dof)
-        print("[Set Prescribed DOF] - defined in the point(s) {}".format(dof.nodes_typed))
-        self.opv.transformPoints(dof.nodes_typed)
+        print("[Set Prescribed DOF] - defined in the point(s) {}".format(read.nodes_typed))
+        # self.opv.transformPoints(read.nodes_typed)
 
+    def setNodalLoads(self):
+        point_id = self.opv.getListPickedPoints()
+        read = LoadsInput(self.project, point_id, self.opv.transformPoints)
+
+        if read.loads is None:
+            return
+        # if read.imported_table:
+        #     self.project.set_loads_by_node(read.nodes_typed, read.loads, read.imported_table, table_name=read.basenames)
+        #     self.nodal_loads_frequencies = self._load_frequencies_from_table(read)         
+        # else:
+        #     self.project.set_loads_by_node(read.nodes_typed, read.loads, read.imported_table)
+        print("[Set Nodal Load] - defined in the point(s) {}".format(read.nodes_typed))
+        # self.opv.transformPoints(read.nodes_typed)
+        
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
-        read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project.project_path)
+        read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
         
         if read.acoustic_pressure is None:
             if not read.remove_acoustic_pressure:
                 return
         
         if read.new_load_path_table != "":
-            self.project.file.temp_table_name = read.acoustic_pressure_table_name
-            self.project.file.f_min = read.f_min
-            self.project.file.f_max = read.f_max
-            self.project.file.f_step = read.df
-            self.project.file.frequencies = read.frequencies
-            self.acoustic_pressure_frequencies = read.frequencies
+            self.project.file.temp_table_name = read.imported_table_name
+            self.acoustic_pressure_frequencies = self._load_frequencies_from_table(read)
         else:
             self.project.file.temp_table_name = None
 
@@ -167,7 +190,7 @@ class InputUi:
 
     def setVolumeVelocity(self):
         point_id = self.opv.getListPickedPoints()
-        read = VolumeVelocityInput(self.project.mesh.nodes, point_id, self.project.project_path)
+        read = VolumeVelocityInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
 
         if read.volume_velocity is None:
             if not read.remove_volume_velocity:
@@ -175,11 +198,7 @@ class InputUi:
 
         if read.new_load_path_table != "":
             self.project.file.temp_table_name = read.volume_velocity_table_name
-            self.project.file.f_min = read.f_min
-            self.project.file.f_max = read.f_max
-            self.project.file.f_step = read.df
-            self.project.file.frequencies = read.frequencies
-            self.volume_velocity_frequencies = read.frequencies            
+            self.volume_velocity_frequencies = self._load_frequencies_from_table(read)      
         else:
             self.project.file.temp_table_name = None
 
@@ -189,7 +208,7 @@ class InputUi:
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id, self.project.project_path)
+        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
 
         if read.specific_impedance is None:
             if not read.remove_specific_impedance:
@@ -197,11 +216,7 @@ class InputUi:
 
         if read.new_load_path_table != "":
             self.project.file.temp_table_name = read.specific_impedance_table_name
-            self.project.file.f_min = read.f_min
-            self.project.file.f_max = read.f_max
-            self.project.file.f_step = read.df
-            self.project.file.frequencies = read.frequencies
-            self.specific_impedance_frequencies = read.frequencies
+            self.specific_impedance_frequencies = self._load_frequencies_from_table(read)
         else:
             self.project.file.temp_table_name = None
 
@@ -252,28 +267,17 @@ class InputUi:
         print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes_typed))
         self.opv.transformPoints(read.nodes_typed)
 
-    def setNodalLoads(self):
-        point_id = self.opv.getListPickedPoints()
-        loads = LoadsInput(self.project.mesh.nodes, point_id)
-
-        if loads.loads is None:
-            return
-
-        self.project.set_force_by_node(loads.nodes_typed, loads.loads)
-        print("[Set Nodal Load] - defined in the point(s) {}".format(loads.nodes_typed))
-        self.opv.transformPoints(loads.nodes_typed)
-
     def addMassSpringDamper(self):
         point_id = self.opv.getListPickedPoints()
         msd = MassSpringDamperInput(self.project.mesh.nodes, point_id)
         if msd.input_mass:
-            self.project.set_mass_by_node(msd.nodes_typed, msd.mass)
+            self.project.set_lumped_inertia_by_node(msd.nodes_typed, msd.mass)
             print("[Set Mass] - defined in the point(s) {}".format(msd.nodes_typed))
         if msd.input_spring:
-            self.project.set_spring_by_node(msd.nodes_typed, msd.spring)
+            self.project.set_lumped_stiffness_by_node(msd.nodes_typed, msd.spring)
             print("[Set Spring] - defined in the point(s) {}".format(msd.nodes_typed))
         if msd.input_damper:
-            self.project.set_damper_by_node(msd.nodes_typed, msd.damper)
+            self.project.set_lumped_damping_by_node(msd.nodes_typed, msd.damper)
             print("[Set Damper] - defined in the point(s) {}".format(msd.nodes_typed))         
 
     def analysisTypeInput(self):

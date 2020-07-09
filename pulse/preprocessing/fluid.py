@@ -8,20 +8,20 @@ def save_fluid(material):
     pass
 
 class Fluid:
-    def __init__(self,  name, density, sound_velocity, **kwargs):
+    def __init__(self,  name, density, speed_of_sound, **kwargs):
         self.name = name
         self.density = density
-        self.sound_velocity = sound_velocity
+        self.speed_of_sound = speed_of_sound
         self.color = kwargs.get("color", None)
         self.identifier = kwargs.get("identifier", -1)
 
     @property
     def impedance(self):
-        return self.density * self.sound_velocity
+        return self.density * self.speed_of_sound
     
     @property
     def bulk_modulus(self):
-        return self.density * self.sound_velocity**2
+        return self.density * self.speed_of_sound**2
 
     def getColorRGB(self):
         temp = self.color[1:-1] #Remove "[ ]"

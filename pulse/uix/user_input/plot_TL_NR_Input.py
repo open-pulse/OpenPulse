@@ -234,13 +234,13 @@ class Plot_TL_NR_Input(QDialog):
         data = self.dict_elements_diameter[node]
         internal_diameter = []
         density = []
-        sound_velocity = []
+        speed_of_sound = []
         for (index, _, int_dia) in data:
             internal_diameter.append(int_dia)
             density.append(self.elements[index].fluid.density)
-            sound_velocity.append(self.elements[index].sound_velocity_corrected())
+            speed_of_sound.append(self.elements[index].speed_of_sound_corrected())
         ind = internal_diameter.index(min(internal_diameter))
-        return internal_diameter[ind], density[ind], sound_velocity[ind]
+        return internal_diameter[ind], density[ind], speed_of_sound[ind]
 
     def get_TL_NR(self):
         P_input = get_acoustic_frf(self.mesh, self.solution, self.input_node)

@@ -1,8 +1,8 @@
 from time import time
 import numpy as np
 from scipy.sparse.linalg import eigs, spsolve
-
 from pulse.processing.assembly_structural import AssemblyStructural
+from pulse.utils import error
 
 class SolutionStructural:
 
@@ -26,15 +26,15 @@ class SolutionStructural:
         self.warning_Modal_prescribedDOFs = ""
 
 
-    def _reinsert_prescribed_dofs(self, solution, prescribed_indexes, prescribed_values):
-        rows = solution.shape[0] + len(prescribed_indexes)
+    def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
+        rows = solution.shape[0] + len(self.prescribed_indexes)
         cols = solution.shape[1]
-        unprescribed_indexes = np.delete(np.arange(rows), prescribed_indexes)
-
         full_solution = np.zeros((rows, cols), dtype=complex)
-        full_solution[unprescribed_indexes, :] = solution
-        full_solution[prescribed_indexes, :] = np.ones(cols)*np.array(prescribed_values).reshape(-1, 1)
-
+        full_solution[self.unprescribed_indexes, :] = solution
+        if modal_analysis:
+            full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
+        else:
+            full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         return full_solution
 
 
@@ -60,33 +60,52 @@ class SolutionStructural:
         Mr_lump = (self.Mr_lump.toarray())[unprescribed_indexes, :]
         Cr_lump = (self.Cr_lump.toarray())[unprescribed_indexes, :]
 
-        if Kr == [] or Mr == []:
-            Kr_add = 0
-            Mr_add = 0
-        else:
-            Kr_add = np.sum(Kr*prescribed_values, axis=1)
-            Mr_add = np.sum(Mr*prescribed_values, axis=1)
-        
-        Kr_add_lump = np.sum(Kr_lump*prescribed_values, axis=1)
-        Mr_add_lump = np.sum(Mr_lump*prescribed_values, axis=1)
-        Cr_add_lump = np.sum(Cr_lump*prescribed_values, axis=1)
-
-        rows = len(Kr_add)
+        rows = Kr.shape[0]
         cols = len(frequencies)
+        
+        Kr_add = np.zeros((rows,cols), dtype=complex)
+        Mr_add = np.zeros((rows,cols), dtype=complex)
+        Kr_add_lump = np.zeros((rows,cols), dtype=complex)
+        Mr_add_lump = np.zeros((rows,cols), dtype=complex)
+        Cr_add_lump = np.zeros((rows,cols), dtype=complex)
+
         F_eq = np.zeros((rows,cols), dtype=complex)
+
+        aux_ones = np.ones(cols, dtype=complex)
+        list_prescribed_dofs = []
+
+        try:    
+            for value in prescribed_values:
+                if isinstance(value, complex):
+                    list_prescribed_dofs.append(aux_ones*value)
+                elif isinstance(value, np.ndarray):
+                    list_prescribed_dofs.append(value)
+            self.array_prescribed_values = np.array(list_prescribed_dofs)
+        except Exception as e:
+            error(str(e))
+            return F_eq
+
+        for i in range(cols):
+        
+            if list_prescribed_dofs != []:
+                Kr_add[:,i] = np.sum(Kr*self.array_prescribed_values[:,i], axis=1)
+                Mr_add[:,i] = np.sum(Mr*self.array_prescribed_values[:,i], axis=1)
+            
+                Kr_add_lump[:,i] = np.sum(Kr_lump*self.array_prescribed_values[:,i], axis=1)
+                Mr_add_lump[:,i] = np.sum(Mr_lump*self.array_prescribed_values[:,i], axis=1)
+                Cr_add_lump[:,i] = np.sum(Cr_lump*self.array_prescribed_values[:,i], axis=1)
 
         for i, freq in enumerate(frequencies):
 
             omega = 2*np.pi*freq
-
-            F_Kadd = Kr_add + Kr_add_lump
-            F_Madd = (-(omega**2))*(Mr_add + Mr_add_lump) 
-            F_Cadd = 1j*((betaH + omega*betaV)*Kr_add + (alphaH + omega*alphaV)*Mr_add)
+            F_Kadd = Kr_add[:,i] + Kr_add_lump[:,i]
+            F_Madd = (-(omega**2))*(Mr_add[:,i] + Mr_add_lump[:,i]) 
+            F_Cadd = 1j*((betaH + omega*betaV)*Kr_add[:,i] + (alphaH + omega*alphaV)*Mr_add[:,i])
 
             if proportional_damping_lumped:
-                F_Cadd_lump = 1j*((betaH_lump + omega*betaV_lump)*Kr_add_lump + (alphaH_lump + omega*alphaV_lump)*Mr_add_lump)
+                F_Cadd_lump = 1j*((betaH_lump + omega*betaV_lump)*Kr_add_lump[:,i] + (alphaH_lump + omega*alphaV_lump)*Mr_add_lump[:,i])
             else:
-                F_Cadd_lump = 1j*omega*Cr_add_lump
+                F_Cadd_lump = 1j*omega*Cr_add_lump[:,i]
 
             F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
 
@@ -115,13 +134,13 @@ class SolutionStructural:
         modal_shape = modal_shape[:, index_order]
 
         if not harmonic_analysis:
-
-            modal_shape = self._reinsert_prescribed_dofs( modal_shape, self.prescribed_indexes, np.zeros_like(self.prescribed_values) )
-
-            if sum(self.prescribed_values)>0:
-                self.flag_Modal_prescribed_NonNull_DOFs = True
-                self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
-                                                      "The null value has been attributed to those DOFs with non-zero values."]
+            modal_shape = self._reinsert_prescribed_dofs(modal_shape, modal_analysis=True)
+            for value in self.prescribed_values:
+                if value is not None:
+                    if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
+                        self.flag_Modal_prescribed_NonNull_DOFs = True
+                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                                                            "The null value has been attributed to those DOFs with non-zero values."]
 
         return natural_frequencies, modal_shape
 
@@ -146,7 +165,10 @@ class SolutionStructural:
         
         Kadd_lump, Madd_lump, K, M, K_lump, M_lump, C_lump = self.Kadd_lump, self.Madd_lump, self.K, self.M, self.K_lump, self.M_lump, self.C_lump 
         
+        # t0 = time()
         F = self.get_combined_loads(frequencies, global_damping_values, lump_damping_values, is_viscous_lumped)
+        # dt = time() - t0
+        # print("Time elapsed: {}[s]".format(dt))
 
         rows = Kadd_lump.shape[0]
         cols = len(frequencies)
@@ -171,7 +193,7 @@ class SolutionStructural:
             A = F_K + F_M + F_C + F_Clump
             solution[:,i] = spsolve(A, F[:,i])
 
-        solution = self._reinsert_prescribed_dofs(solution, self.prescribed_indexes, self.prescribed_values)
+        solution = self._reinsert_prescribed_dofs(solution)
 
         return solution
 
@@ -231,7 +253,8 @@ class SolutionStructural:
                 diag = np.diag(data)
                 solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
 
-        solution = self._reinsert_prescribed_dofs(solution, self.prescribed_indexes, self.prescribed_values)
+
+        solution = self._reinsert_prescribed_dofs(solution)
 
         if self.flag_Clump:
             self.warning_Clump = ["There are external dampers connecting nodes to the ground. The damping,\n"+

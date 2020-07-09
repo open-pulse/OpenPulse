@@ -52,13 +52,13 @@ class AcousticPressureInput(QDialog):
         if self.path_imported_table == "":
             return
 
-        self.acoustic_pressure_table_name = os.path.basename(self.path_imported_table)
+        self.imported_table_name = os.path.basename(self.path_imported_table)
         self.lineEdit_load_table_path.setText(self.path_imported_table)
         
         if "\\" in self.project_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_path, self.acoustic_pressure_table_name)
+            self.new_load_path_table = "{}\\{}".format(self.project_path, self.imported_table_name)
         elif "/" in self.project_path:
-            self.new_load_path_table = "{}/{}".format(self.project_path, self.acoustic_pressure_table_name)
+            self.new_load_path_table = "{}/{}".format(self.project_path, self.imported_table_name)
 
         copyfile(self.path_imported_table, self.new_load_path_table)
         loaded_file = np.loadtxt(self.new_load_path_table, delimiter=",")
@@ -68,7 +68,7 @@ class AcousticPressureInput(QDialog):
             self.frequencies = loaded_file[:,0]
             self.f_min = self.frequencies[0]
             self.f_max = self.frequencies[-1]
-            self.df = self.frequencies[1] - self.frequencies[0] 
+            self.f_step = self.frequencies[1] - self.frequencies[0] 
                 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -93,7 +93,7 @@ class AcousticPressureInput(QDialog):
             self.nodes_typed = list(map(int, tokens))
 
             if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before confirm th input!", title = "Error Node ID's")
+                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
                 return
                 
         except Exception:

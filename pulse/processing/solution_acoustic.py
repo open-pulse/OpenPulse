@@ -26,19 +26,10 @@ class SolutionAcoustic:
     def _reinsert_prescribed_dofs(self, solution):
         rows = solution.shape[0] + len(self.prescribed_indexes)
         cols = solution.shape[1]
-        unprescribed_indexes = np.delete(np.arange(rows), self.prescribed_indexes)
 
         full_solution = np.zeros((rows, cols), dtype=complex)
-        full_solution[unprescribed_indexes, :] = solution
-
-        for index, values in enumerate(self.prescribed_values):
-            if isinstance(values, complex):
-                full_solution[self.prescribed_indexes[index], :] = np.ones(cols)*np.array(values).reshape(-1, 1)       
-            elif isinstance(values, np.ndarray):
-                full_solution[self.prescribed_indexes[index], :] = np.array(values).reshape(1, -1)
-            else:
-                print("Table loaded has invalid data type!")
-                return
+        full_solution[self.unprescribed_indexes, :] = solution
+        full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         
         return full_solution
 
@@ -52,19 +43,20 @@ class SolutionAcoustic:
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
+        aux_ones = np.ones(cols, dtype=complex)
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
-        
-        for values in self.prescribed_values:
-            if isinstance(values, complex):
-                for i in range(len(self.frequencies)):
-                    volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * values, axis=1)    
-            elif isinstance(values, np.ndarray):
-                array_values = np.array(values).copy()
-                for i in range(len(self.frequencies)):
-                    volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * array_values[i], axis=1)
-            else:
-                print("Table loaded has invalid data type!")
-                return
+        list_prescribed_values = []
+
+        for value in self.prescribed_values:
+            if isinstance(value, complex):
+                list_prescribed_values.append(aux_ones*value)
+            elif isinstance(value, np.ndarray):
+                list_prescribed_values.append(value)
+
+        self.array_prescribed_values = np.array(list_prescribed_values)
+
+        for i in range(cols):
+            volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
         
         volume_velocity_combined = volume_velocity.T - volume_velocity_eq
         
