@@ -144,32 +144,21 @@ class InputUi:
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
         read = DOFInput(self.project, point_id, self.opv.transformPoints)
-
         if read.prescribed_dofs is None:
             return
-        # if read.imported_table:
-        #     self.project.set_prescribed_dofs_bc_by_node(read.nodes_typed, read.prescribed_dofs, read.imported_table, table_name=read.basenames)
-        #     self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)         
-        # else:
-        #     self.project.set_prescribed_dofs_bc_by_node(read.nodes_typed, read.prescribed_dofs, read.imported_table)
-
+        if read.imported_table:
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)     
         print("[Set Prescribed DOF] - defined in the point(s) {}".format(read.nodes_typed))
-        # self.opv.transformPoints(read.nodes_typed)
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
         read = LoadsInput(self.project, point_id, self.opv.transformPoints)
-
         if read.loads is None:
             return
-        # if read.imported_table:
-        #     self.project.set_loads_by_node(read.nodes_typed, read.loads, read.imported_table, table_name=read.basenames)
-        #     self.nodal_loads_frequencies = self._load_frequencies_from_table(read)         
-        # else:
-        #     self.project.set_loads_by_node(read.nodes_typed, read.loads, read.imported_table)
+        if read.imported_table:
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Nodal Load] - defined in the point(s) {}".format(read.nodes_typed))
-        # self.opv.transformPoints(read.nodes_typed)
-        
+
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
         read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
