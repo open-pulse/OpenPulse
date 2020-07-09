@@ -32,6 +32,7 @@ class LoadsInput(QDialog):
         self.nodes = project.mesh.nodes
         self.loads = None
         self.nodes_typed = []
+        self.imported_table = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
@@ -238,6 +239,7 @@ class LoadsInput(QDialog):
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
+                self.imported_table = True
             
         except Exception as e:
             error(str(e))

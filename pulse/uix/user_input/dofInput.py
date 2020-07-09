@@ -293,11 +293,11 @@ class DOFInput(QDialog):
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
+                self.imported_table = True
             
         except Exception as e:
             error(str(e))
 
-        self.imported_table = True
         return self.imported_values, self.basename
 
     def load_ux_table(self):
