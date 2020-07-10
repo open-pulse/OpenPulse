@@ -201,9 +201,8 @@ class LoadsInput(QDialog):
             self.close()
         else:    
             error("You must to inform at least one nodal load to confirm the input!", title = " ERROR ")
-            return
         
-    def load_table(self, lineEdit, text):
+    def load_table(self, lineEdit, text, header):
         
         self.basename = ""
         window_label = 'Choose a table to import the {} nodal load'.format(text)
@@ -223,46 +222,58 @@ class LoadsInput(QDialog):
             self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
 
         try:                
-            copyfile(self.path_imported_table, self.new_load_path_table)
-            imported_file = np.loadtxt(self.new_load_path_table, delimiter=",")
+            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         except Exception as e:
             error(str(e))
 
         if imported_file.shape[1]<2:
             error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies, real and imaginary columns.")
             return
-
-        self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
+    
         try:
+            self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
             if imported_file.shape[1]>2:
+
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.imported_table = True
-            
+
+                real_values = np.real(self.imported_values)
+                imag_values = np.imag(self.imported_values)
+                abs_values = np.imag(self.imported_values)
+                data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
+                np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
+
         except Exception as e:
             error(str(e))
 
         return self.imported_values, self.basename
 
     def load_Fx_table(self):
-        self.Fx_table, self.basename_Fx = self.load_table(self.lineEdit_path_table_Fx, "Fx")
+        header = "Fx || Frequency [Hz], real[N], imaginary[N], absolute[N]"
+        self.Fx_table, self.basename_Fx = self.load_table(self.lineEdit_path_table_Fx, "Fx", header)
 
     def load_Fy_table(self):
-        self.Fy_table, self.basename_Fy = self.load_table(self.lineEdit_path_table_Fy, "Fy")
+        header = "Fy || Frequency [Hz], real[N], imaginary[N], absolute[N]"
+        self.Fy_table, self.basename_Fy = self.load_table(self.lineEdit_path_table_Fy, "Fy", header)
 
     def load_Fz_table(self):
-        self.Fz_table, self.basename_Fz = self.load_table(self.lineEdit_path_table_Fz, "Fz")
+        header = "Fz || Frequency [Hz], real[N], imaginary[N], absolute[N]"
+        self.Fz_table, self.basename_Fz = self.load_table(self.lineEdit_path_table_Fz, "Fz", header)
 
     def load_Mx_table(self):
-        self.Mx_table, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx")
+        header = "Mx || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
+        self.Mx_table, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx", header)
 
     def load_My_table(self):
-        self.My_table, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My")
+        header = "My || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
+        self.My_table, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My", header)
 
     def load_Mz_table(self):
-        self.Mz_table, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz")
+        header = "Mz || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
+        self.Mz_table, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz", header)
 
     def check_table_values(self):
 

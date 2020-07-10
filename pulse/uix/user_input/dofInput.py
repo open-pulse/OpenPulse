@@ -1,6 +1,7 @@
 import os
 from os.path import basename
 import numpy as np
+from math import pi
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox
 from pulse.utils import error, remove_bc_from_file
 from os.path import basename
@@ -90,9 +91,9 @@ class DOFInput(QDialog):
         self.radioButton_linear_disp = self.findChild(QRadioButton, 'radioButton_linear_disp')    
         self.radioButton_linear_vel = self.findChild(QRadioButton, 'radioButton_linear_vel')  
         self.radioButton_linear_acc = self.findChild(QRadioButton, 'radioButton_linear_acc')     
-        self.radioButton_linear_disp.toggled.connect(self.radioButtonEvent_linear_data)
-        self.radioButton_linear_vel.toggled.connect(self.radioButtonEvent_linear_data)   
-        self.radioButton_linear_acc.toggled.connect(self.radioButtonEvent_linear_data)   
+        self.radioButton_linear_disp.clicked.connect(self.radioButtonEvent_linear_data)
+        self.radioButton_linear_vel.clicked.connect(self.radioButtonEvent_linear_data)   
+        self.radioButton_linear_acc.clicked.connect(self.radioButtonEvent_linear_data) 
         self.linear_disp = self.radioButton_linear_disp.isChecked()
         self.linear_vel  = self.radioButton_linear_vel.isChecked()
         self.linear_acc  = self.radioButton_linear_acc.isChecked()
@@ -100,9 +101,9 @@ class DOFInput(QDialog):
         self.radioButton_angular_disp = self.findChild(QRadioButton, 'radioButton_angular_disp')    
         self.radioButton_angular_vel = self.findChild(QRadioButton, 'radioButton_angular_vel')  
         self.radioButton_angular_acc = self.findChild(QRadioButton, 'radioButton_angular_acc')  
-        self.radioButton_angular_disp.toggled.connect(self.radioButtonEvent_angular_data)
-        self.radioButton_angular_vel.toggled.connect(self.radioButtonEvent_angular_data)   
-        self.radioButton_angular_acc.toggled.connect(self.radioButtonEvent_angular_data) 
+        self.radioButton_angular_disp.clicked.connect(self.radioButtonEvent_angular_data)
+        self.radioButton_angular_vel.clicked.connect(self.radioButtonEvent_angular_data)   
+        self.radioButton_angular_acc.clicked.connect(self.radioButtonEvent_angular_data)         
         self.angular_disp = self.radioButton_angular_disp.isChecked()
         self.angular_vel  = self.radioButton_angular_vel.isChecked()
         self.angular_acc  = self.radioButton_angular_acc.isChecked()
@@ -138,12 +139,12 @@ class DOFInput(QDialog):
     def radioButtonEvent_linear_data(self):
         self.linear_disp = self.radioButton_linear_disp.isChecked()
         self.linear_vel  = self.radioButton_linear_vel.isChecked()
-        self.linear_acc  = self.radioButton_linear_acc.isChecked()        
+        self.linear_acc  = self.radioButton_linear_acc.isChecked()    
 
     def radioButtonEvent_angular_data(self):
         self.angular_disp = self.radioButton_angular_disp.isChecked()
         self.angular_vel  = self.radioButton_angular_vel.isChecked()
-        self.angular_acc  = self.radioButton_angular_acc.isChecked()        
+        self.angular_acc  = self.radioButton_angular_acc.isChecked()      
 
     def writeNodes(self, list_node_ids):
         text = ""
@@ -277,8 +278,8 @@ class DOFInput(QDialog):
             self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
 
         try:    
-            copyfile(self.path_imported_table, self.new_load_path_table)
-            imported_file = np.loadtxt(self.new_load_path_table, delimiter=",")
+            # copyfile(self.path_imported_table, self.new_load_path_table)
+            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         except Exception as e:
             error(str(e))
 
@@ -286,19 +287,52 @@ class DOFInput(QDialog):
             error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies, real and imaginary columns.")
             return
 
-        self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
         try:
+
+            self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
+
             if imported_file.shape[1]>2:
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.imported_table = True
-            
+
         except Exception as e:
             error(str(e))
 
         return self.imported_values, self.basename
+
+    def integration(self, values, dof_label, linear=False, angular=False):
+        if self.frequencies[0]==0:
+            self.frequencies[0] = float(1e-4)
+        if linear:    
+            if self.linear_disp:
+                values = values
+                header = "{} || Frequency [Hz], real[m], imaginary[m], absolute[m]".format(dof_label)
+            elif self.linear_vel:
+                values = values/(1j*2*pi*self.frequencies)
+                header = "{} || Frequency [Hz], real[m/s], imaginary[m/s], absolute[m/s]".format(dof_label)
+            elif self.linear_acc:
+                values = values/((1j*2*pi*self.frequencies)**2)
+                header = "{} || Frequency [Hz], real[m/s²], imaginary[m/s²], absolute[m/s²]".format(dof_label)
+        if angular:    
+            if self.angular_disp:
+                values = values
+                header = "{} || Frequency [Hz], real[rad], imaginary[rad], absolute[rad]".format(dof_label)
+            elif self.angular_vel:
+                values = values/(1j*2*pi*self.frequencies)
+                header = "{} || Frequency [Hz], real[rad/s], imaginary[rad/s], absolute[rad/s]".format(dof_label)
+            elif self.angular_acc:              
+                values = values/((1j*2*pi*self.frequencies)**2)
+                header = "{} || Frequency [Hz], real[rad/s²], imaginary[rad/s²], absolute[rad/s²]".format(dof_label)
+
+        real_values = np.real(self.imported_values)
+        imag_values = np.imag(self.imported_values)
+        abs_values = np.imag(self.imported_values)
+        data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
+        np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
+        return values
 
     def load_ux_table(self):
         self.ux_table, self.basename_ux = self.load_table(self.lineEdit_path_table_ux, "ux")
@@ -325,24 +359,24 @@ class DOFInput(QDialog):
         ux = uy = uz = None
         if self.lineEdit_path_table_ux != "":
             if self.ux_table is not None:
-                ux = self.ux_table
+                ux = self.integration(self.ux_table, "Ux", linear=True)
         if self.lineEdit_path_table_uy != "":
             if self.uy_table is not None:
-                uy = self.uy_table
+                uy = self.integration(self.uy_table, "Uy", linear=True)
         if self.lineEdit_path_table_uz != "":
             if self.uz_table is not None:
-                uz = self.uz_table
+                uz = self.integration(self.uz_table, "Uz", linear=True)
 
         rx = ry = rz = None
         if self.lineEdit_path_table_rx != "":
             if self.rx_table is not None:
-                rx = self.rx_table
+                rx = self.integration(self.rx_table, "Rx", angular=True)
         if self.lineEdit_path_table_ry != "":
             if self.ry_table is not None:
-                ry = self.ry_table
+                ry = self.integration(self.ry_table, "Ry", angular=True)
         if self.lineEdit_path_table_rz != "":
             if self.rz_table is not None:
-                rz = self.rz_table
+                rz = self.integration(self.rz_table, "Rz", angular=True)
 
         self.basenames = [self.basename_ux, self.basename_uy, self.basename_uz, self.basename_rx, self.basename_ry, self.basename_rz]
         self.prescribed_dofs = [ux, uy, uz, rx, ry, rz]

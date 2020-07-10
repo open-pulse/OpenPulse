@@ -5,6 +5,7 @@ from pulse.utils import error
 import configparser
 import os
 import numpy as np
+from math import pi
 
 class ProjectFile:
     def __init__(self):
@@ -458,12 +459,21 @@ class ProjectFile:
             load_path_table = "{}\\{}".format(path, table_name)
         data = np.loadtxt(load_path_table, delimiter=",")
         output = data[:,1] + 1j*data[:,2]
+
+        f = open(load_path_table)
+        header_read = f.readline()
+        
         self.frequencies = data[:,0]
         self.f_min = self.frequencies[0]
         self.f_max = self.frequencies[-1]
         self.f_step = self.frequencies[1] - self.frequencies[0]
-        return output
 
+        if ('[m/s]' or '[rad/s]') in header_read:
+            output = output/(2*pi*self.frequencies)
+        elif ('[m/s²]' or '[rad/s²]') in header_read:
+            output = output/((2*pi*self.frequencies)**2)
+
+        return output
 
     def _getRadiationImpedanceBCFromString(self, radiation_impedance):
         radiation_impedance = radiation_impedance[1:-1].split(',')
