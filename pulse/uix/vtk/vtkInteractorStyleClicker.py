@@ -42,7 +42,12 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('MouseMoveEvent', self.mouseMoveEvent)        
         self.AddObserver('KeyPressEvent', self.KeyPressEvent)
         self.AddObserver('KeyReleaseEvent', self.KeyReleaseEvent)
-    
+
+    def releaseButtons(self):
+        if self.__leftButtonClicked:
+            self.leftButtonReleaseEvent(None, None)
+        self.EndRotate()
+
     def leftButtonPressEvent(self, obj, event):
         self.clickPosition = self.GetInteractor().GetEventPosition()
         self.mousePosition = self.clickPosition
@@ -50,8 +55,12 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.createSelectionBox()
     
     def leftButtonReleaseEvent(self, obj, event):
+        if not self.__leftButtonClicked:
+            return
         self.__leftButtonClicked = False
         self.clearSelectionBox()
+        if obj is None and event is None:
+            return
         self.pickActors()
 
     def rightButtonPressEvent(self, obj, event):
