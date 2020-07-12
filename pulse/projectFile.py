@@ -6,6 +6,7 @@ import configparser
 import os
 import numpy as np
 from math import pi
+from pulse.utils import remove_bc_from_file
 
 class ProjectFile:
     def __init__(self):
@@ -300,18 +301,18 @@ class ProjectFile:
                     return
                 self.dict_lumped_inertia[node_id] = lumped_inertia
 
-            if "linear stiffness" in keys and "torsional stiffness" in keys:
-                linear_stiffness = node_structural_list[str(node)]['linear stiffness']
-                torsional_stiffness = node_structural_list[str(node)]['torsional stiffness']
-                lumped_stiffness = self._get_structural_bc_from_string(linear_stiffness, torsional_stiffness)
+            if "spring stiffness" in keys and "torsional spring stiffness" in keys:
+                spring_stiffness = node_structural_list[str(node)]['spring stiffness']
+                torsional_spring_stiffness = node_structural_list[str(node)]['torsional spring stiffness']
+                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness)
                 if lumped_stiffness == []:
                     return
                 self.dict_lumped_stiffness[node_id] = lumped_stiffness
 
-            if "linear damping" in keys and "torsional damping":
-                linear_damping = node_structural_list[str(node)]['linear damping']
-                torsional_damping = node_structural_list[str(node)]['torsional damping']
-                lumped_damping = self._get_structural_bc_from_string(linear_damping, torsional_damping)
+            if "damping coefficients" in keys and "torsional damping coefficients":
+                damping_coefficients = node_structural_list[str(node)]['damping coefficients']
+                torsional_damping_coefficients = node_structural_list[str(node)]['torsional damping coefficients']
+                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients)
                 if lumped_damping == []:
                     return
                 self.dict_lumped_damping[node_id] = lumped_damping
@@ -482,103 +483,83 @@ class ProjectFile:
             if radiation_impedance[0] != '0.0':
                 value = float(radiation_impedance[0])
         return value
-
-    def addBoundaryConditionInFile(self, nodesID_list, dofs):
-
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
-        for node_id in nodesID_list:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['displacements'] = "({},{},{})".format(dofs[0], dofs[1], dofs[2])
-                config[str(node_id)]['rotations'] = "({},{},{})".format(dofs[3], dofs[4], dofs[5])
-            else:
-                config[str(node_id)] = {
-                                        'displacements': "({},{},{})".format(dofs[0], dofs[1], dofs[2]),
-                                        'rotations': "({},{},{})".format(dofs[3], dofs[4], dofs[5])
-                                        }
-        self.write_structural_bc(self._nodeStructuralPath, config)
     
+    def _single_structural_excitation_bc(self, node_id, labels):
+        if labels[0] == 'displacements' and labels[1] == 'rotations':
+            key_strings = ['forces', 'moments']
+        elif labels[0] == 'forces' and labels[1] == 'moments':
+            key_strings = ['displacements', 'rotations']
+        remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
+
+    def _single_acoustic_excitation_bc(self, node_id, label):
+        if label[0] == 'acoustic pressure':
+            # print("acoustic pressure input")
+            key_strings = ['volume velocity']
+            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+        elif label[0] == 'volume velocity':
+            # print("volume velocity input")
+            key_strings = ['acoustic pressure']
+            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
 
         config = configparser.ConfigParser()
         config.read(self._nodeStructuralPath)
         for node_id in nodesID_list:
             if str(node_id) in config.sections():
+
                 if loaded_table:
                     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
                     config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
-                    self.write_structural_bc(self._nodeStructuralPath, config)
                 else:
                     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
                     config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
-                    self.write_structural_bc(self._nodeStructuralPath, config)
+                self.write_bc_in_file(self._nodeStructuralPath, config)
+                self._single_structural_excitation_bc([node_id], labels)
+
             else:
+
                 if loaded_table:
                     config[str(node_id)] =  {
                                             labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
                                             labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
                                             }
-                    self.write_structural_bc(self._nodeStructuralPath, config)
                 else:
                     config[str(node_id)] =  {
                                             labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
                                             labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])
                                             }
-                    self.write_structural_bc(self._nodeStructuralPath, config)
+                self.write_bc_in_file(self._nodeStructuralPath, config)
 
 
-    def write_structural_bc(self, path, config):
+    def write_bc_in_file(self, path, config):
         with open(path, 'w') as configfile:
             config.write(configfile)
 
-
-
-    def addMassInFile(self, nodesID_list, mass):
-        if sum(mass) == 0:
-            return
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
-        for node_id in nodesID_list:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['mass'] = "({},{},{},{},{},{})".format(mass[0], mass[1], mass[2], mass[3], mass[4], mass[5])
-            else:
-                config[str(node_id)] = {
-                    'mass': "({},{},{},{},{},{})".format(mass[0], mass[1], mass[2], mass[3], mass[4], mass[5]),
-                }
-        with open(self._nodeStructuralPath, 'w') as configfile:
-            config.write(configfile)
-
-    def addSpringInFile(self, nodesID_list, spring):
-        if sum(spring) == 0:
-            return
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
-        for node_id in nodesID_list:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['spring'] = "({},{},{},{},{},{})".format(spring[0], spring[1], spring[2], spring[3], spring[4], spring[5])
-            else:
-                config[str(node_id)] = {
-                    'spring': "({},{},{},{},{},{})".format(spring[0], spring[1], spring[2], spring[3], spring[4], spring[5]),
-                }
-        with open(self._nodeStructuralPath, 'w') as configfile:
-            config.write(configfile)
-
-    def addDamperInFile(self, nodesID_list, damper):
-        if sum(damper) == 0:
-            return
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
-        for node_id in nodesID_list:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['damper'] = "({},{},{},{},{},{})".format(damper[0], damper[1], damper[2], damper[3], damper[4], damper[5])
-            else:
-                config[str(node_id)] = {
-                    'damper': "({},{},{},{},{},{})".format(damper[0], damper[1], damper[2], damper[3], damper[4], damper[5]),
-                }
-        with open(self._nodeStructuralPath, 'w') as configfile:
-            config.write(configfile)
-
     # # START OF ACOUSTIC METHODS
+
+    def add_acoustic_bc_in_file(self, list_nodesID, value, loaded_table, table_name, label):
+        config = configparser.ConfigParser()
+        config.read(self._nodeAcousticPath)
+        for node_id in list_nodesID:
+            if str(node_id) in config.sections():
+
+                if loaded_table:
+                    config[str(node_id)][label[0]]  = "[{}]".format(table_name)
+                else:
+                    config[str(node_id)][label[0]] = "[{}]".format(value)
+                
+                self.write_bc_in_file(self._nodeAcousticPath, config)
+                self._single_acoustic_excitation_bc([node_id], label)
+
+            else:
+
+                if loaded_table:
+                    config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
+                else:    
+                    config[str(node_id)] = {label[0]: "[{}]".format(value)}
+
+                self.write_bc_in_file(self._nodeAcousticPath, config)
 
     def addAcousticPressureBCInFile(self, nodes_id, pressure):
         config = configparser.ConfigParser()
@@ -631,6 +612,11 @@ class ProjectFile:
                 }
         with open(self._nodeAcousticPath, 'w') as configfile:
             config.write(configfile)
+
+
+
+
+
 
     def getImportType(self):
         return self._importType

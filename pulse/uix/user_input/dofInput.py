@@ -122,7 +122,7 @@ class DOFInput(QDialog):
         self.pushButton_data_table_setup.clicked.connect(self.check_table_values)
 
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
-        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_nodal_load_from_node)
+        self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
         self.writeNodes(list_node_ids)
         self.exec_()
@@ -384,11 +384,11 @@ class DOFInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.close()
 
-    def check_remove_nodal_load_from_node(self):
+    def check_remove_bc_from_node(self):
 
         self.check_input_nodes()
         key_strings = ["displacements", "rotations"]
-        message = "The nodal loads attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        message = "The prescribed dof(s) value(s) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.project.mesh.set_prescribed_dofs_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
         self.transform_points(self.nodes_typed)

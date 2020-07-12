@@ -161,57 +161,30 @@ class InputUi:
 
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
-        read = AcousticPressureInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
-        
+        read = AcousticPressureInput(self.project, point_id, self.opv.transformPoints)
         if read.acoustic_pressure is None:
-            if not read.remove_acoustic_pressure:
-                return
-        
-        if read.new_load_path_table != "":
-            self.project.file.temp_table_name = read.imported_table_name
-            self.acoustic_pressure_frequencies = self._load_frequencies_from_table(read)
-        else:
-            self.project.file.temp_table_name = None
-
-        self.project.set_acoustic_pressure_bc_by_node(read.nodes_typed, read.acoustic_pressure)
+            return
+        if read.imported_table:
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Acoustic Pressure] - defined in the point(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
 
     def setVolumeVelocity(self):
         point_id = self.opv.getListPickedPoints()
-        read = VolumeVelocityInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
-
+        read = VolumeVelocityInput(self.project, point_id, self.opv.transformPoints)
         if read.volume_velocity is None:
-            if not read.remove_volume_velocity:
-                return
-
-        if read.new_load_path_table != "":
-            self.project.file.temp_table_name = read.volume_velocity_table_name
-            self.volume_velocity_frequencies = self._load_frequencies_from_table(read)      
-        else:
-            self.project.file.temp_table_name = None
-
-        self.project.set_volume_velocity_bc_by_node(read.nodes_typed, read.volume_velocity)
+            return
+        if read.imported_table:
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Volume Velocity Source] - defined in the point(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
 
     def setSpecificImpedance(self):
         point_id = self.opv.getListPickedPoints()
-        read = SpecificImpedanceInput(self.project.mesh.nodes, point_id, self.project.project_file_path)
-
+        read = SpecificImpedanceInput(self.project, point_id, self.opv.transformPoints)
         if read.specific_impedance is None:
-            if not read.remove_specific_impedance:
-                return
-
-        if read.new_load_path_table != "":
-            self.project.file.temp_table_name = read.specific_impedance_table_name
-            self.specific_impedance_frequencies = self._load_frequencies_from_table(read)
-        else:
-            self.project.file.temp_table_name = None
-
-        self.project.set_specific_impedance_bc_by_node(read.nodes_typed, read.specific_impedance)
+            return
+        if read.imported_table:
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
 
     def check_acoustic_bc_tables(self):
 

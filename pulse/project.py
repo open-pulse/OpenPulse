@@ -300,12 +300,12 @@ class Project:
 
     def set_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_spring_to_node(node_id, values)
-        labels = ["linear stiffness", "torsional stiffness"]
+        labels = ["spring stiffness", "torsional spring stiffness"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
     def set_lumped_damping_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_damper_to_node(node_id, values)
-        labels = ["linear damping", "torsional damping"]
+        labels = ["damping coefficients", "torsional damping coefficients"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
     def load_material_by_entity(self, entity_id, material):
@@ -418,28 +418,20 @@ class Project:
         for entity in self.mesh.entities:
             self.file.addFluidInFile(entity.getTag(), fluid.identifier)
 
-    def set_acoustic_pressure_bc_by_node(self, node_id, acoustic_pressure):
-        self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)        
-        if isinstance(acoustic_pressure, np.ndarray):
-            self.file.addAcousticPressureBCInFile(node_id, self.file.temp_table_name)
-        else:
-            self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
+    def set_acoustic_pressure_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_acoustic_pressure_bc_by_node(node_id, values) 
+        label = ["acoustic pressure"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, volume_velocity):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, volume_velocity)
-        if isinstance(volume_velocity, np.ndarray):
-            self.file.addVolumeVelocityBCInFile(node_id, self.file.temp_table_name)
-        else:
-            self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
-        # self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
-
-    def set_specific_impedance_bc_by_node(self, node_id, specific_impedance):
-        self.mesh.set_specific_impedance_bc_by_node(node_id, specific_impedance)
-        if isinstance(specific_impedance, np.ndarray):
-            self.file.addSpecificImpedanceBCInFile(node_id, self.file.temp_table_name)
-        else:
-            self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
-        # self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
+    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_volume_velocity_bc_by_node(node_id, values) 
+        label = ["volume velocity"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)    
+    
+    def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
+        label = ["specific impedance"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)

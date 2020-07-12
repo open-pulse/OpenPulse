@@ -63,32 +63,35 @@ def info_messages(msg, title = " INFORMATION "):
     msg_box.exec_()
 
 def remove_bc_from_file(nodes_typed, path, key_strings, message):
-        try:
 
-            _bc_list = configparser.ConfigParser()
-            _bc_list.read(path)
+    try:
 
-            for node in nodes_typed:
-        
-                node_id = str(node)
-                if not node_id in _bc_list.sections():
-                    return
-                keys = list(_bc_list[node_id].keys())
+        _bc_list = configparser.ConfigParser()
+        _bc_list.read(path)
 
-                if key_strings[0] in keys and key_strings[1] in keys:
-                    _bc_list.remove_option(section=node_id, option=key_strings[0])
-                    _bc_list.remove_option(section=node_id, option=key_strings[1])  
-                        
+        for node in nodes_typed:
+    
+            node_id = str(node)
+            if not node_id in _bc_list.sections():
+                return
+            keys = list(_bc_list[node_id].keys())
+
+            for str_key in key_strings:
+                if str_key in keys:
+                    # print("delete: {}".format(str_key))
+                    _bc_list.remove_option(section=node_id, option=str_key)
+                    
             if list(_bc_list[node_id].keys())==[]:
                 _bc_list.remove_section(node_id)
 
             with open(path, 'w') as configfile:
                 _bc_list.write(configfile)
 
+        if message is not None:
             info_messages(message)
 
-        except Exception as e:
-            error(str(e))
+    except Exception as e:
+        error(str(e))
 
 def write_file_inside_project_folder(path, config):
         with open(path, 'w') as configfile:
