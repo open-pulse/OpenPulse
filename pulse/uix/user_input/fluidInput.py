@@ -4,7 +4,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.utils import error, isInteger, isFloat, getColorRGB
+from pulse.utils import error, getColorRGB
 
 from pulse.preprocessing.fluid import Fluid
 

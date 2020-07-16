@@ -13,21 +13,34 @@ class Node:
         self.y = y
         self.z = z
 
-        # Structural physical quantities
-        self.prescribed_dofs_bc = [None, None, None, None, None, None]
+        # Structural boundary conditions
+        
         self.loads = [None, None, None, None, None, None]
-
-        self.there_is_nodal_loads = False
+        self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
         
-        self.there_is_prescribed_dofs = False
+        self.prescribed_dofs_bc = [None, None, None, None, None, None]
+        self.there_are_prescribed_dofs = False
         self.loaded_table_for_prescribed_dofs = False
         
-        self.mass   = [0,0,0,0,0,0]
-        self.spring = [0,0,0,0,0,0]
-        self.damper = [0,0,0,0,0,0]
+        self.lumped_masses = [None, None, None, None, None, None]
+        self.there_are_lumped_masses = False
+        self.loaded_table_for_lumped_masses = False
 
-        # Acoustic physical quantities
+        self.lumped_stiffness = [None, None, None, None, None, None]
+        self.there_are_lumped_stiffness = False
+        self.loaded_table_for_lumped_stiffness = False
+
+        self.lumped_dampings = [None, None, None, None, None, None]
+        self.there_are_lumped_dampings = False
+        self.loaded_table_for_lumped_dampings = False
+
+        # self.mass   = [0,0,0,0,0,0]
+        # self.spring = [0,0,0,0,0,0]
+        # self.damper = [0,0,0,0,0,0]
+
+        # Acoustic boundary conditions
+
         self.acoustic_pressure = None
         self.volume_velocity = None
 

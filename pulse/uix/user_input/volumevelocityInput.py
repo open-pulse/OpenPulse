@@ -44,7 +44,7 @@ class VolumeVelocityInput(QDialog):
         self.tab_table_values = self.tabWidget_volume_velocity.findChild(QWidget, "tab_table_values")
 
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
-        self.toolButton_load_table.clicked.connect(self.load_table)
+        self.toolButton_load_table.clicked.connect(self.load_volume_velocity_table)
 
         self.pushButton_single_values_confirm = self.findChild(QPushButton, 'pushButton_single_values_confirm')
         self.pushButton_single_values_confirm.clicked.connect(self.check_single_values)
@@ -199,7 +199,7 @@ class VolumeVelocityInput(QDialog):
 
         self.check_input_nodes()
 
-        if self.path_imported != "":
+        if self.lineEdit_load_table_path != "":
             if self.volume_velocity is not None:
                 self.project.set_volume_velocity_bc_by_node(self.nodes_typed, self.volume_velocity, True, table_name=self.basename_volume_velocity)
                 self.transform_points(self.nodes_typed)

@@ -198,8 +198,7 @@ class AcousticPressureInput(QDialog):
     def check_table_values(self):
 
         self.check_input_nodes()
-
-        if self.path_imported_table != "":
+        if self.lineEdit_load_table_path != "":
             if self.acoustic_pressure is not None:
                 self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, self.acoustic_pressure, True, table_name=self.basename_acoustic_pressure)
                 self.transform_points(self.nodes_typed)

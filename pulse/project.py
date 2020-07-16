@@ -196,8 +196,6 @@ class Project:
                     self.load_prescribed_dofs_bc_by_node(key, dofs)
                 except Exception:
                     error("There is some error while loading prescribed data.")
-            # if bc.count(None) != 6:
-            #     self.load_prescribed_dofs_bc_by_node(key, bc)
 
         for key, loads in external_loads.items():
             if isinstance(loads, list):
@@ -206,15 +204,26 @@ class Project:
                 except Exception:
                     error("There is some error while loading nodal loads data.")
 
-        for key, ms in mass.items():
-            if sum(ms) > 0:
-                self.load_mass_by_node(key, ms)
-        for key, sp in spring.items():
-            if sum(sp) > 0:
-                self.load_spring_by_node(key, sp)
-        for key, dm in damper.items():
-            if sum(dm) > 0:
-                self.load_damper_by_node(key, dm)
+        for key, masses in mass.items():
+            if isinstance(masses, list):
+                try:
+                    self.load_mass_by_node(key, masses)
+                except Exception:
+                    error("There is some error while loading lumped masses/moments of inertia data.")
+                
+        for key, stiffness in spring.items():
+            if isinstance(stiffness, list):
+                try:
+                    self.load_spring_by_node(key, stiffness)
+                except Exception:
+                    error("There is some error while lumped stiffness data.")    
+
+        for key, dampings in damper.items():
+            if isinstance(dampings, list):
+                try:
+                    self.load_damper_by_node(key, dampings)
+                except Exception:
+                    error("There is some error while lumped damping data.")   
 
     def load_acoustic_bc_file(self):
         pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.getDictOfAcousticBCFromFile()
@@ -293,17 +302,17 @@ class Project:
         labels = ["forces", "moments"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_lumped_inertia_by_node(self, node_id, values, imported_table, table_name=""):
+    def add_lumped_masses_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_mass_to_node(node_id, values)
         labels = ["masses", "moments of inertia"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
+    def add_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_spring_to_node(node_id, values)
         labels = ["spring stiffness", "torsional spring stiffness"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_lumped_damping_by_node(self, node_id, values, imported_table, table_name=""):
+    def add_lumped_dampings_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_damper_to_node(node_id, values)
         labels = ["damping coefficients", "torsional damping coefficients"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
@@ -435,7 +444,7 @@ class Project:
 
     def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)
-        self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
+        # self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -543,9 +552,9 @@ class Project:
 
     def get_structural_solve(self):
         if self.analysis_ID in [5,6]:
-            results = SolutionStructural(self.mesh, acoustic_solution=self.solution_acoustic)
+            results = SolutionStructural(self.mesh, self.frequencies, acoustic_solution=self.solution_acoustic)
         else:
-            results = SolutionStructural(self.mesh)
+            results = SolutionStructural(self.mesh, self.frequencies)
         return results
 
     def set_structural_solution(self, value):

@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>401</width>
-    <height>437</height>
+    <height>434</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>401</width>
-    <height>437</height>
+    <height>434</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>401</width>
-    <height>437</height>
+    <height>434</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -111,8 +111,20 @@
       <x>0</x>
       <y>40</y>
       <width>401</width>
-      <height>397</height>
+      <height>394</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>394</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>394</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -120,28 +132,6 @@
     <property name="frameShadow">
      <enum>QFrame::Plain</enum>
     </property>
-    <widget class="QPushButton" name="pushButton_confirm">
-     <property name="geometry">
-      <rect>
-       <x>132</x>
-       <y>356</y>
-       <width>131</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Confirm</string>
-     </property>
-    </widget>
     <widget class="QWidget" name="verticalLayoutWidget">
      <property name="geometry">
       <rect>
@@ -198,13 +188,13 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QTabWidget" name="tabWidget_2">
+    <widget class="QTabWidget" name="tabWidget_external_elements">
      <property name="geometry">
       <rect>
        <x>14</x>
        <y>46</y>
        <width>373</width>
-       <height>295</height>
+       <height>331</height>
       </rect>
      </property>
      <property name="maximumSize">
@@ -231,7 +221,7 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_4">
+     <widget class="QWidget" name="tab_single_values">
       <attribute name="title">
        <string>Single values</string>
       </attribute>
@@ -1166,7 +1156,7 @@
            </widget>
           </item>
           <item row="2" column="1">
-           <widget class="QLineEdit" name="lineEdi_Ky">
+           <widget class="QLineEdit" name="lineEdit_Ky">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2405,8 +2395,30 @@
         </widget>
        </widget>
       </widget>
+      <widget class="QPushButton" name="pushButton_single_value_confirm">
+       <property name="geometry">
+        <rect>
+         <x>118</x>
+         <y>266</y>
+         <width>131</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Confirm</string>
+       </property>
+      </widget>
      </widget>
-     <widget class="QWidget" name="tab_5">
+     <widget class="QWidget" name="tab_table_values">
       <attribute name="title">
        <string>Table of values</string>
       </attribute>
@@ -2520,7 +2532,7 @@
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QToolButton" name="toolButton_load_rx_table">
+           <widget class="QToolButton" name="toolButton_load_Jx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2584,7 +2596,7 @@
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QToolButton" name="toolButton_load_rz_table">
+           <widget class="QToolButton" name="toolButton_load_Jz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2673,7 +2685,7 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QToolButton" name="toolButton_load_uz_table">
+           <widget class="QToolButton" name="toolButton_load_Mz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2720,7 +2732,7 @@
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QToolButton" name="toolButton_load_uy_table">
+           <widget class="QToolButton" name="toolButton_load_My_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2767,7 +2779,7 @@
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="QToolButton" name="toolButton_load_ry_table">
+           <widget class="QToolButton" name="toolButton_load_Jy_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2806,7 +2818,7 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QToolButton" name="toolButton_load_ux_table">
+           <widget class="QToolButton" name="toolButton_load_Mx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -2973,7 +2985,7 @@
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QToolButton" name="toolButton_load_rx_table_3">
+           <widget class="QToolButton" name="toolButton_load_Krx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3037,7 +3049,7 @@
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QToolButton" name="toolButton_load_rz_table_3">
+           <widget class="QToolButton" name="toolButton_load_Krz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3126,7 +3138,7 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QToolButton" name="toolButton_load_uz_table_3">
+           <widget class="QToolButton" name="toolButton_load_Kz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3173,7 +3185,7 @@
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QToolButton" name="toolButton_load_uy_table_3">
+           <widget class="QToolButton" name="toolButton_load_Ky_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3220,7 +3232,7 @@
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="QToolButton" name="toolButton_load_ry_table_3">
+           <widget class="QToolButton" name="toolButton_load_Kry_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3259,7 +3271,7 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QToolButton" name="toolButton_load_ux_table_3">
+           <widget class="QToolButton" name="toolButton_load_Kx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3434,7 +3446,7 @@
            </widget>
           </item>
           <item row="4" column="2">
-           <widget class="QToolButton" name="toolButton_load_rx_table_4">
+           <widget class="QToolButton" name="toolButton_load_Crx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3503,7 +3515,7 @@
            </widget>
           </item>
           <item row="6" column="2">
-           <widget class="QToolButton" name="toolButton_load_rz_table_4">
+           <widget class="QToolButton" name="toolButton_load_Crz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3602,7 +3614,7 @@
            </widget>
           </item>
           <item row="3" column="2">
-           <widget class="QToolButton" name="toolButton_load_uz_table_4">
+           <widget class="QToolButton" name="toolButton_load_Cz_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3654,7 +3666,7 @@
            </widget>
           </item>
           <item row="2" column="2">
-           <widget class="QToolButton" name="toolButton_load_uy_table_4">
+           <widget class="QToolButton" name="toolButton_load_Cy_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3706,7 +3718,7 @@
            </widget>
           </item>
           <item row="5" column="2">
-           <widget class="QToolButton" name="toolButton_load_ry_table_4">
+           <widget class="QToolButton" name="toolButton_load_Cry_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3745,7 +3757,7 @@
            </widget>
           </item>
           <item row="1" column="2">
-           <widget class="QToolButton" name="toolButton_load_ux_table_4">
+           <widget class="QToolButton" name="toolButton_load_Cx_table">
             <property name="enabled">
              <bool>true</bool>
             </property>
@@ -3824,11 +3836,249 @@
         </widget>
        </widget>
       </widget>
+      <widget class="QPushButton" name="pushButton_table_values_confirm">
+       <property name="geometry">
+        <rect>
+         <x>118</x>
+         <y>266</y>
+         <width>131</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Confirm</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_remove_external_elements">
+      <attribute name="title">
+       <string>Remove</string>
+      </attribute>
+      <widget class="QWidget" name="formLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>68</x>
+         <y>122</y>
+         <width>231</width>
+         <height>87</height>
+        </rect>
+       </property>
+       <layout class="QFormLayout" name="formLayout">
+        <property name="verticalSpacing">
+         <number>14</number>
+        </property>
+        <item row="0" column="1">
+         <widget class="QCheckBox" name="checkBox_remove_mass">
+          <property name="minimumSize">
+           <size>
+            <width>180</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>180</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Masses / Moments of inertia</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QCheckBox" name="checkBox_remove_spring">
+          <property name="minimumSize">
+           <size>
+            <width>180</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>220</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Spring (translational/torsional)</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QCheckBox" name="checkBox_remove_damper">
+          <property name="minimumSize">
+           <size>
+            <width>180</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>220</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Damper (translational/torsional)</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>18</x>
+         <y>28</y>
+         <width>331</width>
+         <height>57</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Select the external elements to remove&lt;/p&gt;&lt;p align=&quot;center&quot;&gt;from selected node(s):&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_remove_bc_confirm">
+       <property name="geometry">
+        <rect>
+         <x>116</x>
+         <y>242</y>
+         <width>137</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>27</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove elements</string>
+       </property>
+      </widget>
      </widget>
     </widget>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget_external_elements</tabstop>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>lineEdit_Mx</tabstop>
+  <tabstop>lineEdit_My</tabstop>
+  <tabstop>lineEdit_Mz</tabstop>
+  <tabstop>lineEdit_Jx</tabstop>
+  <tabstop>lineEdit_Jy</tabstop>
+  <tabstop>lineEdit_Jz</tabstop>
+  <tabstop>pushButton_single_value_confirm</tabstop>
+  <tabstop>lineEdit_Kx</tabstop>
+  <tabstop>lineEdit_Ky</tabstop>
+  <tabstop>lineEdit_Kz</tabstop>
+  <tabstop>lineEdit_Krx</tabstop>
+  <tabstop>lineEdit_Kry</tabstop>
+  <tabstop>lineEdit_Krz</tabstop>
+  <tabstop>lineEdit_Cx</tabstop>
+  <tabstop>lineEdit_Cy</tabstop>
+  <tabstop>lineEdit_Cz</tabstop>
+  <tabstop>lineEdit_Crx</tabstop>
+  <tabstop>lineEdit_Cry</tabstop>
+  <tabstop>lineEdit_Crz</tabstop>
+  <tabstop>tabWidget_3</tabstop>
+  <tabstop>lineEdit_path_table_Mx</tabstop>
+  <tabstop>lineEdit_path_table_My</tabstop>
+  <tabstop>lineEdit_path_table_Mz</tabstop>
+  <tabstop>lineEdit_path_table_Jx</tabstop>
+  <tabstop>lineEdit_path_table_Jy</tabstop>
+  <tabstop>lineEdit_path_table_Jz</tabstop>
+  <tabstop>toolButton_load_Mx_table</tabstop>
+  <tabstop>toolButton_load_My_table</tabstop>
+  <tabstop>toolButton_load_Mz_table</tabstop>
+  <tabstop>toolButton_load_Jx_table</tabstop>
+  <tabstop>toolButton_load_Jy_table</tabstop>
+  <tabstop>toolButton_load_Jz_table</tabstop>
+  <tabstop>lineEdit_path_table_Kx</tabstop>
+  <tabstop>lineEdit_path_table_Ky</tabstop>
+  <tabstop>lineEdit_path_table_Kz</tabstop>
+  <tabstop>lineEdit_path_table_Krx</tabstop>
+  <tabstop>lineEdit_path_table_Kry</tabstop>
+  <tabstop>lineEdit_path_table_Krz</tabstop>
+  <tabstop>toolButton_load_Kx_table</tabstop>
+  <tabstop>toolButton_load_Ky_table</tabstop>
+  <tabstop>toolButton_load_Kz_table</tabstop>
+  <tabstop>toolButton_load_Krx_table</tabstop>
+  <tabstop>toolButton_load_Kry_table</tabstop>
+  <tabstop>toolButton_load_Krz_table</tabstop>
+  <tabstop>lineEdit_path_table_Cx</tabstop>
+  <tabstop>lineEdit_path_table_Cy</tabstop>
+  <tabstop>lineEdit_path_table_Cz</tabstop>
+  <tabstop>lineEdit_path_table_Crx</tabstop>
+  <tabstop>lineEdit_path_table_Cry</tabstop>
+  <tabstop>lineEdit_path_table_Crz</tabstop>
+  <tabstop>toolButton_load_Cx_table</tabstop>
+  <tabstop>toolButton_load_Cy_table</tabstop>
+  <tabstop>toolButton_load_Cz_table</tabstop>
+  <tabstop>toolButton_load_Crx_table</tabstop>
+  <tabstop>toolButton_load_Cry_table</tabstop>
+  <tabstop>toolButton_load_Crz_table</tabstop>
+  <tabstop>pushButton_table_values_confirm</tabstop>
+  <tabstop>checkBox_remove_mass</tabstop>
+  <tabstop>checkBox_remove_spring</tabstop>
+  <tabstop>checkBox_remove_damper</tabstop>
+  <tabstop>pushButton_remove_bc_confirm</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

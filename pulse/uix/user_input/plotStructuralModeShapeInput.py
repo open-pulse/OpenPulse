@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
+from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -37,20 +38,6 @@ class PlotStructuralModeShapeInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
     def isInt(self, value):
         try:
             int(value)
@@ -60,19 +47,19 @@ class PlotStructuralModeShapeInput(QDialog):
 
     def check(self):
         if self.lineEdit.text() == "":
-            self.error("Select a frequency or enter a valid mode number.")
+            error("Select a frequency or enter a valid mode number.")
             return
         else:
             if float(self.lineEdit.text()) in self.frequencies:
                 frequency = float(self.lineEdit.text())
                 self.mode_index = self.frequencies.index(frequency)
             elif not self.isInt(self.lineEdit.text()):
-                self.error("Please, enter a valid mode number or natural frequency!")
+                error("Please, enter a valid mode number or natural frequency!")
                 return
             elif int(self.lineEdit.text())>0 and int(self.lineEdit.text())<=len(self.frequencies):
                     self.mode_index = int(self.lineEdit.text())-1
             else:
-                self.error("Please, enter a valid mode number or natural frequency!")
+                error("Please, enter a valid mode number or natural frequency!")
                 return
 
         self.close()

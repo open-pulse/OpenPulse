@@ -321,28 +321,70 @@ class Mesh:
             check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
             if True in check_array:
                 node.loaded_table_for_nodal_loads = True
-                node.there_is_nodal_loads = True
+                node.there_are_nodal_loads = True
                 return
             else:
                 node.loaded_table_for_nodal_loads = False
             # Checking complex single values    
             check_values = [True if bc is not None else False for bc in values]
             if True in check_values:
-                node.there_is_nodal_loads = True
+                node.there_are_nodal_loads = True
             else:
-                node.there_is_nodal_loads = False
+                node.there_are_nodal_loads = False
 
     def add_mass_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.mass = values
+            node.lumped_masses = values
+            # Checking imported tables 
+            check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
+            if True in check_array:
+                node.loaded_table_for_lumped_masses = True
+                node.there_are_lumped_masses = True
+                return
+            else:
+                node.loaded_table_for_lumped_masses = False
+            # Checking complex single values    
+            check_values = [True if bc is not None else False for bc in values]
+            if True in check_values:
+                node.there_are_lumped_masses = True
+            else:
+                node.there_are_lumped_masses = False
 
     def add_spring_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.spring = values
+            node.lumped_stiffness = values
+            # Checking imported tables 
+            check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
+            if True in check_array:
+                node.loaded_table_for_lumped_stiffness = True
+                node.there_are_lumped_stiffness = True
+                return
+            else:
+                node.loaded_table_for_lumped_stiffness = False
+            # Checking complex single values    
+            check_values = [True if bc is not None else False for bc in values]
+            if True in check_values:
+                node.there_are_lumped_stiffness = True
+            else:
+                node.there_are_lumped_stiffness = False
     
     def add_damper_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.damper = values
+            node.lumped_dampings = values
+            # Checking imported tables 
+            check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
+            if True in check_array:
+                node.loaded_table_for_lumped_dampings = True
+                node.there_are_lumped_dampings = True
+                return
+            else:
+                node.loaded_table_for_lumped_dampings = False
+            # Checking complex single values    
+            check_values = [True if bc is not None else False for bc in values]
+            if True in check_values:
+                node.there_are_lumped_dampings = True
+            else:
+                node.there_are_lumped_dampings = False
 
     def set_prescribed_dofs_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -352,16 +394,16 @@ class Mesh:
             check_array = [True if isinstance(bc, np.ndarray) else False for bc in values]
             if True in check_array:
                 node.loaded_table_for_prescribed_dofs = True
-                node.there_is_prescribed_dofs = True
+                node.there_are_prescribed_dofs = True
                 return
             else:
                 node.loaded_table_for_prescribed_dofs = False
             # Checking complex single values    
             check_values = [True if bc is not None else False for bc in values]
             if True in check_values:
-                node.there_is_prescribed_dofs = True
+                node.there_are_prescribed_dofs = True
             else:
-                node.there_is_prescribed_dofs = False
+                node.there_are_prescribed_dofs = False
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
@@ -470,11 +512,11 @@ class Mesh:
         for node in self.nodes.values():
 
             if structural:
-                if node.there_is_nodal_loads:#node.loads.count(None) != 6:
+                if node.there_are_nodal_loads:#node.loads.count(None) != 6:
                     self.is_there_loads = True
                     return
 
-                if node.there_is_prescribed_dofs:#node.prescribed_dofs_bc.count(None) != 6:
+                if node.there_are_prescribed_dofs:#node.prescribed_dofs_bc.count(None) != 6:
                     # if sum([i for i in node.prescribed_dofs_bc if i is not None]) != 0:
                     #     self.is_there_prescribed_dofs = True
                     #     return

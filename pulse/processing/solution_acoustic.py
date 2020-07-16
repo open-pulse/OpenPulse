@@ -11,11 +11,11 @@ class SolutionAcoustic:
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
 
-        self.assembly = AssemblyAcoustic(mesh)
+        self.assembly = AssemblyAcoustic(mesh, frequencies)
         self.frequencies = frequencies
 
-        self.K, self.Kr = self.assembly.get_global_matrices(self.frequencies)
-        self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices(self.frequencies)
+        self.K, self.Kr = self.assembly.get_global_matrices()
+        self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.Kadd_lump = [ self.K[i] + self.K_lump[i] for i in range(len(self.frequencies))]
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
@@ -35,11 +35,11 @@ class SolutionAcoustic:
 
     def get_combined_volume_velocity(self):
 
-        volume_velocity = self.assembly.get_global_volume_velocity(self.frequencies)
+        volume_velocity = self.assembly.get_global_volume_velocity()
                 
-        Kr = [(sparse.toarray())[self.unprescribed_indexes, :] for sparse in self.Kr]
+        Kr = [(sparse_matrix.toarray())[self.unprescribed_indexes, :] for sparse_matrix in self.Kr]
 
-        Kr_lump = [(sparse.toarray())[self.unprescribed_indexes, :] for sparse in self.Kr_lump]
+        Kr_lump = [(sparse_matrix.toarray())[self.unprescribed_indexes, :] for sparse_matrix in self.Kr_lump]
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
@@ -72,7 +72,7 @@ class SolutionAcoustic:
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
 
-        for i in range(len(self.frequencies)):
+        for i in range(cols):
             solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
 
         solution = self._reinsert_prescribed_dofs(solution)

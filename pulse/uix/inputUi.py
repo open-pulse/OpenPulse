@@ -20,6 +20,7 @@ from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseI
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
+from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.preprocessing.cross_section import CrossSection
@@ -132,14 +133,6 @@ class InputUi:
             self.project.set_crossSection(cross_section)
             print("[Set Cross-section] - defined in all the entities")
         self.opv.updateEntityRadius()
-    
-    def _load_frequencies_from_table(self, obj):
-            self.project.file.f_min = obj.f_min
-            self.project.file.f_max = obj.f_max
-            self.project.file.f_step = obj.f_step
-            self.project.file.frequencies = obj.frequencies
-            self.project.file.temp_table_name = obj.imported_table_name  
-            return obj.frequencies 
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
@@ -158,6 +151,18 @@ class InputUi:
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Nodal Load] - defined in the point(s) {}".format(read.nodes_typed))
+    
+    def addMassSpringDamper(self):
+        point_id = self.opv.getListPickedPoints()
+        read = MassSpringDamperInput(self.project, point_id, self.opv.transformPoints)
+        if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
+            return
+        if read.lumped_masses is not None:
+            print("[Set Mass] - defined in the point(s) {}".format(read.nodes_typed))
+        if read.lumped_stiffness is not None:
+            print("[Set Spring] - defined in the point(s) {}".format(read.nodes_typed))
+        if read.lumped_dampings is not None:
+            print("[Set Damper] - defined in the point(s) {}".format(read.nodes_typed)) 
 
     def setAcousticPressure(self):
         point_id = self.opv.getListPickedPoints()
@@ -185,7 +190,26 @@ class InputUi:
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Specific Impedance] - defined in the point(s) {}".format(read.nodes_typed))
+    
+    def setRadiationImpedance(self):
+        point_id = self.opv.getListPickedPoints()
+        read = RadiationImpedanceInput(self.project.mesh.nodes, point_id)
 
+        if read.radiation_impedance is None:
+            return
+
+        self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
+        print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes_typed))
+        self.opv.transformPoints(read.nodes_typed)
+
+    def _load_frequencies_from_table(self, obj):
+            self.project.file.f_min = obj.f_min
+            self.project.file.f_max = obj.f_max
+            self.project.file.f_step = obj.f_step
+            self.project.file.frequencies = obj.frequencies
+            self.project.file.temp_table_name = obj.imported_table_name  
+            return obj.frequencies 
+    
     def check_acoustic_bc_tables(self):
 
         if self.acoustic_pressure_frequencies is not None:
@@ -217,30 +241,6 @@ class InputUi:
                     else:
                         error("Check frequency setup of imported tables (Volume Velocity and Specific Impedance).")
                         return
-
-    def setRadiationImpedance(self):
-        point_id = self.opv.getListPickedPoints()
-        read = RadiationImpedanceInput(self.project.mesh.nodes, point_id)
-
-        if read.radiation_impedance is None:
-            return
-
-        self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
-        print("[Set Radiation Impedance Source] - defined in the point(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
-
-    def addMassSpringDamper(self):
-        point_id = self.opv.getListPickedPoints()
-        msd = MassSpringDamperInput(self.project.mesh.nodes, point_id)
-        if msd.input_mass:
-            self.project.set_lumped_inertia_by_node(msd.nodes_typed, msd.mass)
-            print("[Set Mass] - defined in the point(s) {}".format(msd.nodes_typed))
-        if msd.input_spring:
-            self.project.set_lumped_stiffness_by_node(msd.nodes_typed, msd.spring)
-            print("[Set Spring] - defined in the point(s) {}".format(msd.nodes_typed))
-        if msd.input_damper:
-            self.project.set_lumped_damping_by_node(msd.nodes_typed, msd.damper)
-            print("[Set Damper] - defined in the point(s) {}".format(msd.nodes_typed))         
 
     def analysisTypeInput(self):
 
@@ -452,6 +452,15 @@ class InputUi:
 
     def plotStressField(self):
         pass
+
+    def plot_reactions(self):
+        # under development
+        return
+        if self.analysis_ID in [0,1,5,6]:
+            solution = self.project.get_structural_solution()
+            solve = self.project.get_structural_solve()
+            PlotReactionsInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, solve)
+            return
 
     def _check_is_there_a_problem(self):
 

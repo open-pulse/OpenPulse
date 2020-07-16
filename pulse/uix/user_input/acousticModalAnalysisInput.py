@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QComboBox, QPushButton
+from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -30,29 +31,15 @@ class AcousticModalAnalysisInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
     def check(self):
         if self.lineEdit.text() == "":
-            self.error("Insert a value")
+            error("Insert a value")
             return
         else:
-            if self.isInteger(self.lineEdit.text()):
+            try:
                 self.modes = int(self.lineEdit.text())
-            else:
-                self.error("Value error")
+            except Exception:
+                error("Value error")
                 return
         self.complete = True
         self.close()

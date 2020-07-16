@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLabel, QToolButton, QLineEdit, QDialogButtonBox, QDialog, QMessageBox, QTreeWidget, QTreeWidgetItem
+from pulse.utils import error
 from os.path import basename
 from PyQt5 import uic
 from PyQt5.QtGui import QBrush, QColor
@@ -31,7 +32,7 @@ class PreProcessingInfo(QDialog):
 
     def info_continue(self):
         if self.hasError:
-            self.error("Material ou Cross Section não foi definido para alguma entidade", "Error")
+            error("Material ou Cross Section não foi definido para alguma entidade", "Error")
             return
         print("Ok")
         self.close()
@@ -53,18 +54,28 @@ class PreProcessingInfo(QDialog):
             diam_int = entityFile[entity]['internal diam']
             item1 = QTreeWidgetItem(["Entity ID {}".format(entity)])
             item2 = QTreeWidgetItem(["Material ID: {}".format(material_id), "Diam Ext: {}".format(diam_ext), "Diam Int: {}".format(diam_int)])
+
             if not material_id.isnumeric():
                 item2.setForeground(0, self.errorColor)
                 item1.setForeground(0, self.errorColor)
                 self.hasError = True
-            if not self.isFloat(diam_ext):
+
+            try:
+                float(diam_ext)
+            except Exception:
+            # if not self.isFloat(diam_ext):
                 item2.setForeground(1, self.errorColor)
                 item1.setForeground(0, self.errorColor)
                 self.hasError = True
-            if not self.isFloat(diam_int):
+
+            try:
+                float(diam_int)
+            except Exception:
+            # if not self.isFloat(diam_int):
                 item2.setForeground(2, self.errorColor)
                 item1.setForeground(0, self.errorColor)
                 self.hasError = True
+                
             item1.addChild(item2)
             self.treeWidget.addTopLevelItem(item1)
 
@@ -77,18 +88,3 @@ class PreProcessingInfo(QDialog):
             rotation = node_list[str(node)]['rotation']
             item1 = QTreeWidgetItem([node_id, displacement, rotation])
             self.treeWidget2.addTopLevelItem(item1)
-
-    def isFloat(self, number):
-        try:
-            float(number)
-            return True
-        except Exception:
-            return False
-
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        #msg_box.setInformativeText('More information')
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()

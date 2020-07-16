@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
+from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -70,22 +71,8 @@ class AnalysisSetupInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
-
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
 
     def check(self):
         input_fmin = input_fmax = input_fstep = 0
@@ -93,48 +80,48 @@ class AnalysisSetupInput(QDialog):
             #Verify Modes
             if self.analysis_ID == 1:
                 if self.lineEdit_modes.text() == "":
-                    self.error("Insert a value (modes)")
+                    error("Insert a value (modes)")
                     return
                 else:
                     try:
                         self.modes = int(self.lineEdit_modes.text())
                     except Exception:
-                        self.error("Value error (modes)")
+                        error("Value error (modes)")
                         return
 
             if self.lineEdit_fmin.text() == "":
-                self.error("Insert a value (freq min)")
+                error("Insert a value (freq min)")
                 return
             else:
                 try:
                     if float(self.lineEdit_fmin.text())>=0:
                         input_fmin = float(self.lineEdit_fmin.text())
                 except Exception:
-                    self.error("Value error (freq min)")
+                    error("Value error (freq min)")
                     return
 
             if self.lineEdit_fmax.text() == "":
-                self.error("Insert a value (freq max)")
+                error("Insert a value (freq max)")
                 return
             else:
                 try:
                     if float(self.lineEdit_fmax.text()) > float(self.lineEdit_fmin.text()) + float(self.lineEdit_fstep.text()):
                         input_fmax = float(self.lineEdit_fmax.text())
                 except Exception:
-                    self.error("Value error (freq max)")
+                    error("Value error (freq max)")
                     return
 
             if self.lineEdit_fstep.text() == "":
-                self.error("Insert a value (freq df)")
+                error("Insert a value (freq df)")
                 return
             else:
                 try:
                     input_fstep = float(self.lineEdit_fstep.text())
                     if float(self.lineEdit_fstep.text())<=0 or float(self.lineEdit_fstep.text())>=float(self.lineEdit_fmax.text()):
-                            self.error(" The value assigned to f_step must be\n greater than 0 and less than f_max! ")
+                            error(" The value assigned to f_step must be\n greater than 0 and less than f_max! ")
                             return
                 except Exception:
-                    self.error("Value error (freq df)")
+                    error("Value error (freq df)")
                     return
                 
         a_v = b_v = a_h = b_h = 0
@@ -142,28 +129,28 @@ class AnalysisSetupInput(QDialog):
             try:
                 a_v = float(self.lineEdit_av.text())
             except Exception:
-                self.error("Value error (a_v)")
+                error("Value error (a_v)")
                 return
 
         if self.lineEdit_bv.text() != "":
             try:
                 b_v = float(self.lineEdit_bv.text())
             except Exception:
-                self.error("Value error (b_v)")
+                error("Value error (b_v)")
                 return
 
         if self.lineEdit_ah.text() != "":
             try:
                 a_h = float(self.lineEdit_ah.text())
             except Exception:
-                self.error("Value error (a_h)")
+                error("Value error (a_h)")
                 return
 
         if self.lineEdit_bh.text() != "":
             try:
                 b_h = float(self.lineEdit_bh.text())
             except Exception:
-                self.error("Value error (b_h)")
+                error("Value error (b_h)")
                 return
 
         self.damping = [a_h, b_h, a_v, b_v]

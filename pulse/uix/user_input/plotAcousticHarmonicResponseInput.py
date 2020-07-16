@@ -45,13 +45,6 @@ class PlotAcousticHarmonicResponseInput(QDialog):
         msg_box.setWindowTitle(title)
         msg_box.exec_()
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
     def check(self):
         if self.lineEdit.text() == "":
             self.error("Select a frequency")

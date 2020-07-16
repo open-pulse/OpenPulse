@@ -44,7 +44,7 @@ class SpecificImpedanceInput(QDialog):
         self.tab_table_values = self.tabWidget_specific_impedance.findChild(QWidget, "tab_table_values")
 
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
-        self.toolButton_load_table.clicked.connect(self.load_table)
+        self.toolButton_load_table.clicked.connect(self.load_specific_impedance_table)
 
         self.pushButton_single_values_confirm = self.findChild(QPushButton, 'pushButton_single_values_confirm')
         self.pushButton_single_values_confirm.clicked.connect(self.check_single_values)
@@ -199,7 +199,7 @@ class SpecificImpedanceInput(QDialog):
 
         self.check_input_nodes()
 
-        if self.path_imported_table != "":
+        if self.lineEdit_load_table_path != "":
             if self.specific_impedance is not None:
                 self.project.set_specific_impedance_bc_by_node(self.nodes_typed, self.specific_impedance, True, table_name=self.basename_specific_impedance)
                 self.transform_points(self.nodes_typed)

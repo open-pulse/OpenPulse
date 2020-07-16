@@ -87,10 +87,10 @@ class RendererPoint(vtkRendererBase):
         for node_id in points_id:
             node = self.project.get_node(node_id)
 
-            if node.there_is_prescribed_dofs and node.there_is_nodal_loads:
+            if node.there_are_prescribed_dofs and node.there_are_nodal_loads:
                 nodeAll.append(node_id)
 
-            elif node.there_is_prescribed_dofs:
+            elif node.there_are_prescribed_dofs:
                 nodeBC.append(node_id)
                 if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
                     colorBC = [1,1,1]
@@ -100,7 +100,7 @@ class RendererPoint(vtkRendererBase):
                     colorBC = [0,0,0]
                 self.changeColorPoints(nodeBC, colorBC)
 
-            elif node.there_is_nodal_loads:
+            elif node.there_are_nodal_loads:
                 nodeF.append(node_id)
                 colorF = [1,1,0]
                 self.changeColorPoints(nodeF, colorF)

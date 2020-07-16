@@ -205,13 +205,12 @@ class ProjectFile:
             offset_y, offset_z = self._get_offset_from_string(offset) 
 
             try:
-                if self.isFloat(diam_ext) and self.isFloat(thickness):
-                    diam_ext = float(diam_ext)
-                    thickness = float(thickness)
-                    offset_y = float(offset_y)
-                    offset_z = float(offset_z)
-                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
-                    dict_cross[int(entity)] = cross
+                diam_ext = float(diam_ext)
+                thickness = float(thickness)
+                offset_y = float(offset_y)
+                offset_z = float(offset_z)
+                cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
+                dict_cross[int(entity)] = cross
             except Exception:
                 print('Error - load cross-section parameters from file!')
                 return
@@ -353,8 +352,8 @@ class ProjectFile:
 
             if "radiation impedance" in keys:
                 radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
-                radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
-                dict_radiation_impedance[node_id] = radImpedance
+                # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
+                # dict_radiation_impedance[node_id] = radImpedance
 
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
 
@@ -396,8 +395,7 @@ class ProjectFile:
                         
                     except Exception:
                         error(message)
-                        # error(str(e), title="ERROR WHILE LOADING ACOUSTIC BOUNDARY CONDITIONS")
-                        
+                        # error(str(e), title="ERROR WHILE LOADING ACOUSTIC BOUNDARY CONDITIONS")              
         return output
 
     def _get_structural_bc_from_string(self, first, last):
@@ -443,7 +441,7 @@ class ProjectFile:
 
                 except Exception as e:
                     error(str(e), title="ERROR WHILE LOADING STRUCTURAL BOUNDARY CONDITIONS")
-                        
+    
         return output
 
 
@@ -476,13 +474,13 @@ class ProjectFile:
 
         return output
 
-    def _getRadiationImpedanceBCFromString(self, radiation_impedance):
-        radiation_impedance = radiation_impedance[1:-1].split(',')
-        value = 0
-        if len(radiation_impedance) == 1:
-            if radiation_impedance[0] != '0.0':
-                value = float(radiation_impedance[0])
-        return value
+    # def _getRadiationImpedanceBCFromString(self, radiation_impedance):
+    #     radiation_impedance = radiation_impedance[1:-1].split(',')
+    #     value = 0
+    #     if len(radiation_impedance) == 1:
+    #         if radiation_impedance[0] != '0.0':
+    #             value = float(radiation_impedance[0])
+    #     return value
     
     def _single_structural_excitation_bc(self, node_id, labels):
         if labels[0] == 'displacements' and labels[1] == 'rotations':
@@ -493,21 +491,18 @@ class ProjectFile:
 
     def _single_acoustic_excitation_bc(self, node_id, label):
         if label[0] == 'acoustic pressure':
-            # print("acoustic pressure input")
+            # print("acoustic pressure input for node {}".format(node_id))
             key_strings = ['volume velocity']
-            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
         elif label[0] == 'volume velocity':
-            # print("volume velocity input")
+            # print("volume velocity input for node {}".format(node_id))
             key_strings = ['acoustic pressure']
-            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+        remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
 
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
-
-        config = configparser.ConfigParser()
-        config.read(self._nodeStructuralPath)
         for node_id in nodesID_list:
+            config = configparser.ConfigParser()
+            config.read(self._nodeStructuralPath)
             if str(node_id) in config.sections():
-
                 if loaded_table:
                     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
                     config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
@@ -516,9 +511,7 @@ class ProjectFile:
                     config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
                 self.write_bc_in_file(self._nodeStructuralPath, config)
                 self._single_structural_excitation_bc([node_id], labels)
-
             else:
-
                 if loaded_table:
                     config[str(node_id)] =  {
                                             labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
@@ -531,92 +524,27 @@ class ProjectFile:
                                             }
                 self.write_bc_in_file(self._nodeStructuralPath, config)
 
-
-    def write_bc_in_file(self, path, config):
-        with open(path, 'w') as configfile:
-            config.write(configfile)
-
-    # # START OF ACOUSTIC METHODS
-
     def add_acoustic_bc_in_file(self, list_nodesID, value, loaded_table, table_name, label):
-        config = configparser.ConfigParser()
-        config.read(self._nodeAcousticPath)
         for node_id in list_nodesID:
+            config = configparser.ConfigParser()
+            config.read(self._nodeAcousticPath)
             if str(node_id) in config.sections():
-
                 if loaded_table:
                     config[str(node_id)][label[0]]  = "[{}]".format(table_name)
                 else:
                     config[str(node_id)][label[0]] = "[{}]".format(value)
-                
                 self.write_bc_in_file(self._nodeAcousticPath, config)
                 self._single_acoustic_excitation_bc([node_id], label)
-
             else:
-
                 if loaded_table:
                     config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
                 else:    
                     config[str(node_id)] = {label[0]: "[{}]".format(value)}
-
                 self.write_bc_in_file(self._nodeAcousticPath, config)
 
-    def addAcousticPressureBCInFile(self, nodes_id, pressure):
-        config = configparser.ConfigParser()
-        config.read(self._nodeAcousticPath)
-        for node_id in nodes_id:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['acoustic pressure'] = "[{}]".format(pressure)
-            else:
-                config[str(node_id)] = {
-                    'acoustic pressure': "[{}]".format(pressure)
-                }
-        with open(self._nodeAcousticPath, 'w') as configfile:
+    def write_bc_in_file(self, path, config):
+        with open(path, 'w') as configfile:
             config.write(configfile)
-
-    def addSpecificImpedanceBCInFile(self, nodes_id, specific_impedance):
-        config = configparser.ConfigParser()
-        config.read(self._nodeAcousticPath)
-        for node_id in nodes_id:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['specific impedance'] = "[{}]".format(specific_impedance)
-            else:
-                config[str(node_id)] = {
-                    'specific impedance': "[{}]".format(specific_impedance)
-                }
-        with open(self._nodeAcousticPath, 'w') as configfile:
-            config.write(configfile)
-
-    def addVolumeVelocityBCInFile(self, nodes_id, volume_velocity):
-        config = configparser.ConfigParser()
-        config.read(self._nodeAcousticPath)
-        for node_id in nodes_id:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['volume velocity'] = "[{}]".format(volume_velocity)
-            else:
-                config[str(node_id)] = {
-                    'volume velocity': "[{}]".format(volume_velocity)
-                }
-        with open(self._nodeAcousticPath, 'w') as configfile:
-            config.write(configfile)
-    
-    def addRadiationImpedanceBCInFile(self, nodes_id, radiation_impedance):
-        config = configparser.ConfigParser()
-        config.read(self._nodeAcousticPath)
-        for node_id in nodes_id:
-            if str(node_id) in config.sections():
-                config[str(node_id)]['radiation impedance'] = "[{}]".format(radiation_impedance)
-            else:
-                config[str(node_id)] = {
-                    'radiation impedance': "[{}]".format(radiation_impedance)
-                }
-        with open(self._nodeAcousticPath, 'w') as configfile:
-            config.write(configfile)
-
-
-
-
-
 
     def getImportType(self):
         return self._importType
@@ -640,10 +568,3 @@ class ProjectFile:
     @property
     def materialListPath(self):
         return self._materialListPath
-
-    def isFloat(self, number):
-        try:
-            float(number)
-            return True
-        except Exception:
-            return False
