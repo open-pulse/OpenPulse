@@ -202,22 +202,29 @@ class DOFInput(QDialog):
         else:
             _imag = None
         
-        if _real is None and _imag is None:
-            if label == "all dofs":
+        if label == 'all dofs':
+
+            if _real is None and _imag is None:
                 value = None
-                output = [value, value, value, value, value, value] 
+            elif _real is None:
+                value = 1j*_imag
+            elif _imag is None:
+                value = complex(_real)
             else:
-                output = None
-        elif _real is None:
-            output = 1j*_imag
-        elif _imag is None:
-            output = complex(_real)
-        else:
-            if label == "all dofs":
                 value = _real + 1j*_imag
-                output = [value, value, value, value, value, value] 
-            else:
+            output = [value, value, value, value, value, value] 
+
+        else:
+
+            if _real is None and _imag is None:
+                output = None
+            elif _real is None:
+                output = 1j*_imag
+            elif _imag is None:
+                output = complex(_real)
+            else:             
                 output = _real + 1j*_imag
+
         return output
 
     def check_single_values(self):
