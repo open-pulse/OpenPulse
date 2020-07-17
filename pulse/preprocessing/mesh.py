@@ -428,7 +428,8 @@ class Mesh:
             else:
                 node.there_are_prescribed_dofs = False
                 node.there_are_constrained_dofs = False
-                self.nodes_with_constrained_dofs.remove(node)
+                if node in self.nodes_with_constrained_dofs:
+                    self.nodes_with_constrained_dofs.remove(node)
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
@@ -470,12 +471,7 @@ class Mesh:
             node.acoustic_pressure = acoustic_pressure
             node.volume_velocity = None
             self.AcousticBCnodes.append(node)
-    
-    def load_acoustic_pressure_table(self, path, nodes):
-        load = np.loadtxt(path, delimiter=",")
-        acoustic_pressure = load[:,1] + 1j*load[:,2]
-        self.set_acoustic_pressure_bc_by_node(nodes, acoustic_pressure)
-    
+        
     def get_radius(self):
         for element in self.structural_elements.values():
             first = element.first_node.global_index
