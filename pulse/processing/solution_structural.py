@@ -10,12 +10,11 @@ class SolutionStructural:
 
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
         self.assembly = AssemblyStructural(mesh, frequencies, acoustic_solution=self.acoustic_solution)
+        self.mesh = mesh
         self.frequencies = frequencies
 
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
-        # self.Kadd_lump = self.K + self.K_lump
-        # self.Madd_lump = self.M + self.M_lump
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -25,6 +24,7 @@ class SolutionStructural:
         self.warning_Clump = ""
         self.warning_ModeSup_prescribedDOFs = ""
         self.warning_Modal_prescribedDOFs = ""
+        self.solution = None
 
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
@@ -252,73 +252,81 @@ class SolutionStructural:
             load_reactions = [lines=frequencies; columns=reactions_at_node]'''
 
         alphaH, betaH, alphaV, betaV = global_damping_values
-
-        if not self.solution==[]:    
+        load_reactions = {}
+        if self.solution is not None:    
 
             if self.Kr == [] or self.Mr == []:
-
-                Kr_U, Mr_U = 0, 0
+                return
 
             else:
 
-                U = self.solution
+                Ut = self.solution.T
                 Kr = self.Kr.toarray()
                 Mr = self.Mr.toarray()
-                rows, cols = len(self.frequencies), Kr.shape[1] 
-                            
-                load_reactions = np.zeros( (rows, cols+1), dtype=complex )
-                load_reactions[:,0] = self.frequencies
-                U_t = U.T
+                rows = len(self.frequencies)
 
-                Kr_U = U_t@Kr
-                Mr_U = U_t@Mr
+                Ut_Kr = Ut@Kr
+                Ut_Mr = Ut@Mr
             
             omega = 2*np.pi*self.frequencies
             omega = omega.reshape(rows,1)
-            F_K = Kr_U
-            F_M = -(omega**2)*Mr_U
-            F_C = 1j*(betaH + omega*betaV)*Kr_U + (alphaH + omega*alphaV)*Mr_U
-            load_reactions[:, 1:] = F_K + F_M + F_C
+            F_K = Ut_Kr
+            F_M = -(omega**2)*Ut_Mr
+            F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr)
+            _reactions = F_K + F_M + F_C
 
-        else:
-            load_reactions = []
-        return load_reactions
+            for i, prescribed_index in enumerate(self.prescribed_indexes):
+                load_reactions[prescribed_index] =  _reactions[:,i]
+            return load_reactions
 
-    def get_reaction_at_springs_and_dampers(self):
+    def get_reactions_at_springs_and_dampers(self):
 
-        if not self.solution==[]:
+        dict_reactions_at_springs = {}
+        dict_reactions_at_dampers = {}
+
+        if self.solution is not None: 
+
+            omega = 2*np.pi*self.frequencies
+            cols = len(self.frequencies)
 
             U = self.solution
-            cols = self.frequencies
 
             global_dofs_of_springs = []
             global_dofs_of_dampers = []
             springs_stiffness = []
             dampers_dampings = []
 
-            for node in self.assembly.nodes_with_lumped_stiffness:
+            for node in self.mesh.nodes_connected_to_springs:
                 global_dofs_of_springs.append(node.global_dof)
                 if node.loaded_table_for_lumped_stiffness:
                     springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_stiffness])
                 else:
                     springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in node.lumped_stiffness])
 
-            for node in self.assembly.nodes_with_lumped_dampings:
+            for node in self.mesh.nodes_connected_to_dampers:
                 global_dofs_of_dampers.append(node.global_dof)
                 if node.loaded_table_for_lumped_dampings:
                     dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_dampings])
                 else:
                     dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in node.lumped_dampings])
 
-            global_dofs_of_springs = np.array(global_dofs_of_springs).flatten()
-            global_dofs_of_dampers = np.array(global_dofs_of_dampers).flatten()
-            springs_stiffness = np.array(springs_stiffness).reshape(-1,cols)
-            dampers_dampings = np.array(dampers_dampings).reshape(-1,cols)
+            if springs_stiffness != []:
+                global_dofs_of_springs = np.array(global_dofs_of_springs).flatten()
+                springs_stiffness = np.array(springs_stiffness).reshape(-1,cols)
+                reactions_at_springs = springs_stiffness*U[global_dofs_of_springs,:]
 
-            reactions_at_springs = springs_stiffness*U[global_dofs_of_springs,:]
-            reactions_at_dampers = dampers_dampings*U[global_dofs_of_dampers,:]
+                for i, gdof in enumerate(global_dofs_of_springs):
+                    dict_reactions_at_springs[gdof] = reactions_at_springs[i,:]
 
-            return reactions_at_springs, reactions_at_dampers
+            if dampers_dampings != []:
+                global_dofs_of_dampers = np.array(global_dofs_of_dampers).flatten()
+                dampers_dampings = np.array(dampers_dampings).reshape(-1,cols)
+                reactions_at_dampers = (1j*omega)*dampers_dampings*U[global_dofs_of_dampers,:]
+            
+                for i, gdof in enumerate(global_dofs_of_dampers):
+                    dict_reactions_at_dampers[gdof] = reactions_at_dampers[i,:]
+
+            return dict_reactions_at_springs, dict_reactions_at_dampers
 
                   
 

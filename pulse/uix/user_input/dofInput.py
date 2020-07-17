@@ -13,7 +13,7 @@ import configparser
 from shutil import copyfile
 
 class DOFInput(QDialog):
-    def __init__(self, project, list_node_ids, transform_points, *args, **kwargs):
+    def __init__(self, project, list_node_ids, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/dofInput.ui', self)
 
@@ -22,7 +22,9 @@ class DOFInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
-        self.transform_points = transform_points
+        self.transform_points = opv.transformPoints
+        self.opv = opv
+
         self.project_file_path = project.project_file_path
         self.structural_bc_info_path = project.file._nodeStructuralPath
 

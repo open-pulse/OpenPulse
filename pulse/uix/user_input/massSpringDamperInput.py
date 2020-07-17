@@ -174,9 +174,6 @@ class MassSpringDamperInput(QDialog):
         self.checkBox_remove_mass = self.findChild(QCheckBox, 'checkBox_remove_mass')
         self.checkBox_remove_spring = self.findChild(QCheckBox, 'checkBox_remove_spring')
         self.checkBox_remove_damper = self.findChild(QCheckBox, 'checkBox_remove_damper')
-        self.remove_mass = self.checkBox_remove_mass.isChecked()
-        self.remove_spring = self.checkBox_remove_spring.isChecked()
-        self.remove_damper = self.checkBox_remove_damper.isChecked()
 
         self.tabWidget_external_elements = self.findChild(QTabWidget, "tabWidget_external_elements")
         self.tab_single_values = self.tabWidget_external_elements.findChild(QWidget, "tab_single_values")
@@ -196,9 +193,9 @@ class MassSpringDamperInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_nodal_loads.currentIndex()==0:
+            if self.tabWidget_external_elements.currentIndex()==0:
                 self.check_all_single_values_inputs()
-            elif self.tabWidget_nodal_loads.currentIndex()==1:
+            elif self.tabWidget_external_elements.currentIndex()==1:
                 self.check_all_table_values_inputs()
         elif event.key() == Qt.Key_Escape:
             self.close()
@@ -343,7 +340,7 @@ class MassSpringDamperInput(QDialog):
             return
 
         lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]
-        
+         
         if lumped_dampings.count(None) != 6:
             self.flag_lumped_dampings = True
             self.lumped_dampings = lumped_dampings
@@ -406,7 +403,7 @@ class MassSpringDamperInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.imported_table = True
-                # verify the data type for processing
+               
                 real_values = np.real(self.imported_values)
                 imag_values = np.imag(self.imported_values)
                 abs_values = np.imag(self.imported_values)
@@ -619,6 +616,10 @@ class MassSpringDamperInput(QDialog):
         self.close()      
 
     def check_remove_bc_from_node(self):
+
+        self.remove_mass = self.checkBox_remove_mass.isChecked()
+        self.remove_spring = self.checkBox_remove_spring.isChecked()
+        self.remove_damper = self.checkBox_remove_damper.isChecked()
 
         if self.check_input_nodes():
             return

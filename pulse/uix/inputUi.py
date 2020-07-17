@@ -136,7 +136,7 @@ class InputUi:
 
     def setDOF(self):
         point_id = self.opv.getListPickedPoints()
-        read = DOFInput(self.project, point_id, self.opv.transformPoints)
+        read = DOFInput(self.project, point_id, self.opv)
         if read.prescribed_dofs is None:
             return
         if read.imported_table:
@@ -145,7 +145,7 @@ class InputUi:
 
     def setNodalLoads(self):
         point_id = self.opv.getListPickedPoints()
-        read = LoadsInput(self.project, point_id, self.opv.transformPoints)
+        read = LoadsInput(self.project, point_id, self.opv)
         if read.loads is None:
             return
         if read.imported_table:
@@ -319,8 +319,9 @@ class InputUi:
         if self.analysis_ID in [0,1,3,5,6]:
             if len(self.frequencies) == 0:
                 return          
-        # Temporary: breaking code execution to avoid errors in interface usage
+        
         if self.analysis_ID == 4:
+            # Temporary: breaking code execution to avoid errors in interface usage
             error("The Acoustic Modal Analysis is under development \nand, therefore, it is not currently available.", title=" WARNING ")
             return
 
@@ -346,34 +347,35 @@ class InputUi:
 
         if self.analysis_ID == 2:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [])
-            if solution.solution is None:
+            if solution.solution_structural is None:
                 return
-            self.project.set_structural_solution(solution.solution)
+            self.project.set_structural_solution(solution.solution_structural)
             self.project.set_structural_natural_frequencies(solution.natural_frequencies_structural.tolist())
 
         elif self.analysis_ID == 4:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [])
-            if solution.solution is None:
+            if solution.solution_acoustic is None:
                 return
-            self.project.set_acoustic_solution(solution.solution)
+            self.project.set_acoustic_solution(solution.solution_acoustic)
             self.project.set_acoustic_natural_frequencies(solution.natural_frequencies_acoustic.tolist())
 
         elif self.analysis_ID == 3:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [])
-            if solution.solution is None:
+            if solution.solution_acoustic is None:
                 return
-            self.project.set_acoustic_solution(solution.solution)
+            self.project.set_acoustic_solution(solution.solution_acoustic)
         elif self.analysis_ID in [5,6]:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, project=self.project)
-            # if solution.solution_structural is None:
-            #     return
+            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
-
         else:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping)
-            if solution.solution is None:
+            if solution.solution_structural is None:
                 return
-            self.project.set_structural_solution(solution.solution)
+            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
+            self.project.set_structural_solution(solution.solution_structural)
  
     def plotStructuralModeShapes(self):
         self.project.plot_pressure_field = False
@@ -454,12 +456,11 @@ class InputUi:
         pass
 
     def plot_reactions(self):
-        # under development
-        return
+
         if self.analysis_ID in [0,1,5,6]:
-            solution = self.project.get_structural_solution()
-            solve = self.project.get_structural_solve()
-            PlotReactionsInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, solve)
+            reactions = [self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers]
+            # print(len(reactions[0]), len(reactions[1]), len(reactions[2]))
+            PlotReactionsInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, reactions)
             return
 
     def _check_is_there_a_problem(self):

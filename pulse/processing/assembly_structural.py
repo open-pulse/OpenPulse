@@ -16,9 +16,10 @@ class AssemblyStructural:
     def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-            dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
-            global_prescribed.extend(dofs)
+            if node.there_are_prescribed_dofs:
+                starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
+                dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
+                global_prescribed.extend(dofs)
         return global_prescribed
 
     def get_prescribed_values(self):
@@ -74,9 +75,9 @@ class AssemblyStructural:
         ind_Klump = []
         ind_Clump = []
 
-        self.nodes_with_lumped_stiffness = []
         self.nodes_with_lumped_masses = []
-        self.nodes_with_lumped_dampings = []
+        self.nodes_connected_to_springs = []
+        self.nodes_connected_to_dampers = []
 
         flag_Clump = False
 
@@ -87,7 +88,7 @@ class AssemblyStructural:
             if node.there_are_lumped_stiffness:
                 position = node.global_dof
                 # data_Klump.append(node.lumped_stiffness)
-                self.nodes_with_lumped_stiffness.append(node)
+                self.nodes_connected_to_springs.append(node)
                 list_Klump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
                 ind_Klump.append(position)
             # processing mass added
@@ -102,7 +103,7 @@ class AssemblyStructural:
             # processing damper added
             if node.there_are_lumped_dampings:
                 position = node.global_dof
-                self.nodes_with_lumped_dampings.append(node)
+                self.nodes_connected_to_dampers.append(node)
                 # data_Clump.append(node.lumped_dampings)
                 list_Clump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
                 ind_Clump.append(position)

@@ -355,11 +355,11 @@ class Project:
     def load_mass_by_node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
 
-    def load_spring_by_node(self, node_id, spring):
-        self.mesh.add_spring_to_node(node_id, spring)
+    def load_spring_by_node(self, node_id, stiffness):
+        self.mesh.add_spring_to_node(node_id, stiffness)
 
-    def load_damper_by_node(self, node_id, damper):
-        self.mesh.add_damper_to_node(node_id, damper)
+    def load_damper_by_node(self, node_id, dampings):
+        self.mesh.add_damper_to_node(node_id, dampings)
 
     def get_nodes_bc(self):
         return self.mesh.structural_nodes_with_bc

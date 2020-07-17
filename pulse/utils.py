@@ -25,7 +25,6 @@ def slicer(iterable, argument):
         yield iterable[argument]
     
     elif hasattr(argument, '__iter__'):
-        # print("entrada 3")
         for i in argument:
             yield iterable[i]
             
@@ -66,24 +65,22 @@ def remove_bc_from_file(nodes_typed, path, key_strings, message):
 
     try:
         bc_removed = False
-
         _bc_list = configparser.ConfigParser()
         _bc_list.read(path)
 
         for node in nodes_typed:    
             node_id = str(node)
 
-            if not node_id in _bc_list.sections():
-                return
+            if node_id in _bc_list.sections():
+                keys = list(_bc_list[node_id].keys())
+                for str_key in key_strings:
+                    if str_key in keys:
+                        # print("delete {} at node {}".format(str_key, node_id))
+                        _bc_list.remove_option(section=node_id, option=str_key)
+                        if list(_bc_list[node_id].keys())==[]:
+                            _bc_list.remove_section(node_id)
+                        bc_removed = True
 
-            keys = list(_bc_list[node_id].keys())
-            for str_key in key_strings:
-                if str_key in keys:
-                    # print("delete {} at node {}".format(str_key, node_id))
-                    _bc_list.remove_option(section=node_id, option=str_key)
-                    if list(_bc_list[node_id].keys())==[]:
-                        _bc_list.remove_section(node_id)
-                    bc_removed = True
         with open(path, 'w') as configfile:
             _bc_list.write(configfile)
 

@@ -22,6 +22,8 @@ class Node:
         self.prescribed_dofs_bc = [None, None, None, None, None, None]
         self.there_are_prescribed_dofs = False
         self.loaded_table_for_prescribed_dofs = False
+        self.there_are_constrained_dofs = False
+        # self.constrained_dofs_mask = [False, False, False, False, False, False]
         
         self.lumped_masses = [None, None, None, None, None, None]
         self.there_are_lumped_masses = False
@@ -34,10 +36,6 @@ class Node:
         self.lumped_dampings = [None, None, None, None, None, None]
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
-
-        # self.mass   = [0,0,0,0,0,0]
-        # self.spring = [0,0,0,0,0,0]
-        # self.damper = [0,0,0,0,0,0]
 
         # Acoustic boundary conditions
 
