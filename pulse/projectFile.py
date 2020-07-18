@@ -485,18 +485,18 @@ class ProjectFile:
     def _single_structural_excitation_bc(self, node_id, labels):
         if labels[0] == 'displacements' and labels[1] == 'rotations':
             key_strings = ['forces', 'moments']
+            remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
         elif labels[0] == 'forces' and labels[1] == 'moments':
             key_strings = ['displacements', 'rotations']
-        remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
+            remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
 
     def _single_acoustic_excitation_bc(self, node_id, label):
         if label[0] == 'acoustic pressure':
-            # print("acoustic pressure input for node {}".format(node_id))
             key_strings = ['volume velocity']
+            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
         elif label[0] == 'volume velocity':
-            # print("volume velocity input for node {}".format(node_id))
             key_strings = ['acoustic pressure']
-        remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
 
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
         for node_id in nodesID_list:

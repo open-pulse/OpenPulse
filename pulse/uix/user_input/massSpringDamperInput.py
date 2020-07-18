@@ -387,16 +387,17 @@ class MassSpringDamperInput(QDialog):
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+            print(imported_file.shape)
         except Exception as e:
             error(str(e))
-
+            
         if imported_file.shape[1]<2:
             error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies and values columns.")
             return
     
         try:
             self.imported_values = imported_file[:,1]
-            if imported_file.shape[1]==2:
+            if imported_file.shape[1]>=2:
 
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
@@ -404,10 +405,8 @@ class MassSpringDamperInput(QDialog):
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.imported_table = True
                
-                real_values = np.real(self.imported_values)
-                imag_values = np.imag(self.imported_values)
-                abs_values = np.imag(self.imported_values)
-                data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
+                _values = self.imported_values
+                data = np.array([self.frequencies, _values, np.zeros_like(self.frequencies)]).T
                 np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
         except Exception as e:
@@ -452,15 +451,15 @@ class MassSpringDamperInput(QDialog):
         self.Kz_table, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header)
 
     def load_Krx_table(self):
-        header = "Krx || Frequency [Hz], value[N/rad]"
+        header = "Krx || Frequency [Hz], value[N.m/rad]"
         self.Krx_table, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header)
 
     def load_Kry_table(self):
-        header = "Kry || Frequency [Hz], value[N/rad]"
+        header = "Kry || Frequency [Hz], value[N.m/rad]"
         self.Kry_table, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header)
 
     def load_Krz_table(self):
-        header = "Krz || Frequency [Hz], value[N/rad]"
+        header = "Krz || Frequency [Hz], value[N.m/rad]"
         self.Krz_table, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header)
 
     def load_Cx_table(self):
@@ -476,15 +475,15 @@ class MassSpringDamperInput(QDialog):
         self.Cz_table, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header)
 
     def load_Crx_table(self):
-        header = "Crx || Frequency [Hz], value[N.s/rad]"
+        header = "Crx || Frequency [Hz], value[N.m/rad/s]"
         self.Crx_table, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header)
 
     def load_Cry_table(self):
-        header = "Cry || Frequency [Hz], value[N.s/rad]"
+        header = "Cry || Frequency [Hz], value[N.m/rad/s]"
         self.Cry_table, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header)
 
     def load_Crz_table(self):
-        header = "Crz || Frequency [Hz], value[N.s/rad]"
+        header = "Crz || Frequency [Hz], value[N.m/rad/s]"
         self.Crz_table, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header)
       
     def check_table_values_lumped_masses(self):

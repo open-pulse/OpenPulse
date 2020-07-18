@@ -241,12 +241,14 @@ class PlotReactionsInput(QDialog):
     def load_nodes_info(self):
         
         for node in self.mesh.nodes_connected_to_springs:
-            lumped_stiffness_mask = np.array(node.lumped_stiffness) != None
+            lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
+            # lumped_stiffness_mask = np.array(node.lumped_stiffness) != None
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask))])
             self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
         for node in self.mesh.nodes_connected_to_dampers:
-            lumped_dampings_mask = np.array(node.lumped_dampings) != None
+            lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
+            # lumped_dampings_mask = np.array(node.lumped_dampings) != None
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask))])
             self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
 
@@ -409,18 +411,21 @@ class PlotReactionsInput(QDialog):
 
         node = self.mesh.nodes[int(node_id)]
         if self.tabWidget_reactions.currentIndex()==0:
-            mask = np.array(node.prescribed_dofs_bc) == complex(0)
+            mask = [False if bc is None else True for bc in node.prescribed_dofs_bc]
+            # mask = np.array(node.prescribed_dofs_bc) == complex(0)
             self.reactions = self.dict_reactions_at_constrained_dofs
             self.damper = False
 
         elif self.tabWidget_reactions.currentIndex()==1:
             if self.tabWidget_springs_dampers.currentIndex()==0:
-                mask = np.array(node.lumped_stiffness) != None
+                mask = [False if bc is None else True for bc in node.lumped_stiffness]
+                # mask = np.array(node.lumped_stiffness) != None
                 self.reactions = self.dict_reactions_at_springs
                 self.damper = False
 
             elif self.tabWidget_springs_dampers.currentIndex()==1:
-                mask = np.array(node.lumped_dampings) != None
+                mask = [False if bc is None else True for bc in node.lumped_dampings]
+                # mask = np.array(node.lumped_dampings) != None
                 self.reactions = self.dict_reactions_at_dampers
                 self.damper = True
 
