@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>391</width>
-    <height>278</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>391</width>
-    <height>278</height>
+    <height>350</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>391</width>
-    <height>278</height>
+    <height>350</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>391</width>
-     <height>281</height>
+     <height>349</height>
     </rect>
    </property>
    <property name="font">
@@ -80,7 +80,7 @@
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>10</y>
+       <y>12</y>
        <width>371</width>
        <height>16</height>
       </rect>
@@ -95,7 +95,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Insert values for Acoustic Pressure:</string>
+      <string>Acoustic pressure boundary condition setup</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -111,7 +111,7 @@
       <x>0</x>
       <y>40</y>
       <width>391</width>
-      <height>237</height>
+      <height>309</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -157,19 +157,19 @@
        <x>10</x>
        <y>58</y>
        <width>371</width>
-       <height>160</height>
+       <height>227</height>
       </rect>
      </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>160</height>
+       <height>227</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>160</height>
+       <height>227</height>
       </size>
      </property>
      <property name="font">
@@ -192,7 +192,7 @@
        <property name="geometry">
         <rect>
          <x>14</x>
-         <y>14</y>
+         <y>62</y>
          <width>344</width>
          <height>61</height>
         </rect>
@@ -426,7 +426,7 @@
        <property name="geometry">
         <rect>
          <x>98</x>
-         <y>90</y>
+         <y>146</y>
          <width>171</width>
          <height>27</height>
         </rect>
@@ -444,6 +444,37 @@
         <string>Confirm</string>
        </property>
       </widget>
+      <widget class="QLabel" name="label_20">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>48</x>
+         <y>16</y>
+         <width>293</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Insert a value for the acoustic pressure:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tab_table_values">
       <attribute name="title">
@@ -456,7 +487,7 @@
        <property name="geometry">
         <rect>
          <x>300</x>
-         <y>44</y>
+         <y>88</y>
          <width>57</width>
          <height>25</height>
         </rect>
@@ -493,7 +524,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>46</y>
+         <y>90</y>
          <width>287</width>
          <height>22</height>
         </rect>
@@ -515,7 +546,7 @@
        <property name="geometry">
         <rect>
          <x>98</x>
-         <y>90</y>
+         <y>138</y>
          <width>171</width>
          <height>27</height>
         </rect>
@@ -539,10 +570,10 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>44</x>
-         <y>14</y>
+         <x>36</x>
+         <y>30</y>
          <width>293</width>
-         <height>19</height>
+         <height>27</height>
         </rect>
        </property>
        <property name="font">
@@ -554,8 +585,119 @@
          <bold>true</bold>
         </font>
        </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
        <property name="text">
-        <string>Select a table of values to be imported</string>
+        <string>Select a table of values to be imported:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Remove</string>
+      </attribute>
+      <widget class="QTreeWidget" name="treeWidget_acoustic_pressure">
+       <property name="geometry">
+        <rect>
+         <x>46</x>
+         <y>40</y>
+         <width>280</width>
+         <height>120</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>280</width>
+         <height>120</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>280</width>
+         <height>120</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <italic>true</italic>
+        </font>
+       </property>
+       <column>
+        <property name="text">
+         <string>Nodes</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Values</string>
+        </property>
+       </column>
+      </widget>
+      <widget class="QPushButton" name="pushButton_remove_bc_confirm_2">
+       <property name="geometry">
+        <rect>
+         <x>148</x>
+         <y>166</y>
+         <width>75</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>27</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_29">
+       <property name="geometry">
+        <rect>
+         <x>34</x>
+         <y>8</y>
+         <width>305</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Select a node to remove the acoustic presure:</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

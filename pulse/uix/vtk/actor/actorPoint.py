@@ -35,10 +35,10 @@ class ActorPoint(vtkActorBase):
         if self.node.there_are_prescribed_dofs and self.node.there_are_nodal_loads:
             self.color = [0,1,0]
         elif self.node.there_are_prescribed_dofs:
-            if True in [True if value is not None else False for value in self.node.prescribed_dofs_bc]:
-                if True in [True if isinstance(value, np.ndarray) else False for value in self.node.prescribed_dofs_bc]:
+            if True in [True if value is not None else False for value in self.node.prescribed_dofs]:
+                if True in [True if isinstance(value, np.ndarray) else False for value in self.node.prescribed_dofs]:
                     self.color = [1,1,1]
-                elif sum([value if value is not None else complex(0) for value in self.node.prescribed_dofs_bc]) != complex(0):
+                elif sum([value if value is not None else complex(0) for value in self.node.prescribed_dofs]) != complex(0):
                     self.color = [1,1,1]
                 else:
                     self.color = [0,0,0]

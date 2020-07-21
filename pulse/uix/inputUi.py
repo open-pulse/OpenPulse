@@ -38,6 +38,7 @@ class InputUi:
         self.f_min = 0
         self.f_max = 0
         self.f_step = 0
+        self.frequencies = None
 
         self.acoustic_pressure_frequencies = None
         self.volume_velocity_frequencies = None 
@@ -317,6 +318,8 @@ class InputUi:
             return
         self.project.load_mapped_cross_section()
         if self.analysis_ID in [0,1,3,5,6]:
+            if self.frequencies is None:
+                return
             if len(self.frequencies) == 0:
                 return          
         

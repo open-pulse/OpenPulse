@@ -362,7 +362,7 @@ class Project:
         self.mesh.add_damper_to_node(node_id, dampings)
 
     def get_nodes_bc(self):
-        return self.mesh.structural_nodes_with_bc
+        return self.mesh.nodes_with_prescribed_dofs
 
     def get_elements(self):
         return self.mesh.structural_elements
@@ -407,7 +407,7 @@ class Project:
             entity.element_type = element_type
 
     def get_nodes_with_prescribed_dofs_bc(self):
-        return self.mesh.structural_nodes_with_bc
+        return self.mesh.nodes_with_prescribed_dofs
 
     def get_structural_elements(self):
         return self.mesh.structural_elements

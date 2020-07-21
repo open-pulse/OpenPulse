@@ -114,6 +114,12 @@ class DOFInput(QDialog):
         self.tab_single_values = self.tabWidget_prescribed_dofs.findChild(QWidget, "tab_single_values")
         self.tab_table = self.tabWidget_prescribed_dofs.findChild(QWidget, "tab_table_values")
 
+        self.treeWidget_prescribed_dofs = self.findChild(QTreeWidget, 'treeWidget_prescribed_dofs')
+        self.treeWidget_prescribed_dofs.setColumnWidth(1, 20)
+        self.treeWidget_prescribed_dofs.setColumnWidth(2, 80)
+        self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
+
         self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
         self.pushButton_single_value_confirm.clicked.connect(self.check_single_values)
 
@@ -126,7 +132,11 @@ class DOFInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
+        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
+        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
+
         self.writeNodes(list_node_ids)
+        self.load_nodes_info()
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -393,8 +403,40 @@ class DOFInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.close()
 
-    def check_remove_bc_from_node(self):
+    def text_label(self, mask):
+        
+        text = ""
+        load_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
+        temp = load_labels[mask]
 
+        if list(mask).count(True) == 6:
+            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+        elif list(mask).count(True) == 5:
+            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+        elif list(mask).count(True) == 4:
+            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+        elif list(mask).count(True) == 3:
+            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+        elif list(mask).count(True) == 2:
+            text = "[{}, {}]".format(temp[0], temp[1])
+        elif list(mask).count(True) == 1:
+            text = "[{}]".format(temp[0])
+        return text
+
+    def load_nodes_info(self):
+        for node in self.project.mesh.nodes_with_prescribed_dofs:
+            constrained_dofs_mask = [False if bc is None else True for bc in node.prescribed_dofs]
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
+            self.treeWidget_prescribed_dofs.addTopLevelItem(new)
+
+    def on_click_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+
+    def on_doubleclick_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+        self.check_remove_bc_from_node()
+
+    def check_remove_bc_from_node(self):
         self.check_input_nodes()
         key_strings = ["displacements", "rotations"]
         message = "The prescribed dof(s) value(s) attributed to the {} node(s) have been removed.".format(self.nodes_typed)

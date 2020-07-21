@@ -92,9 +92,9 @@ class RendererPoint(vtkRendererBase):
 
             elif node.there_are_prescribed_dofs:
                 nodeBC.append(node_id)
-                if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
+                if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
                     colorBC = [1,1,1]
-                elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs_bc]) != complex(0):
+                elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
                     colorBC = [1,1,1]
                 else:
                     colorBC = [0,0,0]

@@ -22,13 +22,17 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.entities = []
-        self.structural_nodes_with_bc = []
         self.AcousticBCnodes = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
+        self.nodes_with_nodal_loads = []
+        self.nodes_with_prescribed_dofs = []
         self.nodes_with_constrained_dofs = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
+        self.nodes_with_acoustic_pressure = []
+        self.nodes_with_volume_velocity = []
+        self.nodes_with_specific_impedance = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -316,30 +320,33 @@ class Mesh:
             element.loaded_forces = loads
     
     def set_structural_load_bc_by_node(self, nodes_id, values):
-        # print("nodes:", nodes_id, values)
         for node in slicer(self.nodes, nodes_id):
             node.loads = values
-
+            node.prescribed_dofs = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
                 node.loaded_table_for_nodal_loads = True
                 node.there_are_nodal_loads = True
+                if not node in self.nodes_with_nodal_loads:
+                    self.nodes_with_nodal_loads.append(node)
                 return
             else:
                 node.loaded_table_for_nodal_loads = False
-
             # Checking complex single values    
             check_values = [isinstance(bc, complex) for bc in values]
             if True in check_values:
                 node.there_are_nodal_loads = True
+                if not node in self.nodes_with_nodal_loads:
+                    self.nodes_with_nodal_loads.append(node)
             else:
                 node.there_are_nodal_loads = False
+                if node in self.nodes_with_nodal_loads:
+                    self.nodes_with_nodal_loads.remove(node)
 
     def add_mass_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
-
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -348,7 +355,6 @@ class Mesh:
                 return
             else:
                 node.loaded_table_for_lumped_masses = False
-
             # Checking complex single values    
             check_values = [False if bc is None else True for bc in values]
             if True in check_values:
@@ -359,22 +365,22 @@ class Mesh:
     def add_spring_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
-
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
                 node.loaded_table_for_lumped_stiffness = True
                 node.there_are_lumped_stiffness = True
-                self.nodes_connected_to_springs.append(node)
+                if not node in self.nodes_connected_to_springs:
+                    self.nodes_connected_to_springs.append(node)
                 return
             else:
                 node.loaded_table_for_lumped_stiffness = False
-
             # Checking complex single values    
             check_values = [False if bc is None else True for bc in values]
             if True in check_values:
                 node.there_are_lumped_stiffness = True
-                self.nodes_connected_to_springs.append(node)
+                if not node in self.nodes_connected_to_springs:
+                    self.nodes_connected_to_springs.append(node)
             else:
                 node.there_are_lumped_stiffness = False
                 if node in self.nodes_connected_to_springs:
@@ -383,22 +389,22 @@ class Mesh:
     def add_damper_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
-
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
                 node.loaded_table_for_lumped_dampings = True
                 node.there_are_lumped_dampings = True
-                self.nodes_connected_to_dampers.append(node)
+                if not node in self.nodes_connected_to_dampers:
+                    self.nodes_connected_to_dampers.append(node)
                 return
             else:
                 node.loaded_table_for_lumped_dampings = False
-
             # Checking complex single values    
             check_values = [False if bc is None else True for bc in values]
             if True in check_values:
                 node.there_are_lumped_dampings = True
-                self.nodes_connected_to_dampers.append(node)
+                if not node in self.nodes_connected_to_dampers:
+                    self.nodes_connected_to_dampers.append(node)
             else:
                 node.there_are_lumped_dampings = False
                 if node in self.nodes_connected_to_dampers:
@@ -406,30 +412,37 @@ class Mesh:
 
     def set_prescribed_dofs_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.prescribed_dofs_bc = values
-            self.structural_nodes_with_bc.append(node)
-
+            node.prescribed_dofs = values
+            node.loads = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
                 node.loaded_table_for_prescribed_dofs = True
                 node.there_are_prescribed_dofs = True
+                if not node in self.nodes_with_constrained_dofs:
+                    self.nodes_with_constrained_dofs.append(node)
+                if not node in self.nodes_with_prescribed_dofs:
+                    self.nodes_with_prescribed_dofs.append(node)
                 return
             else:
                 node.loaded_table_for_prescribed_dofs = False
-
             # Checking complex single values    
             check_values = [isinstance(bc, complex) for bc in values]
             if True in check_values:
                 node.there_are_prescribed_dofs = True
                 if complex(0) in values:
                     node.there_are_constrained_dofs = True
-                    self.nodes_with_constrained_dofs.append(node)                     
+                    if not node in self.nodes_with_constrained_dofs:
+                        self.nodes_with_constrained_dofs.append(node)
+                if not node in self.nodes_with_prescribed_dofs:
+                    self.nodes_with_prescribed_dofs.append(node)              
             else:
                 node.there_are_prescribed_dofs = False
                 node.there_are_constrained_dofs = False
                 if node in self.nodes_with_constrained_dofs:
                     self.nodes_with_constrained_dofs.remove(node)
+                if node in self.nodes_with_prescribed_dofs:
+                    self.nodes_with_prescribed_dofs.remove(node) 
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
@@ -452,26 +465,41 @@ class Mesh:
     def set_fluid_by_line(self, lines, fluid):
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
-    
-    def set_volume_velocity_bc_by_node(self, nodes, volume_velocity):
+
+    def set_acoustic_pressure_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
-            node.volume_velocity = volume_velocity
+            node.acoustic_pressure = values
+            node.volume_velocity = None
+            self.AcousticBCnodes.append(node)
+            if not node in self.nodes_with_acoustic_pressure:
+                self.nodes_with_acoustic_pressure.append(node)
+            if values is None:
+                if node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.remove(node)
+
+    def set_volume_velocity_bc_by_node(self, nodes, values):
+        for node in slicer(self.nodes, nodes):
+            node.volume_velocity = values
             node.acoustic_pressure = None
+            if not node in self.nodes_with_volume_velocity:
+                self.nodes_with_volume_velocity.append(node)
+            if values is None:
+                if node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.remove(node)
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.specific_impedance = values
-    
+            if not node in self.nodes_with_specific_impedance:
+                self.nodes_with_specific_impedance.append(node)
+            if values is None:
+                if node in self.nodes_with_specific_impedance:
+                    self.nodes_with_specific_impedance.remove(node)
+                    
     def set_radiation_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.radiation_impedance = values
 
-    def set_acoustic_pressure_bc_by_node(self, nodes, acoustic_pressure):
-        for node in slicer(self.nodes, nodes):
-            node.acoustic_pressure = acoustic_pressure
-            node.volume_velocity = None
-            self.AcousticBCnodes.append(node)
-        
     def get_radius(self):
         for element in self.structural_elements.values():
             first = element.first_node.global_index
@@ -538,11 +566,11 @@ class Mesh:
                     return
 
                 if node.there_are_prescribed_dofs:
-                    if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
+                    if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
                         self.is_there_prescribed_dofs = True
                         return
 
-                    elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs_bc]) != complex(0):
+                    elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
                         self.is_there_prescribed_dofs = True
                         return
 

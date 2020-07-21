@@ -90,6 +90,12 @@ class LoadsInput(QDialog):
         self.tab_single_values = self.tabWidget_nodal_loads.findChild(QWidget, "tab_single_values")
         self.tab_table = self.tabWidget_nodal_loads.findChild(QWidget, "tab_table")
 
+        self.treeWidget_nodal_loads = self.findChild(QTreeWidget, 'treeWidget_nodal_loads')
+        self.treeWidget_nodal_loads.setColumnWidth(1, 20)
+        self.treeWidget_nodal_loads.setColumnWidth(2, 80)
+        self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
+        self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_doubleclick_item)
+
         self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
         self.pushButton_single_value_confirm.clicked.connect(self.check_single_values)
 
@@ -100,6 +106,7 @@ class LoadsInput(QDialog):
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
         self.writeNodes(list_node_ids)
+        self.load_nodes_info()
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -317,3 +324,36 @@ class LoadsInput(QDialog):
         self.project.mesh.set_structural_load_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
         self.transform_points(self.nodes_typed)
         self.close()
+
+    def text_label(self, mask):
+        
+        text = ""
+        load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
+        temp = load_labels[mask]
+
+        if list(mask).count(True) == 6:
+            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+        elif list(mask).count(True) == 5:
+            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+        elif list(mask).count(True) == 4:
+            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+        elif list(mask).count(True) == 3:
+            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+        elif list(mask).count(True) == 2:
+            text = "[{}, {}]".format(temp[0], temp[1])
+        elif list(mask).count(True) == 1:
+            text = "[{}]".format(temp[0])
+        return text
+
+    def load_nodes_info(self):
+        for node in self.project.mesh.nodes_with_nodal_loads:
+            nodal_loads_mask = [False if bc is None else True for bc in node.loads]
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask))])
+            self.treeWidget_nodal_loads.addTopLevelItem(new)
+
+    def on_click_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+
+    def on_doubleclick_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+        self.check_remove_bc_from_node()

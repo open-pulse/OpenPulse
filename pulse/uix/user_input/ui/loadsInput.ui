@@ -1568,6 +1568,114 @@
        </property>
       </widget>
      </widget>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Remove</string>
+      </attribute>
+      <widget class="QPushButton" name="pushButton_remove_bc_confirm_2">
+       <property name="geometry">
+        <rect>
+         <x>146</x>
+         <y>254</y>
+         <width>75</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>27</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_29">
+       <property name="geometry">
+        <rect>
+         <x>32</x>
+         <y>20</y>
+         <width>305</width>
+         <height>27</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Select a node to remove the nodal loads:</string>
+       </property>
+       <property name="textFormat">
+        <enum>Qt::AutoText</enum>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QTreeWidget" name="treeWidget_nodal_loads">
+       <property name="geometry">
+        <rect>
+         <x>44</x>
+         <y>70</y>
+         <width>280</width>
+         <height>170</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>280</width>
+         <height>170</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>280</width>
+         <height>170</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <italic>true</italic>
+        </font>
+       </property>
+       <column>
+        <property name="text">
+         <string>Nodes</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>Loads</string>
+        </property>
+       </column>
+      </widget>
+     </widget>
     </widget>
     <widget class="QPushButton" name="pushButton_remove_bc_confirm">
      <property name="geometry">

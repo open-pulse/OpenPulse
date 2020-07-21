@@ -13,17 +13,15 @@ class Node:
         self.y = y
         self.z = z
 
-        # Structural boundary conditions
-        
+        # Structural boundary conditions 
         self.loads = [None, None, None, None, None, None]
         self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
         
-        self.prescribed_dofs_bc = [None, None, None, None, None, None]
+        self.prescribed_dofs = [None, None, None, None, None, None]
         self.there_are_prescribed_dofs = False
         self.loaded_table_for_prescribed_dofs = False
         self.there_are_constrained_dofs = False
-        # self.constrained_dofs_mask = [False, False, False, False, False, False]
         
         self.lumped_masses = [None, None, None, None, None, None]
         self.there_are_lumped_masses = False
@@ -38,7 +36,6 @@ class Node:
         self.loaded_table_for_lumped_dampings = False
 
         # Acoustic boundary conditions
-
         self.acoustic_pressure = None
         self.volume_velocity = None
 
@@ -65,24 +62,24 @@ class Node:
 
     # Structural Boundary Condition
     def set_prescribed_dofs_bc(self, boundary_condition):
-        self.prescribed_dofs_bc = boundary_condition
+        self.prescribed_dofs = boundary_condition
 
     def getStructuralBondaryCondition(self):
-        return self.prescribed_dofs_bc
+        return self.prescribed_dofs
 
     def get_prescribed_dofs_bc_indexes(self):
-        return [i for i, j in enumerate(self.prescribed_dofs_bc) if j is not None]
+        return [i for i, j in enumerate(self.prescribed_dofs) if j is not None]
 
     def get_prescribed_dofs_bc_values(self):
-        return [value for value in self.prescribed_dofs_bc if value is not None]
+        return [value for value in self.prescribed_dofs if value is not None]
 
     # def haveBoundaryCondition(self):
-    #     if None in self.prescribed_dofs_bc:
-    #         if list(self.prescribed_dofs_bc).count(None) != 6:
+    #     if None in self.prescribed_dofs:
+    #         if list(self.prescribed_dofs).count(None) != 6:
     #             return True
     #         else:
     #             return False
-    #     elif len(self.prescribed_dofs_bc) == 6:
+    #     elif len(self.prescribed_dofs) == 6:
     #         return True
     
     # def haveForce(self):

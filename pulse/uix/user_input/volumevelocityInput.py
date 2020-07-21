@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget
+from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget
 from pulse.utils import error
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -43,6 +43,12 @@ class VolumeVelocityInput(QDialog):
         self.tab_single_values = self.tabWidget_volume_velocity.findChild(QWidget, "tab_single_values")
         self.tab_table_values = self.tabWidget_volume_velocity.findChild(QWidget, "tab_table_values")
 
+        self.treeWidget_volume_velocity = self.findChild(QTreeWidget, 'treeWidget_volume_velocity')
+        self.treeWidget_volume_velocity.setColumnWidth(1, 20)
+        self.treeWidget_volume_velocity.setColumnWidth(2, 80)
+        self.treeWidget_volume_velocity.itemClicked.connect(self.on_click_item)
+        self.treeWidget_volume_velocity.itemDoubleClicked.connect(self.on_doubleclick_item)
+
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
         self.toolButton_load_table.clicked.connect(self.load_volume_velocity_table)
 
@@ -56,6 +62,7 @@ class VolumeVelocityInput(QDialog):
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
         self.writeNodes(list_node_ids)
+        self.load_nodes_info()
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -205,6 +212,27 @@ class VolumeVelocityInput(QDialog):
                 self.transform_points(self.nodes_typed)
         self.close()
 
+    def text_label(self, value):
+        text = ""
+        if isinstance(value, complex):
+            value_label = str(value)
+        elif isinstance(value, np.ndarray):
+            value_label = 'Table'
+        text = "{}".format(value_label)
+        return text
+
+    def load_nodes_info(self):
+        for node in self.project.mesh.nodes_with_volume_velocity:
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
+            self.treeWidget_volume_velocity.addTopLevelItem(new)
+
+    def on_click_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+
+    def on_doubleclick_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+        self.check_remove_bc_from_node()
+
     def check_remove_bc_from_node(self):
 
         self.check_input_nodes()
@@ -214,3 +242,4 @@ class VolumeVelocityInput(QDialog):
         self.project.mesh.set_volume_velocity_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.close()
+

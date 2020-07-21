@@ -49,9 +49,9 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.AddActor(plot.getActor())
 
         for node in self.project.get_nodes_bc():
-            if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs_bc]:
+            if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
                 point = ActorPoint(node, u_def=coord[node.global_index,1:])
-            elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs_bc]) != complex(0):
+            elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
                 point = ActorPoint(node, u_def=coord[node.global_index,1:])
             else:
                 point = ActorPoint(node)

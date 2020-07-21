@@ -387,7 +387,6 @@ class MassSpringDamperInput(QDialog):
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
-            print(imported_file.shape)
         except Exception as e:
             error(str(e))
             
@@ -549,7 +548,7 @@ class MassSpringDamperInput(QDialog):
         if self.lineEdit_path_table_Krz != "":
             if self.Krz_table is not None:
                 Krz = self.Krz_table
-
+        
         lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
 
         if sum([1 if bc is not None else 0 for bc in lumped_stiffness]) != 0:
