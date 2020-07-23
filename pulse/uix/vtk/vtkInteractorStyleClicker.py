@@ -22,6 +22,9 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__leftButtonClicked = False 
         self.__altKeyClicked = False
 
+        self.clickPosition = (0,0)
+        self.mousePosition = (0,0)
+
         self.createObservers()
 
     def getSelectedActors(self):
@@ -39,15 +42,25 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.AddObserver('MouseMoveEvent', self.mouseMoveEvent)        
         self.AddObserver('KeyPressEvent', self.KeyPressEvent)
         self.AddObserver('KeyReleaseEvent', self.KeyReleaseEvent)
-    
+
+    def releaseButtons(self):
+        if self.__leftButtonClicked:
+            self.leftButtonReleaseEvent(None, None)
+        self.EndRotate()
+
     def leftButtonPressEvent(self, obj, event):
         self.clickPosition = self.GetInteractor().GetEventPosition()
+        self.mousePosition = self.clickPosition
         self.__leftButtonClicked = True
         self.createSelectionBox()
     
     def leftButtonReleaseEvent(self, obj, event):
+        if not self.__leftButtonClicked:
+            return
         self.__leftButtonClicked = False
         self.clearSelectionBox()
+        if obj is None and event is None:
+            return
         self.pickActors()
 
     def rightButtonPressEvent(self, obj, event):
@@ -121,18 +134,21 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
         x1, y1 = self.clickPosition
         x2, y2 = self.mousePosition
 
-        picker = vtk.vtkAreaPicker()
-        picker.AreaPick(x1, y1, x2, y2, renderer)
-
-        tolerance = 5
+        tolerance = 5 
         tooSmall = (abs(x1-x2) < tolerance) or (abs(y1-y2) < tolerance)
-        clickedInside = picker.GetActor() is not None
-        
-        if tooSmall and clickedInside:
-            pickedActors = set()
-            pickedActors.add(picker.GetActor())
+        pickedActors = set()
+
+        if tooSmall:
+            picker = vtk.vtkPropPicker()
+            picker.Pick(x2, y2, 0, renderer)
+            actor = picker.GetActor()
+            if actor:
+                pickedActors.add(actor)
         else:
-            pickedActors = set(picker.GetProp3Ds())
+            picker = vtk.vtkAreaPicker()
+            picker.AreaPick(x1, y1, x2, y2, renderer)
+            actors = set(picker.GetProp3Ds())
+            pickedActors.update(actors)
 
         controlPressed = self.GetInteractor().GetControlKey()
         shiftPressed = self.GetInteractor().GetShiftKey()
@@ -167,6 +183,8 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
 
     def lowlight(self, actors):
         for actor in actors:
+            if actor is None:
+                continue
             last_property = self.__selectedActorsProperties[actor]
             actor.GetProperty().DeepCopy(last_property)
             self.__selectedActorsProperties.pop(actor)

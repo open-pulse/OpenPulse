@@ -6,24 +6,27 @@ from pulse.utils import timer
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
-
 class AssemblyStructural:
-    def __init__(self, mesh, **kwargs):
+    def __init__(self, mesh, frequencies, **kwargs):
         self.mesh = mesh
+        self.frequencies = frequencies
         self.acoustic_solution = kwargs.get('acoustic_solution', None)
+        self.no_table = True
 
     def get_prescribed_indexes(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
-            dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
-            global_prescribed.extend(dofs)
+            if node.there_are_prescribed_dofs:
+                starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
+                dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
+                global_prescribed.extend(dofs)
         return global_prescribed
 
     def get_prescribed_values(self):
         global_prescribed = []
         for node in self.mesh.nodes.values():
-            global_prescribed.extend(node.get_prescribed_dofs_bc_values())
+            if node.there_are_prescribed_dofs:
+                global_prescribed.extend(node.get_prescribed_dofs_bc_values())
         return global_prescribed
 
     def get_unprescribed_indexes(self):
@@ -62,79 +65,86 @@ class AssemblyStructural:
     def get_lumped_matrices(self):
 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
+        cols = len(self.frequencies)
 
-        data_Mlump = []
-        data_Klump = []
-        data_Clump = []
+        list_Mlump = []
+        list_Klump = []
+        list_Clump = []
 
         ind_Mlump = []
         ind_Klump = []
         ind_Clump = []
 
+        self.nodes_with_lumped_masses = []
+        self.nodes_connected_to_springs = []
+        self.nodes_connected_to_dampers = []
+
         flag_Clump = False
 
         # processing external elements by node
         for node in self.mesh.nodes.values():
-            
+
             # processing mass added
-            if np.sum(node.spring) != 0:
+            if node.there_are_lumped_stiffness:
                 position = node.global_dof
-                data_Klump.append(node.spring)
+                # data_Klump.append(node.lumped_stiffness)
+                self.nodes_connected_to_springs.append(node)
+                list_Klump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
                 ind_Klump.append(position)
             # processing mass added
 
-            if np.sum(node.mass) != 0:
+            if node.there_are_lumped_masses:
                 position = node.global_dof
-                data_Mlump.append(node.mass)
+                self.nodes_with_lumped_masses.append(node)
+                # data_Mlump.append(node.lumped_masses)
+                list_Mlump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_masses, node.lumped_masses))
                 ind_Mlump.append(position)
 
             # processing damper added
-            if np.sum(node.damper) != 0:
+            if node.there_are_lumped_dampings:
                 position = node.global_dof
-                data_Clump.append(node.damper)
+                self.nodes_connected_to_dampers.append(node)
+                # data_Clump.append(node.lumped_dampings)
+                list_Clump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
                 ind_Clump.append(position)
                 flag_Clump = True
-            
-        data_Klump = np.array(data_Klump).flatten()
-        data_Mlump = np.array(data_Mlump).flatten()
-        data_Clump = np.array(data_Clump).flatten()
+
+        data_Klump = np.array(list_Klump).reshape(-1, cols)
+        data_Mlump = np.array(list_Mlump).reshape(-1, cols)
+        data_Clump = np.array(list_Clump).reshape(-1, cols)
         
         ind_Klump = np.array(ind_Klump).flatten()
         ind_Mlump = np.array(ind_Mlump).flatten()
         ind_Clump = np.array(ind_Clump).flatten()
-        
-        full_K = csr_matrix((data_Klump, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof])
-        full_M = csr_matrix((data_Mlump, (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof])
-        full_C = csr_matrix((data_Clump, (ind_Clump, ind_Clump)), shape=[total_dof, total_dof])
+
+        full_K = [csr_matrix((data_Klump[:,j], (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for j in range(cols)]
+        full_M = [csr_matrix((data_Mlump[:,j], (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof]) for j in range(cols)]
+        full_C = [csr_matrix((data_Clump[:,j], (ind_Clump, ind_Clump)), shape=[total_dof, total_dof]) for j in range(cols)]
+
+        # full_K = csr_matrix((data_Klump, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof])
+        # full_M = csr_matrix((data_Mlump, (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof])
+        # full_C = csr_matrix((data_Clump, (ind_Clump, ind_Clump)), shape=[total_dof, total_dof])
 
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()
 
-        K_lump = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
-        M_lump = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
-        C_lump = full_C[unprescribed_indexes, :][:, unprescribed_indexes]
+        K_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_K]
+        M_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_M]
+        C_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_C]
 
-        Kr_lump = full_K[:, prescribed_indexes]
-        Mr_lump = full_M[:, prescribed_indexes]
-        Cr_lump = full_C[:, prescribed_indexes]
+        Kr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_K]
+        Mr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_M]
+        Cr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_C]
 
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
-    def get_all_matrices(self):
         
-        K, M, Kr, Mr = self.get_global_matrices()
-        K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump = self.get_lumped_matrices()
-        
-        Kadd_lump = K + K_lump
-        Madd_lump = M + M_lump
-
-        return Kadd_lump, Madd_lump, K, M, Kr, Mr, K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
-
-    def get_global_loads(self, frequencies, pressure_external = 0, loads_matrix3D=False):
+    def get_global_loads(self, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        loads = np.zeros(total_dof, dtype = complex)
-        pressure_loads = np.zeros([total_dof, len(frequencies)], dtype = complex)
+        cols = len(self.frequencies)
+        loads = np.zeros((total_dof, cols), dtype = complex)
+        pressure_loads = np.zeros((total_dof, cols), dtype = complex)
 
         # distributed loads
         for element in self.mesh.structural_elements.values():
@@ -144,12 +154,18 @@ class AssemblyStructural:
                 
         # nodal loads
         for node in self.mesh.nodes.values():
-            if np.sum(node.loads) != 0:
+            if node.there_are_nodal_loads:
+
                 position = node.global_dof
-                loads[position] += node.loads
+                if node.loaded_table_for_nodal_loads:
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.loads]
+                else:
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.loads]
+                
+                loads[position, :] += temp_loads
             
         unprescribed_indexes = self.get_unprescribed_indexes()
-        loads = loads[unprescribed_indexes]
+        loads = loads[unprescribed_indexes,:]
 
         if self.acoustic_solution is not None:
             for element in self.mesh.structural_elements.values():
@@ -157,15 +173,24 @@ class AssemblyStructural:
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
                 pressure_avg = (pressure_first + pressure_last) / 2
                 position = element.global_dof
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(frequencies, pressure_avg, pressure_external)
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(self.frequencies, pressure_avg, pressure_external)
         
         pressure_loads = pressure_loads[unprescribed_indexes,:]
 
         if loads_matrix3D:
-            loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
-            loads += pressure_loads.reshape((1,pressure_loads.shape[0],len(frequencies))).T
+            # loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
+            loads = loads.reshape((len(self.frequencies), total_dof, 1))
+            loads += pressure_loads.reshape((1,pressure_loads.shape[0],len(self.frequencies))).T
         else:
-            loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
+            # loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
             loads += pressure_loads
      
         return loads
+    
+    def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):
+        if there_are_table:
+            list_arrays = [np.zeros_like(self.frequencies) if bc is None else bc for bc in boundary_condition]
+            self.no_table = False
+        else:
+            list_arrays = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in boundary_condition]
+        return list_arrays

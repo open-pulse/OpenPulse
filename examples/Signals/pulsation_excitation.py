@@ -28,12 +28,14 @@ x = np.zeros_like(t)
 
 t_pulse = np.arange(0,dt_pulsation+dt,dt)
 
-signal_type = 1
-if signal_type == 0:
+signal_type = 2
+if signal_type == 1:
     x_pulse = A*((np.sin(2*np.pi*t_pulse/dt_pulsation))**1)*np.exp(-8*t_pulse/dt_pulsation)
     x_pulse = x_pulse*((np.sin(np.pi*t_pulse/dt_pulsation))**2)
-elif signal_type == 1:
+    filename = "compressor_signal_1.dat"
+elif signal_type == 2:
     x_pulse = A*((np.sin(np.pi*t_pulse/dt_pulsation))**4)
+    filename = "compressor_signal_2.dat"
 else:
     print("Invalid signal type input!")
 x[0:t_pulse.shape[0]] = x_pulse
@@ -53,7 +55,9 @@ N_points = x_rev.shape[0]-1
 
 freq = np.arange(0, fs, df)
 Xf = FFT_periodic(x_rev)
-N_spectral_lines = 201
+f_max = 200
+spectral_lines_to_save = np.arange(0,f_max+df,df) 
+N_spectral_lines = len(spectral_lines_to_save)
 
 Xf = Xf[0:N_spectral_lines]
 freq = freq[0:N_spectral_lines]
@@ -61,8 +65,8 @@ freq = freq[0:N_spectral_lines]
 header = "Frequency [Hz], Real(acoustic pressure), Imaginary(acoustic pressure)"
 output = np.array([freq, np.real(Xf), np.imag(Xf)]).T
 
-np.savetxt("compressor_signal_2.dat", output, delimiter=",", header=header)
-load_file = np.loadtxt("compressor_signal_2.dat", delimiter=",")
+np.savetxt(filename, output, delimiter=",", header=header)
+load_file = np.loadtxt(filename, delimiter=",")
 
 fig1 = plt.figure(figsize=[10,6])
 ax1 = fig1.add_subplot(1,1,1)

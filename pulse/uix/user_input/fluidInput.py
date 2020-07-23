@@ -4,7 +4,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.utils import error, isInteger, isFloat, getColorRGB
+from pulse.utils import error, getColorRGB
 
 from pulse.preprocessing.fluid import Fluid
 
@@ -43,21 +43,21 @@ class FluidInput(QDialog):
         self.lineEdit_name = self.findChild(QLineEdit, 'lineEdit_name')
         self.lineEdit_id = self.findChild(QLineEdit, 'lineEdit_id')
         self.lineEdit_fluid_density = self.findChild(QLineEdit, 'lineEdit_fluid_density')
-        self.lineEdit_sound_velocity = self.findChild(QLineEdit, 'lineEdit_sound_velocity')
+        self.lineEdit_speed_of_sound = self.findChild(QLineEdit, 'lineEdit_speed_of_sound')
         self.lineEdit_impedance = self.findChild(QLineEdit, 'lineEdit_impedance')
         self.lineEdit_color = self.findChild(QLineEdit, 'lineEdit_color')
 
         self.lineEdit_name_edit = self.findChild(QLineEdit, 'lineEdit_name_edit')
         self.lineEdit_id_edit = self.findChild(QLineEdit, 'lineEdit_id_edit')
         self.lineEdit_fluid_density_edit = self.findChild(QLineEdit, 'lineEdit_fluid_density_edit')
-        self.lineEdit_sound_velocity_edit = self.findChild(QLineEdit, 'lineEdit_sound_velocity_edit')
+        self.lineEdit_speed_of_sound_edit = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_edit')
         self.lineEdit_impedance_edit = self.findChild(QLineEdit, 'lineEdit_impedance_edit')
         self.lineEdit_color_edit = self.findChild(QLineEdit, 'lineEdit_color_edit')
         
         self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
         self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
         self.lineEdit_fluid_density_remove = self.findChild(QLineEdit, 'lineEdit_fluid_density_remove')
-        self.lineEdit_sound_velocity_remove = self.findChild(QLineEdit, 'lineEdit_sound_velocity_remove')
+        self.lineEdit_speed_of_sound_remove = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_remove')
         self.lineEdit_impedance_remove = self.findChild(QLineEdit, 'lineEdit_impedance_remove')
         self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
 
@@ -110,7 +110,7 @@ class FluidInput(QDialog):
             self.lineEdit_name_remove.setText(self.clicked_item.text(0))
             self.lineEdit_id_remove.setText(self.clicked_item.text(1))
             self.lineEdit_fluid_density_remove.setText(self.clicked_item.text(2))
-            self.lineEdit_sound_velocity_remove.setText(self.clicked_item.text(3))
+            self.lineEdit_speed_of_sound_remove.setText(self.clicked_item.text(3))
             self.lineEdit_impedance_remove.setText(self.clicked_item.text(4))
             self.lineEdit_color_remove.setText(self.clicked_item.text(5))
 
@@ -132,7 +132,7 @@ class FluidInput(QDialog):
                 self.lineEdit_name_remove.setText("")
                 self.lineEdit_id_remove.setText("")
                 self.lineEdit_fluid_density_remove.setText("")
-                self.lineEdit_sound_velocity_remove.setText("")
+                self.lineEdit_speed_of_sound_remove.setText("")
                 self.lineEdit_impedance_remove.setText("")
                 self.lineEdit_color_remove.setText("")
                 
@@ -151,10 +151,10 @@ class FluidInput(QDialog):
             name = self.clicked_item.text(0)
             identifier = int(self.clicked_item.text(1))
             fluid_density = float(self.clicked_item.text(2))
-            sound_velocity = float(self.clicked_item.text(3))
+            speed_of_sound = float(self.clicked_item.text(3))
             # impedance = float(self.clicked_item.text(4))
             color = self.clicked_item.text(5)
-            new_fluid = Fluid(name, fluid_density, sound_velocity, identifier=identifier, color=color)
+            new_fluid = Fluid(name, fluid_density, speed_of_sound, identifier=identifier, color=color)
             self.fluid = new_fluid
             self.close()
         except Exception as e:
@@ -176,11 +176,11 @@ class FluidInput(QDialog):
                 name = str(rFluid['name'])
                 identifier =  str(rFluid['identifier'])
                 fluid_density =  str(rFluid['fluid density'])
-                sound_velocity =  str(rFluid['sound velocity'])
+                speed_of_sound =  str(rFluid['speed of sound'])
                 impedance =  str(rFluid['impedance'])
                 color =  str(rFluid['color'])
 
-                load_fluid = QTreeWidgetItem([name, identifier, fluid_density, sound_velocity, impedance, color])
+                load_fluid = QTreeWidgetItem([name, identifier, fluid_density, speed_of_sound, impedance, color])
                 colorRGB = getColorRGB(color)
                 self.list_names.append(name)
                 self.list_ids.append(identifier)
@@ -196,25 +196,25 @@ class FluidInput(QDialog):
         name_string = self.lineEdit_name.text()
         id_string = self.lineEdit_id.text()
         fluid_density_string = self.lineEdit_fluid_density.text()
-        sound_velocity_string = self.lineEdit_sound_velocity.text()
+        speed_of_sound_string = self.lineEdit_speed_of_sound.text()
         # impedance_string = self.lineEdit_impedance.text()
         color_string = self.lineEdit_color.text()
         self.adding = True
-        self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, color_string)
+        self.check_add_edit(name_string, id_string, fluid_density_string, speed_of_sound_string, color_string)
 
     def check_edit_fluid(self):
         if self.editing:
             name_string = self.lineEdit_name_edit.text()
             id_string = self.lineEdit_id_edit.text()
             fluid_density_string = self.lineEdit_fluid_density_edit.text()
-            sound_velocity_string = self.lineEdit_sound_velocity_edit.text()
+            speed_of_sound_string = self.lineEdit_speed_of_sound_edit.text()
             # impedance_string = self.lineEdit_impedance_edit.text()
             color_string = self.lineEdit_color_edit.text()
-            self.check_add_edit(name_string, id_string, fluid_density_string, sound_velocity_string, color_string)        
+            self.check_add_edit(name_string, id_string, fluid_density_string, speed_of_sound_string, color_string)        
         else:
             return
             
-    def check_add_edit(self, name_string, id_string, fluid_density_string, sound_velocity_string, color_string):
+    def check_add_edit(self, name_string, id_string, fluid_density_string, speed_of_sound_string, color_string):
 
         if name_string == "":
             error("Insert a fluid name!")
@@ -267,21 +267,21 @@ class FluidInput(QDialog):
                 error("Value error (fluid density)")
                 return 
 
-        if sound_velocity_string == "":
-            error("Insert the sound velocity of the fluid!")
+        if speed_of_sound_string == "":
+            error("Insert the speed of sound of the fluid!")
             return
         else:
             try:
-                sound_velocity = str(sound_velocity_string)
-                if float(sound_velocity)<0:
-                    error("The input value for sound velocity must be a positive number.")
+                speed_of_sound = str(speed_of_sound_string)
+                if float(speed_of_sound)<0:
+                    error("The input value for speed of sound must be a positive number.")
                     return
             except Exception:
-                error("Value error (sound velocity)")
+                error("Value error (speed of sound)")
                 return
 
             try:
-                impedance = str(float(fluid_density_string)*float(sound_velocity_string))
+                impedance = str(float(fluid_density_string)*float(speed_of_sound_string))
                 if self.adding:
                     self.lineEdit_impedance.setText(impedance)
                 elif self.editing:
@@ -326,7 +326,7 @@ class FluidInput(QDialog):
             'name': name,
             'identifier': identifier,
             'fluid density': fluid_density,
-            'sound velocity': sound_velocity,
+            'speed of sound': speed_of_sound,
             'impedance': impedance,
             'color': color
             }
@@ -351,7 +351,7 @@ class FluidInput(QDialog):
             self.lineEdit_name_edit.setText("")
             self.lineEdit_id_edit.setText("")
             self.lineEdit_fluid_density_edit.setText("")
-            self.lineEdit_sound_velocity_edit.setText("")
+            self.lineEdit_speed_of_sound_edit.setText("")
             self.lineEdit_impedance_edit.setText("")
             self.lineEdit_color_edit.setText("")
             self.same_fluid_name = False
@@ -367,7 +367,7 @@ class FluidInput(QDialog):
             self.lineEdit_name_edit.setText(self.clicked_item.text(0))
             self.lineEdit_id_edit.setText(self.clicked_item.text(1))
             self.lineEdit_fluid_density_edit.setText(self.clicked_item.text(2))
-            self.lineEdit_sound_velocity_edit.setText(self.clicked_item.text(3))
+            self.lineEdit_speed_of_sound_edit.setText(self.clicked_item.text(3))
             self.lineEdit_impedance_edit.setText(self.clicked_item.text(4))
             self.lineEdit_color_edit.setText(self.clicked_item.text(5))
 
@@ -389,7 +389,7 @@ class FluidInput(QDialog):
             'Name': 'air',
             'Identifier': 1,
             'Fluid density': 1.2041,
-            'Sound velocity': 343.21,
+            'Speed of sound': 343.21,
             'Impedance': 413.25,
             'Color': '[0,0,255]' } #Blue     
 
@@ -397,7 +397,7 @@ class FluidInput(QDialog):
             'Name': 'hydrogen',
             'Identifier': 2,
             'Fluid density': 0.087,
-            'Sound velocity': 1321.1,
+            'Speed of sound': 1321.1,
             'Impedance': 114.93,
             'Color': '[255,0,255]' } #Magenta
         
@@ -405,7 +405,7 @@ class FluidInput(QDialog):
             'Name': 'methane',
             'Identifier': 3,
             'Fluid density': 0.657,
-            'Sound velocity': 446,
+            'Speed of sound': 446,
             'Impedance': 293.02,
             'Color': '[0,255,255]' } #Cyan
 

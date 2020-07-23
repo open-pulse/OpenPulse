@@ -2,6 +2,7 @@ from functools import wraps
 from time import time
 from scipy.sparse import issparse
 from PyQt5.QtWidgets import QMessageBox
+import configparser
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -52,6 +53,42 @@ def error( msg, title = " ERROR "):
     msg_box.setText(msg)
     msg_box.setWindowTitle(title)
     msg_box.exec_()
+
+def info_messages(msg, title = " INFORMATION "):
+    msg_box = QMessageBox()
+    msg_box.setIcon(QMessageBox.Information)
+    msg_box.setText(msg)
+    msg_box.setWindowTitle(title)
+    msg_box.exec_()
+
+def remove_bc_from_file(nodes_typed, path, key_strings, message):
+
+    try:
+        bc_removed = False
+        _bc_list = configparser.ConfigParser()
+        _bc_list.read(path)
+
+        for node in nodes_typed:    
+            node_id = str(node)
+
+            if node_id in _bc_list.sections():
+                keys = list(_bc_list[node_id].keys())
+                for str_key in key_strings:
+                    if str_key in keys:
+                        # print("delete {} at node {}".format(str_key, node_id))
+                        _bc_list.remove_option(section=node_id, option=str_key)
+                        if list(_bc_list[node_id].keys())==[]:
+                            _bc_list.remove_section(node_id)
+                        bc_removed = True
+
+        with open(path, 'w') as configfile:
+            _bc_list.write(configfile)
+
+        if message is not None and bc_removed:
+            info_messages(message)
+
+    except Exception as e:
+        error(str(e))
 
 def isInteger(value):
     try:

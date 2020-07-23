@@ -40,6 +40,7 @@ class vtkRendererBase(ABC):
         self._usePicker = value
 
     def setInUse(self, value):
+        self._style.releaseButtons()
         self._inUse = value
 
     def createInfoText(self, text):

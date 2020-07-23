@@ -19,7 +19,7 @@ class Project:
         self.file = ProjectFile()
 
         self._projectName = ""
-        self.project_path = ""
+        self.project_file_path = ""
 
         #Analysis
         self.analysis_ID = None
@@ -189,21 +189,41 @@ class Project:
 
     def load_structural_bc_file(self):
         prescribed_dofs, external_loads, mass, spring, damper = self.file.get_dict_of_structural_bc_from_file()
-        for key, bc in prescribed_dofs.items():
-            if bc.count(None) != 6:
-                self.load_prescribed_dofs_bc_by_node(key, bc)
-        for key, fr in external_loads.items():
-            if sum(fr) > 0:
-                self.load_structural_loads_by_node(key, fr)
-        for key, ms in mass.items():
-            if sum(ms) > 0:
-                self.load_mass_by_node(key, ms)
-        for key, sp in spring.items():
-            if sum(sp) > 0:
-                self.load_spring_by_node(key, sp)
-        for key, dm in damper.items():
-            if sum(dm) > 0:
-                self.load_damper_by_node(key, dm)
+        
+        for key, dofs in prescribed_dofs.items():
+            if isinstance(dofs, list):
+                try:
+                    self.load_prescribed_dofs_bc_by_node(key, dofs)
+                except Exception:
+                    error("There is some error while loading prescribed data.")
+
+        for key, loads in external_loads.items():
+            if isinstance(loads, list):
+                try:
+                    self.load_structural_loads_by_node(key, loads)
+                except Exception:
+                    error("There is some error while loading nodal loads data.")
+
+        for key, masses in mass.items():
+            if isinstance(masses, list):
+                try:
+                    self.load_mass_by_node(key, masses)
+                except Exception:
+                    error("There is some error while loading lumped masses/moments of inertia data.")
+                
+        for key, stiffness in spring.items():
+            if isinstance(stiffness, list):
+                try:
+                    self.load_spring_by_node(key, stiffness)
+                except Exception:
+                    error("There is some error while lumped stiffness data.")    
+
+        for key, dampings in damper.items():
+            if isinstance(dampings, list):
+                try:
+                    self.load_damper_by_node(key, dampings)
+                except Exception:
+                    error("There is some error while lumped damping data.")   
 
     def load_acoustic_bc_file(self):
         pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.getDictOfAcousticBCFromFile()
@@ -211,10 +231,10 @@ class Project:
             if ActPres is not None:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
         for key, VelVol in volume_velocity.items():
-            if VelVol != 0:
+            if VelVol is not None:
                 self.load_volume_velocity_bc_by_node(key, VelVol)
         for key, SpecImp in specific_impedance.items():
-            if SpecImp != 0:
+            if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
         for key, RadImp in radiation_impedance.items():
             if RadImp != 0:
@@ -272,25 +292,30 @@ class Project:
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
 
-    def set_prescribed_dofs_bc_by_node(self, node_id, bc):
-        self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
-        self.file.addBoundaryConditionInFile(node_id, bc)
+    def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
+        labels = ["displacements", "rotations"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_force_by_node(self, node_id, force):
-        self.mesh.set_structural_load_bc_by_node(node_id, force)
-        self.file.addForceInFile(node_id, force)
+    def set_loads_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_structural_load_bc_by_node(node_id, values)
+        labels = ["forces", "moments"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_mass_by_node(self, node_id, mass):
-        self.mesh.add_mass_to_node(node_id, mass)
-        self.file.addMassInFile(node_id, mass)
+    def add_lumped_masses_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_mass_to_node(node_id, values)
+        labels = ["masses", "moments of inertia"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_spring_by_node(self, node_id, spring):
-        self.mesh.add_spring_to_node(node_id, spring)
-        self.file.addSpringInFile(node_id, spring)
+    def add_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_spring_to_node(node_id, values)
+        labels = ["spring stiffness", "torsional spring stiffness"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_damper_by_node(self, node_id, damper):
-        self.mesh.add_damper_to_node(node_id, damper)
-        self.file.addDamperInFile(node_id, damper)
+    def add_lumped_dampings_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.add_damper_to_node(node_id, values)
+        labels = ["damping coefficients", "torsional damping coefficients"]
+        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
     def load_material_by_entity(self, entity_id, material):
         if self.file.getImportType() == 0:
@@ -324,20 +349,20 @@ class Project:
 
         self._set_entity_element_type(entity_id, element_type)
 
-    def load_structural_loads_by_node(self, node_id, load):
-        self.mesh.set_structural_load_bc_by_node(node_id, load)
+    def load_structural_loads_by_node(self, node_id, values):
+        self.mesh.set_structural_load_bc_by_node(node_id, values)
 
     def load_mass_by_node(self, node_id, mass):
         self.mesh.add_mass_to_node(node_id, mass)
 
-    def load_spring_by_node(self, node_id, spring):
-        self.mesh.add_spring_to_node(node_id, spring)
+    def load_spring_by_node(self, node_id, stiffness):
+        self.mesh.add_spring_to_node(node_id, stiffness)
 
-    def load_damper_by_node(self, node_id, damper):
-        self.mesh.add_damper_to_node(node_id, damper)
+    def load_damper_by_node(self, node_id, dampings):
+        self.mesh.add_damper_to_node(node_id, dampings)
 
     def get_nodes_bc(self):
-        return self.mesh.structural_nodes_with_bc
+        return self.mesh.nodes_with_prescribed_dofs
 
     def get_elements(self):
         return self.mesh.structural_elements
@@ -382,7 +407,7 @@ class Project:
             entity.element_type = element_type
 
     def get_nodes_with_prescribed_dofs_bc(self):
-        return self.mesh.structural_nodes_with_bc
+        return self.mesh.nodes_with_prescribed_dofs
 
     def get_structural_elements(self):
         return self.mesh.structural_elements
@@ -402,24 +427,24 @@ class Project:
         for entity in self.mesh.entities:
             self.file.addFluidInFile(entity.getTag(), fluid.identifier)
 
-    def set_acoustic_pressure_bc_by_node(self, node_id, acoustic_pressure):
-        self.mesh.set_acoustic_pressure_bc_by_node(node_id, acoustic_pressure)        
-        if isinstance(acoustic_pressure, np.ndarray):
-            self.file.addAcousticPressureBCInFile(node_id, self.file.temp_table_name)
-        else:
-            self.file.addAcousticPressureBCInFile(node_id, acoustic_pressure)
+    def set_acoustic_pressure_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_acoustic_pressure_bc_by_node(node_id, values) 
+        label = ["acoustic pressure"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, volume_velocity):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, volume_velocity)
-        self.file.addVolumeVelocityBCInFile(node_id, volume_velocity)
-
-    def set_specific_impedance_bc_by_node(self, node_id, specific_impedance):
-        self.mesh.set_specific_impedance_bc_by_node(node_id, specific_impedance)
-        self.file.addSpecificImpedanceBCInFile(node_id, specific_impedance)
+    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_volume_velocity_bc_by_node(node_id, values) 
+        label = ["volume velocity"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)    
+    
+    def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
+        self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
+        label = ["specific impedance"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)
-        self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
+        # self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -527,9 +552,9 @@ class Project:
 
     def get_structural_solve(self):
         if self.analysis_ID in [5,6]:
-            results = SolutionStructural(self.mesh, acoustic_solution=self.solution_acoustic)
+            results = SolutionStructural(self.mesh, self.frequencies, acoustic_solution=self.solution_acoustic)
         else:
-            results = SolutionStructural(self.mesh)
+            results = SolutionStructural(self.mesh, self.frequencies)
         return results
 
     def set_structural_solution(self, value):

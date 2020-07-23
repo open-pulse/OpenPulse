@@ -225,7 +225,7 @@
     </column>
     <column>
      <property name="text">
-      <string>Sound velocity [m/s²]</string>
+      <string>Speed of sound [m/s]</string>
      </property>
     </column>
     <column>
@@ -373,7 +373,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="YoungMod_label">
+      <widget class="QLabel" name="speed_of_sound_label">
        <property name="geometry">
         <rect>
          <x>198</x>
@@ -383,7 +383,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         </rect>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Sound velocity [m/s²]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Speed of sound [m/s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_impedance">
@@ -481,7 +481,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLabel" name="poisson_label">
+      <widget class="QLabel" name="impedance_label">
        <property name="geometry">
         <rect>
          <x>404</x>
@@ -506,7 +506,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Impedance [kg/m²s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_sound_velocity">
+      <widget class="QLineEdit" name="lineEdit_speed_of_sound">
        <property name="geometry">
         <rect>
          <x>216</x>
@@ -909,7 +909,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Color [r, g, b]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_sound_velocity_edit">
+      <widget class="QLineEdit" name="lineEdit_speed_of_sound_edit">
        <property name="geometry">
         <rect>
          <x>216</x>
@@ -931,7 +931,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="edit_YoungMod_label">
+      <widget class="QLabel" name="edit_speed_of_sound_label">
        <property name="geometry">
         <rect>
          <x>198</x>
@@ -941,7 +941,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         </rect>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Sound velocity [m/s²]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Speed of sound [m/s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
       <widget class="QLabel" name="editName_label">
@@ -1103,7 +1103,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <bool>false</bool>
        </property>
       </widget>
-      <widget class="QLabel" name="edit_YoungMod_label_2">
+      <widget class="QLabel" name="remove_YoungMod_label">
        <property name="geometry">
         <rect>
          <x>198</x>
@@ -1113,7 +1113,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         </rect>
        </property>
        <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Sound velocity [m/s²]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Speed of sound [m/s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_fluid_density_remove">
@@ -1141,7 +1141,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="editID_label_2">
+      <widget class="QLabel" name="remove_ID_label">
        <property name="geometry">
         <rect>
          <x>56</x>
@@ -1154,7 +1154,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;ID&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLabel" name="Edit_mat_label_2">
+      <widget class="QLabel" name="remove_mat_label">
        <property name="geometry">
         <rect>
          <x>144</x>
@@ -1203,7 +1203,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QLabel" name="editName_label_2">
+      <widget class="QLabel" name="remove_Name_label">
        <property name="geometry">
         <rect>
          <x>58</x>
@@ -1216,7 +1216,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;Name&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLabel" name="edit_density_label_2">
+      <widget class="QLabel" name="remove_density_label">
        <property name="geometry">
         <rect>
          <x>198</x>
@@ -1229,7 +1229,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Fluid density [kg/m³]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLabel" name="edit_color_label_2">
+      <widget class="QLabel" name="remove_color_label">
        <property name="geometry">
         <rect>
          <x>414</x>
@@ -1280,7 +1280,7 @@ selection-background-color: rgb(62, 255, 62);</string>
         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:10pt;&quot;&gt;Impedance [kg/m²s]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
       </widget>
-      <widget class="QLineEdit" name="lineEdit_sound_velocity_remove">
+      <widget class="QLineEdit" name="lineEdit_speed_of_sound_remove">
        <property name="enabled">
         <bool>false</bool>
        </property>
@@ -1525,7 +1525,7 @@ selection-background-color: rgb(62, 255, 62);</string>
   <tabstop>lineEdit_name</tabstop>
   <tabstop>lineEdit_id</tabstop>
   <tabstop>lineEdit_fluid_density</tabstop>
-  <tabstop>lineEdit_sound_velocity</tabstop>
+  <tabstop>lineEdit_speed_of_sound</tabstop>
   <tabstop>lineEdit_impedance</tabstop>
   <tabstop>lineEdit_color</tabstop>
   <tabstop>pushButton_confirm_add_fluid</tabstop>

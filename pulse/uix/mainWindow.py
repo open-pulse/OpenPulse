@@ -168,7 +168,7 @@ class MainWindow(QMainWindow):
         self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
-        self.runAnalysis_action.setShortcut('Alt+R')
+        self.runAnalysis_action.setShortcut('Ctrl+Alt+Z')
         self.runAnalysis_action.setStatusTip('Run Analysis')
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
 
@@ -207,6 +207,11 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setShortcut('Ctrl+V')
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
+
+        self.plot_reactions = QAction('&Plot Reactions to the Fixed DOFs or Ground', self)        
+        self.plot_reactions.setShortcut('Ctrl+W')
+        self.plot_reactions.setStatusTip('Plot Reactions')
+        self.plot_reactions.triggered.connect(self.getInputWidget().plot_reactions)
 
     def _create_menu_bar(self):
         menuBar = self.menuBar()
@@ -253,6 +258,7 @@ class MainWindow(QMainWindow):
         resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
         resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         resultsViewerMenu.addAction(self.plot_TL_NR)
+        resultsViewerMenu.addAction(self.plot_reactions)
 
         helpMenu.addAction(self.help_action)
 

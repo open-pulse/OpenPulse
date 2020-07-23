@@ -43,20 +43,6 @@ class RadiationImpedanceInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
-    def isFloat(self, value):
-        try:
-            float(value)
-            return True
-        except:
-            return False
-
     def check(self):
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
@@ -79,9 +65,9 @@ class RadiationImpedanceInput(QDialog):
 
         radiation_impedance = None
         if self.lineEdit_radiation_impedance.text() != "":
-            if self.isFloat(self.lineEdit_radiation_impedance.text()):
+            try:
                 radiation_impedance = float(self.lineEdit_radiation_impedance.text())
-            else:
+            except Exception:
                 error("Wrong input for the Radiation Impedance!", title = " ERROR ")
                 return
         else:

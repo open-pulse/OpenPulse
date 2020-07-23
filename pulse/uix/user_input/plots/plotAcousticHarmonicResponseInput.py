@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
+from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -38,28 +39,13 @@ class PlotAcousticHarmonicResponseInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
     def check(self):
         if self.lineEdit.text() == "":
-            self.error("Select a frequency")
+            error("Select a frequency")
             return
         else:
             frequency_selected = float(self.lineEdit.text())
-            self.frequency = self.frequency_to_index[frequency_selected]
-            
+            self.frequency = self.frequency_to_index[frequency_selected] 
         self.close()
 
     def load(self):

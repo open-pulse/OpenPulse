@@ -38,12 +38,12 @@ class AcousticElement:
         cols = rows.T
         return rows, cols
 
-    def sound_velocity_corrected(self):
+    def speed_of_sound_corrected(self):
         factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
-        return (1 / sqrt(1 + factor))*self.fluid.sound_velocity
+        return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
     def matrix(self, frequencies, ones):
-        kLe = 2*PI*frequencies*self.length / self.sound_velocity_corrected()
+        kLe = 2*PI*frequencies*self.length / self.speed_of_sound_corrected()
         sine = np.sin(kLe, dtype='float64')
         cossine = np.cos(kLe, dtype='float64')
         matrix = ((1j/(sine*self.impedance))*np.array([-cossine, ones, ones, -cossine])).T

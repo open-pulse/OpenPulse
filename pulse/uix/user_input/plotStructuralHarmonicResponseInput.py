@@ -39,13 +39,6 @@ class PlotHarmonicResponseInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
     def check(self):
         if self.lineEdit.text() == "":
             error("Select a frequency")

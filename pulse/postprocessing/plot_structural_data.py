@@ -56,3 +56,17 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=
     coord_def[:,3] = coord[:,3] + u_z*factor
         
     return connect, coord_def, r_def, factor
+
+def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imaginary=False):
+    #reactions: dictionary with all reactions and global dofs are the keys of dictionary
+    key = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
+    # print("Node ID: {} - key: {}".format(node,key))
+    if absolute:
+        results = np.abs(reactions[key])
+    elif real:
+        results = np.real(reactions[key])
+    elif imaginary:
+        results = np.imag(reactions[key])
+    else:
+        results = reactions[key]
+    return results

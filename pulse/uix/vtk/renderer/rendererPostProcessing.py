@@ -8,6 +8,7 @@ from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
+import numpy as np
 
 class RendererPostProcessing(vtkRendererBase):
     def __init__(self, project, opv):
@@ -48,10 +49,12 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.AddActor(plot.getActor())
 
         for node in self.project.get_nodes_bc():
-            if sum([value for value in node.prescribed_dofs_bc  if value != None])==0:
-                point = ActorPoint(node)
-            else:
+            if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
                 point = ActorPoint(node, u_def=coord[node.global_index,1:])
+            elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
+                point = ActorPoint(node, u_def=coord[node.global_index,1:])
+            else:
+                point = ActorPoint(node)
             point.build()
             self._renderer.AddActor(point.getActor())
         self._renderer.AddActor(self.colorbar)

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton
-from pulse.utils import error, isInteger, isFloat, getColorRGB
+from pulse.utils import error, getColorRGB
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt

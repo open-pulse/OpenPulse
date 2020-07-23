@@ -73,9 +73,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
         self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
         self.radioButton_plotImag = self.findChild(QRadioButton, 'radioButton_plotImag')
-        self.radioButton_plotAbs.toggled.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotReal.toggled.connect(self.radioButtonEvent_YAxis)
-        self.radioButton_plotImag.toggled.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotAbs.clicked.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotReal.clicked.connect(self.radioButtonEvent_YAxis)
+        self.radioButton_plotImag.clicked.connect(self.radioButtonEvent_YAxis)
         self.plotAbs = self.radioButton_plotAbs.isChecked()
         self.plotReal = self.radioButton_plotReal.isChecked()
         self.plotImag = self.radioButton_plotImag.isChecked()
@@ -95,8 +95,8 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         
         self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
         self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
-        self.radioButton_Absolute.toggled.connect(self.radioButtonEvent_save_data)
-        self.radioButton_Real_Imaginary.toggled.connect(self.radioButtonEvent_save_data)
+        self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
+        self.radioButton_Real_Imaginary.clicked.connect(self.radioButtonEvent_save_data)
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 

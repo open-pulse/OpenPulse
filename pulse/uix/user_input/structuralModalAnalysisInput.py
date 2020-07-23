@@ -31,21 +31,14 @@ class StructuralModalAnalysisInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def isInteger(self, value):
-        try:
-            int(value)
-            return True
-        except:
-            return False
-
     def check(self):
         if self.lineEdit.text() == "":
             error("Insert a value!")
             return
         else:
-            if self.isInteger(self.lineEdit.text()):
+            try:
                 self.modes = int(self.lineEdit.text())
-            else:
+            except Exception:
                 error("Invalid input value!")
                 return
         self.complete = True

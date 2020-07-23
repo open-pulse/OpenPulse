@@ -17,9 +17,9 @@ from pulse.animation.plot_function import plot_results
     |  then type "python main.py" in the terminal to run the code !               |
     |=============================================================================| 
 '''
-sound_velocity = 350.337
+speed_of_sound = 350.337
 density = 24.85
-hydrogen = Fluid('hydrogen', density, sound_velocity)
+hydrogen = Fluid('hydrogen', density, speed_of_sound)
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 # Tube setup
 cross_section = CrossSection(0.05, 0.008, offset_y = 0.005, offset_z = 0.005)
@@ -32,14 +32,14 @@ if run==1:
     mesh.set_acoustic_pressure_BC_by_node([50], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_BC_by_node(1086, sound_velocity * density)
+        mesh.set_specific_impedance_BC_by_node(1086, speed_of_sound * density)
 if run==2:
     mesh.load_mesh('examples/validation_acoustic/coord.dat', 'examples/validation_acoustic/connect.dat')
     # Acoustic boundary conditions - Prescribe pressure
     mesh.set_acoustic_pressure_BC_by_node([1], 1)
     # Anechoic termination
     if anechoic_termination:
-        mesh.set_specific_impedance_BC_by_node(1047, sound_velocity*density)
+        mesh.set_specific_impedance_BC_by_node(1047, speed_of_sound*density)
 
 mesh.set_element_type('pipe_1')
 mesh.set_fluid_by_element('all', hydrogen)

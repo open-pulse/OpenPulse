@@ -26,7 +26,7 @@ class RunAnalysisInput(QDialog):
         self.frequencies = frequencies
         self.damping = damping
         self.modes = modes
-        self.solution = None
+        # self.solution = None
         self.solution_acoustic = None
         self.solution_structural = None
         self.natural_frequencies_acoustic = []
@@ -44,25 +44,33 @@ class RunAnalysisInput(QDialog):
     def run(self):
         t0 = time()
         if self.analysis_ID == 0:
-            self.solution = self.solve.direct_method(self.frequencies, self.damping) # Structural Harmonic Analysis - Direct Method
+            self.solution_structural = self.solve.direct_method(self.damping) # Structural Harmonic Analysis - Direct Method
+            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
         elif self.analysis_ID == 1: # Structural Harmonic Analysis - Mode Superposition Method
-            self.solution = self.solve.mode_superposition(self.frequencies, self.modes, self.damping)
+            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
         elif self.analysis_ID == 3: # Acoustic Harmonic Analysis - Direct Method
-            self.solution = self.solve.direct_method()
+            self.solution_acoustic = self.solve.direct_method()
         elif self.analysis_ID == 5: # Coupled Harmonic Analysis - Direct Method
             self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.set_acoustic_solution(self.solution_acoustic)
             self.solve = self.project.get_structural_solve()
-            self.solution_structural = self.solve.direct_method(self.frequencies, self.damping) #Coupled Harmonic Analysis - Direct Method
+            self.solution_structural = self.solve.direct_method(self.damping) #Coupled Harmonic Analysis - Direct Method
+            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
         elif self.analysis_ID == 6: # Coupled Harmonic Analysis - Mode Superposition Method
-            self.solution_acoustic = self.solve.direct_method(self.frequencies) #Acoustic Harmonic Analysis - Direct Method
+            self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.set_acoustic_solution(self.solution_acoustic)
             self.solve = self.project.get_structural_solve()
-            self.solution_structural = self.solve.mode_superposition(self.frequencies, self.modes, self.damping) 
+            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+            self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
+            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
         elif self.analysis_ID == 2: # Structural Modal Analysis
-            self.natural_frequencies_structural, self.solution = self.solve.modal_analysis(modes = self.modes)
+            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes)
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
-            self.natural_frequencies_acoustic, self.solution = self.solve.modal_analysis(modes = self.modes)
+            self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes)
         dt = time() - t0
 
         text = "Solution finished!\n"
