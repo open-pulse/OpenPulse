@@ -59,7 +59,7 @@ class RendererEntity(vtkRendererBase):
         for entity in self.project.get_entities():
             plot = ActorLine(entity, self.plotRadius)
             plot.build()
-            self.actors[plot.getActor()] = entity.getTag()
+            self.actors[plot.getActor()] = entity.get_tag()
             self._renderer.AddActor(plot.getActor())
 
     def changeColorEntities(self, entity_id, color):

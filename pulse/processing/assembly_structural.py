@@ -91,8 +91,8 @@ class AssemblyStructural:
                 self.nodes_connected_to_springs.append(node)
                 list_Klump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
                 ind_Klump.append(position)
-            # processing mass added
 
+            # processing mass added
             if node.there_are_lumped_masses:
                 position = node.global_dof
                 self.nodes_with_lumped_masses.append(node)
@@ -121,10 +121,6 @@ class AssemblyStructural:
         full_M = [csr_matrix((data_Mlump[:,j], (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof]) for j in range(cols)]
         full_C = [csr_matrix((data_Clump[:,j], (ind_Clump, ind_Clump)), shape=[total_dof, total_dof]) for j in range(cols)]
 
-        # full_K = csr_matrix((data_Klump, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof])
-        # full_M = csr_matrix((data_Mlump, (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof])
-        # full_C = csr_matrix((data_Clump, (ind_Clump, ind_Clump)), shape=[total_dof, total_dof])
-
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()
 
@@ -138,7 +134,6 @@ class AssemblyStructural:
 
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
-        
     def get_global_loads(self, pressure_external = 0, loads_matrix3D=False):
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
@@ -150,23 +145,21 @@ class AssemblyStructural:
         for element in self.mesh.structural_elements.values():
             if np.sum(element.loaded_forces) != 0:
                 position = element.global_dof
-                loads[position] += element.force_vector_gcs()   
-                
+                loads[position] += element.force_vector_gcs()      
+
         # nodal loads
         for node in self.mesh.nodes.values():
             if node.there_are_nodal_loads:
-
                 position = node.global_dof
                 if node.loaded_table_for_nodal_loads:
                     temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.loads]
                 else:
                     temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.loads]
-                
                 loads[position, :] += temp_loads
-            
+           
         unprescribed_indexes = self.get_unprescribed_indexes()
         loads = loads[unprescribed_indexes,:]
-
+        
         if self.acoustic_solution is not None:
             for element in self.mesh.structural_elements.values():
                 pressure_first = self.acoustic_solution[element.first_node.global_index, :]
@@ -188,6 +181,7 @@ class AssemblyStructural:
         return loads
     
     def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):
+        
         if there_are_table:
             list_arrays = [np.zeros_like(self.frequencies) if bc is None else bc for bc in boundary_condition]
             self.no_table = False

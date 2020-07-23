@@ -26,7 +26,7 @@ class SpecificImpedanceInput(QDialog):
         self.project = project
         self.transform_points = transform_points
         self.project_file_path = project.project_file_path
-        self.acoustic_bc_info_path = project.file._nodeAcousticPath
+        self.acoustic_bc_info_path = project.file._node_acoustic_path
 
         self.nodes = project.mesh.nodes
         self.specific_impedance = None
@@ -61,6 +61,9 @@ class SpecificImpedanceInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
+        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
+        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
+        
         self.writeNodes(list_node_ids)
         self.load_nodes_info()
         self.exec_()

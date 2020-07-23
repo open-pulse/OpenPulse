@@ -22,7 +22,6 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.entities = []
-        self.AcousticBCnodes = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
         self.nodes_with_nodal_loads = []
@@ -470,7 +469,6 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = values
             node.volume_velocity = None
-            self.AcousticBCnodes.append(node)
             if not node in self.nodes_with_acoustic_pressure:
                 self.nodes_with_acoustic_pressure.append(node)
             if values is None:

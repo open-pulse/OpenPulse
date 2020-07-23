@@ -184,7 +184,7 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_setRadiationImpedance:
             self.mainWindow.getInputWidget().setRadiationImpedance()
         elif item.text(0) == self.name_child_set_crossSection:
-            self.mainWindow.getInputWidget().set_crossSection()
+            self.mainWindow.getInputWidget().set_cross_section()
         elif item.text(0) == self.name_child_setElementType:
             self.mainWindow.getInputWidget().setElementType()
         elif item.text(0) == self.name_child_setPrescribedDofs:

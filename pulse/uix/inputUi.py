@@ -88,7 +88,7 @@ class InputUi:
             self.project.set_material(mat.material)
             entities = []
             for entity in self.project.get_entities():
-                entities.append(entity.getTag())
+                entities.append(entity.get_tag())
             print("[Set Material] - {} defined in all entities".format(mat.material.name))
             self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
 
@@ -109,11 +109,11 @@ class InputUi:
             self.project.set_fluid(fld.fluid)
             entities = []
             for entity in self.project.get_entities():
-                entities.append(entity.getTag())
+                entities.append(entity.get_tag())
             print("[Set Fluid] - {} defined in all entities".format(fld.fluid.name))
             self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
 
-    def set_crossSection(self):
+    def set_cross_section(self):
 
         cross_input = CrossSectionInput()
 
@@ -131,7 +131,7 @@ class InputUi:
             print("[Set Cross-section] - defined in the lines {}".format(entities_id))
         else:
 
-            self.project.set_crossSection(cross_section)
+            self.project.set_cross_section(cross_section)
             print("[Set Cross-section] - defined in all the entities")
         self.opv.updateEntityRadius()
 
@@ -272,7 +272,7 @@ class InputUi:
         
         if self.project.analysis_ID is None:
             return
-        if self.project.file._projectName == "":
+        if self.project.file._project_name == "":
             return
         
         if self.project.file.temp_table_name is None:

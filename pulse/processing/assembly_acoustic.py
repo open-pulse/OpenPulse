@@ -88,18 +88,11 @@ class AssemblyAcoustic:
 
             if np.sum(node_specific_impedance + node_radiation_impedance) != 0:
                 position = node.global_index
-                area_fluid = []
 
                 for element in elements:
                     if element.first_node.global_index == position or element.last_node.global_index == position:
-                        area_fluid.append(element.cross_section.area_fluid)
-
-                if np.var(area_fluid) != 0:
-                    error(" All the elements should to have an uniform Cross-Section! ")
-                    return
-                else:
-                    area_fluid = np.mean(area_fluid)
-
+                        area_fluid = element.cross_section.area_fluid
+ 
                 ind_Klump.append(position)
                 if data_Klump == []:
                     data_Klump = node.admittance(area_fluid, self.frequencies)

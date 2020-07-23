@@ -26,7 +26,7 @@ class DOFInput(QDialog):
         self.opv = opv
 
         self.project_file_path = project.project_file_path
-        self.structural_bc_info_path = project.file._nodeStructuralPath
+        self.structural_bc_info_path = project.file._node_structural_path
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""

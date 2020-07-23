@@ -13,7 +13,7 @@ class Node:
         self.y = y
         self.z = z
 
-        # Structural boundary conditions 
+        # Structural boundary conditions and external lumped elements
         self.loads = [None, None, None, None, None, None]
         self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
@@ -35,10 +35,9 @@ class Node:
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
 
-        # Acoustic boundary conditions
+        # Acoustic boundary conditions and specific impedance
         self.acoustic_pressure = None
         self.volume_velocity = None
-
         self.specific_impedance = None
         self.radiation_impedance = 0
         
@@ -72,24 +71,6 @@ class Node:
 
     def get_prescribed_dofs_bc_values(self):
         return [value for value in self.prescribed_dofs if value is not None]
-
-    # def haveBoundaryCondition(self):
-    #     if None in self.prescribed_dofs:
-    #         if list(self.prescribed_dofs).count(None) != 6:
-    #             return True
-    #         else:
-    #             return False
-    #     elif len(self.prescribed_dofs) == 6:
-    #         return True
-    
-    # def haveForce(self):
-    #     for bc in self.loads:
-    #         if isinstance(bc, complex):
-    #             return True
-    #         elif isinstance(bc, np.ndarray):
-    #             return True
-    #         else:
-    #             return False
                 
     def set_prescribed_loads(self, loads):
         self.loads = loads
@@ -142,18 +123,10 @@ class Node:
         
         if isinstance(self.specific_impedance, np.ndarray):
             admittance = np.divide(1,Z)
-        elif isinstance(self.specific_impedance, complex) or isinstance(self.specific_impedance, float):
+        elif isinstance(self.specific_impedance, complex):
             admittance = 1/Z * np.ones_like(frequencies)
         elif len([Z]) != len(frequencies):
             error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
             return
-
-        # if isinstance(Z, float):
-        #     admittance = 1/Z * np.ones_like(frequencies)
-        # elif len([Z]) != len(frequencies):
-        #     error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
-        #     return
-        # else:
-        #     admittance = np.divide(1,Z)
 
         return admittance.reshape([len(frequencies),1])

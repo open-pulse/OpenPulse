@@ -10,92 +10,92 @@ from pulse.utils import remove_bc_from_file
 
 class ProjectFile:
     def __init__(self):
-        self._projectName = ""
-        self._importType = 0
-        self._projectPath = ""
-        self._materialListPath = ""
-        self._fluidListPath = ""
-        self._geometryPath = ""
-        self._connPath = ""
-        self._cordPath = ""
-        self._nodeStructuralPath = ""
-        self._nodeAcousticPath = ""
-        self._entityPath = ""
-        self._analysisPath = ""
+        self._project_name = ""
+        self._import_type = 0
+        self._project_path = ""
+        self._material_list_path = ""
+        self._fluid_list_path = ""
+        self._geometry_path = ""
+        self._conn_path = ""
+        self._coord_path = ""
+        self._node_structural_path = ""
+        self._node_acoustic_path = ""
+        self._entity_path = ""
+        self._analysis_path = ""
         self.temp_table_name = None
 
         self.element_type_is_structural = False
 
-        self._entityFileName = "entity.dat"
-        self._nodeStructuralFileName = "structural_boundary_conditions_info.dat"
-        self._nodeAcousticFileName = "acoustic_boundary_conditions_info.dat"
-        self._projectBaseName = "project.ini"
+        self._entity_file_name = "entity.dat"
+        self._node_structural_file_name = "structural_boundary_conditions_info.dat"
+        self._node_acoustic_file_name = "acoustic_boundary_conditions_info.dat"
+        self._project_base_name = "project.ini"
 
     def _reset(self):
-        self._projectName = ""
-        self._importType = 0
-        self._projectPath = ""
-        self._materialListPath = ""
-        self._fluidListPath = ""
-        self._geometryPath = ""
-        self._connPath = ""
-        self._cordPath = ""
-        self._nodeStructuralPath = ""
-        self._nodeAcousticPath = ""
+        self._project_name = ""
+        self._import_type = 0
+        self._project_path = ""
+        self._material_list_path = ""
+        self._fluid_list_path = ""
+        self._geometry_path = ""
+        self._conn_path = ""
+        self._coord_path = ""
+        self._node_structural_path = ""
+        self._node_acoustic_path = ""
         self.element_type_is_structural = False
 
-    def new(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
-        self._projectPath = projectPath
-        self._projectName = projectName
-        self._elementSize = float(elementSize)
-        self._importType = int(importType)
-        self._materialListPath = materialListPath
-        self._fluidListPath = fluidListPath
-        self._geometryPath = geometryPath
-        self._connPath = connPath
-        self._cordPath = cordPath
-        self._entityPath = "{}\\{}".format(self._projectPath, self._entityFileName)
-        self._nodeStructuralPath = "{}\\{}".format(self._projectPath, self._nodeStructuralFileName)
-        self._nodeAcousticPath = "{}\\{}".format(self._projectPath, self._nodeAcousticFileName)
+    def new(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+        self._project_path = project_path
+        self._project_name = project_name
+        self._element_size = float(element_size)
+        self._import_type = int(import_type)
+        self._material_list_path = material_list_path
+        self._fluid_list_path = fluid_list_path
+        self._geometry_path = geometry_path
+        self._conn_path = conn_path
+        self._coord_path = coord_path
+        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
+        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
 
-    def load(self, projectFilePath):
-        self.projectFilePath = projectFilePath
-        projectFilePath = projectFilePath.replace('/', '\\')
-        projectFolderPath = os.path.dirname(projectFilePath)
+    def load(self, project_file_path):
+        self.project_file_path = project_file_path
+        project_file_path = project_file_path.replace('/', '\\')
+        project_folder_path = os.path.dirname(project_file_path)
         config = configparser.ConfigParser()
-        config.read(projectFilePath)
+        config.read(project_file_path)
 
-        projectName = config['PROJECT']['Name']
-        elementSize = config['PROJECT']['Element Size']
-        importType = config['PROJECT']['Import Type']
-        geometryFile = config['PROJECT']['Geometry File']
-        cordFile = config['PROJECT']['Cord File']
-        connFile = config['PROJECT']['Conn File']
-        materialListFile = config['PROJECT']['MaterialList File']
-        fluidListFile = config['PROJECT']['FluidList File']
+        project_name = config['PROJECT']['Name']
+        element_size = config['PROJECT']['Element Size']
+        import_type = config['PROJECT']['Import Type']
+        geometry_file = config['PROJECT']['Geometry File']
+        coord_file = config['PROJECT']['Cord File']
+        conn_file = config['PROJECT']['Conn File']
+        material_list_file = config['PROJECT']['MaterialList File']
+        fluid_list_file = config['PROJECT']['FluidList File']
 
-        self._projectPath = projectFolderPath
-        self._projectName = projectName
-        self._elementSize = float(elementSize)
-        self._importType = int(importType)
-        self._materialListPath = "{}\\{}".format(self._projectPath, materialListFile)
-        self._fluidListPath = "{}\\{}".format(self._projectPath, fluidListFile)
-        self._geometryPath = "{}\\{}".format(self._projectPath, geometryFile)
-        self._connPath = "{}\\{}".format(self._projectPath, connFile)
-        self._cordPath = "{}\\{}".format(self._projectPath, cordFile)
+        self._project_path = project_folder_path
+        self._project_name = project_name
+        self._element_size = float(element_size)
+        self._import_type = int(import_type)
+        self._material_list_path = "{}\\{}".format(self._project_path, material_list_file)
+        self._fluid_list_path = "{}\\{}".format(self._project_path, fluid_list_file)
+        self._geometry_path = "{}\\{}".format(self._project_path, geometry_file)
+        self._conn_path = "{}\\{}".format(self._project_path, conn_file)
+        self._coord_path = "{}\\{}".format(self._project_path, coord_file)
 
-        self._entityPath = "{}\\{}".format(self._projectPath, self._entityFileName)
-        self._nodeStructuralPath = "{}\\{}".format(self._projectPath, self._nodeStructuralFileName)
-        self._nodeAcousticPath = "{}\\{}".format(self._projectPath, self._nodeAcousticFileName)
+        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
+        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
         f_min = 0
         f_max = 0
         f_step = 0
-        temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
+        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
-        config.read(temp_projectBaseFilePath)
+        config.read(temp_project_base_file_path)
         sections = config.sections()
         if "Frequency Setup" in sections:
             keys = list(config['Frequency Setup'].keys())
@@ -105,13 +105,13 @@ class ProjectFile:
                 f_step = config['Frequency Setup']['frequency step']
         return float(f_min), float(f_max), float(f_step)
 
-    def addFrequencyInFile(self, min_, max_, step_):
+    def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)
         max_ = str(max_)
         step_ = str(step_)
-        temp_projectBaseFilePath = "{}\\{}".format(self._projectPath, self._projectBaseName)
+        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
-        config.read(temp_projectBaseFilePath)
+        config.read(temp_project_base_file_path)
         sections = config.sections()
         if "Frequency Setup" in sections:
             keys = list(config['Frequency Setup'].keys())
@@ -140,14 +140,14 @@ class ProjectFile:
                 'frequency step': step_,
             }
 
-        with open(temp_projectBaseFilePath, 'w') as configfile:
-            config.write(configfile)
+        with open(temp_project_base_file_path, 'w') as config_file:
+            config.write(config_file)
 
-    def createEntityFile(self, entities):
+    def create_entity_file(self, entities):
         config = configparser.ConfigParser()
 
         for entity in entities:
-            config[str(entity.getTag())] = {
+            config[str(entity.get_tag())] = {
                 'Material ID': '',
                 'Outer Diameter': '',
                 'Thickness': '',
@@ -155,18 +155,18 @@ class ProjectFile:
                 'Element Type': '',
                 'Fluid ID': ''
             }
-        with open(self._entityPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
 
-    def getDictOfEntitiesFromFile(self):
+    def get_dict_of_entities_from_file(self):
         material_list = configparser.ConfigParser()
-        material_list.read(self._materialListPath)
+        material_list.read(self._material_list_path)
 
         fluid_list = configparser.ConfigParser()
-        fluid_list.read(self._fluidListPath)
+        fluid_list.read(self._fluid_list_path)
 
         entityFile = configparser.ConfigParser()
-        entityFile.read(self._entityPath)
+        entityFile.read(self._entity_path)
 
         dict_material = {}
         dict_cross = {}
@@ -203,17 +203,18 @@ class ProjectFile:
             thickness = entityFile[entity]['Thickness']
             offset = entityFile[entity]['Offset [e_y, e_z]']
             offset_y, offset_z = self._get_offset_from_string(offset) 
-
-            try:
-                diam_ext = float(diam_ext)
-                thickness = float(thickness)
-                offset_y = float(offset_y)
-                offset_z = float(offset_z)
-                cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
-                dict_cross[int(entity)] = cross
-            except Exception:
-                print('Error - load cross-section parameters from file!')
-                return
+  
+            if diam_ext!="" and thickness!="":
+                try:
+                    diam_ext = float(diam_ext)
+                    thickness = float(thickness)
+                    offset_y = float(offset_y)
+                    offset_z = float(offset_z)
+                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
+                    dict_cross[int(entity)] = cross
+                except Exception:
+                    error("An error has occurred while loading cross-section parameters from file.")
+                    return
 
             fluid_id = entityFile[entity]['Fluid ID']
 
@@ -229,42 +230,43 @@ class ProjectFile:
                         color =  str(fluid_list[fluid]['color'])
                         temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
                         dict_fluid[int(entity)] = temp_fluid
-        
+
         return dict_material, dict_cross, dict_element_type, dict_fluid
 
-    def addCrossSectionInFile(self, entity_id, cross_section):   
+    def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
-        config.read(self._entityPath)
+        config.read(self._entity_path)
         config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
         config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
         config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
-        with open(self._entityPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
     
     def add_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
-        config.read(self._entityPath)
+        config.read(self._entity_path)
         config[str(entity_id)]['Element Type'] = element_type
-        with open(self._entityPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
 
-    def addMaterialInFile(self, entity_id, material_id):
+    def add_material_in_file(self, entity_id, material_id):
         config = configparser.ConfigParser()
-        config.read(self._entityPath)
+        config.read(self._entity_path)
         config[str(entity_id)]['Material ID'] = str(material_id)
-        with open(self._entityPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
 
-    def addFluidInFile(self, entity_id, fluid_id):
+    def add_fluid_in_file(self, entity_id, fluid_id):
         config = configparser.ConfigParser()
-        config.read(self._entityPath)
+        config.read(self._entity_path)
         config[str(entity_id)]['Fluid ID'] = str(fluid_id)
-        with open(self._entityPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
 
     def get_dict_of_structural_bc_from_file(self):
+
         node_structural_list = configparser.ConfigParser()
-        node_structural_list.read(self._nodeStructuralPath)
+        node_structural_list.read(self._node_structural_path)
 
         self.dict_prescribed_dofs = {}
         self.dict_nodal_loads = {}
@@ -279,49 +281,49 @@ class ProjectFile:
             if "displacements" in keys and "rotations" in keys:
                 displacement_strings = node_structural_list[str(node)]['displacements']
                 rotation_strings = node_structural_list[str(node)]['rotations']
-                prescribed_dofs = self._get_structural_bc_from_string(displacement_strings, rotation_strings)
-                if prescribed_dofs == []:
-                    return
-                self.dict_prescribed_dofs[node_id] = prescribed_dofs
-            
+                labels = [["Ux","Uy","Uz"],["Rx","Ry","Rz"]]
+                prescribed_dofs = self._get_structural_bc_from_string(displacement_strings, rotation_strings, labels)
+                if prescribed_dofs is not None:
+                    self.dict_prescribed_dofs[node_id] = prescribed_dofs
+                               
             if "forces" in keys and "moments" in keys:
                 forces_strings = node_structural_list[str(node)]['forces'] 
                 moments_strings = node_structural_list[str(node)]['moments']
-                nodal_loads = self._get_structural_bc_from_string(forces_strings, moments_strings)
-                if nodal_loads == []:
-                    return
-                self.dict_nodal_loads[node_id] = nodal_loads
+                labels = [["Fx","Fy","Fz"],["Mx","My","Mz"]]
+                nodal_loads = self._get_structural_bc_from_string(forces_strings, moments_strings, labels)
+                if nodal_loads is not None:
+                    self.dict_nodal_loads[node_id] = nodal_loads
             
             if "masses" in keys and "moments of inertia" in keys:
                 masses = node_structural_list[str(node)]['masses']
                 moments_of_inertia = node_structural_list[str(node)]['moments of inertia']
-                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia)
-                if lumped_inertia == []:
-                    return
-                self.dict_lumped_inertia[node_id] = lumped_inertia
+                labels = [["m_x","m_y","m_z"],["Jx","Jy","Jz"]]
+                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia, labels)
+                if lumped_inertia is not None:
+                    self.dict_lumped_inertia[node_id] = lumped_inertia
 
             if "spring stiffness" in keys and "torsional spring stiffness" in keys:
                 spring_stiffness = node_structural_list[str(node)]['spring stiffness']
                 torsional_spring_stiffness = node_structural_list[str(node)]['torsional spring stiffness']
-                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness)
-                if lumped_stiffness == []:
-                    return
-                self.dict_lumped_stiffness[node_id] = lumped_stiffness
+                labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
+                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels)
+                if lumped_stiffness is not None:
+                    self.dict_lumped_stiffness[node_id] = lumped_stiffness
 
             if "damping coefficients" in keys and "torsional damping coefficients":
                 damping_coefficients = node_structural_list[str(node)]['damping coefficients']
                 torsional_damping_coefficients = node_structural_list[str(node)]['torsional damping coefficients']
-                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients)
-                if lumped_damping == []:
-                    return
-                self.dict_lumped_damping[node_id] = lumped_damping
+                labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
+                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels)
+                if lumped_damping is not None:
+                    self.dict_lumped_damping[node_id] = lumped_damping
         
         return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping
 
-    def getDictOfAcousticBCFromFile(self):
+    def get_dict_of_acoustic_bc_from_file(self):
 
         node_acoustic_list = configparser.ConfigParser()
-        node_acoustic_list.read(self._nodeAcousticPath)
+        node_acoustic_list.read(self._node_acoustic_path)
 
         dict_pressure = {}
         dict_volume_velocity = {}  
@@ -333,25 +335,25 @@ class ProjectFile:
             keys = list(node_acoustic_list[node].keys())
             
             if "acoustic pressure" in keys:
-                pressure = node_acoustic_list[str(node)]['acoustic pressure']
-                message = "The loaded acoustic pressure table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                actPressure = self._get_acoustic_bc_from_string(pressure, message)
-                dict_pressure[node_id] = actPressure
+                str_acoustic_pressure = node_acoustic_list[str(node)]['acoustic pressure']
+                acoustic_pressure = self._get_acoustic_bc_from_string(str_acoustic_pressure, "acoustic pressure")
+                if acoustic_pressure is not None:
+                    dict_pressure[node_id] = acoustic_pressure
 
             if "volume velocity" in keys:
-                volume_velocity = node_acoustic_list[str(node)]['volume velocity']
-                message = "The loaded volume velocity table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                volVelocity = self._get_acoustic_bc_from_string(volume_velocity, message)
-                dict_volume_velocity[node_id] = volVelocity
+                str_volume_velocity = node_acoustic_list[str(node)]['volume velocity']
+                volumel_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, "volume velocity")
+                if volumel_velocity is not None:
+                    dict_volume_velocity[node_id] = volumel_velocity
 
             if "specific impedance" in keys:
-                specific_impedance = node_acoustic_list[str(node)]['specific impedance']
-                message = "The loaded specific impedance table has invalid data \nstructure, therefore, it will be ignored in analysis."
-                specImpedance = self._get_acoustic_bc_from_string(specific_impedance, message)
-                dict_specific_impedance[node_id] = specImpedance
+                str_specific_impedance = node_acoustic_list[str(node)]['specific impedance']
+                specific_impedance = self._get_acoustic_bc_from_string(str_specific_impedance, "specific impedance")
+                if specific_impedance is not None:
+                    dict_specific_impedance[node_id] = specific_impedance
 
-            if "radiation impedance" in keys:
-                radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
+            # if "radiation impedance" in keys:
+            #     radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
                 # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
                 # dict_radiation_impedance[node_id] = radImpedance
 
@@ -367,21 +369,19 @@ class ProjectFile:
                 offset_z = float(offset[1])
         return offset_y, offset_z
 
-    def _get_acoustic_bc_from_string(self, value, message):
+    def _get_acoustic_bc_from_string(self, value, label):
         
         load_path_table = ""
         value = value[1:-1].split(',')
-        
         output = None
+
         if len(value) == 1:
             if value[0] != 'None':
-
                 try:
                     output = complex(value[0])
                 except Exception:
-
                     try:
-                        path = os.path.dirname(self.projectFilePath)
+                        path = os.path.dirname(self.project_file_path)
                         if "/" in path:
                             load_path_table = "{}/{}".format(path, value[0])
                         elif "\\" in path:
@@ -392,86 +392,66 @@ class ProjectFile:
                         self.f_min = self.frequencies[0]
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
-                        
                     except Exception:
-                        error(message)
-                        # error(str(e), title="ERROR WHILE LOADING ACOUSTIC BOUNDARY CONDITIONS")              
+                        message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label) 
+                        error(message, title = "LOADING TABLE ERROR")             
         return output
 
-    def _get_structural_bc_from_string(self, first, last):
+    def _get_structural_bc_from_string(self, first, last, labels):
         
         first = first[1:-1].split(',')
         last = last[1:-1].split(',')
-          
-        bc_1 = bc_2 = bc_3 = bc_4 = bc_5 = bc_6 = None
+        output = [None, None, None, None, None, None]
 
         if len(first)==3 and len(last)==3:
-
-            try:
-
-                if first[0] != 'None':
-                    bc_1 = complex(first[0])
-                if first[1] != 'None':
-                    bc_2 = complex(first[1])
-                if first[2] != 'None':
-                    bc_3 = complex(first[2])
-
-                if last[0] != 'None':
-                    bc_4 = complex(last[0])
-                if last[1] != 'None':
-                    bc_5 = complex(last[1])
-                if last[2] != 'None':
-                    bc_6 = complex(last[2])
-                
-                output = [bc_1, bc_2, bc_3, bc_4, bc_5, bc_6]
-
-            except Exception:
-
-                output = []
-
-                try:  
-
-                    for i in range(3):
-                        tables_first = self.structural_tables_load(first[i])
-                        output.append(tables_first)
-
-                    for i in range(3):
-                        tables_last = self.structural_tables_load(last[i])
-                        output.append(tables_last)
-
-                except Exception as e:
-                    error(str(e), title="ERROR WHILE LOADING STRUCTURAL BOUNDARY CONDITIONS")
-    
+            for i in range(3):
+                try:
+                    if first[i] != 'None':
+                        output[i] = complex(first[i])
+                    if last[i] != 'None':
+                        output[i+3] = complex(last[i])
+                except Exception:
+                    try:
+                        output[i] = self.structural_tables_load(first[i], labels[0][i])
+                        output[i+3] = self.structural_tables_load(last[i], labels[1][i])
+                    except Exception as e:
+                        error(str(e), title = "ERROR")
         return output
 
+    def structural_tables_load(self, table_name, label):
+        output = None
+        try:
+            if table_name == "None":
+                return output
 
-    def structural_tables_load(self, table_name):
+            load_path_table = ""
+            path = os.path.dirname(self.project_file_path)
+            if "/" in path:
+                load_path_table = "{}/{}".format(path, table_name)
+            elif "\\" in path:
+                load_path_table = "{}\\{}".format(path, table_name)
+            data = np.loadtxt(load_path_table, delimiter=",")
+            if label in ['m_x','m_y','m_z','Jx','Jy','Jz','k_x','k_y','k_z','k_rx','k_ry','k_rz','c_x','c_y','c_z','c_rx','c_ry','c_rz']:
+                output = data[:,1]
+            else:
+                output = data[:,1] + 1j*data[:,2]
 
-        if table_name == "None":
-            return None
+            f = open(load_path_table)
+            header_read = f.readline()
+            
+            self.frequencies = data[:,0]
+            self.f_min = self.frequencies[0]
+            self.f_max = self.frequencies[-1]
+            self.f_step = self.frequencies[1] - self.frequencies[0]
 
-        load_path_table = ""
-        path = os.path.dirname(self.projectFilePath)
-        if "/" in path:
-            load_path_table = "{}/{}".format(path, table_name)
-        elif "\\" in path:
-            load_path_table = "{}\\{}".format(path, table_name)
-        data = np.loadtxt(load_path_table, delimiter=",")
-        output = data[:,1] + 1j*data[:,2]
+            if ('[m/s]' or '[rad/s]') in header_read:
+                output = output/(2*pi*self.frequencies)
+            elif ('[m/s²]' or '[rad/s²]') in header_read:
+                output = output/((2*pi*self.frequencies)**2)
 
-        f = open(load_path_table)
-        header_read = f.readline()
-        
-        self.frequencies = data[:,0]
-        self.f_min = self.frequencies[0]
-        self.f_max = self.frequencies[-1]
-        self.f_step = self.frequencies[1] - self.frequencies[0]
-
-        if ('[m/s]' or '[rad/s]') in header_read:
-            output = output/(2*pi*self.frequencies)
-        elif ('[m/s²]' or '[rad/s²]') in header_read:
-            output = output/((2*pi*self.frequencies)**2)
-
+        except Exception: 
+            message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label)  
+            error(message, title="LOADING TABLE ERROR")     
         return output
 
     # def _getRadiationImpedanceBCFromString(self, radiation_impedance):
@@ -485,23 +465,23 @@ class ProjectFile:
     def _single_structural_excitation_bc(self, node_id, labels):
         if labels[0] == 'displacements' and labels[1] == 'rotations':
             key_strings = ['forces', 'moments']
-            remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
+            remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
         elif labels[0] == 'forces' and labels[1] == 'moments':
             key_strings = ['displacements', 'rotations']
-            remove_bc_from_file(node_id, self._nodeStructuralPath, key_strings, None)
+            remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
 
     def _single_acoustic_excitation_bc(self, node_id, label):
         if label[0] == 'acoustic pressure':
             key_strings = ['volume velocity']
-            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
         elif label[0] == 'volume velocity':
             key_strings = ['acoustic pressure']
-            remove_bc_from_file(node_id, self._nodeAcousticPath, key_strings, None)
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
         for node_id in nodesID_list:
             config = configparser.ConfigParser()
-            config.read(self._nodeStructuralPath)
+            config.read(self._node_structural_path)
             if str(node_id) in config.sections():
                 if loaded_table:
                     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
@@ -509,7 +489,7 @@ class ProjectFile:
                 else:
                     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
                     config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
-                self.write_bc_in_file(self._nodeStructuralPath, config)
+                self.write_bc_in_file(self._node_structural_path, config)
                 self._single_structural_excitation_bc([node_id], labels)
             else:
                 if loaded_table:
@@ -522,49 +502,49 @@ class ProjectFile:
                                             labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
                                             labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])
                                             }
-                self.write_bc_in_file(self._nodeStructuralPath, config)
+                self.write_bc_in_file(self._node_structural_path, config)
 
     def add_acoustic_bc_in_file(self, list_nodesID, value, loaded_table, table_name, label):
         for node_id in list_nodesID:
             config = configparser.ConfigParser()
-            config.read(self._nodeAcousticPath)
+            config.read(self._node_acoustic_path)
             if str(node_id) in config.sections():
                 if loaded_table:
                     config[str(node_id)][label[0]]  = "[{}]".format(table_name)
                 else:
                     config[str(node_id)][label[0]] = "[{}]".format(value)
-                self.write_bc_in_file(self._nodeAcousticPath, config)
+                self.write_bc_in_file(self._node_acoustic_path, config)
                 self._single_acoustic_excitation_bc([node_id], label)
             else:
                 if loaded_table:
                     config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
                 else:    
                     config[str(node_id)] = {label[0]: "[{}]".format(value)}
-                self.write_bc_in_file(self._nodeAcousticPath, config)
+                self.write_bc_in_file(self._node_acoustic_path, config)
 
     def write_bc_in_file(self, path, config):
-        with open(path, 'w') as configfile:
-            config.write(configfile)
+        with open(path, 'w') as config_file:
+            config.write(config_file)
 
-    def getImportType(self):
-        return self._importType
-
-    @property
-    def elementSize(self):
-        return self._elementSize
+    def get_import_type(self):
+        return self._import_type
 
     @property
-    def geometryPath(self):
-        return self._geometryPath
+    def element_size(self):
+        return self._element_size
 
     @property
-    def cordPath(self):
-        return self._cordPath
+    def geometry_path(self):
+        return self._geometry_path
 
     @property
-    def connPath(self):
-        return self._connPath
+    def coord_path(self):
+        return self._coord_path
 
     @property
-    def materialListPath(self):
-        return self._materialListPath
+    def conn_path(self):
+        return self._conn_path
+
+    @property
+    def material_list_path(self):
+        return self._material_list_path

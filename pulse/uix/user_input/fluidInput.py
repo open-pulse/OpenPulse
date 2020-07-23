@@ -124,8 +124,8 @@ class FluidInput(QDialog):
             config.read(self.fluidPath)
             if self.lineEdit_name_remove.text() != "":
                 config.remove_section(self.lineEdit_name_remove.text().upper())
-                with open(self.fluidPath, 'w') as configfile:
-                    config.write(configfile)
+                with open(self.fluidPath, 'w') as config_file:
+                    config.write(config_file)
                 self.treeWidget.clear()
                 self.clicked_item = None
                 self.loadList()
@@ -330,8 +330,8 @@ class FluidInput(QDialog):
             'impedance': impedance,
             'color': color
             }
-            with open(self.fluidPath, 'w') as configfile:
-                config.write(configfile)
+            with open(self.fluidPath, 'w') as config_file:
+                config.write(config_file)
                     
         except Exception as e:
             error(str(e), "Error while loading the fluid list")
@@ -409,8 +409,8 @@ class FluidInput(QDialog):
             'Impedance': 293.02,
             'Color': '[0,255,255]' } #Cyan
 
-        with open(self.fluidPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self.fluidPath, 'w') as config_file:
+            config.write(config_file)
         
     def reset_library_to_default(self):
         self.default_fluid_library()

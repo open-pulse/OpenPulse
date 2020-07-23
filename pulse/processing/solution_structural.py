@@ -41,31 +41,26 @@ class SolutionStructural:
 
     def get_combined_loads(self, global_damping_values):
 
+        alphaH, betaH, alphaV, betaV = global_damping_values
+
         F = self.assembly.get_global_loads()
-        
         unprescribed_indexes = self.unprescribed_indexes
         prescribed_values = self.prescribed_values
-
-        alphaH, betaH, alphaV, betaV = global_damping_values
         
         Kr = (self.Kr.toarray())[unprescribed_indexes, :]
         Mr = (self.Mr.toarray())[unprescribed_indexes, :]
-
-        Kr_lump = [(Kr_lump.toarray())[unprescribed_indexes, :] for Kr_lump in self.Kr_lump]
-        Mr_lump = [(Mr_lump.toarray())[unprescribed_indexes, :] for Mr_lump in self.Mr_lump]
-        Cr_lump = [(Cr_lump.toarray())[unprescribed_indexes, :] for Cr_lump in self.Cr_lump]
+        Kr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Kr_lump]
+        Mr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Mr_lump]
+        Cr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Cr_lump]
 
         rows = Kr.shape[0]
         cols = len(self.frequencies)
-        
         Kr_add = np.zeros((rows,cols), dtype=complex)
         Mr_add = np.zeros((rows,cols), dtype=complex)
         Kr_add_lump = np.zeros((rows,cols), dtype=complex)
         Mr_add_lump = np.zeros((rows,cols), dtype=complex)
         Cr_add_lump = np.zeros((rows,cols), dtype=complex)
-
         F_eq = np.zeros((rows,cols), dtype=complex)
-
         aux_ones = np.ones(cols, dtype=complex)
         list_prescribed_dofs = []
 
@@ -79,30 +74,26 @@ class SolutionStructural:
         except Exception as e:
             error(str(e))
             return F_eq
-
+                   
         for i in range(cols):
-        
             if list_prescribed_dofs != []:
                 Kr_add[:,i] = np.sum(Kr*self.array_prescribed_values[:,i], axis=1)
                 Mr_add[:,i] = np.sum(Mr*self.array_prescribed_values[:,i], axis=1)
-            
                 Kr_add_lump[:,i] = np.sum(Kr_lump[i]*self.array_prescribed_values[:,i], axis=1)
                 Mr_add_lump[:,i] = np.sum(Mr_lump[i]*self.array_prescribed_values[:,i], axis=1)
                 Cr_add_lump[:,i] = np.sum(Cr_lump[i]*self.array_prescribed_values[:,i], axis=1)
-
+        
         for i, freq in enumerate(self.frequencies):
 
             omega = 2*np.pi*freq
             F_Kadd = Kr_add[:,i] + Kr_add_lump[:,i]
             F_Madd = (-(omega**2))*(Mr_add[:,i] + Mr_add_lump[:,i]) 
             F_Cadd = 1j*((betaH + omega*betaV)*Kr_add[:,i] + (alphaH + omega*alphaV)*Mr_add[:,i])
-
             F_Cadd_lump = 1j*omega*Cr_add_lump[:,i]
-
             F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
 
         F_combined = F - F_eq
-        
+
         return F_combined
 
 
@@ -133,7 +124,6 @@ class SolutionStructural:
                         self.flag_Modal_prescribed_NonNull_DOFs = True
                         self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
                                                             "The null value has been attributed to those DOFs with non-zero values."]
-
         return natural_frequencies, modal_shape
 
 
@@ -176,6 +166,7 @@ class SolutionStructural:
         self.solution = self._reinsert_prescribed_dofs(solution)
 
         return self.solution
+
 
     def mode_superposition(self, modes, F_loaded=None, global_damping_values=(0,0,0,0), fastest=True):
         
@@ -246,6 +237,7 @@ class SolutionStructural:
 
         return self.solution
 
+
     def get_reactions_at_fixed_nodes(self, global_damping_values=(0,0,0,0)):
 
         ''' This method returns reaction forces/moments at fixed points.
@@ -278,6 +270,7 @@ class SolutionStructural:
             for i, prescribed_index in enumerate(self.prescribed_indexes):
                 load_reactions[prescribed_index] =  _reactions[:,i]
             return load_reactions
+
 
     def get_reactions_at_springs_and_dampers(self):
 

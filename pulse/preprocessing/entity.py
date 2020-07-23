@@ -22,7 +22,7 @@ class Entity:
     def get_elements(self):
         return self.elements
 
-    def getTag(self):
+    def get_tag(self):
         return self.tag
 
     def getColor(self):

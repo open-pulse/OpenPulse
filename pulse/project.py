@@ -18,7 +18,7 @@ class Project:
         self.mesh = Mesh()
         self.file = ProjectFile()
 
-        self._projectName = ""
+        self._project_name = ""
         self.project_file_path = ""
 
         #Analysis
@@ -58,28 +58,28 @@ class Project:
         self.plot_pressure_field = False
         self.is_file_loaded = False
 
-    def new_project(self, projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath = "", cordPath = "", connPath = ""):
+    def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
-        self.file.new(projectPath, projectName, elementSize, importType, materialListPath, fluidListPath, geometryPath, cordPath, connPath)
-        self._projectName = projectName
+        self.file.new(project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self._project_name = project_name
 
-        if self.file.getImportType() == 0:
-            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
-        elif self.file.getImportType() == 1:
-            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
+        if self.file.get_import_type() == 0:
+            self.mesh.generate(self.file.geometry_path, self.file.element_size)
+        elif self.file.get_import_type() == 1:
+            self.mesh.load_mesh(self.file.coord_path, self.file.conn_path)
 
-        self.file.createEntityFile(self.get_entities())
+        self.file.create_entity_file(self.get_entities())
 
-    def load_project(self, projectFilePath):
+    def load_project(self, project_file_path):
 
         self.reset_info()
-        self.file.load(projectFilePath)
-        self._projectName = self.file._projectName
+        self.file.load(project_file_path)
+        self._project_name = self.file._project_name
 
-        if self.file.getImportType() == 0:
-            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
-        elif self.file.getImportType() == 1:
-            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
+        if self.file.get_import_type() == 0:
+            self.mesh.generate(self.file.geometry_path, self.file.element_size)
+        elif self.file.get_import_type() == 1:
+            self.mesh.load_mesh(self.file.coord_path, self.file.conn_path)
 
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
@@ -90,20 +90,20 @@ class Project:
         else:
             self.load_frequencies_from_table()
 
-    def load_project_progress_bar(self, projectFilePath, progressBar, textLabel):
+    def load_project_progress_bar(self, project_file_path, progressBar, textLabel):
 
         progressBar.setValue(0)
         textLabel.setText("Loading Project File...")
         self.reset_info()
-        self.file.load(projectFilePath)
+        self.file.load(project_file_path)
         progressBar.setValue(10)
         textLabel.setText("Generating Mesh...")
-        self._projectName = self.file._projectName
+        self._project_name = self.file._project_name
 
-        if self.file.getImportType() == 0:
-            self.mesh.generate(self.file.geometryPath, self.file.elementSize)
-        elif self.file.getImportType() == 1:
-            self.mesh.load_mesh(self.file.cordPath, self.file.connPath)
+        if self.file.get_import_type() == 0:
+            self.mesh.generate(self.file.geometry_path, self.file.element_size)
+        elif self.file.get_import_type() == 1:
+            self.mesh.load_mesh(self.file.coord_path, self.file.conn_path)
         progressBar.setValue(30)
         textLabel.setText("Loading Structural B.C File...")
 
@@ -125,12 +125,12 @@ class Project:
         progressBar.setValue(100)
         textLabel.setText("Complete!")
   
-    def set_Entity(self, tag):
+    def set_entity(self, tag):
         return Entity(tag)
 
     def load_entity_file(self):
 
-        dict_materials, dict_cross_sections, dict_element_types, fluid = self.file.getDictOfEntitiesFromFile()
+        dict_materials, dict_cross_sections, dict_element_types, fluid = self.file.get_dict_of_entities_from_file()
 
         # Element type to Entities
         for key, el_type in dict_element_types.items():
@@ -195,7 +195,7 @@ class Project:
                 try:
                     self.load_prescribed_dofs_bc_by_node(key, dofs)
                 except Exception:
-                    error("There is some error while loading prescribed data.")
+                    error("There is some error while loading prescribed dofs data.")
 
         for key, loads in external_loads.items():
             if isinstance(loads, list):
@@ -226,7 +226,7 @@ class Project:
                     error("There is some error while lumped damping data.")   
 
     def load_acoustic_bc_file(self):
-        pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.getDictOfAcousticBCFromFile()
+        pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.get_dict_of_acoustic_bc_from_file()
         for key, ActPres in pressure.items():
             if ActPres is not None:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
@@ -251,42 +251,42 @@ class Project:
         self.mesh.set_material_by_element('all', material)
         self._set_all_entity_material(material)
         for entity in self.mesh.entities:
-            self.file.addMaterialInFile(entity.getTag(), material.identifier)
+            self.file.add_material_in_file(entity.get_tag(), material.identifier)
 
     def set_material_by_entity(self, entity_id, material):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_material_by_line(entity_id, material)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_material_by_element('all', material)
 
         self._set_entity_material(entity_id, material)
-        self.file.addMaterialInFile(entity_id, material.identifier)
+        self.file.add_material_in_file(entity_id, material.identifier)
 
-    def set_crossSection(self, cross_section):
+    def set_cross_section(self, cross_section):
         self.mesh.set_cross_section_by_element('all', cross_section)
         self._set_all_entity_crossSection(cross_section)
         for entity in self.mesh.entities:
-            self.file.addCrossSectionInFile(entity.getTag(), cross_section)
+            self.file.add_cross_section_in_file(entity.get_tag(), cross_section)
 
     def set_crossSection_by_entity(self, entity_id, cross_section):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
         self._set_entity_crossSection(entity_id, cross_section)
-        self.file.addCrossSectionInFile(entity_id, cross_section)
+        self.file.add_cross_section_in_file(entity_id, cross_section)
 
     def set_element_type_to_all(self, element_type):
         self.mesh.set_element_type_by_element('all', element_type)
         self._set_all_entity_element_type(element_type)
         for entity in self.mesh.entities:
-            self.file.add_element_type_in_file(entity.getTag(), element_type)
+            self.file.add_element_type_in_file(entity.get_tag(), element_type)
         
     def set_element_type_by_entity(self, entity_id, element_type):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_element_type_by_line(entity_id, element_type)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_element_type_by_element('all', element_type)
 
         self._set_entity_element_type(entity_id, element_type)
@@ -318,33 +318,33 @@ class Project:
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
     def load_material_by_entity(self, entity_id, material):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_material_by_line(entity_id, material)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_material_by_element('all', material)
 
         self._set_entity_material(entity_id, material)
 
     def load_fluid_by_entity(self, entity_id, fluid):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_fluid_by_line(entity_id, fluid)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_fluid_by_element('all', fluid)
 
         self._set_entity_fluid(entity_id, fluid)
 
     def load_crossSection_by_entity(self, entity_id, cross_section):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
         self._set_entity_crossSection(entity_id, cross_section)
 
     def load_element_type_by_entity(self, entity_id, element_type):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_element_type_by_line(entity_id, element_type)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_element_type_by_element('all', element_type)
 
         self._set_entity_element_type(entity_id, element_type)
@@ -370,7 +370,7 @@ class Project:
     def set_frequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
             self.f_min, self.f_max, self.f_step = min_, max_, step_
-            self.file.addFrequencyInFile(min_, max_, step_)
+            self.file.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
 
     def load_prescribed_dofs_bc_by_node(self, node_id, bc):
@@ -413,19 +413,19 @@ class Project:
         return self.mesh.structural_elements
 
     def set_fluid_by_entity(self, entity_id, fluid):
-        if self.file.getImportType() == 0:
+        if self.file.get_import_type() == 0:
             self.mesh.set_fluid_by_line(entity_id, fluid)
-        elif self.file.getImportType() == 1:
+        elif self.file.get_import_type() == 1:
             self.mesh.set_fluid_by_element('all', fluid)
 
         self._set_entity_fluid(entity_id, fluid)
-        self.file.addFluidInFile(entity_id, fluid.identifier)
+        self.file.add_fluid_in_file(entity_id, fluid.identifier)
 
     def set_fluid(self, fluid):
         self.mesh.set_fluid_by_element('all', fluid)
         self._set_all_entity_fluid(fluid)
         for entity in self.mesh.entities:
-            self.file.addFluidInFile(entity.getTag(), fluid.identifier)
+            self.file.add_fluid_in_file(entity.get_tag(), fluid.identifier)
 
     def set_acoustic_pressure_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, values) 
@@ -491,11 +491,11 @@ class Project:
 
     def get_entity(self, entity_id):
         for entity in self.mesh.entities:
-            if entity.getTag() == entity_id:
+            if entity.get_tag() == entity_id:
                 return entity
 
     def get_element_size(self):
-        return self.file.elementSize
+        return self.file.element_size
 
     def check_entity_material(self):
         for entity in self.get_entities():
@@ -522,13 +522,13 @@ class Project:
         return self.modes
 
     def get_material_list_path(self):
-        return self.file.materialListPath
+        return self.file.material_list_path
     
     def get_fluid_list_path(self):
-        return self.file._fluidListPath
+        return self.file._fluid_list_path
 
     def get_project_name(self):
-        return self._projectName
+        return self._project_name
 
     def set_analysis_type(self, ID, analysis_text, method_text = ""):
         self.analysis_ID = ID

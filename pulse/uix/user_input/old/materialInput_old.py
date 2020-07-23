@@ -99,5 +99,5 @@ class MaterialInput(QDialog):
             'Poisson': float(self.line_f.text()),
             'Color': self.line_color.text() #Blue
         }
-        with open(self.path, 'w') as configfile:
-            config.write(configfile)
+        with open(self.path, 'w') as config_file:
+            config.write(config_file)

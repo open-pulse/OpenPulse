@@ -117,8 +117,8 @@ class MaterialInput(QDialog):
             config.read(self.materialPath)
             if self.lineEdit_name_remove.text() != "":
                 config.remove_section(self.lineEdit_name_remove.text().upper())
-                with open(self.materialPath, 'w') as configfile:
-                    config.write(configfile)
+                with open(self.materialPath, 'w') as config_file:
+                    config.write(config_file)
                 self.treeWidget.clear()
                 self.clicked_item = None
                 self.loadList()
@@ -326,8 +326,8 @@ class MaterialInput(QDialog):
             'Poisson': poisson,
             'Color': color
             }
-            with open(self.materialPath, 'w') as configfile:
-                config.write(configfile)
+            with open(self.materialPath, 'w') as config_file:
+                config.write(config_file)
                     
         except Exception as e:
             error(str(e), "Error while loading the material list")
@@ -429,8 +429,8 @@ class MaterialInput(QDialog):
             'Poisson': 0.345,
             'Color': '[181,166,66]' } #Brass color
 
-        with open(self.materialPath, 'w') as configfile:
-            config.write(configfile)
+        with open(self.materialPath, 'w') as config_file:
+            config.write(config_file)
         
     def reset_library_to_default(self):
         self.default_material_library()

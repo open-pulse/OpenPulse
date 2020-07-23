@@ -81,8 +81,8 @@ def remove_bc_from_file(nodes_typed, path, key_strings, message):
                             _bc_list.remove_section(node_id)
                         bc_removed = True
 
-        with open(path, 'w') as configfile:
-            _bc_list.write(configfile)
+        with open(path, 'w') as config_file:
+            _bc_list.write(config_file)
 
         if message is not None and bc_removed:
             info_messages(message)

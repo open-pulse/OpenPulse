@@ -24,7 +24,7 @@ class LoadsInput(QDialog):
         self.transform_points = opv.transformPoints
         self.opv = opv
         self.project_file_path = project.project_file_path
-        self.structural_bc_info_path = project.file._nodeStructuralPath
+        self.structural_bc_info_path = project.file._node_structural_path
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
@@ -104,6 +104,9 @@ class LoadsInput(QDialog):
 
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
+
+        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
+        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
 
         self.writeNodes(list_node_ids)
         self.load_nodes_info()

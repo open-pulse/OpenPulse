@@ -103,7 +103,7 @@ class MainWindow(QMainWindow):
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
         self.set_crossSection_action.setShortcut('Alt+2')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
-        self.set_crossSection_action.triggered.connect(self.getInputWidget().set_crossSection)
+        self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
         self.setElementType_action = QAction('&Set Element Type', self)        
         self.setElementType_action.setShortcut('Alt+3')
@@ -299,10 +299,10 @@ class MainWindow(QMainWindow):
 
     def savePNG_call(self):
         userPath = expanduser('~')
-        projectPath = "{}\\OpenPulse\\Projects".format(userPath)
-        if not exists(projectPath):
-            projectPath = ""
-        path, _type = QFileDialog.getSaveFileName(None, 'Save file', projectPath, 'PNG (*.png)')
+        project_path = "{}\\OpenPulse\\Projects".format(userPath)
+        if not exists(project_path):
+            project_path = ""
+        path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.getOPVWidget().savePNG(path)
 
