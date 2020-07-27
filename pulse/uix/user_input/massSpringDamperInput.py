@@ -370,7 +370,7 @@ class MassSpringDamperInput(QDialog):
         
         self.basename = ""
         window_label = 'Choose a table to import the {} nodal load'.format(text)
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Dat Files (*.dat)')
+        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
 
         if self.path_imported_table == "":
             return "", ""

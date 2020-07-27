@@ -25,7 +25,7 @@ class Project:
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
-        self.damping = [0,0,0,0]
+        self.global_damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = None
         self.f_min = 0
@@ -44,7 +44,7 @@ class Project:
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
-        self.damping = [0,0,0,0]
+        self.global_damping = [0,0,0,0]
         self.modes = 0
         self.frequencies = None
         self.f_min = 0
@@ -241,7 +241,7 @@ class Project:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
 
     def load_analysis_file(self):
-        self.f_min, self.f_max, self.f_step = self.file.load_analysis_file()
+        self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
 
     def load_frequencies_from_table(self):
         self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
@@ -545,10 +545,11 @@ class Project:
         return self.analysis_method_label
 
     def set_damping(self, value):
-        self.damping = value
+        self.global_damping = value
+        self.file.add_damping_in_file(value)
 
     def get_damping(self):
-        return self.damping
+        return self.global_damping
 
     def get_structural_solve(self):
         if self.analysis_ID in [5,6]:

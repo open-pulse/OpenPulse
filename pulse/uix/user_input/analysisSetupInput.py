@@ -9,9 +9,11 @@ import configparser
 import numpy as np
 
 class AnalysisSetupInput(QDialog):
-    def __init__(self, analysis_ID, title, subtitle, f_min = 0, f_max = 0, f_step = 0):
+    def __init__(self, analysis_info, global_damping, f_min = 0, f_max = 0, f_step = 0):
         super().__init__()
-        self.analysis_ID = analysis_ID
+        self.analysis_ID = analysis_info[0]
+        title = analysis_info[1]
+        subtitle = analysis_info[2]
 
         if self.analysis_ID in [1,6]:
             uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_ModeSuperpositionMethod.ui', self)
@@ -31,7 +33,7 @@ class AnalysisSetupInput(QDialog):
         self.f_max = f_max
         self.f_step = f_step
 
-        self.damping = [0,0,0,0]
+        self.global_damping = global_damping
         self.modes = 0
 
         self.label_title = self.findChild(QLabel, 'label_title')
@@ -55,13 +57,19 @@ class AnalysisSetupInput(QDialog):
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
         self.currentTab = self.tabWidget.currentIndex()
-
+        
         self.label_title.setText(title)
         self.label_subtitle.setText(subtitle)
         if self.f_step != 0:
             self.lineEdit_fmin.setText(str(self.f_min))
             self.lineEdit_fmax.setText(str(self.f_max))
             self.lineEdit_fstep.setText(str(self.f_step))
+
+        if True in [True if damp != 0 else False for damp in self.global_damping]:
+            self.lineEdit_av.setText(str(global_damping[0]))
+            self.lineEdit_bv.setText(str(global_damping[1]))
+            self.lineEdit_ah.setText(str(global_damping[2]))
+            self.lineEdit_bh.setText(str(global_damping[3]))
 
         self.exec_()
 
@@ -124,36 +132,36 @@ class AnalysisSetupInput(QDialog):
                     error("Value error (freq df)")
                     return
                 
-        a_v = b_v = a_h = b_h = 0
+        alpha_v = beta_v = alpha_h = beta_h = 0
         if self.lineEdit_av.text() != "":
             try:
-                a_v = float(self.lineEdit_av.text())
+                alpha_v = float(self.lineEdit_av.text())
             except Exception:
-                error("Value error (a_v)")
+                error("Value error (alpha_v)")
                 return
 
         if self.lineEdit_bv.text() != "":
             try:
-                b_v = float(self.lineEdit_bv.text())
+                beta_v = float(self.lineEdit_bv.text())
             except Exception:
-                error("Value error (b_v)")
+                error("Value error (beta_v)")
                 return
 
         if self.lineEdit_ah.text() != "":
             try:
-                a_h = float(self.lineEdit_ah.text())
+                alpha_h = float(self.lineEdit_ah.text())
             except Exception:
-                error("Value error (a_h)")
+                error("Value error (alpha_h)")
                 return
 
         if self.lineEdit_bh.text() != "":
             try:
-                b_h = float(self.lineEdit_bh.text())
+                beta_h = float(self.lineEdit_bh.text())
             except Exception:
-                error("Value error (b_h)")
+                error("Value error (beta_h)")
                 return
 
-        self.damping = [a_h, b_h, a_v, b_v]
+        self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
 
         self.f_min = input_fmin
         self.f_max = input_fmax

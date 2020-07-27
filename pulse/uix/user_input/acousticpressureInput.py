@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget
+from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QSpinBox
 from pulse.utils import error
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -57,6 +57,7 @@ class AcousticPressureInput(QDialog):
 
         self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
+        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
 
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
@@ -156,7 +157,7 @@ class AcousticPressureInput(QDialog):
         
         self.basename = ""
         window_label = 'Choose a table to import the acoustic pressure'
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Dat Files (*.dat)')
+        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
 
         if self.path_imported_table == "":
             return "", ""
@@ -171,10 +172,13 @@ class AcousticPressureInput(QDialog):
         elif "/" in self.project_file_path:
             self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
 
-        try:                
-            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+        try:
+            skiprows = int(self.lineEdit_skiprows.text())                
+            imported_file = np.loadtxt(self.path_imported_table, delimiter=",", skiprows=skiprows)
         except Exception as e:
-            error(str(e))
+            message = [str(e) + " It is recommended to skip the header rows."] 
+            error(message[0], title="ERROR WHILE LOADING TABLE")
+            return
 
         if imported_file.shape[1]<2:
             error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies, real and imaginary columns.")

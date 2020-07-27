@@ -93,6 +93,9 @@ class ProjectFile:
         f_min = 0
         f_max = 0
         f_step = 0
+        alpha_v, beta_v = 0, 0
+        alpha_h, beta_h = 0, 0
+        
         temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
@@ -103,7 +106,18 @@ class ProjectFile:
                 f_min = config['Frequency Setup']['frequency min']
                 f_max = config['Frequency Setup']['frequency max']
                 f_step = config['Frequency Setup']['frequency step']
-        return float(f_min), float(f_max), float(f_step)
+
+        if "Global damping setup" in sections:
+            keys = list(config['Global damping setup'].keys())
+            if "alpha_v" in keys and "beta_v" in keys and "alpha_h" in keys and "beta_h" in keys:
+                alpha_v = config['Global damping setup']['alpha_v']
+                beta_v = config['Global damping setup']['beta_v']
+                alpha_h = config['Global damping setup']['alpha_h']
+                beta_h = config['Global damping setup']['beta_h']
+        
+        global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
+
+        return float(f_min), float(f_max), float(f_step), global_damping
 
     def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)
@@ -139,6 +153,48 @@ class ProjectFile:
                 'frequency max' : max_,
                 'frequency step': step_,
             }
+
+        with open(temp_project_base_file_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_damping_in_file(self, global_damping):
+
+        alpha_v = str(global_damping[0])
+        beta_v = str(global_damping[1])
+        alpha_h = str(global_damping[2])
+        beta_h = str(global_damping[3])
+        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
+        sections = config.sections()
+        if "Global damping setup" in sections:
+            keys = list(config['Global damping setup'].keys())
+            
+            if 'alpha_v' in keys:
+                config['Global damping setup']['alpha_v'] = alpha_v
+            else:
+                config['Global damping setup'] = {'alpha_v' : alpha_v}
+
+            if 'beta_v' in keys:
+                config['Global damping setup']['beta_v'] = beta_v
+            else:
+                config['Global damping setup'] = {'beta_v' : beta_v}
+
+            if 'alpha_h' in keys:
+                config['Global damping setup']['alpha_h'] = alpha_h
+            else:
+                config['Global damping setup'] = {'alpha_h' : alpha_h}
+
+            if 'beta_h' in keys:
+                config['Global damping setup']['beta_h'] = beta_h
+            else:
+                config['Global damping setup'] = {'beta_h' : beta_h}
+
+        else:
+            config['Global damping setup'] = {  'alpha_v' : alpha_v,
+                                                'beta_v' : beta_v,
+                                                'alpha_h': alpha_h,
+                                                'beta_h': beta_h  } 
 
         with open(temp_project_base_file_path, 'w') as config_file:
             config.write(config_file)

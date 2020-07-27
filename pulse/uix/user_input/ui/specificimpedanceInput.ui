@@ -487,7 +487,7 @@
        <property name="geometry">
         <rect>
          <x>300</x>
-         <y>84</y>
+         <y>74</y>
          <width>57</width>
          <height>25</height>
         </rect>
@@ -524,7 +524,7 @@
        <property name="geometry">
         <rect>
          <x>10</x>
-         <y>86</y>
+         <y>76</y>
          <width>287</width>
          <height>22</height>
         </rect>
@@ -546,7 +546,7 @@
        <property name="geometry">
         <rect>
          <x>98</x>
-         <y>136</y>
+         <y>150</y>
          <width>171</width>
          <height>27</height>
         </rect>
@@ -571,7 +571,7 @@
        <property name="geometry">
         <rect>
          <x>38</x>
-         <y>28</y>
+         <y>26</y>
          <width>293</width>
          <height>27</height>
         </rect>
@@ -590,6 +590,56 @@
        </property>
        <property name="text">
         <string>Select a table of values to be imported:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QSpinBox" name="spinBox">
+       <property name="geometry">
+        <rect>
+         <x>230</x>
+         <y>112</y>
+         <width>42</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="maximum">
+        <number>10</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_9">
+       <property name="geometry">
+        <rect>
+         <x>88</x>
+         <y>114</y>
+         <width>140</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>85</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>140</width>
+         <height>20</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Header rows to skip:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>

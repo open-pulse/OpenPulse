@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QToolButton, QWidget, QFileDialog, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QLineEdit, QToolButton, QWidget, QFileDialog, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QMessageBox, QSpinBox
 from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -92,7 +92,12 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.toolButton_ExportResults.clicked.connect(self.ExportResults)
         self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
         self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
-        
+        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
+
+        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
+        self.cursor = self.checkBox_cursor.isChecked()
+        self.checkBox_cursor.clicked.connect(self.update_cursor)
+
         self.radioButton_Absolute = self.findChild(QRadioButton, 'radioButton_Absolute')
         self.radioButton_Real_Imaginary = self.findChild(QRadioButton, 'radioButton_Real_Imaginary')
         self.radioButton_Absolute.clicked.connect(self.radioButtonEvent_save_data)
@@ -110,6 +115,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.pushButton.clicked.connect(self.check)
 
         self.exec_()
+
+    def update_cursor(self):
+        self.cursor = self.checkBox_cursor.isChecked()
 
     def reset_imported_data(self):
         self.imported_data = None
@@ -144,15 +152,20 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         msg_box.exec_()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
     def ImportResults(self):
-        self.imported_data = np.loadtxt(self.import_path, delimiter=",")
-        self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-        self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-        self.messages("The results has been imported.")
+        try:
+            skiprows = int(self.lineEdit_skiprows.text())
+            self.imported_data = np.loadtxt(self.import_path, delimiter=",",skiprows=skiprows)
+            self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+            self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+            self.messages("The results has been imported.")
+        except Exception as e:
+            message = [str(e) + " It is recommended to skip the header rows."] 
+            error(message[0], title="ERROR WHILE LOADING TABLE")
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
@@ -254,7 +267,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         # mng.window.state('zoomed')
 
         #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, show_cursor=True)
+        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
         legend_label = "Acoustic Pressure at node {}".format(self.nodeID)

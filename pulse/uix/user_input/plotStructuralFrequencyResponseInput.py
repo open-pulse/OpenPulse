@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -84,6 +84,11 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.toolButton_ExportResults.clicked.connect(self.ExportResults)
         self.toolButton_ResetPlot = self.findChild(QToolButton, 'toolButton_ResetPlot')
         self.toolButton_ResetPlot.clicked.connect(self.reset_imported_data)
+        self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
+
+        self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
+        self.cursor = self.checkBox_cursor.isChecked()
+        self.checkBox_cursor.clicked.connect(self.update_cursor)
 
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
         self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
@@ -124,6 +129,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.exec_()
 
+    def update_cursor(self):
+        self.cursor = self.checkBox_cursor.isChecked()
+
     def reset_imported_data(self):
         self.imported_data = None
         self.messages("The plot data has been reseted.")
@@ -157,15 +165,21 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         msg_box.exec_()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
     def ImportResults(self):
-        self.imported_data = np.loadtxt(self.import_path, delimiter=",")
-        self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
-        self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-        self.messages("The results has been imported.")
+        try:
+            skiprows = int(self.lineEdit_skiprows.text())
+            self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
+            self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
+            self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
+            self.messages("The results has been imported.")
+        except Exception as e:
+            message = [str(e) + " It is recommended to skip the header rows."] 
+            error(message[0], title="ERROR WHILE LOADING TABLE")
+            return
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
@@ -262,11 +276,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
-        # file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_5mm_ez_0mm/FRF_Fx_1N_n361_Ux_n436.csv", "r")
-        # file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_5mm_ez_0mm/FRF_Fx_1N_n361_Uy_n187.csv", "r")
-        # file_open = open("C:/AIV\PROJECT/OpenPulse/examples/validation_structural/data/ey_5mm_ez_0mm/FRF_Fx_1N_n361_Uz_n711.csv", "r")
-        # data = np.loadtxt(file_open, delimiter="," , skiprows=2)
-
         frequencies = self.frequencies
         response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
 
@@ -278,7 +287,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
 
         #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, show_cursor=True)
+        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
         legend_label = "Response {} at node {}".format(self.localdof_label, self.nodeID)

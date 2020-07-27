@@ -39,12 +39,14 @@ class InputUi:
         self.f_max = 0
         self.f_step = 0
         self.frequencies = None
+        self.global_damping = [0,0,0,0]
 
         self.acoustic_pressure_frequencies = None
         self.volume_velocity_frequencies = None 
         self.specific_impedance_frequencies = None
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
+        self.setup_analysis_complete = False
 
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
@@ -274,28 +276,33 @@ class InputUi:
             return
         if self.project.file._project_name == "":
             return
-        
+        #TODO: rever a necessidade das estruturas abaixos
         if self.project.file.temp_table_name is None:
             self.project.load_analysis_file()
-            self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step
+            self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step 
         else:
             self.project.load_frequencies_from_table()
             self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
-        setup = AnalysisSetupInput(self.analysis_ID, self.analysis_type_label, self.analysis_method_label, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
+  
+        self.global_damping = self.project.global_damping
+        analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
+        setup = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
         
         self.frequencies = setup.frequencies
         self.f_min = setup.f_min
         self.f_max = setup.f_max
         self.f_step = setup.f_step
+        self.global_damping = setup.global_damping
+        self.setup_analysis_complete = setup.complete
 
         if not setup.complete:
             return
 
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
 
-        if self.analysis_ID != 3:
+        if not self.analysis_ID in [3,4]:
             self.project.set_modes(setup.modes)
-            self.project.set_damping(setup.damping)
+            self.project.set_damping(self.global_damping)
         else:
             return
       
@@ -304,7 +311,7 @@ class InputUi:
 
     def runAnalysis(self):
         
-        if self.analysis_ID is None:
+        if self.analysis_ID is None or not self.setup_analysis_complete:
             error("Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model.")
             return
         
@@ -462,7 +469,6 @@ class InputUi:
 
         if self.analysis_ID in [0,1,5,6]:
             reactions = [self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers]
-            # print(len(reactions[0]), len(reactions[1]), len(reactions[2]))
             PlotReactionsInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, reactions)
             return
 

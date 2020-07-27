@@ -946,7 +946,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>334</x>
-           <y>32</y>
+           <y>20</y>
            <width>62</width>
            <height>27</height>
           </rect>
@@ -980,7 +980,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>102</x>
-           <y>32</y>
+           <y>20</y>
            <width>231</width>
            <height>27</height>
           </rect>
@@ -1010,7 +1010,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>10</x>
-           <y>32</y>
+           <y>20</y>
            <width>93</width>
            <height>27</height>
           </rect>
@@ -1053,7 +1053,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>62</x>
-           <y>84</y>
+           <y>96</y>
            <width>281</width>
            <height>33</height>
           </rect>
@@ -1069,6 +1069,56 @@ p, li { white-space: pre-wrap; }
          </property>
          <property name="text">
           <string>Add imported results to the main plot</string>
+         </property>
+        </widget>
+        <widget class="QSpinBox" name="spinBox">
+         <property name="geometry">
+          <rect>
+           <x>246</x>
+           <y>60</y>
+           <width>42</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="maximum">
+          <number>10</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_9">
+         <property name="geometry">
+          <rect>
+           <x>104</x>
+           <y>62</y>
+           <width>140</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>85</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>140</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Header rows to skip:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </widget>

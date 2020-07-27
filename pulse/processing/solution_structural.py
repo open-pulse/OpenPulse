@@ -12,9 +12,13 @@ class SolutionStructural:
         self.assembly = AssemblyStructural(mesh, frequencies, acoustic_solution=self.acoustic_solution)
         self.mesh = mesh
         self.frequencies = frequencies
-
+        
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
+
+        self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
+        self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
+        self.nodes_connected_to_dampers = self.assembly.nodes_connected_to_dampers
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -39,32 +43,21 @@ class SolutionStructural:
         return full_solution
 
 
-    def get_combined_loads(self, global_damping_values):
-
-        alphaH, betaH, alphaV, betaV = global_damping_values
+    def get_combined_loads(self, global_damping):
+        # t0 = time()
+        alphaV, betaV, alphaH, betaH = global_damping
 
         F = self.assembly.get_global_loads()
         unprescribed_indexes = self.unprescribed_indexes
         prescribed_values = self.prescribed_values
-        
-        Kr = (self.Kr.toarray())[unprescribed_indexes, :]
-        Mr = (self.Mr.toarray())[unprescribed_indexes, :]
-        Kr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Kr_lump]
-        Mr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Mr_lump]
-        Cr_lump = [(matrix.toarray())[unprescribed_indexes, :] for matrix in self.Cr_lump]
 
-        rows = Kr.shape[0]
+        rows = len(unprescribed_indexes)
         cols = len(self.frequencies)
-        Kr_add = np.zeros((rows,cols), dtype=complex)
-        Mr_add = np.zeros((rows,cols), dtype=complex)
-        Kr_add_lump = np.zeros((rows,cols), dtype=complex)
-        Mr_add_lump = np.zeros((rows,cols), dtype=complex)
-        Cr_add_lump = np.zeros((rows,cols), dtype=complex)
         F_eq = np.zeros((rows,cols), dtype=complex)
-        aux_ones = np.ones(cols, dtype=complex)
-        list_prescribed_dofs = []
-
+        
         try:    
+            list_prescribed_dofs = []
+            aux_ones = np.ones(cols, dtype=complex)
             for value in prescribed_values:
                 if isinstance(value, complex):
                     list_prescribed_dofs.append(aux_ones*value)
@@ -74,23 +67,41 @@ class SolutionStructural:
         except Exception as e:
             error(str(e))
             return F_eq
-                   
-        for i in range(cols):
-            if list_prescribed_dofs != []:
-                Kr_add[:,i] = np.sum(Kr*self.array_prescribed_values[:,i], axis=1)
-                Mr_add[:,i] = np.sum(Mr*self.array_prescribed_values[:,i], axis=1)
-                Kr_add_lump[:,i] = np.sum(Kr_lump[i]*self.array_prescribed_values[:,i], axis=1)
-                Mr_add_lump[:,i] = np.sum(Mr_lump[i]*self.array_prescribed_values[:,i], axis=1)
-                Cr_add_lump[:,i] = np.sum(Cr_lump[i]*self.array_prescribed_values[:,i], axis=1)
-        
-        for i, freq in enumerate(self.frequencies):
 
-            omega = 2*np.pi*freq
-            F_Kadd = Kr_add[:,i] + Kr_add_lump[:,i]
-            F_Madd = (-(omega**2))*(Mr_add[:,i] + Mr_add_lump[:,i]) 
-            F_Cadd = 1j*((betaH + omega*betaV)*Kr_add[:,i] + (alphaH + omega*alphaV)*Mr_add[:,i])
-            F_Cadd_lump = 1j*omega*Cr_add_lump[:,i]
-            F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
+        if np.sum(prescribed_values) != 0:
+            
+            Kr_add_lump = complex(0)
+            Mr_add_lump = complex(0)
+            Cr_add_lump = complex(0)
+            
+            Kr = (self.Kr.toarray())[unprescribed_indexes, :]
+            Mr = (self.Mr.toarray())[unprescribed_indexes, :]
+            
+            for i, freq in enumerate(self.frequencies):
+                
+                Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
+                Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
+                Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
+
+                Kr_add = np.sum(Kr*self.array_prescribed_values[:,i], axis=1)
+                Mr_add = np.sum(Mr*self.array_prescribed_values[:,i], axis=1)
+                
+                if self.nodes_connected_to_springs != []:
+                    Kr_add_lump = np.sum(Kr_lump_i*self.array_prescribed_values[:,i], axis=1)
+                if self.nodes_with_lumped_masses != []:
+                    Mr_add_lump = np.sum(Mr_lump_i*self.array_prescribed_values[:,i], axis=1)
+                if self.nodes_connected_to_dampers != []:
+                    Cr_add_lump = np.sum(Cr_lump_i*self.array_prescribed_values[:,i], axis=1)
+
+                omega = 2*np.pi*freq
+                F_Kadd = Kr_add + Kr_add_lump
+                F_Madd = (-(omega**2))*(Mr_add + Mr_add_lump) 
+                F_Cadd = 1j*((betaH + omega*betaV)*Kr_add + (alphaH + omega*alphaV)*Mr_add)
+                F_Cadd_lump = 1j*omega*Cr_add_lump
+                F_eq[:, i] = F_Kadd + F_Madd + F_Cadd + F_Cadd_lump
+
+        # dt = time()-t0
+        # print("Time elapsed: {}[s]".format(dt))
 
         F_combined = F - F_eq
 
@@ -127,7 +138,7 @@ class SolutionStructural:
         return natural_frequencies, modal_shape
 
 
-    def direct_method(self, global_damping_values=(0,0,0,0)):
+    def direct_method(self, global_damping):
 
         """ 
             Perform an harmonic analysis through direct method and returns the response of
@@ -137,18 +148,16 @@ class SolutionStructural:
             Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
         """
 
-        alphaH, betaH, alphaV, betaV = global_damping_values
+        alphaV, betaV, alphaH, betaH = global_damping
         
         # t0 = time()
-        F = self.get_combined_loads(global_damping_values)
+        F = self.get_combined_loads(global_damping)
         # dt = time() - t0
         # print("Time elapsed: {}[s]".format(dt))
 
         rows = self.K.shape[0]
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
-
-        alphaH, betaH, alphaV, betaV = global_damping_values
     
         for i, freq in enumerate(self.frequencies):
 
@@ -168,7 +177,7 @@ class SolutionStructural:
         return self.solution
 
 
-    def mode_superposition(self, modes, F_loaded=None, global_damping_values=(0,0,0,0), fastest=True):
+    def mode_superposition(self, modes, global_damping, F_loaded=None, fastest=True):
         
         """ 
             Perform an harmonic analysis through superposition method and returns the response of
@@ -177,10 +186,10 @@ class SolutionStructural:
             Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
             Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
         """
-        alphaH, betaH, alphaV, betaV = global_damping_values
+        alphaV, betaV, alphaH, betaH = global_damping
 
         if np.sum(self.prescribed_values)>0:
-            solution = self.direct_method(global_damping_values=global_damping_values)
+            solution = self.direct_method(global_damping)
             self.flag_ModeSup_prescribed_NonNull_DOFs = True
             self.warning_ModeSup_prescribedDOFs = "The Harmonic Analysis of prescribed DOF's problems \nhad been solved through the Direct Method!"
             return solution
