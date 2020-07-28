@@ -1,7 +1,7 @@
 import os
 from os.path import basename
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox
+from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget
 from pulse.utils import error, info_messages, remove_bc_from_file
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -177,7 +177,31 @@ class MassSpringDamperInput(QDialog):
 
         self.tabWidget_external_elements = self.findChild(QTabWidget, "tabWidget_external_elements")
         self.tab_single_values = self.tabWidget_external_elements.findChild(QWidget, "tab_single_values")
-        self.tab_table = self.tabWidget_external_elements.findChild(QWidget, "tab_table_values")
+        self.tab_table_values = self.tabWidget_external_elements.findChild(QWidget, "tab_table_values")
+
+        self.tabWidget_remove = self.findChild(QTabWidget, "tabWidget_remove")
+        self.tab_multiple_remove = self.tabWidget_remove.findChild(QWidget, "tab_multiple_remove")
+        self.tab_spring_remove = self.tabWidget_remove.findChild(QWidget, "tab_spring_remove")
+        self.tab_mass_remove = self.tabWidget_remove.findChild(QWidget, "tab_mass_remove")
+        self.tab_damper_remove = self.tabWidget_remove.findChild(QWidget, "tab_damper_remove")
+
+        self.treeWidget_springs = self.findChild(QTreeWidget, 'treeWidget_springs')
+        self.treeWidget_springs.setColumnWidth(1, 20)
+        self.treeWidget_springs.setColumnWidth(2, 80)
+        self.treeWidget_springs.itemClicked.connect(self.on_click_item)
+        self.treeWidget_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+        self.treeWidget_dampers = self.findChild(QTreeWidget, 'treeWidget_dampers')
+        self.treeWidget_dampers.setColumnWidth(1, 20)
+        self.treeWidget_dampers.setColumnWidth(2, 80)
+        self.treeWidget_dampers.itemClicked.connect(self.on_click_item)
+        self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
+
+        self.treeWidget_masses = self.findChild(QTreeWidget, 'treeWidget_masses')
+        self.treeWidget_masses.setColumnWidth(1, 20)
+        self.treeWidget_masses.setColumnWidth(2, 80)
+        self.treeWidget_masses.itemClicked.connect(self.on_click_item)
+        self.treeWidget_masses.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
         self.pushButton_single_value_confirm.clicked.connect(self.check_all_single_values_inputs)
@@ -188,7 +212,17 @@ class MassSpringDamperInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
+        self.pushButton_remove_spring_confirm = self.findChild(QPushButton, 'pushButton_remove_spring_confirm')
+        self.pushButton_remove_spring_confirm.clicked.connect(self.check_remove_bc_from_node)
+
+        self.pushButton_remove_mass_confirm = self.findChild(QPushButton, 'pushButton_remove_mass_confirm')
+        self.pushButton_remove_mass_confirm.clicked.connect(self.check_remove_bc_from_node)
+
+        self.pushButton_remove_damper_confirm = self.findChild(QPushButton, 'pushButton_remove_damper_confirm')
+        self.pushButton_remove_damper_confirm.clicked.connect(self.check_remove_bc_from_node)
+
         self.writeNodes(list_node_ids)
+        self.load_nodes_info()
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -622,22 +656,68 @@ class MassSpringDamperInput(QDialog):
         if self.check_input_nodes():
             return
 
-        if self.remove_mass:
+        if (self.remove_mass and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==2:    
             key_strings = ["masses", "moments of inertia"]
             message = "The masses and moments of inertia attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_mass_to_node(self.nodes_typed, [None, None, None, None, None, None])
-
-        if self.remove_spring:
+   
+        if (self.remove_spring and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==1:   
             key_strings = ["spring stiffness", "torsional spring stiffness"]
             message = "The stiffness (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_spring_to_node(self.nodes_typed, [None, None, None, None, None, None])
-
-        if self.remove_damper:
+  
+        if (self.remove_damper and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==3: 
             key_strings = ["damping coefficients", "torsional damping coefficients"]
             message = "The dampings (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_damper_to_node(self.nodes_typed, [None, None, None, None, None, None])
 
         self.close()
+
+    def text_label(self, mask, load_labels):
+        
+        text = ""
+        temp = load_labels[mask]
+
+        if list(mask).count(True) == 6:
+            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+        elif list(mask).count(True) == 5:
+            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
+        elif list(mask).count(True) == 4:
+            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
+        elif list(mask).count(True) == 3:
+            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
+        elif list(mask).count(True) == 2:
+            text = "[{}, {}]".format(temp[0], temp[1])
+        elif list(mask).count(True) == 1:
+            text = "[{}]".format(temp[0])
+        return text
+
+    def load_nodes_info(self):
+
+        load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
+        for node in self.project.mesh.nodes_connected_to_springs:
+            lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask, load_labels))])
+            self.treeWidget_springs.addTopLevelItem(new)
+
+        load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
+        for node in self.project.mesh.nodes_connected_to_dampers:
+            lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask, load_labels))])
+            self.treeWidget_dampers.addTopLevelItem(new)
+
+        load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
+        for node in self.project.mesh.nodes_with_masses:
+            lumped_masses_mask = [False if bc is None else True for bc in node.lumped_masses]
+            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_masses_mask, load_labels))])
+            self.treeWidget_masses.addTopLevelItem(new)
+
+    def on_click_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+
+    def on_doubleclick_item(self, item):
+        self.lineEdit_nodeID.setText(item.text(0))
+        self.check_remove_bc_from_node()

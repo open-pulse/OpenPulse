@@ -27,6 +27,7 @@ class Mesh:
         self.nodes_with_nodal_loads = []
         self.nodes_with_prescribed_dofs = []
         self.nodes_with_constrained_dofs = []
+        self.nodes_with_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
         self.nodes_with_acoustic_pressure = []
@@ -351,6 +352,8 @@ class Mesh:
             if True in check_array:
                 node.loaded_table_for_lumped_masses = True
                 node.there_are_lumped_masses = True
+                if not node in self.nodes_with_masses:
+                    self.nodes_with_masses.append(node)
                 return
             else:
                 node.loaded_table_for_lumped_masses = False
@@ -358,8 +361,12 @@ class Mesh:
             check_values = [False if bc is None else True for bc in values]
             if True in check_values:
                 node.there_are_lumped_masses = True
+                if not node in self.nodes_with_masses:
+                    self.nodes_with_masses.append(node)
             else:
                 node.there_are_lumped_masses = False
+                if node in self.nodes_with_masses:
+                    self.nodes_with_masses.remove(node)
 
     def add_spring_to_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
