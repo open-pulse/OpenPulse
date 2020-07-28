@@ -116,6 +116,7 @@ if select == 1:
 
             # Principal Bending Axis Rotation
             self.principal_axis = None
+            self.principal_axis_translation = None
 
         @property
         def area_fluid(self):
@@ -263,7 +264,7 @@ if select == 1:
             matrix_aux2 =   np.array([[Iy, -Iyz],[Iyz, Iy]])
             matrix_aux3 = - np.array([[Iyz, -Iz],[Iz, Iyz]])
             mat_aux_dphi = (np.ones((self.division_number,1))@dphi.reshape(1,-1)).reshape(-1)
-            aux_dphi = mat_aux_dphi.reshape(N,2,9)
+            aux_dphi = mat_aux_dphi.reshape([N,2,9])
             mat_aux_phi = (np.ones((self.division_number,1))@phi.reshape(1,-1)).reshape(-1)
             aux_phi = mat_aux_phi.reshape(N,9)
             vec = np.array([z, -y]).T
@@ -283,7 +284,7 @@ if select == 1:
             for el in range( self.division_number ): # Integration over each cross-sections element
                 Ke =  0
                 indexes = self.connectivity[el,:]
-                for k in range(Nint_points):                                               
+                for _ in range(Nint_points):                                               
                     ## Previous version - Internal Loop
                     # Fy[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ d[i,:] + 2*(1 + poisson_ratio)*phi[k,:]*(Iy*y[i] - Iyz*z[i]) ) * dA[i]
                     # Fz[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ h[i,:] + 2*(1 + poisson_ratio)*phi[k,:]*(Iz*z[i] - Iyz*y[i]) ) * dA[i]
@@ -379,14 +380,16 @@ if select == 1:
                     #
                     R = np.zeros([12, 12])
                     R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
+                    self.principal_axis_translation = T
                     self.principal_axis = R @ T
                 else:
                     translation = np.array([[ 0  , z_c,-y_c],
                                             [-z_s,  0 , 0  ],
                                             [y_s ,  0 , 0  ]])
-                    T = np.eye(12)
+                    T = self.principal_axis_rotation = np.eye(12)
                     T[0:3,3:6]   = translation
                     T[6:9,9:12]  = translation
+                    self.principal_axis_translation = T
                     self.principal_axis = T
         
         def update_properties(self):
@@ -404,7 +407,7 @@ if __name__ == "__main__":
     thickness = 0.002
     offset = [0, 0]
     cross = CrossSection(external_diameter, thickness, offset[0], offset[1], 0.3, element_type = 'pipe', division_number = 64)
-    cross.update_properties(el_type = 'pipe_1')
+    cross.update_properties()
 
     # %timeit cross.update_properties(poisson_ratio = 0.3, element_type = 'pipe_1')
 
