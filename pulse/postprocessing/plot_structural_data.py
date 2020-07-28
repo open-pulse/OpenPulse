@@ -70,3 +70,29 @@ def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imagin
     else:
         results = reactions[key]
     return results
+
+def get_stress_data(mesh, column, absolute=False, real=False, imaginary=False):
+
+    elements = mesh.structural_elements
+    stresses = [np.r_[i, elements[i].stress[:, column]] for i in elements ]
+    if absolute:
+        return np.abs(np.array(stresses))
+    elif real:
+        return np.real(np.array(stresses))
+    elif imaginary:
+        return np.imag(np.array(stresses))
+    else:
+        return np.array(stresses)
+
+def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
+
+    elements = mesh.structural_elements
+    internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
+    if absolute:
+        return np.abs(np.array(internal_loads))
+    elif real:
+        return np.real(np.array(internal_loads))
+    elif imaginary:
+        return np.imag(np.array(internal_loads))
+    else:
+        return np.array(internal_loads) 

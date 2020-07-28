@@ -27,7 +27,6 @@ def shape_function(ksi):
     derivative_phi = np.array([-0.5, 0.5])
     return phi, derivative_phi
 
-
 class StructuralElement:
     def __init__(self, first_node, last_node, **kwargs):
         self.first_node = first_node
@@ -38,6 +37,18 @@ class StructuralElement:
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
+
+        self.caped_end = kwargs.get('caped_end',False)
+        self.stress_intensification = kwargs.get('stress_intensification',True)
+
+        self._Dab = None
+        self._Bab = None
+        self._Dts = None
+        self._Bts = None
+        self._rot = None
+
+        self.stress = None
+        self.internal_load = None
 
     @property
     def length(self):
@@ -57,7 +68,7 @@ class StructuralElement:
         return rows, cols
 
     def matrices_gcs(self):
-        R = self.rotation_matrix()
+        self._rot = R = self.rotation_matrix()
         Rt = R.T
         stiffness = Rt @ self.stiffness_matrix() @ R
         mass = Rt @ self.mass_matrix() @ R
@@ -169,10 +180,12 @@ class StructuralElement:
         Dts = mu*np.array([[J,   -Qy,   Qz],
                         [-Qy, aly*A,  0  ],
                         [Qz,   0,  alz*A]])
+        self._Dts = Dts
         # Axial and Bending
         Dab = E*np.array([[A,  Qy , -Qz],
                         [Qy, Iy , -Iyz],
                         [-Qz,-Iyz, Iz]])
+        self._Dab = Dab
 
         ## Numerical integration by Gauss Quadracture
         integrations_points = 1
@@ -191,6 +204,7 @@ class StructuralElement:
             Bab = np.zeros([3, 12])
             Bab[[0,1,2],[0,4,5]] = dphi[0] # 1st node
             Bab[[0,1,2],[6,10,11]] = dphi[1] # 2nd node
+            self._Bab = Bab
 
             # Torsional and Shear B-matrix
             Bts = np.zeros((3,12))
@@ -200,6 +214,7 @@ class StructuralElement:
             Bts[[0,1,2],[9,7,8]] = dphi[1] # 2nd node
             Bts[[1],[11]] = -phi[1]
             Bts[[2],[10]] = phi[1]
+            self._Bts = Bts
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
@@ -320,7 +335,12 @@ class StructuralElement:
             print('Only pipe_1 and pipe_2 element types are allowed.')
             pass
 
+        if self.caped_end:
+            caped_end = 1
+        else:
+            caped_end = 0
+
         aux = R.T @ principal_axis.T @ aux
-        F_p = (1 - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
+        F_p = (caped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p

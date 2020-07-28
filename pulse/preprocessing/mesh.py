@@ -64,7 +64,23 @@ class Mesh:
             neighbour_diameters[last].append((index, external, internal))
 
         return neighbour_diameters
-    
+
+    def neighbor_elements_diameter_global(self):
+        neighbor_diameters = dict()
+
+        for index, element in self.acoustic_elements.items():
+            first = element.first_node.global_index
+            last = element.last_node.global_index
+            neighbor_diameters.setdefault(first, [])
+            neighbor_diameters.setdefault(last, [])
+
+            external = element.cross_section.external_diameter
+            internal = element.cross_section.internal_diameter
+
+            neighbor_diameters[first].append((index, external, internal))
+            neighbor_diameters[last].append((index, external, internal))
+
+        return neighbor_diameters    
     
     def _initialize_gmsh(self, path):
         gmsh.initialize('', False)
@@ -461,6 +477,22 @@ class Mesh:
             for element in self.structural_elements.values():
                 element.adding_mass_effect = True
 
+    def set_caped_end_by_element(self, elements, value):       
+        for element in slicer(self.structural_elements, elements):
+            element.caped_end = value
+
+    def set_caped_end_by_line(self, lines, value):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_caped_end_by_element(elements, value)
+
+    def set_stress_intensification_by_element(self, elements, value):       
+        for element in slicer(self.structural_elements, elements):
+            element.stress_intensification = value
+
+    def set_stress_intensification_by_line(self, lines, value):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_stress_intensification_by_element(elements, value)
+            
     # Acoustic physical quantities
     def set_fluid_by_element(self, elements, fluid):
         for element in slicer(self.acoustic_elements, elements):
