@@ -337,7 +337,7 @@ class Mesh:
     
     def set_structural_load_bc_by_node(self, nodes_id, values):
         for node in slicer(self.nodes, nodes_id):
-            node.loads = values
+            node.nodal_loads = values
             node.prescribed_dofs = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -435,7 +435,7 @@ class Mesh:
     def set_prescribed_dofs_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
-            node.loads = [None,None,None,None,None,None]
+            node.nodal_loads = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:

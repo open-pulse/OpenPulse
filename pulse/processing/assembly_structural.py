@@ -152,9 +152,9 @@ class AssemblyStructural:
             if node.there_are_nodal_loads:
                 position = node.global_dof
                 if node.loaded_table_for_nodal_loads:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.loads]
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else bc for bc in node.nodal_loads]
                 else:
-                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.loads]
+                    temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.nodal_loads]
                 loads[position, :] += temp_loads
            
         unprescribed_indexes = self.get_unprescribed_indexes()

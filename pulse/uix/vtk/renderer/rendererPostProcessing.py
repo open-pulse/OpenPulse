@@ -75,7 +75,8 @@ class RendererPostProcessing(vtkRendererBase):
         text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
-        self.createInfoText(text)
+        vertical_position_adjust = None
+        self.createInfoText(text, vertical_position_adjust)
 
     def updateUnitText(self):
         self._renderer.RemoveActor2D(self.textActorUnit)

@@ -366,6 +366,9 @@ class Project:
 
     def get_elements(self):
         return self.mesh.structural_elements
+    
+    def get_element(self, element_id):
+        return self.mesh.structural_elements[element_id]
 
     def set_frequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:

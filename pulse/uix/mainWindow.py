@@ -84,9 +84,9 @@ class MainWindow(QMainWindow):
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_radius)
 
-        self.points_action = QAction('&Points', self)        
+        self.points_action = QAction('&Nodes', self)        
         self.points_action.setShortcut('Ctrl+3')
-        self.points_action.setStatusTip('Plot Points')
+        self.points_action.setStatusTip('Plot Nodes')
         self.points_action.triggered.connect(self.plot_points)
 
         self.elements_action = QAction('&Elements', self)        
@@ -150,6 +150,15 @@ class MainWindow(QMainWindow):
         self.setRadiationImpedance_action.setShortcut('Ctrl+Alt+5')
         self.setRadiationImpedance_action.setStatusTip('Set Radiation Impedance')
         self.setRadiationImpedance_action.triggered.connect(self.getInputWidget().setRadiationImpedance)
+
+        #Model Informations
+        self.structural_model_info_action = QAction('&Structural Model Info', self)        
+        self.structural_model_info_action.setStatusTip('Structural Model Info')
+        self.structural_model_info_action.triggered.connect(self.getInputWidget().structural_model_info)
+
+        self.acoustic_model_info_action = QAction('&Acoustic Model Info', self)        
+        self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
+        self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
 
         #Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
@@ -219,6 +228,7 @@ class MainWindow(QMainWindow):
         projectMenu = menuBar.addMenu('&Project')
         graphicMenu = menuBar.addMenu('&Graphic')
         modelSetup = menuBar.addMenu('&Model Setup')
+        model_info = menuBar.addMenu('&Model Info')
         analysisMenu = menuBar.addMenu('&Analysis')
         resultsViewerMenu = menuBar.addMenu('&Results Viewer')
         helpMenu = menuBar.addMenu("&Help")
@@ -245,6 +255,9 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
         modelSetup.addAction(self.setRadiationImpedance_action)
+
+        model_info.addAction(self.structural_model_info_action)
+        model_info.addAction(self.acoustic_model_info_action)
 
         analysisMenu.addAction(self.selectAnalysisType_action)
         analysisMenu.addAction(self.analysisSetup_action)

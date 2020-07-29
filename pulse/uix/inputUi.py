@@ -13,6 +13,8 @@ from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
+from pulse.uix.user_input.structural_model_info_input import StructuralModelInfoInput
+from pulse.uix.user_input.acoustic_model_info_input import AcousticModelInfoInput
 
 from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
 from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
@@ -554,3 +556,8 @@ class InputUi:
                     error(acoustic_message, title = title)
                     return True
 
+    def structural_model_info(self):
+        StructuralModelInfoInput(self.project)
+
+    def acoustic_model_info(self):
+        AcousticModelInfoInput(self.project)
