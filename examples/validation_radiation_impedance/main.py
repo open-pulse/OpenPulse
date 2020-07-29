@@ -39,7 +39,7 @@ elif flanged:
 mesh.set_fluid_by_element('all', air)
 mesh.set_cross_section_by_element('all', cross_section)
 # Analisys Frequencies
-f_max = 250
+f_max = 2500
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 

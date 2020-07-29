@@ -126,28 +126,25 @@ class Node:
         elif self.radiation_impedance is not None:
             Z_rad = self.radiation_impedance / area_fluid
 
-        if isinstance(self.specific_impedance, np.ndarray):
+        if isinstance(self.specific_impedance, complex):
+            admittance_specific = 1/Z_specific * np.ones_like(frequencies)
+        elif isinstance(self.specific_impedance, np.ndarray):
             if len(self.specific_impedance) != len(frequencies):
                 error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
                 return
             admittance_specific = np.divide(1,Z_specific)
-        elif isinstance(self.specific_impedance, complex):
-            admittance_specific = 1/Z_specific * np.ones_like(frequencies)
         else:
             admittance_specific = 0
 
-        if isinstance(self.radiation_impedance, np.ndarray):
+        if isinstance(self.radiation_impedance, complex):
+            admittance_rad = 1/Z_rad * np.ones_like(frequencies)
+        elif isinstance(self.radiation_impedance, np.ndarray):
             if len(self.radiation_impedance) != len(frequencies):
                 error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
                 return
             admittance_rad = np.divide(1,Z_rad)
-        elif isinstance(self.radiation_impedance, complex):
-            admittance_rad = 1/Z_rad * np.ones_like(frequencies)
-        elif len([self.radiation_impedance]) != len(frequencies):
-            error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
-            return
         else:
-            admittance_specific = 0
+            admittance_rad = 0
         
         admittance = admittance_specific + admittance_rad
         
