@@ -22,11 +22,11 @@ class RendererEntity(vtkRendererBase):
             vertical_position_adjust = None
         elif len(listActorsIDs) == 1:
             entity = self.project.get_entity(listActorsIDs[0])
-            material_name = "Undefined"
-            diam_ext = "Undefined"
-            thickness = "Undefined"
-            offset_y = "Undefined"
-            offset_z = "Undefined"
+            material_name = "undefined"
+            diam_ext = "undefined"
+            thickness = "undefined"
+            offset_y = "undefined"
+            offset_z = "undefined"
             if entity.getMaterial() is not None:
                 material_name = entity.getMaterial().getName()
             if entity.getCrossSection() is not None:

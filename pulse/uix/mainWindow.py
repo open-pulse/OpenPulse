@@ -151,6 +151,16 @@ class MainWindow(QMainWindow):
         self.setRadiationImpedance_action.setStatusTip('Set Radiation Impedance')
         self.setRadiationImpedance_action.triggered.connect(self.getInputWidget().setRadiationImpedance)
 
+        self.add_perforated_plate_action = QAction('&Add perforated plate', self)        
+        self.add_perforated_plate_action.setShortcut('Ctrl+Alt+6')
+        self.add_perforated_plate_action.setStatusTip('Add perforated plate')
+        self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
+
+        self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
+        self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+7')
+        self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
+        self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
+
         #Model Informations
         self.structural_model_info_action = QAction('&Structural Model Info', self)        
         self.structural_model_info_action.setStatusTip('Structural Model Info')
@@ -255,6 +265,8 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
         modelSetup.addAction(self.setRadiationImpedance_action)
+        modelSetup.addAction(self.add_perforated_plate_action)
+        modelSetup.addAction(self.set_acoustic_element_length_correction_action)
 
         model_info.addAction(self.structural_model_info_action)
         model_info.addAction(self.acoustic_model_info_action)
