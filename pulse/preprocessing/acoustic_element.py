@@ -16,10 +16,15 @@ class AcousticElement:
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
+        self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
 
     @property
     def length(self):
         return distance(self.first_node, self.last_node) 
+
+    @property
+    def orientation(self):
+        return self.last_node.coordinates - self.first_node.coordinates
 
     @property
     def impedance(self):
@@ -42,8 +47,8 @@ class AcousticElement:
         factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
         return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
-    def matrix(self, frequencies, ones):
-        kLe = 2*PI*frequencies*self.length / self.speed_of_sound_corrected()
+    def matrix(self, frequencies, ones, length_correction = 0):
+        kLe = 2*PI*frequencies*(self.length + length_correction)  / self.speed_of_sound_corrected()
         sine = np.sin(kLe, dtype='float64')
         cossine = np.cos(kLe, dtype='float64')
         matrix = ((1j/(sine*self.impedance))*np.array([-cossine, ones, ones, -cossine])).T
