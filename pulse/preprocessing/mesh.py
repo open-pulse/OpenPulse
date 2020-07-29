@@ -504,6 +504,14 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
 
+    def set_length_correction_by_element(self, elements, value):
+        for element in slicer(self.acoustic_elements, elements):
+            element.acoustic_length_correction = value
+
+    def set_length_correction_by_line(self, lines, value):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_length_correction_by_element(elements, value)
+            
     def set_acoustic_pressure_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = values
