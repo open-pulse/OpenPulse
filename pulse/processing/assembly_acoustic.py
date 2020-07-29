@@ -108,8 +108,6 @@ class AssemblyAcoustic:
                             print("Datatype not understood")
                         corrections_last.append(correction)
                 length_correction = max(corrections_first) + max(corrections_last)
-                if length_correction != 0:
-                    print(length_correction, element.first_node.external_index, element.last_node.external_index)
             # data arrangement: pressures are arranged in columns and each row corresponds to one frequency of the analysis
             data_k[:, start:end] = element.matrix(self.frequencies, ones, length_correction = length_correction)
             

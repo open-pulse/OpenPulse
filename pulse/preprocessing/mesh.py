@@ -541,9 +541,9 @@ class Mesh:
                 if node in self.nodes_with_specific_impedance:
                     self.nodes_with_specific_impedance.remove(node)
                     
-    def set_radiation_impedance_bc_by_node(self, nodes, values):
+    def set_radiation_impedance_bc_by_node(self, nodes, value):
         for node in slicer(self.nodes, nodes):
-            node.radiation_impedance = values
+            node.radiation_impedance_type = value
 
     def get_radius(self):
         for element in self.structural_elements.values():
