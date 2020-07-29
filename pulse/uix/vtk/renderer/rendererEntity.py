@@ -19,6 +19,7 @@ class RendererEntity(vtkRendererBase):
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
+            vertical_position_adjust = None
         elif len(listActorsIDs) == 1:
             entity = self.project.get_entity(listActorsIDs[0])
             material_name = "Undefined"
@@ -34,19 +35,31 @@ class RendererEntity(vtkRendererBase):
                 offset_y = entity.getCrossSection().offset_y
                 offset_z = entity.getCrossSection().offset_z
             text = "Line ID  {}\nMaterial:  {}\nExternal Diameter:  {} [m]\nThickness:  {} [m]\nOffset y: {} [m]\nOffset z: {} [m]".format(listActorsIDs[0], material_name, diam_ext, thickness, offset_y, offset_z)
+            vertical_position_adjust = (1-0.88)*960
         else:
-            text = "Selected Lines:\n"
+            text = "{} lines in selection:\n\n".format(len(listActorsIDs))
             i = 0
+            correction = 1
             for ids in listActorsIDs:
                 if i == 30:
                     text += "..."
+                    factor = 1.02
                     break
-                if i == 10 or i == 20:
+                elif i == 19: 
                     text += "{}\n".format(ids)
+                    factor = 1.02  
+                    correction = factor/1.06            
+                elif i == 9:
+                    text += "{}\n".format(ids)
+                    factor = 1.04
+                    correction = factor/1.06
                 else:
                     text += "{}  ".format(ids)
+                    factor = 1.06*correction
                 i+=1
-        self.createInfoText(text)
+            vertical_position_adjust = (1-0.88*factor)*960
+
+        self.createInfoText(text, vertical_position_adjust)
 
     def reset(self):
         for actor in self._renderer.GetActors():

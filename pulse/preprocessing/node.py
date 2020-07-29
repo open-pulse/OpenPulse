@@ -14,7 +14,7 @@ class Node:
         self.z = z
 
         # Structural boundary conditions and external lumped elements
-        self.loads = [None, None, None, None, None, None]
+        self.nodal_loads = [None, None, None, None, None, None]
         self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
         
@@ -63,7 +63,7 @@ class Node:
     def set_prescribed_dofs_bc(self, boundary_condition):
         self.prescribed_dofs = boundary_condition
 
-    def getStructuralBondaryCondition(self):
+    def get_prescribed_dofs(self):
         return self.prescribed_dofs
 
     def get_prescribed_dofs_bc_indexes(self):
@@ -72,11 +72,11 @@ class Node:
     def get_prescribed_dofs_bc_values(self):
         return [value for value in self.prescribed_dofs if value is not None]
                 
-    def set_prescribed_loads(self, loads):
-        self.loads = loads
+    def set_prescribed_loads(self, values):
+        self.nodal_loads = values
 
     def get_prescribed_loads(self):
-        return self.loads
+        return self.nodal_loads
     
     # Acoustic Boundary Condition
     def set_acoustic_boundary_condition(self, acoustic_boundary_condition):

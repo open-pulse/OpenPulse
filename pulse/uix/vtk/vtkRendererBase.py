@@ -43,19 +43,22 @@ class vtkRendererBase(ABC):
         self._style.releaseButtons()
         self._inUse = value
 
-    def createInfoText(self, text):
+    def createInfoText(self, text, vertical_position_adjust):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
         #Empiric values
         width, height = self._renderer.GetSize()
-        height -= 150
-        width = 20
-        # width, height = self._renderer.GetSize()
-        # height = 35
-        # width -= 250
+
+        if vertical_position_adjust is not None:
+            position_y = int(height - vertical_position_adjust)
+            position_x = 20
+        else:
+            position_y = height - 130
+            position_x = 20
+            
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
-        self._textActor.SetDisplayPosition(width, height)
+        self._textActor.SetDisplayPosition(position_x, position_y)
         self._renderer.AddActor2D(self._textActor)
 
     def updateAreaPicker(self, posA, posB):
