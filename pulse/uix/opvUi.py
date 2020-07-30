@@ -9,6 +9,7 @@ from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
 from pulse.uix.vtk.renderer.rendererElement import RendererElement
+from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
 from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
 from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 
@@ -21,7 +22,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.rendererEntity = RendererEntity(self.project, self)
         self.rendererElement = RendererElement(self.project, self)
-        self.rendererPoint = RendererPoint(self.project, self)
+        self.rendererPoint = RendererMesh(self.project, self) # temporário
+        # self.rendererPoint = RendererPoint(self.project, self)
         self.rendererAnalysis = RendererPostProcessing(self.project, self)
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
@@ -157,6 +159,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.beforeChangePlot()
         self.rendererPoint.setInUse(True)
         self.SetInteractorStyle(self.rendererPoint.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererPoint._rendererPoints)
+        self.GetRenderWindow().AddRenderer(self.rendererPoint._rendererElements)
         self.GetRenderWindow().AddRenderer(self.rendererPoint.getRenderer())
         self.rendererPoint.resetCamera()
         self.afterChangePlot()
