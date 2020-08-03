@@ -86,9 +86,9 @@ class AssemblyAcoustic:
 
                 for _,_,di in diameters_first:
                     if di_actual < di:
-                        if element.acoustic_length_correction == 1:
+                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
                             correction = length_correction_expansion(di_actual, di)
-                        elif element.acoustic_length_correction == 2:
+                        elif element.acoustic_length_correction == 1:
                             correction = length_correction_branch(di_actual, di)
                             if len(diameters_first) == 2:
                                 print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
@@ -98,9 +98,9 @@ class AssemblyAcoustic:
 
                 for _,_,di in diameters_last:
                     if di_actual < di:
-                        if element.acoustic_length_correction == 1:
+                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
                             correction = length_correction_expansion(di_actual, di)
-                        elif element.acoustic_length_correction == 2:
+                        elif element.acoustic_length_correction == 1:
                             correction = length_correction_branch(di_actual, di)
                             if len(diameters_last) == 2:
                                 print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")

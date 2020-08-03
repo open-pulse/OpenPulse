@@ -118,8 +118,6 @@ class Node:
         return self.volume_velocity.count(0) != 1
     
     def admittance(self, area_fluid, frequencies):
-        # Only one impedance can be given.
-        # More than one must raise an error
 
         if self.specific_impedance is not None:
             Z_specific = self.specific_impedance / area_fluid

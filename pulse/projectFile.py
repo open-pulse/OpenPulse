@@ -228,6 +228,7 @@ class ProjectFile:
         dict_cross = {}
         dict_element_type = {}
         dict_fluid = {}
+        dict_length_correction = {}
 
         for entity in entityFile.sections():
 
@@ -238,6 +239,13 @@ class ProjectFile:
                 self.element_type_is_structural = True
             else:
                 dict_element_type[int(entity)] = 'pipe_1'
+
+            length_correction = entityFile[entity]['Length Correction']
+
+            if length_correction.isnumeric():
+                dict_length_correction[int(entity)] = int(length_correction)
+            else:
+                dict_element_type[int(entity)] = None
     
             material_id = entityFile[entity]['Material ID']
 
@@ -295,6 +303,13 @@ class ProjectFile:
         config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
         config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
         config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_length_correction_in_file(self, entity_id, length_correction):   
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        config[str(entity_id)]['Length Correction'] = str(length_correction)
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
     
@@ -398,9 +413,9 @@ class ProjectFile:
 
             if "volume velocity" in keys:
                 str_volume_velocity = node_acoustic_list[str(node)]['volume velocity']
-                volumel_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, "volume velocity")
-                if volumel_velocity is not None:
-                    dict_volume_velocity[node_id] = volumel_velocity
+                volume_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, "volume velocity")
+                if volume_velocity is not None:
+                    dict_volume_velocity[node_id] = volume_velocity
 
             if "specific impedance" in keys:
                 str_specific_impedance = node_acoustic_list[str(node)]['specific impedance']
@@ -408,10 +423,12 @@ class ProjectFile:
                 if specific_impedance is not None:
                     dict_specific_impedance[node_id] = specific_impedance
 
-            # if "radiation impedance" in keys:
-            #     radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
+            if "radiation impedance" in keys:
+                str_radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
+                radiation_impedance_type = self._get_acoustic_bc_from_string(str_radiation_impedance, "radiation impedance")
                 # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
-                # dict_radiation_impedance[node_id] = radImpedance
+                if specific_impedance is not None:
+                    dict_radiation_impedance[node_id] = int(radiation_impedance_type)
 
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
 

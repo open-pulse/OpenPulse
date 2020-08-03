@@ -33,6 +33,7 @@ class Mesh:
         self.nodes_with_acoustic_pressure = []
         self.nodes_with_volume_velocity = []
         self.nodes_with_specific_impedance = []
+        self.nodes_with_radiation_impedance = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -541,9 +542,14 @@ class Mesh:
                 if node in self.nodes_with_specific_impedance:
                     self.nodes_with_specific_impedance.remove(node)
                     
-    def set_radiation_impedance_bc_by_node(self, nodes, value):
+    def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         for node in slicer(self.nodes, nodes):
-            node.radiation_impedance_type = value
+            node.radiation_impedance_type = impedance_type
+            if not node in self.nodes_with_radiation_impedance:
+                self.nodes_with_radiation_impedance.append(node)
+            if values is None:
+                if node in self.nodes_with_radiation_impedance:
+                    self.nodes_with_radiation_impedance.remove(node)
 
     def get_radius(self):
         for element in self.structural_elements.values():

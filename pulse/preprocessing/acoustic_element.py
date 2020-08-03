@@ -2,7 +2,7 @@ from math import sqrt, pi
 import numpy as np
 from scipy.special import jv, struve
 from pulse.preprocessing.node import Node, distance
-from pulse.utils import error
+from pulse.utils import error, info_messages
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
@@ -25,7 +25,7 @@ def unflanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
 
     kr_great_t_1 = kr[~mask]
     if np.any(kr_great_t_1 > 3.83):
-        error("The unflanged radiation impedance model is out of \nits validity frequency range.")
+        info_messages("The unflanged radiation impedance model is out of \nits validity frequency range.")
     aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
 
     aux_1 = np.r_[aux_1_1, aux_1_2]
@@ -47,6 +47,9 @@ class AcousticElement:
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
+        # 0 -> expansion
+        # 1 -> side_branch
+        # 2 -> loop (to be defined. Use expansion insteed)
 
     @property
     def length(self):

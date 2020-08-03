@@ -237,7 +237,7 @@ class Project:
             if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
         for key, RadImp in radiation_impedance.items():
-            if RadImp != 0:
+            if RadImp is not None:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
 
     def load_analysis_file(self):
@@ -292,6 +292,27 @@ class Project:
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
 
+    def set_length_correction_to_all(self, length_correction):
+        self.mesh.set_length_correction_by_element('all', length_correction)
+        self._set_all_entity_length_correction(length_correction)
+        for entity in self.mesh.entities:
+            self.file.add_length_correction_in_file(entity.get_tag(), element_type)
+        
+    def set_length_correction_by_entity(self, entity_id, element_type):
+        if self.file.get_import_type() == 0:
+            self.mesh.set_length_correction_by_line(entity_id, element_type)
+        elif self.file.get_import_type() == 1:
+            self.mesh.set_length_correction_by_element('all', element_type)
+
+        self._set_entity_length_correction(entity_id, element_type)
+        self.file.add_length_correction_in_file(entity_id, element_type)
+
+    # def set_caped_end(self, value):
+    #     self.mesh.set_caped_end_by_element('all', value)
+    #     self._set_all_entity_caped_end(value)
+    #     for entity in self.mesh.entities:
+    #         self.file.add_cross_section_in_file(entity.get_tag(), value)
+
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]
@@ -341,6 +362,14 @@ class Project:
 
         self._set_entity_crossSection(entity_id, cross_section)
 
+    def load_length_correction_by_entity(self, entity_id, length_correction):
+        if self.file.get_import_type() == 0:
+            self.mesh.set_length_correction_by_line(entity_id, length_correction)
+        elif self.file.get_import_type() == 1:
+            self.mesh.set_length_correction_by_element('all', length_correction)
+
+        self._set_entity_length_correction(entity_id, length_correction)
+
     def load_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
             self.mesh.set_element_type_by_line(entity_id, element_type)
@@ -360,6 +389,19 @@ class Project:
 
     def load_damper_by_node(self, node_id, dampings):
         self.mesh.add_damper_to_node(node_id, dampings)
+
+    # def load_caped_end_by_element(self, element_id, value):
+    #     self.mesh.set_caped_end_by_element(element_id, value)
+
+    # def load_caped_end_by_entity(self, entity_id, value):
+    #     if self.file.get_import_type() == 0:
+    #         self.mesh.set_caped_end_by_line(entity_id, value)
+    #     # else:
+    #     #     error("Caped end must be set by element or lines.")
+    #     elif self.file.get_import_type() == 1:
+    #         self.mesh.set_caped_end_by_element('all', value)
+
+    #     self._set_entity_caped_end(entity_id, value)
 
     def get_nodes_bc(self):
         return self.mesh.nodes_with_prescribed_dofs
@@ -398,6 +440,16 @@ class Project:
     def _set_all_entity_crossSection(self, cross):
         for entity in self.mesh.entities:
             entity.crossSection = cross
+
+    def _set_entity_length_correction(self, entity_id, length_correction):
+        for entity in self.mesh.entities:
+            if entity.tag == entity_id:
+                entity.length_correction = length_correction
+                return
+
+    def _set_all_entity_length_correction(self, length_correction):
+        for entity in self.mesh.entities:
+            entity.length_correction = length_correction
 
     def _set_entity_element_type(self, entity_id, element_type):
         for entity in self.mesh.entities:
@@ -445,9 +497,10 @@ class Project:
         label = ["specific impedance"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)   
 
-    def set_radiation_impedance_bc_by_node(self, node_id, radiation_impedance):
-        self.mesh.set_radiation_impedance_bc_by_node(node_id, radiation_impedance)
-        # self.file.addRadiationImpedanceBCInFile(node_id, radiation_impedance)
+    def set_radiation_impedance_bc_by_node(self, node_id, values, imported_table = None, table_name=""):
+        self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
+        label = ["radiation impedance"] 
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -458,14 +511,14 @@ class Project:
     def load_acoustic_pressure_bc_by_node(self, node_id, bc):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, bc)
 
-    def load_volume_velocity_bc_by_node(self, node_id, force):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, force)
+    def load_volume_velocity_bc_by_node(self, node_id, value):
+        self.mesh.set_volume_velocity_bc_by_node(node_id, value)
 
-    def load_specific_impedance_bc_by_node(self, node_id, force):
-        self.mesh.set_specific_impedance_bc_by_node(node_id, force)
+    def load_specific_impedance_bc_by_node(self, node_id, value):
+        self.mesh.set_specific_impedance_bc_by_node(node_id, value)
 
-    def load_radiation_impedance_bc_by_node(self, node_id, force):
-        self.mesh.set_radiation_impedance_bc_by_node(node_id, force)
+    def load_radiation_impedance_bc_by_node(self, node_id, value):
+        self.mesh.set_radiation_impedance_bc_by_node(node_id, value)
 
     def _set_entity_fluid(self, entity_id, fluid):
         for entity in self.mesh.entities:
@@ -476,6 +529,15 @@ class Project:
     def _set_all_entity_fluid(self, fluid):
         for entity in self.mesh.entities:
             entity.fluid = fluid
+
+    # def _set_entity_caped_end(self, entity_id, value):
+    #     for entity in self.mesh.entities:
+    #         if entity.tag == entity_id:
+    #             entity.caped_end = value
+
+    # def _set_all_entity_caped_end(self, value):
+    #     for entity in self.mesh.entities:
+    #         entity.caped_end = value
 
     def get_mesh(self):
         return self.mesh
