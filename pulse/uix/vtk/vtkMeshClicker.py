@@ -49,13 +49,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def getSelectedActors(self):
         return list(self.__selectedActors)
 
-    def setTargetSelection(self, target):
-        renderers = {
-            0 : self.__rendererMesh.getPointsRenderer(),
-            1 : self.__rendererMesh.getElementsRenderer(),
-        }
-        self.__clickRenderer = renderers.get(target)
-
     # 
     def createObservers(self):
         self.AddObserver('LeftButtonPressEvent', self.leftButtonPressEvent)
@@ -70,6 +63,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if self.__leftButtonClicked:
             self.leftButtonReleaseEvent(None, None)
         self.__altKeyClicked = False
+        self.clear()
         self.EndRotate()
 
     def leftButtonPressEvent(self, obj, event):
@@ -181,43 +175,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__rendererMesh.updateInfoText()
         self.__rendererMesh.update()
 
-
-    # def selectActors(self):
-    #     self.__main_renderer = self.GetDefaultRenderer() or self.GetCurrentRenderer()
-    #     if self.__main_renderer is None:
-    #         print('falta main')
-    #         return 
-    #     if self.__secondary_renderer is None:
-    #         print('falta secondary')
-    #         return 
-
-    #     if (self.__main_renderer is None) or (self.__secondary_renderer is None):
-    #         print('falta renderer')
-    #         return 
-
-    #     x1, y1 = self.clickPosition
-    #     x2, y2 = self.mousePosition
-
-    #     controlPressed = self.GetInteractor().GetControlKey()
-    #     shiftPressed = self.GetInteractor().GetShiftKey()
-    #     altPressed = self.__altKeyClicked
-
-    #     pickedActors = self.pickActors(x1, y1, x2, y2, tolerance=5)
-        
-    #     if controlPressed or shiftPressed:
-    #         self.__selectedActors |= pickedActors      
-    #     elif altPressed:
-    #         self.__selectedActors -= pickedActors  
-    #     else:
-    #         self.__selectedActors = pickedActors
-
-    #     cam = self.__main_renderer.GetActiveCamera()
-    #     self.__secondary_renderer.SetActiveCamera(cam)
-    #     self.highlight(self.getSelectedActors())
-
-    #     self.__rendererMesh.updateInfoText()
-    #     self.__rendererMesh.update()
-
     # 
     def pickActors(self, x1, y1, x2, y2, renderer, tolerance=5):
         tooSmall = (abs(x1-x2) < tolerance) or (abs(y1-y2) < tolerance)
@@ -252,23 +209,18 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
         self.__selection_source.RemoveAllInputs()
         self.__selectedActors = set()
+        self.__rendererMesh.updateInfoText()
 
     def getListPickedActors(self):
         listActorsIDs = []
-        return listActorsIDs
         for actor in self.getSelectedActors():
             if self.__rendererMesh.actors[actor] == -1:
                 continue
             listActorsIDs.append(self.__rendererMesh.actors[actor])
+        return listActorsIDs
         
     def getSelectedPoints(self):
         return self.__selectedPoints
     
     def getSelectedElements(self):
         return self.__selectedElements
-    
-    def getListPickedPoints(self):
-        pass 
-    
-    def getListPickedElements(self):
-        pass

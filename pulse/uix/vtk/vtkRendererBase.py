@@ -48,11 +48,14 @@ class vtkRendererBase(ABC):
         self._renderer.RemoveActor2D(self._textActor)
         #Empiric values
         width, height = self._renderer.GetSize()
-        height -= 150
+
+        height -= 40
         width = 20
         # width, height = self._renderer.GetSize()
         # height = 35
         # width -= 250
+        self.textProperty.SetVerticalJustificationToTop()
+        self.textProperty.SetJustificationToLeft()
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
         self._textActor.SetDisplayPosition(width, height)
