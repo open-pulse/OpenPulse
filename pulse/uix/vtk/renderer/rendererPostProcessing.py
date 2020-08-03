@@ -17,16 +17,33 @@ class RendererPostProcessing(vtkRendererBase):
         self.opv = opv
         self.textActorUnit = vtk.vtkTextActor()
         self.colorbar = vtk.vtkScalarBarActor()
-
         self.setUsePicker(False)
-
         self.frequencyIndice = -1
         self.sliderFactor = 1
         self.valueFactor = -1
+        self.stress = False
 
     def reset(self):
         for actor in self._renderer.GetActors():
             self._renderer.RemoveActor(actor)
+
+    def setStress(self, value):
+        self.stress = value
+
+    def getStress(self):
+        return self.stress
+
+    def getColorTable(self, r_def=None):
+        if self.stress:
+            try:
+                imported_data = np.loadtxt("./stress_data.dat", delimiter=" ")
+                colorsValues = imported_data[:,3].tolist()
+                return ColorTable(self.project, colorsValues)
+            except Exception:
+                print("Error Import File StressField")
+                exit(0)
+        else:
+            return ColorTable(self.project, r_def)
 
     def plot(self, acoustic=False):
         self.reset()
@@ -36,7 +53,7 @@ class RendererPostProcessing(vtkRendererBase):
             connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.get_mesh(), self.project.get_structural_solution(), self.frequencyIndice, gain=self.sliderFactor)            
 
         # self.valueFactor
-        colorTable = ColorTable(self.project, r_def)
+        colorTable = self.getColorTable(r_def=r_def)
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.get_entities():
@@ -44,7 +61,7 @@ class RendererPostProcessing(vtkRendererBase):
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalysis(self.project, connect, coord, colorTable)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 

@@ -95,7 +95,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         if truncNumber != self.sliderScale:
             self.sliderScale = truncNumber
             self.needResetCamera = False
-            self.changeAndPlotAnalysis(self.currentFrequencyIndice)
+            self.changeAndPlotAnalysis(self.currentFrequencyIndice, stressColor=self.rendererAnalysis.getStress())
 
     def _updateSlider(self):
         if self.rendererAnalysis.getInUse():
@@ -150,12 +150,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.resetCamera()
         self.afterChangePlot()
 
-    def changeAndPlotAnalysis(self, frequency_indice, acoustic=False):
+    def changeAndPlotAnalysis(self, frequency_indice, acoustic=False, stressColor=False):
         self.beforeChangePlot()
         self.changeFrequency(frequency_indice)
         self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
         self.rendererAnalysis.setSliderFactor(self.sliderScale)
         self.rendererAnalysis.setInUse(True)
+        self.rendererAnalysis.setStress(stressColor)
         self.SetInteractorStyle(self.rendererAnalysis.getStyle())
         self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
         self.rendererAnalysis.plot(acoustic=acoustic)

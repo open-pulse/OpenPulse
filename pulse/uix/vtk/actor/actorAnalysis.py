@@ -3,13 +3,14 @@ import numpy as np
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorAnalysis(vtkActorBase):
-    def __init__(self, project, connect, coord_def, color_table):
+    def __init__(self, project, connect, coord_def, color_table, stress):
         super().__init__()
 
         self.project = project
         self.connect = connect
         self.coord_def = coord_def
         self.colorTable = color_table
+        self.stress = stress
         self.elements = self.project.get_elements()
 
         self._nodes = vtk.vtkPoints()
@@ -45,10 +46,15 @@ class ActorAnalysis(vtkActorBase):
 
     def filter(self):
         indice = self.coord_def[:,0]
-        for i in range(len(indice)):
-            id_ = int(indice[i])
-            self._colorFilter.InsertTypedTuple(id_, self.colorTable.get_color_by_id(i))
-        self._object.GetPointData().AddArray(self._colorFilter)
+        if self.stress:
+            for key, _ in self.elements.items():
+                self._colorFilter.InsertTypedTuple(key-1, self.colorTable.get_color_by_id(key-1))
+            self._object.GetCellData().SetScalars(self._colorFilter)
+        else:
+            for i in range(len(indice)):
+                id_ = int(indice[i])
+                self._colorFilter.InsertTypedTuple(id_, self.colorTable.get_color_by_id(i))
+            self._object.GetPointData().AddArray(self._colorFilter)
 
         self.radiusArray.SetName("TubeRadius")
         self.radiusArray.SetNumberOfTuples(len(indice))
@@ -71,7 +77,10 @@ class ActorAnalysis(vtkActorBase):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
         self._mapper.ScalarVisibilityOn()
         self._mapper.SelectColorArray("Colors")
-        self._mapper.SetScalarModeToUsePointFieldData()
+        if self.stress:
+            self._mapper.SetScalarModeToUseCellFieldData()
+        else:
+            self._mapper.SetScalarModeToUsePointFieldData()
 
     def actor(self):
         self._actor.SetMapper(self._mapper)

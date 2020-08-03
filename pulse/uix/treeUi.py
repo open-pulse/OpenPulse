@@ -239,6 +239,7 @@ class TreeUi(QTreeWidget):
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotStructuralHarmonicResponse.setDisabled(True)
             self.item_child_plotStructuralFrequencyResponse.setDisabled(True)
+            self.item_child_plotStressField.setDisabled(True)
             self.item_child_plotAcousticModeShapes.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticHarmonicResponse.setDisabled(True)
@@ -251,6 +252,7 @@ class TreeUi(QTreeWidget):
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
                 self.item_child_plot_reactions.setDisabled(False)
+                self.item_child_plotStressField.setDisabled(False)
             elif project.analysis_ID == 2:
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
             elif project.analysis_ID == 4:
