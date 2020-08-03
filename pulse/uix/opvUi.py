@@ -8,8 +8,7 @@ from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-from pulse.uix.vtk.renderer.rendererElement import RendererElement
-from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
+from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
 from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 
 
@@ -20,8 +19,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.project = project
 
         self.rendererEntity = RendererEntity(self.project, self)
-        self.rendererElement = RendererElement(self.project, self)
-        self.rendererPoint = RendererPoint(self.project, self)
+        self.rendererMesh = RendererMesh(self.project, self)
         self.rendererAnalysis = RendererPostProcessing(self.project, self)
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
@@ -118,14 +116,12 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.rendererEntity.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.rendererElement.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.rendererPoint.getRenderer())
+        self.GetRenderWindow().RemoveRenderer(self.rendererMesh.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererAnalysis.getRenderer())
 
     def clearRendereresUse(self):
         self.rendererEntity.setInUse(False)
-        self.rendererElement.setInUse(False)
-        self.rendererPoint.setInUse(False)
+        self.rendererMesh.setInUse(False)
         self.rendererAnalysis.setInUse(False)
 
     def beforeChangePlot(self):
@@ -145,20 +141,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
 
-    def changePlotToElements(self):
+    def changePlotToMesh(self):
         self.beforeChangePlot()
-        self.rendererElement.setInUse(True)
-        self.SetInteractorStyle(self.rendererElement.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererElement.getRenderer())
-        self.rendererElement.resetCamera()
-        self.afterChangePlot()
-
-    def changePlotToPoints(self):
-        self.beforeChangePlot()
-        self.rendererPoint.setInUse(True)
-        self.SetInteractorStyle(self.rendererPoint.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererPoint.getRenderer())
-        self.rendererPoint.resetCamera()
+        self.rendererMesh.setInUse(True)
+        self.rendererMesh.resetPlot()
+        self.SetInteractorStyle(self.rendererMesh.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
+        self.rendererMesh.resetCamera()
         self.afterChangePlot()
 
     def changeAndPlotAnalysis(self, frequency_indice, acoustic=False):
@@ -178,20 +167,17 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererEntity.setPlotRadius(plotRadius)
         self.rendererEntity.plot()
 
-    def plotElements(self):
-        self.rendererElement.plot()
+    def plotMesh(self):
+        self.rendererMesh.plot()
 
-    def plotPoints(self):
-        self.rendererPoint.plot()
+    def getListPickedEntities(self):
+        return self.rendererEntity.getListPickedEntities()
 
-    def getListPickedLines(self):
-        return self.rendererEntity.getListPickedLines()
-
-    def getListPickedNodes(self):
-        return self.rendererPoint.getListPickedNodes()
+    def getListPickedPoints(self):
+        return self.rendererMesh.getListPickedPoints()
 
     def getListPickedElements(self):
-        return self.rendererElement.getListPickedElements()
+        return self.rendererMesh.getListPickedElements()
 
     def updateEntityRadius(self):
         self.plotEntities(self.rendererEntity.getPlotRadius())
@@ -202,11 +188,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changeColorCross(self):
         pass #Well.. Actually it is only here just in case it is necessary
 
-    def changeColorPoints(self, points_id, color):
-        self.rendererPoint.changeColorPoints(points_id, color)
-
     def transformPoints(self, points_id):
-        self.rendererPoint.transformPoints(points_id)
+        self.rendererMesh.transformPoints(points_id)
         
     def savePNG(self, path):
         imageFilter = vtk.vtkWindowToImageFilter()

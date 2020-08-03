@@ -89,6 +89,9 @@ class Node:
 
     def getAcousticBoundaryCondition(self):
         return self.acoustic_boundary_condition
+
+    def getStructuralBondaryCondition(self):
+        return self.prescribed_dofs
     
     def get_acoustic_boundary_condition_indexes(self):
         return [i for i, j in enumerate([self.acoustic_pressure]) if j is not None]
