@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>313</width>
-    <height>153</height>
+    <width>460</width>
+    <height>250</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,6 +18,18 @@
     <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>460</width>
+    <height>250</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>460</width>
+    <height>250</height>
+   </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
@@ -32,13 +44,19 @@
   <property name="whatsThis">
    <string/>
   </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
+  </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>311</width>
-     <height>151</height>
+     <width>465</width>
+     <height>253</height>
     </rect>
    </property>
    <property name="font">
@@ -51,9 +69,21 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>311</width>
+      <width>460</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>460</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>460</width>
+      <height>16777215</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -67,16 +97,19 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>10</x>
-       <y>10</y>
+       <x>86</x>
+       <y>8</y>
        <width>291</width>
-       <height>16</height>
+       <height>27</height>
       </rect>
      </property>
      <property name="font">
       <font>
-       <pointsize>10</pointsize>
-       <italic>false</italic>
+       <family>Arial</family>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
       </font>
      </property>
      <property name="text">
@@ -95,9 +128,21 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>311</width>
-      <height>111</height>
+      <width>460</width>
+      <height>210</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>460</width>
+      <height>140</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>140</width>
+      <height>16777215</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -108,15 +153,18 @@
     <widget class="QLabel" name="label_title">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>20</y>
-       <width>271</width>
-       <height>71</height>
+       <x>6</x>
+       <y>4</y>
+       <width>448</width>
+       <height>202</height>
       </rect>
      </property>
      <property name="font">
       <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
        <weight>75</weight>
+       <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>

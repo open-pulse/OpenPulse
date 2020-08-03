@@ -23,6 +23,7 @@ class ProjectFile:
         self._entity_path = ""
         self._analysis_path = ""
         self.temp_table_name = None
+        self.lines_multiples_cross_sections = []
 
         self.element_type_is_structural = False
 
@@ -43,6 +44,7 @@ class ProjectFile:
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self.element_type_is_structural = False
+        self.lines_multiples_cross_sections = []
 
     def new(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -201,7 +203,6 @@ class ProjectFile:
 
     def create_entity_file(self, entities):
         config = configparser.ConfigParser()
-
         for entity in entities:
             config[str(entity.get_tag())] = {
                 'Material ID': '',
@@ -213,7 +214,7 @@ class ProjectFile:
             }
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
-
+    
     def get_dict_of_entities_from_file(self):
         material_list = configparser.ConfigParser()
         material_list.read(self._material_list_path)
@@ -230,85 +231,173 @@ class ProjectFile:
         dict_fluid = {}
 
         for entity in entityFile.sections():
-
-            element_type = entityFile[entity]['Element Type']
-
-            if element_type != "":
-                dict_element_type[int(entity)] = element_type
-                self.element_type_is_structural = True
-            else:
-                dict_element_type[int(entity)] = 'pipe_1'
-    
-            material_id = entityFile[entity]['Material ID']
-
-            if material_id.isnumeric():
-                material_id = int(material_id)
-                for material in material_list.sections():
-                    if int(material_list[material]['identifier']) == material_id:
-                        name = str(material_list[material]['name'])
-                        identifier = str(material_list[material]['identifier'])
-                        density =  str(material_list[material]['density'])
-                        youngmodulus =  str(material_list[material]['young modulus'])
-                        poisson =  str(material_list[material]['poisson'])
-                        color =  str(material_list[material]['color'])
-                        youngmodulus = float(youngmodulus)*(10**(9))
-                        temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
-                        dict_material[int(entity)] = temp_material
             
-            diam_ext = entityFile[entity]['Outer Diameter']
-            thickness = entityFile[entity]['Thickness']
-            offset = entityFile[entity]['Offset [e_y, e_z]']
-            offset_y, offset_z = self._get_offset_from_string(offset) 
-  
-            if diam_ext!="" and thickness!="":
-                try:
-                    diam_ext = float(diam_ext)
-                    thickness = float(thickness)
-                    offset_y = float(offset_y)
-                    offset_z = float(offset_z)
-                    cross = CrossSection(diam_ext, thickness, offset_y, offset_z)#, poisson_ratio=poisson, element_type=element_type)
-                    dict_cross[int(entity)] = cross
-                except Exception:
-                    error("An error has occurred while loading cross-section parameters from file.")
-                    return
+            if "-" in entity:
+                if 'outer diameter' in entityFile[entity].keys():
+                    diam_ext = entityFile[entity]['Outer Diameter']
+                if 'thickness' in entityFile[entity].keys():
+                    thickness = entityFile[entity]['Thickness']
+                if 'offset [e_y, e_z]' in entityFile[entity].keys():
+                    offset = entityFile[entity]['Offset [e_y, e_z]']
+                    offset_y, offset_z = self._get_offset_from_string(offset) 
+                if 'list of elements' in entityFile[entity].keys():
+                    list_elements = entityFile[entity]['List of elements']
+                    get_list_elements = self._get_list_elements_from_string(list_elements)
+    
+                if diam_ext!="" and thickness!="":
+                    try:
+                        diam_ext = float(diam_ext)
+                        thickness = float(thickness)
+                        offset_y = float(offset_y)
+                        offset_z = float(offset_z)
+                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z)
+                        dict_cross[entity] = [cross, get_list_elements]
+                    except Exception as er:
+                        error(str(er), title = "Error while loading cross-section parameters from file")
+                        return {}, {}, {}, {}
+            else:
+                diam_ext = ""
+                thickness = ""
+                if 'outer diameter' in entityFile[entity].keys():
+                    diam_ext = entityFile[entity]['Outer Diameter']
+                if 'thickness' in entityFile[entity].keys():    
+                    thickness = entityFile[entity]['Thickness']
+                if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
+                    offset = entityFile[entity]['Offset [e_y, e_z]']
+                    offset_y, offset_z = self._get_offset_from_string(offset) 
+                        
+                if diam_ext != "" and thickness != "":
+                    try:
+                        diam_ext = float(diam_ext)
+                        thickness = float(thickness)
+                        offset_y = float(offset_y)
+                        offset_z = float(offset_z)
+                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z)
+                        dict_cross[entity] = cross
+                    except Exception as er:
+                        error(str(er), title = "Error while loading cross-section parameters from file")
+                        return {}, {}, {}, {}
+                    
+                element_type = entityFile[entity]['Element Type']
 
-            fluid_id = entityFile[entity]['Fluid ID']
+                if element_type != "":
+                    dict_element_type[int(entity)] = element_type
+                    self.element_type_is_structural = True
+                else:
+                    dict_element_type[int(entity)] = 'pipe_1'
 
-            if fluid_id.isnumeric():
-                fluid_id = int(fluid_id)
-                for fluid in fluid_list.sections():
-                    if int(fluid_list[fluid]['identifier']) == fluid_id:
-                        name = str(fluid_list[fluid]['name'])
-                        identifier = str(fluid_list[fluid]['identifier'])
-                        fluid_density =  str(fluid_list[fluid]['fluid density'])
-                        speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
-                        # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
-                        color =  str(fluid_list[fluid]['color'])
-                        temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
-                        dict_fluid[int(entity)] = temp_fluid
+                if 'material id' in entityFile[entity].keys():
+                    material_id = entityFile[entity]['Material ID']
+
+                    if material_id.isnumeric():
+                        material_id = int(material_id)
+                        for material in material_list.sections():
+                            if int(material_list[material]['identifier']) == material_id:
+                                name = str(material_list[material]['name'])
+                                identifier = str(material_list[material]['identifier'])
+                                density =  str(material_list[material]['density'])
+                                youngmodulus =  str(material_list[material]['young modulus'])
+                                poisson =  str(material_list[material]['poisson'])
+                                color =  str(material_list[material]['color'])
+                                youngmodulus = float(youngmodulus)*(10**(9))
+                                temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
+                                dict_material[int(entity)] = temp_material
+                
+                if 'fluid id' in entityFile[entity].keys():    
+                    fluid_id = entityFile[entity]['Fluid ID']
+
+                    if fluid_id.isnumeric():
+                        fluid_id = int(fluid_id)
+                        for fluid in fluid_list.sections():
+                            if int(fluid_list[fluid]['identifier']) == fluid_id:
+                                name = str(fluid_list[fluid]['name'])
+                                identifier = str(fluid_list[fluid]['identifier'])
+                                fluid_density =  str(fluid_list[fluid]['fluid density'])
+                                speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
+                                # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
+                                color =  str(fluid_list[fluid]['color'])
+                                temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
+                                dict_fluid[int(entity)] = temp_fluid
 
         return dict_material, dict_cross, dict_element_type, dict_fluid
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
-        config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
-        config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
+
+        for section in list(config.sections()):
+            section_sub = str(entity_id) + '-'
+            if section_sub in section:
+                print("Section removed: {}".format(section))
+                config.remove_section(section)
+    
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
+            config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
+            config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
+        else:
+            config[str(entity_id)] = { 
+                                        'Outer Diameter': str(cross_section.external_diameter),
+                                        'Thickness': str(cross_section.thickness),
+                                        'Offset [e_y, e_z]': str(cross_section.offset)
+                                     }
+
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
-    
+
+    def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        for line in [lines]:
+            subkey = 0
+            for str_key in ['outer diameter', 'thickness', 'offset [e_y, e_z]']:
+                if str_key in list(config[str(line)].keys()):
+                    config.remove_option(section=str(line), option=str_key)
+
+            for key, elements in map_cross_sections_to_elements.items():
+                
+                self.lines_multiples_cross_sections.append(int(line))
+                cross_strings = key[1:-1].split(',')
+                vals = [float(value) for value in cross_strings] 
+                
+                subkey += 1
+                key = str(line) + "-" + str(subkey)
+
+                if key in config.sections():
+                    config[key]['Outer Diameter'] = '{}'.format(vals[0])
+                    config[key]['Thickness'] = '{}'.format(vals[1])
+                    config[key]['Offset [e_y, e_z]'] = '[{}, {}]'.format(vals[2],vals[3])
+                    config[key]['List of elements'] = '{}'.format(elements)
+                else:
+                    config[key] = { 'Outer Diameter': '{}'.format(vals[0]),
+                                    'Thickness': '{}'.format(vals[1]),
+                                    'Offset [e_y, e_z]': '[{}, {}]'.format(vals[2],vals[3]),
+                                    'List of elements': '{}'.format(elements) }
+
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
     def add_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['Element Type'] = element_type
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['Element Type'] = element_type
+        else:
+            config[str(entity_id)] = { 
+                                        'Element Type': element_type
+                                     }
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
     def add_material_in_file(self, entity_id, material_id):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['Material ID'] = str(material_id)
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['Material ID'] = str(material_id)
+        else:
+            config[str(entity_id)] = { 
+                                        'Material ID': str(material_id)
+                                     }            
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
@@ -424,6 +513,13 @@ class ProjectFile:
             if offset[1] != '0.0':
                 offset_z = float(offset[1])
         return offset_y, offset_z
+
+    def _get_list_elements_from_string(self, list_elements):
+        list_elements = list_elements[1:-1].split(',')
+        _list_elements = []
+        for element in list_elements:
+            _list_elements.append(int(element))
+        return _list_elements
 
     def _get_acoustic_bc_from_string(self, value, label):
         

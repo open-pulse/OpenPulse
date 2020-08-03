@@ -8,15 +8,15 @@ from PyQt5 import uic
 import configparser
 
 class RadiationImpedanceInput(QDialog):
-    def __init__(self, nodes, list_node_ids, *args, **kwargs):
+    def __init__(self, project, list_node_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/radiationimpedanceInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-
-        self.nodes = nodes
+        self.project = project
+        self.nodes = project.mesh.nodes
         self.radiation_impedance = None
         self.nodes_typed = []
 

@@ -184,11 +184,11 @@ class OPVUi(QVTKRenderWindowInteractor):
     def plotPoints(self):
         self.rendererPoint.plot()
 
-    def getListPickedEntities(self):
-        return self.rendererEntity.getListPickedEntities()
+    def getListPickedLines(self):
+        return self.rendererEntity.getListPickedLines()
 
-    def getListPickedPoints(self):
-        return self.rendererPoint.getListPickedPoints()
+    def getListPickedNodes(self):
+        return self.rendererPoint.getListPickedNodes()
 
     def getListPickedElements(self):
         return self.rendererElement.getListPickedElements()

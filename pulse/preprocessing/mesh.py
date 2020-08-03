@@ -21,6 +21,7 @@ class Mesh:
         self.acoustic_elements = {}
         self.neighbours = {}
         self.line_to_elements = {}
+        self.elements_to_line = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -158,11 +159,15 @@ class Mesh:
     def _map_lines_to_elements(self, mesh_loaded=False):
         if mesh_loaded:
             self.line_to_elements[1] = list(self.structural_elements.keys())
+            for element in list(self.structural_elements.keys()):
+                self.elements_to_line[element] = 1
         else:    
             mapping = self.map_elements
             for dim, tag in gmsh.model.getEntities(1):
                 elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
                 self.line_to_elements[tag] = np.array([mapping[element] for element in elements_of_entity], dtype=int)
+                for element in elements_of_entity:
+                    self.elements_to_line[mapping[element]] = tag 
 
     def _finalize_gmsh(self):
         gmsh.finalize()

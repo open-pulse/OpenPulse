@@ -14,7 +14,7 @@ class RendererPoint(vtkRendererBase):
         self.actors = {}
 
     def updateInfoText(self):
-        listActorsIDs = self.getListPickedPoints()
+        listActorsIDs = self.getListPickedNodes()
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
@@ -132,7 +132,7 @@ class RendererPoint(vtkRendererBase):
 
         self.updateInfoText()
 
-    def getListPickedPoints(self):
+    def getListPickedNodes(self):
         return self._style.getListPickedActors()
 
     def reset(self):
