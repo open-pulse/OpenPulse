@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod 
 import vtk
-from pulse.uix.vtk.actor.actorSquare2D import ActorSquare2D
 
 class vtkRendererBase(ABC):
     def __init__(self, style):
@@ -12,7 +11,6 @@ class vtkRendererBase(ABC):
         self._textActor = vtk.vtkTextActor()
         self.actors = {}
         self._inUse = False
-        self.squarePickerActor = ActorSquare2D((0,0), (0,0))
         self._usePicker = True
         self.textProperty = vtk.vtkTextProperty()
         self.textProperty.SetFontSize(16)
@@ -46,29 +44,17 @@ class vtkRendererBase(ABC):
     def createInfoText(self, text):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
-        #Empiric values
-        width, height = self._renderer.GetSize()
 
-        height -= 40
+        width, height = self._renderer.GetSize()
+        height = self._renderer.GetSize()[1] - 40
         width = 20
-        # width, height = self._renderer.GetSize()
-        # height = 35
-        # width -= 250
+        
         self.textProperty.SetVerticalJustificationToTop()
         self.textProperty.SetJustificationToLeft()
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
-        self._textActor.SetDisplayPosition(width, height)
+        self._textActor.SetDisplayPosition(position_x, position_y)
         self._renderer.AddActor2D(self._textActor)
-
-    def updateAreaPicker(self, posA, posB):
-        if not self._usePicker:
-            return
-        self._renderer.RemoveActor2D(self.squarePickerActor.getActor())
-        self.squarePickerActor = ActorSquare2D(posA, posB)
-        self.squarePickerActor.build()
-        self._renderer.AddActor2D(self.squarePickerActor.getActor())
-        self.update()
 
     @abstractmethod
     def updateInfoText(self):

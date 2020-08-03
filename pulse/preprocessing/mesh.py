@@ -21,6 +21,7 @@ class Mesh:
         self.acoustic_elements = {}
         self.neighbours = {}
         self.line_to_elements = {}
+        self.elements_to_line = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -33,6 +34,7 @@ class Mesh:
         self.nodes_with_acoustic_pressure = []
         self.nodes_with_volume_velocity = []
         self.nodes_with_specific_impedance = []
+        self.nodes_with_radiation_impedance = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -158,11 +160,15 @@ class Mesh:
     def _map_lines_to_elements(self, mesh_loaded=False):
         if mesh_loaded:
             self.line_to_elements[1] = list(self.structural_elements.keys())
+            for element in list(self.structural_elements.keys()):
+                self.elements_to_line[element] = 1
         else:    
             mapping = self.map_elements
             for dim, tag in gmsh.model.getEntities(1):
                 elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
                 self.line_to_elements[tag] = np.array([mapping[element] for element in elements_of_entity], dtype=int)
+                for element in elements_of_entity:
+                    self.elements_to_line[mapping[element]] = tag 
 
     def _finalize_gmsh(self):
         gmsh.finalize()
@@ -337,7 +343,7 @@ class Mesh:
     
     def set_structural_load_bc_by_node(self, nodes_id, values):
         for node in slicer(self.nodes, nodes_id):
-            node.loads = values
+            node.nodal_loads = values
             node.prescribed_dofs = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -435,7 +441,7 @@ class Mesh:
     def set_prescribed_dofs_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
-            node.loads = [None,None,None,None,None,None]
+            node.nodal_loads = [None,None,None,None,None,None]
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -504,6 +510,14 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
 
+    def set_length_correction_by_element(self, elements, value):
+        for element in slicer(self.acoustic_elements, elements):
+            element.acoustic_length_correction = value
+
+    def set_length_correction_by_line(self, lines, value):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_length_correction_by_element(elements, value)
+            
     def set_acoustic_pressure_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = values
@@ -533,9 +547,14 @@ class Mesh:
                 if node in self.nodes_with_specific_impedance:
                     self.nodes_with_specific_impedance.remove(node)
                     
-    def set_radiation_impedance_bc_by_node(self, nodes, values):
+    def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         for node in slicer(self.nodes, nodes):
-            node.radiation_impedance = values
+            node.radiation_impedance_type = impedance_type
+            if not node in self.nodes_with_radiation_impedance:
+                self.nodes_with_radiation_impedance.append(node)
+            if impedance_type is None:
+                if node in self.nodes_with_radiation_impedance:
+                    self.nodes_with_radiation_impedance.remove(node)
 
     def get_radius(self):
         for element in self.structural_elements.values():

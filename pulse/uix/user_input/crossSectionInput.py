@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -9,13 +9,16 @@ from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 
 class CrossSectionInput(QDialog):
-    def __init__(self, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
+    def __init__(self, lines_id, elements_id, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/crossSectionInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/crossSectionInput2.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.lines_id = lines_id
+        self.elements_id = elements_id
 
         self.external_diameter = external_diameter
         self.thickness = thickness
@@ -28,6 +31,9 @@ class CrossSectionInput(QDialog):
         self.flagEntity = False
         self.currentTab = 0
 
+        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+        self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
+
         self.lineEdit_outerDiameter = self.findChild(QLineEdit, 'lineEdit_outerDiameter')
         self.lineEdit_thickness = self.findChild(QLineEdit, 'lineEdit_thickness')
         self.lineEdit_offset_y = self.findChild(QLineEdit, 'lineEdit_offset_y')
@@ -38,10 +44,12 @@ class CrossSectionInput(QDialog):
         self.lineEdit_izz = self.findChild(QLineEdit, 'lineEdit_izz')
         self.lineEdit_iyz = self.findChild(QLineEdit, 'lineEdit_iyz')
 
-        self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
-        self.radioButton_all.toggled.connect(self.radioButtonEvent)
-        self.radioButton_entity.toggled.connect(self.radioButtonEvent)
+        self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
+        self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
+        self.radioButton_all_lines.toggled.connect(self.radioButtonEvent)
+        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
+        self.radioButton_selected_elements.toggled.connect(self.radioButtonEvent)
 
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
@@ -49,8 +57,25 @@ class CrossSectionInput(QDialog):
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check)
 
-        self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
+        self.flagAll = self.radioButton_all_lines.isChecked()
+        self.flagEntity = self.radioButton_selected_lines.isChecked()
+        self.flagElements = self.radioButton_selected_elements.isChecked()
+        
+        if self.lines_id != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(lines_id)
+            # self.lineEdit_selected_ID.setText(str(lines_id))
+            self.radioButton_selected_lines.setChecked(True)
+        elif self.elements_id != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(elements_id)
+            # self.lineEdit_selected_ID.setText(str(elements_id))
+            self.radioButton_selected_elements.setChecked(True)
+        else:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all_lines.setChecked(True)
+
         self.currentTab = self.tabWidget.currentIndex()
 
         if self.external_diameter!=0 and self.thickness!=0:
@@ -68,8 +93,18 @@ class CrossSectionInput(QDialog):
             self.close()
 
     def radioButtonEvent(self):
-        self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
+        self.flagAll = self.radioButton_all_lines.isChecked()
+        self.flagEntity = self.radioButton_selected_lines.isChecked()
+        self.flagElements = self.radioButton_selected_elements.isChecked()
+
+        if self.flagAll:
+            self.lineEdit_selected_ID.setText("All lines")
+     
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_ID.setText(text)
 
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()

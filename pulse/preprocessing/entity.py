@@ -9,6 +9,8 @@ class Entity:
         self.fluid = None
         self.crossSection = None
         self.element_type = None
+        self.caped_end = None
+        self.length_correction = None
 
     def insertNode(self, node):
         self.nodes.append(node)
@@ -46,3 +48,6 @@ class Entity:
         
     def getFluid(self):
         return self.fluid
+    
+    def getCapedEnd(self):
+        return self.caped_end

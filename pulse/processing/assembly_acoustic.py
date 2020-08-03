@@ -1,10 +1,31 @@
 from time import time
 import numpy as np
+from math import pi
+from numpy.linalg import norm
 from scipy.sparse import csr_matrix, csc_matrix
 from pulse.utils import timer, error
 
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
+
+def length_correction_expansion(smaller_diameter, larger_diameter):
+    xi = smaller_diameter / larger_diameter
+    if xi <= 0.5:
+        factor = 8 / (3 * pi) * (1 - 1.238 * xi)
+    else:
+        factor = 8 / (3 * pi) * (0.875 * (1 - xi) * (1.371 - xi))
+    return smaller_diameter * factor / 2
+
+def length_correction_branch(branch_diameter, principal_diameter):
+    xi = branch_diameter / principal_diameter
+    if xi <= 0.4:
+        factor = 0.8216 - 0.0644 * xi - 0.694 * xi**2
+    elif xi > 0.4:
+        factor = 0.9326 - 0.6196 * xi
+    return branch_diameter * factor / 2
+
+def cos_vectors(u,v):
+    return np.dot(u,v) / (norm(u)*norm(v))
 
 class AssemblyAcoustic:
     def __init__(self, mesh, frequencies):
@@ -42,13 +63,53 @@ class AssemblyAcoustic:
 
         rows, cols = self.mesh.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
+        neighbor_diameters = self.mesh.neighbor_elements_diameter_global()
 
-        for index, element in enumerate(self.mesh.acoustic_elements.values()):
+        for index, element in self.mesh.acoustic_elements.items():
 
-            start = index * ENTRIES_PER_ELEMENT
-            end = start + ENTRIES_PER_ELEMENT 
+            start = (index-1) * ENTRIES_PER_ELEMENT
+            end = start + ENTRIES_PER_ELEMENT
+
+            length_correction = 0
+
+            if element.acoustic_length_correction is not None:
+                first = element.first_node.global_index
+                last = element.last_node.global_index
+
+                di_actual = element.cross_section.internal_diameter
+
+                diameters_first = np.array(neighbor_diameters[first])
+                diameters_last = np.array(neighbor_diameters[last])
+
+                corrections_first = [0]
+                corrections_last = [0]
+
+                for _,_,di in diameters_first:
+                    if di_actual < di:
+                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                            correction = length_correction_expansion(di_actual, di)
+                        elif element.acoustic_length_correction == 1:
+                            correction = length_correction_branch(di_actual, di)
+                            if len(diameters_first) == 2:
+                                print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                        else:
+                            print("Datatype not understood")
+                        corrections_first.append(correction)
+
+                for _,_,di in diameters_last:
+                    if di_actual < di:
+                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                            correction = length_correction_expansion(di_actual, di)
+                        elif element.acoustic_length_correction == 1:
+                            correction = length_correction_branch(di_actual, di)
+                            if len(diameters_last) == 2:
+                                print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                        else:
+                            print("Datatype not understood")
+                        corrections_last.append(correction)
+                length_correction = max(corrections_first) + max(corrections_last)
             # data arrangement: pressures are arranged in columns and each row corresponds to one frequency of the analysis
-            data_k[:, start:end] = element.matrix(self.frequencies, ones)
+            data_k[:, start:end] = element.matrix(self.frequencies, ones, length_correction = length_correction)
             
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
 

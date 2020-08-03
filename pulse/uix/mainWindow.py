@@ -84,15 +84,10 @@ class MainWindow(QMainWindow):
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_radius)
 
-        self.points_action = QAction('&Points', self)        
-        self.points_action.setShortcut('Ctrl+3')
-        self.points_action.setStatusTip('Plot Points')
-        self.points_action.triggered.connect(self.plot_points)
-
-        self.elements_action = QAction('&Elements', self)        
-        self.elements_action.setShortcut('Ctrl+4')
-        self.elements_action.setStatusTip('Plot Elements')
-        self.elements_action.triggered.connect(self.plot_elements)
+        self.mesh_action = QAction('&Mesh', self)        
+        self.mesh_action.setShortcut('Ctrl+3')
+        self.mesh_action.setStatusTip('Plot Mesh')
+        self.mesh_action.triggered.connect(self.plot_mesh)
 
         #Structural Model Setup
         self.set_material_action = QAction('&Set Material', self)        
@@ -146,10 +141,29 @@ class MainWindow(QMainWindow):
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
-        self.setRadiationImpedance_action = QAction('&Set Radiation Impedance', self)        
-        self.setRadiationImpedance_action.setShortcut('Ctrl+Alt+5')
-        self.setRadiationImpedance_action.setStatusTip('Set Radiation Impedance')
-        self.setRadiationImpedance_action.triggered.connect(self.getInputWidget().setRadiationImpedance)
+        self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
+        self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+5')
+        self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
+        self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
+
+        self.add_perforated_plate_action = QAction('&Add perforated plate', self)        
+        self.add_perforated_plate_action.setShortcut('Ctrl+Alt+6')
+        self.add_perforated_plate_action.setStatusTip('Add perforated plate')
+        self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
+
+        self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
+        self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+7')
+        self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
+        self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
+
+        #Model Informations
+        self.structural_model_info_action = QAction('&Structural Model Info', self)        
+        self.structural_model_info_action.setStatusTip('Structural Model Info')
+        self.structural_model_info_action.triggered.connect(self.getInputWidget().structural_model_info)
+
+        self.acoustic_model_info_action = QAction('&Acoustic Model Info', self)        
+        self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
+        self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
 
         #Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
@@ -168,7 +182,7 @@ class MainWindow(QMainWindow):
         self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
-        self.runAnalysis_action.setShortcut('Ctrl+Alt+Z')
+        self.runAnalysis_action.setShortcut('F5')
         self.runAnalysis_action.setStatusTip('Run Analysis')
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
 
@@ -219,6 +233,7 @@ class MainWindow(QMainWindow):
         projectMenu = menuBar.addMenu('&Project')
         graphicMenu = menuBar.addMenu('&Graphic')
         modelSetup = menuBar.addMenu('&Model Setup')
+        model_info = menuBar.addMenu('&Model Info')
         analysisMenu = menuBar.addMenu('&Analysis')
         resultsViewerMenu = menuBar.addMenu('&Results Viewer')
         helpMenu = menuBar.addMenu("&Help")
@@ -230,8 +245,7 @@ class MainWindow(QMainWindow):
 
         graphicMenu.addAction(self.entities_action)
         graphicMenu.addAction(self.entities_action_radius)
-        graphicMenu.addAction(self.points_action)
-        graphicMenu.addAction(self.elements_action)
+        graphicMenu.addAction(self.mesh_action)
 
         modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.set_material_action)
@@ -244,7 +258,12 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setAcousticPressure_action)
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
-        modelSetup.addAction(self.setRadiationImpedance_action)
+        modelSetup.addAction(self.set_radiation_impedance_action)
+        modelSetup.addAction(self.add_perforated_plate_action)
+        modelSetup.addAction(self.set_acoustic_element_length_correction_action)
+
+        model_info.addAction(self.structural_model_info_action)
+        model_info.addAction(self.acoustic_model_info_action)
 
         analysisMenu.addAction(self.selectAnalysisType_action)
         analysisMenu.addAction(self.analysisSetup_action)
@@ -308,7 +327,7 @@ class MainWindow(QMainWindow):
 
     def reset_info(self):
         return
-        self.opv_widget.reset_info()
+        #self.opv_widget.reset_info()
 
     def plot_entities(self):
         self.opv_widget.plotEntities()
@@ -318,16 +337,12 @@ class MainWindow(QMainWindow):
         self.opv_widget.plotEntities(True)
         self.opv_widget.changePlotToEntities()
 
-    def plot_elements(self):
-        self.opv_widget.changePlotToElements()
-
-    def plot_points(self):
-        self.opv_widget.changePlotToPoints()
+    def plot_mesh(self):
+        self.opv_widget.changePlotToMesh()
 
     def draw(self):
         self.opv_widget.plotEntities()
-        self.opv_widget.plotElements()
-        self.opv_widget.plotPoints()
+        self.opv_widget.plotMesh()
         self.plot_entities()
 
     def closeEvent(self, event):

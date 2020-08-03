@@ -14,7 +14,7 @@ class Node:
         self.z = z
 
         # Structural boundary conditions and external lumped elements
-        self.loads = [None, None, None, None, None, None]
+        self.nodal_loads = [None, None, None, None, None, None]
         self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
         
@@ -39,7 +39,12 @@ class Node:
         self.acoustic_pressure = None
         self.volume_velocity = None
         self.specific_impedance = None
-        self.radiation_impedance = 0
+        self.radiation_impedance = None
+        self.radiation_impedance_type = None
+        # radiation_impedance_type :
+        # 0 -> anechoic termination
+        # 1 -> unflanged pipe
+        # 2 -> flanged pipe
         
         self.global_index = global_index
         self.external_index = external_index
@@ -63,7 +68,7 @@ class Node:
     def set_prescribed_dofs_bc(self, boundary_condition):
         self.prescribed_dofs = boundary_condition
 
-    def getStructuralBondaryCondition(self):
+    def get_prescribed_dofs(self):
         return self.prescribed_dofs
 
     def get_prescribed_dofs_bc_indexes(self):
@@ -72,11 +77,11 @@ class Node:
     def get_prescribed_dofs_bc_values(self):
         return [value for value in self.prescribed_dofs if value is not None]
                 
-    def set_prescribed_loads(self, loads):
-        self.loads = loads
+    def set_prescribed_loads(self, values):
+        self.nodal_loads = values
 
     def get_prescribed_loads(self):
-        return self.loads
+        return self.nodal_loads
     
     # Acoustic Boundary Condition
     def set_acoustic_boundary_condition(self, acoustic_boundary_condition):
@@ -84,6 +89,9 @@ class Node:
 
     def getAcousticBoundaryCondition(self):
         return self.acoustic_boundary_condition
+
+    def getStructuralBondaryCondition(self):
+        return self.prescribed_dofs
     
     def get_acoustic_boundary_condition_indexes(self):
         return [i for i, j in enumerate([self.acoustic_pressure]) if j is not None]
@@ -113,20 +121,32 @@ class Node:
         return self.volume_velocity.count(0) != 1
     
     def admittance(self, area_fluid, frequencies):
-        # Only one impedance can be given.
-        # More than one must raise an error
 
         if self.specific_impedance is not None:
-            Z = self.specific_impedance / area_fluid
-        elif self.radiation_impedance != 0:
-            Z = self.radiation_impedance / area_fluid
-        
-        if isinstance(self.specific_impedance, np.ndarray):
-            admittance = np.divide(1,Z)
-        elif isinstance(self.specific_impedance, complex):
-            admittance = 1/Z * np.ones_like(frequencies)
-        elif len([Z]) != len(frequencies):
-            error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
-            return
+            Z_specific = self.specific_impedance / area_fluid
+        elif self.radiation_impedance is not None:
+            Z_rad = self.radiation_impedance / area_fluid
 
+        if isinstance(self.specific_impedance, complex):
+            admittance_specific = 1/Z_specific * np.ones_like(frequencies)
+        elif isinstance(self.specific_impedance, np.ndarray):
+            if len(self.specific_impedance) != len(frequencies):
+                error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
+                return
+            admittance_specific = np.divide(1,Z_specific)
+        else:
+            admittance_specific = 0
+
+        if isinstance(self.radiation_impedance, complex):
+            admittance_rad = 1/Z_rad * np.ones_like(frequencies)
+        elif isinstance(self.radiation_impedance, np.ndarray):
+            if len(self.radiation_impedance) != len(frequencies):
+                error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
+                return
+            admittance_rad = np.divide(1,Z_rad)
+        else:
+            admittance_rad = 0
+        
+        admittance = admittance_specific + admittance_rad
+        
         return admittance.reshape([len(frequencies),1])

@@ -14,27 +14,40 @@ class RendererPoint(vtkRendererBase):
         self.actors = {}
 
     def updateInfoText(self):
-        listActorsIDs = self.getListPickedPoints()
+        listActorsIDs = self.getListPickedNodes()
         text = ""
         if len(listActorsIDs) == 0:
             text = ""
+            vertical_position_adjust = None
         elif len(listActorsIDs) == 1:
             node = self.project.get_node(int(listActorsIDs[0]))
-            text = "Node ID  {}\nPosition:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listActorsIDs[0], node.x, node.y, node.z, node.getStructuralBondaryCondition()[0], node.getStructuralBondaryCondition()[1], node.getStructuralBondaryCondition()[2], node.getStructuralBondaryCondition()[3], node.getStructuralBondaryCondition()[4], node.getStructuralBondaryCondition()[5])
+            values = node.get_prescribed_dofs()
+            text = "Node ID  {}\nCoordinates:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listActorsIDs[0], node.x, node.y, node.z, values[0], values[1], values[2], values[3], values[4], values[5])
+            vertical_position_adjust = (1-0.915)*960
         else:
-            text = "Selected Points:\n"
+            text = "{} nodes in selection:\n\n".format(len(listActorsIDs))
             i = 0
+            correction = 1
             for ids in listActorsIDs:
                 if i == 30:
                     text += "..."
+                    factor = 1.02
                     break
-                if i == 10 or i == 20:
+                elif i == 19: 
                     text += "{}\n".format(ids)
+                    factor = 1.02  
+                    correction = factor/1.06            
+                elif i == 9:
+                    text += "{}\n".format(ids)
+                    factor = 1.04
+                    correction = factor/1.06
                 else:
                     text += "{}  ".format(ids)
+                    factor = 1.06*correction
                 i+=1
+            vertical_position_adjust = (1-0.88*factor)*960
         
-        self.createInfoText(text)
+        self.createInfoText(text, vertical_position_adjust)
 
     def plot(self):
         self.reset()
@@ -119,7 +132,7 @@ class RendererPoint(vtkRendererBase):
 
         self.updateInfoText()
 
-    def getListPickedPoints(self):
+    def getListPickedNodes(self):
         return self._style.getListPickedActors()
 
     def reset(self):

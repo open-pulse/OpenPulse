@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QWidget
 from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -8,12 +8,13 @@ from PyQt5 import uic
 from time import time
 import configparser
 
-from pulse.processing.solution_structural import *
+# from pulse.processing.solution_structural import *
 
 class RunAnalysisInput(QDialog):
-    def __init__(self, solve, analysis_ID, analysis_type, frequencies, modes, damping, project=None, *args, **kwargs):
+    def __init__(self, solve, analysis_ID, analysis_type, frequencies, modes, damping, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/runAnalysisInput.ui', self)
+        # uic.loadUi('pulse/uix/user_input/ui/runAnalysisInput2QW.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -26,20 +27,19 @@ class RunAnalysisInput(QDialog):
         self.frequencies = frequencies
         self.damping = damping
         self.modes = modes
-        # self.solution = None
         self.solution_acoustic = None
         self.solution_structural = None
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
 
         self.label_title = self.findChild(QLabel, 'label_title')
-
+        # self.exec_()
+        self.show()
         self.run()
-        self.exec_()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.close()
+                
+    # def keyPressEvent(self, event):
+    #     if event.key() == Qt.Key_Escape:
+    #         self.close()
 
     def run(self):
         t0 = time()
@@ -71,12 +71,13 @@ class RunAnalysisInput(QDialog):
             self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes)
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes)
-        dt = time() - t0
-
-        text = "Solution finished!\n"
-        text += "Time elapsed: {} [s]\n".format(dt)
-        text += "Press ESC to continue..."
-        self.label_title.setText(text)
+        self.project.time_to_solve_model = time() - t0
+        
+        # text = "Solution finished!\n"
+        # # text += "Time to process cross-sections: {} [s]\n".format(round(self.project.time_to_process_cross_sections,6))
+        # text += "Time to solve the model: {} [s]\n".format(round(dt,6))
+        # text += "Press ESC to continue..."
+        # self.label_title.setText(text)
 
         # WARNINGS REACHED DURING SOLUTION
         if self.analysis_type == "Harmonic Analysis - Structural":
@@ -86,4 +87,9 @@ class RunAnalysisInput(QDialog):
                 error(self.solve.warning_Clump[0], title = "WARNING")
         if self.analysis_type == "Modal Analysis - Structural":
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
-                error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")
+                error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")  
+
+        self.force_to_close()      
+    
+    def force_to_close(self):
+        self.close()

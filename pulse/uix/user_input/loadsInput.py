@@ -350,7 +350,7 @@ class LoadsInput(QDialog):
 
     def load_nodes_info(self):
         for node in self.project.mesh.nodes_with_nodal_loads:
-            nodal_loads_mask = [False if bc is None else True for bc in node.loads]
+            nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask))])
             self.treeWidget_nodal_loads.addTopLevelItem(new)
 

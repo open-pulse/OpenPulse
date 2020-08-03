@@ -30,7 +30,9 @@ class TreeUi(QTreeWidget):
         self.name_child_setAcousticPressure = "Set Acoustic Pressure"
         self.name_child_setVolumeVelocity = "Set Volume Velocity"
         self.name_child_setSpecificImpedance = "Set Specific Impedance"
-        self.name_child_setRadiationImpedance = "Set Radiation Impedance"
+        self.name_child_set_radiation_impedance = "Set Radiation Impedance"
+        self.name_child_add_perforated_plate = "Add Perforated Plate"
+        self.name_child_set_acoustic_element_length_correction = "Set Acoustic Element Length Correction"
         
         self.name_top_analysis = "Analysis"
         self.name_child_selectAnalysisType = "Select Analysis Type"
@@ -92,8 +94,10 @@ class TreeUi(QTreeWidget):
         self.item_child_setAcousticPressure = QTreeWidgetItem([self.name_child_setAcousticPressure])
         self.item_child_setVolumeVelocity = QTreeWidgetItem([self.name_child_setVolumeVelocity])
         self.item_child_setSpecificImpedance = QTreeWidgetItem([self.name_child_setSpecificImpedance])
-        self.item_child_setRadiationImpedance = QTreeWidgetItem([self.name_child_setRadiationImpedance])
-
+        self.item_child_set_radiation_impedance = QTreeWidgetItem([self.name_child_set_radiation_impedance])
+        self.item_child_add_perforated_plate = QTreeWidgetItem([self.name_child_add_perforated_plate])
+        self.item_child_set_acoustic_element_length_correction = QTreeWidgetItem([self.name_child_set_acoustic_element_length_correction])
+        
         self.item_top_analysis = QTreeWidgetItem([self.name_top_analysis])
         self.item_child_selectAnalysisType = QTreeWidgetItem([self.name_child_selectAnalysisType])
         self.item_child_analisysSetup = QTreeWidgetItem([self.name_child_analisysSetup])
@@ -150,7 +154,9 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_setAcousticPressure) 
         self.addTopLevelItem(self.item_child_setVolumeVelocity)     
         self.addTopLevelItem(self.item_child_setSpecificImpedance)
-        self.addTopLevelItem(self.item_child_setRadiationImpedance)     
+        self.addTopLevelItem(self.item_child_set_radiation_impedance)     
+        self.addTopLevelItem(self.item_child_add_perforated_plate) 
+        self.addTopLevelItem(self.item_child_set_acoustic_element_length_correction) 
 
         self.addTopLevelItem(self.item_top_analysis)
         self.addTopLevelItem(self.item_child_selectAnalysisType)
@@ -181,8 +187,12 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().setVolumeVelocity()
         elif item.text(0) == self.name_child_setSpecificImpedance:
             self.mainWindow.getInputWidget().setSpecificImpedance()
-        elif item.text(0) == self.name_child_setRadiationImpedance:
-            self.mainWindow.getInputWidget().setRadiationImpedance()
+        elif item.text(0) == self.name_child_set_radiation_impedance:
+            self.mainWindow.getInputWidget().set_radiation_impedance()
+        elif item.text(0) == self.name_child_add_perforated_plate:
+            self.mainWindow.getInputWidget().add_perforated_plate()
+        elif item.text(0) == self.name_child_set_acoustic_element_length_correction:
+            self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
         elif item.text(0) == self.name_child_set_crossSection:
             self.mainWindow.getInputWidget().set_cross_section()
         elif item.text(0) == self.name_child_setElementType:
@@ -222,7 +232,6 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_plot_reactions:
             self.mainWindow.getInputWidget().plot_reactions()
 
-
     def _updateItems(self):
         project = self.mainWindow.getProject()
 
@@ -257,3 +266,8 @@ class TreeUi(QTreeWidget):
                 self.item_child_plotAcousticHarmonicResponse.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
                 self.item_child_plot_reactions.setDisabled(False)     
+
+    # def keyPressEvent(self, event):
+    #     if event.key() == Qt.Key_F5:
+    #         self.mainWindow.getInputWidget().runAnalysis()
+    #         self._updateItems()
