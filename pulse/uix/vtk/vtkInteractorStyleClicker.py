@@ -46,6 +46,7 @@ class vtkInteractorStyleClicker(vtk.vtkInteractorStyleTrackballCamera):
     def releaseButtons(self):
         if self.__leftButtonClicked:
             self.leftButtonReleaseEvent(None, None)
+        self.clear()
         self.EndRotate()
 
     def leftButtonPressEvent(self, obj, event):

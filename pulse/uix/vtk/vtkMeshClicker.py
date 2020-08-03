@@ -31,20 +31,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         self.createObservers()
 
-    def testando(self):
-        ra = vtk.vtkRenderer()
-        for i in range(0, 10):
-            for j in range(0, 10):    
-                actor = vtk.vtkActor()
-                source = vtk.vtkConeSource()
-                mapper = vtk.vtkPolyDataMapper()
-
-                mapper.SetInputConnection(source.GetOutputPort())
-                source.SetCenter(i, j, 0)   
-                actor.SetMapper(mapper)
-                ra.AddActor(actor)
-        self.setSecondaryRenderer(ra)
-
     #
     def getSelectedActors(self):
         return list(self.__selectedActors)
