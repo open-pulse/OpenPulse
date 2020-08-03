@@ -146,10 +146,10 @@ class MainWindow(QMainWindow):
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
-        self.setRadiationImpedance_action = QAction('&Set Radiation Impedance', self)        
-        self.setRadiationImpedance_action.setShortcut('Ctrl+Alt+5')
-        self.setRadiationImpedance_action.setStatusTip('Set Radiation Impedance')
-        self.setRadiationImpedance_action.triggered.connect(self.getInputWidget().setRadiationImpedance)
+        self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
+        self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+5')
+        self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
+        self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
         self.add_perforated_plate_action = QAction('&Add perforated plate', self)        
         self.add_perforated_plate_action.setShortcut('Ctrl+Alt+6')
@@ -187,7 +187,7 @@ class MainWindow(QMainWindow):
         self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
-        self.runAnalysis_action.setShortcut('Ctrl+Alt+Z')
+        self.runAnalysis_action.setShortcut('F5')
         self.runAnalysis_action.setStatusTip('Run Analysis')
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
 
@@ -264,7 +264,7 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setAcousticPressure_action)
         modelSetup.addAction(self.setVolumeVelocity_action)
         modelSetup.addAction(self.setSpecificImpedance_action)
-        modelSetup.addAction(self.setRadiationImpedance_action)
+        modelSetup.addAction(self.set_radiation_impedance_action)
         modelSetup.addAction(self.add_perforated_plate_action)
         modelSetup.addAction(self.set_acoustic_element_length_correction_action)
 
