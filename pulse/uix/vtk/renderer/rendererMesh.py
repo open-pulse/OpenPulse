@@ -26,9 +26,8 @@ class RendererMesh(vtkRendererBase):
         listPointsIDs = self.getListPickedPoints()
         listElementsIDs = self.getListPickedElements()
 
-        if listPointsIDs == [] and listElementsIDs == []:
-            text = ""
-            vertical_position_adjust = None
+        text = ""
+        vertical_position_adjust = None
             
         if listPointsIDs != [] and listElementsIDs == []:
             textPoints = ""
@@ -123,9 +122,6 @@ class RendererMesh(vtkRendererBase):
                     i+=1
                 vertical_position_adjust = (1-0.88*factor)*960
             text = textElements
-
-
-        # text = "{} \n\n {}".format(textPoints, textElements)
 
         self.createInfoText(text, vertical_position_adjust)
 

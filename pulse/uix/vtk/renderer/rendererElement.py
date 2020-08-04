@@ -69,7 +69,7 @@ class RendererElement(vtkRendererBase):
                     factor = 1.06*correction
                 i+=1
             vertical_position_adjust = (1-0.88*factor)*960
-        print("passei aqui")
+
         self.createInfoText(text, vertical_position_adjust)
         self.update()
 
