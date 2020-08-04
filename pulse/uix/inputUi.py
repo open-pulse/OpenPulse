@@ -9,7 +9,7 @@ from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResult
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.uix.user_input.radiationimpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
@@ -216,13 +216,8 @@ class InputUi:
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
-<<<<<<< HEAD
         node_id = self.opv.getListPickedNodes()
         read = RadiationImpedanceInput(self.project, node_id, self.opv.transformPoints)
-=======
-        node_id = self.opv.getListPickedPoints()
-        read = RadiationImpedanceInput(self.project, node_id)
->>>>>>> fd22ac2373c636c3d93266e3d57fdf893ec35ea2
 
         if read.radiation_impedance is None:
             return

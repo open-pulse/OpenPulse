@@ -12,9 +12,9 @@ from shutil import copyfile
 from pulse.utils import error, remove_bc_from_file
 
 class RadiationImpedanceInput(QDialog):
-    def __init__(self, project, list_node_ids, *args, **kwargs):
+    def __init__(self, project, list_node_ids, transform_points, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/radiationImpedanceInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/radiation_impedance_input.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -24,6 +24,7 @@ class RadiationImpedanceInput(QDialog):
         self.new_load_path_table = ""
 
         self.project = project
+        self.transform_points = transform_points
         self.project_file_path = project.project_file_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
@@ -65,14 +66,14 @@ class RadiationImpedanceInput(QDialog):
         self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
         
         self.writeNodes(list_node_ids)
-        # self.load_nodes_info()
+        self.load_nodes_info()
         self.exec_()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.self.treeWidget_radiation_impedance.currentIndex()==0:
+            if self.treeWidget_radiation_impedance.currentIndex()==0:
                 self.check_single_values()
-            elif self.self.treeWidget_radiation_impedance.currentIndex()==1:
+            elif self.treeWidget_radiation_impedance.currentIndex()==1:
                 self.check_table_values()
         elif event.key() == Qt.Key_Escape:
             self.close()
@@ -115,20 +116,19 @@ class RadiationImpedanceInput(QDialog):
 
     def check_radiation_impedance_type(self):
         self.check_input_nodes()
-        if self.flag_anechoic:
-            type_id = 0
-            print("Anechoic")
-            pass
-        elif self.flag_flanged:
-            type_id = 1
-            print("Flanged")
-            pass
-        elif self.flag_unflanged:
-            type_id = 2
-            print("Not flanged")
-            pass
-        self.project.load_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
-        self.close()
+        try:
+            if self.flag_anechoic:
+                type_id = 0
+            elif self.flag_unflanged:
+                type_id = 1
+            elif self.flag_flanged:
+                type_id = 2
+            self.radiation_impedance = type_id
+            self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
+            self.transform_points(self.nodes_typed)
+            self.close()
+        except:
+            return
 
     def text_label(self, value):
         text = ""
@@ -138,11 +138,6 @@ class RadiationImpedanceInput(QDialog):
             value_label = 'Table'
         text = "{}".format(value_label)
         return text
-
-    def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_acoustic_pressure:
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.acoustic_pressure))])
-            self.treeWidget_radiation_impedance.addTopLevelItem(new)
 
     def on_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
@@ -154,11 +149,21 @@ class RadiationImpedanceInput(QDialog):
     def check_remove_bc_from_node(self):
 
         self.check_input_nodes()
-        key_strings = ["acoustic pressure"]
-        message = "The acoustic pressure attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        key_strings = ["radiation impedance"]
+        message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_acoustic_pressure_bc_by_node(self.nodes_typed, None)
+        self.project.mesh.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.close()
 
+    def load_nodes_info(self):
+        for node in self.project.mesh.nodes_with_radiation_impedance:
+            if node.radiation_impedance_type == 0:
+                text = "Anechoic"
+            elif node.radiation_impedance_type == 1:
+                text = "Unflanged"
+            elif node.radiation_impedance_type == 2:
+                text = "Flanged"
+            new = QTreeWidgetItem([str(node.external_index), text])
+            self.treeWidget_radiation_impedance.addTopLevelItem(new)
     
