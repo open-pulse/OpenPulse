@@ -20,6 +20,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.project = project
         self.acoustic_elements = project.mesh.acoustic_elements
         self.elements_id = elements_id
+        self.type_label = None
 
         self.currentTab = 0
         self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')#lineEdit_elementID
@@ -50,13 +51,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.pushButton_lower_remove_confirm = self.findChild(QPushButton, 'pushButton_lower_remove_confirm')
         # self.pushButton_lower_remove_confirm.clicked.connect(self.check)
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        # self.pushButton_confirm.clicked.connect(self.check)
+        self.pushButton_confirm.clicked.connect(self.check_element_correction_type)
 
         if self.elements_id != []:
             self.write_ids(elements_id)
 
         self.currentTab = self.tabWidget_element_length_correction.currentIndex()
-
+        self.load_elements_info()
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -77,7 +78,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.lineEdit_elementID.setText(text)
 
     def tabEvent(self):
-        self.currentTab = self.tabWidget.currentIndex()
+        self.currentTab = self.tabWidget_element_length_correction.currentIndex()
 
     def check_input_elements(self):
         try:
@@ -104,11 +105,33 @@ class AcousticElementLengthCorrectionInput(QDialog):
             error(message[0], title = " INCORRECT ELEMENT ID INPUT! ")
             return
 
+    def check_element_correction_type(self):
+        self.check_input_elements()
+        if self.flag_expansion:
+            type_id = 0
+            self.type_label = "'Expansion'"
+   
+        elif self.flag_side_branch:
+            type_id = 1
+            self.type_label = "'Side branch'"
+
+        elif self.flag_loop:
+            type_id = 2
+            self.type_label = "'Loop'"
+
+        self.project.set_element_length_correction_by_elements(self.elements_typed, type_id)
+        self.close()
+
     def load_elements_info(self):
-        pass
-        # for element in self.acoustic_elements:
-        #     new = QTreeWidgetItem([str(element), str(self.text_label(element.length_correction))])
-        #     self.treeWidget_element_length_correction.addTopLevelItem(new)
+        
+        keys = [0,1,2]
+        labels = ['Expansion', 'Side branch', 'Loop']
+        dict_correction_types = dict(zip(keys, labels))
+
+        for element in self.project.mesh.element_with_length_correction:
+            text = dict_correction_types[element.acoustic_length_correction]
+            new = QTreeWidgetItem([str(element.index), text])
+            self.treeWidget_element_length_correction.addTopLevelItem(new)
 
     def on_click_item(self, item):
         self.lineEdit_elementID.setText(item.text(0))
@@ -120,6 +143,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def check_remove_element_length_correction(self):
 
         self.check_input_elements()
+        #TODO under construction
         # key_strings = ["acoustic pressure"]
         # message = "The acoustic pressure attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         # remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)

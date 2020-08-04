@@ -142,21 +142,21 @@ class Project:
 
     def load_entity_file(self):
 
-        dict_materials, dict_cross_sections, dict_element_types, fluid, dict_length_correction = self.file.get_dict_of_entities_from_file()
+        dict_materials, dict_cross_sections, dict_element_types, dict_fluids, dict_element_length_correction = self.file.get_dict_of_entities_from_file()
         self.lines_multiples_cross_sections = []
 
         # Element type to Entities
         for key, el_type in dict_element_types.items():
             if self.file.element_type_is_structural:
                 self.load_element_type_by_entity(key, el_type)
-        # Length correction to Entities
-        for key, el_type in dict_length_correction.items():
-            self.load_length_correction_by_entity(key, el_type)
+        # Length correction to Elements
+        for value in dict_element_length_correction.values():
+            self.load_length_correction_by_elements(value[0], value[1])
         # Material to Entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
         # Fluid to Entities
-        for key, fld in fluid.items():
+        for key, fld in dict_fluids.items():
             self.load_fluid_by_entity(key, fld)
         # Cross-section to Entities
         for key, cross in dict_cross_sections.items():
@@ -348,21 +348,6 @@ class Project:
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
 
-    def set_length_correction_to_all(self, length_correction):
-        self.mesh.set_length_correction_by_element('all', length_correction)
-        self._set_all_entity_length_correction(length_correction)
-        for entity in self.mesh.entities:
-            self.file.add_length_correction_in_file(entity.get_tag(), length_correction)
-        
-    def set_length_correction_by_entity(self, entity_id, length_correction):
-        if self.file.get_import_type() == 0:
-            self.mesh.set_length_correction_by_line(entity_id, length_correction)
-        elif self.file.get_import_type() == 1:
-            self.mesh.set_length_correction_by_element('all', length_correction)
-
-        self._set_entity_length_correction(entity_id, length_correction)
-        self.file.add_length_correction_in_file(entity_id, length_correction)
-
     # def set_caped_end(self, value):
     #     self.mesh.set_caped_end_by_element('all', value)
     #     self._set_all_entity_caped_end(value)
@@ -420,14 +405,6 @@ class Project:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
         self._set_entity_cross_section(entity_id, cross_section)
-
-    def load_length_correction_by_entity(self, entity_id, length_correction):
-        if self.file.get_import_type() == 0:
-            self.mesh.set_length_correction_by_line(entity_id, length_correction)
-        elif self.file.get_import_type() == 1:
-            self.mesh.set_length_correction_by_element('all', length_correction)
-
-        self._set_entity_length_correction(entity_id, length_correction)
 
     def load_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
@@ -500,16 +477,6 @@ class Project:
         for entity in self.mesh.entities:
             entity.crossSection = cross
 
-    def _set_entity_length_correction(self, entity_id, length_correction):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.length_correction = length_correction
-                return
-
-    def _set_all_entity_length_correction(self, length_correction):
-        for entity in self.mesh.entities:
-            entity.length_correction = length_correction
-
     def _set_entity_element_type(self, entity_id, element_type):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
@@ -560,6 +527,11 @@ class Project:
         self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
         label = ["radiation impedance"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
+    
+    def set_element_length_correction_by_elements(self, elements, value):
+        # label = ["acoustic element length correction"] 
+        self.mesh.set_length_correction_by_element(elements, value)
+        self.file.add_length_correction_in_file(elements, value)
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -579,6 +551,9 @@ class Project:
     def load_radiation_impedance_bc_by_node(self, node_id, value):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, value)
 
+    def load_length_correction_by_elements(self, elements, value):
+        self.mesh.set_length_correction_by_element(elements, value)
+
     def _set_entity_fluid(self, entity_id, fluid):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
@@ -597,6 +572,12 @@ class Project:
     # def _set_all_entity_caped_end(self, value):
     #     for entity in self.mesh.entities:
     #         entity.caped_end = value
+
+    def get_map_nodes(self):
+        return self.mesh.map_nodes
+
+    def get_map_elements(self):
+        return self.mesh.map_elements
 
     def get_mesh(self):
         return self.mesh

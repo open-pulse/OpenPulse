@@ -35,6 +35,7 @@ class Mesh:
         self.nodes_with_volume_velocity = []
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
+        self.element_with_length_correction = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -149,13 +150,13 @@ class Mesh:
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
             first_node = self.nodes[map_nodes[connect[0]]]
             last_node  = self.nodes[map_nodes[connect[1]]]
-            self.structural_elements[map_elements[i]] = StructuralElement(first_node, last_node)
+            self.structural_elements[map_elements[i]] = StructuralElement(first_node, last_node, map_elements[i])
 
     def _create_acoustic_elements(self, indexes, connectivities, map_nodes, map_elements):
         for i, connect in zip(indexes, split_sequence(connectivities, 2)):
             first_node = self.nodes[map_nodes[connect[0]]]
             last_node  = self.nodes[map_nodes[connect[1]]]
-            self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node)
+            self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
 
     def _map_lines_to_elements(self, mesh_loaded=False):
         if mesh_loaded:
@@ -221,8 +222,8 @@ class Mesh:
         for i, nodes in enumerate(connectivity[:,1:]):
             first_node = self.nodes[map_indexes[nodes[0]]]
             last_node  = self.nodes[map_indexes[nodes[1]]]
-            self.structural_elements[i+1] = StructuralElement(first_node, last_node)
-            self.acoustic_elements[i+1] = AcousticElement(first_node, last_node)
+            self.structural_elements[i+1] = StructuralElement(first_node, last_node, i+1)
+            self.acoustic_elements[i+1] = AcousticElement(first_node, last_node, i+1)
             edges = i+1, map_indexes[nodes[0]], map_indexes[nodes[1]]
             newEntity.insertEdge(edges)
             
@@ -513,6 +514,7 @@ class Mesh:
     def set_length_correction_by_element(self, elements, value):
         for element in slicer(self.acoustic_elements, elements):
             element.acoustic_length_correction = value
+            self.element_with_length_correction.append(element)
 
     def set_length_correction_by_line(self, lines, value):
         for elements in slicer(self.line_to_elements, lines):
