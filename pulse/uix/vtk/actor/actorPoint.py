@@ -3,10 +3,11 @@ from pulse.uix.vtk.vtkActorBase import vtkActorBase
 import numpy as np
 
 class ActorPoint(vtkActorBase):
-    def __init__(self, node, tag = -1, u_def=[]):
+    def __init__(self, node, tag = -1, u_def=[], size = 0.01, enableTransformation=True):
         super().__init__()
 
         self.node = node
+        self.size = size
         if u_def == []:
             self.x = node.x
             self.y = node.y
@@ -17,9 +18,10 @@ class ActorPoint(vtkActorBase):
             self.z = u_def[2]   
 
         self.color = [0,0,1]
-        self.special = True
-        self.setColor()
+        self.special = False
         self.tag = tag
+        if enableTransformation:
+            self.enable_transformation()
 
         self.sphere = vtk.vtkSphereSource()
         self.cube = vtk.vtkCubeSource()
@@ -30,6 +32,10 @@ class ActorPoint(vtkActorBase):
         self._colorFilter.SetNumberOfComponents(3)
 
         self._mapper = vtk.vtkPolyDataMapper()
+
+    def enable_transformation(self):
+        self.special = True
+        self.setColor()
 
     def setColor(self):
         if self.node.there_are_prescribed_dofs and self.node.there_are_nodal_loads:
@@ -53,9 +59,9 @@ class ActorPoint(vtkActorBase):
         self.sphere.SetPhiResolution(11)
         self.sphere.SetThetaResolution(21)
 
-        self.cube.SetXLength(0.01)
-        self.cube.SetYLength(0.01)
-        self.cube.SetZLength(0.01)
+        self.cube.SetXLength(self.size)
+        self.cube.SetYLength(self.size)
+        self.cube.SetZLength(self.size)
         self.cube.SetCenter(self.x, self.y, self.z)
 
     def filter(self):

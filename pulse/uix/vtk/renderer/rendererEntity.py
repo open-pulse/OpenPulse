@@ -1,7 +1,6 @@
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
 from pulse.uix.vtk.actor.actorLine import ActorLine
-from pulse.uix.vtk.actor.actorSquare2D import ActorSquare2D
 from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
 
@@ -11,11 +10,10 @@ class RendererEntity(vtkRendererBase):
         self.project = project
         self.opv = opv
         self.actors = {}
-        self.squarePickerActor = ActorSquare2D((0,0), (0,0))
         self.plotRadius = False
 
     def updateInfoText(self):
-        listActorsIDs = self.getListPickedLines()
+        listActorsIDs = self.getListPickedEntities()
         text = ""
         if len(listActorsIDs) == 0:
         
@@ -105,7 +103,7 @@ class RendererEntity(vtkRendererBase):
             actor.GetProperty().SetColor(color)
         self.updateInfoText()
 
-    def getListPickedLines(self):
+    def getListPickedEntities(self):
         return self._style.getListPickedActors()
 
     def update(self):

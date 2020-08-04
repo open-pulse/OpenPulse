@@ -84,15 +84,10 @@ class MainWindow(QMainWindow):
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
         self.entities_action_radius.triggered.connect(self.plot_entities_radius)
 
-        self.points_action = QAction('&Nodes', self)        
-        self.points_action.setShortcut('Ctrl+3')
-        self.points_action.setStatusTip('Plot Nodes')
-        self.points_action.triggered.connect(self.plot_points)
-
-        self.elements_action = QAction('&Elements', self)        
-        self.elements_action.setShortcut('Ctrl+4')
-        self.elements_action.setStatusTip('Plot Elements')
-        self.elements_action.triggered.connect(self.plot_elements)
+        self.mesh_action = QAction('&Mesh', self)        
+        self.mesh_action.setShortcut('Ctrl+3')
+        self.mesh_action.setStatusTip('Plot Mesh')
+        self.mesh_action.triggered.connect(self.plot_mesh)
 
         #Structural Model Setup
         self.set_material_action = QAction('&Set Material', self)        
@@ -250,8 +245,7 @@ class MainWindow(QMainWindow):
 
         graphicMenu.addAction(self.entities_action)
         graphicMenu.addAction(self.entities_action_radius)
-        graphicMenu.addAction(self.points_action)
-        graphicMenu.addAction(self.elements_action)
+        graphicMenu.addAction(self.mesh_action)
 
         modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.set_material_action)
@@ -333,7 +327,7 @@ class MainWindow(QMainWindow):
 
     def reset_info(self):
         return
-        self.opv_widget.reset_info()
+        #self.opv_widget.reset_info()
 
     def plot_entities(self):
         self.opv_widget.plotEntities()
@@ -343,16 +337,12 @@ class MainWindow(QMainWindow):
         self.opv_widget.plotEntities(True)
         self.opv_widget.changePlotToEntities()
 
-    def plot_elements(self):
-        self.opv_widget.changePlotToElements()
-
-    def plot_points(self):
-        self.opv_widget.changePlotToPoints()
+    def plot_mesh(self):
+        self.opv_widget.changePlotToMesh()
 
     def draw(self):
         self.opv_widget.plotEntities()
-        self.opv_widget.plotElements()
-        self.opv_widget.plotPoints()
+        self.opv_widget.plotMesh()
         self.plot_entities()
 
     def closeEvent(self, event):

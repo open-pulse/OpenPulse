@@ -573,6 +573,12 @@ class Project:
     #     for entity in self.mesh.entities:
     #         entity.caped_end = value
 
+    def get_map_nodes(self):
+        return self.mesh.map_nodes
+
+    def get_map_elements(self):
+        return self.mesh.map_elements
+
     def get_mesh(self):
         return self.mesh
 
