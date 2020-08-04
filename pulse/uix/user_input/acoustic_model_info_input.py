@@ -80,3 +80,13 @@ class AcousticModelInfoInput(QDialog):
         for node in self.project.mesh.nodes_with_specific_impedance:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.specific_impedance))])
             self.treeWidget_specific_impedance.addTopLevelItem(new)
+        
+        for node in self.project.mesh.nodes_with_radiation_impedance:
+            if node.radiation_impedance_type == 0:
+                text = "Anechoic"
+            elif node.radiation_impedance_type == 1:
+                text = "Unflanged"
+            elif node.radiation_impedance_type == 2:
+                text = "Flanged"
+            new = QTreeWidgetItem([str(node.external_index), text])
+            self.treeWidget_radiation_impedance.addTopLevelItem(new)

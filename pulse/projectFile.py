@@ -522,8 +522,8 @@ class ProjectFile:
                 str_radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
                 radiation_impedance_type = self._get_acoustic_bc_from_string(str_radiation_impedance, "radiation impedance")
                 # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
-                if specific_impedance is not None:
-                    dict_radiation_impedance[node_id] = int(radiation_impedance_type)
+                if radiation_impedance_type is not None:
+                    dict_radiation_impedance[node_id] = int(np.real(radiation_impedance_type))
 
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
 

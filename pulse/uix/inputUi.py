@@ -217,14 +217,13 @@ class InputUi:
     
     def set_radiation_impedance(self):
         node_id = self.opv.getListPickedNodes()
-        read = RadiationImpedanceInput(self.project, node_id)
+        read = RadiationImpedanceInput(self.project, node_id, self.opv.transformPoints)
 
         if read.radiation_impedance is None:
             return
-
-        self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
-        print("[Set Radiation Impedance Source] - defined at node(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
+        else:
+            self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
+            print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
         element_id = self.opv.getListPickedElements()
