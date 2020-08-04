@@ -45,7 +45,6 @@ class vtkRendererBase(ABC):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
 
-        width, height = self._renderer.GetSize()
         height = self._renderer.GetSize()[1] - 40
         width = 20
         
@@ -53,7 +52,7 @@ class vtkRendererBase(ABC):
         self.textProperty.SetJustificationToLeft()
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
-        self._textActor.SetDisplayPosition(position_x, position_y)
+        self._textActor.SetDisplayPosition(width, height)
         self._renderer.AddActor2D(self._textActor)
 
     @abstractmethod

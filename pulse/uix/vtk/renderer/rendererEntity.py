@@ -80,7 +80,7 @@ class RendererEntity(vtkRendererBase):
                 i+=1
             vertical_position_adjust = (1-0.88*factor)*960
 
-        self.createInfoText(text, vertical_position_adjust)
+        self.createInfoText(text)
 
     def reset(self):
         for actor in self._renderer.GetActors():

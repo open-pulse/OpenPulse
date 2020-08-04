@@ -133,7 +133,7 @@ class RendererMesh(vtkRendererBase):
             source.AddInputConnection(sphere.GetOutputPort())
 
         for key, element in self.project.get_elements().items():
-            plot = ActorElement(element, key)
+            plot = ActorElement(element, 0.01, key)
             plot.build()
             source.AddInputData(plot.getActor().GetMapper().GetInput())
         
@@ -160,7 +160,7 @@ class RendererMesh(vtkRendererBase):
     
     def plotElements(self):
         for key, element in self.project.get_elements().items():
-            plot = ActorElement(element, key)
+            plot = ActorElement(element, 0.01, key)
             plot.build()
             actor = plot.getActor()
             self.elementsID[actor] = key

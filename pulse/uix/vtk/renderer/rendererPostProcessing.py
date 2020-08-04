@@ -76,7 +76,7 @@ class RendererPostProcessing(vtkRendererBase):
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
         vertical_position_adjust = None
-        self.createInfoText(text, vertical_position_adjust)
+        self.createInfoText(text)
 
     def updateUnitText(self):
         self._renderer.RemoveActor2D(self.textActorUnit)
