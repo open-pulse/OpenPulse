@@ -152,6 +152,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().AddRenderer(self.rendererMesh._rendererElements)
         self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
         self.rendererMesh.resetCamera()
+        self.afterChangePlot()
 
     def changeAndPlotAnalysis(self, frequency_indice, acoustic=False):
         self.beforeChangePlot()
