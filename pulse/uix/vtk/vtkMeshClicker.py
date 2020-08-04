@@ -139,6 +139,10 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         rendererPoints = self.__rendererMesh._rendererPoints
         rendererElements = self.__rendererMesh._rendererElements
 
+        cam = self.__rendererMesh.getRenderer().GetActiveCamera()
+        rendererPoints.SetActiveCamera(cam)
+        rendererElements.SetActiveCamera(cam)
+
         pickedPoints = self.pickActors(x1, y1, x2, y2, rendererPoints)
         pickedElements = self.pickActors(x1, y1, x2, y2, rendererElements)
 
@@ -152,9 +156,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             self.__selectedPoints = pickedPoints
             self.__selectedElements = pickedElements
 
-        cam = self.__rendererMesh.getRenderer().GetActiveCamera()
-        rendererPoints.SetActiveCamera(cam)
-        rendererElements.SetActiveCamera(cam)
 
         self.highlight(self.__selectedPoints | self.__selectedElements)
 
@@ -167,7 +168,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         pickedActors = set()
 
         if tooSmall:
-            picker = vtk.vtkPropPicker()
+            picker = vtk.vtkAreaPicker()
             picker.Pick(x2, y2, 0, renderer)
             actor = picker.GetActor()
             if actor:

@@ -122,6 +122,7 @@ class RendererMesh(vtkRendererBase):
         return text
 
     # 
+
     def plotMain(self):
         source = vtk.vtkAppendPolyData()
         mapper = vtk.vtkPolyDataMapper()
@@ -129,12 +130,14 @@ class RendererMesh(vtkRendererBase):
 
         for key, node in self.project.get_nodes().items():
             sphere = vtk.vtkSphereSource()
-            sphere.SetRadius(0.02)
+            radius = 0.02
+            sphere.SetRadius(radius)
             sphere.SetCenter(node.coordinates)
             source.AddInputConnection(sphere.GetOutputPort())
 
         for key, element in self.project.get_elements().items():
-            plot = ActorElement(element, 0.01, key)
+            radius = 0.01
+            plot = ActorElement(element, radius, key)
             plot.build()
             actor = plot.getActor()
             source.AddInputData(actor.GetMapper().GetInput())
@@ -172,10 +175,10 @@ class RendererMesh(vtkRendererBase):
 
 
 
-###
+###    
     def getSize(self):
-        return 0
-    
+        return self.project.get_element_size()*0.7
+
     def transformPoints(self, points_id):
         self._style.clear()
         for ID in points_id:
