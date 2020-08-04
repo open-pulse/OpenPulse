@@ -137,7 +137,6 @@ class vtkInteractorStyleClickerMesh(vtk.vtkInteractorStyleTrackballCamera):
             if actor:
                 pickedActors.add(actor)
         else:
-            return
             picker = vtk.vtkAreaPicker()
             picker.AreaPick(x1, y1, x2, y2, renderer)
             actors = set(picker.GetProp3Ds())

@@ -84,15 +84,15 @@ def get_stress_data(mesh, column, absolute=False, real=False, imaginary=False):
     else:
         return np.array(stresses)
 
-def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
+# def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
 
-    elements = mesh.structural_elements
-    internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
-    if absolute:
-        return np.abs(np.array(internal_loads))
-    elif real:
-        return np.real(np.array(internal_loads))
-    elif imaginary:
-        return np.imag(np.array(internal_loads))
-    else:
-        return np.array(internal_loads) 
+#     elements = mesh.structural_elements
+#     internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
+#     if absolute:
+#         return np.abs(np.array(internal_loads))
+#     elif real:
+#         return np.real(np.array(internal_loads))
+#     elif imaginary:
+#         return np.imag(np.array(internal_loads))
+#     else:
+#         return np.array(internal_loads) 

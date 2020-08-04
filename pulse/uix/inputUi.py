@@ -502,7 +502,17 @@ class InputUi:
             Plot_TL_NR_Input(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
 
     def plotStressField(self):
-        pass
+        self.project.plot_pressure_field = False
+        solution = self.project.get_structural_solution()
+        if self.analysis_ID in [0,1,5,6]:
+            if solution is None:
+                return
+            plot = PlotHarmonicResponseInput(self.frequencies)
+            if plot.frequency is None:
+                return
+            self.opv.changeAndPlotAnalysis(plot.frequency, stressColor=True)
+        else:
+            return
 
     def plot_reactions(self):
 
