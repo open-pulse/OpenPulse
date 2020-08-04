@@ -14,7 +14,7 @@ from pulse.utils import error, remove_bc_from_file
 class RadiationImpedanceInput(QDialog):
     def __init__(self, project, list_node_ids, transform_points, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/radiation_impedance_input.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/radiationImpedanceInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
