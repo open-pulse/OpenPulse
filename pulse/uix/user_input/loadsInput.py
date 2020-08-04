@@ -326,7 +326,7 @@ class LoadsInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.project.mesh.set_structural_load_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
         self.transform_points(self.nodes_typed)
-        self.close()
+        # self.close()
 
     def text_label(self, mask):
         

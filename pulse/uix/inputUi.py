@@ -55,6 +55,7 @@ class InputUi:
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
         self.setup_analysis_complete = False
+        self.flag_imported_table = False
 
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
@@ -213,6 +214,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
@@ -311,6 +313,7 @@ class InputUi:
             return
         if self.project.file._project_name == "":
             return
+
         #TODO: rever a necessidade das estruturas abaixos
         if self.project.file.temp_table_name is None:
             self.project.load_analysis_file()
@@ -322,7 +325,7 @@ class InputUi:
         self.global_damping = self.project.global_damping
         analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
         setup = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
-        
+       
         self.frequencies = setup.frequencies
         self.f_min = setup.f_min
         self.f_max = setup.f_max
@@ -331,15 +334,17 @@ class InputUi:
         self.setup_analysis_complete = setup.complete
 
         if not setup.complete:
-            return
+            return False
 
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+        self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
             self.project.set_modes(setup.modes)
             self.project.set_damping(self.global_damping)
         else:
-            return
+            return False
+        return True
       
     def analysisOutputResults(self):
         AnalysisOutputResultsInput()
@@ -350,7 +355,11 @@ class InputUi:
         if self.analysis_ID is None or not self.setup_analysis_complete:
             error("Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model.")
             return
-        
+
+        if self.flag_imported_table:
+            if self.analysisSetup():
+                return
+       
         if self._check_is_there_a_problem():
             return
         self.project.time_to_checking_entries = time()-t0

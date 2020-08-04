@@ -586,6 +586,7 @@ class ProjectFile:
                         self.f_min = self.frequencies[0]
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
+                        self.temp_table_name = value[0]
                     except Exception:
                         message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label) 
                         error(message, title = "LOADING TABLE ERROR")             
@@ -637,6 +638,7 @@ class ProjectFile:
             self.f_min = self.frequencies[0]
             self.f_max = self.frequencies[-1]
             self.f_step = self.frequencies[1] - self.frequencies[0]
+            self.temp_table_name = table_name
 
             if ('[m/s]' or '[rad/s]') in header_read:
                 output = output/(2*pi*self.frequencies)

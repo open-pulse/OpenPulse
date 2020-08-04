@@ -310,10 +310,10 @@ class Mesh:
     
     def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False):
         if update_cross_section:
-            t0 = time()
+            # t0 = time()
             cross_section.update_properties()
-            dt = time() - t0
-            print("Time to process Cross-section: {} [s]".format(round(dt, 6)))
+            # dt = time() - t0
+            # print("Time to process Cross-section: {} [s]".format(round(dt, 6)))
         for element in slicer(self.structural_elements, elements):
             element.cross_section = cross_section
         for element in slicer(self.acoustic_elements, elements):

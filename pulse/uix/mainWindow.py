@@ -157,11 +157,13 @@ class MainWindow(QMainWindow):
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
 
         #Model Informations
-        self.structural_model_info_action = QAction('&Structural Model Info', self)        
+        self.structural_model_info_action = QAction('&Structural Model Info', self)    
+        self.structural_model_info_action.setShortcut('F3')    
         self.structural_model_info_action.setStatusTip('Structural Model Info')
         self.structural_model_info_action.triggered.connect(self.getInputWidget().structural_model_info)
 
-        self.acoustic_model_info_action = QAction('&Acoustic Model Info', self)        
+        self.acoustic_model_info_action = QAction('&Acoustic Model Info', self)      
+        self.acoustic_model_info_action.setShortcut('F4')  
         self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
         self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
 
