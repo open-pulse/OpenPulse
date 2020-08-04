@@ -696,3 +696,15 @@ class Project:
                 return "m"
             else:
                 return "-"  
+
+    def get_stress(self, frequency_id, absolute = False, real = True, imaginary = False):
+        elements = self.mesh.structural_elements
+        stresses = [np.r_[i, elements[i].stress[:, frequency_id]] for i in elements ]
+        if absolute:
+            return np.abs(np.array(stresses))
+        elif real:
+            return np.real(np.array(stresses))
+        elif imaginary:
+            return np.imag(np.array(stresses))
+        else:
+            return np.array(stresses)
