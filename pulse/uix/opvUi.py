@@ -69,7 +69,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         #self.slider2d.SetTitleText('Scale')
 
         width, height = self.rendererAnalysis.getSize()
-        height -= 30
+        height -= 150
         width = 20
 
         self.slider2d.GetPoint1Coordinate().SetCoordinateSystemToDisplay()

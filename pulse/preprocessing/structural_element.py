@@ -28,9 +28,10 @@ def shape_function(ksi):
     return phi, derivative_phi
 
 class StructuralElement:
-    def __init__(self, first_node, last_node, **kwargs):
+    def __init__(self, first_node, last_node, index, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
+        self.index = index
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))

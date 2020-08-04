@@ -39,9 +39,10 @@ def flanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
     return fluid_impedance * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*kr)/ kr  ) +0j
 
 class AcousticElement:
-    def __init__(self, first_node, last_node, **kwargs):
+    def __init__(self, first_node, last_node, index, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
+        self.index = index
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)

@@ -9,7 +9,7 @@ from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResult
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-from pulse.uix.user_input.radiation_impedance_input import RadiationImpedanceInput
+from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
@@ -232,10 +232,15 @@ class InputUi:
         # print("Add perforated plate ", element_id)
 
     def set_acoustic_element_length_correction(self):
-        element_id = self.opv.getListPickedElements()
-        AcousticElementLengthCorrectionInput(self.project, element_id)
-        print("Set acoustic element length correction at elements:", element_id)
-
+        elements_id = self.opv.getListPickedElements()
+        read = AcousticElementLengthCorrectionInput(self.project, elements_id)
+        if read.type_label is None:
+            return
+        if len(elements_id)>20:
+            print("Set acoustic element length correction due the {} at {} selected elements".format(read.type_label, len(elements_id)))
+        else:
+            print("Set acoustic element length correction due the {} at elements:".format(read.type_label), elements_id)
+        
     def _load_frequencies_from_table(self, obj):
             self.project.file.f_min = obj.f_min
             self.project.file.f_max = obj.f_max
