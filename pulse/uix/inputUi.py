@@ -216,7 +216,7 @@ class InputUi:
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
-        node_id = self.opv.getListPickedNodes()
+        node_id = self.opv.getListPickedPoints()
         read = RadiationImpedanceInput(self.project, node_id, self.opv.transformPoints)
 
         if read.radiation_impedance is None:
