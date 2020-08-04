@@ -25,51 +25,109 @@ class RendererMesh(vtkRendererBase):
     def updateInfoText(self):
         listPointsIDs = self.getListPickedPoints()
         listElementsIDs = self.getListPickedElements()
-        textPoints = ""
-        if len(listPointsIDs) == 0:
-            textPoints = ""
-        elif len(listPointsIDs) == 1:
-            textPoints = "Node:"
-            node = self.project.get_node(int(listPointsIDs[0]))
-            textPoints += " ID  {}\n".format(listPointsIDs[0])
-            textPoints += "> Position:  ({:.3f}, {:.3f}, {:.3f})\n".format(node.x, node.y, node.z)
-            textPoints += "> Displacement:  ({}, {}, {})\n".format(node.getStructuralBondaryCondition()[0], node.getStructuralBondaryCondition()[1], node.getStructuralBondaryCondition()[2])
-            textPoints += "> Rotation:  ({}, {}, {})".format(node.getStructuralBondaryCondition()[3], node.getStructuralBondaryCondition()[4], node.getStructuralBondaryCondition()[5])
-        else:
-            textPoints = "Selected Points:\n"
-            i = 0
-            for ids in listPointsIDs:
-                if i == 30:
-                    textPoints += "..."
-                    break
-                if i == 10 or i == 20:
-                    textPoints += "{}\n".format(ids)
-                else:
-                    textPoints += "{}  ".format(ids)
-                i+=1
 
-        textElements = ""
-        if len(listElementsIDs) == 0:
+        if listPointsIDs == [] and listElementsIDs == []:
+            text = ""
+            vertical_position_adjust = None
+            
+        if listPointsIDs != [] and listElementsIDs == []:
+            textPoints = ""
+            if len(listPointsIDs) == 0:
+                textPoints = ""
+                vertical_position_adjust = None
+            elif len(listPointsIDs) == 1:
+                node = self.project.get_node(int(listPointsIDs[0]))
+                values = node.get_prescribed_dofs()
+                textPoints = "Node ID  {}\nCoordinates:  ({:.3f}, {:.3f}, {:.3f})\nDisplacement:  ({}, {}, {})\nRotation:  ({}, {}, {})".format(listPointsIDs[0], node.x, node.y, node.z, values[0], values[1], values[2], values[3], values[4], values[5])
+                vertical_position_adjust = (1-0.915)*960
+            else:
+                textPoints = "{} nodes in selection:\n\n".format(len(listPointsIDs))
+                i = 0
+                correction = 1
+                for ids in listPointsIDs:
+                    if i == 30:
+                        textPoints += "..."
+                        factor = 1.02
+                        break
+                    elif i == 19: 
+                        textPoints += "{}\n".format(ids)
+                        factor = 1.02  
+                        correction = factor/1.06            
+                    elif i == 9:
+                        textPoints += "{}\n".format(ids)
+                        factor = 1.04
+                        correction = factor/1.06
+                    else:
+                        textPoints += "{}  ".format(ids)
+                        factor = 1.06*correction
+                    i+=1
+                vertical_position_adjust = (1-0.88*factor)*960
+            
+            text = textPoints
+
+        if listPointsIDs == [] and listElementsIDs != []:    
             textElements = ""
-        elif len(listElementsIDs) == 1:
-            textElements = "Element:"
-            #element = self.project.get_element(int(listElementsIDs[0]))
-            textElements += " ID  {}\n".format(int(listElementsIDs[0]))
-        else:
-            textElements == "Selected Elements:\n"
-            i = 0
-            for ids in listElementsIDs:
-                if i == 30:
-                    textElements += "..."
-                    break
-                if i == 10 or i == 20:
-                    textElements += "{}\n".format(ids)
+            if len(listElementsIDs) == 0:
+                textElements = ""
+                vertical_position_adjust = None
+            elif len(listElementsIDs) == 1:
+                element = self.project.get_element(int(listElementsIDs[0]))
+
+                textElements = "Element ID: {}\n".format(listElementsIDs[0])
+                node = element.first_node
+                textElements += "Node ID (first node): {} -- Coordinates: ({:.3f}, {:.3f}, {:.3f}) [m]\n".format(node.external_index, node.x, node.y, node.z)
+                node = element.last_node
+                textElements += "Node ID (last node): {} -- Coordinates: ({:.3f}, {:.3f}, {:.3f}) [m]\n".format(node.external_index, node.x, node.y, node.z)
+                textElements += "Element type: {}\n".format(element.element_type.upper())
+                
+                if element.cross_section is None:
+                    textElements += "Diameter: {}\nThickness: {}\nOffset y: {}\nOffset z: {}\n".format("undefined", "undefined", "undefined", "undefined")
                 else:
-                    textElements += "{}  ".format(ids)
-                i+=1
-        
-        text = "{} \n\n {}".format(textPoints, textElements)
-        self.createInfoText(text, None)
+                    external_diameter = element.cross_section.external_diameter
+                    thickness = element.cross_section.thickness
+                    offset_y = element.cross_section.offset_y
+                    offset_z = element.cross_section.offset_z
+                    textElements += "Diameter: {} [m]\nThickness: {} [m]\nOffset y: {} [m]\nOffset z: {} [m]\n".format(external_diameter, thickness, offset_y, offset_z)
+
+                if element.material is None:
+                    textElements += "Material: {}\n".format("undefined")
+                else:
+                    textElements += "Material: {}\n".format(element.material.name.upper())
+
+                if element.fluid is None:
+                    textElements += "Fluid: {}\n".format("undefined")
+                else:
+                    textElements += "Fluid: {}\n".format(element.fluid.name.upper())
+
+                vertical_position_adjust = (1-0.79)*960
+            else:
+                textElements = "{} elements in selection:\n\n".format(len(listElementsIDs))
+                i = 0
+                correction = 1
+                for ids in listElementsIDs:
+                    if i == 30:
+                        textElements += "..."
+                        factor = 1.02
+                        break
+                    elif i == 19: 
+                        textElements += "{}\n".format(ids)
+                        factor = 1.02  
+                        correction = factor/1.06            
+                    elif i == 9:
+                        textElements += "{}\n".format(ids)
+                        factor = 1.04
+                        correction = factor/1.06
+                    else:
+                        textElements += "{}  ".format(ids)
+                        factor = 1.06*correction
+                    i+=1
+                vertical_position_adjust = (1-0.88*factor)*960
+            text = textElements
+
+
+        # text = "{} \n\n {}".format(textPoints, textElements)
+
+        self.createInfoText(text, vertical_position_adjust)
 
     def getSize(self):
         return self.project.get_element_size()*0.7
