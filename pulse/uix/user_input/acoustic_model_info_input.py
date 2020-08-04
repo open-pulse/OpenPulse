@@ -53,11 +53,14 @@ class AcousticModelInfoInput(QDialog):
         self.project_info()
         self.exec_()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F4:
+            self.close()
+
     def project_info(self):
         self.lineEdit_number_nodes.setText(str(len(self.project.mesh.nodes)))
         self.lineEdit_number_elements.setText(str(len(self.project.mesh.structural_elements)))
         
-
     def text_label(self, value):
         text = ""
         if isinstance(value, complex):
