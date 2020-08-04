@@ -71,10 +71,11 @@ class RadiationImpedanceInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.treeWidget_radiation_impedance.currentIndex()==0:
-                self.check_single_values()
-            elif self.treeWidget_radiation_impedance.currentIndex()==1:
-                self.check_table_values()
+            if self.tabWidget_radiation_impedance.currentIndex()==0:
+                self.check_radiation_impedance_type()
+        elif event.key() == Qt.Key_Delete:
+            if self.tabWidget_radiation_impedance.currentIndex()==1:
+                self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
@@ -154,7 +155,9 @@ class RadiationImpedanceInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.mesh.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
-        self.close()
+        self.treeWidget_radiation_impedance.clear()
+        self.load_nodes_info()
+        # self.close()
 
     def load_nodes_info(self):
         for node in self.project.mesh.nodes_with_radiation_impedance:

@@ -73,8 +73,11 @@ class SpecificImpedanceInput(QDialog):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_specific_impedance.currentIndex()==0:
                 self.check_single_values()
-            elif self.tabWidget_specific_impedance.currentIndex()==1:
+            if self.tabWidget_specific_impedance.currentIndex()==1:
                 self.check_table_values()
+        elif event.key() == Qt.Key_Delete:
+            if self.tabWidget_specific_impedance.currentIndex()==2:
+                self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
@@ -248,4 +251,6 @@ class SpecificImpedanceInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.mesh.set_specific_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
-        self.close()
+        self.treeWidget_specific_impedance.clear()
+        self.load_nodes_info()
+        # self.close()

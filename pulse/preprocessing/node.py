@@ -131,7 +131,7 @@ class Node:
                 admittance_specific = 1/Z_specific * np.ones_like(frequencies)
             elif isinstance(self.specific_impedance, np.ndarray):
                 if len(self.specific_impedance) != len(frequencies):
-                    error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
+                    error(" The vectors of Specific Impedance and frequencies must be\n the same lengths to calculate the admittance properly!")
                     return
                 admittance_specific = np.divide(1, Z_specific)
               
@@ -142,7 +142,7 @@ class Node:
                 admittance_rad = np.divide(1, Z_rad) 
             elif isinstance(self.radiation_impedance, np.ndarray):
                 if len(self.radiation_impedance) != len(frequencies):
-                    error(" The vectors of Impedance Z and frequencies must be\n the same lengths to calculate the admittance properly!")
+                    error(" The vectors of Radiation Impedance and frequencies must be\n the same lengths to calculate the admittance properly!")
                     return
                 admittance_rad = np.divide(1, Z_rad)
         
