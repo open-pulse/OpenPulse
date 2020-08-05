@@ -9,7 +9,8 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 
-from pulse.postprocessing.plot_structural_data import get_structural_frf
+from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
+
 from pulse.utils import error
 
 class SnaptoCursor(object):
@@ -22,7 +23,7 @@ class SnaptoCursor(object):
 
         if show_cursor:
                 
-            self.vl = self.ax.axvline(x=np.min(x), ymin=np.min(y), color='k', alpha=0.3, label='_nolegend_')  # the vertical line
+            self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
             self.hl = self.ax.axhline(color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
             self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
             # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
@@ -49,7 +50,7 @@ class SnaptoCursor(object):
 
 
 class PlotStressSpectrumInput(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, solution, list_elements_ids, *args, **kwargs):
+    def __init__(self, project, solve, list_elements_ids, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotStressSpectrumInput.ui', self)
 
@@ -59,22 +60,35 @@ class PlotStressSpectrumInput(QDialog):
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
-        self.mesh = mesh
-        
+        self.project = project
+        self.solve = solve        
         self.analysisMethod = analysisMethod
-        self.frequencies = frequencies
-        self.solution = solution
-        self.nodeID = 0
+
+        self.mesh = project.mesh
+        self.frequencies = project.frequencies
+        self.damping = project.get_damping()
+    
+        self.elementID = None#0
         self.imported_data = None
-        self.localDof = None
+
+        self.keys = np.arange(7)
+        self.labels = np.array(["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear xy", "Transversal shear xz"])
+        
+        self.stress_data = []
+        self.unit_label = "Pa"
 
         self.writeElements(list_elements_ids)
 
-        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')
 
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
         self.lineEdit_SaveResultsPath = self.findChild(QLineEdit, 'lineEdit_SaveResultsPath')
+
+        self.checkBox_damping_effect = self.findChild(QCheckBox, 'checkBox_damping_effect')
+
+        self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
+        self.checkBox_damping_effect.clicked.connect(self._update_damping_effect)
 
         self.toolButton_ChooseFolderImport = self.findChild(QToolButton, 'toolButton_ChooseFolderImport')
         self.toolButton_ChooseFolderImport.clicked.connect(self.choose_path_import_results)
@@ -145,6 +159,10 @@ class PlotStressSpectrumInput(QDialog):
 
     def update_cursor(self):
         self.cursor = self.checkBox_cursor.isChecked()
+    
+    def _update_damping_effect(self):
+        self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
+        self.update_damping = True
 
     def reset_imported_data(self):
         self.imported_data = None
@@ -170,6 +188,9 @@ class PlotStressSpectrumInput(QDialog):
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
         self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
         self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
+
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
+                    self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
 
     def radioButtonEvent_YAxis(self):
         self.plotAbs = self.radioButton_plotAbs.isChecked()
@@ -210,60 +231,33 @@ class PlotStressSpectrumInput(QDialog):
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
     def check(self, export=False):
-        self.localDof = None
+
         try:
             tokens = self.lineEdit_elementID.text().strip().split(',')
             try:
                 tokens.remove('')
             except:
                 pass
-            node_typed = list(map(int, tokens))
-            if len(node_typed) == 1:
+            element_typed = list(map(int, tokens))
+            if len(element_typed) == 1:
                 try:
-                    self.nodeID = self.mesh.nodes[node_typed[0]].external_index
+                    self.elementID = self.mesh.structural_elements[element_typed[0]].index
                 except:
-                    error("Incorrect Node ID input!")
+                    message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.mesh.structural_elements))]
+                    error(message[0], title = " INCORRECT NODE ID INPUT! ")
                     return
-            elif len(node_typed) == 0:
-                error("Please, enter a valid Node ID!")
+            elif len(element_typed) == 0:
+                error("Please, enter a valid Element ID!")
                 return
             else:
-                error("Multiple Node IDs", "Error Node ID's")
+                error("Multiple Element IDs", "Error Element ID's")
                 return
         except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
+            error("Wrong input for Element ID's!", "Error Element ID's")
             return
-
-        if self.radioButton_ux.isChecked():
-            self.localDof = 0
-            self.localdof_label = "Ux"
-            self.unit_label = "m"
-
-        if self.radioButton_uy.isChecked():
-            self.localDof = 1
-            self.localdof_label = "Uy"
-            self.unit_label = "m"
-
-        if self.radioButton_uz.isChecked():
-            self.localDof = 2
-            self.localdof_label = "Uz"
-            self.unit_label = "m"
- 
-        if self.radioButton_rx.isChecked():
-            self.localDof = 3
-            self.localdof_label = "Rx"
-            self.unit_label = "rad"
-
-        if self.radioButton_ry.isChecked():
-            self.localDof = 4
-            self.localdof_label = "Ry"
-            self.unit_label = "rad"
-
-        if self.radioButton_rz.isChecked():
-            self.localDof = 5
-            self.localdof_label = "Rz"
-            self.unit_label = "rad"
         
+        self.get_stress_data()
+
         if not export:
             self.plot()
 
@@ -282,17 +276,26 @@ class PlotStressSpectrumInput(QDialog):
         self.check(export=True)
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+        response = get_stress_spectrum_data(self.stress_data, self.elementID, self.stress_key)
+
         if self.save_Absolute:
-            response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(self.unit_label, self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}]").format(self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         self.messages("The results has been exported.")
+
+    def get_stress_data(self):
+        
+        self.stress_label = self.labels[self.mask][0]
+        self.stress_key = self.keys[self.mask][0]
+
+        if self.stress_data == [] or self.update_damping:
+            self.stress_data = self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = self.flag_damping_effect)
+            self.update_damping = False
 
     def plot(self):
 
@@ -300,20 +303,20 @@ class PlotStressSpectrumInput(QDialog):
         ax = fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
-        response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
+        response = get_stress_spectrum_data(self.stress_data, self.elementID, self.stress_key, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
 
         if self.plotAbs:
-            ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+            ax.set_ylabel(("Stress - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
         elif self.plotReal:
-            ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+            ax.set_ylabel(("Stress - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
         elif self.plotImag:
-            ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+            ax.set_ylabel(("Stress - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
 
         #cursor = Cursor(ax)
         cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
-        legend_label = "Response {} at node {}".format(self.localdof_label, self.nodeID)
+        legend_label = "{} stress at element {}".format(self.stress_label, self.elementID)
         if self.imported_data is None:
                 
             if any(value<=0 for value in response):
@@ -345,7 +348,7 @@ class PlotStressSpectrumInput(QDialog):
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('{} STRESS SPECTRUM - {}').format(self.stress_label.upper(), self.analysisMethod.upper()), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
         plt.show()

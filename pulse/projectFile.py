@@ -122,7 +122,7 @@ class ProjectFile:
                 beta_h = config['Global damping setup']['beta_h']
         
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
-
+    
         return float(f_min), float(f_max), float(f_step), global_damping
 
     def add_frequency_in_file(self, min_, max_, step_):

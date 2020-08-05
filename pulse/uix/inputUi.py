@@ -132,7 +132,7 @@ class InputUi:
         # print(lines_id==[])
         # print(elements_id==[])
         
-        cross_input = CrossSectionInput(lines_id, elements_id)
+        cross_input = CrossSectionInput(self.project, lines_id, elements_id)
 
         if not cross_input.complete:
             return
@@ -325,6 +325,7 @@ class InputUi:
             self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
   
         self.global_damping = self.project.global_damping
+  
         analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
         setup = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
        
@@ -528,12 +529,12 @@ class InputUi:
     def plotStressSpectrum(self):
         solution = self.project.get_structural_solution()
         element_id = self.opv.getListPickedElements()
-        pass
+        # pass
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressSpectrumInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, element_id)
+            PlotStressSpectrumInput(self.project, self.solve, element_id, self.analysis_method_label)
 
     def plot_reactions(self):
 

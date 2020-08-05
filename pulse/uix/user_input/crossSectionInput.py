@@ -9,7 +9,7 @@ from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 
 class CrossSectionInput(QDialog):
-    def __init__(self, lines_id, elements_id, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
+    def __init__(self, project, lines_id, elements_id, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/crossSectionInput.ui', self)
 
@@ -17,6 +17,8 @@ class CrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.project = project
+        self.structural_elements = self.project.mesh.structural_elements
         self.lines_id = lines_id
         self.elements_id = elements_id
 
@@ -64,12 +66,10 @@ class CrossSectionInput(QDialog):
         if self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.write_ids(lines_id)
-            # self.lineEdit_selected_ID.setText(str(lines_id))
             self.radioButton_selected_lines.setChecked(True)
         elif self.elements_id != []:
             self.lineEdit_id_labels.setText("Elements IDs:")
             self.write_ids(elements_id)
-            # self.lineEdit_selected_ID.setText(str(elements_id))
             self.radioButton_selected_elements.setChecked(True)
         else:
             self.lineEdit_id_labels.setText("Lines IDs:")
@@ -109,7 +109,39 @@ class CrossSectionInput(QDialog):
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
+    def check_input_elements(self):
+
+        try:
+            tokens = self.lineEdit_selected_ID.text().strip().split(',')
+            try:
+                tokens.remove('')
+            except:
+                pass
+            self.element_typed = list(map(int, tokens))
+            
+            if self.lineEdit_selected_ID.text()=="":
+                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
+                return True
+
+        except Exception:
+            error("Wrong input for Node ID's!", "Error Node ID's")
+            return True
+
+        try:
+            for element in self.element_typed:
+                self.elementID = self.structural_elements[element].index
+        except Exception:
+            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))]
+            error(message[0], title = " INCORRECT NODE ID INPUT! ")
+            return True
+        return False
+    
     def check(self):
+
+        if self.flagElements:
+            if self.check_input_elements():
+                return
+
         if self.currentTab == 0 or True:
             #Pipe
             if self.lineEdit_outerDiameter.text() == "":

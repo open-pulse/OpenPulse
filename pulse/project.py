@@ -101,9 +101,9 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
 
-        if self.file.temp_table_name is None:
-            self.load_analysis_file()
-        else:
+        # if self.file.temp_table_name is None:
+        self.load_analysis_file()
+        if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
 
     def load_project_progress_bar(self, project_file_path, progressBar, textLabel):
@@ -132,10 +132,10 @@ class Project:
         self.load_entity_file()
         progressBar.setValue(90)
 
-        if self.file.temp_table_name is None:
-            textLabel.setText("Loading Analysis File...")
-            self.load_analysis_file()
-        else:
+   
+        textLabel.setText("Loading Analysis File...")
+        self.load_analysis_file()
+        if self.file.temp_table_name is not None:
             textLabel.setText("Loading Frequencies from Table...")
             self.load_frequencies_from_table()
         progressBar.setValue(100)
