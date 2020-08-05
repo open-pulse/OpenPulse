@@ -71,7 +71,7 @@ class InputUi:
 
     def setElementType(self):
         typeinput = ElementTypeInput()
-        # if element.element_type is None:
+        # if typeinput.element_type is None:
         #     return
         if typeinput.flagEntity:
             entities_id = self.opv.getListPickedLines()
@@ -129,8 +129,6 @@ class InputUi:
     def set_cross_section(self):
         lines_id = self.opv.getListPickedEntities()
         elements_id = self.opv.getListPickedElements()
-        # print(lines_id==[])
-        # print(elements_id==[])
         
         cross_input = CrossSectionInput(self.project, lines_id, elements_id)
 
@@ -140,7 +138,6 @@ class InputUi:
             cross_section = cross_input.cross_section
 
         if cross_input.flagEntity:
-            # entities_id = self.opv.getListPickedEntities()
             if len(lines_id) == 0:
                 return
             for line in lines_id:
@@ -316,7 +313,7 @@ class InputUi:
         if self.project.file._project_name == "":
             return
 
-        #TODO: rever a necessidade das estruturas abaixos
+        #TODO: simplify the structure below
         if self.project.file.temp_table_name is None:
             self.project.load_analysis_file()
             self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step 
@@ -403,8 +400,6 @@ class InputUi:
             modes = self.project.get_modes()
             damping = self.project.get_damping()
 
-        self.solve = solve
-
         if self.analysis_ID == 2:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
             if solution.solution_structural is None:
@@ -426,6 +421,7 @@ class InputUi:
             self.project.set_acoustic_solution(solution.solution_acoustic)
         elif self.analysis_ID in [5,6]:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
+            self.solve = solution.solve
             self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
@@ -433,6 +429,7 @@ class InputUi:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
             if solution.solution_structural is None:
                 return
+            self.solve = solution.solve
             self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
@@ -522,14 +519,14 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            plot = PlotStressFieldInput(self.project, self.solve, self.opv)
-            if plot.selected_index is None:
-                return
+            PlotStressFieldInput(self.project, self.solve, self.opv)
+        self.project.set_min_max_type_stresses("", "", "")
+        self.project.stresses_values_for_color_table = []
 
     def plotStressSpectrum(self):
         solution = self.project.get_structural_solution()
         element_id = self.opv.getListPickedElements()
-        # pass
+       
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:

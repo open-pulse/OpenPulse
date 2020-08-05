@@ -37,14 +37,6 @@ class RendererPostProcessing(vtkRendererBase):
     def getColorTable(self, r_def=None):
         if self.stress:
             return ColorTable(self.project, self.project.stresses_values_for_color_table)
-            # ColorTable(self.project, )
-            # try:
-            #     imported_data = np.loadtxt("./stress_data.dat", delimiter=" ")
-            #     colorsValues = imported_data[:,3].tolist()
-            #     return ColorTable(self.project, colorsValues)
-            # except Exception:
-            #     print("Error Import File StressField")
-            #     exit(0)
         else:
             return ColorTable(self.project, r_def)
 
@@ -85,25 +77,25 @@ class RendererPostProcessing(vtkRendererBase):
         self.update_min_max_stresses_text()
 
     def update_min_max_stresses_text(self):
-        if self.project.min_stress != "" and self.project.max_stress != "":
                 
-            min_stress = self.project.min_stress
-            max_stress = self.project.max_stress
-            stress_type = self.project.stress_type
+        min_stress = self.project.min_stress
+        max_stress = self.project.max_stress
+        stress_label = self.project.stress_label
 
-            text = ""
-            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_type, max_stress)
-            text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_type, min_stress)
+        text = ""
+        if self.project.min_stress != "" and self.project.max_stress != "":
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
 
-            self.textActorStress.SetInput(text)
-            textProperty = vtk.vtkTextProperty()
-            textProperty.SetFontSize(17)
-            textProperty.SetBold(1)
-            textProperty.SetItalic(1)
-            self.textActorStress.SetTextProperty(textProperty)
-            _, height = self._renderer.GetSize()
-            self.textActorStress.SetDisplayPosition(600, height-75)
-            self._renderer.AddActor2D(self.textActorStress)
+        self.textActorStress.SetInput(text)
+        textProperty = vtk.vtkTextProperty()
+        textProperty.SetFontSize(17)
+        textProperty.SetBold(1)
+        textProperty.SetItalic(1)
+        self.textActorStress.SetTextProperty(textProperty)
+        _, height = self._renderer.GetSize()
+        self.textActorStress.SetDisplayPosition(600, height-75)
+        self._renderer.AddActor2D(self.textActorStress)
 
     def updateInfoText(self):
         mode = self.project.get_modes()
@@ -121,7 +113,9 @@ class RendererPostProcessing(vtkRendererBase):
         self.createInfoText(text, vertical_position_adjust)
 
     def updateUnitText(self):
-        self._renderer.RemoveActor2D(self.textActorUnit)
+        if self.project.stresses_values_for_color_table == []:
+            self.stress = False
+        self._renderer.RemoveActor2D(self.textActorUnit)   
         unit = self.project.get_unit(stress=self.stress)
         text = "Unit: [{}]".format(unit)
         self.textActorUnit.SetInput(text)

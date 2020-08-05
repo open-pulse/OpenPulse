@@ -73,6 +73,7 @@ class Project:
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
+        self.stress_label = ""
 
     def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
@@ -325,8 +326,6 @@ class Project:
             line = dict_elements_to_line[element]
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
-
-        # print(self.lines_with_cross_section_by_elements)
 
     def set_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
@@ -694,20 +693,17 @@ class Project:
     def get_unit(self, stress=False):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
-            if analysis in [3,5,6] and self.plot_pressure_field:
+            if (analysis in [3,5,6] and self.plot_pressure_field) or stress:
                 return "Pa"
             elif analysis in [0,1]:
-                if stress:
-                    return "Pa"
-                else:
-                    return "m"
+                return "m"
             else:
                 return "-"  
 
     def set_stresses_values_for_color_table(self, values):
         self.stresses_values_for_color_table = values
     
-    def set_min_max_type_stresses(self, min_stress, max_stress, stress_type):
+    def set_min_max_type_stresses(self, min_stress, max_stress, stress_label):
         self.min_stress = min_stress
         self.max_stress = max_stress
-        self.stress_type = stress_type
+        self.stress_label = stress_label

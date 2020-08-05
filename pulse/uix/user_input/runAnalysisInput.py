@@ -42,19 +42,22 @@ class RunAnalysisInput(QDialog):
     #         self.close()
 
     def run(self):
+        
         t0 = time()
+
         if self.analysis_ID == 0:
             self.solution_structural = self.solve.direct_method(self.damping) # Structural Harmonic Analysis - Direct Method
             self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            # self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = False)
+
         elif self.analysis_ID == 1: # Structural Harmonic Analysis - Mode Superposition Method
             self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
             self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            # self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = False)
+
         elif self.analysis_ID == 3: # Acoustic Harmonic Analysis - Direct Method
             self.solution_acoustic = self.solve.direct_method()
+
         elif self.analysis_ID == 5: # Coupled Harmonic Analysis - Direct Method
             self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.set_acoustic_solution(self.solution_acoustic)
@@ -62,7 +65,7 @@ class RunAnalysisInput(QDialog):
             self.solution_structural = self.solve.direct_method(self.damping) #Coupled Harmonic Analysis - Direct Method
             self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            # self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = False)
+
         elif self.analysis_ID == 6: # Coupled Harmonic Analysis - Mode Superposition Method
             self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
             self.project.set_acoustic_solution(self.solution_acoustic)
@@ -70,11 +73,13 @@ class RunAnalysisInput(QDialog):
             self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
             self.dict_reactions_at_constrained_dofs = self.solve.get_reactions_at_fixed_nodes(self.damping)
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
-            # self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = False)
+
         elif self.analysis_ID == 2: # Structural Modal Analysis
             self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes)
+
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes)
+
         self.project.time_to_solve_model = time() - t0
         
         # text = "Solution finished!\n"
