@@ -44,8 +44,6 @@ class Project:
         self.time_to_solve_model = None
         self.time_to_postprocess = None
 
-        self.stresses_values_for_color_table = None
-
 
     def reset_info(self):
         self.mesh = Mesh()
@@ -73,6 +71,8 @@ class Project:
         self.lines_multiples_cross_sections = []
 
         self.stresses_values_for_color_table = None
+        self.min_stress = ""
+        self.max_stress = ""
 
     def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()

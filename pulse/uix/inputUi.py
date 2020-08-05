@@ -22,6 +22,7 @@ from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralMode
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.plotStressSpectrumInput import PlotStressSpectrumInput
 from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
@@ -515,14 +516,24 @@ class InputUi:
 
     def plotStressField(self):
         self.project.plot_pressure_field = False
-        solution = self.project.get_structural_solution()
         
         if self.analysis_ID in [0,1,5,6]:
+            solution = self.project.get_structural_solution()
             if solution is None:
                 return
             plot = PlotStressFieldInput(self.project, self.solve, self.opv)
             if plot.selected_index is None:
                 return
+
+    def plotStressSpectrum(self):
+        solution = self.project.get_structural_solution()
+        element_id = self.opv.getListPickedElements()
+        pass
+        if self.analysis_ID in [0,1,5,6]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return
+            PlotStressSpectrumInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, element_id)
 
     def plot_reactions(self):
 

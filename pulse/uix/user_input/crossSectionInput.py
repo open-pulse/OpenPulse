@@ -11,7 +11,7 @@ from pulse.preprocessing.cross_section import CrossSection
 class CrossSectionInput(QDialog):
     def __init__(self, lines_id, elements_id, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/crossSectionInput2.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/crossSectionInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
