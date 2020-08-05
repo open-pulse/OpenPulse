@@ -649,14 +649,6 @@ class ProjectFile:
             message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label)  
             error(message, title="LOADING TABLE ERROR")     
         return output
-
-    # def _getRadiationImpedanceBCFromString(self, radiation_impedance):
-    #     radiation_impedance = radiation_impedance[1:-1].split(',')
-    #     value = 0
-    #     if len(radiation_impedance) == 1:
-    #         if radiation_impedance[0] != '0.0':
-    #             value = float(radiation_impedance[0])
-    #     return value
     
     def _single_structural_excitation_bc(self, node_id, labels):
         if labels[0] == 'displacements' and labels[1] == 'rotations':
@@ -672,6 +664,14 @@ class ProjectFile:
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
         elif label[0] == 'volume velocity':
             key_strings = ['acoustic pressure']
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+
+    def _single_impedance_at_node(self, node_id, label):
+        if label[0] == 'specific impedance':
+            key_strings = ['radiation impedance']
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+        elif label[0] == 'radiation impedance':
+            key_strings = ['specific impedance']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
@@ -711,6 +711,7 @@ class ProjectFile:
                     config[str(node_id)][label[0]] = "[{}]".format(value)
                 self.write_bc_in_file(self._node_acoustic_path, config)
                 self._single_acoustic_excitation_bc([node_id], label)
+                self._single_impedance_at_node([node_id], label)
             else:
                 if loaded_table:
                     config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
