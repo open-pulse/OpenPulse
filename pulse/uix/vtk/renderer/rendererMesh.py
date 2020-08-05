@@ -61,7 +61,7 @@ class RendererMesh(vtkRendererBase):
             nodeBC = node.getStructuralBondaryCondition()
             text = f'Node Id: {nodeId} \nPosition: {nodePosition} \nDisplacement: {nodeBC[:3]} \nRotation: {nodeBC[3:]}'
         elif len(listSelected) > 1:
-            text = 'SELECTED POINTS: \n'
+            text += f'{len(listSelected)} NODES IN SELECTION: \n'
             for i, ids in enumerate(listSelected):
                 if i == 30:
                     text += '...'
@@ -98,9 +98,12 @@ class RendererMesh(vtkRendererBase):
             else:
                 fluid = element.fluid.name.upper()
 
+            firstNodePosition = '{:.3f} {:.3f} {:.3f}'.format(element.first_node.x, element.first_node.y, element.first_node.z)
+            lastNodePosition = '{:.3f} {:.3f} {:.3f}'.format(element.last_node.x, element.last_node.y, element.last_node.z)
+
             text += f'Element ID: {listSelected[0]} \n'
-            text += f'First Node ID: {element.first_node.external_index} \n'
-            text += f'Last Node ID: {element.last_node.external_index} \n'
+            text += f'First Node ID: {element.first_node.external_index} -- Coordinates: {firstNodePosition} \n'
+            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: {lastNodePosition} \n'
             text += f'Element Type: {element.element_type.upper()} \n'
             text += f'Diameter: {external_diameter} \n'
             text += f'Thickness: {thickness} \n'
@@ -110,7 +113,7 @@ class RendererMesh(vtkRendererBase):
             text += f'Fluid: {fluid} \n'
 
         elif len(listSelected) > 1:
-            text += 'SELECTED ELEMENTS: \n'
+            text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'
             for i, ids in enumerate(listSelected):
                 if i == 30:
                     text += '...'
