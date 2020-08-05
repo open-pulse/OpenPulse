@@ -65,8 +65,8 @@ class PlotStressFieldInput(QDialog):
         self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
 
-        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, 
-                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z, self.flag_torsional_shear]
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_torsional_shear, 
+                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z]
 
         self.treeWidget_list_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_list_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -92,8 +92,8 @@ class PlotStressFieldInput(QDialog):
         self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
 
-        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, 
-                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z, self.flag_torsional_shear]
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_torsional_shear, 
+                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z]
         
     def check(self):
         if self.lineEdit_selected_frequency.text() == "":
@@ -111,7 +111,7 @@ class PlotStressFieldInput(QDialog):
 
     def get_stress_data(self):
         self.type_labels = np.array([0,1,2,3,4,5,6])
-        _labes = np.array(["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Transversal shear y", "Transversal shear z", "Torsional shear"])
+        _labes = np.array(["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear y", "Transversal shear z"])
         selected_stress = self.type_labels[self.mask][0]
         if self.stress_data == []:
             self.stress_data = self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = self.flag_damping_effect)

@@ -616,7 +616,35 @@
           </font>
          </property>
          <property name="text">
-          <string>Hook</string>
+          <string>Hoop</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="radioButton_torsional_shear">
+         <property name="minimumSize">
+          <size>
+           <width>145</width>
+           <height>18</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>145</width>
+           <height>18</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>10</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Torsional shear</string>
          </property>
         </widget>
        </item>
@@ -673,34 +701,6 @@
          </property>
          <property name="text">
           <string>Transversal shear z</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="radioButton_torsional_shear">
-         <property name="minimumSize">
-          <size>
-           <width>145</width>
-           <height>18</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>145</width>
-           <height>18</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>10</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Torsional shear</string>
          </property>
         </widget>
        </item>
