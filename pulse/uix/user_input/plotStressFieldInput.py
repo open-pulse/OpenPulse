@@ -65,8 +65,8 @@ class PlotStressFieldInput(QDialog):
         self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
 
-        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_torsional_shear, 
-                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z]
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
+                    self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
 
         self.treeWidget_list_frequencies.itemClicked.connect(self.on_click_item)
         self.treeWidget_list_frequencies.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -92,8 +92,8 @@ class PlotStressFieldInput(QDialog):
         self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
 
-        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_torsional_shear, 
-                    self.flag_hoop, self.flag_transv_shear_y, self.flag_transv_shear_z]
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
+                    self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
         
     def check(self):
         if self.lineEdit_selected_frequency.text() == "":
