@@ -145,7 +145,8 @@ class RendererMesh(vtkRendererBase):
         mapper.SetInputConnection(source.GetOutputPort())
         actor.SetMapper(mapper)
         actor.GetProperty().SetColor(0.6,0,0.4)
-        actor.GetProperty().SetDiffuse(1)
+        actor.GetProperty().SetDiffuse(1)  
+        actor.GetProperty().SetOpacity(0.5)
         actor.GetProperty().SetSpecular(0)
         self._renderer.AddActor(actor)
     
@@ -168,6 +169,7 @@ class RendererMesh(vtkRendererBase):
             plot = ActorElement(element, 0.01, key)
             plot.build()
             actor = plot.getActor()
+            actor.GetProperty().SetColor(0,255,0)
             self.elementsID[actor] = key
             self._rendererElements.AddActor(actor)
 
@@ -177,7 +179,7 @@ class RendererMesh(vtkRendererBase):
 
 ###    
     def getSize(self):
-        return self.project.get_element_size()*0.7
+        return 0.5 #self.project.get_element_size()*0.7
 
     def transformPoints(self, points_id):
         self._style.clear()
@@ -289,7 +291,7 @@ class RendererMesh(vtkRendererBase):
         
         axe = vtk.vtkAxesActor()
         axe.AxisLabelsOff()
-        axe.SetTotalLength(0.02*have_bc[0],0.02*have_bc[1],0.02*have_bc[2])
+        axe.SetTotalLength(0.05*have_bc[0],0.05*have_bc[1],0.05*have_bc[2])
         axe.SetShaftTypeToLine()
         axe.SetNormalizedTipLength(0.8*have_bc[0],0.8*have_bc[1],0.8*have_bc[2])
         axe.SetUserTransform(transform)
@@ -321,7 +323,7 @@ class RendererMesh(vtkRendererBase):
         
         axe = vtk.vtkAxesActor()
         axe.AxisLabelsOff()
-        axe.SetTotalLength(0.03*have_rotation[0],0.03*have_rotation[1],0.03*have_rotation[2])
+        axe.SetTotalLength(0.08*have_rotation[0],0.08*have_rotation[1],0.08*have_rotation[2])
         axe.SetShaftTypeToLine()
         axe.SetNormalizedTipLength(0.5*have_rotation[0],0.5*have_rotation[1],0.5*have_rotation[2])
         axe.SetUserTransform(transform)
@@ -356,7 +358,7 @@ class RendererMesh(vtkRendererBase):
         axe.SetTotalLength(0.15*have_momento[0], 0.15*have_momento[1], 0.15*have_momento[2])
         axe.SetShaftTypeToLine()
         axe.SetShaftTypeToCylinder()
-        axe.SetCylinderRadius(self.getSize()*2)
+        axe.SetCylinderRadius(0.05)
         axe.SetNormalizedTipLength(0.2*have_momento[0], 0.2*have_momento[1], 0.2*have_momento[2])
         axe.SetUserTransform(transform)
 
@@ -410,7 +412,7 @@ class RendererMesh(vtkRendererBase):
         axe.SetTotalLength(0.15*have_force[0], 0.15*have_force[1], 0.15*have_force[2])
         axe.SetShaftTypeToLine()
         axe.SetShaftTypeToCylinder()
-        axe.SetCylinderRadius(self.getSize()*2)
+        axe.SetCylinderRadius(0.05)
         axe.SetNormalizedTipLength(0.2*have_force[0], 0.2*have_force[1], 0.2*have_force[2])
         axe.SetUserTransform(transform)
 

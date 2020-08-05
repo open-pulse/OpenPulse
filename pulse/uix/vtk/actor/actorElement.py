@@ -33,12 +33,6 @@ class ActorElement(vtkActorBase):
         self._object.SetLines(self._edges)
 
     def filter(self):
-        color = [0,0,255]
-        for _ in range(self._nodes.GetNumberOfPoints()):
-            self._colorFilter.InsertNextTypedTuple(color)
-
-        self._object.GetPointData().SetScalars(self._colorFilter)
-
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(self.size)
         self._tubeFilter.SetNumberOfSides(50)
