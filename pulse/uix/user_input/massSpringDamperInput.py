@@ -674,7 +674,7 @@ class MassSpringDamperInput(QDialog):
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_damper_to_node(self.nodes_typed, [None, None, None, None, None, None])
 
-        self.close()
+        # self.close()
 
     def text_label(self, mask, load_labels):
         

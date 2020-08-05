@@ -71,28 +71,25 @@ def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imagin
         results = reactions[key]
     return results
 
-def get_stress_data(mesh, column, absolute=False, real=False, imaginary=False):
-
-    elements = mesh.structural_elements
-    stresses = [np.r_[i, elements[i].stress[:, column]] for i in elements ]
+def get_stress_spectrum_data(stresses, element_id, stress_key, absolute = False, real = False, imaginary = False):
     if absolute:
-        return np.abs(np.array(stresses))
+        return np.abs(np.array(stresses[element_id][stress_key,:]))
     elif real:
-        return np.real(np.array(stresses))
+        return np.real(np.array(stresses[element_id][stress_key,:]))
     elif imaginary:
-        return np.imag(np.array(stresses))
+        return np.imag(np.array(stresses[element_id][stress_key,:]))
     else:
-        return np.array(stresses)
+        return np.array(stresses[element_id][stress_key,:])
 
-def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
+# def get_internal_loads_data(mesh, column, absolute=False, real=False, imaginary=False):
 
-    elements = mesh.structural_elements
-    internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
-    if absolute:
-        return np.abs(np.array(internal_loads))
-    elif real:
-        return np.real(np.array(internal_loads))
-    elif imaginary:
-        return np.imag(np.array(internal_loads))
-    else:
-        return np.array(internal_loads) 
+#     elements = mesh.structural_elements
+#     internal_loads = [np.r_[i, elements[i].internal_load[:, column]] for i in elements ]
+#     if absolute:
+#         return np.abs(np.array(internal_loads))
+#     elif real:
+#         return np.real(np.array(internal_loads))
+#     elif imaginary:
+#         return np.imag(np.array(internal_loads))
+#     else:
+#         return np.array(internal_loads) 

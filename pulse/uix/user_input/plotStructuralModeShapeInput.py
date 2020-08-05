@@ -16,7 +16,6 @@ class PlotStructuralModeShapeInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-
         self.frequencies = frequencies
         self.mode_index = None
 

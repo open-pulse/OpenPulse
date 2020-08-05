@@ -11,8 +11,7 @@ from pulse.preprocessing.mesh import Mesh
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
-from pulse.postprocessing.plot_structural_data import get_structural_response, get_stress_data, get_internal_loads_data
-from pulse.postprocessing.stress import Stress
+from pulse.postprocessing.plot_structural_data import get_structural_response, get_stress_data
 from pulse.animation.plot_function import plot_results
 
 
@@ -64,32 +63,15 @@ column = 50
 
 _, coord_def, _, _ = get_structural_response(mesh, direct_structural, column, Normalize=False)
 
-stress = Stress(mesh, frequencies, direct_structural) #, acoustic_solution = direct_acoustic)
-stress.get()
-stress_data = get_stress_data(mesh, column, real=True)
-stress_plot = stress_data[:,[0,1]]
+solution_structural.stress_calculate(global_damping, pressure_external = 0, damping_flag = False)
+stress_data = get_stress_data(solution_structural.mesh, column, real=True)
+stress_plot = stress_data[:,[0,2]]
 
 print("Value min: ", np.min(stress_plot[:,1]))
 print("Value max: ", np.max(stress_plot[:,1]))
 plot_results( mesh,
               coord_def,
               data_stress = stress_plot,
-              scf = 0.20,
-              out_OpenPulse = True, 
-              Show_nodes = False, 
-              Undeformed = False, 
-              Deformed = True, 
-              Animate_Mode = False, 
-              Save = False)
-
-internal_forces_data = get_internal_loads_data(mesh, column, real=True)
-internal_forces_plot = internal_forces_data[:,[0,1]]
-
-print("Value min: ", np.min(internal_forces_plot[:,1]))
-print("Value max: ", np.max(internal_forces_plot[:,1]))
-plot_results( mesh,
-              coord_def,
-              data_stress = internal_forces_plot,
               scf = 0.20,
               out_OpenPulse = True, 
               Show_nodes = False, 

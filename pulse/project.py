@@ -70,6 +70,11 @@ class Project:
         self.lines_with_cross_section_by_elements = []
         self.lines_multiples_cross_sections = []
 
+        self.stresses_values_for_color_table = None
+        self.min_stress = ""
+        self.max_stress = ""
+        self.stress_label = ""
+
     def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
         self.file.new(project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
@@ -97,9 +102,9 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
 
-        if self.file.temp_table_name is None:
-            self.load_analysis_file()
-        else:
+        # if self.file.temp_table_name is None:
+        self.load_analysis_file()
+        if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
 
     def load_project_progress_bar(self, project_file_path, progressBar, textLabel):
@@ -128,10 +133,10 @@ class Project:
         self.load_entity_file()
         progressBar.setValue(90)
 
-        if self.file.temp_table_name is None:
-            textLabel.setText("Loading Analysis File...")
-            self.load_analysis_file()
-        else:
+   
+        textLabel.setText("Loading Analysis File...")
+        self.load_analysis_file()
+        if self.file.temp_table_name is not None:
             textLabel.setText("Loading Frequencies from Table...")
             self.load_frequencies_from_table()
         progressBar.setValue(100)
@@ -142,21 +147,21 @@ class Project:
 
     def load_entity_file(self):
 
-        dict_materials, dict_cross_sections, dict_element_types, fluid, dict_length_correction = self.file.get_dict_of_entities_from_file()
+        dict_materials, dict_cross_sections, dict_element_types, dict_fluids, dict_element_length_correction = self.file.get_dict_of_entities_from_file()
         self.lines_multiples_cross_sections = []
 
         # Element type to Entities
         for key, el_type in dict_element_types.items():
             if self.file.element_type_is_structural:
                 self.load_element_type_by_entity(key, el_type)
-        # Length correction to Entities
-        for key, el_type in dict_length_correction.items():
-            self.load_length_correction_by_entity(key, el_type)
+        # Length correction to Elements
+        for value in dict_element_length_correction.values():
+            self.load_length_correction_by_elements(value[0], value[1])
         # Material to Entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
         # Fluid to Entities
-        for key, fld in fluid.items():
+        for key, fld in dict_fluids.items():
             self.load_fluid_by_entity(key, fld)
         # Cross-section to Entities
         for key, cross in dict_cross_sections.items():
@@ -322,8 +327,6 @@ class Project:
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
 
-        # print(self.lines_with_cross_section_by_elements)
-
     def set_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
@@ -347,21 +350,6 @@ class Project:
 
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
-
-    def set_length_correction_to_all(self, length_correction):
-        self.mesh.set_length_correction_by_element('all', length_correction)
-        self._set_all_entity_length_correction(length_correction)
-        for entity in self.mesh.entities:
-            self.file.add_length_correction_in_file(entity.get_tag(), length_correction)
-        
-    def set_length_correction_by_entity(self, entity_id, length_correction):
-        if self.file.get_import_type() == 0:
-            self.mesh.set_length_correction_by_line(entity_id, length_correction)
-        elif self.file.get_import_type() == 1:
-            self.mesh.set_length_correction_by_element('all', length_correction)
-
-        self._set_entity_length_correction(entity_id, length_correction)
-        self.file.add_length_correction_in_file(entity_id, length_correction)
 
     # def set_caped_end(self, value):
     #     self.mesh.set_caped_end_by_element('all', value)
@@ -420,14 +408,6 @@ class Project:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
         self._set_entity_cross_section(entity_id, cross_section)
-
-    def load_length_correction_by_entity(self, entity_id, length_correction):
-        if self.file.get_import_type() == 0:
-            self.mesh.set_length_correction_by_line(entity_id, length_correction)
-        elif self.file.get_import_type() == 1:
-            self.mesh.set_length_correction_by_element('all', length_correction)
-
-        self._set_entity_length_correction(entity_id, length_correction)
 
     def load_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
@@ -500,16 +480,6 @@ class Project:
         for entity in self.mesh.entities:
             entity.crossSection = cross
 
-    def _set_entity_length_correction(self, entity_id, length_correction):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.length_correction = length_correction
-                return
-
-    def _set_all_entity_length_correction(self, length_correction):
-        for entity in self.mesh.entities:
-            entity.length_correction = length_correction
-
     def _set_entity_element_type(self, entity_id, element_type):
         for entity in self.mesh.entities:
             if entity.tag == entity_id:
@@ -560,6 +530,11 @@ class Project:
         self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
         label = ["radiation impedance"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
+    
+    def set_element_length_correction_by_elements(self, elements, value):
+        # label = ["acoustic element length correction"] 
+        self.mesh.set_length_correction_by_element(elements, value)
+        self.file.add_length_correction_in_file(elements, value)
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -578,6 +553,9 @@ class Project:
 
     def load_radiation_impedance_bc_by_node(self, node_id, value):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, value)
+
+    def load_length_correction_by_elements(self, elements, value):
+        self.mesh.set_length_correction_by_element(elements, value)
 
     def _set_entity_fluid(self, entity_id, fluid):
         for entity in self.mesh.entities:
@@ -712,12 +690,20 @@ class Project:
     def get_structural_natural_frequencies(self):
         return self.natural_frequencies_structural
 
-    def get_unit(self):
+    def get_unit(self, stress=False):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
-            if analysis in [3,5,6] and self.plot_pressure_field:
+            if (analysis in [3,5,6] and self.plot_pressure_field) or stress:
                 return "Pa"
             elif analysis in [0,1]:
                 return "m"
             else:
                 return "-"  
+
+    def set_stresses_values_for_color_table(self, values):
+        self.stresses_values_for_color_table = values
+    
+    def set_min_max_type_stresses(self, min_stress, max_stress, stress_label):
+        self.min_stress = min_stress
+        self.max_stress = max_stress
+        self.stress_label = stress_label

@@ -16,17 +16,29 @@ class RendererPostProcessing(vtkRendererBase):
         self.project = project
         self.opv = opv
         self.textActorUnit = vtk.vtkTextActor()
+        self.textActorStress = vtk.vtkTextActor()
         self.colorbar = vtk.vtkScalarBarActor()
-
         self.setUsePicker(False)
-
         self.frequencyIndice = -1
         self.sliderFactor = 1
         self.valueFactor = -1
+        self.stress = False
 
     def reset(self):
         for actor in self._renderer.GetActors():
             self._renderer.RemoveActor(actor)
+
+    def setStress(self, value):
+        self.stress = value
+
+    def getStress(self):
+        return self.stress
+
+    def getColorTable(self, r_def=None):
+        if self.stress:
+            return ColorTable(self.project, self.project.stresses_values_for_color_table)
+        else:
+            return ColorTable(self.project, r_def)
 
     def plot(self, acoustic=False):
         self.reset()
@@ -36,7 +48,7 @@ class RendererPostProcessing(vtkRendererBase):
             connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.get_mesh(), self.project.get_structural_solution(), self.frequencyIndice, gain=self.sliderFactor)            
 
         # self.valueFactor
-        colorTable = ColorTable(self.project, r_def)
+        colorTable = self.getColorTable(r_def=r_def)
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.get_entities():
@@ -44,7 +56,7 @@ class RendererPostProcessing(vtkRendererBase):
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalysis(self.project, connect, coord, colorTable)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
@@ -62,6 +74,28 @@ class RendererPostProcessing(vtkRendererBase):
         self.updateInfoText()
         self.updateUnitText()
         self.createScaleActor()
+        self.update_min_max_stresses_text()
+
+    def update_min_max_stresses_text(self):
+                
+        min_stress = self.project.min_stress
+        max_stress = self.project.max_stress
+        stress_label = self.project.stress_label
+
+        text = ""
+        if self.project.min_stress != "" and self.project.max_stress != "":
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
+
+        self.textActorStress.SetInput(text)
+        textProperty = vtk.vtkTextProperty()
+        textProperty.SetFontSize(17)
+        textProperty.SetBold(1)
+        textProperty.SetItalic(1)
+        self.textActorStress.SetTextProperty(textProperty)
+        _, height = self._renderer.GetSize()
+        self.textActorStress.SetDisplayPosition(600, height-75)
+        self._renderer.AddActor2D(self.textActorStress)
 
     def updateInfoText(self):
         mode = self.project.get_modes()
@@ -79,8 +113,10 @@ class RendererPostProcessing(vtkRendererBase):
         self.createInfoText(text)
 
     def updateUnitText(self):
-        self._renderer.RemoveActor2D(self.textActorUnit)
-        unit = self.project.get_unit()
+        if self.project.stresses_values_for_color_table == []:
+            self.stress = False
+        self._renderer.RemoveActor2D(self.textActorUnit)   
+        unit = self.project.get_unit(stress=self.stress)
         text = "Unit: [{}]".format(unit)
         self.textActorUnit.SetInput(text)
         textProperty = vtk.vtkTextProperty()

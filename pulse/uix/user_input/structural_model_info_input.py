@@ -69,6 +69,14 @@ class StructuralModelInfoInput(QDialog):
         self.project_info()
         self.exec_()
 
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape or event.key() == Qt.Key_F3:
+            self.close()
+
+    def project_info(self):
+        self.lineEdit_number_nodes.setText(str(len(self.project.mesh.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.project.mesh.structural_elements)))
+        
     def text_label(self, mask, load_labels):
         
         text = ""
@@ -125,8 +133,3 @@ class StructuralModelInfoInput(QDialog):
             nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask, load_labels))])
             self.treeWidget_nodal_loads.addTopLevelItem(new)
-
-    def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.mesh.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.mesh.structural_elements)))
-        

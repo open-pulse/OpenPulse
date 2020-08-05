@@ -9,7 +9,7 @@ from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResult
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-from pulse.uix.user_input.radiation_impedance_input import RadiationImpedanceInput
+from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
@@ -22,6 +22,8 @@ from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralMode
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.plotStressSpectrumInput import PlotStressSpectrumInput
+from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
@@ -55,6 +57,7 @@ class InputUi:
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
         self.setup_analysis_complete = False
+        self.flag_imported_table = False
 
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
@@ -68,7 +71,7 @@ class InputUi:
 
     def setElementType(self):
         typeinput = ElementTypeInput()
-        # if element.element_type is None:
+        # if typeinput.element_type is None:
         #     return
         if typeinput.flagEntity:
             entities_id = self.opv.getListPickedLines()
@@ -126,10 +129,8 @@ class InputUi:
     def set_cross_section(self):
         lines_id = self.opv.getListPickedEntities()
         elements_id = self.opv.getListPickedElements()
-        # print(lines_id==[])
-        # print(elements_id==[])
         
-        cross_input = CrossSectionInput(lines_id, elements_id)
+        cross_input = CrossSectionInput(self.project, lines_id, elements_id)
 
         if not cross_input.complete:
             return
@@ -137,7 +138,6 @@ class InputUi:
             cross_section = cross_input.cross_section
 
         if cross_input.flagEntity:
-            # entities_id = self.opv.getListPickedEntities()
             if len(lines_id) == 0:
                 return
             for line in lines_id:
@@ -213,18 +213,18 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
         node_id = self.opv.getListPickedPoints()
-        read = RadiationImpedanceInput(self.project, node_id)
+        read = RadiationImpedanceInput(self.project, node_id, self.opv.transformPoints)
 
         if read.radiation_impedance is None:
             return
-
-        self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
-        print("[Set Radiation Impedance Source] - defined at node(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
+        else:
+            self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
+            print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
         element_id = self.opv.getListPickedElements()
@@ -232,10 +232,15 @@ class InputUi:
         # print("Add perforated plate ", element_id)
 
     def set_acoustic_element_length_correction(self):
-        element_id = self.opv.getListPickedElements()
-        AcousticElementLengthCorrectionInput(self.project, element_id)
-        print("Set acoustic element length correction at elements:", element_id)
-
+        elements_id = self.opv.getListPickedElements()
+        read = AcousticElementLengthCorrectionInput(self.project, elements_id)
+        if read.type_label is None:
+            return
+        if len(elements_id)>20:
+            print("Set acoustic element length correction due the {} at {} selected elements".format(read.type_label, len(elements_id)))
+        else:
+            print("Set acoustic element length correction due the {} at elements:".format(read.type_label), elements_id)
+        
     def _load_frequencies_from_table(self, obj):
             self.project.file.f_min = obj.f_min
             self.project.file.f_max = obj.f_max
@@ -307,7 +312,8 @@ class InputUi:
             return
         if self.project.file._project_name == "":
             return
-        #TODO: rever a necessidade das estruturas abaixos
+
+        #TODO: simplify the structure below
         if self.project.file.temp_table_name is None:
             self.project.load_analysis_file()
             self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step 
@@ -316,9 +322,10 @@ class InputUi:
             self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
   
         self.global_damping = self.project.global_damping
+  
         analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
         setup = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
-        
+       
         self.frequencies = setup.frequencies
         self.f_min = setup.f_min
         self.f_max = setup.f_max
@@ -327,15 +334,17 @@ class InputUi:
         self.setup_analysis_complete = setup.complete
 
         if not setup.complete:
-            return
+            return False
 
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+        self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
             self.project.set_modes(setup.modes)
             self.project.set_damping(self.global_damping)
         else:
-            return
+            return False
+        return True
       
     def analysisOutputResults(self):
         AnalysisOutputResultsInput()
@@ -346,7 +355,11 @@ class InputUi:
         if self.analysis_ID is None or not self.setup_analysis_complete:
             error("Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model.")
             return
-        
+
+        if self.flag_imported_table:
+            if self.analysisSetup():
+                return
+       
         if self._check_is_there_a_problem():
             return
         self.project.time_to_checking_entries = time()-t0
@@ -408,6 +421,7 @@ class InputUi:
             self.project.set_acoustic_solution(solution.solution_acoustic)
         elif self.analysis_ID in [5,6]:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
+            self.solve = solution.solve
             self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
@@ -415,6 +429,7 @@ class InputUi:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
             if solution.solution_structural is None:
                 return
+            self.solve = solution.solve
             self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
@@ -498,7 +513,25 @@ class InputUi:
             Plot_TL_NR_Input(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
 
     def plotStressField(self):
-        pass
+        self.project.plot_pressure_field = False
+        
+        if self.analysis_ID in [0,1,5,6]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return
+            PlotStressFieldInput(self.project, self.solve, self.opv)
+        self.project.set_min_max_type_stresses("", "", "")
+        self.project.stresses_values_for_color_table = []
+
+    def plotStressSpectrum(self):
+        solution = self.project.get_structural_solution()
+        element_id = self.opv.getListPickedElements()
+       
+        if self.analysis_ID in [0,1,5,6]:
+            solution = self.project.get_structural_solution()
+            if solution is None:
+                return
+            PlotStressSpectrumInput(self.project, self.solve, element_id, self.analysis_method_label)
 
     def plot_reactions(self):
 

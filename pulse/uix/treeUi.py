@@ -6,6 +6,7 @@ class TreeUi(QTreeWidget):
     def __init__(self, main_window):
         super().__init__()
         self.mainWindow = main_window
+        self.project = main_window.getProject()
         self._createNames()
         self._createIcons()
         self._createFonts()
@@ -15,6 +16,11 @@ class TreeUi(QTreeWidget):
         self._configItems()
         self._addItems()
         self._updateItems()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_F5:
+            self.mainWindow.getInputWidget().runAnalysis()
+            self._updateItems()
 
     def _createNames(self):
         self.name_top_structuralmodelSetup = "Structural Model Setup"
@@ -45,6 +51,7 @@ class TreeUi(QTreeWidget):
         self.name_child_plotStructuralHarmonicResponse = "Plot Structural Harmonic Response"
         self.name_child_plotStructuralFrequencyResponse = "Plot Structural Frequency Response"
         self.name_child_plotStressField = "Plot Stress Field"
+        self.name_child_plotStressSpectrum = "Plot Stress Spectrum"
         self.name_child_plotAcousticModeShapes = "Plot Acoustic Mode Shapes"
         self.name_child_plotAcousticHarmonicResponse = "Plot Acoustic Harmonic Response"
         self.name_child_plotAcousticFrequencyResponse = "Plot Acoustic Frequency Response"
@@ -110,6 +117,7 @@ class TreeUi(QTreeWidget):
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
         self.item_child_plotAcousticHarmonicResponse = QTreeWidgetItem([self.name_child_plotAcousticHarmonicResponse])
         self.item_child_plotStressField = QTreeWidgetItem([self.name_child_plotStressField])
+        self.item_child_plotStressSpectrum = QTreeWidgetItem([self.name_child_plotStressSpectrum])
         self.item_child_plotStructuralFrequencyResponse = QTreeWidgetItem([self.name_child_plotStructuralFrequencyResponse])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem([self.name_child_plotAcousticFrequencyResponse])
         self.item_child_plot_TL_NR = QTreeWidgetItem([self.name_child_plot_TL_NR])
@@ -169,6 +177,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_plotStructuralHarmonicResponse)
         self.addTopLevelItem(self.item_child_plotStructuralFrequencyResponse)
         self.addTopLevelItem(self.item_child_plotStressField)
+        self.addTopLevelItem(self.item_child_plotStressSpectrum)
         self.addTopLevelItem(self.item_child_plotAcousticModeShapes)
         self.addTopLevelItem(self.item_child_plotAcousticHarmonicResponse)
         self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponse)
@@ -223,6 +232,8 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plotAcousticHarmonicResponse()
         elif item.text(0) == self.name_child_plotStressField:
             self.mainWindow.getInputWidget().plotStressField()
+        elif item.text(0) == self.name_child_plotStressSpectrum:
+            self.mainWindow.getInputWidget().plotStressSpectrum()
         elif item.text(0) == self.name_child_plotStructuralFrequencyResponse:
             self.mainWindow.getInputWidget().plotStructuralFrequencyResponse()
         elif item.text(0) == self.name_child_plotAcousticFrequencyResponse:
@@ -233,41 +244,41 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plot_reactions()
 
     def _updateItems(self):
-        project = self.mainWindow.getProject()
 
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotStructuralHarmonicResponse.setDisabled(True)
             self.item_child_plotStructuralFrequencyResponse.setDisabled(True)
+            self.item_child_plotStressField.setDisabled(True)
+            self.item_child_plotStressSpectrum.setDisabled(True)
             self.item_child_plotAcousticModeShapes.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticHarmonicResponse.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plot_reactions.setDisabled(True)
         
-        if project.get_structural_solution() is not None or project.get_acoustic_solution() is not None:
+        if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
         
-            if project.analysis_ID == 0 or project.analysis_ID == 1:
+            if self.project.analysis_ID == 0 or self.project.analysis_ID == 1:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
                 self.item_child_plot_reactions.setDisabled(False)
-            elif project.analysis_ID == 2:
+                self.item_child_plotStressField.setDisabled(False)
+                self.item_child_plotStressSpectrum.setDisabled(False)
+            elif self.project.analysis_ID == 2:
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
-            elif project.analysis_ID == 4:
+            elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
-            elif project.analysis_ID == 3:
+            elif self.project.analysis_ID == 3:
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticHarmonicResponse.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-            elif project.analysis_ID in [5,6]:
+            elif self.project.analysis_ID in [5,6]:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
+                self.item_child_plotStressField.setDisabled(False)
+                self.item_child_plotStressSpectrum.setDisabled(False)
                 self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
                 self.item_child_plotAcousticHarmonicResponse.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-                self.item_child_plot_reactions.setDisabled(False)     
-
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key_F5:
-    #         self.mainWindow.getInputWidget().runAnalysis()
-    #         self._updateItems()
+                self.item_child_plot_reactions.setDisabled(False)  

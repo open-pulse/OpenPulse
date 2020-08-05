@@ -12,6 +12,7 @@ class ProjectFile:
     def __init__(self):
         self._project_name = ""
         self._import_type = 0
+        self._section = 0
         self._project_path = ""
         self._material_list_path = ""
         self._fluid_list_path = ""
@@ -21,6 +22,7 @@ class ProjectFile:
         self._node_structural_path = ""
         self._node_acoustic_path = ""
         self._entity_path = ""
+        self._element_info_path = ""
         self._analysis_path = ""
         self.temp_table_name = None
         self.lines_multiples_cross_sections = []
@@ -30,6 +32,7 @@ class ProjectFile:
         self._entity_file_name = "entity.dat"
         self._node_structural_file_name = "structural_boundary_conditions_info.dat"
         self._node_acoustic_file_name = "acoustic_boundary_conditions_info.dat"
+        self._elements_file_name = "elements_info.dat"
         self._project_base_name = "project.ini"
 
     def _reset(self):
@@ -87,6 +90,7 @@ class ProjectFile:
         self._coord_path = "{}\\{}".format(self._project_path, coord_file)
 
         self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
         self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
 
@@ -118,7 +122,7 @@ class ProjectFile:
                 beta_h = config['Global damping setup']['beta_h']
         
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
-
+    
         return float(f_min), float(f_max), float(f_step), global_damping
 
     def add_frequency_in_file(self, min_, max_, step_):
@@ -205,13 +209,12 @@ class ProjectFile:
         config = configparser.ConfigParser()
         for entity in entities:
             config[str(entity.get_tag())] = {
-                'Material ID': '',
-                'Outer Diameter': '',
-                'Thickness': '',
-                'Offset [e_y, e_z]': '',
-                'Element Type': '',
-                'Fluid ID': '',
-                'Length Correction': ''
+                'material id': '',
+                'outer diameter': '',
+                'thickness': '',
+                'offset [e_y, e_z]': '',
+                'element type': '',
+                'fluid id': ''
             }
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -226,6 +229,9 @@ class ProjectFile:
         entityFile = configparser.ConfigParser()
         entityFile.read(self._entity_path)
 
+        element_file = configparser.ConfigParser()
+        element_file.read(self._element_info_path)
+   
         dict_material = {}
         dict_cross = {}
         dict_element_type = {}
@@ -236,14 +242,14 @@ class ProjectFile:
             
             if "-" in entity:
                 if 'outer diameter' in entityFile[entity].keys():
-                    diam_ext = entityFile[entity]['Outer Diameter']
+                    diam_ext = entityFile[entity]['outer diameter']
                 if 'thickness' in entityFile[entity].keys():
-                    thickness = entityFile[entity]['Thickness']
+                    thickness = entityFile[entity]['thickness']
                 if 'offset [e_y, e_z]' in entityFile[entity].keys():
-                    offset = entityFile[entity]['Offset [e_y, e_z]']
+                    offset = entityFile[entity]['offset [e_y, e_z]']
                     offset_y, offset_z = self._get_offset_from_string(offset) 
-                if 'list of elements' in entityFile[entity].keys():
-                    list_elements = entityFile[entity]['List of elements']
+                if 'list of elements (cross-sections)' in entityFile[entity].keys():
+                    list_elements = entityFile[entity]['list of elements (cross-sections)']
                     get_list_elements = self._get_list_elements_from_string(list_elements)
     
                 if diam_ext!="" and thickness!="":
@@ -261,11 +267,11 @@ class ProjectFile:
                 diam_ext = ""
                 thickness = ""
                 if 'outer diameter' in entityFile[entity].keys():
-                    diam_ext = entityFile[entity]['Outer Diameter']
+                    diam_ext = entityFile[entity]['outer Diameter']
                 if 'thickness' in entityFile[entity].keys():    
-                    thickness = entityFile[entity]['Thickness']
+                    thickness = entityFile[entity]['thickness']
                 if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
-                    offset = entityFile[entity]['Offset [e_y, e_z]']
+                    offset = entityFile[entity]['offset [e_y, e_z]']
                     offset_y, offset_z = self._get_offset_from_string(offset) 
                         
                 if diam_ext != "" and thickness != "":
@@ -279,24 +285,19 @@ class ProjectFile:
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
                         return {}, {}, {}, {}
-                    
-                element_type = entityFile[entity]['Element Type']
 
-                if element_type != "":
-                    dict_element_type[int(entity)] = element_type
-                    self.element_type_is_structural = True
-                else:
-                    dict_element_type[int(entity)] = 'pipe_1'
+                if 'element type' in entityFile[entity].keys():
 
-                length_correction = entityFile[entity]['Length Correction']
+                    element_type = entityFile[entity]['Element Type']
 
-                if length_correction != "":
-                    dict_length_correction[int(entity)] = length_correction
-                else:
-                    dict_length_correction[int(entity)] = None
-
+                    if element_type != "":
+                        dict_element_type[int(entity)] = element_type
+                        self.element_type_is_structural = True
+                    else:
+                        dict_element_type[int(entity)] = 'pipe_1'
+                        
                 if 'material id' in entityFile[entity].keys():
-                    material_id = entityFile[entity]['Material ID']
+                    material_id = entityFile[entity]['material id']
 
                     if material_id.isnumeric():
                         material_id = int(material_id)
@@ -313,7 +314,7 @@ class ProjectFile:
                                 dict_material[int(entity)] = temp_material
                 
                 if 'fluid id' in entityFile[entity].keys():    
-                    fluid_id = entityFile[entity]['Fluid ID']
+                    fluid_id = entityFile[entity]['fluid id']
 
                     if fluid_id.isnumeric():
                         fluid_id = int(fluid_id)
@@ -328,6 +329,18 @@ class ProjectFile:
                                 temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
                                 dict_fluid[int(entity)] = temp_fluid
 
+        for section in list(element_file.sections()):
+            try:
+                if 'length correction type' in  element_file[section].keys():
+                    length_correction_type = int(element_file[section]['length correction type'])   
+                if 'list of elements' in  element_file[section].keys():
+                    list_elements = element_file[section]['list of elements']
+                    get_list_elements = self._get_list_elements_from_string(list_elements)
+                if length_correction_type in [0,1,2] and get_list_elements != []:
+                    dict_length_correction[section] = [get_list_elements, length_correction_type]
+            except Exception as er:  
+                error(str(er), title="ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION")
+
         return dict_material, dict_cross, dict_element_type, dict_fluid, dict_length_correction
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
@@ -337,18 +350,18 @@ class ProjectFile:
         for section in list(config.sections()):
             section_sub = str(entity_id) + '-'
             if section_sub in section:
-                print("Section removed: {}".format(section))
+                # print("Section removed: {}".format(section))
                 config.remove_section(section)
     
         if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['Outer Diameter'] = str(cross_section.external_diameter)
-            config[str(entity_id)]['Thickness'] = str(cross_section.thickness)
-            config[str(entity_id)]['Offset [e_y, e_z]'] = str(cross_section.offset)
+            config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
+            config[str(entity_id)]['thickness'] = str(cross_section.thickness)
+            config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
         else:
             config[str(entity_id)] = { 
-                                        'Outer Diameter': str(cross_section.external_diameter),
-                                        'Thickness': str(cross_section.thickness),
-                                        'Offset [e_y, e_z]': str(cross_section.offset)
+                                        'outer diameter': str(cross_section.external_diameter),
+                                        'thickness': str(cross_section.thickness),
+                                        'offset [e_y, e_z]': str(cross_section.offset)
                                      }
 
         with open(self._entity_path, 'w') as config_file:
@@ -373,39 +386,45 @@ class ProjectFile:
                 key = str(line) + "-" + str(subkey)
 
                 if key in config.sections():
-                    config[key]['Outer Diameter'] = '{}'.format(vals[0])
-                    config[key]['Thickness'] = '{}'.format(vals[1])
-                    config[key]['Offset [e_y, e_z]'] = '[{}, {}]'.format(vals[2],vals[3])
-                    config[key]['List of elements'] = '{}'.format(elements)
+                    config[key]['outer diameter'] = '{}'.format(vals[0])
+                    config[key]['thickness'] = '{}'.format(vals[1])
+                    config[key]['offset [e_y, e_z]'] = '[{}, {}]'.format(vals[2],vals[3])
+                    config[key]['list of elements (cross-sections)'] = '{}'.format(elements)
                 else:
-                    config[key] = { 'Outer Diameter': '{}'.format(vals[0]),
-                                    'Thickness': '{}'.format(vals[1]),
-                                    'Offset [e_y, e_z]': '[{}, {}]'.format(vals[2],vals[3]),
-                                    'List of elements': '{}'.format(elements) }
+                    config[key] = { 'outer diameter': '{}'.format(vals[0]),
+                                    'thickness': '{}'.format(vals[1]),
+                                    'offset [e_y, e_z]': '[{}, {}]'.format(vals[2],vals[3]),
+                                    'list of elements (cross-sections)': '{}'.format(elements) }
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_length_correction_in_file(self, entity_id, length_correction):   
+    def add_length_correction_in_file(self, elements, _type): 
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['Length Correction'] = str(length_correction)
+        config.read(self._element_info_path)
+        self._section += 1
+        str_section = "ACOUSTIC ELEMENT LENGTH CORRECTION - " + str(self._section) 
+
+        if str_section in list(config.sections()):
+            config[str_section]['length correction type'] = str(_type)
+            config[str_section]['list of elements'] = str(elements)
         else:
-            config[str(entity_id)] = { 
-                                        'Length Correction': str(length_correction)
-                                     }
-        with open(self._entity_path, 'w') as config_file:
+            config[str_section] =   { 
+                                  'length correction type': str(_type),
+                                  'list of elements': str(elements)
+                                }
+        with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
     
     def add_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['Element Type'] = element_type
+            config[str(entity_id)]['element type'] = element_type
         else:
             config[str(entity_id)] = { 
-                                        'Element Type': element_type
+                                        'element type': element_type
                                      }
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -414,10 +433,10 @@ class ProjectFile:
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['Material ID'] = str(material_id)
+            config[str(entity_id)]['material id'] = str(material_id)
         else:
             config[str(entity_id)] = { 
-                                        'Material ID': str(material_id)
+                                        'material id': str(material_id)
                                      }            
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -425,7 +444,7 @@ class ProjectFile:
     def add_fluid_in_file(self, entity_id, fluid_id):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['Fluid ID'] = str(fluid_id)
+        config[str(entity_id)]['fluid id'] = str(fluid_id)
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
@@ -522,8 +541,8 @@ class ProjectFile:
                 str_radiation_impedance = node_acoustic_list[str(node)]['radiation impedance']
                 radiation_impedance_type = self._get_acoustic_bc_from_string(str_radiation_impedance, "radiation impedance")
                 # radImpedance = self._getRadiationImpedanceBCFromString(radiation_impedance)
-                if specific_impedance is not None:
-                    dict_radiation_impedance[node_id] = int(radiation_impedance_type)
+                if radiation_impedance_type is not None:
+                    dict_radiation_impedance[node_id] = int(np.real(radiation_impedance_type))
 
         return dict_pressure, dict_volume_velocity, dict_specific_impedance, dict_radiation_impedance
 
@@ -567,6 +586,7 @@ class ProjectFile:
                         self.f_min = self.frequencies[0]
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
+                        self.temp_table_name = value[0]
                     except Exception:
                         message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label) 
                         error(message, title = "LOADING TABLE ERROR")             
@@ -618,6 +638,7 @@ class ProjectFile:
             self.f_min = self.frequencies[0]
             self.f_max = self.frequencies[-1]
             self.f_step = self.frequencies[1] - self.frequencies[0]
+            self.temp_table_name = table_name
 
             if ('[m/s]' or '[rad/s]') in header_read:
                 output = output/(2*pi*self.frequencies)
@@ -628,14 +649,6 @@ class ProjectFile:
             message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label)  
             error(message, title="LOADING TABLE ERROR")     
         return output
-
-    # def _getRadiationImpedanceBCFromString(self, radiation_impedance):
-    #     radiation_impedance = radiation_impedance[1:-1].split(',')
-    #     value = 0
-    #     if len(radiation_impedance) == 1:
-    #         if radiation_impedance[0] != '0.0':
-    #             value = float(radiation_impedance[0])
-    #     return value
     
     def _single_structural_excitation_bc(self, node_id, labels):
         if labels[0] == 'displacements' and labels[1] == 'rotations':
@@ -651,6 +664,14 @@ class ProjectFile:
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
         elif label[0] == 'volume velocity':
             key_strings = ['acoustic pressure']
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+
+    def _single_impedance_at_node(self, node_id, label):
+        if label[0] == 'specific impedance':
+            key_strings = ['radiation impedance']
+            remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
+        elif label[0] == 'radiation impedance':
+            key_strings = ['specific impedance']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 
     def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
@@ -690,6 +711,7 @@ class ProjectFile:
                     config[str(node_id)][label[0]] = "[{}]".format(value)
                 self.write_bc_in_file(self._node_acoustic_path, config)
                 self._single_acoustic_excitation_bc([node_id], label)
+                self._single_impedance_at_node([node_id], label)
             else:
                 if loaded_table:
                     config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
