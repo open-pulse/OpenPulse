@@ -147,6 +147,7 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changePlotToMesh(self):
         self.beforeChangePlot()
         self.rendererMesh.setInUse(True)
+        self.rendererMesh.updateAllAxes()
         self.SetInteractorStyle(self.rendererMesh.getStyle())
         self.GetRenderWindow().AddRenderer(self.rendererMesh._rendererPoints)
         self.GetRenderWindow().AddRenderer(self.rendererMesh._rendererElements)

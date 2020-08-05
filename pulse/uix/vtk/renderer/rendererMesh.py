@@ -181,6 +181,10 @@ class RendererMesh(vtkRendererBase):
 
 
 ###    
+    def updateAllAxes(self):
+        for ID, node in self.project.get_nodes().items():
+            self.plotAxes(node, ID)
+
     def getSize(self):
         return 0.5 #self.project.get_element_size()*0.7
 
