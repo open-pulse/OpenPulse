@@ -44,6 +44,8 @@ class Project:
         self.time_to_solve_model = None
         self.time_to_postprocess = None
 
+        self.stresses_values_for_color_table = None
+
 
     def reset_info(self):
         self.mesh = Mesh()
@@ -69,6 +71,8 @@ class Project:
         self.time_to_postprocess = None
         self.lines_with_cross_section_by_elements = []
         self.lines_multiples_cross_sections = []
+
+        self.stresses_values_for_color_table = None
 
     def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
@@ -687,24 +691,23 @@ class Project:
     def get_structural_natural_frequencies(self):
         return self.natural_frequencies_structural
 
-    def get_unit(self):
+    def get_unit(self, stress=False):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
             if analysis in [3,5,6] and self.plot_pressure_field:
                 return "Pa"
             elif analysis in [0,1]:
-                return "m"
+                if stress:
+                    return "Pa"
+                else:
+                    return "m"
             else:
                 return "-"  
 
-    def get_stress(self, frequency_id, absolute = False, real = True, imaginary = False):
-        elements = self.mesh.structural_elements
-        stresses = [np.r_[i, elements[i].stress[:, frequency_id]] for i in elements ]
-        if absolute:
-            return np.abs(np.array(stresses))
-        elif real:
-            return np.real(np.array(stresses))
-        elif imaginary:
-            return np.imag(np.array(stresses))
-        else:
-            return np.array(stresses)
+    def set_stresses_values_for_color_table(self, values):
+        self.stresses_values_for_color_table = values
+    
+    def set_min_max_type_stresses(self, min_stress, max_stress, stress_type):
+        self.min_stress = min_stress
+        self.max_stress = max_stress
+        self.stress_type = stress_type

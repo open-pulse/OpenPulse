@@ -22,6 +22,7 @@ from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralMode
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
@@ -400,6 +401,8 @@ class InputUi:
             modes = self.project.get_modes()
             damping = self.project.get_damping()
 
+        self.solve = solve
+
         if self.analysis_ID == 2:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
             if solution.solution_structural is None:
@@ -513,15 +516,13 @@ class InputUi:
     def plotStressField(self):
         self.project.plot_pressure_field = False
         solution = self.project.get_structural_solution()
+        
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = PlotHarmonicResponseInput(self.frequencies)
-            if plot.frequency is None:
+            plot = PlotStressFieldInput(self.project, self.solve, self.opv)
+            if plot.selected_index is None:
                 return
-            self.opv.changeAndPlotAnalysis(plot.frequency, stressColor=True)
-        else:
-            return
 
     def plot_reactions(self):
 

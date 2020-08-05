@@ -71,10 +71,9 @@ def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imagin
         results = reactions[key]
     return results
 
-def get_stress_data(mesh, column, absolute=False, real=False, imaginary=False):
-
+def get_stress_spectrum_data(mesh, frequency_id, absolute = False, real = True, imaginary = False):
     elements = mesh.structural_elements
-    stresses = [np.r_[i, elements[i].stress[:, column]] for i in elements ]
+    stresses = [np.r_[i, elements[i].stress[:, frequency_id]] for i in elements ]
     if absolute:
         return np.abs(np.array(stresses))
     elif real:

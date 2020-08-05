@@ -41,7 +41,7 @@ class vtkRendererBase(ABC):
         self._style.releaseButtons()
         self._inUse = value
 
-    def createInfoText(self, text, vertical_position_adjust):
+    def createInfoText(self, text, vertical_position_adjust, _position_x=None):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
         #Empiric values
@@ -49,10 +49,17 @@ class vtkRendererBase(ABC):
 
         if vertical_position_adjust is not None:
             position_y = int(height - vertical_position_adjust)
-            position_x = 20
+            if _position_x is None:
+                position_x = 20
+            else:
+                position_x = _position_x
+
         else:
             position_y = height - 130
-            position_x = 20
+            if _position_x is None:
+                position_x = 20
+            else:
+                position_x = _position_x
             
         self._textActor.SetInput(text)
         self._textActor.SetTextProperty(self.textProperty)
