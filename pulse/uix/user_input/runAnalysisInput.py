@@ -4,8 +4,9 @@ from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
+from PyQt5.Qt import QApplication
 from PyQt5 import uic
-from time import time
+from time import time, sleep
 import configparser
 
 # from pulse.processing.solution_structural import *
@@ -33,13 +34,9 @@ class RunAnalysisInput(QDialog):
         self.natural_frequencies_structural = []
 
         self.label_title = self.findChild(QLabel, 'label_title')
-        # self.exec_()
         self.show()
+        QApplication.processEvents()
         self.run()
-                
-    # def keyPressEvent(self, event):
-    #     if event.key() == Qt.Key_Escape:
-    #         self.close()
 
     def run(self):
         t0 = time()
@@ -72,12 +69,6 @@ class RunAnalysisInput(QDialog):
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes)
         self.project.time_to_solve_model = time() - t0
-        
-        # text = "Solution finished!\n"
-        # # text += "Time to process cross-sections: {} [s]\n".format(round(self.project.time_to_process_cross_sections,6))
-        # text += "Time to solve the model: {} [s]\n".format(round(dt,6))
-        # text += "Press ESC to continue..."
-        # self.label_title.setText(text)
 
         # WARNINGS REACHED DURING SOLUTION
         if self.analysis_type == "Harmonic Analysis - Structural":
@@ -88,8 +79,3 @@ class RunAnalysisInput(QDialog):
         if self.analysis_type == "Modal Analysis - Structural":
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
                 error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")  
-
-        self.force_to_close()      
-    
-    def force_to_close(self):
-        self.close()
