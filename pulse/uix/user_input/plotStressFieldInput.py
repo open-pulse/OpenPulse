@@ -27,6 +27,7 @@ class PlotStressFieldInput(QDialog):
         self.frequencies = project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.selected_index = None
+        self.update_damping = False
 
         self.stress_field = []
         self.stress_data = []
@@ -82,6 +83,7 @@ class PlotStressFieldInput(QDialog):
 
     def _update_damping_effect(self):
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
+        self.update_damping = True
 
     def radioButtonEvent(self):
         self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
@@ -108,14 +110,16 @@ class PlotStressFieldInput(QDialog):
                 error("  You typed an invalid frequency!  ")
                 return
             self.get_stress_data()
-        # self.close()
+
 
     def get_stress_data(self):
         self.type_labels = np.array([0,1,2,3,4,5,6])
         _labes = np.array(["Normal axial", "Normal bending y", "Normal bending z", "Hoop", "Torsional shear", "Transversal shear y", "Transversal shear z"])
         selected_stress = self.type_labels[self.mask][0]
-        if self.stress_data == []:
+
+        if self.stress_data == [] or self.update_damping:
             self.stress_data = self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = self.flag_damping_effect)
+            self.update_damping = False
         self.stress_field = np.real([array[selected_stress, self.selected_index] for array in self.stress_data.values()])
         self.project.set_stresses_values_for_color_table(self.stress_field)
         self.project.set_min_max_type_stresses(np.min(self.stress_field), np.max(self.stress_field), _labes[self.mask][0])

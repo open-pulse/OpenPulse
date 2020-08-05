@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>446</width>
-    <height>280</height>
+    <height>379</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,20 +22,20 @@
   <property name="minimumSize">
    <size>
     <width>446</width>
-    <height>280</height>
+    <height>379</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>446</width>
-    <height>280</height>
+    <height>379</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot frequency response</string>
+   <string>Plot of stress spectrum</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>451</width>
-     <height>299</height>
+     <height>395</height>
     </rect>
    </property>
    <property name="font">
@@ -63,7 +63,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>449</width>
+      <width>446</width>
       <height>41</height>
      </rect>
     </property>
@@ -95,7 +95,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Get the Structural Frequency Response at Node</string>
+      <string>Plot the stress spectrum at Element</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -110,8 +110,8 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>449</width>
-      <height>253</height>
+      <width>446</width>
+      <height>339</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -123,10 +123,10 @@
     <widget class="QTabWidget" name="tabWidget_plot_results">
      <property name="geometry">
       <rect>
-       <x>8</x>
+       <x>6</x>
        <y>14</y>
        <width>433</width>
-       <height>227</height>
+       <height>313</height>
       </rect>
      </property>
      <property name="minimumSize">
@@ -157,32 +157,10 @@
       <attribute name="title">
        <string>Plot</string>
       </attribute>
-      <widget class="QPushButton" name="pushButton">
-       <property name="geometry">
-        <rect>
-         <x>76</x>
-         <y>164</y>
-         <width>281</width>
-         <height>27</height>
-        </rect>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Plot the frequency response</string>
-       </property>
-      </widget>
       <widget class="QWidget" name="verticalLayoutWidget_2">
        <property name="geometry">
         <rect>
-         <x>128</x>
+         <x>112</x>
          <y>12</y>
          <width>107</width>
          <height>23</height>
@@ -190,7 +168,7 @@
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <widget class="QLineEdit" name="lineEdit_nodeID">
+         <widget class="QLineEdit" name="lineEdit_elementID">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -249,21 +227,21 @@
        <property name="geometry">
         <rect>
          <x>226</x>
-         <y>46</y>
+         <y>50</y>
          <width>195</width>
-         <height>108</height>
+         <height>115</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>195</width>
          <height>108</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
-         <height>108</height>
+         <width>195</width>
+         <height>140</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -432,9 +410,9 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>8</x>
-         <y>46</y>
+         <y>50</y>
          <width>213</width>
-         <height>108</height>
+         <height>223</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -446,7 +424,7 @@ p, li { white-space: pre-wrap; }
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>108</height>
+         <height>260</height>
         </size>
        </property>
        <property name="frameShape">
@@ -499,7 +477,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Arial'; font-size:10pt; font-weight:600; font-style:italic;&quot;&gt;
-&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select the DOF to get response&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Select a stress to plot:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="textFormat">
          <enum>Qt::AutoText</enum>
@@ -517,163 +495,215 @@ p, li { white-space: pre-wrap; }
          <number>0</number>
         </property>
        </widget>
-       <widget class="QWidget" name="gridLayoutWidget">
+       <widget class="QWidget" name="verticalLayoutWidget">
         <property name="geometry">
          <rect>
-          <x>54</x>
-          <y>28</y>
-          <width>107</width>
-          <height>73</height>
+          <x>32</x>
+          <y>30</y>
+          <width>153</width>
+          <height>183</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout">
-         <item row="2" column="0">
-          <widget class="QRadioButton" name="radioButton_uz">
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>5</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="radioButton_normal_axial">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>16777215</height>
+             <width>145</width>
+             <height>18</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <italic>true</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Uz</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QRadioButton" name="radioButton_uy">
-           <property name="maximumSize">
-            <size>
-             <width>40</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Uy</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="0">
-          <widget class="QRadioButton" name="radioButton_ux">
-           <property name="maximumSize">
-            <size>
-             <width>40</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="font">
-            <font>
-             <family>Arial</family>
-             <pointsize>9</pointsize>
-             <weight>75</weight>
-             <italic>true</italic>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Ux</string>
+            <string>Normal axial</string>
            </property>
            <property name="checked">
             <bool>true</bool>
            </property>
           </widget>
          </item>
-         <item row="2" column="1">
-          <widget class="QRadioButton" name="radioButton_rz">
+         <item>
+          <widget class="QRadioButton" name="radioButton_normal_bending_y">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>16777215</height>
+             <width>145</width>
+             <height>18</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <italic>true</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Rz</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <string>Normal bending y</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QRadioButton" name="radioButton_ry">
+         <item>
+          <widget class="QRadioButton" name="radioButton_normal_bending_z">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>16777215</height>
+             <width>145</width>
+             <height>18</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <italic>true</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Ry</string>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <string>Normal bending z</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="1">
-          <widget class="QRadioButton" name="radioButton_rx">
+         <item>
+          <widget class="QRadioButton" name="radioButton_hoop">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
-             <width>40</width>
-             <height>16777215</height>
+             <width>145</width>
+             <height>18</height>
             </size>
            </property>
            <property name="font">
             <font>
              <family>Arial</family>
-             <pointsize>9</pointsize>
+             <pointsize>10</pointsize>
              <weight>75</weight>
              <italic>true</italic>
              <bold>true</bold>
             </font>
            </property>
            <property name="text">
-            <string>Rx</string>
+            <string>Hoop</string>
            </property>
-           <property name="checked">
-            <bool>false</bool>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_torsional_shear">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Torsional shear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_transv_shear_xy">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Transversal shear xy</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_transv_shear_xz">
+           <property name="minimumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>145</width>
+             <height>18</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>10</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Transversal shear xz</string>
            </property>
           </widget>
          </item>
@@ -683,7 +713,7 @@ p, li { white-space: pre-wrap; }
       <widget class="QFrame" name="frame_6">
        <property name="geometry">
         <rect>
-         <x>252</x>
+         <x>250</x>
          <y>10</y>
          <width>79</width>
          <height>28</height>
@@ -742,9 +772,9 @@ p, li { white-space: pre-wrap; }
       <widget class="QLabel" name="label_2">
        <property name="geometry">
         <rect>
-         <x>12</x>
+         <x>16</x>
          <y>12</y>
-         <width>113</width>
+         <width>99</width>
          <height>21</height>
         </rect>
        </property>
@@ -770,10 +800,32 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>Insert a Node ID:</string>
+        <string>Element ID:</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>232</x>
+         <y>204</y>
+         <width>189</width>
+         <height>35</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Plot the stress spectrum</string>
        </property>
       </widget>
      </widget>
@@ -785,9 +837,9 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>6</x>
-         <y>8</y>
+         <y>22</y>
          <width>417</width>
-         <height>179</height>
+         <height>221</height>
         </rect>
        </property>
        <property name="font">
@@ -810,7 +862,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>344</x>
-           <y>82</y>
+           <y>108</y>
            <width>60</width>
            <height>27</height>
           </rect>
@@ -844,7 +896,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>4</x>
-           <y>82</y>
+           <y>108</y>
            <width>117</width>
            <height>27</height>
           </rect>
@@ -887,7 +939,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>82</y>
+           <y>108</y>
            <width>223</width>
            <height>27</height>
           </rect>
@@ -917,7 +969,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>20</x>
-           <y>42</y>
+           <y>60</y>
            <width>102</width>
            <height>27</height>
           </rect>
@@ -963,7 +1015,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>120</x>
-           <y>42</y>
+           <y>60</y>
            <width>223</width>
            <height>27</height>
           </rect>
@@ -992,22 +1044,28 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_17">
+        <widget class="QWidget" name="horizontalLayoutWidget">
          <property name="geometry">
           <rect>
-           <x>160</x>
-           <y>116</y>
-           <width>102</width>
+           <x>36</x>
+           <y>16</y>
+           <width>343</width>
            <height>27</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_17">
+         <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
-           <widget class="QToolButton" name="toolButton_ExportResults">
-            <property name="maximumSize">
+           <widget class="QLabel" name="label_7">
+            <property name="minimumSize">
              <size>
               <width>100</width>
-              <height>16777215</height>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>20</height>
              </size>
             </property>
             <property name="font">
@@ -1020,59 +1078,15 @@ p, li { white-space: pre-wrap; }
              </font>
             </property>
             <property name="text">
-             <string>Export results</string>
+             <string>Data to save:</string>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="horizontalLayoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>36</x>
-           <y>8</y>
-           <width>343</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_11">
-            <item>
-             <widget class="QLabel" name="label_7">
-              <property name="minimumSize">
-               <size>
-                <width>100</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>90</width>
-                <height>20</height>
-               </size>
-              </property>
-              <property name="font">
-               <font>
-                <family>Arial</family>
-                <pointsize>10</pointsize>
-                <weight>75</weight>
-                <italic>true</italic>
-                <bold>true</bold>
-               </font>
-              </property>
-              <property name="text">
-               <string>Data to save:</string>
-              </property>
-              <property name="scaledContents">
-               <bool>false</bool>
-              </property>
-              <property name="alignment">
-               <set>Qt::AlignCenter</set>
-              </property>
-             </widget>
-            </item>
-           </layout>
           </item>
           <item>
            <widget class="QRadioButton" name="radioButton_Absolute">
@@ -1096,6 +1110,40 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
+        <widget class="QToolButton" name="toolButton_ExportResults">
+         <property name="geometry">
+          <rect>
+           <x>148</x>
+           <y>150</y>
+           <width>120</width>
+           <height>28</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>120</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>120</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Export results</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab_4">
         <attribute name="title">
@@ -1105,7 +1153,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>334</x>
-           <y>28</y>
+           <y>56</y>
            <width>62</width>
            <height>27</height>
           </rect>
@@ -1138,9 +1186,9 @@ p, li { white-space: pre-wrap; }
         <widget class="QWidget" name="verticalLayoutWidget_5">
          <property name="geometry">
           <rect>
-           <x>102</x>
-           <y>28</y>
-           <width>231</width>
+           <x>40</x>
+           <y>56</y>
+           <width>293</width>
            <height>27</height>
           </rect>
          </property>
@@ -1165,62 +1213,19 @@ p, li { white-space: pre-wrap; }
           </item>
          </layout>
         </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_9">
-         <property name="geometry">
-          <rect>
-           <x>10</x>
-           <y>28</y>
-           <width>93</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QLabel" name="label_4">
-            <property name="minimumSize">
-             <size>
-              <width>85</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>90</width>
-              <height>20</height>
-             </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Load results:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
         <widget class="QPushButton" name="pushButton_AddImportedPlot">
          <property name="geometry">
           <rect>
            <x>62</x>
-           <y>106</y>
-           <width>281</width>
+           <y>142</y>
+           <width>291</width>
            <height>33</height>
           </rect>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -1234,7 +1239,7 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>106</x>
-           <y>68</y>
+           <y>98</y>
            <width>140</width>
            <height>20</height>
           </rect>
@@ -1271,13 +1276,50 @@ p, li { white-space: pre-wrap; }
          <property name="geometry">
           <rect>
            <x>248</x>
-           <y>68</y>
+           <y>98</y>
            <width>42</width>
            <height>22</height>
           </rect>
          </property>
          <property name="maximum">
           <number>10</number>
+         </property>
+        </widget>
+        <widget class="QLabel" name="label_4">
+         <property name="geometry">
+          <rect>
+           <x>86</x>
+           <y>16</y>
+           <width>250</width>
+           <height>25</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>250</width>
+           <height>25</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Select a folder to import results:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
          </property>
         </widget>
        </widget>

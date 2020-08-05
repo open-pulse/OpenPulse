@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot harmonic response</string>
+   <string>Plot of stress field</string>
   </property>
   <property name="windowIcon">
    <iconset>

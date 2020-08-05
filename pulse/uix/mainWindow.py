@@ -184,10 +184,10 @@ class MainWindow(QMainWindow):
         self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
 
         self.runAnalysis_action = QAction('&Run Analysis', self)        
-        self.runAnalysis_action.setShortcut('F5')
+        # self.runAnalysis_action.setShortcut('F5')
         self.runAnalysis_action.setStatusTip('Run Analysis')
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
-
+ 
         #Results Viewer
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
@@ -205,9 +205,14 @@ class MainWindow(QMainWindow):
         self.plotAcousticHarmonicResponse_action.triggered.connect(self.getInputWidget().plotAcousticHarmonicResponse)
 
         self.plotSressField_action = QAction('&Plot Stress Field', self)        
-        self.plotSressField_action.setShortcut('Ctrl+R')
+        # self.plotSressField_action.setShortcut('Ctrl+R')
         self.plotSressField_action.setStatusTip('Plot Stress Field')
         self.plotSressField_action.triggered.connect(self.getInputWidget().plotStressField)
+
+        self.plotSressSpectrum_action = QAction('&Plot Stress Spectrum', self)        
+        # self.plotSressSpectrum_action.setShortcut('Ctrl+R')
+        self.plotSressSpectrum_action.setStatusTip('Plot Stress Spectrum')
+        self.plotSressSpectrum_action.triggered.connect(self.getInputWidget().plotStressSpectrum)
 
         self.plotStructuralFrequencyResponse = QAction('&Plot Structural Frequency Response', self)        
         self.plotStructuralFrequencyResponse.setShortcut('Ctrl+T')
@@ -276,6 +281,7 @@ class MainWindow(QMainWindow):
         resultsViewerMenu.addAction(self.plotStructuralHarmonicResponse_action)
         resultsViewerMenu.addAction(self.plotAcousticHarmonicResponse_action)
         resultsViewerMenu.addAction(self.plotSressField_action)
+        resultsViewerMenu.addAction(self.plotSressSpectrum_action)
         resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
         resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         resultsViewerMenu.addAction(self.plot_TL_NR)

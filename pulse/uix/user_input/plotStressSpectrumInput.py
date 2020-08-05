@@ -49,9 +49,9 @@ class SnaptoCursor(object):
 
 
 class PlotStressSpectrumInput(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, solution, list_node_ids, *args, **kwargs):
+    def __init__(self, mesh, analysisMethod, frequencies, solution, list_elements_ids, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotStessSpectrumInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotStressSpectrumInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -68,9 +68,9 @@ class PlotStressSpectrumInput(QDialog):
         self.imported_data = None
         self.localDof = None
 
-        self.writeNodes(list_node_ids)
+        self.writeElements(list_elements_ids)
 
-        self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.lineEdit_ImportResultsPath = self.findChild(QLineEdit, 'lineEdit_ImportResultsPath')
@@ -90,18 +90,32 @@ class PlotStressSpectrumInput(QDialog):
         self.cursor = self.checkBox_cursor.isChecked()
         self.checkBox_cursor.clicked.connect(self.update_cursor)
 
-        self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
-        self.radioButton_uy = self.findChild(QRadioButton, 'radioButton_uy')
-        self.radioButton_uz = self.findChild(QRadioButton, 'radioButton_uz')
-        self.radioButton_rx = self.findChild(QRadioButton, 'radioButton_rx')
-        self.radioButton_ry = self.findChild(QRadioButton, 'radioButton_ry')
-        self.radioButton_rz = self.findChild(QRadioButton, 'radioButton_rz')
-        self.Ux = self.radioButton_ux.isChecked()
-        self.Uy = self.radioButton_uy.isChecked()
-        self.Uz = self.radioButton_uz.isChecked()
-        self.Rx = self.radioButton_rx.isChecked()
-        self.Ry = self.radioButton_ry.isChecked()
-        self.Rz = self.radioButton_rz.isChecked()
+        self.radioButton_normal_axial = self.findChild(QRadioButton, 'radioButton_normal_axial')
+        self.radioButton_normal_bending_y = self.findChild(QRadioButton, 'radioButton_normal_bending_y')
+        self.radioButton_normal_bending_z = self.findChild(QRadioButton, 'radioButton_normal_bending_z')
+        self.radioButton_hoop = self.findChild(QRadioButton, 'radioButton_hoop')
+        self.radioButton_transv_shear_xy = self.findChild(QRadioButton, 'radioButton_transv_shear_xy')
+        self.radioButton_transv_shear_xz = self.findChild(QRadioButton, 'radioButton_transv_shear_xz')
+        self.radioButton_torsional_shear = self.findChild(QRadioButton, 'radioButton_torsional_shear')
+
+        self.radioButton_normal_axial.clicked.connect(self.radioButtonEvent)
+        self.radioButton_normal_bending_y.clicked.connect(self.radioButtonEvent)
+        self.radioButton_normal_bending_z.clicked.connect(self.radioButtonEvent)
+        self.radioButton_hoop.clicked.connect(self.radioButtonEvent)
+        self.radioButton_torsional_shear.clicked.connect(self.radioButtonEvent)
+        self.radioButton_transv_shear_xy.clicked.connect(self.radioButtonEvent)
+        self.radioButton_transv_shear_xz.clicked.connect(self.radioButtonEvent)
+
+        self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
+        self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
+        self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
+        self.flag_hoop = self.radioButton_hoop.isChecked()
+        self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
+        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
+        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
+
+        self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
+                    self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
 
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
         self.radioButton_plotReal = self.findChild(QRadioButton, 'radioButton_plotReal')
@@ -136,17 +150,26 @@ class PlotStressSpectrumInput(QDialog):
         self.imported_data = None
         self.messages("The plot data has been reseted.")
     
-    def writeNodes(self, list_node_ids):
+    def writeElements(self, list_elements_ids):
         text = ""
-        for node in list_node_ids:
+        for node in list_elements_ids:
             text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
+        self.lineEdit_elementID.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def radioButtonEvent(self):
+        self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
+        self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
+        self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
+        self.flag_hoop = self.radioButton_hoop.isChecked()
+        self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
+        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
+        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
 
     def radioButtonEvent_YAxis(self):
         self.plotAbs = self.radioButton_plotAbs.isChecked()
@@ -189,7 +212,7 @@ class PlotStressSpectrumInput(QDialog):
     def check(self, export=False):
         self.localDof = None
         try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
+            tokens = self.lineEdit_elementID.text().strip().split(',')
             try:
                 tokens.remove('')
             except:
