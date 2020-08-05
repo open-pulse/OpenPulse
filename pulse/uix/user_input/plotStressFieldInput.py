@@ -45,25 +45,25 @@ class PlotStressFieldInput(QDialog):
         self.radioButton_normal_bending_y = self.findChild(QRadioButton, 'radioButton_normal_bending_y')
         self.radioButton_normal_bending_z = self.findChild(QRadioButton, 'radioButton_normal_bending_z')
         self.radioButton_hoop = self.findChild(QRadioButton, 'radioButton_hoop')
-        self.radioButton_transv_shear_y = self.findChild(QRadioButton, 'radioButton_transv_shear_y')
-        self.radioButton_transv_shear_z = self.findChild(QRadioButton, 'radioButton_transv_shear_z')
+        self.radioButton_transv_shear_xy = self.findChild(QRadioButton, 'radioButton_transv_shear_xy')
+        self.radioButton_transv_shear_xz = self.findChild(QRadioButton, 'radioButton_transv_shear_xz')
         self.radioButton_torsional_shear = self.findChild(QRadioButton, 'radioButton_torsional_shear')
 
         self.radioButton_normal_axial.clicked.connect(self.radioButtonEvent)
         self.radioButton_normal_bending_y.clicked.connect(self.radioButtonEvent)
         self.radioButton_normal_bending_z.clicked.connect(self.radioButtonEvent)
         self.radioButton_hoop.clicked.connect(self.radioButtonEvent)
-        self.radioButton_transv_shear_y.clicked.connect(self.radioButtonEvent)
-        self.radioButton_transv_shear_z.clicked.connect(self.radioButtonEvent)
         self.radioButton_torsional_shear.clicked.connect(self.radioButtonEvent)
+        self.radioButton_transv_shear_xy.clicked.connect(self.radioButtonEvent)
+        self.radioButton_transv_shear_xz.clicked.connect(self.radioButtonEvent)
 
         self.flag_normal_axial = self.radioButton_normal_axial.isChecked()
         self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
         self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
         self.flag_hoop = self.radioButton_hoop.isChecked()
-        self.flag_transv_shear_y = self.radioButton_transv_shear_y.isChecked()
-        self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
+        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
+        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
 
         self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
                     self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
@@ -88,9 +88,10 @@ class PlotStressFieldInput(QDialog):
         self.flag_normal_bending_y = self.radioButton_normal_bending_y.isChecked()
         self.flag_normal_bending_z = self.radioButton_normal_bending_z.isChecked()
         self.flag_hoop = self.radioButton_hoop.isChecked()
-        self.flag_transv_shear_y = self.radioButton_transv_shear_y.isChecked()
-        self.flag_transv_shear_z = self.radioButton_transv_shear_z.isChecked()
         self.flag_torsional_shear = self.radioButton_torsional_shear.isChecked()
+        self.flag_transv_shear_xy = self.radioButton_transv_shear_xy.isChecked()
+        self.flag_transv_shear_xz = self.radioButton_transv_shear_xz.isChecked()
+
 
         self.mask = [self.flag_normal_axial, self.flag_normal_bending_y, self.flag_normal_bending_z, self.flag_hoop,
                     self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]

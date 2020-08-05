@@ -649,7 +649,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="radioButton_transv_shear_y">
+        <widget class="QRadioButton" name="radioButton_transv_shear_xy">
          <property name="minimumSize">
           <size>
            <width>145</width>
@@ -672,12 +672,12 @@
           </font>
          </property>
          <property name="text">
-          <string>Transversal shear y</string>
+          <string>Transversal shear xy</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QRadioButton" name="radioButton_transv_shear_z">
+        <widget class="QRadioButton" name="radioButton_transv_shear_xz">
          <property name="minimumSize">
           <size>
            <width>145</width>
@@ -700,7 +700,7 @@
           </font>
          </property>
          <property name="text">
-          <string>Transversal shear z</string>
+          <string>Transversal shear xz</string>
          </property>
         </widget>
        </item>
