@@ -695,6 +695,8 @@ class Project:
         if analysis >=0 and analysis <= 6:
             if (analysis in [3,5,6] and self.plot_pressure_field) or stress:
                 return "Pa"
+            elif analysis in [5,6] and not self.plot_pressure_field:
+                return "m"            
             elif analysis in [0,1]:
                 return "m"
             else:
