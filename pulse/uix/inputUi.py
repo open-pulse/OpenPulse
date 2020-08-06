@@ -9,7 +9,7 @@ from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResult
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-from pulse.uix.user_input.radiationImpedance_Input import RadiationImpedanceInput
+from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
