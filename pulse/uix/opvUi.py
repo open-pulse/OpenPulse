@@ -19,6 +19,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         super().__init__()
         self.parent = parent
         self.project = project
+        self.__lastCamera = None
 
         self.rendererEntity = RendererEntity(self.project, self)
         self.rendererElement = RendererElement(self.project, self)
@@ -117,6 +118,17 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.slider2d.SetValue(self.sliderScale)
             self.needResetCamera = True
 
+    def copyCamera(self):
+        if self.getActiveRenderer() is not None:
+            ren = self.getActiveRenderer().getRenderer()
+            cam = ren.GetActiveCamera()
+            self.__lastCamera = cam
+    
+    def applyCamera(self):
+        if self.__lastCamera is not None:
+            ren = self.getActiveRenderer().getRenderer()
+            ren.SetActiveCamera(self.__lastCamera)
+
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.rendererEntity.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererMesh.getRenderer())
@@ -128,10 +140,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererAnalysis.setInUse(False)
 
     def beforeChangePlot(self):
+        self.copyCamera()
         self.clearRendereres()
         self.clearRendereresUse()
 
     def afterChangePlot(self):
+        self.applyCamera()
         self._updateAxes()
         self._updateSlider()
         self.update()
@@ -144,7 +158,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
 
-    def changePlotToMesh(self):
+    def changePlotToMesh(self):       
         self.beforeChangePlot()
         self.rendererMesh.setInUse(True)
         self.rendererMesh.updateAllAxes()
@@ -204,3 +218,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         writer.SetFileName(path)
         writer.SetInputConnection(imageFilter.GetOutputPort())
         writer.Write()
+    
+    def getActiveRenderer(self):
+        renderers = [self.rendererEntity, self.rendererElement, self.rendererMesh, self.rendererAnalysis]
+        for renderer in renderers:
+            if renderer._inUse:
+                return renderer
+        else:
+            return None 
