@@ -13,9 +13,9 @@ from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
-from pulse.uix.user_input.structural_model_info_input import StructuralModelInfoInput
-from pulse.uix.user_input.acoustic_model_info_input import AcousticModelInfoInput
-from pulse.uix.user_input.element_length_correction_input import AcousticElementLengthCorrectionInput
+from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
+from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
+from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 
 from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
 from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput

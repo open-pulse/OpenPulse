@@ -38,7 +38,7 @@ class TreeUi(QTreeWidget):
         self.name_child_setSpecificImpedance = "Set Specific Impedance"
         self.name_child_set_radiation_impedance = "Set Radiation Impedance"
         self.name_child_add_perforated_plate = "Add Perforated Plate"
-        self.name_child_set_acoustic_element_length_correction = "Set Acoustic Element Length Correction"
+        self.name_child_set_acoustic_element_length_correction = "Set Element Length Correction"
         
         self.name_top_analysis = "Analysis"
         self.name_child_selectAnalysisType = "Select Analysis Type"
@@ -114,14 +114,15 @@ class TreeUi(QTreeWidget):
         self.item_top_resultsViewer = QTreeWidgetItem([self.name_top_resultsViewer])
         self.item_child_plotStructuralModeShapes = QTreeWidgetItem([self.name_child_plotStructuralModeShapes])
         self.item_child_plotStructuralHarmonicResponse = QTreeWidgetItem([self.name_child_plotStructuralHarmonicResponse])
-        self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
-        self.item_child_plotAcousticHarmonicResponse = QTreeWidgetItem([self.name_child_plotAcousticHarmonicResponse])
+        self.item_child_plotStructuralFrequencyResponse = QTreeWidgetItem([self.name_child_plotStructuralFrequencyResponse])
+        self.item_child_plot_reactions = QTreeWidgetItem([self.name_child_plot_reactions])
         self.item_child_plotStressField = QTreeWidgetItem([self.name_child_plotStressField])
         self.item_child_plotStressSpectrum = QTreeWidgetItem([self.name_child_plotStressSpectrum])
-        self.item_child_plotStructuralFrequencyResponse = QTreeWidgetItem([self.name_child_plotStructuralFrequencyResponse])
+        self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
+        self.item_child_plotAcousticHarmonicResponse = QTreeWidgetItem([self.name_child_plotAcousticHarmonicResponse])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem([self.name_child_plotAcousticFrequencyResponse])
         self.item_child_plot_TL_NR = QTreeWidgetItem([self.name_child_plot_TL_NR])
-        self.item_child_plot_reactions = QTreeWidgetItem([self.name_child_plot_reactions])
+
 
     def _configItems(self):
         self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
@@ -176,13 +177,13 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_plotStructuralModeShapes)
         self.addTopLevelItem(self.item_child_plotStructuralHarmonicResponse)
         self.addTopLevelItem(self.item_child_plotStructuralFrequencyResponse)
+        self.addTopLevelItem(self.item_child_plot_reactions)
         self.addTopLevelItem(self.item_child_plotStressField)
         self.addTopLevelItem(self.item_child_plotStressSpectrum)
         self.addTopLevelItem(self.item_child_plotAcousticModeShapes)
         self.addTopLevelItem(self.item_child_plotAcousticHarmonicResponse)
         self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponse)
         self.addTopLevelItem(self.item_child_plot_TL_NR)
-        self.addTopLevelItem(self.item_child_plot_reactions)
 
         
     def on_click_item(self, item, column):
@@ -230,6 +231,8 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plotAcousticModeShapes()
         elif item.text(0) == self.name_child_plotAcousticHarmonicResponse:
             self.mainWindow.getInputWidget().plotAcousticHarmonicResponse()
+        elif item.text(0) == self.name_child_plot_reactions:
+            self.mainWindow.getInputWidget().plot_reactions()
         elif item.text(0) == self.name_child_plotStressField:
             self.mainWindow.getInputWidget().plotStressField()
         elif item.text(0) == self.name_child_plotStressSpectrum:
@@ -240,8 +243,7 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plotAcousticFrequencyResponse()
         elif item.text(0) == self.name_child_plot_TL_NR:
             self.mainWindow.getInputWidget().plot_TL_NR()
-        elif item.text(0) == self.name_child_plot_reactions:
-            self.mainWindow.getInputWidget().plot_reactions()
+
 
     def _updateItems(self):
 

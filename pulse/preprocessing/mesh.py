@@ -22,6 +22,7 @@ class Mesh:
         self.neighbours = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
+        self.group_elements_with_length_correction = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -40,6 +41,7 @@ class Mesh:
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
         self.flag_fluid_mass_effect = False
+        self.group_index = 0
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -511,22 +513,32 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
 
-    def set_length_correction_by_element(self, elements, value):
+    def set_length_correction_by_element(self, elements, value, group_to_remove=None):
+
         for element in slicer(self.acoustic_elements, elements):
             element.acoustic_length_correction = value
-            self.element_with_length_correction.append(element)
-
-    def set_length_correction_by_line(self, lines, value):
-        for elements in slicer(self.line_to_elements, lines):
-            self.set_length_correction_by_element(elements, value)
+            if element not in self.element_with_length_correction:
+                self.element_with_length_correction.append(element)
+            if value is None:
+                if element in self.element_with_length_correction:
+                    self.element_with_length_correction.remove(element)
+        if group_to_remove is None: 
+            if len(self.group_elements_with_length_correction) == 0:
+                self.group_index = 1
+            else:
+                self.group_index += 1
+            key_ = "Selection-" + str(self.group_index)
+            self.group_elements_with_length_correction[key_] = [value, elements]
+        else:
+            self.group_elements_with_length_correction.pop(group_to_remove)
             
-    def set_acoustic_pressure_bc_by_node(self, nodes, values):
+    def set_acoustic_pressure_bc_by_node(self, nodes, value):
         for node in slicer(self.nodes, nodes):
-            node.acoustic_pressure = values
+            node.acoustic_pressure = value
             node.volume_velocity = None
             if not node in self.nodes_with_acoustic_pressure:
                 self.nodes_with_acoustic_pressure.append(node)
-            if values is None:
+            if value is None:
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
 

@@ -403,8 +403,13 @@ class ProjectFile:
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
-        self._section += 1
-        str_section = "ACOUSTIC ELEMENT LENGTH CORRECTION - " + str(self._section) 
+
+        if len(config.sections()) == 0:
+            self._section = 1
+        else:
+            self._section += 1
+            
+        str_section = "ACOUSTIC ELEMENT LENGTH CORRECTION || Selection-" + str(self._section) 
 
         if str_section in list(config.sections()):
             config[str_section]['length correction type'] = str(_type)

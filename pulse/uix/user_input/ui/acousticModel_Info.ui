@@ -193,7 +193,7 @@
     </column>
     <column>
      <property name="text">
-      <string>???</string>
+      <string>Type</string>
      </property>
     </column>
    </widget>

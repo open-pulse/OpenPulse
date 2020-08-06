@@ -14,7 +14,7 @@ from shutil import copyfile
 class AcousticModelInfoInput(QDialog):
     def __init__(self, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/acoustic_model_info.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/acousticModel_Info.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -93,3 +93,13 @@ class AcousticModelInfoInput(QDialog):
                 text = "Flanged"
             new = QTreeWidgetItem([str(node.external_index), text])
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
+
+        for element in self.project.mesh.element_with_length_correction:
+            if element.acoustic_length_correction == 0:
+                text = "Expansion"
+            if element.acoustic_length_correction == 1:
+                text = "Side branch"
+            if element.acoustic_length_correction == 2:
+                text = "Loop"
+            new = QTreeWidgetItem([str(element.index), text])
+            self.treeWidget_element_length_correction.addTopLevelItem(new)
