@@ -46,6 +46,9 @@ class CrossSectionInput(QDialog):
         self.lineEdit_izz = self.findChild(QLineEdit, 'lineEdit_izz')
         self.lineEdit_iyz = self.findChild(QLineEdit, 'lineEdit_iyz')
 
+        self.lineEdit_InsulationDensity = self.findChild(QLineEdit, 'lineEdit_InsulationDensity')
+        self.lineEdit_InsulationThickness = self.findChild(QLineEdit, 'lineEdit_InsulationThickness')        
+
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
         self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
@@ -153,6 +156,8 @@ class CrossSectionInput(QDialog):
 
             offset_y = 0
             offset_z = 0
+            insulation_density = 0
+            insulation_thickness = 0
 
             try:
                 outerDiameter = float(self.lineEdit_outerDiameter.text())
@@ -179,17 +184,27 @@ class CrossSectionInput(QDialog):
                     error("Wrong input for OFFSET Z!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                     return
            
-            if thickness <= (outerDiameter/2):
+            if self.lineEdit_InsulationDensity.text() != "":
+                try:
+                    insulation_density = float(self.lineEdit_InsulationDensity.text())
+                except Exception:
+                    error("Wrong input for INSULATION DENSITY!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                    return
+           
+            if self.lineEdit_InsulationThickness.text() != "":
+                try:
+                    insulation_thickness = float(self.lineEdit_InsulationThickness.text())
+                except Exception:
+                    error("Wrong input for INSULATION THICKNESS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+                    return
+           
+            if thickness > (outerDiameter/2):
                 error("The THICKNESS must be less or equals to the OUTER RADIUS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
 
             elif thickness == 0.0:
                 error("The THICKNESS must be greater than zero!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
-            
-            # elif thickness > outerDiameter:
-            #     error("The THICKNESS must be less or equal than OUTER DIAMETER!", title=">>> INPUT CROSS-SECTION ERROR <<<")
-            #     return
             
             elif abs(offset_y) > 0.2*(outerDiameter/2):
                 error("The OFFSET_Y must be less than 20{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
@@ -198,8 +213,8 @@ class CrossSectionInput(QDialog):
             elif abs(offset_z) > 0.2*(outerDiameter/2):
                 error("The OFFSET_Y must be less than 20{%} of the external radius!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
-
-            self.cross_section = CrossSection(outerDiameter, thickness, offset_y, offset_z)
+            # print(insulation_thickness, insulation_density)
+            self.cross_section = CrossSection(outerDiameter, thickness, offset_y, offset_z, insulation_density=insulation_density, insulation_thickness= insulation_thickness)
             self.complete = True
             self.close()
         else:

@@ -94,7 +94,7 @@ if select == 1:
             self.internal_diameter = external_diameter - 2*thickness
 
             self.insulation_thickness = kwargs.get('insulation_thickness', 0)
-            self.density_insulation = kwargs.get('density_insulation', 0)
+            self.insulation_density = kwargs.get('insulation_density', 0)
 
             # Area properties
             self.area = 0

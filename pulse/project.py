@@ -189,6 +189,8 @@ class Project:
             thickness = element.cross_section.thickness
             offset_y = element.cross_section.offset_y
             offset_z = element.cross_section.offset_z
+            insulation_thickness = element.cross_section.insulation_thickness
+            insulation_density = element.cross_section.insulation_density
 
             e_type  = element.element_type
             if e_type is None:
@@ -200,13 +202,13 @@ class Project:
                 poisson = 0
             
             index_etype = dict_etype_index[e_type]
-            map_cross_section_to_elements[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype])].append(index)
+            map_cross_section_to_elements[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype, insulation_thickness, insulation_density])].append(index)
 
         for key, elements in map_cross_section_to_elements.items():
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
-            el_type = dict_index_etype[vals[-1]]
-            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type)
+            el_type = dict_index_etype[vals[5]]
+            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type, insulation_thickness=vals[6], insulation_density=vals[7])
             # list_flatten = [item for sublist in elements for item in sublist]
             self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
 
@@ -226,8 +228,10 @@ class Project:
                 thickness = elements[_id].cross_section.thickness
                 offset_y = elements[_id].cross_section.offset_y
                 offset_z = elements[_id].cross_section.offset_z
+                insultation_thickness = elements[_id].cross_section.insulation_thickness
+                insultation_density = elements[_id].cross_section.insulation_density
                 
-                dict_multiple_cross_sections[str([ext_diam, thickness, offset_y, offset_z])].append(_id)
+                dict_multiple_cross_sections[str([ext_diam, thickness, offset_y, offset_z, insultation_thickness, insultation_density])].append(_id)
             
             _cross_section = elements[_id].cross_section
             

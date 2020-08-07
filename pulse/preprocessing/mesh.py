@@ -37,6 +37,7 @@ class Mesh:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
+        self.elements_with_adding_mass_effect = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -474,6 +475,19 @@ class Mesh:
                     self.nodes_with_constrained_dofs.remove(node)
                 if node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.remove(node) 
+
+
+    def set_fluid_mass_adding_effect_by_elements(self, elements):
+        for element in slicer(self.structural_elements, elements):
+            element.adding_mass_effect = True
+            if element not in self.elements_with_adding_mass_effect:
+                self.elements_with_adding_mass_effect.append(element)
+
+    def set_fluid_mass_adding_effect_by_entities(self):
+        return
+
+    def remove_fluid_mass_adding_effect_from_all_elements(self):
+        return
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
