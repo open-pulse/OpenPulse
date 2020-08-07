@@ -5,6 +5,7 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+import numpy as np
 
 from pulse.utils import error, info_messages, remove_bc_from_file
 
@@ -19,8 +20,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.project = project
         self.acoustic_elements = project.mesh.acoustic_elements
+        self.dict_group_elements = project.mesh.group_elements_with_length_correction
         self.elements_id = elements_id
         self.type_label = None
+        self.dkey = None
         self.elements_info_path = project.file._element_info_path
         self.dict_label = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
 
@@ -51,13 +54,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.currentTab_ = self.tabWidget_element_length_correction.currentIndex()
 
         self.pushButton_remove_by_group_confirm = self.findChild(QPushButton, 'pushButton_remove_by_group_confirm')
-        self.pushButton_remove_by_group_confirm.clicked.connect(self.check_remove_element_length_correction_by_group)
+        self.pushButton_remove_by_group_confirm.clicked.connect(self.remove_element_length_correction_by_group)
 
         self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
         self.pushButton_get_information.clicked.connect(self.get_information_of_group)
 
         self.pushButton_reset_confirm = self.findChild(QPushButton, 'pushButton_reset_confirm')
-        self.pushButton_reset_confirm.clicked.connect(self.check_remove_all_element_length_correction)
+        self.pushButton_reset_confirm.clicked.connect(self.remove_all_element_length_correction)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check_element_correction_type)
@@ -88,7 +91,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             self.check()
         elif event.key() == Qt.Key_Delete:
-            self.check_remove_element_length_correction_by_group()
+            self.remove_element_length_correction_by_group()
         elif event.key() == Qt.Key_Escape:
             self.close()
         
@@ -140,23 +143,57 @@ class AcousticElementLengthCorrectionInput(QDialog):
             type_id = 2
             self.type_label = "'Loop'"
         
-        size = len(self.project.mesh.group_elements_with_length_correction)
+        size = len(self.dict_group_elements)
         section = self.dict_label.format("Selection-{}".format(size+1))
 
         ind = 0
         while True:
-            if section in self.project.mesh.group_elements_with_length_correction.keys():
+            if section in self.dict_group_elements.keys():
                 ind += 1
                 section = self.dict_label.format("Selection-{}".format(ind))
             else:
                 break
-        self.project.set_element_length_correction_by_elements(self.elements_typed, type_id, section)
+        self.set_elements_to_correct(type_id, section)
+        self.replaced = False
+        temp_dict = self.dict_group_elements.copy()
+        for key, values in temp_dict.items():
+            if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
+                if self.replaced:
+                    self.dkey = key
+                    self.remove_element_length_correction_by_group()
+                else:
+                    self.set_elements_to_correct(type_id, key)
+                    self.replaced = True
+            else:
+
+                count1, count2 = 0, 0
+                for element in self.elements_typed:
+                    if element in values[1]:
+                        count1 += 1
+                fill_rate1 = count1/len(self.elements_typed)
+
+                for element in values[1]:
+                    if element in self.elements_typed:
+                        count2 += 1
+                fill_rate2 = count2/len(values[1])
+                
+                if np.max([fill_rate1, fill_rate2])>0.5 :
+                    if not self.replaced:
+                        self.set_elements_to_correct(type_id, key)
+                        self.replaced = True
+                    else:
+                        self.dkey = key
+                        self.remove_element_length_correction_by_group()
+            self.dkey = None           
+
+    def set_elements_to_correct(self, type_id, section):
+        
+        self.project.set_element_length_correction_by_elements(list(np.sort(self.elements_typed)), type_id, section)
         if len(self.elements_id)>20:
             print("Set acoustic element length correction due the {} at {} selected elements".format(self.type_label, len(self.elements_id)))
         else:
-            print("Set acoustic element length correction due the {} at elements:".format(self.type_label), self.elements_id)
+            print("Set acoustic element length correction due the {} at elements: {}".format(self.type_label, self.elements_id))
         self.load_elements_info()
-        # self.close()
 
     def load_elements_info(self):
         
@@ -164,7 +201,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         labels = ['Expansion', 'Side branch', 'Loop']
         self.dict_correction_types = dict(zip(keys, labels))
         self.treeWidget_length_correction_groups.clear()
-        for section, value in self.project.mesh.group_elements_with_length_correction.items():
+        for section, value in self.dict_group_elements.items():
             text = self.dict_correction_types[value[0]]
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text, str(value[1])])
@@ -176,7 +213,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def on_doubleclick_item(self, item):
         self.lineEdit_elementID.setText(item.text(0))
         if self.currentTab_remove == 0:
-            self.check_remove_element_length_correction_by_group()
+            self.remove_element_length_correction_by_group()
         elif self.currentTab_remove == 1:
             self.check_remove_element_length_correction()
 
@@ -189,21 +226,24 @@ class AcousticElementLengthCorrectionInput(QDialog):
         else:
             message = None
 
-        values = self.project.mesh.group_elements_with_length_correction[section]
+        values = self.dict_group_elements[section]
         self.project.mesh.set_length_correction_by_element(values[1], None, section, delete_from_dict=True)
         key_strings = ["length correction type", "list of elements"]
         
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)
         self.load_elements_info()
 
-    def check_remove_element_length_correction_by_group(self):
-        key = self.dict_label.format(self.lineEdit_elementID.text())
-        if "Selection-" in self.lineEdit_elementID.text():
-            self.remove_function(key)
-        self.lineEdit_elementID.setText("")
+    def remove_element_length_correction_by_group(self):
+        if self.dkey is None:
+            key = self.dict_label.format(self.lineEdit_elementID.text())
+            if "Selection-" in self.lineEdit_elementID.text():
+                self.remove_function(key)
+            self.lineEdit_elementID.setText("")
+        else:
+            self.remove_function(self.dkey)
 
-    def check_remove_all_element_length_correction(self):
-        temp_dict_groups = self.project.mesh.group_elements_with_length_correction.copy()
+    def remove_all_element_length_correction(self):
+        temp_dict_groups = self.dict_group_elements.copy()
         keys = temp_dict_groups.keys()
         for key in keys:
             self.remove_function(key, reset=True)
@@ -213,7 +253,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         try:
             selected_key = self.dict_label.format(self.lineEdit_elementID.text())
             if "Selection-" in selected_key:
-                values = self.project.mesh.group_elements_with_length_correction[selected_key]
+                values = self.dict_group_elements[selected_key]
                 GetInformationOfGroup(values, self.dict_correction_types)
             else:
                 error("Please, select a group in the list to get the information.", title="ERROR IN GROUP SELECTION")

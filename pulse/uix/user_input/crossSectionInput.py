@@ -178,9 +178,9 @@ class CrossSectionInput(QDialog):
                 except Exception:
                     error("Wrong input for OFFSET Z!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                     return
-            print(round((outerDiameter/2),6), round(thickness,6))
-            if round((outerDiameter/2),6) < round(thickness,6):
-                error("The OUTER RADIUS must be greater than THICKNESS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
+           
+            if thickness <= (outerDiameter/2):
+                error("The THICKNESS must be less or equals to the OUTER RADIUS!", title=">>> INPUT CROSS-SECTION ERROR <<<")
                 return
 
             elif thickness == 0.0:
