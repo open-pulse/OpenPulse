@@ -34,7 +34,6 @@ class RendererMesh(vtkRendererBase):
     
     def plot(self):
         self.reset()
-        self.plotMain()
         self.plotPoints()
         self.plotElements()
 
@@ -124,58 +123,61 @@ class RendererMesh(vtkRendererBase):
                     
         return text
 
-    # 
-
-    def plotMain(self):
-        source = vtk.vtkAppendPolyData()
-        mapper = vtk.vtkPolyDataMapper()
-        actor = vtk.vtkActor()
-
-        for key, node in self.project.get_nodes().items():
-            sphere = vtk.vtkSphereSource()
-            radius = 0.02
-            sphere.SetRadius(radius)
-            sphere.SetCenter(node.coordinates)
-            source.AddInputConnection(sphere.GetOutputPort())
-
-        for key, element in self.project.get_elements().items():
-            radius = 0.01
-            plot = ActorElement(element, radius, key)
-            plot.build()
-            actor = plot.getActor()
-            source.AddInputData(actor.GetMapper().GetInput())
-        
-        mapper.SetInputConnection(source.GetOutputPort())
-        actor.SetMapper(mapper)
-        actor.GetProperty().SetColor(0.6,0,0.4)
-        actor.GetProperty().SetDiffuse(1)  
-        actor.GetProperty().SetOpacity(0.5)
-        actor.GetProperty().SetSpecular(0)
-        self._renderer.AddActor(actor)
-    
+    #     
     def plotPoints(self):
+        pointsSource = vtk.vtkAppendPolyData()
+        pointsMapper = vtk.vtkPolyDataMapper()
+        pointsActor = vtk.vtkActor()
+
+        size = 0.007
+        
         for key, node in self.project.get_nodes().items():
-            sphere = vtk.vtkSphereSource()
+            sphere = vtk.vtkCubeSource()
             mapper = vtk.vtkPolyDataMapper()
             actor = vtk.vtkActor()
+
+            sphere.SetXLength(size)
+            sphere.SetYLength(size)
+            sphere.SetZLength(size)
             
-            sphere.SetRadius(0.02)
             sphere.SetCenter(node.coordinates)
+
+            pointsSource.AddInputConnection(sphere.GetOutputPort())
             mapper.SetInputConnection(sphere.GetOutputPort())
             actor.SetMapper(mapper)
 
             self.pointsID[actor] = key
             self._rendererPoints.AddActor(actor)
+        
+        pointsMapper.SetInputConnection(pointsSource.GetOutputPort())
+        pointsActor.SetMapper(pointsMapper)
+        pointsActor.GetProperty().SetColor(1, 1, 0)
+        pointsActor.GetProperty().SetOpacity(0.9)
+        pointsActor.GetProperty().SetSpecular(0)
+        self._renderer.AddActor(pointsActor)
+
     
     def plotElements(self):
+        elementsSource = vtk.vtkAppendPolyData()
+        elementsMapper = vtk.vtkPolyDataMapper()
+        elementsActor = vtk.vtkActor()
+
         for key, element in self.project.get_elements().items():
-            plot = ActorElement(element, 0.01, key)
+            plot = ActorElement(element, 0.005, key)
             plot.build()
             actor = plot.getActor()
             actor.GetProperty().SetColor(0,255,0)
+            
+            elementsSource.AddInputData(actor.GetMapper().GetInput())
             self.elementsID[actor] = key
             self._rendererElements.AddActor(actor)
 
+        elementsMapper.SetInputConnection(elementsSource.GetOutputPort())
+        elementsActor.SetMapper(elementsMapper)
+        elementsActor.GetProperty().SetColor(1, 0, 0.5)
+        elementsActor.GetProperty().SetSpecular(0)
+        elementsActor.GetProperty().SetOpacity(0.6)
+        self._renderer.AddActor(elementsActor)
 
 
 
@@ -186,16 +188,16 @@ class RendererMesh(vtkRendererBase):
             self.plotAxes(node, ID)
 
     def getSize(self):
-        return 0.5 #self.project.get_element_size()*0.7
+        return self.project.get_element_size()*0.7
 
     def transformPoints(self, points_id):
         self._style.clear()
         for ID in points_id:
-            node = self.project.get_node(ID)
-            self.plotAxes(node, ID)
-            # try:
-            # except Exception as e:
-            #     print(e)
+            try:
+                node = self.project.get_node(ID)
+                self.plotAxes(node, ID)
+            except Exception as e:
+                print(e)
     
     def plotAxes(self, node, key_id):
         self.removeAxes(key_id)
