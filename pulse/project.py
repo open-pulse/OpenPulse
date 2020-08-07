@@ -155,8 +155,8 @@ class Project:
             if self.file.element_type_is_structural:
                 self.load_element_type_by_entity(key, el_type)
         # Length correction to Elements
-        for value in dict_element_length_correction.values():
-            self.load_length_correction_by_elements(value[0], value[1])
+        for key, value in dict_element_length_correction.items():
+            self.load_length_correction_by_elements(value[0], value[1], key)
         # Material to Entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
@@ -531,10 +531,10 @@ class Project:
         label = ["radiation impedance"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_element_length_correction_by_elements(self, elements, value):
+    def set_element_length_correction_by_elements(self, elements, value, section):
         # label = ["acoustic element length correction"] 
-        self.mesh.set_length_correction_by_element(elements, value)
-        self.file.add_length_correction_in_file(elements, value)
+        self.mesh.set_length_correction_by_element(elements, value, section)
+        self.file.add_length_correction_in_file(elements, value, section)
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
@@ -554,8 +554,8 @@ class Project:
     def load_radiation_impedance_bc_by_node(self, node_id, value):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, value)
 
-    def load_length_correction_by_elements(self, elements, value):
-        self.mesh.set_length_correction_by_element(elements, value)
+    def load_length_correction_by_elements(self, elements, value, key):
+        self.mesh.set_length_correction_by_element(elements, value, key)
 
     def _set_entity_fluid(self, entity_id, fluid):
         for entity in self.mesh.entities:

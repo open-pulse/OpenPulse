@@ -399,23 +399,16 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_length_correction_in_file(self, elements, _type): 
+    def add_length_correction_in_file(self, elements, _type, section): 
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
-        if len(config.sections()) == 0:
-            self._section = 1
+        if section in list(config.sections()):
+            config[section]['length correction type'] = str(_type)
+            config[section]['list of elements'] = str(elements)
         else:
-            self._section += 1
-            
-        str_section = "ACOUSTIC ELEMENT LENGTH CORRECTION || Selection-" + str(self._section) 
-
-        if str_section in list(config.sections()):
-            config[str_section]['length correction type'] = str(_type)
-            config[str_section]['list of elements'] = str(elements)
-        else:
-            config[str_section] =   { 
+            config[section] =   { 
                                   'length correction type': str(_type),
                                   'list of elements': str(elements)
                                 }

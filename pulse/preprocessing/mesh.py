@@ -513,7 +513,7 @@ class Mesh:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
 
-    def set_length_correction_by_element(self, elements, value, group_to_remove=None):
+    def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
 
         for element in slicer(self.acoustic_elements, elements):
             element.acoustic_length_correction = value
@@ -522,15 +522,10 @@ class Mesh:
             if value is None:
                 if element in self.element_with_length_correction:
                     self.element_with_length_correction.remove(element)
-        if group_to_remove is None: 
-            if len(self.group_elements_with_length_correction) == 0:
-                self.group_index = 1
-            else:
-                self.group_index += 1
-            key_ = "Selection-" + str(self.group_index)
-            self.group_elements_with_length_correction[key_] = [value, elements]
+        if delete_from_dict:
+            self.group_elements_with_length_correction.pop(section) 
         else:
-            self.group_elements_with_length_correction.pop(group_to_remove)
+            self.group_elements_with_length_correction[section] = [value, elements]
             
     def set_acoustic_pressure_bc_by_node(self, nodes, value):
         for node in slicer(self.nodes, nodes):
