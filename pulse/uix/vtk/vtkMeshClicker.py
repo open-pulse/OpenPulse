@@ -139,6 +139,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         rendererPoints = self.__rendererMesh._rendererPoints
         rendererElements = self.__rendererMesh._rendererElements
 
+        # sincronize camera between renderers
         cam = self.__rendererMesh.getRenderer().GetActiveCamera()
         rendererPoints.SetActiveCamera(cam)
         rendererElements.SetActiveCamera(cam)
@@ -146,6 +147,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         pickedPoints = self.pickActors(x1, y1, x2, y2, rendererPoints)
         pickedElements = self.pickActors(x1, y1, x2, y2, rendererElements)
 
+        # give preference to points on click
+        if len(pickedPoints) == 1 and len(pickedElements) == 1:
+            pickedElements.clear()
+
+        # add or remove selection with control, shift and alt
         if controlPressed or shiftPressed:
             self.__selectedPoints |= pickedPoints
             self.__selectedElements |= pickedElements      
@@ -156,9 +162,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             self.__selectedPoints = pickedPoints
             self.__selectedElements = pickedElements
 
-
         self.highlight(self.__selectedPoints | self.__selectedElements)
-
         self.__rendererMesh.updateInfoText()
         self.__rendererMesh.update()
 
@@ -190,6 +194,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
             self.__selection_actor.SetMapper(self.__selection_mapper)
             self.__rendererMesh.getRenderer().AddActor(self.__selection_actor)
             self.__selection_actor.GetProperty().SetColor(*color)
+            self.__selection_actor.GetProperty().SetOpacity(0.9)
         self.GetInteractor().GetRenderWindow().Render()
 
     def clear(self):
