@@ -154,10 +154,10 @@ class CrossSectionInput(QDialog):
                 error("Insert some value (THICKENSS)!", title="INPUT CROSS-SECTION ERROR")
                 return
 
-            offset_y = 0
-            offset_z = 0
-            insulation_density = 0
-            insulation_thickness = 0
+            offset_y = float(0)
+            offset_z = float(0)
+            insulation_density = float(0)
+            insulation_thickness = float(0)
 
             try:
                 outerDiameter = float(self.lineEdit_outerDiameter.text())
