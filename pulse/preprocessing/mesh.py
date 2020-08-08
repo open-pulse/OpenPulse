@@ -476,21 +476,9 @@ class Mesh:
                 if node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.remove(node) 
 
-
-    def set_fluid_mass_adding_effect_by_elements(self, elements):
-        for element in slicer(self.structural_elements, elements):
-            element.adding_mass_effect = True
-            if element not in self.elements_with_adding_mass_effect:
-                self.elements_with_adding_mass_effect.append(element)
-
-    def set_fluid_mass_adding_effect_by_entities(self):
-        return
-
-    def remove_fluid_mass_adding_effect_from_all_elements(self):
-        return
-
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
+        # print(flag, reset)
         if reset and flag:
             self.flag_fluid_mass_effect = False
             for element in self.structural_elements.values():
