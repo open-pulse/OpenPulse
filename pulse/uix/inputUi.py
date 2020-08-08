@@ -433,6 +433,7 @@ class InputUi:
         LogTimes(self.project)
  
     def plotStructuralModeShapes(self):
+        self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID == 2:
@@ -473,6 +474,7 @@ class InputUi:
             return
 
     def plotAcousticHarmonicResponse(self):
+        self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
