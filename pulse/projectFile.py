@@ -241,7 +241,13 @@ class ProjectFile:
         dict_length_correction = {}
 
         for entity in entityFile.sections():
-            
+
+            diam_ext = ""
+            thickness = ""
+            offset_y, offset_z = 0., 0.
+            insulation_thickness = 0.
+            insulation_density = 0.
+
             if "-" in entity:
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer diameter']
@@ -272,8 +278,7 @@ class ProjectFile:
                         error(str(er), title = "Error while loading cross-section parameters from file")
                         return {}, {}, {}, {}
             else:
-                diam_ext = ""
-                thickness = ""
+
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer Diameter']
                 if 'thickness' in entityFile[entity].keys():    

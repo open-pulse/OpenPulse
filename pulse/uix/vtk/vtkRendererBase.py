@@ -14,7 +14,7 @@ class vtkRendererBase(ABC):
         self._usePicker = True
         self.textProperty = vtk.vtkTextProperty()
         self.textProperty.SetFontSize(16)
-        self.textProperty.SetItalic(1)
+        # self.textProperty.SetItalic(1)
 
     def resetCamera(self):
         self._renderer.ResetCamera()
@@ -45,7 +45,7 @@ class vtkRendererBase(ABC):
         #Remove the actor if it already exists
         self._renderer.RemoveActor2D(self._textActor)
 
-        height = self._renderer.GetSize()[1] - 40
+        height = self._renderer.GetSize()[1] - 30
         width = 20
         
         self.textProperty.SetVerticalJustificationToTop()

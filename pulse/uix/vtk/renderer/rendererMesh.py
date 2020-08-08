@@ -47,7 +47,12 @@ class RendererMesh(vtkRendererBase):
         self.opv.update()
 
     def updateInfoText(self):
-        text = self.getPointsInfoText() + '\n\n' + self.getElementsInfoText()
+        if self.getPointsInfoText() == '':
+            text = self.getElementsInfoText()
+        elif self.getElementsInfoText() == '':
+            text = self.getPointsInfoText()
+        else:
+            text = self.getPointsInfoText() + '\n\n' + self.getElementsInfoText()
         self.createInfoText(text)
     
     def getPointsInfoText(self):
@@ -56,9 +61,9 @@ class RendererMesh(vtkRendererBase):
         if len(listSelected) == 1:
             node = self.project.get_node(listSelected[0])
             nodeId = listSelected[0]
-            nodePosition = '{:.3f} {:.3f} {:.3f}'.format(node.x, node.y, node.z)
+            nodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(node.x, node.y, node.z)
             nodeBC = node.getStructuralBondaryCondition()
-            text = f'Node Id: {nodeId} \nPosition: {nodePosition} \nDisplacement: {nodeBC[:3]} \nRotation: {nodeBC[3:]}'
+            text = f'Node Id: {nodeId} \nPosition: ({nodePosition}) [m]\nDisplacement: {nodeBC[:3]} [m]\nRotation: {nodeBC[3:]} [rad]'
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} NODES IN SELECTION: \n'
             for i, ids in enumerate(listSelected):
@@ -86,6 +91,8 @@ class RendererMesh(vtkRendererBase):
                 thickness = element.cross_section.thickness
                 offset_y = element.cross_section.offset_y
                 offset_z = element.cross_section.offset_z
+                insulation_thickness = element.cross_section.insulation_thickness
+                insulation_density = element.cross_section.insulation_density
             
             if element.material is None:
                 material = 'undefined'
@@ -97,17 +104,21 @@ class RendererMesh(vtkRendererBase):
             else:
                 fluid = element.fluid.name.upper()
 
-            firstNodePosition = '{:.3f} {:.3f} {:.3f}'.format(element.first_node.x, element.first_node.y, element.first_node.z)
-            lastNodePosition = '{:.3f} {:.3f} {:.3f}'.format(element.last_node.x, element.last_node.y, element.last_node.z)
+            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.first_node.x, element.first_node.y, element.first_node.z)
+            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.last_node.x, element.last_node.y, element.last_node.z)
 
             text += f'Element ID: {listSelected[0]} \n'
-            text += f'First Node ID: {element.first_node.external_index} -- Coordinates: {firstNodePosition} \n'
-            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: {lastNodePosition} \n'
+            text += f'First Node ID: {element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
+            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n'
             text += f'Element Type: {element.element_type.upper()} \n'
-            text += f'Diameter: {external_diameter} \n'
-            text += f'Thickness: {thickness} \n'
-            text += f'Offset Y: {offset_y} \n'
-            text += f'Offset Z: {offset_z} \n'
+            text += f'Diameter: {external_diameter} [m]\n'
+            text += f'Thickness: {thickness} [m]\n'
+            if offset_y != 0 or offset_z != 0:
+                text += f'Offset y: {offset_y} [m]\n'
+                text += f'Offset z: {offset_z} [m]\n'
+            if insulation_thickness != 0 or insulation_density != 0:
+                text += f'Insulation thickness: {insulation_thickness} [m]\n'
+                text += f'Insulation density: {insulation_density} [kg/m³]\n'
             text += f'Material: {material} \n'
             text += f'Fluid: {fluid} \n'
 
@@ -120,7 +131,6 @@ class RendererMesh(vtkRendererBase):
                 text += f'{ids} '
                 if i ==10 or i==20:
                     text += '\n'
-                    
         return text
 
     #     
