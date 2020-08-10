@@ -13,6 +13,7 @@ class RendererMesh(vtkRendererBase):
         self.project = project
         self.opv = opv 
         self.symbols = vtkSymbols()
+        self.plotRadius = False
 
         self.pointsID = dict()
         self.elementsID = dict()
@@ -50,12 +51,9 @@ class RendererMesh(vtkRendererBase):
         self.opv.update()
 
     def updateInfoText(self):
-        if self.getPointsInfoText() == '':
-            text = self.getElementsInfoText()
-        elif self.getElementsInfoText() == '':
-            text = self.getPointsInfoText()
-        else:
-            text = self.getPointsInfoText() + '\n\n' + self.getElementsInfoText()
+        pointsText = self.getPointsInfoText()
+        elementsText = self.getElementsInfoText()
+        text = (pointsText + '\n\n' + elementsText) if pointsText else (elementsText)
         self.createInfoText(text)
     
     def getPointsInfoText(self):
@@ -142,7 +140,7 @@ class RendererMesh(vtkRendererBase):
         pointsMapper = vtk.vtkPolyDataMapper()
         pointsActor = vtk.vtkActor()
 
-        size = 0.007
+        size = 0.006
         
         for key, node in self.project.get_nodes().items():
             sphere = vtk.vtkCubeSource()
@@ -176,7 +174,13 @@ class RendererMesh(vtkRendererBase):
         elementsActor = vtk.vtkActor()
 
         for key, element in self.project.get_elements().items():
-            plot = ActorElement(element, 0.005, key)
+            cross_section = element.cross_section
+            if cross_section and self.plotRadius:
+                size = cross_section.external_diameter / 2
+            else:
+                size = 0.002 
+
+            plot = ActorElement(element, size, key)
             plot.build()
             actor = plot.getActor()
             actor.GetProperty().SetColor(0,255,0)
