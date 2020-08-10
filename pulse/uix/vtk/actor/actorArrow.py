@@ -1,4 +1,5 @@
 import vtk
+import math
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorArrow(vtkActorBase):

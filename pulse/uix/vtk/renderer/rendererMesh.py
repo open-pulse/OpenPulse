@@ -216,7 +216,13 @@ class RendererMesh(vtkRendererBase):
         self.plotArrowRotation(node, key_id)
         self.plotArrowForce(node, key_id)
         self.plotArrowMomento(node, key_id)
+        self.plotDamper(node, key_id)
         self.updateInfoText()
+
+    def plotDamper(self, node, key_id):
+        for i in self.symbols.getDamper(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i) 
 
     def plotArrowBC(self, node, key_id):
         for i in self.symbols.getArrowBC(node):

@@ -186,7 +186,8 @@ class InputUi:
         if read.lumped_stiffness is not None:
             print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
         if read.lumped_dampings is not None:
-            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed)) 
+            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
+            self.opv.transformPoints(read.nodes_typed)
 
     def setAcousticPressure(self):
         node_id = self.opv.getListPickedPoints()
