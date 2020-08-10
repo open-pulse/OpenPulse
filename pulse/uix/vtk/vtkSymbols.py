@@ -25,6 +25,7 @@ class vtkSymbols:
             a = ActorArrow(node, xyz=v[i], u_def=u_def)
             a.setNormalizedColor([1,1,0])
             a.setShiftValue(shift)
+            a.removeTipLenght()
             a.build()
             arrows.append(a.getActor())
 

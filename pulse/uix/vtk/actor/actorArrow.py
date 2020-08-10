@@ -34,6 +34,10 @@ class ActorArrow(vtkActorBase):
     def removeShaftRadius(self):
         self.arrowSource.SetShaftRadius(0)
 
+    def removeTipLenght(self):
+        self.arrowSource.SetTipLength(0)
+        self.arrowSource.SetTipRadius(0)
+
     def transform(self):
         self._actor.SetScale(0.2,0.2,0.2)
         transform = vtk.vtkTransform()
