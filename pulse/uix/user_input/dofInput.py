@@ -281,7 +281,7 @@ class DOFInput(QDialog):
         
         self.basename = ""
         window_label = 'Choose a table to import the {} nodal load'.format(text)
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat,*.csv)')
+        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat;*.csv)')
 
         if self.path_imported_table == "":
             return "", ""
@@ -443,4 +443,6 @@ class DOFInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.project.mesh.set_prescribed_dofs_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
         self.transform_points(self.nodes_typed)
+        self.treeWidget_prescribed_dofs.clear()
+        self.load_nodes_info()
         # self.close()

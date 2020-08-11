@@ -70,7 +70,7 @@ class SolutionStructural:
             error(str(e))
             return F_eq
 
-        if np.sum(prescribed_values) != 0:
+        if np.sum(self.array_prescribed_values) != 0:
             
             Kr_add_lump = complex(0)
             Mr_add_lump = complex(0)

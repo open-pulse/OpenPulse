@@ -88,6 +88,7 @@ class AcousticPressureInput(QDialog):
         self.lineEdit_nodeID.setText(text)
 
     def check_input_nodes(self):
+        self.stop = False
         try:
             tokens = self.lineEdit_nodeID.text().strip().split(',')
             try:
@@ -98,10 +99,12 @@ class AcousticPressureInput(QDialog):
 
             if self.lineEdit_nodeID.text()=="":
                 error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
+                self.stop = True
                 return
 
         except Exception:
             error("Wrong input for Node ID's!", "Error Node ID's")
+            self.stop = True
             return
 
         try:
@@ -110,6 +113,7 @@ class AcousticPressureInput(QDialog):
         except:
             message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
             error(message[0], title = " INCORRECT NODE ID INPUT! ")
+            self.stop = True
             return
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag):
@@ -213,8 +217,9 @@ class AcousticPressureInput(QDialog):
         self.acoustic_pressure, self.basename_acoustic_pressure = self.load_table(self.lineEdit_load_table_path, header)
     
     def check_table_values(self):
-
         self.check_input_nodes()
+        if self.stop:
+            return
         if self.lineEdit_load_table_path != "":
             if self.acoustic_pressure is not None:
                 self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, self.acoustic_pressure, True, table_name=self.basename_acoustic_pressure)

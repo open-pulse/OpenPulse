@@ -118,15 +118,30 @@ class StructuralModelInfoInput(QDialog):
 
         load_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
         for node in self.project.mesh.nodes_with_prescribed_dofs:
-            prescribed_dofs_mask = [False if bc == complex(0) or bc is None else True for bc in node.prescribed_dofs]
+            prescribed_dofs_mask = [False, False, False, False, False, False]
+            for index, value in enumerate(node.prescribed_dofs):
+                if isinstance(value, complex):
+                    if value != complex(0):
+                        prescribed_dofs_mask[index] = True
+                elif isinstance(value, np.ndarray):
+                    prescribed_dofs_mask[index] = True
+            # prescribed_dofs_mask = [False if bc == complex(0) or bc is None else True for bc in node.prescribed_dofs]
             if prescribed_dofs_mask.count(False) != 6:    
                 new = QTreeWidgetItem([str(node.external_index), str(self.text_label(prescribed_dofs_mask, load_labels))])
                 self.treeWidget_prescribed_dofs.addTopLevelItem(new)
             
         for node in self.project.mesh.nodes_with_constrained_dofs:
-            constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask, load_labels))])
-            self.treeWidget_constrained_dofs.addTopLevelItem(new)
+            # constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
+            constrained_dofs_mask = [False, False, False, False, False, False]
+            for index, value in enumerate(node.prescribed_dofs):
+                if isinstance(value, complex):
+                    if value == complex(0):
+                        constrained_dofs_mask[index] = True
+                elif isinstance(value, np.ndarray):
+                    constrained_dofs_mask[index] = False
+            if constrained_dofs_mask.count(False) != 6:    
+                new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask, load_labels))])
+                self.treeWidget_constrained_dofs.addTopLevelItem(new)
 
         load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
         for node in self.project.mesh.nodes_with_nodal_loads:
