@@ -61,12 +61,12 @@ class InputUi:
 
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
-        self.project.project_file_path = new_project_input.project_file_path
+        self.project.project_folder_path = new_project_input.project_folder_path
         return new_project_input.create
 
     def loadProject(self):
         load_project = LoadProjectInput(self.project)
-        self.project.project_file_path = load_project.project_file_path
+        self.project.project_folder_path = load_project.project_folder_path
         return load_project.complete
 
     def setElementType(self):

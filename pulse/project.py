@@ -19,7 +19,7 @@ class Project:
         self.file = ProjectFile()
 
         self._project_name = ""
-        self.project_file_path = ""
+        self.project_folder_path = ""
 
         #Analysis
         self.analysis_ID = None

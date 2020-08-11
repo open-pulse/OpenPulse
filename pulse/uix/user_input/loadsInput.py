@@ -23,7 +23,7 @@ class LoadsInput(QDialog):
         self.project = project
         self.transform_points = opv.transformPoints
         self.opv = opv
-        self.project_file_path = project.project_file_path
+        self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 
         self.userPath = os.path.expanduser('~')
@@ -227,10 +227,10 @@ class LoadsInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
         
-        if "\\" in self.project_file_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_file_path, self.basename)
-        elif "/" in self.project_file_path:
-            self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
+        if "\\" in self.project_folder_path:
+            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
+        elif "/" in self.project_folder_path:
+            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")

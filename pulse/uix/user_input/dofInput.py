@@ -25,7 +25,7 @@ class DOFInput(QDialog):
         self.transform_points = opv.transformPoints
         self.opv = opv
 
-        self.project_file_path = project.project_file_path
+        self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 
         self.userPath = os.path.expanduser('~')
@@ -291,13 +291,12 @@ class DOFInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
         
-        if "\\" in self.project_file_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_file_path, self.basename)
-        elif "/" in self.project_file_path:
-            self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
+        if "\\" in self.project_folder_path:
+            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
+        elif "/" in self.project_folder_path:
+            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
 
         try:    
-            # copyfile(self.path_imported_table, self.new_load_path_table)
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         except Exception as e:
             error(str(e))
@@ -350,6 +349,7 @@ class DOFInput(QDialog):
         imag_values = np.imag(self.imported_values)
         abs_values = np.imag(self.imported_values)
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
+        print(self.new_load_path_table)
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
         return values
 

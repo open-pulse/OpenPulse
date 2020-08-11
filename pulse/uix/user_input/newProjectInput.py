@@ -26,8 +26,9 @@ class NewProjectInput(QDialog):
         self.currentTab = 0
 
         self.userPath = os.path.expanduser('~')
+        self.project_directory = ""
+        self.project_folder_path = ""
         self.project_file_path = ""
-        self.openPulsePath = ""
 
         self.materialListName = "materialList.dat"
         self.fluidListName = "fluidList.dat"
@@ -76,8 +77,8 @@ class NewProjectInput(QDialog):
             self.stop = True
             return
 
-        if not os.path.exists(self.project_file_path):
-            os.mkdir(self.project_file_path)
+        if not os.path.exists(self.project_directory):
+            os.mkdir(self.project_directory)
 
         self.stop = False
 
@@ -86,18 +87,15 @@ class NewProjectInput(QDialog):
 
     def search_project_folder(self):
 
-        self.project_file_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
-        self.openPulsePath = "{}\\OpenPulse".format(self.project_file_path)
-        # self.project_path = "{}\\OpenPulse\\Projects".format(self.path_project)
-        # self.name = basename(self.path)
-        self.lineEdit_project_folder.setText(str(self.project_file_path))        
+        self.project_directory = QFileDialog.getExistingDirectory(None, 'Choose a folder to save the project files', self.userPath)
+        self.lineEdit_project_folder.setText(str(self.project_directory))        
 
     def accept_project(self):
         self.createProjectFolder()
         if self.stop:
             return
 
-        if self.line_project_name.text() in os.listdir(self.project_file_path):
+        if self.line_project_name.text() in os.listdir(self.project_directory):
             self.error("This Project Already Exists!")
             return
 
@@ -129,17 +127,14 @@ class NewProjectInput(QDialog):
 
     def import_geometry(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Iges Files (*.iges)')
-        # self.name = basename(self.path)
         self.line_import_geometry.setText(str(self.path))
 
     def import_cord(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        # self.name = basename(self.path)
         self.line_import_cord.setText(str(self.path))
 
     def import_conn(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        # self.name = basename(self.path)
         self.line_import_conn.setText(str(self.path))
 
     def error(self, msg, title = "Error"):
@@ -150,37 +145,47 @@ class NewProjectInput(QDialog):
         msg_box.exec_()
 
     def createProject(self):
-        path = '{}\\{}'.format(self.project_file_path, self.line_project_name.text())
-        if not os.path.exists(path):
-            os.makedirs(path)
 
-        self.createMaterialFile(path)
-        self.createFluidFile(path)
-        self.createProjectFile(path)
+        if "\\" in self.project_directory:
+            self.project_folder_path = '{}\\{}'.format(self.project_directory, self.line_project_name.text())
+        elif "/" in self.project_directory:
+            self.project_folder_path = '{}/{}'.format(self.project_directory, self.line_project_name.text())
+
+        if not os.path.exists(self.project_folder_path):
+            os.makedirs(self.project_folder_path)
+
+        self.createMaterialFile()
+        self.createFluidFile()
+        self.createProjectFile()
         
         if self.currentTab == 0:
             geometry_file_name = self.line_import_geometry.text().split('/')[-1]
-            new_geometry_path = "{}\\{}".format(path, geometry_file_name)
+            new_geometry_path = "{}\\{}".format(self.project_folder_path, geometry_file_name)
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
-            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
+            self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
             return True
         elif self.currentTab == 1:
             cord_file = self.line_import_cord.text().split('/')[-1]
             conn_file = self.line_import_conn.text().split('/')[-1]
-            new_cord_path = "{}\\{}".format(path, cord_file)
-            new_conn_path = "{}\\{}".format(path, conn_file)
+            new_cord_path = "{}\\{}".format(self.project_folder_path, cord_file)
+            new_conn_path = "{}\\{}".format(self.project_folder_path, conn_file)
             copyfile(self.line_import_cord.text(), new_cord_path)
             copyfile(self.line_import_conn.text(), new_conn_path)
             element_size = 0
             import_type = 1
-            self.project.new_project(path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
+            self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
             return True
         return False
 
-    def createProjectFile(self, project_file_path):
-        path = "{}\\{}".format(project_file_path, self.projectFileName)
+    def createProjectFile(self):
+
+        if "\\" in self.project_directory:
+            self.project_file_path = '{}\\{}'.format(self.project_folder_path, self.projectFileName)
+        elif "/" in self.project_directory:
+            self.project_file_path = '{}/{}'.format(self.project_folder_path, self.projectFileName)
+
         geometry_file_name = ""
         cord_file_name = ""
         conn_file_name = ""
@@ -206,11 +211,16 @@ class NewProjectInput(QDialog):
             'MaterialList File': self.materialListName,
             'FluidList File': self.fluidListName
         }
-        with open(path, 'w') as config_file:
+        with open(self.project_file_path, 'w') as config_file:
             config.write(config_file)
 
-    def createMaterialFile(self, project_file_path):
-        self.material_list_path = "{}\\{}".format(project_file_path, self.materialListName)
+    def createMaterialFile(self):
+
+        if "\\" in self.project_directory:
+            self.material_list_path = '{}\\{}'.format(self.project_folder_path, self.materialListName)
+        elif "/" in self.project_directory:
+            self.material_list_path = '{}/{}'.format(self.project_folder_path, self.materialListName)
+
         config = configparser.ConfigParser()
 
         config['STEEL'] = {
@@ -270,8 +280,13 @@ class NewProjectInput(QDialog):
         with open(self.material_list_path, 'w') as config_file:
             config.write(config_file)
 
-    def createFluidFile(self, project_file_path):
-        self.fluid_list_path = "{}\\{}".format(project_file_path, self.fluidListName)
+    def createFluidFile(self):
+
+        if "\\" in self.project_directory:
+             self.fluid_list_path = '{}\\{}'.format(self.project_folder_path, self.fluidListName)
+        elif "/" in self.project_directory:
+             self.fluid_list_path = '{}/{}'.format(self.project_folder_path, self.fluidListName)
+
         config = configparser.ConfigParser()
 
         config['AIR'] = {

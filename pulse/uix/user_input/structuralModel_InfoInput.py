@@ -21,22 +21,6 @@ class StructuralModelInfoInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
-        self.project_file_path = project.project_file_path
-        self.structural_bc_info_path = project.file._node_structural_path
-
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
-        self.imported_table_name = ""
-
-        self.nodes = project.mesh.nodes
-        self.loads = None
-        self.nodes_typed = []
-        self.imported_table = False
-
-        self.lumped_masses = None
-        self.lumped_stiffness = None
-        self.lumped_dampings = None
-        self.stop = False
 
         self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
         self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
