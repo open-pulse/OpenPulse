@@ -85,31 +85,31 @@ class ActorDamper(vtkActorBase):
 
     def translate(self, transform):
         
-        if self.xyz == 1:
+        if self.xyz == -1:
             transform.Translate(self.x +self.shiftValue, self.y, self.z)
-        elif self.xyz == 2:
+        elif self.xyz == -2:
             transform.Translate(self.x, self.y +self.shiftValue, self.z)
-        elif self.xyz == 3:
+        elif self.xyz == -3:
             transform.Translate(self.x, self.y, self.z -self.shiftValue)
 
-        if self.xyz == -1:
+        if self.xyz == 1:
             transform.Translate(self.x -self.shiftValue, self.y, self.z)
-        elif self.xyz == -2:
+        elif self.xyz == 2:
             transform.Translate(self.x, self.y -self.shiftValue, self.z)
-        elif self.xyz == -3:
+        elif self.xyz == 3:
             transform.Translate(self.x, self.y, self.z +self.shiftValue)
 
     def rotate(self, transform):
-        if self.xyz == 1:
+        if self.xyz == -1:
             transform.RotateY(90)
-        elif self.xyz == 2:
+        elif self.xyz == -2:
             transform.RotateX(-90)
-        elif self.xyz == 3:
+        elif self.xyz == -3:
             transform.RotateY(180)
 
-        if self.xyz == -1:
+        if self.xyz == 1:
             transform.RotateY(-90)
-        elif self.xyz == -2:
+        elif self.xyz == 2:
             transform.RotateX(90)
         # elif self.xyz == -3:
         #     transform.RotateY(-90)
