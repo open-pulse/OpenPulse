@@ -1,6 +1,7 @@
 import vtk 
 import PyQt5
 
+from math import sqrt
 from time import time
 
 def constrain(number, floor, ceil):
@@ -10,6 +11,14 @@ def constrain(number, floor, ceil):
         return ceil
     else:
         return number
+
+def distance(p0, p1):
+    x0,y0,z0 = p0
+    x1,y1,z1 = p1
+    dx = x0-x1
+    dy = y0-y1
+    dz = z0-z1 
+    return sqrt(dx*dx + dy*dy + dz*dz)
 
 class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def __init__(self, rendererMesh):
@@ -129,25 +138,16 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
     #
     def selectActors(self):
-        x1, y1 = self.clickPosition
-        x2, y2 = self.mousePosition
+        x0, y0 = self.clickPosition
+        x1, y1 = self.mousePosition
 
-        controlPressed = self.GetInteractor().GetControlKey()
-        shiftPressed = self.GetInteractor().GetShiftKey()
+        controlPressed = bool(self.GetInteractor().GetControlKey())
+        shiftPressed = bool(self.GetInteractor().GetShiftKey())
         altPressed = self.__altKeyClicked
 
-        rendererPoints = self.__rendererMesh._rendererPoints
-        rendererElements = self.__rendererMesh._rendererElements
+        pickedPoints = self.pickPoints(x0,y0,x1,y1)
+        pickedElements = self.pickElements(x0,y0,x1,y1)
 
-        # sincronize camera between renderers
-        cam = self.__rendererMesh.getRenderer().GetActiveCamera()
-        rendererPoints.SetActiveCamera(cam)
-        rendererElements.SetActiveCamera(cam)
-
-        pickedPoints = self.pickActors(x1, y1, x2, y2, rendererPoints)
-        pickedElements = self.pickActors(x1, y1, x2, y2, rendererElements)
-
-        # give preference to points on click
         if len(pickedPoints) == 1 and len(pickedElements) == 1:
             pickedElements.clear()
 
@@ -161,58 +161,56 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         else:
             self.__selectedPoints = pickedPoints
             self.__selectedElements = pickedElements
-
-        self.highlight(self.__selectedPoints | self.__selectedElements)
-        self.__rendererMesh.updateInfoText()
-        self.__rendererMesh.update()
+        
+        self.InvokeEvent('SelectionChangedEvent')
 
     # 
-    def pickActors(self, x1, y1, x2, y2, renderer, tolerance=5):
-        tooSmall = (abs(x1-x2) < tolerance) or (abs(y1-y2) < tolerance)
-        pickedActors = set()
-
+    def pickPoints(self, x0, y0, x1, y1, tolerance=10):
+        tooSmall = (abs(x0-x1) < tolerance) or (abs(y0-y1) < tolerance)
         if tooSmall:
-            picker = vtk.vtkAreaPicker()
-            picker.Pick(x2, y2, 0, renderer)
-            actor = picker.GetActor()
-            if actor:
-                pickedActors.add(actor)
-        else:
-            picker = vtk.vtkAreaPicker()
-            picker.AreaPick(x1, y1, x2, y2, renderer)
-            pickedActors = set(picker.GetProp3Ds())
-        return pickedActors
+            x0, x1 = (x0-tolerance//2), (x1+tolerance//2)
+            y0, y1 = (y0-tolerance//2), (y1+tolerance//2)
 
-    def highlight(self, actors, color=(255,0,0)):
-        self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
-        self.__selection_source.RemoveAllInputs()
-        if len(actors) > 0:
-            for actor in actors:
-                input_data = actor.GetMapper().GetInput()
-                self.__selection_source.AddInputData(input_data)
-            self.__selection_mapper.SetInputConnection(self.__selection_source.GetOutputPort())
-            self.__selection_actor.SetMapper(self.__selection_mapper)
-            self.__rendererMesh.getRenderer().AddActor(self.__selection_actor)
-            self.__selection_actor.GetProperty().SetColor(*color)
-            self.__selection_actor.GetProperty().SetOpacity(0.9)
-        self.GetInteractor().GetRenderWindow().Render()
+        picker = vtk.vtkAreaPicker()
+        extractor = vtk.vtkExtractSelectedFrustum()
+        renderer = self.__rendererMesh._renderer
+        picker.AreaPick(x0,y0,x1,y1,renderer)
+        extractor.SetFrustum(picker.GetFrustum())
+
+        pickedPoints = set()
+        for key, coord in self.__rendererMesh.nodesData.items():
+            bounds = [n for xyz in zip(coord,coord) for n in xyz] # xyz -> xxyyzz
+            if extractor.OverallBoundsTest(bounds):
+                pickedPoints.add(key)
+                if tooSmall: # isso é uma gambiarra rápida
+                    break             
+        return pickedPoints
+    
+    def pickElements(self, x0, y0, x1, y1, tolerance=10):
+        tooSmall = (abs(x0-x1) < tolerance) or (abs(y0-y1) < tolerance)
+
+        picker = vtk.vtkAreaPicker()
+        extractor = vtk.vtkExtractSelectedFrustum()
+        renderer = self.__rendererMesh._renderer
+        picker.AreaPick(x0,y0,x1,y1,renderer)
+        extractor.SetFrustum(picker.GetFrustum())
+
+        pickedElements = set()
+        for key, bound in self.__rendererMesh.elementsData.items():
+            if extractor.OverallBoundsTest(bound):
+                pickedElements.add(key)
+                if tooSmall: # isso é uma gambiarra rápida
+                    break
+        return pickedElements
 
     def clear(self):
         self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
         self.__selection_source.RemoveAllInputs()
         self.__selectedActors = set()
         self.__rendererMesh.updateInfoText()
-
-    def getListPickedActors(self):
-        listActorsIDs = []
-        for actor in self.getSelectedActors():
-            if self.__rendererMesh.actors[actor] == -1:
-                continue
-            listActorsIDs.append(self.__rendererMesh.actors[actor])
-        return listActorsIDs
         
-    def getSelectedPoints(self):
-        return self.__selectedPoints
+    def getListPickedPoints(self):
+        return list(self.__selectedPoints)
     
-    def getSelectedElements(self):
-        return self.__selectedElements
+    def getListPickedElements(self):
+        return list(self.__selectedElements)
