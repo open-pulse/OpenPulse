@@ -162,14 +162,14 @@
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
+       <pointsize>14</pointsize>
+       <weight>50</weight>
        <italic>true</italic>
-       <bold>true</bold>
+       <bold>false</bold>
       </font>
      </property>
      <property name="text">
-      <string>Solution in progress…</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;Solution in progress…&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

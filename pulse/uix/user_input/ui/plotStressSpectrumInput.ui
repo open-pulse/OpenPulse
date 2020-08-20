@@ -532,7 +532,7 @@ p, li { white-space: pre-wrap; }
           <string>Damping effect</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </widget>

@@ -3,8 +3,8 @@ from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.actor.actorElement import ActorElement
-# from pulse.uix.vtk.actor.actorArrow import ActorArrow
-# from pulse.uix.vtk.vtkSymbols import vtkSymbols
+from pulse.uix.vtk.actor.actorArrow import ActorArrow
+from pulse.uix.vtk.vtkSymbols import vtkSymbols
 import vtk
 
 class RendererMesh(vtkRendererBase):
@@ -12,6 +12,7 @@ class RendererMesh(vtkRendererBase):
         super().__init__(vtkMeshClicker(self))
         self.project = project
         self.opv = opv 
+        self.symbols = vtkSymbols()
         self.plotRadius = False
         
         self.nodesData = dict() # (x,y,z) coordinates
@@ -260,3 +261,62 @@ class RendererMesh(vtkRendererBase):
                 if i ==10 or i==20:
                     text += '\n'
         return text
+
+
+###    
+    def updateAllAxes(self):
+        for ID, node in self.project.get_nodes().items():
+            self.plotAxes(node, ID)
+
+    def getSize(self):
+        return self.project.get_element_size()*0.7
+
+    def transformPoints(self, points_id):
+        self._style.clear()
+        for ID in points_id:
+            try:
+                node = self.project.get_node(ID)
+                self.plotAxes(node, ID)
+            except Exception as e:
+                print(e)
+    
+    def plotAxes(self, node, key_id):
+        self.removeAxes(key_id)
+        self.axes[key_id] = []
+        self.plotArrowBC(node, key_id)
+        self.plotArrowRotation(node, key_id)
+        self.plotArrowForce(node, key_id)
+        self.plotArrowMomento(node, key_id)
+        self.plotDamper(node, key_id)
+        self.updateInfoText()
+
+    def plotDamper(self, node, key_id):
+        for i in self.symbols.getDamper(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i) 
+
+    def plotArrowBC(self, node, key_id):
+        for i in self.symbols.getArrowBC(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i)
+
+    def plotArrowForce(self, node, key_id):
+        for i in self.symbols.getArrowForce(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i)
+
+    def plotArrowRotation(self, node, key_id):
+        for i in self.symbols.getArrowRotation(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i)
+
+    def plotArrowMomento(self, node, key_id):
+        for i in self.symbols.getArrowMomento(node):
+            self.axes[key_id].append(i)
+            self._renderer.AddActor(i)
+
+    def removeAxes(self, key):
+        if self.axes.get(key) is not None:
+            for actor in self.axes[key]:
+                self._renderer.RemoveActor(actor)
+            self.axes.pop(key)

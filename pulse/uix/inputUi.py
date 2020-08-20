@@ -186,7 +186,8 @@ class InputUi:
         if read.lumped_stiffness is not None:
             print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
         if read.lumped_dampings is not None:
-            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed)) 
+            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
+            self.opv.transformPoints(read.nodes_typed)
 
     def setAcousticPressure(self):
         node_id = self.opv.getListPickedPoints()
@@ -227,19 +228,14 @@ class InputUi:
             print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
-        element_id = self.opv.getListPickedElements()
+        # element_id = self.opv.getListPickedElements()
         error("This feature is currently under development and \nit will be available in the future updates.", title="WARNING")
-        # print("Add perforated plate ", element_id)
 
     def set_acoustic_element_length_correction(self):
         elements_id = self.opv.getListPickedElements()
         read = AcousticElementLengthCorrectionInput(self.project, elements_id)
         if read.type_label is None:
             return
-        if len(elements_id)>20:
-            print("Set acoustic element length correction due the {} at {} selected elements".format(read.type_label, len(elements_id)))
-        else:
-            print("Set acoustic element length correction due the {} at elements:".format(read.type_label), elements_id)
         
     def _load_frequencies_from_table(self, obj):
             self.project.file.f_min = obj.f_min
@@ -438,6 +434,7 @@ class InputUi:
         LogTimes(self.project)
  
     def plotStructuralModeShapes(self):
+        self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID == 2:
@@ -451,6 +448,7 @@ class InputUi:
             return
 
     def plotStructuralHarmonicResponse(self):
+        self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID in [0,1,5,6]:
@@ -477,6 +475,7 @@ class InputUi:
             return
 
     def plotAcousticHarmonicResponse(self):
+        self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
@@ -520,8 +519,6 @@ class InputUi:
             if solution is None:
                 return
             PlotStressFieldInput(self.project, self.solve, self.opv)
-        self.project.set_min_max_type_stresses("", "", "")
-        self.project.stresses_values_for_color_table = []
 
     def plotStressSpectrum(self):
         solution = self.project.get_structural_solution()

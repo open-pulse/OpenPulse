@@ -213,6 +213,8 @@ class ProjectFile:
                 'outer diameter': '',
                 'thickness': '',
                 'offset [e_y, e_z]': '',
+                'insulation thickness': '',
+                'insulation density': '',
                 'element type': '',
                 'fluid id': ''
             }
@@ -239,7 +241,13 @@ class ProjectFile:
         dict_length_correction = {}
 
         for entity in entityFile.sections():
-            
+
+            diam_ext = ""
+            thickness = ""
+            offset_y, offset_z = 0., 0.
+            insulation_thickness = 0.
+            insulation_density = 0.
+
             if "-" in entity:
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer diameter']
@@ -248,6 +256,10 @@ class ProjectFile:
                 if 'offset [e_y, e_z]' in entityFile[entity].keys():
                     offset = entityFile[entity]['offset [e_y, e_z]']
                     offset_y, offset_z = self._get_offset_from_string(offset) 
+                if 'insulation thickness' in entityFile[entity].keys():
+                    insulation_thickness = entityFile[entity]['insulation thickness']
+                if 'insulation density' in entityFile[entity].keys():
+                    insulation_density = entityFile[entity]['insulation density']
                 if 'list of elements (cross-sections)' in entityFile[entity].keys():
                     list_elements = entityFile[entity]['list of elements (cross-sections)']
                     get_list_elements = self._get_list_elements_from_string(list_elements)
@@ -258,14 +270,15 @@ class ProjectFile:
                         thickness = float(thickness)
                         offset_y = float(offset_y)
                         offset_z = float(offset_z)
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z)
+                        insulation_thickness = float(insulation_thickness)
+                        insulation_density = float(insulation_density)
+                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
                         dict_cross[entity] = [cross, get_list_elements]
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
                         return {}, {}, {}, {}
             else:
-                diam_ext = ""
-                thickness = ""
+
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer Diameter']
                 if 'thickness' in entityFile[entity].keys():    
@@ -273,6 +286,10 @@ class ProjectFile:
                 if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
                     offset = entityFile[entity]['offset [e_y, e_z]']
                     offset_y, offset_z = self._get_offset_from_string(offset) 
+                if 'insulation thickness' in entityFile[entity].keys():
+                    insulation_thickness = entityFile[entity]['insulation thickness']
+                if 'insulation density' in entityFile[entity].keys():
+                    insulation_density = entityFile[entity]['insulation density']
                         
                 if diam_ext != "" and thickness != "":
                     try:
@@ -280,7 +297,9 @@ class ProjectFile:
                         thickness = float(thickness)
                         offset_y = float(offset_y)
                         offset_z = float(offset_z)
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z)
+                        insulation_thickness = float(insulation_thickness)
+                        insulation_density = float(insulation_density)
+                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
                         dict_cross[entity] = cross
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
@@ -357,11 +376,15 @@ class ProjectFile:
             config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
             config[str(entity_id)]['thickness'] = str(cross_section.thickness)
             config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
+            config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
+            config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
         else:
             config[str(entity_id)] = { 
                                         'outer diameter': str(cross_section.external_diameter),
                                         'thickness': str(cross_section.thickness),
-                                        'offset [e_y, e_z]': str(cross_section.offset)
+                                        'offset [e_y, e_z]': str(cross_section.offset),
+                                        'insulation thickness': str(cross_section.insulation_thickness),
+                                        'insulation density': str(cross_section.insulation_density)
                                      }
 
         with open(self._entity_path, 'w') as config_file:
@@ -372,16 +395,17 @@ class ProjectFile:
         config.read(self._entity_path)
         for line in [lines]:
             subkey = 0
-            for str_key in ['outer diameter', 'thickness', 'offset [e_y, e_z]']:
+            for str_key in ['outer diameter', 'thickness', 'offset [e_y, e_z]', 'insulation thickness', 'insulation density']:
                 if str_key in list(config[str(line)].keys()):
                     config.remove_option(section=str(line), option=str_key)
 
             for key, elements in map_cross_sections_to_elements.items():
                 
                 self.lines_multiples_cross_sections.append(int(line))
+                
                 cross_strings = key[1:-1].split(',')
                 vals = [float(value) for value in cross_strings] 
-                
+
                 subkey += 1
                 key = str(line) + "-" + str(subkey)
 
@@ -389,33 +413,30 @@ class ProjectFile:
                     config[key]['outer diameter'] = '{}'.format(vals[0])
                     config[key]['thickness'] = '{}'.format(vals[1])
                     config[key]['offset [e_y, e_z]'] = '[{}, {}]'.format(vals[2],vals[3])
+                    config[key]['insulation thickness'] = '{}'.format(vals[4])
+                    config[key]['insulation density'] = '{}'.format(vals[5])
                     config[key]['list of elements (cross-sections)'] = '{}'.format(elements)
                 else:
                     config[key] = { 'outer diameter': '{}'.format(vals[0]),
                                     'thickness': '{}'.format(vals[1]),
                                     'offset [e_y, e_z]': '[{}, {}]'.format(vals[2],vals[3]),
+                                    'insulation thickness': '{}'.format(vals[4]),
+                                    'insulation density': '{}'.format(vals[5]),
                                     'list of elements (cross-sections)': '{}'.format(elements) }
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_length_correction_in_file(self, elements, _type): 
+    def add_length_correction_in_file(self, elements, _type, section): 
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
-        if len(config.sections()) == 0:
-            self._section = 1
+        if section in list(config.sections()):
+            config[section]['length correction type'] = str(_type)
+            config[section]['list of elements'] = str(elements)
         else:
-            self._section += 1
-            
-        str_section = "ACOUSTIC ELEMENT LENGTH CORRECTION || Selection-" + str(self._section) 
-
-        if str_section in list(config.sections()):
-            config[str_section]['length correction type'] = str(_type)
-            config[str_section]['list of elements'] = str(elements)
-        else:
-            config[str_section] =   { 
+            config[section] =   { 
                                   'length correction type': str(_type),
                                   'list of elements': str(elements)
                                 }

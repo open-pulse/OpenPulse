@@ -235,7 +235,7 @@ class StructuralElement:
         Iz = self.cross_section.second_moment_area_z
         J = self.cross_section.polar_moment_area
         Ais = self.cross_section.area_insulation
-        rho_insulation = self.cross_section.density_insulation
+        rho_insulation = self.cross_section.insulation_density
                     
         if self.fluid is not None and self.adding_mass_effect:
             rho_fluid = self.fluid.density

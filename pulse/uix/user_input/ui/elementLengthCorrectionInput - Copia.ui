@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>349</height>
+    <height>391</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>349</height>
+    <height>391</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>800</height>
+    <height>391</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -78,7 +78,7 @@
      <x>0</x>
      <y>40</y>
      <width>400</width>
-     <height>309</height>
+     <height>351</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -96,7 +96,7 @@
       <x>6</x>
       <y>42</y>
       <width>389</width>
-      <height>259</height>
+      <height>301</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -131,7 +131,7 @@
       <property name="geometry">
        <rect>
         <x>96</x>
-        <y>184</y>
+        <y>198</y>
         <width>171</width>
         <height>29</height>
        </rect>
@@ -183,7 +183,7 @@
       <property name="geometry">
        <rect>
         <x>118</x>
-        <y>72</y>
+        <y>80</y>
         <width>131</width>
         <height>87</height>
        </rect>
@@ -256,149 +256,273 @@
      <attribute name="title">
       <string>Remove</string>
      </attribute>
-     <widget class="QPushButton" name="pushButton_remove_by_group_confirm">
+     <widget class="QTabWidget" name="tabWidget_remove">
       <property name="geometry">
        <rect>
-        <x>152</x>
-        <y>194</y>
-        <width>80</width>
-        <height>29</height>
+        <x>8</x>
+        <y>6</y>
+        <width>369</width>
+        <height>257</height>
        </rect>
       </property>
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>29</height>
-       </size>
+      <property name="currentIndex">
+       <number>0</number>
       </property>
-      <property name="maximumSize">
-       <size>
-        <width>80</width>
-        <height>29</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Remove</string>
-      </property>
-     </widget>
-     <widget class="QTreeWidget" name="treeWidget_length_correction_groups">
-      <property name="geometry">
-       <rect>
-        <x>22</x>
-        <y>36</y>
-        <width>341</width>
-        <height>150</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>280</width>
-        <height>150</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>400</width>
-        <height>150</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <column>
-       <property name="text">
-        <string>Group</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Type</string>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Elements</string>
-       </property>
-      </column>
-     </widget>
-     <widget class="QLabel" name="label_30">
-      <property name="geometry">
-       <rect>
-        <x>18</x>
-        <y>4</y>
-        <width>347</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="text">
-       <string>Select a group to remove the length correction:</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
-     <widget class="QPushButton" name="pushButton_get_information">
-      <property name="geometry">
-       <rect>
-        <x>278</x>
-        <y>152</y>
-        <width>80</width>
-        <height>29</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>80</width>
-        <height>29</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>80</width>
-        <height>29</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>See details</string>
-      </property>
+      <widget class="QWidget" name="tab_2">
+       <attribute name="title">
+        <string>By group</string>
+       </attribute>
+       <widget class="QLabel" name="label_30">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>4</y>
+          <width>347</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="text">
+         <string>Select a group to remove the length correction:</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeWidget_length_correction_groups">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>36</y>
+          <width>341</width>
+          <height>150</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>280</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>400</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <column>
+         <property name="text">
+          <string>Group</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Elements</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="pushButton_remove_by_group_confirm">
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>192</y>
+          <width>80</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="pushButton_get_information">
+        <property name="geometry">
+         <rect>
+          <x>260</x>
+          <y>150</y>
+          <width>80</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>See details</string>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab">
+       <attribute name="title">
+        <string>By element</string>
+       </attribute>
+       <widget class="QLabel" name="label_29">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>4</y>
+          <width>353</width>
+          <height>27</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="text">
+         <string>Select a element to remove the length correction:</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::AutoText</enum>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QTreeWidget" name="treeWidget_length_correction_elements">
+        <property name="geometry">
+         <rect>
+          <x>40</x>
+          <y>36</y>
+          <width>280</width>
+          <height>150</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>280</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>280</width>
+          <height>150</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <column>
+         <property name="text">
+          <string>Elements</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>Type</string>
+         </property>
+        </column>
+       </widget>
+       <widget class="QPushButton" name="pushButton_remove_by_elements_confirm">
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>192</y>
+          <width>80</width>
+          <height>29</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>80</width>
+          <height>29</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Remove</string>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </widget>
    </widget>

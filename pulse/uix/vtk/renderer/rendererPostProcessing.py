@@ -7,6 +7,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
+from pulse.uix.vtk.vtkSymbols import vtkSymbols
 import vtk
 import numpy as np
 
@@ -15,6 +16,7 @@ class RendererPostProcessing(vtkRendererBase):
         super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
+        self.symbols = vtkSymbols()
         self.textActorUnit = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.colorbar = vtk.vtkScalarBarActor()
@@ -69,6 +71,7 @@ class RendererPostProcessing(vtkRendererBase):
                 point = ActorPoint(node)
             point.build()
             self._renderer.AddActor(point.getActor())
+
         self._renderer.AddActor(self.colorbar)
 
         self.updateInfoText()

@@ -71,6 +71,9 @@ class Node:
     def get_prescribed_dofs(self):
         return self.prescribed_dofs
 
+    def get_lumped_dampings(self):
+        return self.lumped_dampings
+
     def get_prescribed_dofs_bc_indexes(self):
         return [i for i, j in enumerate(self.prescribed_dofs) if j is not None]
 
