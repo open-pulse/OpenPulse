@@ -257,15 +257,31 @@ class PlotReactionsInput(QDialog):
             self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
 
         for node in self.mesh.nodes_with_constrained_dofs:
-            constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
-            new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
-            self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
+            constrained_dofs_mask = [False, False, False, False, False, False]
+            for index, value in enumerate(node.prescribed_dofs):
+                if isinstance(value, complex):
+                    if value == complex(0):
+                        constrained_dofs_mask[index] = True
+                elif isinstance(value, np.ndarray):
+                    constrained_dofs_mask[index] = False
+            # constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
+            if constrained_dofs_mask.count(False) != 6:         
+                new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
+                self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
 
     def disable_non_existing_reactions(self, node_id):
 
         node = self.mesh.nodes[int(node_id)]
         if self.tabWidget_reactions.currentIndex()==0:
-            mask = np.array(node.prescribed_dofs) == complex(0)
+            mask = [False, False, False, False, False, False]
+            for index, value in enumerate(node.prescribed_dofs):
+                if isinstance(value, complex):
+                    if value == complex(0):
+                        mask[index] = True
+                elif isinstance(value, np.ndarray):
+                    mask[index] = True
+
+            # mask = np.array(node.prescribed_dofs) == complex(0)
             self.reactions = self.dict_reactions_at_constrained_dofs
             self.damper = False
 

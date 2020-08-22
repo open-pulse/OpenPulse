@@ -34,6 +34,10 @@ class ActorArrow(vtkActorBase):
     def removeShaftRadius(self):
         self.arrowSource.SetShaftRadius(0)
 
+    def removeTipLenght(self):
+        self.arrowSource.SetTipLength(0)
+        self.arrowSource.SetTipRadius(0)
+
     def transform(self):
         self._actor.SetScale(0.2,0.2,0.2)
         transform = vtk.vtkTransform()
@@ -43,31 +47,31 @@ class ActorArrow(vtkActorBase):
 
     def translate(self, transform):
         
-        if self.xyz == 1:
+        if self.xyz == -1:
             transform.Translate(self.x +self.shiftValue, self.y, self.z)
-        elif self.xyz == 2:
+        elif self.xyz == -2:
             transform.Translate(self.x, self.y +self.shiftValue, self.z)
-        elif self.xyz == 3:
+        elif self.xyz == -3:
             transform.Translate(self.x, self.y, self.z -self.shiftValue)
 
-        if self.xyz == -1:
+        if self.xyz == 1:
             transform.Translate(self.x -self.shiftValue, self.y, self.z)
-        elif self.xyz == -2:
+        elif self.xyz == 2:
             transform.Translate(self.x, self.y -self.shiftValue, self.z)
-        elif self.xyz == -3:
+        elif self.xyz == 3:
             transform.Translate(self.x, self.y, self.z +self.shiftValue)
 
     def rotate(self, transform):
-        if self.xyz == 2:
+        if self.xyz == -2:
             transform.RotateZ(90)
-        elif self.xyz == 3:
+        elif self.xyz == -3:
             transform.RotateY(90)
 
-        if self.xyz == -1:
+        if self.xyz == 1:
             transform.RotateY(180)
-        elif self.xyz == -2:
+        elif self.xyz == 2:
             transform.RotateZ(-90)
-        elif self.xyz == -3:
+        elif self.xyz == 3:
             transform.RotateY(-90)
 
     def setNormalizedColor(self, color):

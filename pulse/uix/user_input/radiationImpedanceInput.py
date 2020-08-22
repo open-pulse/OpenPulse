@@ -25,7 +25,7 @@ class RadiationImpedanceInput(QDialog):
 
         self.project = project
         self.transform_points = transform_points
-        self.project_file_path = project.project_file_path
+        self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
         self.nodes = project.mesh.nodes

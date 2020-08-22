@@ -1,4 +1,5 @@
 import vtk
+import numpy as np
 from pulse.uix.vtk.actor.actorArrow import ActorArrow
 from pulse.uix.vtk.actor.actorDamper import ActorDamper
 
@@ -10,10 +11,16 @@ class vtkSymbols:
         a = self.getReal(node.get_lumped_dampings())
         v = [1,2,3]
         for i in range(0,3):
-            if a[i] is None or a[i] == 0:
-                v[i] = 0
-            elif a[i] < 0:
-                v[i] = -1*v[i]
+            try:
+                if a[i] is None or a[i] == 0:
+                    v[i] = 0
+                elif a[i] < 0:
+                    v[i] = -1*v[i]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
 
         if v.count(0) == 3:
             return []
@@ -25,6 +32,7 @@ class vtkSymbols:
             a = ActorArrow(node, xyz=v[i], u_def=u_def)
             a.setNormalizedColor([1,1,0])
             a.setShiftValue(shift)
+            a.removeTipLenght()
             a.build()
             arrows.append(a.getActor())
 
@@ -38,11 +46,17 @@ class vtkSymbols:
         a = self.getReal(node.getStructuralBondaryCondition())
         v = [1,2,3]
         for i in range(0,3):
-            if a[i] is None:
-                v[i] = 0
-            elif a[i] < 0:
-                v[i] = -1*v[i]
-
+            try:
+                if a[i] is None:
+                    v[i] = 0
+                elif a[i] < 0:
+                    v[i] = -1*v[i]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
+            
         if v.count(0) == 3:
             return []
 
@@ -62,10 +76,16 @@ class vtkSymbols:
         a = self.getReal(node.get_prescribed_loads())
         v = [1,2,3]
         for i in range(0,3):
-            if a[i] is None or a[i] == 0:
-                v[i] = 0
-            elif a[i] < 0:
-                v[i] = -1*v[i]
+            try:
+                if a[i] is None or a[i] == 0:
+                    v[i] = 0
+                elif a[i] < 0:
+                    v[i] = -1*v[i]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
 
         if v.count(0) == 3:
             return []
@@ -85,10 +105,16 @@ class vtkSymbols:
         a = self.getReal(node.getStructuralBondaryCondition())
         v = [1,2,3]
         for i in range(3,6):
-            if a[i] is None or a[i] == 0:
-                v[i-3] = 0
-            elif a[i] < 0:
-                v[i-3] = -1*v[i-3]
+            try:
+                if a[i] is None or a[i] == 0:
+                    v[i-3] = 0
+                elif a[i] < 0:
+                    v[i-3] = -1*v[i-3]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
 
         if v.count(0) == 3:
             return []
@@ -110,10 +136,16 @@ class vtkSymbols:
         a = self.getReal(node.get_prescribed_loads())
         v = [1,2,3]
         for i in range(3,6):
-            if a[i] is None or a[i] == 0:
-                v[i-3] = 0
-            elif a[i] < 0:
-                v[i-3] = -1*v[i-3]
+            try:
+                if a[i] is None or a[i] == 0:
+                    v[i-3] = 0
+                elif a[i] < 0:
+                    v[i-3] = -1*v[i-3]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
 
         if v.count(0) == 3:
             return []

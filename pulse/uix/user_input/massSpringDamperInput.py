@@ -22,7 +22,7 @@ class MassSpringDamperInput(QDialog):
 
         self.project = project
         self.transform_points = transform_points
-        self.project_file_path = project.project_file_path
+        self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 
         self.userPath = os.path.expanduser('~')
@@ -414,10 +414,10 @@ class MassSpringDamperInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
         
-        if "\\" in self.project_file_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_file_path, self.basename)
-        elif "/" in self.project_file_path:
-            self.new_load_path_table = "{}/{}".format(self.project_file_path, self.basename)
+        if "\\" in self.project_folder_path:
+            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
+        elif "/" in self.project_folder_path:
+            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
@@ -661,18 +661,23 @@ class MassSpringDamperInput(QDialog):
             message = "The masses and moments of inertia attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_mass_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.treeWidget_masses.clear()
    
         if (self.remove_spring and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==1:   
             key_strings = ["spring stiffness", "torsional spring stiffness"]
             message = "The stiffness (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_spring_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.treeWidget_springs.clear()
   
         if (self.remove_damper and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==3: 
             key_strings = ["damping coefficients", "torsional damping coefficients"]
             message = "The dampings (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
             self.project.mesh.add_damper_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.treeWidget_dampers.clear()
+
+        self.load_nodes_info()
 
         # self.close()
 

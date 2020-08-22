@@ -575,6 +575,7 @@ class Mesh:
                 self.nodes_with_specific_impedance.remove(node)
 
     def get_radius(self):
+        self.radius = {}
         for element in self.structural_elements.values():
             first = element.first_node.global_index
             last  = element.last_node.global_index

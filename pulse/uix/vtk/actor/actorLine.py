@@ -52,6 +52,7 @@ class ActorLine(vtkActorBase):
 
         self._tubeFilter.SetInputData(self._object)
         self._tubeFilter.SetRadius(self.radius)
+        self._tubeFilter.SetCapping(True)
         self._tubeFilter.SetNumberOfSides(50)
         self._tubeFilter.Update()
 
