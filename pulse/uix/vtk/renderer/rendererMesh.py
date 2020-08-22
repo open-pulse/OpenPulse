@@ -15,8 +15,9 @@ class RendererMesh(vtkRendererBase):
         self.symbols = vtkSymbols()
         self.plotRadius = False
         
-        self.nodesData = dict() # (x,y,z) coordinates
-        self.elementsData = dict() # bounding coordinates
+        self.nodesBounds = dict() # (x,y,z) coordinates
+        self.elementsBounds = dict() # bounding coordinates
+        self.axes = dict()
 
         self.selectionNodesActor = None
         self.selectionElementsActor = None
@@ -66,8 +67,8 @@ class RendererMesh(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        self.saveNodesData()
-        self.saveElementsData()
+        self.saveNodesBounds()
+        self.saveElementsBounds()
         self.plotNodes()
         self.plotElements()
 
@@ -88,14 +89,14 @@ class RendererMesh(vtkRendererBase):
         actor.GetProperty().SetOpacity(0.3)
         self._renderer.AddActor(actor)
     
-    def saveNodesData(self):
-        self.nodesData.clear()
+    def saveNodesBounds(self):
+        self.nodesBounds.clear()
         for key, node in self.project.get_nodes().items():
             x,y,z = node.coordinates
-            self.nodesData[key] = (x,y,z)
+            self.nodesBounds[key] = (x,x,y,y,z,z)
     
-    def saveElementsData(self):
-        self.elementsData.clear()
+    def saveElementsBounds(self):
+        self.elementsBounds.clear()
         for key, element in self.project.get_elements().items():
             cross_section = element.cross_section
             if cross_section:
@@ -130,7 +131,7 @@ class RendererMesh(vtkRendererBase):
                 z1 += size 
 
             bounds = (x0,x1,y0,y1,z0,z1)
-            self.elementsData[key] = bounds
+            self.elementsBounds[key] = bounds
     
     def createActorNodes(self, nodes, source):
         points = vtk.vtkPoints()

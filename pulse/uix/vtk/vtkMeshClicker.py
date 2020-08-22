@@ -1,6 +1,7 @@
 import vtk 
 import PyQt5
 
+from functools import partial
 from math import sqrt
 from time import time
 
@@ -19,6 +20,27 @@ def distance(p0, p1):
     dy = y0-y1
     dz = z0-z1 
     return sqrt(dx*dx + dy*dy + dz*dz)
+
+def getVertsFromBounds(bounds):
+    x0,x1,y0,y1,z0,z1 = bounds
+    verts = []
+    verts.append((x0,y0,z0))
+    verts.append((x0,y0,z1))
+    verts.append((x0,y1,z0))
+    verts.append((x0,y1,z1))
+    verts.append((x1,y0,z0))
+    verts.append((x1,y0,z1))
+    verts.append((x1,y1,z0))
+    return verts
+    verts.append((x1,y1,z1))
+
+def distanceBoundsToPoint(point, bounds):
+    verts = getVertsFromBounds(bounds)
+    minDist = None
+    for vertice in verts:
+        if (minDist is None) or (distance(vertice, point) < minDist):
+            minDist = distance(vertice, point)
+    return minDist
 
 class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def __init__(self, rendererMesh):
@@ -148,6 +170,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         pickedPoints = self.pickPoints(x0,y0,x1,y1)
         pickedElements = self.pickElements(x0,y0,x1,y1)
 
+        # give preference to points selection
         if len(pickedPoints) == 1 and len(pickedElements) == 1:
             pickedElements.clear()
 
@@ -177,13 +200,17 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         picker.AreaPick(x0,y0,x1,y1,renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
-        pickedPoints = set()
-        for key, coord in self.__rendererMesh.nodesData.items():
-            bounds = [n for xyz in zip(coord,coord) for n in xyz] # xyz -> xxyyzz
-            if extractor.OverallBoundsTest(bounds):
-                pickedPoints.add(key)
-                if tooSmall: # isso é uma gambiarra rápida
-                    break             
+        nodeBounds = self.__rendererMesh.nodesBounds
+        camPos = renderer.GetActiveCamera().GetPosition()
+        distanceFromCamera = lambda key: distanceBoundsToPoint(camPos, nodeBounds[key])
+        pickedPoints = {key for key, bound in nodeBounds.items() if extractor.OverallBoundsTest(bound)}
+        
+        # when not box selecting, pick only the closest point
+        if tooSmall and pickedPoints:
+            closest = min(pickedPoints, key=distanceFromCamera)
+            pickedPoints.clear()
+            pickedPoints.add(closest)
+
         return pickedPoints
     
     def pickElements(self, x0, y0, x1, y1, tolerance=10):
@@ -195,12 +222,17 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         picker.AreaPick(x0,y0,x1,y1,renderer)
         extractor.SetFrustum(picker.GetFrustum())
 
-        pickedElements = set()
-        for key, bound in self.__rendererMesh.elementsData.items():
-            if extractor.OverallBoundsTest(bound):
-                pickedElements.add(key)
-                if tooSmall: # isso é uma gambiarra rápida
-                    break
+        elementsBounds = self.__rendererMesh.elementsBounds
+        camPos = renderer.GetActiveCamera().GetPosition()
+        distanceFromCamera = lambda key: distanceBoundsToPoint(camPos, elementsBounds[key])
+        pickedElements = {key for key, bound in elementsBounds.items() if extractor.OverallBoundsTest(bound)}
+
+        # when not box selecting, pick only the closest element
+        if tooSmall and pickedElements:
+            closest = min(pickedElements, key=distanceFromCamera)
+            pickedElements.clear()
+            pickedElements.add(closest)
+
         return pickedElements
 
     def clear(self):
