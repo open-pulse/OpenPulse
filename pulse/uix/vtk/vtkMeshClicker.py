@@ -47,10 +47,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__rendererMesh = rendererMesh
 
         self.__pixelData = vtk.vtkUnsignedCharArray()  
-        self.__selection_source = vtk.vtkAppendPolyData()
-        self.__selection_mapper = vtk.vtkPolyDataMapper()
-        self.__selection_actor = vtk.vtkActor()
-
         self.__selectedPoints = set()
         self.__selectedElements = set()
         self.__selectionColor = (255, 0, 0, 255)
@@ -59,12 +55,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.mousePosition = (0,0)
         self.__leftButtonClicked = False 
         self.__altKeyClicked = False
-
+        
         self.createObservers()
-
-    #
-    def getSelectedActors(self):
-        return list(self.__selectedActors)
 
     # 
     def createObservers(self):
@@ -236,10 +228,9 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         return pickedElements
 
     def clear(self):
-        self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
-        self.__selection_source.RemoveAllInputs()
-        self.__selectedActors = set()
-        self.__rendererMesh.updateInfoText()
+        self.__selectedPoints.clear()
+        self.__selectedElements.clear()
+        self.InvokeEvent('SelectionChangedEvent')
         
     def getListPickedPoints(self):
         return list(self.__selectedPoints)

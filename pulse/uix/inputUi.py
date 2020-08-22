@@ -155,7 +155,9 @@ class InputUi:
         else:
             self.project.set_cross_section_to_all(cross_section)
             print("[Set Cross-section] - defined at all lines")
+            
         self.opv.updateEntityRadius()
+        self.opv.plotMesh()
         
 
     def setDOF(self):
