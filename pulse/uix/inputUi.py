@@ -159,8 +159,8 @@ class InputUi:
         
 
     def setDOF(self):
-        node_id = self.opv.getListPickedPoints()
-        read = DOFInput(self.project, node_id, self.opv)
+        read = DOFInput(self.project, self.opv)
+        self.opv.removeUpdateFunction()
         if read.prescribed_dofs is None:
             return
         if read.imported_table:

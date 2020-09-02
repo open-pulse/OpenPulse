@@ -32,6 +32,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.currentFrequencyIndice = -1
         self.needResetCamera = True
 
+        self.updateFunction = None
+
         #Set initial plot & config
         self.SetInteractorStyle(self.rendererEntity.getStyle())
         self.GetRenderWindow().AddRenderer(self.rendererEntity.getRenderer())
@@ -226,3 +228,19 @@ class OPVUi(QVTKRenderWindowInteractor):
                 return renderer
         else:
             return None 
+
+    def updateDialogs(self):
+        if self.updateFunction is None:
+            return
+
+        try:
+            self.updateFunction()
+        except Exception:
+            print("Update function error")
+
+    def changeUpdateFunction(self, func):
+        self.updateFunction = func
+
+    def removeUpdateFunction(self):
+        self.updateFunction = None
+    

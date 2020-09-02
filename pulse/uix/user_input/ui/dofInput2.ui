@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Dialog</class>
- <widget class="QDialog" name="Dialog">
-  <property name="windowModality">
-   <enum>Qt::WindowModal</enum>
-  </property>
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -13,36 +10,8 @@
     <height>435</height>
    </rect>
   </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>391</width>
-    <height>435</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>391</width>
-    <height>435</height>
-   </size>
-  </property>
-  <property name="contextMenuPolicy">
-   <enum>Qt::DefaultContextMenu</enum>
-  </property>
   <property name="windowTitle">
-   <string> Set: Prescribed DOFs</string>
-  </property>
-  <property name="windowIcon">
-   <iconset>
-    <normaloff>../../../../../../../Downloads/load - Copia.png</normaloff>../../../../../../../Downloads/load - Copia.png</iconset>
-  </property>
-  <property name="whatsThis">
-   <string/>
+   <string>Form</string>
   </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">
@@ -1403,14 +1372,11 @@
              <string/>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup_2</string>
-            </attribute>
            </widget>
           </item>
           <item row="3" column="0">
@@ -1448,9 +1414,6 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup_2</string>
-            </attribute>
            </widget>
           </item>
           <item row="0" column="0">
@@ -1516,9 +1479,6 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup_2</string>
-            </attribute>
            </widget>
           </item>
           <item row="0" column="1">
@@ -1584,9 +1544,6 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup</string>
-            </attribute>
            </widget>
           </item>
           <item row="2" column="1">
@@ -1615,9 +1572,6 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup</string>
-            </attribute>
            </widget>
           </item>
           <item row="3" column="1">
@@ -1655,9 +1609,6 @@
             <property name="autoExclusive">
              <bool>true</bool>
             </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup</string>
-            </attribute>
            </widget>
           </item>
          </layout>
@@ -1858,26 +1809,6 @@
    </widget>
   </widget>
  </widget>
- <tabstops>
-  <tabstop>tabWidget_prescribed_dofs</tabstop>
-  <tabstop>lineEdit_real_ux</tabstop>
-  <tabstop>lineEdit_imag_ux</tabstop>
-  <tabstop>lineEdit_real_uy</tabstop>
-  <tabstop>lineEdit_imag_uy</tabstop>
-  <tabstop>lineEdit_real_uz</tabstop>
-  <tabstop>lineEdit_imag_uz</tabstop>
-  <tabstop>lineEdit_real_rx</tabstop>
-  <tabstop>lineEdit_imag_rx</tabstop>
-  <tabstop>lineEdit_real_ry</tabstop>
-  <tabstop>lineEdit_imag_ry</tabstop>
-  <tabstop>lineEdit_real_rz</tabstop>
-  <tabstop>lineEdit_imag_rz</tabstop>
-  <tabstop>pushButton_single_value_confirm</tabstop>
- </tabstops>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="buttonGroup_2"/>
- </buttongroups>
 </ui>

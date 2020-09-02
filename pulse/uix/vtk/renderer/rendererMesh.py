@@ -49,6 +49,7 @@ class RendererMesh(vtkRendererBase):
     
     def update(self):
         self.opv.update()
+        self.opv.updateDialogs()
 
     def updateInfoText(self):
         pointsText = self.getPointsInfoText()

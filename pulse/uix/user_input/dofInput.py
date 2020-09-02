@@ -13,17 +13,19 @@ import configparser
 from shutil import copyfile
 
 class DOFInput(QDialog):
-    def __init__(self, project, list_node_ids, opv, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, project, opv, *args, **kwargs):
+        super(DOFInput, self).__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/dofInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.project = project
         self.transform_points = opv.transformPoints
         self.opv = opv
+        self.opv.changeUpdateFunction(self.update)
 
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
@@ -135,7 +137,7 @@ class DOFInput(QDialog):
         self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
         self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
 
-        self.writeNodes(list_node_ids)
+        self.writeNodes(self.opv.getListPickedPoints())
         self.load_nodes_info()
         self.exec_()
 
@@ -446,3 +448,6 @@ class DOFInput(QDialog):
         self.treeWidget_prescribed_dofs.clear()
         self.load_nodes_info()
         # self.close()
+
+    def update(self):
+        self.writeNodes(self.opv.getListPickedPoints())
