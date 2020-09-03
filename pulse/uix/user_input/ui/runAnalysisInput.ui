@@ -106,7 +106,7 @@
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>14</pointsize>
+       <pointsize>16</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>

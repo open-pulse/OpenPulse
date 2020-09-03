@@ -1,40 +1,48 @@
+#
+from pulse.uix.user_input.newProjectInput import NewProjectInput
+from pulse.uix.user_input.loadProjectInput import LoadProjectInput
+#
+from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.materialInput import MaterialInput
 from pulse.uix.user_input.fluidInput import FluidInput
 from pulse.uix.user_input.crossSectionInput import CrossSectionInput
+from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.loadsInput import LoadsInput
 from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
+#
 from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
 from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
 from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResultsInput
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
-from pulse.uix.user_input.dofInput import DOFInput
+#
+from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
+from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
-from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
-from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
-from pulse.uix.user_input.loadProjectInput import LoadProjectInput
+from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
+#
 from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
 from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
-from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
-
-from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
+#
 from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
-from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
+from pulse.uix.user_input.plotDisplacementFieldInput import PlotDisplacementFieldInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
-from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
-from pulse.uix.user_input.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
-from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
-from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
-from pulse.uix.user_input.elementTypeInput import ElementTypeInput
-from pulse.uix.user_input.newProjectInput import NewProjectInput
+from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
+from pulse.uix.user_input.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
+#
+from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
+from pulse.uix.user_input.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
+from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
+#
 from pulse.uix.user_input.LogTimes import LogTimes
-
+#
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
 from pulse.project import Project
 from pulse.utils import error
-
+#
 from time import time
 
 
@@ -456,7 +464,7 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = PlotHarmonicResponseInput(self.frequencies)
+            plot = PlotDisplacementFieldInput(self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency)
@@ -476,14 +484,14 @@ class InputUi:
         else:
             return
 
-    def plotPressureField(self):
+    def plotAcousticPressureField(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return
-            plot = PlotHarmonicResponseInput(self.frequencies)
+            plot = PlotAcousticPressureFieldInput(self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency, acoustic=True)

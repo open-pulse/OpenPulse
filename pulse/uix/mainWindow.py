@@ -220,10 +220,10 @@ class MainWindow(QMainWindow):
         self.plotSressFrequencyResponse_action.setStatusTip('Plot Stress Frequency Response')
         self.plotSressFrequencyResponse_action.triggered.connect(self.getInputWidget().plotStressFrequencyResponse)
 
-        self.plotPressureField_action = QAction('&Plot Pressure Field', self)        
+        self.plotPressureField_action = QAction('&Plot Acoustic Pressure Field', self)        
         self.plotPressureField_action.setShortcut('Ctrl+E')
-        self.plotPressureField_action.setStatusTip('Plot Pressure Field')
-        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotPressureField)
+        self.plotPressureField_action.setStatusTip('Plot Acoustic Pressure Field')
+        self.plotPressureField_action.triggered.connect(self.getInputWidget().plotAcousticPressureField)
 
         self.plotAcousticFrequencyResponse = QAction('&Plot Acoustic Frequency Response', self)        
         self.plotAcousticFrequencyResponse.setShortcut('Ctrl+U')

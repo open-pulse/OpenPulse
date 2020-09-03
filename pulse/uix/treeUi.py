@@ -55,7 +55,7 @@ class TreeUi(QTreeWidget):
 
         self.name_top_resultsViewer_acoustic = "Results Viewer - Acoustic"
         self.name_child_plotAcousticModeShapes = "Plot Acoustic Mode Shapes"
-        self.name_child_plotPressureField = "Plot Pressure Field"
+        self.name_child_plotAcousticPressureField = "Plot Acoustic Pressure Field"
         self.name_child_plotAcousticFrequencyResponse = "Plot Acoustic Frequency Response"
         self.name_child_plot_TL_NR = "Plot Transmission Loss or Attenuation"
         self.name_child_plotReactionsFrequencyResponse = "Plot Reactions Frequency Response"
@@ -133,7 +133,7 @@ class TreeUi(QTreeWidget):
 
         self.item_top_resultsViewer_acoustic = QTreeWidgetItem([self.name_top_resultsViewer_acoustic])
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
-        self.item_child_plotPressureField = QTreeWidgetItem([self.name_child_plotPressureField])
+        self.item_child_plotAcousticPressureField = QTreeWidgetItem([self.name_child_plotAcousticPressureField])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem([self.name_child_plotAcousticFrequencyResponse])
         self.item_child_plot_TL_NR = QTreeWidgetItem([self.name_child_plot_TL_NR])
 
@@ -197,7 +197,7 @@ class TreeUi(QTreeWidget):
         self.item_child_plotStressFrequencyResponse.setFont(0, self.font_internal)
 
         self.item_child_plotAcousticModeShapes.setFont(0, self.font_internal)
-        self.item_child_plotPressureField.setFont(0, self.font_internal)
+        self.item_child_plotAcousticPressureField.setFont(0, self.font_internal)
         self.item_child_plotAcousticFrequencyResponse.setFont(0, self.font_internal)
         self.item_child_plot_TL_NR.setFont(0, self.font_internal)
 
@@ -238,7 +238,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_plotStressFrequencyResponse)
         self.addTopLevelItem(self.item_top_resultsViewer_acoustic)
         self.addTopLevelItem(self.item_child_plotAcousticModeShapes)
-        self.addTopLevelItem(self.item_child_plotPressureField)
+        self.addTopLevelItem(self.item_child_plotAcousticPressureField)
         self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponse)
         self.addTopLevelItem(self.item_child_plot_TL_NR)
 
@@ -286,8 +286,8 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().plotDisplacementField()
         elif item.text(0) == self.name_child_plotAcousticModeShapes:
             self.mainWindow.getInputWidget().plotAcousticModeShapes()
-        elif item.text(0) == self.name_child_plotPressureField:
-            self.mainWindow.getInputWidget().plotPressureField()
+        elif item.text(0) == self.name_child_plotAcousticPressureField:
+            self.mainWindow.getInputWidget().plotAcousticPressureField()
         elif item.text(0) == self.name_child_plotReactionsFrequencyResponse:
             self.mainWindow.getInputWidget().plotReactionsFrequencyResponse()
         elif item.text(0) == self.name_child_plotStressField:
@@ -312,7 +312,7 @@ class TreeUi(QTreeWidget):
             self.item_child_plotStressFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticModeShapes.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
-            self.item_child_plotPressureField.setDisabled(True)
+            self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
         
@@ -330,7 +330,7 @@ class TreeUi(QTreeWidget):
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
             elif self.project.analysis_ID == 3:
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
-                self.item_child_plotPressureField.setDisabled(False)
+                self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
             elif self.project.analysis_ID in [5,6]:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
@@ -338,6 +338,6 @@ class TreeUi(QTreeWidget):
                 self.item_child_plotStressField.setDisabled(False)
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
                 self.item_child_plotDisplacementField.setDisabled(False)
-                self.item_child_plotPressureField.setDisabled(False)
+                self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
                 self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  

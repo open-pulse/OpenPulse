@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot of stress spectrum</string>
+   <string>Plot of Stress Frequency Response</string>
   </property>
   <property name="windowIcon">
    <iconset>

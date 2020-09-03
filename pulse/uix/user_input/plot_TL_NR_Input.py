@@ -310,7 +310,7 @@ class Plot_TL_NR_Input(QDialog):
         
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('SPECTRUM OF THE {}').format(analysis_label), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('FREQUENCY PLOT OF {}').format(analysis_label.upper()), fontsize = 18, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
         if self.flagTL:
             ax.set_ylabel(("Transmission Loss [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
