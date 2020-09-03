@@ -9,11 +9,12 @@ from pulse.utils import error, getColorRGB
 from pulse.preprocessing.fluid import Fluid
 
 class FluidInput(QDialog):
-    def __init__(self, fluid_path, *args, **kwargs):
+    def __init__(self, fluid_path, entities_id, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fluidPath = fluid_path
+        self.entities_id = entities_id
         uic.loadUi('pulse/uix/user_input/ui/fluidInput.ui', self)
-
+        
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
@@ -66,6 +67,15 @@ class FluidInput(QDialog):
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_entity.toggled.connect(self.radioButtonEvent)
 
+        self.lineEdit_entity_ID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+
+        if self.entities_id != []:
+            self.write_ids(entities_id)
+            self.radioButton_entity.setChecked(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)
+
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check)
 
@@ -98,6 +108,12 @@ class FluidInput(QDialog):
             self.check()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def write_ids(self, list_ids):
+        text = ""
+        for _id in list_ids:
+            text += "{}, ".format(_id)
+        self.lineEdit_selected_ID.setText(text)
 
     def select_fluid_to_remove(self):
 

@@ -46,17 +46,19 @@ class TreeUi(QTreeWidget):
         self.name_child_selectTheOutputResults = "Select the Outputs Results"
         self.name_child_runAnalysis = "Run Analysis"
 
-        self.name_top_resultsViewer = "Results Viewer"
+        self.name_top_resultsViewer_structural = "Results Viewer - Structural"
         self.name_child_plotStructuralModeShapes = "Plot Structural Mode Shapes"
-        self.name_child_plotStructuralHarmonicResponse = "Plot Structural Harmonic Response"
+        self.name_child_plotDisplacementField = "Plot Displacement Field"
         self.name_child_plotStructuralFrequencyResponse = "Plot Structural Frequency Response"
         self.name_child_plotStressField = "Plot Stress Field"
-        self.name_child_plotStressSpectrum = "Plot Stress Spectrum"
+        self.name_child_plotStressFrequencyResponse = "Plot Stress Frequency Response"
+
+        self.name_top_resultsViewer_acoustic = "Results Viewer - Acoustic"
         self.name_child_plotAcousticModeShapes = "Plot Acoustic Mode Shapes"
-        self.name_child_plotAcousticHarmonicResponse = "Plot Acoustic Harmonic Response"
+        self.name_child_plotPressureField = "Plot Pressure Field"
         self.name_child_plotAcousticFrequencyResponse = "Plot Acoustic Frequency Response"
         self.name_child_plot_TL_NR = "Plot Transmission Loss or Attenuation"
-        self.name_child_plot_reactions = "Plot Reactions"
+        self.name_child_plotReactionsFrequencyResponse = "Plot Reactions Frequency Response"
 
 
     def _createIcons(self):
@@ -68,17 +70,27 @@ class TreeUi(QTreeWidget):
         #self.font_child = QFont()
 
         self.font_top.setFamily("Segoe UI")
-        self.font_top.setPointSize(10)
+        self.font_top.setPointSize(12)
         self.font_top.setBold(True)
-        self.font_top.setItalic(True)
+        self.font_top.setItalic(False)
         self.font_top.setWeight(75)
 
+        self.font_internal = QFont()
+        self.font_internal.setFamily("Segoe UI")
+        self.font_internal.setPointSize(11)
+        #self.font_internal.setBold(False)
+        #self.font_internal.setItalic(True)
+        #self.font_internal.setWeight(75)
+
     def _createColorsBrush(self):
-        #color_top = QColor(39, 180, 211)
+        #
         color_top = QColor(178, 178, 178)
-        #color_child = QColor(0, 0, 0)
         self.brush_top = QBrush(color_top)
         self.brush_top.setStyle(Qt.SolidPattern)
+        #
+        color_results_viewer = QColor(102, 204, 255)
+        self.color_item_results_viewer = QBrush(color_results_viewer)
+        self.color_item_results_viewer.setStyle(Qt.SolidPattern)
 
     def _configTree(self):
         self.setColumnCount(1)
@@ -89,9 +101,9 @@ class TreeUi(QTreeWidget):
 
     def _createItems(self):
         self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
+        self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
         self.item_child_set_material = QTreeWidgetItem([self.name_child_set_material])
         self.item_child_set_crossSection = QTreeWidgetItem([self.name_child_set_crossSection])
-        self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
         self.item_child_setPrescribedDofs = QTreeWidgetItem([self.name_child_setPrescribedDofs])
         self.item_child_setNodalLoads = QTreeWidgetItem([self.name_child_setNodalLoads])
         self.item_child_addMassSpringDamper = QTreeWidgetItem([self.name_child_addMassSpringDamper])
@@ -111,20 +123,25 @@ class TreeUi(QTreeWidget):
         self.item_child_selectTheOutputResults = QTreeWidgetItem([self.name_child_selectTheOutputResults])
         self.item_child_runAnalysis = QTreeWidgetItem([self.name_child_runAnalysis])
 
-        self.item_top_resultsViewer = QTreeWidgetItem([self.name_top_resultsViewer])
+        self.item_top_resultsViewer_structural = QTreeWidgetItem([self.name_top_resultsViewer_structural])
         self.item_child_plotStructuralModeShapes = QTreeWidgetItem([self.name_child_plotStructuralModeShapes])
-        self.item_child_plotStructuralHarmonicResponse = QTreeWidgetItem([self.name_child_plotStructuralHarmonicResponse])
+        self.item_child_plotDisplacementField = QTreeWidgetItem([self.name_child_plotDisplacementField])
         self.item_child_plotStructuralFrequencyResponse = QTreeWidgetItem([self.name_child_plotStructuralFrequencyResponse])
-        self.item_child_plot_reactions = QTreeWidgetItem([self.name_child_plot_reactions])
+        self.item_child_plotReactionsFrequencyResponse = QTreeWidgetItem([self.name_child_plotReactionsFrequencyResponse])
         self.item_child_plotStressField = QTreeWidgetItem([self.name_child_plotStressField])
-        self.item_child_plotStressSpectrum = QTreeWidgetItem([self.name_child_plotStressSpectrum])
+        self.item_child_plotStressFrequencyResponse = QTreeWidgetItem([self.name_child_plotStressFrequencyResponse])
+
+        self.item_top_resultsViewer_acoustic = QTreeWidgetItem([self.name_top_resultsViewer_acoustic])
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
-        self.item_child_plotAcousticHarmonicResponse = QTreeWidgetItem([self.name_child_plotAcousticHarmonicResponse])
+        self.item_child_plotPressureField = QTreeWidgetItem([self.name_child_plotPressureField])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem([self.name_child_plotAcousticFrequencyResponse])
         self.item_child_plot_TL_NR = QTreeWidgetItem([self.name_child_plot_TL_NR])
 
 
     def _configItems(self):
+
+        # Font setup - top items
+
         self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
         self.item_top_structuralmodelSetup.setFont(0, self.font_top)
         self.item_top_structuralmodelSetup.setTextAlignment(0, Qt.AlignHCenter)
@@ -140,14 +157,53 @@ class TreeUi(QTreeWidget):
         self.item_top_analysis.setTextAlignment(0, Qt.AlignHCenter)
         self.item_top_analysis.setBackground(0, self.brush_top)
 
-        self.item_top_resultsViewer.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-        self.item_top_resultsViewer.setFont(0, self.font_top)
-        self.item_top_resultsViewer.setTextAlignment(0, Qt.AlignHCenter)
-        self.item_top_resultsViewer.setBackground(0, self.brush_top)
+        self.item_top_resultsViewer_structural.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+        self.item_top_resultsViewer_structural.setFont(0, self.font_top)
+        self.item_top_resultsViewer_structural.setTextAlignment(0, Qt.AlignHCenter)
+        self.item_top_resultsViewer_structural.setBackground(0, self.color_item_results_viewer)
+
+        self.item_top_resultsViewer_acoustic.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+        self.item_top_resultsViewer_acoustic.setFont(0, self.font_top)
+        self.item_top_resultsViewer_acoustic.setTextAlignment(0, Qt.AlignHCenter)
+        self.item_top_resultsViewer_acoustic.setBackground(0, self.color_item_results_viewer)
+
+        # Font setup - internal items
+
+        self.item_child_setElementType.setFont(0, self.font_internal)
+        self.item_child_set_material.setFont(0, self.font_internal)
+        self.item_child_set_crossSection.setFont(0, self.font_internal)
+        self.item_child_setPrescribedDofs.setFont(0, self.font_internal)
+        self.item_child_setNodalLoads.setFont(0, self.font_internal)
+        self.item_child_addMassSpringDamper.setFont(0, self.font_internal)
+
+        self.item_child_set_fluid.setFont(0, self.font_internal)
+        self.item_child_setAcousticPressure.setFont(0, self.font_internal)
+        self.item_child_setVolumeVelocity.setFont(0, self.font_internal)
+        self.item_child_setSpecificImpedance.setFont(0, self.font_internal)
+        self.item_child_set_radiation_impedance.setFont(0, self.font_internal)
+        self.item_child_add_perforated_plate.setFont(0, self.font_internal)
+        self.item_child_set_acoustic_element_length_correction.setFont(0, self.font_internal)
+
+        self.item_child_selectAnalysisType.setFont(0, self.font_internal)
+        self.item_child_analisysSetup.setFont(0, self.font_internal)
+        self.item_child_selectTheOutputResults.setFont(0, self.font_internal)
+        self.item_child_runAnalysis.setFont(0, self.font_internal)
+
+        self.item_child_plotStructuralModeShapes.setFont(0, self.font_internal)
+        self.item_child_plotDisplacementField.setFont(0, self.font_internal)
+        self.item_child_plotStructuralFrequencyResponse.setFont(0, self.font_internal)
+        self.item_child_plotReactionsFrequencyResponse.setFont(0, self.font_internal)
+        self.item_child_plotStressField.setFont(0, self.font_internal)
+        self.item_child_plotStressFrequencyResponse.setFont(0, self.font_internal)
+
+        self.item_child_plotAcousticModeShapes.setFont(0, self.font_internal)
+        self.item_child_plotPressureField.setFont(0, self.font_internal)
+        self.item_child_plotAcousticFrequencyResponse.setFont(0, self.font_internal)
+        self.item_child_plot_TL_NR.setFont(0, self.font_internal)
 
         # self.item_child_setElementType.setDisabled(True)
         self.item_child_selectTheOutputResults.setDisabled(True)
-        self.item_child_plotStressField.setDisabled(True)
+        #self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
@@ -173,15 +229,16 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_selectTheOutputResults)
         self.addTopLevelItem(self.item_child_runAnalysis)
 
-        self.addTopLevelItem(self.item_top_resultsViewer)
+        self.addTopLevelItem(self.item_top_resultsViewer_structural)
         self.addTopLevelItem(self.item_child_plotStructuralModeShapes)
-        self.addTopLevelItem(self.item_child_plotStructuralHarmonicResponse)
+        self.addTopLevelItem(self.item_child_plotDisplacementField)
         self.addTopLevelItem(self.item_child_plotStructuralFrequencyResponse)
-        self.addTopLevelItem(self.item_child_plot_reactions)
+        self.addTopLevelItem(self.item_child_plotReactionsFrequencyResponse)
         self.addTopLevelItem(self.item_child_plotStressField)
-        self.addTopLevelItem(self.item_child_plotStressSpectrum)
+        self.addTopLevelItem(self.item_child_plotStressFrequencyResponse)
+        self.addTopLevelItem(self.item_top_resultsViewer_acoustic)
         self.addTopLevelItem(self.item_child_plotAcousticModeShapes)
-        self.addTopLevelItem(self.item_child_plotAcousticHarmonicResponse)
+        self.addTopLevelItem(self.item_child_plotPressureField)
         self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponse)
         self.addTopLevelItem(self.item_child_plot_TL_NR)
 
@@ -225,18 +282,18 @@ class TreeUi(QTreeWidget):
             self._updateItems()
         elif item.text(0) == self.name_child_plotStructuralModeShapes:
             self.mainWindow.getInputWidget().plotStructuralModeShapes()
-        elif item.text(0) == self.name_child_plotStructuralHarmonicResponse:
-            self.mainWindow.getInputWidget().plotStructuralHarmonicResponse()
+        elif item.text(0) == self.name_child_plotDisplacementField:
+            self.mainWindow.getInputWidget().plotDisplacementField()
         elif item.text(0) == self.name_child_plotAcousticModeShapes:
             self.mainWindow.getInputWidget().plotAcousticModeShapes()
-        elif item.text(0) == self.name_child_plotAcousticHarmonicResponse:
-            self.mainWindow.getInputWidget().plotAcousticHarmonicResponse()
-        elif item.text(0) == self.name_child_plot_reactions:
-            self.mainWindow.getInputWidget().plot_reactions()
+        elif item.text(0) == self.name_child_plotPressureField:
+            self.mainWindow.getInputWidget().plotPressureField()
+        elif item.text(0) == self.name_child_plotReactionsFrequencyResponse:
+            self.mainWindow.getInputWidget().plotReactionsFrequencyResponse()
         elif item.text(0) == self.name_child_plotStressField:
             self.mainWindow.getInputWidget().plotStressField()
-        elif item.text(0) == self.name_child_plotStressSpectrum:
-            self.mainWindow.getInputWidget().plotStressSpectrum()
+        elif item.text(0) == self.name_child_plotStressFrequencyResponse:
+            self.mainWindow.getInputWidget().plotStressFrequencyResponse()
         elif item.text(0) == self.name_child_plotStructuralFrequencyResponse:
             self.mainWindow.getInputWidget().plotStructuralFrequencyResponse()
         elif item.text(0) == self.name_child_plotAcousticFrequencyResponse:
@@ -249,38 +306,38 @@ class TreeUi(QTreeWidget):
 
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
-            self.item_child_plotStructuralHarmonicResponse.setDisabled(True)
+            self.item_child_plotDisplacementField.setDisabled(True)
             self.item_child_plotStructuralFrequencyResponse.setDisabled(True)
             self.item_child_plotStressField.setDisabled(True)
-            self.item_child_plotStressSpectrum.setDisabled(True)
+            self.item_child_plotStressFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticModeShapes.setDisabled(True)
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
-            self.item_child_plotAcousticHarmonicResponse.setDisabled(True)
+            self.item_child_plotPressureField.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
-            self.item_child_plot_reactions.setDisabled(True)
+            self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
         
             if self.project.analysis_ID == 0 or self.project.analysis_ID == 1:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
-                self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
-                self.item_child_plot_reactions.setDisabled(False)
+                self.item_child_plotDisplacementField.setDisabled(False)
+                self.item_child_plotReactionsFrequencyResponse.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)
-                self.item_child_plotStressSpectrum.setDisabled(False)
+                self.item_child_plotStressFrequencyResponse.setDisabled(False)
             elif self.project.analysis_ID == 2:
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
             elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
             elif self.project.analysis_ID == 3:
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
-                self.item_child_plotAcousticHarmonicResponse.setDisabled(False)
+                self.item_child_plotPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
             elif self.project.analysis_ID in [5,6]:
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)
-                self.item_child_plotStressSpectrum.setDisabled(False)
-                self.item_child_plotStructuralHarmonicResponse.setDisabled(False)
-                self.item_child_plotAcousticHarmonicResponse.setDisabled(False)
+                self.item_child_plotStressFrequencyResponse.setDisabled(False)
+                self.item_child_plotDisplacementField.setDisabled(False)
+                self.item_child_plotPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
-                self.item_child_plot_reactions.setDisabled(False)  
+                self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  

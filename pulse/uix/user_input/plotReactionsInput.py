@@ -128,8 +128,8 @@ class PlotReactionsInput(QDialog):
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
         self.pushButton_AddImportedPlot.clicked.connect(self.ImportResults)  
-        self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.check)
+        self.pushButton_plot_reactions_frequency_response = self.findChild(QPushButton, 'pushButton_plot_reactions_frequency_response')
+        self.pushButton_plot_reactions_frequency_response.clicked.connect(self.check)
 
         self.treeWidget_reactions_at_springs = self.findChild(QTreeWidget, 'treeWidget_reactions_at_springs')
         self.treeWidget_reactions_at_springs.setColumnWidth(1, 20)
@@ -460,7 +460,7 @@ class PlotReactionsInput(QDialog):
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('Structural reactions: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('REACTIONS FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
         plt.show()

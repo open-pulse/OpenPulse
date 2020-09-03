@@ -322,7 +322,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('Frequency Response: {} Method').format(self.analysisMethod), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
         plt.show()

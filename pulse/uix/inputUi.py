@@ -22,7 +22,7 @@ from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralMode
 from pulse.uix.user_input.plotHarmonicResponseInput import PlotHarmonicResponseInput
 from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
-from pulse.uix.user_input.plotStressSpectrumInput import PlotStressSpectrumInput
+from pulse.uix.user_input.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
 from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
@@ -85,12 +85,13 @@ class InputUi:
             print("[Set Element Type] - defined in all the entities")
 
     def set_material(self):
-        mat = MaterialInput(self.project.get_material_list_path())
+        entities_id = self.opv.getListPickedEntities()
+        mat = MaterialInput(self.project.get_material_list_path(), entities_id)
         if mat.material is None:
             return
 
         if mat.flagEntity:
-            entities_id = self.opv.getListPickedEntities()
+            # entities_id = self.opv.getListPickedEntities()
             if len(entities_id) == 0:
                 return
             for entity in entities_id:
@@ -106,7 +107,8 @@ class InputUi:
             self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
 
     def set_fluid(self):
-        fld = FluidInput(self.project.get_fluid_list_path())
+        entities_id = self.opv.getListPickedEntities()
+        fld = FluidInput(self.project.get_fluid_list_path(), entities_id)
         if fld.fluid is None:
             return
 
@@ -447,7 +449,7 @@ class InputUi:
         else:
             return
 
-    def plotStructuralHarmonicResponse(self):
+    def plotDisplacementField(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
         solution = self.project.get_structural_solution()
@@ -474,7 +476,7 @@ class InputUi:
         else:
             return
 
-    def plotAcousticHarmonicResponse(self):
+    def plotPressureField(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
@@ -520,7 +522,7 @@ class InputUi:
                 return
             PlotStressFieldInput(self.project, self.solve, self.opv)
 
-    def plotStressSpectrum(self):
+    def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
         element_id = self.opv.getListPickedElements()
        
@@ -528,9 +530,9 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressSpectrumInput(self.project, self.solve, element_id, self.analysis_method_label)
+            PlotStressFrequencyResponseInput(self.project, self.solve, element_id, self.analysis_method_label)
 
-    def plot_reactions(self):
+    def plotReactionsFrequencyResponse(self):
 
         if self.analysis_ID in [0,1,5,6]:
             reactions = [self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers]

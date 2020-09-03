@@ -99,13 +99,14 @@
       <rect>
        <x>480</x>
        <y>10</y>
-       <width>83</width>
-       <height>17</height>
+       <width>89</width>
+       <height>23</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
+       <pointsize>10</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
@@ -122,15 +123,16 @@
     <widget class="QRadioButton" name="radioButton_all">
      <property name="geometry">
       <rect>
-       <x>370</x>
+       <x>408</x>
        <y>10</y>
-       <width>49</width>
-       <height>17</height>
+       <width>55</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
+       <pointsize>10</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
@@ -147,10 +149,10 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>12</y>
-       <width>271</width>
-       <height>16</height>
+       <x>16</x>
+       <y>10</y>
+       <width>169</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -163,6 +165,46 @@
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_selected_ID">
+     <property name="geometry">
+      <rect>
+       <x>196</x>
+       <y>8</y>
+       <width>170</width>
+       <height>24</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>170</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>170</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="text">
+      <string/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

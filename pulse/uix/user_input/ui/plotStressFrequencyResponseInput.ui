@@ -95,7 +95,7 @@
       </font>
      </property>
      <property name="text">
-      <string>Plot the stress spectrum at Element</string>
+      <string>Plot the stress frequency response at Element</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -850,10 +850,10 @@ p, li { white-space: pre-wrap; }
       <widget class="QPushButton" name="pushButton">
        <property name="geometry">
         <rect>
-         <x>232</x>
-         <y>204</y>
-         <width>189</width>
-         <height>35</height>
+         <x>240</x>
+         <y>200</y>
+         <width>169</width>
+         <height>55</height>
         </rect>
        </property>
        <property name="font">
@@ -866,7 +866,8 @@ p, li { white-space: pre-wrap; }
         </font>
        </property>
        <property name="text">
-        <string>Plot the stress spectrum</string>
+        <string>Plot the stress 
+frequency response</string>
        </property>
       </widget>
      </widget>

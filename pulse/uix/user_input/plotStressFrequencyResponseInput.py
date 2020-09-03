@@ -49,10 +49,10 @@ class SnaptoCursor(object):
             self.ax.figure.canvas.draw_idle()
 
 
-class PlotStressSpectrumInput(QDialog):
+class PlotStressFrequencyResponseInput(QDialog):
     def __init__(self, project, solve, list_elements_ids, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotStressSpectrumInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotStressFrequencyResponseInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -348,7 +348,7 @@ class PlotStressSpectrumInput(QDialog):
 
         plt.gca().add_artist(_legends)
 
-        ax.set_title(('{} STRESS SPECTRUM - {}').format(self.stress_label.upper(), self.analysisMethod.upper()), fontsize = 18, fontweight = 'bold')
+        ax.set_title(('{} STRESS FREQUENCY RESPONSE - {}').format(self.stress_label.upper(), self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
         plt.show()

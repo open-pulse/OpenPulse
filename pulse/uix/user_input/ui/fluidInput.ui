@@ -94,63 +94,53 @@
     <property name="lineWidth">
      <number>1</number>
     </property>
-    <widget class="QRadioButton" name="radioButton_entity">
+    <widget class="QLineEdit" name="lineEdit_selected_ID">
      <property name="geometry">
       <rect>
-       <x>480</x>
-       <y>10</y>
-       <width>83</width>
-       <height>17</height>
+       <x>194</x>
+       <y>8</y>
+       <width>170</width>
+       <height>24</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>170</width>
+       <height>24</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>170</width>
+       <height>24</height>
+      </size>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
+       <pointsize>10</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
-       <stylestrategy>PreferAntialias</stylestrategy>
       </font>
      </property>
-     <property name="text">
-      <string>The Entity</string>
-     </property>
-     <property name="checked">
-      <bool>false</bool>
-     </property>
-    </widget>
-    <widget class="QRadioButton" name="radioButton_all">
-     <property name="geometry">
-      <rect>
-       <x>370</x>
-       <y>10</y>
-       <width>49</width>
-       <height>17</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-       <stylestrategy>PreferAntialias</stylestrategy>
-      </font>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
      </property>
      <property name="text">
-      <string>All</string>
+      <string/>
      </property>
-     <property name="checked">
-      <bool>true</bool>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>12</y>
-       <width>271</width>
-       <height>16</height>
+       <x>14</x>
+       <y>10</y>
+       <width>169</width>
+       <height>21</height>
       </rect>
      </property>
      <property name="font">
@@ -166,6 +156,58 @@
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_all">
+     <property name="geometry">
+      <rect>
+       <x>406</x>
+       <y>10</y>
+       <width>55</width>
+       <height>21</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
+     <property name="text">
+      <string>All</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="radioButton_entity">
+     <property name="geometry">
+      <rect>
+       <x>478</x>
+       <y>10</y>
+       <width>89</width>
+       <height>23</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+       <stylestrategy>PreferAntialias</stylestrategy>
+      </font>
+     </property>
+     <property name="text">
+      <string>The Entity</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
     </widget>
    </widget>
@@ -1529,8 +1571,6 @@ selection-background-color: rgb(62, 255, 62);</string>
   <tabstop>lineEdit_impedance</tabstop>
   <tabstop>lineEdit_color</tabstop>
   <tabstop>pushButton_confirm_add_fluid</tabstop>
-  <tabstop>radioButton_entity</tabstop>
-  <tabstop>radioButton_all</tabstop>
  </tabstops>
  <resources/>
  <connections/>

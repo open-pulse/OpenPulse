@@ -157,13 +157,13 @@
       <attribute name="title">
        <string>Plot</string>
       </attribute>
-      <widget class="QPushButton" name="pushButton">
+      <widget class="QPushButton" name="pushButton_plot_reactions_frequency_response">
        <property name="geometry">
         <rect>
-         <x>74</x>
+         <x>82</x>
          <y>142</y>
-         <width>281</width>
-         <height>29</height>
+         <width>263</width>
+         <height>30</height>
         </rect>
        </property>
        <property name="font">
@@ -176,7 +176,7 @@
         </font>
        </property>
        <property name="text">
-        <string>Plot the reactions sprectrum</string>
+        <string>Plot the reactions frequency response</string>
        </property>
       </widget>
       <widget class="QFrame" name="frame_4">
