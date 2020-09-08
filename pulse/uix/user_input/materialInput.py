@@ -60,7 +60,7 @@ class MaterialInput(QDialog):
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_entity.toggled.connect(self.radioButtonEvent)
 
-        self.lineEdit_entity_ID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
         if self.entities_id != []:
             self.write_ids(entities_id)

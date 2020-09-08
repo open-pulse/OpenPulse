@@ -200,7 +200,7 @@
      <property name="geometry">
       <rect>
        <x>36</x>
-       <y>8</y>
+       <y>10</y>
        <width>95</width>
        <height>21</height>
       </rect>
@@ -224,7 +224,7 @@
      <property name="geometry">
       <rect>
        <x>134</x>
-       <y>8</y>
+       <y>10</y>
        <width>99</width>
        <height>20</height>
       </rect>

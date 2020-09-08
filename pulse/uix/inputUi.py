@@ -78,19 +78,23 @@ class InputUi:
         return load_project.complete
 
     def setElementType(self):
-        typeinput = ElementTypeInput()
-        # if typeinput.element_type is None:
+        entities_id = self.opv.getListPickedEntities()
+        read = ElementTypeInput(self.project, entities_id)
+        # if read.element_type is None:
         #     return
-        if typeinput.flagEntity:
-            entities_id = self.opv.getListPickedLines()
+        if read.flagEntity:
             if len(entities_id) == 0:
                 return
             for entity in entities_id:
-                self.project.set_element_type_by_entity(entity, typeinput.element_type)
+                self.project.set_element_type_by_entity(entity, read.element_type)
             print("[Set Element Type] - defined in the entities {}".format(entities_id))
         else:
-            self.project.set_element_type_to_all(typeinput.element_type)
+            self.project.set_element_type_to_all(read.element_type)
             print("[Set Element Type] - defined in all the entities")
+        
+        if read.update_cross_section:
+            self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
+
 
     def set_material(self):
         entities_id = self.opv.getListPickedEntities()
@@ -136,34 +140,33 @@ class InputUi:
             print("[Set Fluid] - {} defined in all entities".format(fld.fluid.name))
             self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
 
-    def set_cross_section(self):
+    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
         lines_id = self.opv.getListPickedEntities()
-        elements_id = self.opv.getListPickedElements()
-        
-        cross_input = CrossSectionInput(self.project, lines_id, elements_id)
+        elements_id = self.opv.getListPickedElements()   
+        read = CrossSectionInput(self.project, lines_id, elements_id, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
 
-        if not cross_input.complete:
+        if not read.complete:
             return
-        else:
-            cross_section = cross_input.cross_section
 
-        if cross_input.flagEntity:
+        if read.flagEntity:
             if len(lines_id) == 0:
                 return
             for line in lines_id:
-                self.project.set_cross_section_by_entity(line, cross_section)
+                self.project.set_cross_section_by_entity(line, read.cross_section)
+                self.project.set_element_type_by_entity(line, read.element_type)
             print("[Set Cross-section] - defined at lines {}".format(lines_id))
-        elif cross_input.flagElements:
+        elif read.flagElements:
             if len(elements_id) == 0:
                 return
             else:
-                self.project.set_cross_section_by_elements(elements_id, cross_section)
+                self.project.set_cross_section_by_elements(elements_id, read.cross_section)
                 if len(elements_id)>20:
                     print("[Set Cross-section] - defined at {} selected elements".format(len(elements_id)))
                 else:
                     print("[Set Cross-section] - defined at elements {}".format(elements_id))
         else:
-            self.project.set_cross_section_to_all(cross_section)
+            self.project.set_cross_section_to_all(read.cross_section)
+            self.project.set_element_type_to_all(read.element_type)
             print("[Set Cross-section] - defined at all lines")
         self.opv.updateEntityRadius()
         

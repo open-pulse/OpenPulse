@@ -97,12 +97,12 @@ if select == 1:
             self.insulation_density = kwargs.get('insulation_density', 0)
 
             # Area properties
-            self.area = 0
+            self.area = kwargs.get('area', 0)
             self.first_moment_area_y = 0
             self.first_moment_area_z = 0
-            self.second_moment_area_y = 0
-            self.second_moment_area_z = 0
-            self.second_moment_area_yz = 0
+            self.second_moment_area_y = kwargs.get('Iyy', 0)
+            self.second_moment_area_z = kwargs.get('Izz', 0)
+            self.second_moment_area_yz = kwargs.get('Iyz', 0)
             self.polar_moment_area = 0
             self.y_centroid = 0
             self.z_centroid = 0
@@ -112,7 +112,7 @@ if select == 1:
             self.z_shear = 0
             self.res_y = 0
             self.res_z = 0
-            self.res_yz = 0
+            # self.res_yz = 0
 
             # Principal Bending Axis Rotation
             self.principal_axis = None
@@ -400,6 +400,25 @@ if select == 1:
                 self.shear_properties(poisson_ratio = 0, el_type = self.element_type)
             else:
                 self.shear_properties(poisson_ratio=self.poisson_ratio, el_type=self.element_type)
+
+        def _polar_moment_area(self):
+            """Cross section second polar moment of area [m**4]."""
+            return self.second_moment_area_y + self.second_moment_area_z
+
+        # def shear_form_factor(self):
+        #     """Shear form factor for a tube.
+        #     Parameter
+        #     ---------
+        #     poisson_ratio : float
+        #         Poisson's ratio [ ]"""
+        #     alpha = self.D_internal / self.D_external
+        #     # auxiliar = alpha / (1 + (alpha**2))
+        #     return 6 / (7 + 20 * ((alpha / (1 + (alpha**2)))**2))
+        
+        # def shear_area(self, element_length, young_modulus):
+        #     shear_area = self.area() * self.shear_form_factor()
+        #     return 1 / (( 1 / shear_area) + element_length**2/(12 * young_modulus * self.moment_area()))
+
 
 if __name__ == "__main__":
 

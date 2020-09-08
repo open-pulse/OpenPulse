@@ -28,6 +28,10 @@ class Material:
     def lambda_parameter(self):
         return (self.poisson_ratio * self.young_modulus) / ((1 + self.poisson_ratio) * (1 - 2 * self.poisson_ratio))
 
+    # @property
+    # def shear_modulus(self):
+    #     return self.young_modulus/(2*(1 + self.poisson_ratio))    
+
     def _calculate_remaining_properties(self):
         if (self.young_modulus and self.poisson_ratio) is not None:
             self.shear_modulus = self.young_modulus / (2 * (1 + self.poisson_ratio))

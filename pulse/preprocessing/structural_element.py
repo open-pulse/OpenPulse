@@ -51,6 +51,9 @@ class StructuralElement:
         self.stress = None
         self.internal_load = None
 
+        self.rotation_matrix = self._rotation_matrix()
+        self.transpose_rotation_matrix = self.rotation_matrix.T
+
     @property
     def length(self):
         return distance(self.first_node, self.last_node) 
@@ -69,27 +72,40 @@ class StructuralElement:
         return rows, cols
 
     def matrices_gcs(self):
-        self._rot = R = self.rotation_matrix()
-        Rt = R.T
-        stiffness = Rt @ self.stiffness_matrix() @ R
-        mass = Rt @ self.mass_matrix() @ R
+        """ Element striffness and mass matrix in the global coordinate system."""
+        R = self.rotation_matrix
+        Rt = self.transpose_rotation_matrix
+        if self.element_type in ['pipe_1','pipe_2']:
+            stiffness = Rt @ self.stiffness_matrix_pipes() @ R
+            mass = Rt @ self.mass_matrix_pipes() @ R
+        elif self.element_type in ['beam_1']:
+            stiffness = Rt @ self.stiffness_matrix_beam() @ R
+            mass = Rt @ self.mass_matrix_beam() @ R
         return stiffness, mass
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
-        R = self.rotation_matrix()
-        return R.T @ self.stiffness_matrix() @ R
+        R = self.rotation_matrix
+        Rt = self.transpose_rotation_matrix
+        if self.element_type in ['pipe_1','pipe_2']:
+            return Rt @ self.stiffness_matrix_pipes() @ R
+        elif self.element_type in ['beam_1']:
+            return Rt @ self.stiffness_matrix_beam() @ R
 
     def mass_matrix_gcs(self):
         """ Element mass matrix in the global coordinate system."""
-        R = self.rotation_matrix()
-        return R.T @ self.mass_matrix() @ R
+        R = self.rotation_matrix
+        Rt = self.transpose_rotation_matrix
+        if self.element_type in ['pipe_1','pipe_2']:
+            return Rt @ self.mass_matrix_pipes() @ R
+        elif self.element_type in ['beam_1']:
+            return Rt @ self.mass_matrix_beam() @ R
     
     def force_vector_gcs(self):
-        R = self.rotation_matrix()
-        return R.T @ self.force_vector()
+        Rt = self.transpose_rotation_matrix
+        return Rt @ self.force_vector()
 
-    def rotation_matrix(self):
+    def _rotation_matrix(self):
         """ Make the rotation from the element coordinate system to the global doordinate system."""
         # Rotation Matrix
         gamma = 0
@@ -139,7 +155,7 @@ class StructuralElement:
 
         return R
     
-    def stiffness_matrix(self):
+    def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""
         L = self.length
 
@@ -224,7 +240,7 @@ class StructuralElement:
 
         return principal_axis.T @ Ke @ principal_axis
 
-    def mass_matrix(self):
+    def mass_matrix_pipes(self):
         """ Element mass matrix in the element coordinate system."""
         L   = self.length
         rho = self.material.density
@@ -326,7 +342,7 @@ class StructuralElement:
         stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
         aux = np.zeros([DOF_PER_ELEMENT, 1])
         aux[0], aux[6] = 1, -1
-        R = self.rotation_matrix()
+        R = self.rotation_matrix
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
@@ -345,3 +361,177 @@ class StructuralElement:
         F_p = (caped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p
+
+    ##
+    #@staticmethod
+    def symmetrize(self, a):
+        """ Take a matrix a and symmetrize it."""
+        return a + a.T - np.diag(a.diagonal())
+
+    def stiffness_matrix_beam(self):
+        """ Element striffness matrix in the element coordinate system."""
+
+        # Element length
+        L   = self.length
+
+        # Material properities
+        E   = self.material.young_modulus
+        nu  = self.material.poisson_ratio
+        G   = self.material.shear_modulus
+
+        # Tube cross section properties
+        A   = self.cross_section.area
+        I_2 = self.cross_section.second_moment_area_y
+        I_3 = self.cross_section.second_moment_area_z
+        J   = self.cross_section._polar_moment_area()
+
+        alpha_rect = (12 + 11*nu)/(10*(1 + nu))
+        k_2 = 1/alpha_rect
+        # k_2 = 0.5
+
+        # Others constitutive properties
+        # I_3     = I_2
+        k_3     = k_2
+
+        # Auxiliar constantes
+        Phi_12      = 24. * I_3 * (1 + nu) / (k_2 * A * L**2)
+        Phi_13      = 24. * I_2 * (1 + nu) / (k_3 * A * L**2)
+        beta_12_a   = E * I_3 / (1. + Phi_12)
+        beta_13_a   = E * I_2 / (1. + Phi_13)
+        beta_12_b   = (4. + Phi_12) * beta_12_a
+        beta_13_b   = (4. + Phi_13) * beta_13_a
+        beta_12_c   = (2. - Phi_12) * beta_12_a
+        beta_13_c   = (2. - Phi_13) * beta_13_a
+
+        ke = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+
+        # stiffness matrix diagonal construction
+        rows, cols = np.diag_indices(DOF_PER_ELEMENT)
+        ke[[rows], [cols]] = np.array([ E * A / L               ,
+                                        12 * beta_12_a / L**3   ,
+                                        12 * beta_13_a / L**3   ,
+                                        G * J / L               ,
+                                        beta_13_b / L           ,
+                                        beta_12_b / L           ,
+                                        E * A / L               ,
+                                        12 * beta_12_a / L**3   ,
+                                        12 * beta_13_a / L**3   ,
+                                        G * J / L               ,
+                                        beta_13_b / L           ,
+                                        beta_12_b / L           ])
+
+        # stiffness matrix out diagonal construction
+        ke[ 6   , 0 ] = - E * A / L
+        ke[ 9   , 3 ] = - G * J / L
+        ke[ 7   , 1 ] = - 12 * beta_12_a / L**3
+        ke[ 11  , 5 ] =   beta_12_c / L
+        ke[ 8   , 2 ] = - 12 * beta_13_a / L**3
+        ke[ 10  , 4 ] =   beta_13_c / L
+
+        ke[[5,11],[1,1]] =   6 * beta_12_a / L**2
+        ke[[7,11],[5,7]] = - 6 * beta_12_a / L**2
+
+        ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
+        ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
+
+        return self.symmetrize(ke)
+
+    def mass_matrix_beam(self):
+        """ Element mass matrix in the element coordinate system."""
+
+        # Element length
+        L   = self.length
+
+        # Material properities
+        rho = self.material.density
+        nu = self.material.poisson_ratio
+        E   = self.material.young_modulus
+        G   = self.material.shear_modulus
+
+        # Tube cross section properties
+        A   = self.cross_section.area
+        I_2 = self.cross_section.second_moment_area_y
+        I_3 = self.cross_section.second_moment_area_z
+        J   = self.cross_section._polar_moment_area()
+
+        alpha_rect = (12 + 11*nu)/(10*(1 + nu))
+        k_2 = 1/alpha_rect
+        #k_2 = 0.5
+
+        # Others constitutive constants
+        # I_3     = I_2
+        J_p     = J
+        k_3     = k_2
+
+        # Auxiliar constantes
+        # 1st group
+        # print(k_2, A, G)
+        a_12 = 1. / (k_2 * A * G)
+        a_13 = 1. / (k_3 * A * G)
+        b_12 = 1. / (E * I_3)
+        b_13 = 1. / (E * I_2)
+
+        # 2nd group
+        a_12u_1 = 156 * b_12**2 * L**4 + 3528*a_12 * b_12 * L**2 + 20160 * a_12**2
+        a_12u_2 = 2 * L * (11 * b_12**2 * L**4 + 231 * a_12 * b_12 * L**2 + 1260 * a_12**2)
+        a_12u_3 = 54 * b_12**2 * L**4 + 1512 * a_12 * b_12 * L**2 + 10080 * a_12**2
+        a_12u_4 = -L * (13 * b_12**2 * L**4 + 378 * a_12 * b_12 * L**2 + 2520 * a_12**2)
+        a_12u_5 = L**2 * (4 * b_12**2 * L**4 + 84 * a_12 * b_12 * L**2 + 504 * a_12**2)
+        a_12u_6 = -3 * L**2 * (b_12**2 * L**4 + 28 * a_12 * b_12 * L**2 + 168 * a_12**2)
+
+        a_12t_1 = 36 * b_12**2 * L**2
+        a_12t_2 = -3 * L * b_12 * (-b_12 * L**2 + 60 * a_12)
+        a_12t_3 = 4 * b_12**2 * L**4 + 60 * a_12 * b_12 * L**2 + 1440 * a_12**2
+        a_12t_4 = -b_12**2 * L**4 - 60 * a_12 * b_12 * L**2 + 720 * a_12**2
+
+        # 3rd group
+        a_13u_1 = 156 * b_13**2 * L**4 + 3528*a_13 * b_13 * L**2 + 20160 * a_13**2
+        a_13u_2 = -2 * L * (11 * b_13**2 * L**4 + 231 * a_13 * b_13 * L**2 + 1260 * a_13**2)
+        a_13u_3 = 54 * b_13**2 * L**4 + 1512 * a_13 * b_13 * L**2 + 10080 * a_13**2
+        a_13u_4 = L * (13 * b_13**2 * L**4 + 378 * a_13 * b_13 * L**2 + 2520 * a_13**2)
+        a_13u_5 = L**2 * (4 * b_13**2 * L**4 + 84 * a_13 * b_13 * L**2 + 504 * a_13**2)
+        a_13u_6 = -3 * L**2 * (b_13**2 * L**4 + 28 * a_13 * b_13 * L**2 + 168 * a_13**2)
+
+        a_13t_1 = 36 * b_13**2 * L**2
+        a_13t_2 = 3 * L * b_13 * (-b_13 * L**2 + 60 * a_13)
+        a_13t_3 = 4 * b_13**2 * L**4 + 60 * a_13 * b_13 * L**2 + 1440 * a_13**2
+        a_13t_4 = -b_13**2 * L**4 - 60 * a_13 * b_13 * L**2 + 720 * a_13**2
+
+        # 4th group
+        gamma_12 = rho * L / (b_12 * L**2 + 12*a_12)**2
+        gamma_13 = rho * L / (b_13 * L**2 + 12*a_13)**2
+
+        me = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+
+        # Mass matrix diagonal construction
+        rows, cols = np.diag_indices(DOF_PER_ELEMENT)
+        me[[rows], [cols]] = np.array([ rho * A * L / 3,
+                                        gamma_12 * (A * a_12u_1 / 420 + I_3 * a_12t_1 / 30),
+                                        gamma_13 * (A * a_13u_1 / 420 + I_2 * a_13t_1 / 30),
+                                        rho * J_p * L / 3,
+                                        gamma_13 * (A * a_13u_5 / 420 + I_2 * a_13t_3 / 30),
+                                        gamma_12 * (A * a_12u_5 / 420 + I_3 * a_12t_3 / 30),
+                                        rho * A * L / 3,
+                                        gamma_12 * (A * a_12u_1 / 420 + I_3 * a_12t_1 / 30),
+                                        gamma_13 * (A * a_13u_1 / 420 + I_2 * a_13t_1 / 30),
+                                        rho * J_p * L / 3,
+                                        gamma_13 * (A * a_13u_5 / 420 + I_2 * a_13t_3 / 30),
+                                        gamma_12 * (A * a_12u_5 / 420 + I_3 * a_12t_3 / 30)])
+
+        # Mass matrix out diagonal construction
+        me[9 , 3] =  rho * J_p * L / 6
+        me[6 , 0] =  rho * A * L / 6
+        me[5 , 1] =  gamma_12 * (A * a_12u_2 / 420 + I_3 * a_12t_2 / 30)
+        me[11, 7] = -gamma_12 * (A * a_12u_2 / 420 + I_3 * a_12t_2 / 30)
+        me[4 , 2] =  gamma_13 * (A * a_13u_2 / 420 + I_2 * a_13t_2 / 30)
+        me[10, 8] = -gamma_13 * (A * a_13u_2 / 420 + I_2 * a_13t_2 / 30)
+        me[7 , 1] =  gamma_12 * (A * a_12u_3 / 420 - I_3 * a_12t_1 / 30)
+        me[8 , 2] =  gamma_13 * (A * a_13u_3 / 420 - I_2 * a_13t_1 / 30)
+        me[11, 1] =  gamma_12 * (A * a_12u_4 / 420 + I_3 * a_12t_2 / 30)
+        me[7 , 5] = -gamma_12 * (A * a_12u_4 / 420 + I_3 * a_12t_2 / 30)
+        me[10, 2] =  gamma_13 * (A * a_13u_4 / 420 + I_2 * a_13t_2 / 30)
+        me[8 , 4] = -gamma_13 * (A * a_13u_4 / 420 + I_2 * a_13t_2 / 30)
+        me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
+        me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
+
+        return self.symmetrize(me)

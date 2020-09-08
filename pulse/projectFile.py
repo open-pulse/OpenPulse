@@ -279,6 +279,30 @@ class ProjectFile:
                         return {}, {}, {}, {}
             else:
 
+                area, Iyy, Izz, Iyz = "", "", "", ""
+
+                if 'area' in entityFile[entity].keys():
+                    area = entityFile[entity]['area']
+                if 'second moment of area y' in entityFile[entity].keys():
+                    Iyy = entityFile[entity]['second moment of area y']
+                if 'second moment of area z' in entityFile[entity].keys():
+                    Izz = entityFile[entity]['second moment of area z']
+                if 'second moment of area yz' in entityFile[entity].keys():
+                    Iyz = entityFile[entity]['second moment of area yz']
+                
+                if area != "" and Iyy != "" and Izz!="":
+                    try:
+                        area = float(area)
+                        external_diameter = 2*np.abs(np.sqrt(area/np.pi))
+                        Iyy = float(Iyy)
+                        Izz = float(Izz)
+                        Iyz = float(Iyz)
+                        cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz)
+                        dict_cross[entity] = cross
+                    except Exception as er:
+                        error(str(er), title = "Error while loading cross-section parameters from file")
+                        return {}, {}, {}, {}, {}
+                
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer Diameter']
                 if 'thickness' in entityFile[entity].keys():    
@@ -303,50 +327,50 @@ class ProjectFile:
                         dict_cross[entity] = cross
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
-                        return {}, {}, {}, {}
+                        return {}, {}, {}, {}, {}
 
-                if 'element type' in entityFile[entity].keys():
+            if 'element type' in entityFile[entity].keys():
 
-                    element_type = entityFile[entity]['Element Type']
+                element_type = entityFile[entity]['Element Type']
 
-                    if element_type != "":
-                        dict_element_type[int(entity)] = element_type
-                        self.element_type_is_structural = True
-                    else:
-                        dict_element_type[int(entity)] = 'pipe_1'
-                        
-                if 'material id' in entityFile[entity].keys():
-                    material_id = entityFile[entity]['material id']
+                if element_type != "":
+                    dict_element_type[int(entity)] = element_type
+                    self.element_type_is_structural = True
+                else:
+                    dict_element_type[int(entity)] = 'pipe_1'
+                    
+            if 'material id' in entityFile[entity].keys():
+                material_id = entityFile[entity]['material id']
 
-                    if material_id.isnumeric():
-                        material_id = int(material_id)
-                        for material in material_list.sections():
-                            if int(material_list[material]['identifier']) == material_id:
-                                name = str(material_list[material]['name'])
-                                identifier = str(material_list[material]['identifier'])
-                                density =  str(material_list[material]['density'])
-                                youngmodulus =  str(material_list[material]['young modulus'])
-                                poisson =  str(material_list[material]['poisson'])
-                                color =  str(material_list[material]['color'])
-                                youngmodulus = float(youngmodulus)*(10**(9))
-                                temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
-                                dict_material[int(entity)] = temp_material
-                
-                if 'fluid id' in entityFile[entity].keys():    
-                    fluid_id = entityFile[entity]['fluid id']
+                if material_id.isnumeric():
+                    material_id = int(material_id)
+                    for material in material_list.sections():
+                        if int(material_list[material]['identifier']) == material_id:
+                            name = str(material_list[material]['name'])
+                            identifier = str(material_list[material]['identifier'])
+                            density =  str(material_list[material]['density'])
+                            youngmodulus =  str(material_list[material]['young modulus'])
+                            poisson =  str(material_list[material]['poisson'])
+                            color =  str(material_list[material]['color'])
+                            youngmodulus = float(youngmodulus)*(10**(9))
+                            temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
+                            dict_material[int(entity)] = temp_material
+            
+            if 'fluid id' in entityFile[entity].keys():    
+                fluid_id = entityFile[entity]['fluid id']
 
-                    if fluid_id.isnumeric():
-                        fluid_id = int(fluid_id)
-                        for fluid in fluid_list.sections():
-                            if int(fluid_list[fluid]['identifier']) == fluid_id:
-                                name = str(fluid_list[fluid]['name'])
-                                identifier = str(fluid_list[fluid]['identifier'])
-                                fluid_density =  str(fluid_list[fluid]['fluid density'])
-                                speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
-                                # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
-                                color =  str(fluid_list[fluid]['color'])
-                                temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
-                                dict_fluid[int(entity)] = temp_fluid
+                if fluid_id.isnumeric():
+                    fluid_id = int(fluid_id)
+                    for fluid in fluid_list.sections():
+                        if int(fluid_list[fluid]['identifier']) == fluid_id:
+                            name = str(fluid_list[fluid]['name'])
+                            identifier = str(fluid_list[fluid]['identifier'])
+                            fluid_density =  str(fluid_list[fluid]['fluid density'])
+                            speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
+                            # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
+                            color =  str(fluid_list[fluid]['color'])
+                            temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
+                            dict_fluid[int(entity)] = temp_fluid
 
         for section in list(element_file.sections()):
             try:
@@ -372,20 +396,47 @@ class ProjectFile:
                 # print("Section removed: {}".format(section))
                 config.remove_section(section)
     
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
-            config[str(entity_id)]['thickness'] = str(cross_section.thickness)
-            config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
-            config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
-            config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
+        if cross_section.thickness == 0:
+            if str(entity_id) in list(config.sections()):
+                config.remove_option(section=str(entity_id), option='outer diameter')
+                config.remove_option(section=str(entity_id), option='thickness')
+                config.remove_option(section=str(entity_id), option='offset [e_y, e_z]')
+                config.remove_option(section=str(entity_id), option='insulation thickness')
+                config.remove_option(section=str(entity_id), option='insulation density')
+
+                config[str(entity_id)]['area'] = str(cross_section.area)
+                config[str(entity_id)]['second moment of area y'] = str(cross_section.second_moment_area_y)
+                config[str(entity_id)]['second moment of area z'] = str(cross_section.second_moment_area_z)
+                config[str(entity_id)]['second moment of area yz'] = str(cross_section.second_moment_area_yz)
+            else:
+                config[str(entity_id)] = { 
+                                            'area': str(cross_section.area),
+                                            'second moment of area y': str(cross_section.second_moment_area_y),
+                                            'second moment of area z': str(cross_section.second_moment_area_z),
+                                            'second moment of area yz': str(cross_section.second_moment_area_yz)
+                                         }                
         else:
-            config[str(entity_id)] = { 
-                                        'outer diameter': str(cross_section.external_diameter),
-                                        'thickness': str(cross_section.thickness),
-                                        'offset [e_y, e_z]': str(cross_section.offset),
-                                        'insulation thickness': str(cross_section.insulation_thickness),
-                                        'insulation density': str(cross_section.insulation_density)
-                                     }
+
+            config.remove_option(section=str(entity_id), option='area')
+            config.remove_option(section=str(entity_id), option='second moment of area y')
+            config.remove_option(section=str(entity_id), option='second moment of area z')
+            config.remove_option(section=str(entity_id), option='second moment of area yz')
+
+            if str(entity_id) in list(config.sections()):
+
+                config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
+                config[str(entity_id)]['thickness'] = str(cross_section.thickness)
+                config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
+                config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
+                config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
+            else:
+                config[str(entity_id)] = { 
+                                            'outer diameter': str(cross_section.external_diameter),
+                                            'thickness': str(cross_section.thickness),
+                                            'offset [e_y, e_z]': str(cross_section.offset),
+                                            'insulation thickness': str(cross_section.insulation_thickness),
+                                            'insulation density': str(cross_section.insulation_density)
+                                        }
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -451,7 +502,25 @@ class ProjectFile:
         else:
             config[str(entity_id)] = { 
                                         'element type': element_type
-                                     }
+                                     }    
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_beam_section_info_in_file(self, entity_id, area, Iyy, Izz, Iyz):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['area'] = area
+            config[str(entity_id)]['Iyy'] = Iyy
+            config[str(entity_id)]['Izz'] = Izz
+            config[str(entity_id)]['Iyz'] = Iyz
+        else:
+            config[str(entity_id)] = { 
+                                        'area': area,
+                                        'Iyy': Iyy,
+                                        'Izz': Izz,
+                                        'Iyz': Iyz
+                                     }    
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 

@@ -174,7 +174,7 @@ class Project:
         # print(self.lines_multiples_cross_sections)
 
     def load_mapped_cross_section(self):        
-        label_etypes = ['pipe_1', 'pipe_2', 'shell']
+        label_etypes = ['pipe_1', 'pipe_2', 'beam_1']
         indexes = [0, 1, 2]
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
@@ -208,9 +208,10 @@ class Project:
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[5]]
-            cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type, insulation_thickness=vals[6], insulation_density=vals[7])
-            # list_flatten = [item for sublist in elements for item in sublist]
-            self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
+            if el_type in ['pipe_1', 'pipe_2']:
+                cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type, insulation_thickness=vals[6], insulation_density=vals[7])
+                # list_flatten = [item for sublist in elements for item in sublist]
+                self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
 
     def get_dict_multiple_cross_sections(self):
 
@@ -339,6 +340,7 @@ class Project:
 
         self._set_entity_cross_section(entity_id, cross_section)
         self.file.add_cross_section_in_file(entity_id, cross_section)
+        # print(cross_section.area, cross_section.second_moment_area_y)
 
     def set_element_type_to_all(self, element_type):
         self.mesh.set_element_type_by_element('all', element_type)

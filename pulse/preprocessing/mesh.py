@@ -616,6 +616,10 @@ class Mesh:
             if element.cross_section is None:
                 self.check_set_crossSection = True
                 return
+            if element.cross_section.thickness == 0:
+                if element.cross_section.area == 0:
+                    self.check_set_crossSection = True
+                    return
 
     def check_fluid_and_cross_section_in_all_elements(self):
         self.check_set_fluid = False
@@ -627,6 +631,11 @@ class Mesh:
             if element.cross_section is None:
                 self.check_set_crossSection = True
                 return
+            if element.cross_section.thickness == 0:
+                if element.cross_section.area == 0:
+                    self.check_set_crossSection = True
+                    return
+
     
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         self.is_there_loads = False

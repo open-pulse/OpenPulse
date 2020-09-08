@@ -87,6 +87,8 @@ class RendererMesh(vtkRendererBase):
                 thickness = 'undefined'
                 offset_y = 'undefined'
                 offset_z = 'undefined'
+                insulation_thickness = 'undefined'
+                insulation_density = 'undefined'
             else:
                 external_diameter = element.cross_section.external_diameter
                 thickness = element.cross_section.thickness
