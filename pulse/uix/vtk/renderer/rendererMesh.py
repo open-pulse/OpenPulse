@@ -199,6 +199,9 @@ class RendererMesh(vtkRendererBase):
         actor.SetMapper(mapper)
         return actor
 
+    def update(self):
+        self.opv.update()
+        self.opv.updateDialogs()
 
     def updateInfoText(self):
         pointsText = self.getPointsInfoText()

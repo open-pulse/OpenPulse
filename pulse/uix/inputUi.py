@@ -67,6 +67,13 @@ class InputUi:
         self.setup_analysis_complete = False
         self.flag_imported_table = False
 
+    def beforeInput(self):
+        try:
+            self.opv.inputObject.close()
+            self.opv.setInputObject(None)
+        except:
+            return
+
     def new_project(self):
         new_project_input = NewProjectInput(self.project)
         self.project.project_folder_path = new_project_input.project_folder_path
@@ -97,19 +104,18 @@ class InputUi:
 
 
     def set_material(self):
-        entities_id = self.opv.getListPickedEntities()
-        mat = MaterialInput(self.project.get_material_list_path(), entities_id)
+        mat = MaterialInput(self.opv, self.project.get_material_list_path())
         if mat.material is None:
             return
 
         if mat.flagEntity:
             # entities_id = self.opv.getListPickedEntities()
-            if len(entities_id) == 0:
+            if len(mat.entities_id) == 0:
                 return
-            for entity in entities_id:
+            for entity in mat.entities_id:
                 self.project.set_material_by_entity(entity, mat.material)
-            print("[Set Material] - {} defined in the entities {}".format(mat.material.name, entities_id))
-            self.opv.changeColorEntities(entities_id, mat.material.getNormalizedColorRGB())
+            print("[Set Material] - {} defined in the entities {}".format(mat.material.name, mat.entities_id))
+            self.opv.changeColorEntities(mat.entities_id, mat.material.getNormalizedColorRGB())
         else:
             self.project.set_material(mat.material)
             entities = []
@@ -141,29 +147,25 @@ class InputUi:
             self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
 
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
-        lines_id = self.opv.getListPickedEntities()
-        elements_id = self.opv.getListPickedElements()   
-        read = CrossSectionInput(self.project, lines_id, elements_id, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
+        read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
 
         if not read.complete:
             return
 
         if read.flagEntity:
-            if len(lines_id) == 0:
+            if len(read.lines_id) == 0:
                 return
-            for line in lines_id:
+            for line in read.lines_id:
                 self.project.set_cross_section_by_entity(line, read.cross_section)
                 self.project.set_element_type_by_entity(line, read.element_type)
-            print("[Set Cross-section] - defined at lines {}".format(lines_id))
+            print("[Set Cross-section] - defined at lines {}".format(read.lines_id))
         elif read.flagElements:
-            if len(elements_id) == 0:
+            if len(read.elements_id) == 0:
                 return
             else:
-                self.project.set_cross_section_by_elements(elements_id, read.cross_section)
-                if len(elements_id)>20:
-                    print("[Set Cross-section] - defined at {} selected elements".format(len(elements_id)))
-                else:
-                    print("[Set Cross-section] - defined at elements {}".format(elements_id))
+                self.project.set_cross_section_by_elements(read.elements_id, read.cross_section)
+                if len(read.elements_id)>20:
+                    print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_id)))
         else:
             self.project.set_cross_section_to_all(read.cross_section)
             self.project.set_element_type_to_all(read.element_type)
@@ -174,8 +176,7 @@ class InputUi:
         
 
     def setDOF(self):
-        node_id = self.opv.getListPickedPoints()
-        read = DOFInput(self.project, node_id, self.opv)
+        read = DOFInput(self.project, self.opv)
         if read.prescribed_dofs is None:
             return
         if read.imported_table:
@@ -183,8 +184,7 @@ class InputUi:
         print("[Set Prescribed DOF] - defined at node(s) {}".format(read.nodes_typed))
 
     def setNodalLoads(self):
-        node_id = self.opv.getListPickedPoints()
-        read = LoadsInput(self.project, node_id, self.opv)
+        read = LoadsInput(self.project, self.opv)
         if read.loads is None:
             return
         if read.imported_table:
@@ -192,8 +192,7 @@ class InputUi:
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
     
     def addMassSpringDamper(self):
-        node_id = self.opv.getListPickedPoints()
-        read = MassSpringDamperInput(self.project, node_id, self.opv.transformPoints)
+        read = MassSpringDamperInput(self.project, self.opv, self.opv.transformPoints)
         if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
             return
         if read.lumped_masses is not None:
@@ -205,8 +204,7 @@ class InputUi:
             self.opv.transformPoints(read.nodes_typed)
 
     def setAcousticPressure(self):
-        node_id = self.opv.getListPickedPoints()
-        read = AcousticPressureInput(self.project, node_id, self.opv.transformPoints)
+        read = AcousticPressureInput(self.project, self.opv, self.opv.transformPoints)
         if read.acoustic_pressure is None:
             return
         if read.imported_table:
@@ -214,8 +212,7 @@ class InputUi:
         print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
 
     def setVolumeVelocity(self):
-        node_id = self.opv.getListPickedPoints()
-        read = VolumeVelocityInput(self.project, node_id, self.opv.transformPoints)
+        read = VolumeVelocityInput(self.project, self.opv, self.opv.transformPoints)
         if read.volume_velocity is None:
             return
         if read.imported_table:
@@ -223,8 +220,7 @@ class InputUi:
         print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
 
     def setSpecificImpedance(self):
-        node_id = self.opv.getListPickedPoints()
-        read = SpecificImpedanceInput(self.project, node_id, self.opv.transformPoints)
+        read = SpecificImpedanceInput(self.project, self.opv, self.opv.transformPoints)
         if read.specific_impedance is None:
             return
         if read.imported_table:
@@ -233,8 +229,7 @@ class InputUi:
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
-        node_id = self.opv.getListPickedPoints()
-        read = RadiationImpedanceInput(self.project, node_id, self.opv.transformPoints)
+        read = RadiationImpedanceInput(self.project, self.opv, self.opv.transformPoints)
 
         if read.radiation_impedance is None:
             return
@@ -247,8 +242,7 @@ class InputUi:
         error("This feature is currently under development and \nit will be available in the future updates.", title="WARNING")
 
     def set_acoustic_element_length_correction(self):
-        elements_id = self.opv.getListPickedElements()
-        read = AcousticElementLengthCorrectionInput(self.project, elements_id)
+        read = AcousticElementLengthCorrectionInput(self.project, self.opv)
         if read.type_label is None:
             return
         
@@ -455,7 +449,7 @@ class InputUi:
         if self.analysis_ID == 2:
             if solution is None:
                 return
-            plot = PlotStructuralModeShapeInput(self.project.natural_frequencies_structural)
+            plot = PlotStructuralModeShapeInput(self.opv, self.project.natural_frequencies_structural)
             if plot.mode_index is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.mode_index)
@@ -469,7 +463,7 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = PlotDisplacementFieldInput(self.frequencies)
+            plot = PlotDisplacementFieldInput(self.opv, self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency)
@@ -482,7 +476,7 @@ class InputUi:
         if self.analysis_ID == 2:
             if solution is None:
                 return
-            plot = PlotAcousticModeShapeInput(self.project.natural_frequencies_acoustic)
+            plot = PlotAcousticModeShapeInput(self.opv, self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.mode_index)
@@ -496,7 +490,7 @@ class InputUi:
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return
-            plot = PlotAcousticPressureFieldInput(self.frequencies)
+            plot = PlotAcousticPressureFieldInput(self.opv, self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency, acoustic=True)

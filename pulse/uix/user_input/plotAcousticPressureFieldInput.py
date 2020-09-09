@@ -8,13 +8,18 @@ import configparser
 import numpy as np
 
 class PlotAcousticPressureFieldInput(QDialog):
-    def __init__(self, frequencies, *args, **kwargs):
+    def __init__(self, opv, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotAcousticPressureFieldInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.frequencies = frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))

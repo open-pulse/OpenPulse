@@ -9,16 +9,21 @@ import configparser
 from pulse.preprocessing.material import Material
 
 class MaterialInput(QDialog):
-    def __init__(self, material_path, entities_id, *args, **kwargs):
+    def __init__(self, opv, material_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.materialPath = material_path
-        self.entities_id = entities_id
         uic.loadUi('pulse/uix/user_input/ui/materialInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
         
+        self.entities_id = self.opv.getListPickedEntities()
         self.clicked_item = None
         self.material = None
         self.flagAll = False
@@ -63,7 +68,7 @@ class MaterialInput(QDialog):
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
         if self.entities_id != []:
-            self.write_ids(entities_id)
+            self.write_ids(self.entities_id)
             self.radioButton_entity.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
@@ -463,3 +468,12 @@ class MaterialInput(QDialog):
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
+
+    def update(self):
+        self.entities_id = self.opv.getListPickedEntities()
+        if self.entities_id != []:
+            self.write_ids(self.entities_id)
+            self.radioButton_entity.setChecked(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)

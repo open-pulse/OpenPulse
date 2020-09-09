@@ -244,6 +244,7 @@ class TreeUi(QTreeWidget):
 
         
     def on_click_item(self, item, column):
+        self.mainWindow.getInputWidget().beforeInput()
         if item.text(0) == self.name_child_set_material:
             self.mainWindow.getInputWidget().set_material()
         elif item.text(0) == self.name_child_set_fluid: 
