@@ -207,6 +207,9 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     
     def pickElements(self, x0, y0, x1, y1, tolerance=10):
         tooSmall = (abs(x0-x1) < tolerance) or (abs(y0-y1) < tolerance)
+        if tooSmall:
+            x0, x1 = (x0-tolerance//2), (x1+tolerance//2)
+            y0, y1 = (y0-tolerance//2), (y1+tolerance//2)
 
         picker = vtk.vtkAreaPicker()
         extractor = vtk.vtkExtractSelectedFrustum()
