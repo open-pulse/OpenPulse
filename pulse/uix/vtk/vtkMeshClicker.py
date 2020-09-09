@@ -1,6 +1,8 @@
 import vtk 
 import PyQt5
 
+from functools import partial
+from math import sqrt
 from time import time
 
 def constrain(number, floor, ceil):
@@ -11,15 +13,40 @@ def constrain(number, floor, ceil):
     else:
         return number
 
+def distance(p0, p1):
+    x0,y0,z0 = p0
+    x1,y1,z1 = p1
+    dx = x0-x1
+    dy = y0-y1
+    dz = z0-z1 
+    return sqrt(dx*dx + dy*dy + dz*dz)
+
+def getVertsFromBounds(bounds):
+    x0,x1,y0,y1,z0,z1 = bounds
+    verts = []
+    verts.append((x0,y0,z0))
+    verts.append((x0,y0,z1))
+    verts.append((x0,y1,z0))
+    verts.append((x0,y1,z1))
+    verts.append((x1,y0,z0))
+    verts.append((x1,y0,z1))
+    verts.append((x1,y1,z0))
+    return verts
+    verts.append((x1,y1,z1))
+
+def distanceBoundsToPoint(point, bounds):
+    verts = getVertsFromBounds(bounds)
+    minDist = None
+    for vertice in verts:
+        if (minDist is None) or (distance(vertice, point) < minDist):
+            minDist = distance(vertice, point)
+    return minDist
+
 class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def __init__(self, rendererMesh):
         self.__rendererMesh = rendererMesh
 
         self.__pixelData = vtk.vtkUnsignedCharArray()  
-        self.__selection_source = vtk.vtkAppendPolyData()
-        self.__selection_mapper = vtk.vtkPolyDataMapper()
-        self.__selection_actor = vtk.vtkActor()
-
         self.__selectedPoints = set()
         self.__selectedElements = set()
         self.__selectionColor = (255, 0, 0, 255)
@@ -28,12 +55,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.mousePosition = (0,0)
         self.__leftButtonClicked = False 
         self.__altKeyClicked = False
-
+        
         self.createObservers()
-
-    #
-    def getSelectedActors(self):
-        return list(self.__selectedActors)
 
     # 
     def createObservers(self):
@@ -129,25 +152,17 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
     #
     def selectActors(self):
-        x1, y1 = self.clickPosition
-        x2, y2 = self.mousePosition
+        x0, y0 = self.clickPosition
+        x1, y1 = self.mousePosition
 
-        controlPressed = self.GetInteractor().GetControlKey()
-        shiftPressed = self.GetInteractor().GetShiftKey()
+        controlPressed = bool(self.GetInteractor().GetControlKey())
+        shiftPressed = bool(self.GetInteractor().GetShiftKey())
         altPressed = self.__altKeyClicked
 
-        rendererPoints = self.__rendererMesh._rendererPoints
-        rendererElements = self.__rendererMesh._rendererElements
+        pickedPoints = self.pickPoints(x0,y0,x1,y1)
+        pickedElements = self.pickElements(x0,y0,x1,y1)
 
-        # sincronize camera between renderers
-        cam = self.__rendererMesh.getRenderer().GetActiveCamera()
-        rendererPoints.SetActiveCamera(cam)
-        rendererElements.SetActiveCamera(cam)
-
-        pickedPoints = self.pickActors(x1, y1, x2, y2, rendererPoints)
-        pickedElements = self.pickActors(x1, y1, x2, y2, rendererElements)
-
-        # give preference to points on click
+        # give preference to points selection
         if len(pickedPoints) == 1 and len(pickedElements) == 1:
             pickedElements.clear()
 
@@ -161,58 +176,67 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         else:
             self.__selectedPoints = pickedPoints
             self.__selectedElements = pickedElements
-
-        self.highlight(self.__selectedPoints | self.__selectedElements)
-        self.__rendererMesh.updateInfoText()
-        self.__rendererMesh.update()
+        
+        self.InvokeEvent('SelectionChangedEvent')
 
     # 
-    def pickActors(self, x1, y1, x2, y2, renderer, tolerance=5):
-        tooSmall = (abs(x1-x2) < tolerance) or (abs(y1-y2) < tolerance)
-        pickedActors = set()
-
+    def pickPoints(self, x0, y0, x1, y1, tolerance=10):
+        tooSmall = (abs(x0-x1) < tolerance) or (abs(y0-y1) < tolerance)
         if tooSmall:
-            picker = vtk.vtkAreaPicker()
-            picker.Pick(x2, y2, 0, renderer)
-            actor = picker.GetActor()
-            if actor:
-                pickedActors.add(actor)
-        else:
-            picker = vtk.vtkAreaPicker()
-            picker.AreaPick(x1, y1, x2, y2, renderer)
-            pickedActors = set(picker.GetProp3Ds())
-        return pickedActors
+            x0, x1 = (x0-tolerance//2), (x1+tolerance//2)
+            y0, y1 = (y0-tolerance//2), (y1+tolerance//2)
 
-    def highlight(self, actors, color=(255,0,0)):
-        self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
-        self.__selection_source.RemoveAllInputs()
-        if len(actors) > 0:
-            for actor in actors:
-                input_data = actor.GetMapper().GetInput()
-                self.__selection_source.AddInputData(input_data)
-            self.__selection_mapper.SetInputConnection(self.__selection_source.GetOutputPort())
-            self.__selection_actor.SetMapper(self.__selection_mapper)
-            self.__rendererMesh.getRenderer().AddActor(self.__selection_actor)
-            self.__selection_actor.GetProperty().SetColor(*color)
-            self.__selection_actor.GetProperty().SetOpacity(0.9)
-        self.GetInteractor().GetRenderWindow().Render()
+        picker = vtk.vtkAreaPicker()
+        extractor = vtk.vtkExtractSelectedFrustum()
+        renderer = self.__rendererMesh._renderer
+        picker.AreaPick(x0,y0,x1,y1,renderer)
+        extractor.SetFrustum(picker.GetFrustum())
+
+        nodeBounds = self.__rendererMesh.nodesBounds
+        camPos = renderer.GetActiveCamera().GetPosition()
+        distanceFromCamera = lambda key: distanceBoundsToPoint(camPos, nodeBounds[key])
+        pickedPoints = {key for key, bound in nodeBounds.items() if extractor.OverallBoundsTest(bound)}
+        
+        # when not box selecting, pick only the closest point
+        if tooSmall and pickedPoints:
+            closest = min(pickedPoints, key=distanceFromCamera)
+            pickedPoints.clear()
+            pickedPoints.add(closest)
+
+        return pickedPoints
+    
+    def pickElements(self, x0, y0, x1, y1, tolerance=10):
+        tooSmall = (abs(x0-x1) < tolerance) or (abs(y0-y1) < tolerance)
+        if tooSmall:
+            x0, x1 = (x0-tolerance//2), (x1+tolerance//2)
+            y0, y1 = (y0-tolerance//2), (y1+tolerance//2)
+
+        picker = vtk.vtkAreaPicker()
+        extractor = vtk.vtkExtractSelectedFrustum()
+        renderer = self.__rendererMesh._renderer
+        picker.AreaPick(x0,y0,x1,y1,renderer)
+        extractor.SetFrustum(picker.GetFrustum())
+
+        elementsBounds = self.__rendererMesh.elementsBounds
+        camPos = renderer.GetActiveCamera().GetPosition()
+        distanceFromCamera = lambda key: distanceBoundsToPoint(camPos, elementsBounds[key])
+        pickedElements = {key for key, bound in elementsBounds.items() if extractor.OverallBoundsTest(bound)}
+
+        # when not box selecting, pick only the closest element
+        if tooSmall and pickedElements:
+            closest = min(pickedElements, key=distanceFromCamera)
+            pickedElements.clear()
+            pickedElements.add(closest)
+
+        return pickedElements
 
     def clear(self):
-        self.__rendererMesh.getRenderer().RemoveActor(self.__selection_actor)
-        self.__selection_source.RemoveAllInputs()
-        self.__selectedActors = set()
-        self.__rendererMesh.updateInfoText()
-
-    def getListPickedActors(self):
-        listActorsIDs = []
-        for actor in self.getSelectedActors():
-            if self.__rendererMesh.actors[actor] == -1:
-                continue
-            listActorsIDs.append(self.__rendererMesh.actors[actor])
-        return listActorsIDs
+        self.__selectedPoints.clear()
+        self.__selectedElements.clear()
+        self.InvokeEvent('SelectionChangedEvent')
         
-    def getSelectedPoints(self):
-        return self.__selectedPoints
+    def getListPickedPoints(self):
+        return list(self.__selectedPoints)
     
-    def getSelectedElements(self):
-        return self.__selectedElements
+    def getListPickedElements(self):
+        return list(self.__selectedElements)

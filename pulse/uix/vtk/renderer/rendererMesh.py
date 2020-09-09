@@ -14,41 +14,191 @@ class RendererMesh(vtkRendererBase):
         self.opv = opv 
         self.symbols = vtkSymbols()
         self.plotRadius = False
-
-        self.pointsID = dict()
-        self.elementsID = dict()
+        
+        self.nodesBounds = dict() # (x,y,z) coordinates
+        self.elementsBounds = dict() # bounding coordinates
         self.axes = dict()
 
-        self._rendererPoints = vtk.vtkRenderer()
-        self._rendererElements = vtk.vtkRenderer()
-        self._rendererPoints.DrawOff()
-        self._rendererElements.DrawOff()
-    
-    def getSelectedPoints(self):
-        return self._style.getSelectedPoints()
-    
-    def getSelectedElements(self):
-        return self._style.getSelectedElements()
-    
-    def getListPickedPoints(self):
-        return [self.pointsID[point] for point in self.getSelectedPoints()]
+        self.selectionNodesActor = None
+        self.selectionElementsActor = None
+        self.selectionTubeActor = None
 
-    def getListPickedElements(self):
-        return [self.elementsID[element] for element in self.getSelectedElements()]
+        self._style.AddObserver('SelectionChangedEvent', self.highlight)
     
-    def plot(self):
-        self.reset()
-        self.plotPoints()
-        self.plotElements()
+    def highlight(self, obj, event):
+        selectedNodes = [self.project.get_node(i) for i in self.getListPickedPoints()]
+        selectedElements = [self.project.get_element(i) for i in self.getListPickedElements()]
 
+        self._renderer.RemoveActor(self.selectionNodesActor)
+        self._renderer.RemoveActor(self.selectionElementsActor)
+        self._renderer.RemoveActor(self.selectionTubeActor)
+        
+        if selectedNodes:
+            source = vtk.vtkCubeSource()
+            source.SetXLength(3)
+            source.SetYLength(3)
+            source.SetZLength(3)
+            self.selectionNodesActor = self.createActorNodes(selectedNodes,source)
+            self.selectionNodesActor.GetProperty().SetColor(255,0,0)
+            self._renderer.AddActor(self.selectionNodesActor)    
+        
+        if selectedElements:
+            self.selectionElementsActor = self.createActorElements(selectedElements)
+            self.selectionElementsActor.GetProperty().SetLineWidth(5)
+            self.selectionElementsActor.GetProperty().SetColor(1,0,0)
+            self._renderer.AddActor(self.selectionElementsActor)
+
+            self.selectionTubeActor = self.createActorTubes(selectedElements)
+            self.selectionTubeActor.GetProperty().SetColor(1,0,0)
+            self.selectionTubeActor.GetProperty().SetOpacity(0.3)
+            self._renderer.AddActor(self.selectionTubeActor)        
+
+        self.updateInfoText()
+        self.update()
+        renWin = self._renderer.GetRenderWindow()
+        if renWin:
+            renWin.Render()
+        
     def reset(self):
         self._renderer.RemoveAllViewProps()
-        self._rendererPoints.RemoveAllViewProps()
-        self._rendererElements.RemoveAllViewProps()
         self._style.clear()
     
+    def getListPickedPoints(self):
+        return self._style.getListPickedPoints()
+
+    def getListPickedElements(self):
+        return self._style.getListPickedElements()
+        
     def update(self):
         self.opv.update()
+    
+    def updateAllAxes(self):
+        pass
+
+    def plot(self):
+        self.reset()
+        self.saveNodesBounds()
+        self.saveElementsBounds()
+        self.plotNodes()
+        self.plotElements()
+        self.plotTubes()
+    
+    def saveNodesBounds(self):
+        self.nodesBounds.clear()
+        for key, node in self.project.get_nodes().items():
+            x,y,z = node.coordinates
+            self.nodesBounds[key] = (x,x,y,y,z,z)
+    
+    def saveElementsBounds(self):
+        self.elementsBounds.clear()
+        for key, element in self.project.get_elements().items():
+            firstNode = element.first_node.coordinates
+            lastNode = element.last_node.coordinates
+
+            x0 = min(firstNode[0], lastNode[0])
+            y0 = min(firstNode[1], lastNode[1])
+            z0 = min(firstNode[2], lastNode[2])
+            x1 = max(firstNode[0], lastNode[0])
+            y1 = max(firstNode[1], lastNode[1])
+            z1 = max(firstNode[2], lastNode[2])
+
+            bounds = (x0,x1,y0,y1,z0,z1)
+            self.elementsBounds[key] = bounds
+
+    def plotNodes(self):
+        nodes = self.project.get_nodes().values()
+        source = vtk.vtkCubeSource()
+        source.SetXLength(2)
+        source.SetYLength(2)
+        source.SetZLength(2)
+        actor = self.createActorNodes(nodes,source)
+        actor.GetProperty().SetColor(1,1,0)
+        self._renderer.AddActor(actor)       
+    
+    def plotElements(self):
+        elements = self.project.get_elements().values()
+        actor = self.createActorElements(elements)
+        actor.GetProperty().SetLineWidth(2)
+        self._renderer.AddActor(actor)
+    
+    def plotTubes(self):
+        elements = self.project.get_elements().values()
+        actor = self.createActorTubes(elements)
+        actor.GetProperty().SetColor(0.7,0.7,0.8)
+        actor.GetProperty().SetOpacity(0.2)
+        self._renderer.AddActor(actor)
+    
+    def createActorNodes(self, nodes, source):
+        points = vtk.vtkPoints()
+        data = vtk.vtkPolyData()
+        cameraDistance = vtk.vtkDistanceToCamera()
+        glyph = vtk.vtkGlyph3D()
+        actor = vtk.vtkActor()
+        mapper = vtk.vtkPolyDataMapper()
+
+        for node in nodes:
+            x,y,z = node.coordinates
+            points.InsertNextPoint(x,y,z)
+        
+        data.SetPoints(points)
+        cameraDistance.SetInputData(data)
+        cameraDistance.SetRenderer(self._renderer)
+        cameraDistance.SetScreenSize(3)
+
+        glyph.SetInputConnection(cameraDistance.GetOutputPort())
+        glyph.SetSourceConnection(source.GetOutputPort())
+        glyph.SetColorModeToColorByVector()
+        glyph.SetVectorModeToUseNormal()
+        glyph.SetInputArrayToProcess(0,0,0,0,'DistanceToCamera')
+
+        mapper.SetInputConnection(glyph.GetOutputPort())  
+        actor.SetMapper(mapper)
+        return actor 
+        
+    def createActorElements(self, elements):
+        source = vtk.vtkAppendPolyData()
+        mapper = vtk.vtkPolyDataMapper()
+        actor = vtk.vtkActor()
+
+        for element in elements:
+            points = vtk.vtkPoints()
+            edges = vtk.vtkCellArray()
+            line = vtk.vtkLine()
+            obj = vtk.vtkPolyData()
+
+            points.InsertPoint(0, *element.first_node.coordinates)
+            points.InsertPoint(1, *element.last_node.coordinates)
+            line.GetPointIds().SetId(0,0)
+            line.GetPointIds().SetId(1,1)
+            edges.InsertNextCell(line)
+
+            obj.SetPoints(points)
+            obj.SetLines(edges)
+            source.AddInputData(obj)
+
+        mapper.SetInputConnection(source.GetOutputPort())
+        actor.SetMapper(mapper)
+        return actor
+
+    def createActorTubes(self, elements):
+        source = vtk.vtkAppendPolyData()
+        mapper = vtk.vtkPolyDataMapper()
+        actor = vtk.vtkActor()
+
+        for element in elements:
+            cross_section = element.cross_section
+            if cross_section:
+                size = cross_section.external_diameter / 2
+            else:
+                size = 0.002
+            plot = ActorElement(element, size)
+            plot.build()
+            source.AddInputData(plot.getActor().GetMapper().GetInput())
+
+        mapper.SetInputConnection(source.GetOutputPort())
+        actor.SetMapper(mapper)
+        return actor
+
 
     def updateInfoText(self):
         pointsText = self.getPointsInfoText()
@@ -136,67 +286,6 @@ class RendererMesh(vtkRendererBase):
                     text += '\n'
         return text
 
-    #     
-    def plotPoints(self):
-        pointsSource = vtk.vtkAppendPolyData()
-        pointsMapper = vtk.vtkPolyDataMapper()
-        pointsActor = vtk.vtkActor()
-
-        size = 0.006
-        
-        for key, node in self.project.get_nodes().items():
-            sphere = vtk.vtkCubeSource()
-            mapper = vtk.vtkPolyDataMapper()
-            actor = vtk.vtkActor()
-
-            sphere.SetXLength(size)
-            sphere.SetYLength(size)
-            sphere.SetZLength(size)
-            
-            sphere.SetCenter(node.coordinates)
-
-            pointsSource.AddInputConnection(sphere.GetOutputPort())
-            mapper.SetInputConnection(sphere.GetOutputPort())
-            actor.SetMapper(mapper)
-
-            self.pointsID[actor] = key
-            self._rendererPoints.AddActor(actor)
-        
-        pointsMapper.SetInputConnection(pointsSource.GetOutputPort())
-        pointsActor.SetMapper(pointsMapper)
-        pointsActor.GetProperty().SetColor(1, 1, 0)
-        pointsActor.GetProperty().SetOpacity(0.9)
-        pointsActor.GetProperty().SetSpecular(0)
-        self._renderer.AddActor(pointsActor)
-
-    
-    def plotElements(self):
-        elementsSource = vtk.vtkAppendPolyData()
-        elementsMapper = vtk.vtkPolyDataMapper()
-        elementsActor = vtk.vtkActor()
-
-        for key, element in self.project.get_elements().items():
-            cross_section = element.cross_section
-            if cross_section and self.plotRadius:
-                size = cross_section.external_diameter / 2
-            else:
-                size = 0.002 
-
-            plot = ActorElement(element, size, key)
-            plot.build()
-            actor = plot.getActor()
-            actor.GetProperty().SetColor(0,255,0)
-            
-            elementsSource.AddInputData(actor.GetMapper().GetInput())
-            self.elementsID[actor] = key
-            self._rendererElements.AddActor(actor)
-
-        elementsMapper.SetInputConnection(elementsSource.GetOutputPort())
-        elementsActor.SetMapper(elementsMapper)
-        elementsActor.GetProperty().SetColor(1, 0, 0.5)
-        elementsActor.GetProperty().SetSpecular(0)
-        elementsActor.GetProperty().SetOpacity(0.6)
-        self._renderer.AddActor(elementsActor)
 
 ###    
     def updateAllAxes(self):

@@ -163,8 +163,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.setInUse(True)
         self.rendererMesh.updateAllAxes()
         self.SetInteractorStyle(self.rendererMesh.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererMesh._rendererPoints)
-        self.GetRenderWindow().AddRenderer(self.rendererMesh._rendererElements)
         self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
         self.rendererMesh.resetCamera()
         self.afterChangePlot()

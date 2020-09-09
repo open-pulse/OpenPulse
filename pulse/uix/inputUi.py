@@ -168,7 +168,9 @@ class InputUi:
             self.project.set_cross_section_to_all(read.cross_section)
             self.project.set_element_type_to_all(read.element_type)
             print("[Set Cross-section] - defined at all lines")
+            
         self.opv.updateEntityRadius()
+        self.opv.plotMesh()
         
 
     def setDOF(self):
