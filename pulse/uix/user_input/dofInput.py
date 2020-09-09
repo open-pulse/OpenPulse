@@ -20,12 +20,14 @@ class DOFInput(QDialog):
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.project = project
         self.transform_points = opv.transformPoints
-        self.opv = opv
-        self.opv.changeUpdateFunction(self.update)
 
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path

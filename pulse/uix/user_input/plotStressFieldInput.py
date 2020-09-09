@@ -19,9 +19,13 @@ class PlotStressFieldInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
         self.solve = solve
-        self.opv = opv
         self.mesh = self.project.mesh
         self.damping = project.get_damping()
         self.frequencies = project.frequencies

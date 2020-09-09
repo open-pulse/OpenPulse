@@ -9,7 +9,7 @@ from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 
 class CrossSectionInput(QDialog):
-    def __init__(self, project, lines_id, elements_id, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
+    def __init__(self, project, opv, external_diameter=0, thickness=0, offset_y=0, offset_z=0, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/crossSectionInput.ui', self)
 
@@ -17,10 +17,15 @@ class CrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
         self.structural_elements = self.project.mesh.structural_elements
-        self.lines_id = lines_id
-        self.elements_id = elements_id
+        self.lines_id = self.opv.getListPickedEntities()
+        self.elements_id = self.opv.getListPickedElements()
 
         self.external_diameter = external_diameter
         self.thickness = thickness
@@ -68,11 +73,11 @@ class CrossSectionInput(QDialog):
         
         if self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
-            self.write_ids(lines_id)
+            self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
         elif self.elements_id != []:
             self.lineEdit_id_labels.setText("Elements IDs:")
-            self.write_ids(elements_id)
+            self.write_ids(self.elements_id)
             self.radioButton_selected_elements.setChecked(True)
         else:
             self.lineEdit_id_labels.setText("Lines IDs:")
@@ -219,3 +224,20 @@ class CrossSectionInput(QDialog):
             self.close()
         else:
             pass
+
+    def update(self):
+        self.lines_id = self.opv.getListPickedEntities()
+        self.elements_id = self.opv.getListPickedElements()
+
+        if self.lines_id != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(self.lines_id)
+            self.radioButton_selected_lines.setChecked(True)
+        elif self.elements_id != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(self.elements_id)
+            self.radioButton_selected_elements.setChecked(True)
+        else:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all_lines.setChecked(True)

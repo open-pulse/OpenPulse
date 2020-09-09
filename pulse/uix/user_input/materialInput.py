@@ -9,7 +9,7 @@ import configparser
 from pulse.preprocessing.material import Material
 
 class MaterialInput(QDialog):
-    def __init__(self, material_path, *args, **kwargs):
+    def __init__(self, opv, material_path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.materialPath = material_path
         uic.loadUi('pulse/uix/user_input/ui/materialInput.ui', self)
@@ -17,6 +17,11 @@ class MaterialInput(QDialog):
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
         
         self.clicked_item = None
         self.material = None

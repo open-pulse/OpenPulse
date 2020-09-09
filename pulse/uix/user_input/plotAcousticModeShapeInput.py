@@ -8,7 +8,7 @@ from PyQt5 import uic
 import configparser
 
 class PlotAcousticModeShapeInput(QDialog):
-    def __init__(self, frequencies, *args, **kwargs):
+    def __init__(self, opv, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotStructuralModeShapeInput.ui', self)
 
@@ -16,6 +16,10 @@ class PlotAcousticModeShapeInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.frequencies = frequencies
         self.mode_index = None

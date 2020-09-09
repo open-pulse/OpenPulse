@@ -10,7 +10,7 @@ import numpy as np
 from pulse.utils import error, info_messages, remove_bc_from_file
 
 class AcousticElementLengthCorrectionInput(QDialog):
-    def __init__(self, project, elements_id, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/elementLengthCorrectionInput.ui', self)
 
@@ -18,10 +18,15 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
         self.acoustic_elements = project.mesh.acoustic_elements
         self.dict_group_elements = project.mesh.group_elements_with_length_correction
-        self.elements_id = elements_id
+        self.elements_id = self.opv.getListPickedElements()
         self.type_label = None
         self.dkey = None
         self.elements_info_path = project.file._element_info_path
@@ -66,7 +71,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.pushButton_confirm.clicked.connect(self.check_element_correction_type)
 
         if self.elements_id != []:
-            self.write_ids(elements_id)
+            self.write_ids(self.elements_id)
 
         self.load_elements_info()
         self.exec_()
@@ -261,6 +266,9 @@ class AcousticElementLengthCorrectionInput(QDialog):
         except Exception as e:
             error(str(e), title="ERROR WHILE GETTING INFORMATION OF SELECTED GROUP")
 
+    def update(self):
+        self.write_ids(self.opv.getListPickedElements())
+
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, key_elements, dict_keys_labels, *args, **kwargs):
@@ -296,5 +304,3 @@ class GetInformationOfGroup(QDialog):
     
     def force_to_close(self):
         self.close()
-
-    

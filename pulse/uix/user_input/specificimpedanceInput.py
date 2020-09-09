@@ -12,13 +12,18 @@ from shutil import copyfile
 from pulse.utils import error, remove_bc_from_file
 
 class SpecificImpedanceInput(QDialog):
-    def __init__(self, project, list_node_ids, transform_points, *args, **kwargs):
+    def __init__(self, project, opv, transform_points, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/specificImpedanceInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
@@ -65,7 +70,7 @@ class SpecificImpedanceInput(QDialog):
         self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
         self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
         
-        self.writeNodes(list_node_ids)
+        self.writeNodes(self.opv.getListPickedPoints())
         self.load_nodes_info()
         self.exec_()
 
@@ -254,3 +259,6 @@ class SpecificImpedanceInput(QDialog):
         self.treeWidget_specific_impedance.clear()
         self.load_nodes_info()
         # self.close()
+
+    def update(self):
+        self.writeNodes(self.opv.getListPickedPoints())

@@ -117,6 +117,7 @@ class RendererEntity(vtkRendererBase):
 
     def update(self):
         self.opv.update()
+        self.opv.updateDialogs()
 
     def setPlotRadius(self, value):
         self.plotRadius = value
