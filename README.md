@@ -50,13 +50,13 @@ If you have any questions you can open a new issue with the tag 'question'.
 
 The authors are members of MOPT - Multidisciplinary Optimization Group, from Federal University of Santa Catarina (Florianópolis, SC, Brazil).
 
-    Olavo M. Silva,
-    Jacson G. Vargas,
-    Diego M. Tuozzo, 
-    Lucas V. Q. Kulakauskas,
-    Andre F. Fernandes,
-    José L. Souza,
-    Ana P. Rocha.
+   [Olavo M. Silva](https://www.linkedin.com/in/olavo-m-silva-5822a5151/) - Engineer;
+   [Jacson G. Vargas](https://www.linkedin.com/in/jacson-gil-vargas-a54b0768/) - Engineer;
+   [Diego M. Tuozzo](https://www.linkedin.com/in/martintuozzo/) - Engineer;
+   [Lucas V. Q. Kulakauskas](https://www.linkedin.com/in/lucas-kulakauskas-5a0314182/) - Engineer;
+   [Ana P. Rocha](https://www.linkedin.com/in/ana-paula-da-rocha-55520a176/) - Engineer;
+   [Andre F. Fernandes](https://www.linkedin.com/in/andrefernandes2001/) - Computer Scientist; 
+   [José L. Souza](https://www.linkedin.com/in/jos%C3%A9-luiz-de-souza-8669b5114/) - Computer Scientist.
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/MOPT.JPG?raw=true)
 
