@@ -87,6 +87,7 @@ if select == 1:
             self.offset_z = offset_z 
             self.poisson_ratio = poisson_ratio
             self.element_type = element_type
+            
             self.division_number = division_number
             self.offset_virtual = None
             
@@ -95,6 +96,8 @@ if select == 1:
 
             self.insulation_thickness = kwargs.get('insulation_thickness', 0)
             self.insulation_density = kwargs.get('insulation_density', 0)
+            self.additional_section_info = kwargs.get('additional_section_info', None)
+            self.shear_coefficient = kwargs.get('shear_coefficient', 1)
 
             # Area properties
             self.area = kwargs.get('area', 0)

@@ -9,6 +9,7 @@ class Entity:
         self.fluid = None
         self.crossSection = None
         self.element_type = None
+        self.additional_section_info = None
         self.caped_end = None
         self.length_correction = None
 

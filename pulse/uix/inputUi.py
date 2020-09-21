@@ -21,6 +21,7 @@ from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 #
+from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
 from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
 from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
 #
@@ -173,7 +174,9 @@ class InputUi:
             
         self.opv.updateEntityRadius()
         self.opv.plotMesh()
-        
+    
+    def plot_cross_section(self):
+        PlotCrossSectionInput(self.project, self.opv)
 
     def setDOF(self):
         read = DOFInput(self.project, self.opv)

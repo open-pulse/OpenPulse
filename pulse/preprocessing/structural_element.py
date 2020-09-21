@@ -384,10 +384,11 @@ class StructuralElement:
         I_2 = self.cross_section.second_moment_area_y
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
+ 
+        alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
 
-        alpha_rect = (12 + 11*nu)/(10*(1 + nu))
-        k_2 = 1/alpha_rect
-        # k_2 = 0.5
+        # alpha_rect = (12 + 11*nu)/(10*(1 + nu))
+        k_2 = 1/alpha
 
         # Others constitutive properties
         # I_3     = I_2
@@ -454,9 +455,11 @@ class StructuralElement:
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
 
-        alpha_rect = (12 + 11*nu)/(10*(1 + nu))
-        k_2 = 1/alpha_rect
-        #k_2 = 0.5
+        alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
+        k_2 = 1/alpha
+        
+        # alpha_rect = (12 + 11*nu)/(10*(1 + nu))
+        # k_2 = 1/alpha_rect
 
         # Others constitutive constants
         # I_3     = I_2
@@ -535,3 +538,71 @@ class StructuralElement:
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
 
         return self.symmetrize(me)
+
+    def get_shear_coefficient(self, section_info, poisson):
+
+        section_label = section_info[0]
+        parameters = section_info[1]
+ 
+        if section_label == "Rectangular section":
+
+            b, h, b_in, _, _, _ = parameters
+
+            m = (b_in)/h
+            n = b_in/h
+            numerator = 10*(1 + poisson)*((1 + 3*m)**2)
+            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + ((3 + poisson)*m + 3*m**2)*(10*n**2)
+            shear_coefficient = numerator/denominator
+
+        elif section_label == "Circular section":
+
+            d_out, d_in, _, _ = parameters
+            
+            m = d_in/d_out
+            numerator = 6*(1 + poisson)*((1 + m**2)**2)
+            denominator = (7 + 6*poisson)*((1 + m**2)**2) + ((20 + 12*poisson)*m**2)
+            shear_coefficient = numerator/denominator
+
+        elif section_label == "C-section":
+
+            h, w1, w2, w3, t1, _, t3, _, _, _ = parameters
+            
+            tf = (t1+t3)/2
+            b = (w1+w3)/2
+
+            m = (2*b*tf)/(h*w2)
+            n = b/h
+            numerator = 10*(1 + poisson)*((1 + 3*m)**2)
+            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
+            shear_coefficient = 0.93*numerator/denominator
+
+        elif section_label == "I-section":
+
+            h, w1, w2, w3, t1, _, t3, _, _, _ = parameters
+            
+            tf = (t1+t3)/2
+            b = (w1+w3)/2
+
+            m = (2*b*tf)/(h*w2)
+            n = b/h
+            numerator = 10*(1 + poisson)*((1 + 3*m)**2)
+            denominator = (12 + 72*m + 150*m**2 + 90*m**3) + poisson*(11 + 66*m + 135*m**2 + 90*m**3) + (m + m**2)*(30*n**2) + (8*m + 9*m**2)*(5*poisson*n**2)
+            shear_coefficient = numerator/denominator
+
+        elif section_label == "T-section":
+
+            h, w1, w2, t1, _, _, _ = parameters
+            tf, b = t1, w1
+      
+            m = (2*b*tf)/(h*w2)
+            n = b/h
+            numerator = 10*(1 + poisson)*((1 + 4*m)**2)
+            denominator = (12 + 96*m + 278*m**2 + 192*m**3) + poisson*(11 + 88*m + 248*m**2 + 216*m**3) + (m + m**2)*(30*n**2) + (4*m + 5*m**2 + m**3)*(10*poisson*n**2)
+            shear_coefficient = numerator/denominator
+
+        elif section_label == "Generic section":
+            shear_coefficient = self.cross_section.shear_coefficient
+
+        # print(section_label, parameters, shear_coefficient)
+
+        return shear_coefficient

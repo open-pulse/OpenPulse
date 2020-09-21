@@ -72,8 +72,8 @@ class RendererMesh(vtkRendererBase):
     def update(self):
         self.opv.update()
     
-    def updateAllAxes(self):
-        pass
+    # def updateAllAxes(self):
+    #     pass
 
     def plot(self):
         self.reset()
@@ -260,23 +260,51 @@ class RendererMesh(vtkRendererBase):
             else:
                 fluid = element.fluid.name.upper()
 
+            if element.element_type is None:
+                e_type = 'undefined'
+            elif 'BEAM' in element.element_type.upper():
+
+                area = element.cross_section.area
+                Iyy = element.cross_section.second_moment_area_y
+                Izz = element.cross_section.second_moment_area_y
+                Iyz = element.cross_section.second_moment_area_yz
+                additional_section_info = element.cross_section.additional_section_info
+
+                if additional_section_info is None:
+                    e_type = "{} (-)".format(element.element_type.upper())
+                else:
+                    e_type = "{} ({})".format(element.element_type.upper(), additional_section_info[0].capitalize())
+
+            else:
+                e_type = element.element_type.upper()
+
             firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.first_node.x, element.first_node.y, element.first_node.z)
             lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.last_node.x, element.last_node.y, element.last_node.z)
 
             text += f'Element ID: {listSelected[0]} \n'
             text += f'First Node ID: {element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
-            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n'
-            text += f'Element Type: {element.element_type.upper()} \n'
-            text += f'Diameter: {external_diameter} [m]\n'
-            text += f'Thickness: {thickness} [m]\n'
-            if offset_y != 0 or offset_z != 0:
-                text += f'Offset y: {offset_y} [m]\n'
-                text += f'Offset z: {offset_z} [m]\n'
-            if insulation_thickness != 0 or insulation_density != 0:
-                text += f'Insulation thickness: {insulation_thickness} [m]\n'
-                text += f'Insulation density: {insulation_density} [kg/m³]\n'
+            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n\n'
             text += f'Material: {material} \n'
-            text += f'Fluid: {fluid} \n'
+            text += f'Element Type: {e_type} \n'
+            
+            if "PIPE" in e_type:        
+                text += f'Diameter: {external_diameter} [m]\n'
+                text += f'Thickness: {thickness} [m]\n'
+                if offset_y != 0 or offset_z != 0:
+                    text += f'Offset y: {offset_y} [m]\n'
+                    text += f'Offset z: {offset_z} [m]\n'
+                if insulation_thickness != 0 or insulation_density != 0:
+                    text += f'Insulation thickness: {insulation_thickness} [m]\n'
+                    text += f'Insulation density: {insulation_density} [kg/m³]\n'
+
+            elif "BEAM" in e_type:
+                text += 'Area:  {} [m²]\n'.format(area)
+                text += 'Iyy:  {} [m^4]\n'.format(Iyy)
+                text += 'Izz:  {} [m^4]\n'.format(Izz)
+                text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+            
+            if element.fluid is not None:
+                text += f'\nFluid: {fluid} \n'
 
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'

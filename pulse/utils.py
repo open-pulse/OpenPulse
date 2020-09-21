@@ -2,6 +2,7 @@ from functools import wraps
 from time import time
 from scipy.sparse import issparse
 from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtCore import Qt
 import configparser
 
 def split_sequence(sequence, size):
@@ -56,6 +57,8 @@ def error( msg, title = " ERROR "):
 
 def info_messages(msg, title = " INFORMATION "):
     msg_box = QMessageBox()
+    setWindowFlags(Qt.WindowStaysOnTopHint)
+    setWindowModality(Qt.WindowModal)
     msg_box.setIcon(QMessageBox.Information)
     msg_box.setText(msg)
     msg_box.setWindowTitle(title)

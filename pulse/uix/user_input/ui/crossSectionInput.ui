@@ -76,7 +76,7 @@
       <x>0</x>
       <y>0</y>
       <width>391</width>
-      <height>72</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -93,16 +93,16 @@
       <rect>
        <x>10</x>
        <y>20</y>
-       <width>221</width>
+       <width>229</width>
        <height>29</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>12</pointsize>
+       <pointsize>13</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -119,9 +119,9 @@
     <widget class="QWidget" name="gridLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>248</x>
+       <x>240</x>
        <y>4</y>
-       <width>139</width>
+       <width>147</width>
        <height>65</height>
       </rect>
      </property>
@@ -143,7 +143,7 @@
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <italic>true</italic>
           <bold>true</bold>
@@ -178,7 +178,7 @@
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <italic>true</italic>
           <bold>true</bold>
@@ -213,7 +213,7 @@
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>9</pointsize>
+          <pointsize>10</pointsize>
           <weight>75</weight>
           <italic>true</italic>
           <bold>true</bold>
@@ -261,9 +261,9 @@
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>10</pointsize>
+       <pointsize>11</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -307,9 +307,9 @@
        <property name="font">
         <font>
          <family>Arial</family>
-         <pointsize>10</pointsize>
+         <pointsize>11</pointsize>
          <weight>75</weight>
-         <italic>true</italic>
+         <italic>false</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -323,10 +323,10 @@
         <widget class="QWidget" name="verticalLayoutWidget_7">
          <property name="geometry">
           <rect>
-           <x>152</x>
+           <x>154</x>
            <y>10</y>
            <width>101</width>
-           <height>113</height>
+           <height>116</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_7">
@@ -377,8 +377,8 @@
           <rect>
            <x>24</x>
            <y>10</y>
-           <width>111</width>
-           <height>111</height>
+           <width>123</width>
+           <height>117</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -387,9 +387,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -406,9 +406,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -425,9 +425,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -444,9 +444,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -463,7 +463,7 @@
         <widget class="QWidget" name="verticalLayoutWidget_8">
          <property name="geometry">
           <rect>
-           <x>272</x>
+           <x>262</x>
            <y>10</y>
            <width>45</width>
            <height>113</height>
@@ -487,9 +487,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -506,9 +506,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -525,9 +525,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -544,9 +544,9 @@
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
-              <italic>true</italic>
+              <italic>false</italic>
               <bold>true</bold>
              </font>
             </property>
@@ -661,17 +661,6 @@
               <height>30</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-              <underline>false</underline>
-              <strikeout>false</strikeout>
-             </font>
-            </property>
             <property name="text">
              <string>[kg/m³]</string>
             </property>
@@ -694,15 +683,6 @@
               <height>30</height>
              </size>
             </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
-            </property>
             <property name="text">
              <string>[m]</string>
             </property>
@@ -718,7 +698,7 @@
           <rect>
            <x>40</x>
            <y>22</y>
-           <width>77</width>
+           <width>79</width>
            <height>87</height>
           </rect>
          </property>
@@ -736,17 +716,6 @@
               <width>16777215</width>
               <height>30</height>
              </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-              <underline>false</underline>
-              <strikeout>false</strikeout>
-             </font>
             </property>
             <property name="text">
              <string>Density:</string>
@@ -769,15 +738,6 @@
               <width>16777215</width>
               <height>30</height>
              </size>
-            </property>
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>10</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
             </property>
             <property name="text">
              <string>Thickness:</string>
@@ -820,17 +780,14 @@
          <property name="geometry">
           <rect>
            <x>46</x>
-           <y>38</y>
-           <width>249</width>
-           <height>27</height>
+           <y>36</y>
+           <width>250</width>
+           <height>32</height>
           </rect>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <bold>true</bold>
+           <pointsize>12</pointsize>
           </font>
          </property>
          <property name="frameShape">
@@ -853,15 +810,15 @@
          <property name="geometry">
           <rect>
            <x>130</x>
-           <y>102</y>
+           <y>98</y>
            <width>87</width>
-           <height>27</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>11</pointsize>
+           <pointsize>12</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -912,7 +869,7 @@
       <attribute name="title">
        <string>Beam</string>
       </attribute>
-      <widget class="QTabWidget" name="tabWidget_beam_info">
+      <widget class="QTabWidget" name="tabWidget_section_beam_info1">
        <property name="geometry">
         <rect>
          <x>6</x>
@@ -926,120 +883,15 @@
        </property>
        <widget class="QWidget" name="tab_5">
         <attribute name="title">
-         <string>Rectangular</string>
+         <string>Common sections</string>
         </attribute>
-        <widget class="QWidget" name="verticalLayoutWidget_22">
+        <widget class="QPushButton" name="pushButton_enter_section_parameters">
          <property name="geometry">
           <rect>
-           <x>258</x>
-           <y>18</y>
-           <width>45</width>
-           <height>93</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_22">
-          <property name="spacing">
-           <number>4</number>
-          </property>
-          <property name="bottomMargin">
-           <number>0</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_43">
-            <property name="text">
-             <string>[m]</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_44">
-            <property name="text">
-             <string>[m]</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_26">
-         <property name="geometry">
-          <rect>
-           <x>54</x>
-           <y>20</y>
-           <width>75</width>
-           <height>91</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_26">
-          <item>
-           <widget class="QLabel" name="label_47">
-            <property name="text">
-             <string>base (b):</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_48">
-            <property name="text">
-             <string>height (h):</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_16">
-         <property name="geometry">
-          <rect>
-           <x>136</x>
-           <y>12</y>
-           <width>119</width>
-           <height>111</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_16">
-          <property name="spacing">
-           <number>8</number>
-          </property>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_base">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_height">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QPushButton" name="pushButton_confirm_beam">
-         <property name="geometry">
-          <rect>
-           <x>94</x>
-           <y>136</y>
-           <width>171</width>
-           <height>29</height>
+           <x>36</x>
+           <y>138</y>
+           <width>285</width>
+           <height>30</height>
           </rect>
          </property>
          <property name="font">
@@ -1052,179 +904,195 @@
           </font>
          </property>
          <property name="text">
-          <string>Confirm</string>
+          <string>Enter the cross-section parameters</string>
          </property>
         </widget>
-       </widget>
-       <widget class="QWidget" name="tab">
-        <attribute name="title">
-         <string>Circular</string>
-        </attribute>
-        <widget class="QWidget" name="verticalLayoutWidget_13">
+        <widget class="QWidget" name="gridLayoutWidget_2">
          <property name="geometry">
           <rect>
-           <x>42</x>
-           <y>22</y>
-           <width>103</width>
-           <height>99</height>
+           <x>102</x>
+           <y>8</y>
+           <width>169</width>
+           <height>127</height>
           </rect>
          </property>
-         <layout class="QVBoxLayout" name="verticalLayout_13">
-          <item>
-           <widget class="QLabel" name="label_24">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>9</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Outer diameter:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLabel" name="label_25">
-            <property name="font">
-             <font>
-              <family>Arial</family>
-              <pointsize>9</pointsize>
-              <weight>75</weight>
-              <italic>true</italic>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="text">
-             <string>Inner diameter:</string>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_9">
-         <property name="geometry">
-          <rect>
-           <x>150</x>
-           <y>12</y>
-           <width>111</width>
-           <height>119</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_9">
-          <item>
-           <widget class="QLineEdit" name="lineEdit_outer_diameter_beam">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_inner_diameter_beam">
-            <property name="focusPolicy">
-             <enum>Qt::StrongFocus</enum>
-            </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-        <widget class="QWidget" name="verticalLayoutWidget_10">
-         <property name="geometry">
-          <rect>
-           <x>266</x>
-           <y>20</y>
-           <width>37</width>
-           <height>105</height>
-          </rect>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_10">
-          <property name="spacing">
-           <number>6</number>
-          </property>
-          <property name="bottomMargin">
-           <number>3</number>
-          </property>
-          <item>
-           <widget class="QLabel" name="label_17">
+         <layout class="QGridLayout" name="gridLayout_2">
+          <item row="3" column="0">
+           <widget class="QRadioButton" name="radioButton_I_section">
             <property name="minimumSize">
              <size>
-              <width>0</width>
-              <height>18</height>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
              </size>
             </property>
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
+              <stylestrategy>PreferAntialias</stylestrategy>
              </font>
             </property>
-            <property name="text">
-             <string>[m]</string>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="text">
+             <string>I-section</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
-          <item>
-           <widget class="QLabel" name="label_18">
+          <item row="2" column="0">
+           <widget class="QRadioButton" name="radioButton_C_section">
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
             <property name="font">
              <font>
               <family>Arial</family>
-              <pointsize>9</pointsize>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
+              <stylestrategy>PreferAntialias</stylestrategy>
              </font>
             </property>
-            <property name="text">
-             <string>[m]</string>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
             </property>
-            <property name="alignment">
-             <set>Qt::AlignCenter</set>
+            <property name="text">
+             <string>C-section</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QRadioButton" name="radioButton_circular_section">
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <italic>true</italic>
+              <bold>true</bold>
+              <stylestrategy>PreferAntialias</stylestrategy>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="text">
+             <string>Circular</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QRadioButton" name="radioButton_rectangular_section">
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <italic>true</italic>
+              <bold>true</bold>
+              <stylestrategy>PreferAntialias</stylestrategy>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="text">
+             <string>Rectangular</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QRadioButton" name="radioButton_T_section">
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>130</width>
+              <height>17</height>
+             </size>
+            </property>
+            <property name="font">
+             <font>
+              <family>Arial</family>
+              <pointsize>11</pointsize>
+              <weight>75</weight>
+              <italic>true</italic>
+              <bold>true</bold>
+              <stylestrategy>PreferAntialias</stylestrategy>
+             </font>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::ClickFocus</enum>
+            </property>
+            <property name="text">
+             <string>T-section</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
          </layout>
-        </widget>
-        <widget class="QPushButton" name="pushButton_confirm_beam_3">
-         <property name="geometry">
-          <rect>
-           <x>94</x>
-           <y>136</y>
-           <width>171</width>
-           <height>29</height>
-          </rect>
-         </property>
-         <property name="font">
-          <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
-           <weight>75</weight>
-           <italic>true</italic>
-           <bold>true</bold>
-          </font>
-         </property>
-         <property name="text">
-          <string>Confirm</string>
-         </property>
         </widget>
        </widget>
        <widget class="QWidget" name="tab_4">
@@ -1234,15 +1102,27 @@
         <widget class="QWidget" name="verticalLayoutWidget_15">
          <property name="geometry">
           <rect>
-           <x>126</x>
-           <y>14</y>
+           <x>130</x>
+           <y>6</y>
            <width>119</width>
-           <height>111</height>
+           <height>129</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_15">
           <item>
            <widget class="QLineEdit" name="lineEdit_area">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
@@ -1253,6 +1133,18 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_Iyy">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
@@ -1263,6 +1155,18 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_Izz">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
             </property>
@@ -1273,8 +1177,45 @@
           </item>
           <item>
            <widget class="QLineEdit" name="lineEdit_Iyz">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
             <property name="focusPolicy">
              <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_shear_coefficient">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>20</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+            <property name="text">
+             <string>1</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -1286,10 +1227,10 @@
         <widget class="QWidget" name="verticalLayoutWidget_17">
          <property name="geometry">
           <rect>
-           <x>256</x>
-           <y>14</y>
+           <x>254</x>
+           <y>6</y>
            <width>51</width>
-           <height>111</height>
+           <height>125</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_17">
@@ -1339,15 +1280,25 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_40">
+            <property name="text">
+             <string>[-]</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
         <widget class="QWidget" name="verticalLayoutWidget_18">
          <property name="geometry">
           <rect>
-           <x>52</x>
-           <y>14</y>
-           <width>63</width>
-           <height>111</height>
+           <x>32</x>
+           <y>6</y>
+           <width>93</width>
+           <height>127</height>
           </rect>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_18">
@@ -1391,13 +1342,23 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QLabel" name="label_39">
+            <property name="text">
+             <string>Shear factor:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
-        <widget class="QPushButton" name="pushButton_confirm_beam_2">
+        <widget class="QPushButton" name="pushButton_confirm_generic_section_beam">
          <property name="geometry">
           <rect>
            <x>94</x>
-           <y>136</y>
+           <y>140</y>
            <width>171</width>
            <height>29</height>
           </rect>
@@ -1423,17 +1384,18 @@
         <widget class="QLabel" name="label_2">
          <property name="geometry">
           <rect>
-           <x>56</x>
+           <x>52</x>
            <y>40</y>
-           <width>249</width>
-           <height>27</height>
+           <width>250</width>
+           <height>32</height>
           </rect>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>11</pointsize>
+           <pointsize>12</pointsize>
            <weight>75</weight>
+           <italic>false</italic>
            <bold>true</bold>
           </font>
          </property>
@@ -1457,15 +1419,14 @@
          <property name="geometry">
           <rect>
            <x>136</x>
-           <y>94</y>
+           <y>102</y>
            <width>87</width>
-           <height>27</height>
+           <height>28</height>
           </rect>
          </property>
          <property name="font">
           <font>
-           <family>Arial</family>
-           <pointsize>11</pointsize>
+           <pointsize>12</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>

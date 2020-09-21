@@ -242,6 +242,16 @@ class ProjectFile:
 
         for entity in entityFile.sections():
 
+            if 'element type' in entityFile[entity].keys():
+
+                element_type = entityFile[entity]['Element Type']
+
+                if element_type != "":
+                    dict_element_type[int(entity)] = element_type
+                    self.element_type_is_structural = True
+                else:
+                    dict_element_type[int(entity)] = 'pipe_1'
+
             diam_ext = ""
             thickness = ""
             offset_y, offset_z = 0., 0.
@@ -262,7 +272,7 @@ class ProjectFile:
                     insulation_density = entityFile[entity]['insulation density']
                 if 'list of elements (cross-sections)' in entityFile[entity].keys():
                     list_elements = entityFile[entity]['list of elements (cross-sections)']
-                    get_list_elements = self._get_list_elements_from_string(list_elements)
+                    get_list_elements = self._get_list_of_values_from_string(list_elements)
     
                 if diam_ext!="" and thickness!="":
                     try:
@@ -276,10 +286,10 @@ class ProjectFile:
                         dict_cross[entity] = [cross, get_list_elements]
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
-                        return {}, {}, {}, {}
+                        return {}, {}, {}, {}, {}
             else:
 
-                area, Iyy, Izz, Iyz = "", "", "", ""
+                area, Iyy, Izz, Iyz, section_type, section_parameters = "", "", "", "", "", ""
 
                 if 'area' in entityFile[entity].keys():
                     area = entityFile[entity]['area']
@@ -289,16 +299,35 @@ class ProjectFile:
                     Izz = entityFile[entity]['second moment of area z']
                 if 'second moment of area yz' in entityFile[entity].keys():
                     Iyz = entityFile[entity]['second moment of area yz']
-                
-                if area != "" and Iyy != "" and Izz!="":
+                if 'beam section type' in entityFile[entity].keys():
+                    section_type = entityFile[entity]['beam section type']
+                if 'section parameters' in entityFile[entity].keys():
+                    section_parameters = entityFile[entity]['section parameters']
+                if 'shear coefficient' in entityFile[entity].keys():
+                    shear_coefficient = entityFile[entity]['shear coefficient']
+
+                if not "" in [area, Iyy, Izz, section_type]:
+
                     try:
+
                         area = float(area)
-                        external_diameter = 2*np.abs(np.sqrt(area/np.pi))
                         Iyy = float(Iyy)
                         Izz = float(Izz)
                         Iyz = float(Iyz)
-                        cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz)
+                        external_diameter = 2*np.abs(np.sqrt(area/np.pi))
+
+                        _shear_coefficient = [float(shear_coefficient) if "Generic section" in section_type else None]
+
+                        if "Generic" not in section_type:
+                            list_section_parameters = self._get_list_of_values_from_string(section_parameters, are_values_int=False)
+                        else:
+                            list_section_parameters = None
+                            shear_coefficient = float(shear_coefficient)
+                        cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
+                                        additional_section_info=[section_type, list_section_parameters], shear_coefficient=_shear_coefficient[0])
+                        
                         dict_cross[entity] = cross
+                        
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
                         return {}, {}, {}, {}, {}
@@ -323,21 +352,13 @@ class ProjectFile:
                         offset_z = float(offset_z)
                         insulation_thickness = float(insulation_thickness)
                         insulation_density = float(insulation_density)
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
+                        section_info = ["Pipe section", [diam_ext, thickness, offset_y, offset_z, insulation_thickness]]
+                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, 
+                                            insulation_thickness=insulation_thickness, insulation_density=insulation_density, additional_section_info=section_info)
                         dict_cross[entity] = cross
                     except Exception as er:
                         error(str(er), title = "Error while loading cross-section parameters from file")
                         return {}, {}, {}, {}, {}
-
-            if 'element type' in entityFile[entity].keys():
-
-                element_type = entityFile[entity]['Element Type']
-
-                if element_type != "":
-                    dict_element_type[int(entity)] = element_type
-                    self.element_type_is_structural = True
-                else:
-                    dict_element_type[int(entity)] = 'pipe_1'
                     
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
@@ -378,13 +399,14 @@ class ProjectFile:
                     length_correction_type = int(element_file[section]['length correction type'])   
                 if 'list of elements' in  element_file[section].keys():
                     list_elements = element_file[section]['list of elements']
-                    get_list_elements = self._get_list_elements_from_string(list_elements)
+                    get_list_elements = self._get_list_of_values_from_string(list_elements)
                 if length_correction_type in [0,1,2] and get_list_elements != []:
                     dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as er:  
                 error(str(er), title="ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION")
+                # return {}, {}, {}, {}, {}
 
-        return dict_material, dict_cross, dict_element_type, dict_fluid, dict_length_correction
+        return dict_material, dict_element_type, dict_cross, dict_fluid, dict_length_correction
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
@@ -393,34 +415,39 @@ class ProjectFile:
         for section in list(config.sections()):
             section_sub = str(entity_id) + '-'
             if section_sub in section:
-                # print("Section removed: {}".format(section))
                 config.remove_section(section)
     
         if cross_section.thickness == 0:
             if str(entity_id) in list(config.sections()):
+                
                 config.remove_option(section=str(entity_id), option='outer diameter')
                 config.remove_option(section=str(entity_id), option='thickness')
                 config.remove_option(section=str(entity_id), option='offset [e_y, e_z]')
                 config.remove_option(section=str(entity_id), option='insulation thickness')
                 config.remove_option(section=str(entity_id), option='insulation density')
+                config.remove_option(section=str(entity_id), option='section parameters'),
+                config.remove_option(section=str(entity_id), option='shear coefficient')
 
                 config[str(entity_id)]['area'] = str(cross_section.area)
                 config[str(entity_id)]['second moment of area y'] = str(cross_section.second_moment_area_y)
                 config[str(entity_id)]['second moment of area z'] = str(cross_section.second_moment_area_z)
                 config[str(entity_id)]['second moment of area yz'] = str(cross_section.second_moment_area_yz)
-            else:
-                config[str(entity_id)] = { 
-                                            'area': str(cross_section.area),
-                                            'second moment of area y': str(cross_section.second_moment_area_y),
-                                            'second moment of area z': str(cross_section.second_moment_area_z),
-                                            'second moment of area yz': str(cross_section.second_moment_area_yz)
-                                         }                
+                config[str(entity_id)]['beam section type'] = cross_section.additional_section_info[0]
+                
+                if not "Generic" in cross_section.additional_section_info[0]:
+                    config[str(entity_id)]['section parameters'] = str(cross_section.additional_section_info[1])
+                else:
+                    config[str(entity_id)]['shear coefficient'] = str(cross_section.shear_coefficient)
+              
         else:
 
             config.remove_option(section=str(entity_id), option='area')
             config.remove_option(section=str(entity_id), option='second moment of area y')
             config.remove_option(section=str(entity_id), option='second moment of area z')
             config.remove_option(section=str(entity_id), option='second moment of area yz')
+            config.remove_option(section=str(entity_id), option='beam section type')
+            config.remove_option(section=str(entity_id), option='section parameters')
+            config.remove_option(section=str(entity_id), option='shear coefficient')
 
             if str(entity_id) in list(config.sections()):
 
@@ -429,15 +456,7 @@ class ProjectFile:
                 config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
                 config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
                 config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
-            else:
-                config[str(entity_id)] = { 
-                                            'outer diameter': str(cross_section.external_diameter),
-                                            'thickness': str(cross_section.thickness),
-                                            'offset [e_y, e_z]': str(cross_section.offset),
-                                            'insulation thickness': str(cross_section.insulation_thickness),
-                                            'insulation density': str(cross_section.insulation_density)
-                                        }
-
+ 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
@@ -502,24 +521,6 @@ class ProjectFile:
         else:
             config[str(entity_id)] = { 
                                         'element type': element_type
-                                     }    
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
-
-    def add_beam_section_info_in_file(self, entity_id, area, Iyy, Izz, Iyz):
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['area'] = area
-            config[str(entity_id)]['Iyy'] = Iyy
-            config[str(entity_id)]['Izz'] = Izz
-            config[str(entity_id)]['Iyz'] = Iyz
-        else:
-            config[str(entity_id)] = { 
-                                        'area': area,
-                                        'Iyy': Iyy,
-                                        'Izz': Izz,
-                                        'Iyz': Iyz
                                      }    
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -651,12 +652,19 @@ class ProjectFile:
                 offset_z = float(offset[1])
         return offset_y, offset_z
 
-    def _get_list_elements_from_string(self, list_elements):
-        list_elements = list_elements[1:-1].split(',')
-        _list_elements = []
-        for element in list_elements:
-            _list_elements.append(int(element))
-        return _list_elements
+    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
+        
+        input_string = input_string[1:-1].split(',')
+        list_values = []
+        
+        if are_values_int:
+            for value in input_string:
+                list_values.append(int(value))
+        else:
+            for value in input_string:
+                list_values.append(float(value))
+
+        return list_values
 
     def _get_acoustic_bc_from_string(self, value, label):
         

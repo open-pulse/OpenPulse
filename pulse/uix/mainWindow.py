@@ -90,6 +90,11 @@ class MainWindow(QMainWindow):
         self.mesh_action.setStatusTip('Plot Mesh')
         self.mesh_action.triggered.connect(self.plot_mesh)
 
+        self.section_action = QAction('&Plot Cross-section', self)
+        self.section_action.setShortcut('Ctrl+4')
+        self.section_action.setStatusTip('Plot Cross-section')
+        self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
+
         #Structural Model Setup
         self.set_material_action = QAction('&Set Material', self)        
         self.set_material_action.setShortcut('Alt+1')
@@ -255,6 +260,7 @@ class MainWindow(QMainWindow):
         graphicMenu.addAction(self.entities_action)
         graphicMenu.addAction(self.entities_action_radius)
         graphicMenu.addAction(self.mesh_action)
+        graphicMenu.addAction(self.section_action)
 
         modelSetup.addAction(self.setElementType_action)
         modelSetup.addAction(self.set_material_action)

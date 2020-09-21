@@ -147,22 +147,26 @@ class Project:
 
     def load_entity_file(self):
 
-        dict_materials, dict_cross_sections, dict_element_types, dict_fluids, dict_element_length_correction = self.file.get_dict_of_entities_from_file()
+        dict_materials, dict_element_types, dict_cross_sections, dict_fluids, dict_element_length_correction = self.file.get_dict_of_entities_from_file()
         self.lines_multiples_cross_sections = []
 
         # Element type to Entities
         for key, el_type in dict_element_types.items():
             if self.file.element_type_is_structural:
                 self.load_element_type_by_entity(key, el_type)
+
         # Length correction to Elements
         for key, value in dict_element_length_correction.items():
             self.load_length_correction_by_elements(value[0], value[1], key)
+
         # Material to Entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
+
         # Fluid to Entities
         for key, fld in dict_fluids.items():
             self.load_fluid_by_entity(key, fld)
+
         # Cross-section to Entities
         for key, cross in dict_cross_sections.items():
             if "-" in key:
@@ -340,14 +344,13 @@ class Project:
 
         self._set_entity_cross_section(entity_id, cross_section)
         self.file.add_cross_section_in_file(entity_id, cross_section)
-        # print(cross_section.area, cross_section.second_moment_area_y)
 
     def set_element_type_to_all(self, element_type):
         self.mesh.set_element_type_by_element('all', element_type)
         self._set_all_entity_element_type(element_type)
         for entity in self.mesh.entities:
             self.file.add_element_type_in_file(entity.get_tag(), element_type)
-        
+
     def set_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
             self.mesh.set_element_type_by_line(entity_id, element_type)
