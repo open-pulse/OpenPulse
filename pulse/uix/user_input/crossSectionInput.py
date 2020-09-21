@@ -29,6 +29,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.structural_elements = self.project.mesh.structural_elements
+        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
@@ -245,12 +246,6 @@ class CrossSectionInput(QDialog):
             except:
                 pass
             self.line_typed = list(map(int, tokens))
-
-            if len(self.line_typed) > 1:
-                title = "Error: multiple lines in selection"
-                message = "Please, select only one line \nto plot its cross-section."
-                self.info_text = [title, message]
-                return True
             
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Line ID input"
@@ -294,7 +289,7 @@ class CrossSectionInput(QDialog):
             if self.check_input_elements():
                 PrintMessageInput(self.info_text) 
                 return
-        else:
+        elif self.flagEntity:
             if self.check_input_lines():
                 PrintMessageInput(self.info_text) 
                 return
