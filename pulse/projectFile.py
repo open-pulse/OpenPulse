@@ -239,6 +239,8 @@ class ProjectFile:
         dict_element_type = {}
         dict_fluid = {}
         dict_length_correction = {}
+        temp_dict = {}
+        dict_capped_end_element = {}
 
         for entity in entityFile.sections():
 
@@ -392,21 +394,44 @@ class ProjectFile:
                             color =  str(fluid_list[fluid]['color'])
                             temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
                             dict_fluid[int(entity)] = temp_fluid
+                                
+                if 'capped end' in entityFile[entity].keys():
+                    capped_end = entityFile[entity]['capped end']
+                    if capped_end != "":
+                        temp_dict[int(entity)] = capped_end
+        
+        dict_capped_end_entity = {}
+        for selection in set(temp_dict.values()):
+            lines=[]
+            for line, select in temp_dict.items():
+                if select == selection:
+                    lines.append(line)
+            dict_capped_end_entity[selection] = [True, lines]
 
         for section in list(element_file.sections()):
             try:
-                if 'length correction type' in  element_file[section].keys():
-                    length_correction_type = int(element_file[section]['length correction type'])   
-                if 'list of elements' in  element_file[section].keys():
-                    list_elements = element_file[section]['list of elements']
-                    get_list_elements = self._get_list_of_values_from_string(list_elements)
-                if length_correction_type in [0,1,2] and get_list_elements != []:
-                    dict_length_correction[section] = [get_list_elements, length_correction_type]
+                if "ACOUSTIC ELEMENT LENGTH CORRECTION" in section:
+                    if 'length correction type' in  element_file[section].keys():
+                        length_correction_type = int(element_file[section]['length correction type'])   
+                    if 'list of elements' in  element_file[section].keys():
+                        list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                    if length_correction_type in [0,1,2] and get_list_elements != []:
+                        dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as er:  
                 error(str(er), title="ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION")
                 # return {}, {}, {}, {}, {}
 
-        return dict_material, dict_element_type, dict_cross, dict_fluid, dict_length_correction
+            try:
+                if "capped END" in section:
+                    if 'list of elements' in element_file[section].keys():
+                        list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                        dict_capped_end_element[section] = [True, get_list_elements]
+            except Exception as er:  
+                error(str(er), title="ERROR WHILE LOADING capped END")
+
+        return dict_material, dict_cross, dict_element_type, dict_fluid, dict_length_correction, dict_capped_end_entity, dict_capped_end_element
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
@@ -511,6 +536,32 @@ class ProjectFile:
                                   'list of elements': str(elements)
                                 }
         with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_capped_end_element_in_file(self, elements, _type, section): 
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+
+        if section in list(config.sections()):
+            config[section]['list of elements'] = str(elements)
+        else:
+            config[section] =   { 
+                                  'list of elements': str(elements)
+                                }
+        with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_capped_end_entity_in_file(self, entity_id, value, selection):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['capped end'] = selection
+        else:
+            config[str(entity_id)] = { 
+                                        'capped end': selection
+                                    }
+        with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
     
     def add_element_type_in_file(self, entity_id, element_type):

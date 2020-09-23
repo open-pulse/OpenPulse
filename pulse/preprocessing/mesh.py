@@ -23,6 +23,8 @@ class Mesh:
         self.line_to_elements = {}
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
+        self.group_elements_with_capped_end = {}
+        self.group_lines_with_capped_end = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -37,6 +39,8 @@ class Mesh:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
+        self.element_with_capped_end = []
+        self.lines_with_capped_end = []
         self.elements_with_adding_mass_effect = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
@@ -488,13 +492,43 @@ class Mesh:
             for element in self.structural_elements.values():
                 element.adding_mass_effect = True
 
-    def set_caped_end_by_element(self, elements, value):       
+    def set_capped_end_by_element(self, elements, value, selection, delete_from_dict=False):       
         for element in slicer(self.structural_elements, elements):
-            element.caped_end = value
+            element.capped_end = value
+            if element not in self.element_with_capped_end:
+                self.element_with_capped_end.append(element)
+            if value is None:
+                if element in self.element_with_capped_end:
+                    self.element_with_capped_end.remove(element)
+        if delete_from_dict:
+            self.group_elements_with_capped_end.pop(selection) 
+        else:
+            self.group_elements_with_capped_end[selection] = [value, elements]
 
-    def set_caped_end_by_line(self, lines, value):
+    def set_capped_end_line_to_element(self, lines, value):
         for elements in slicer(self.line_to_elements, lines):
-            self.set_caped_end_by_element(elements, value)
+            for element in slicer(self.structural_elements, elements):
+                element.capped_end = value
+
+    def set_capped_end_by_line(self, lines, value, selection, delete_from_dict=False):
+        self.set_capped_end_line_to_element(lines, value)
+        for tag in lines:
+            if tag not in self.lines_with_capped_end:
+                self.lines_with_capped_end.append(tag)
+            if value is None:
+                if tag in self.lines_with_capped_end:
+                    self.lines_with_capped_end.remove(tag)
+        if delete_from_dict:
+            self.group_lines_with_capped_end.pop(selection) 
+        else:
+            self.group_lines_with_capped_end[selection] = [value, lines]
+
+    def set_capped_end_all_lines(self, value, selection):
+        self.set_capped_end_line_to_element("all", value)
+        self.group_lines_with_capped_end = {}
+        self.group_elements_with_capped_end = {}
+        if value:
+            self.group_lines_with_capped_end[selection] = [value, self.all_lines]
 
     def set_stress_intensification_by_element(self, elements, value):       
         for element in slicer(self.structural_elements, elements):

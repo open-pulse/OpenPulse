@@ -20,6 +20,7 @@ from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
+from pulse.uix.user_input.cappedEndInput import cappedEndInput
 #
 from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
 from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
@@ -205,6 +206,13 @@ class InputUi:
         if read.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
             self.opv.transformPoints(read.nodes_typed)
+
+    def setcappedEnd(self):
+        lines_id = self.opv.getListPickedEntities()
+        elements_id = self.opv.getListPickedElements()
+        read = cappedEndInput(self.project, lines_id, elements_id)
+        if read.type_label is None:
+            return
 
     def setAcousticPressure(self):
         read = AcousticPressureInput(self.project, self.opv, self.opv.transformPoints)

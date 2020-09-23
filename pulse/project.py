@@ -147,7 +147,7 @@ class Project:
 
     def load_entity_file(self):
 
-        dict_materials, dict_element_types, dict_cross_sections, dict_fluids, dict_element_length_correction = self.file.get_dict_of_entities_from_file()
+        dict_materials, dict_cross_sections, dict_element_types, dict_fluids, dict_element_length_correction, dict_capped_end_entity, dict_capped_end_element = self.file.get_dict_of_entities_from_file()
         self.lines_multiples_cross_sections = []
 
         # Element type to Entities
@@ -176,6 +176,18 @@ class Project:
             else:
                 self.load_cross_section_by_entity(int(key), cross)
         # print(self.lines_multiples_cross_sections)
+
+        # capped end
+        for key, capped in dict_capped_end_element.items():
+            elements = capped[1]
+            value = capped[0]
+            selection = key
+            self.load_capped_end_by_element(elements, value, selection)
+        for key, capped in dict_capped_end_entity.items():
+            lines = capped[1]
+            value = capped[0]
+            selection = key
+            self.load_capped_end_by_entity( lines, value, selection)
 
     def load_mapped_cross_section(self):        
         label_etypes = ['pipe_1', 'pipe_2', 'beam_1']
@@ -360,12 +372,6 @@ class Project:
         self._set_entity_element_type(entity_id, element_type)
         self.file.add_element_type_in_file(entity_id, element_type)
 
-    # def set_caped_end(self, value):
-    #     self.mesh.set_caped_end_by_element('all', value)
-    #     self._set_all_entity_caped_end(value)
-    #     for entity in self.mesh.entities:
-    #         self.file.add_cross_section_in_file(entity.get_tag(), value)
-
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]
@@ -437,19 +443,15 @@ class Project:
 
     def load_damper_by_node(self, node_id, dampings):
         self.mesh.add_damper_to_node(node_id, dampings)
+    
+    def load_capped_end_by_element(self, elements, value, selection):
+        self.mesh.set_capped_end_by_element(elements, value, selection)
 
-    # def load_caped_end_by_element(self, element_id, value):
-    #     self.mesh.set_caped_end_by_element(element_id, value)
-
-    # def load_caped_end_by_entity(self, entity_id, value):
-    #     if self.file.get_import_type() == 0:
-    #         self.mesh.set_caped_end_by_line(entity_id, value)
-    #     # else:
-    #     #     error("Caped end must be set by element or lines.")
-    #     elif self.file.get_import_type() == 1:
-    #         self.mesh.set_caped_end_by_element('all', value)
-
-    #     self._set_entity_caped_end(entity_id, value)
+    def load_capped_end_by_entity(self, lines, value, selection):
+        if self.file.get_import_type() == 0:
+            self.mesh.set_capped_end_by_line(lines, value, selection)
+        # elif self.file.get_import_type() == 1:
+        #     self.mesh.set_capped_end_by_element('all', value)
 
     def get_nodes_bc(self):
         return self.mesh.nodes_with_prescribed_dofs
@@ -545,6 +547,23 @@ class Project:
         self.mesh.set_length_correction_by_element(elements, value, section)
         self.file.add_length_correction_in_file(elements, value, section)
 
+    def set_capped_end_by_elements(self, elements, value, selection):
+        self.mesh.set_capped_end_by_element(elements, value, selection)
+        self.file.add_capped_end_element_in_file(elements, value, selection)
+
+    def set_capped_end_by_line(self, lines, value, selection):
+        if lines == "all":
+            self.mesh.set_capped_end_all_lines(value, selection)
+            for tag in self.mesh.all_lines:
+                self.file.add_capped_end_entity_in_file(tag, value, selection)
+        else:
+            self.mesh.set_capped_end_by_line(lines, value, selection)
+            for tag in lines:
+                self.file.add_capped_end_entity_in_file(tag, value, selection)
+
+    def set_capped_end_all_lines(self, lines, value, selection):
+        self.mesh.set_capped_end_by_line(lines, value, selection)
+
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
 
@@ -575,15 +594,6 @@ class Project:
     def _set_all_entity_fluid(self, fluid):
         for entity in self.mesh.entities:
             entity.fluid = fluid
-
-    # def _set_entity_caped_end(self, entity_id, value):
-    #     for entity in self.mesh.entities:
-    #         if entity.tag == entity_id:
-    #             entity.caped_end = value
-
-    # def _set_all_entity_caped_end(self, value):
-    #     for entity in self.mesh.entities:
-    #         entity.caped_end = value
 
     def get_map_nodes(self):
         return self.mesh.map_nodes

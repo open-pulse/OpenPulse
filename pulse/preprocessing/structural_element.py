@@ -39,7 +39,7 @@ class StructuralElement:
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
 
-        self.caped_end = kwargs.get('caped_end',False)
+        self.capped_end = kwargs.get('capped_end',False)
         self.stress_intensification = kwargs.get('stress_intensification',True)
 
         self._Dab = None
@@ -352,13 +352,13 @@ class StructuralElement:
             print('Only pipe_1 and pipe_2 element types are allowed.')
             pass
 
-        if self.caped_end:
-            caped_end = 1
+        if self.capped_end:
+            capped_end = 1
         else:
-            caped_end = 0
+            capped_end = 0
 
         aux = R.T @ principal_axis.T @ aux
-        F_p = (caped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
+        F_p = (capped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p
 
