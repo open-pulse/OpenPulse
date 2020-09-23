@@ -591,7 +591,7 @@ class StructuralElement:
 
         elif section_label == "T-section":
 
-            h, w1, w2, t1, _, _, _ = parameters
+            h, w1, w2, t1, _, _, _, _ = parameters
             tf, b = t1, w1
       
             m = (2*b*tf)/(h*w2)
