@@ -46,8 +46,10 @@ class Mesher:
 
         self.points = self._get_points()
         self.lines = self._get_lines()
-        self.planes, self.connectivity = self._get_planes()
+        self.planes = self._get_planes()
         self.entities = self._get_entities()
+        self.nodal_coordinates = self._get_nodal_coordinates()
+        self.connectivity = self._get_connectivity_matrix()
          
         gmsh.fltk.run()
         gmsh.finalize()
@@ -59,9 +61,12 @@ class Mesher:
         gmsh.option.setNumber('Mesh.CharacteristicLengthMax', self.size)
         gmsh.model.mesh.generate()
 
-        self.points = self._get_points()
+        self.points  = self._get_points()
         self.lines = self._get_lines()
-        self.planes, self.connectivity = self._get_planes()
+        self.planes = self._get_planes()
+        self.entities = self._get_entities()
+        self.nodal_coordinates = self._get_nodal_coordinates()
+        self.connectivity = self._get_connectivity_matrix()
         
         gmsh.fltk.run()
         gmsh.finalize()
@@ -72,11 +77,25 @@ class Mesher:
     def _get_points(self):
         indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
 
-        points = dict()
+        dict_points = dict()
         for i, (x, y, z) in zip(indexes, split_sequence(coords, 3)):
-            points[i] = (mm_to_m(x), mm_to_m(y), mm_to_m(z))
+            dict_points[i] = (mm_to_m(x), mm_to_m(y), mm_to_m(z))
 
-        return points
+        return dict_points
+
+    def _get_nodal_coordinates(self):
+        indexes, coords, _ = gmsh.model.mesh.getNodes(1, -1, True)
+
+        dict_nodes = dict()
+        for i, (x, y, z) in zip(indexes, split_sequence(coords, 3)):
+            dict_nodes[i] = (mm_to_m(x), mm_to_m(y), mm_to_m(z))
+
+        nodal_coordinates = np.zeros((len(dict_nodes),4), dtype=float)
+        for index, (node, coordinates) in enumerate(dict_nodes.items()):
+            nodal_coordinates[index, 0] = node
+            nodal_coordinates[index, 1:] = coordinates  
+
+        return nodal_coordinates
 
     def _get_lines(self):
         _, indexes, points = gmsh.model.mesh.getElements(1)
@@ -94,20 +113,28 @@ class Mesher:
         indexes = list(indexes[0]) if indexes else []
         points = list(points[0]) if points else []
 
-        planes = dict()
+        dict_planes = dict()
         for i, p in zip(indexes, split_sequence(points,3)):
-            planes[i] = p 
+            dict_planes[i] = p 
 
-        connectivity = np.zeros((len(planes), 4), dtype=int)
-        i = 0
+        return dict_planes
 
-        for index, nodes in enumerate(planes.values()):
-            i += 1
-            connectivity[index,0] = i
-            connectivity[index,1:] = nodes  
+    def _get_connectivity_matrix(self):
+        _, indexes, points = gmsh.model.mesh.getElements(2)
+        indexes = list(indexes[0]) if indexes else []
+        points = list(points[0]) if points else []
 
-        return planes, connectivity
-        
+        dict_elements = dict()
+        for i, p in zip(indexes, split_sequence(points,3)):
+            dict_elements[i] = p 
+
+        connectivity = np.zeros((len(dict_elements), 4), dtype=int)
+        for index, nodes in enumerate(dict_elements.values()):
+            connectivity[index, 0] = index+1
+            connectivity[index, 1:] = nodes  
+
+        return connectivity
+
     def _get_entities(self):
         entities = dict()
         for dim, tag in gmsh.model.getEntities(1):
@@ -163,6 +190,7 @@ def test_1():
     m = Mesher(0.5)
     m.load_geometry(nodes, lines)
     print(m.connectivity)
+    print(m.nodal_coordinates)
 
 def test_2():
     m = Mesher(0.2)
@@ -175,7 +203,5 @@ def test_3():
 if __name__ == '__main__':
 
     test_1()
-    
-
     # test_2()
     # test_3()
