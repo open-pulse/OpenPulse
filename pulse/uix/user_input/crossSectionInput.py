@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.utils import error
+# from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.uix.user_input.PrintMessageInput import PrintMessageInput
 
@@ -51,6 +51,7 @@ class CrossSectionInput(QDialog):
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
+        self.lineEdit_selected_ID.setEnabled(True)
 
         self.lineEdit_outerDiameter = self.findChild(QLineEdit, 'lineEdit_outerDiameter')
         self.lineEdit_thickness = self.findChild(QLineEdit, 'lineEdit_thickness')
@@ -140,6 +141,7 @@ class CrossSectionInput(QDialog):
         else:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all_lines.setChecked(True)      
 
         if self.external_diameter!=0 and self.thickness!=0:
@@ -171,9 +173,20 @@ class CrossSectionInput(QDialog):
         self.flagAll = self.radioButton_all_lines.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
+        self.lineEdit_selected_ID.setEnabled(True)
 
         if self.flagAll:
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setEnabled(False)
+
+        elif self.flagEntity:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(self.lines_id)
+
+        elif self.flagElements:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(self.elements_id)
+
 
     def radioButtonEvent_beam_section_type(self):
         self.rectangular_flag = self.radioButton_rectangular_section.isChecked()
@@ -266,22 +279,6 @@ class CrossSectionInput(QDialog):
             self.info_text = [title, message]
             return True
         return False
-
-    def confirm_pipe(self):
-
-        self.index = self.comboBox_pipe.currentIndex()
-        if self.index == 0:
-            self.element_type = 'pipe_1'
-        elif self.index == 1:
-            self.element_type = 'pipe_2'
-        self.check_pipe()
-
-    def confirm_beam(self):
-
-        self.index = self.comboBox_beam.currentIndex()
-        if self.index == 0:
-            self.element_type = 'beam_1'
-        self.check_beam()
 
     def check_pipe(self):
 
@@ -394,6 +391,15 @@ class CrossSectionInput(QDialog):
         self.complete = True
         self.close()
 
+    def confirm_pipe(self):
+
+        self.index = self.comboBox_pipe.currentIndex()
+        if self.index == 0:
+            self.element_type = 'pipe_1'
+        elif self.index == 1:
+            self.element_type = 'pipe_2'
+        self.check_pipe()
+
     def check_beam(self):
 
         if self.flagElements:
@@ -425,7 +431,6 @@ class CrossSectionInput(QDialog):
                 Izz = self.check_beam_inputs(self.lineEdit_Izz, 'Izz')
                 Iyz = self.check_beam_inputs(self.lineEdit_Iyz, 'Iyz', only_positive_values=False)
                 shear_coefficient = self.check_beam_inputs(self.lineEdit_shear_coefficient, 'Shear Factor')
-                print(shear_coefficient)
 
                 if None in [area, Iyy, Izz, Iyz, shear_coefficient]:
                     return
@@ -466,6 +471,13 @@ class CrossSectionInput(QDialog):
             return None
         return out
 
+    def confirm_beam(self):
+
+        self.index = self.comboBox_beam.currentIndex()
+        if self.index == 0:
+            self.element_type = 'beam_1'
+        self.check_beam()
+
     def update(self):
 
         self.lines_id = self.opv.getListPickedEntities()
@@ -503,7 +515,6 @@ class CrossSectionBeamInput(QDialog):
         self.stop = False
         # self._get_dict_key_section()
         
-
         self.lineEdit_base_rectangular_section = self.findChild(QLineEdit, 'lineEdit_base_rectangular_section')
         self.lineEdit_height_rectangular_section = self.findChild(QLineEdit, 'lineEdit_height_rectangular_section')
         self.lineEdit_thickness_rectangular_section = self.findChild(QLineEdit, 'lineEdit_thickness_rectangular_section')
@@ -862,7 +873,8 @@ class CrossSectionBeamInput(QDialog):
     def get_points_to_plot_section(self):
 
         if self.section_type == 0: # Rectangular section
-            b, h, b_in, h_in = self.parameters
+
+            b, h, b_in, h_in, _, _ = self.parameters
             Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
             Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
             Yp_left = -np.flip(Yp_right)
@@ -874,7 +886,7 @@ class CrossSectionBeamInput(QDialog):
         elif self.section_type == 1: # Circular section
             
             N = 60
-            d_out, d_in = self.parameters
+            d_out, d_in, _, _ = self.parameters
             
             d_theta = np.pi/N
             theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
@@ -898,7 +910,7 @@ class CrossSectionBeamInput(QDialog):
 
         elif self.section_type == 2: # Beam: C-section
 
-            h, w1, w2, w3, t1, t2, t3, r = self.parameters
+            h, w1, w2, w3, t1, t2, t3, r, _, _ = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
             Yp_list =[]
@@ -920,7 +932,7 @@ class CrossSectionBeamInput(QDialog):
 
         elif self.section_type == 3: # Beam: I-section
 
-            h, w1, w2, w3, t1, t2, t3, r = self.parameters
+            h, w1, w2, w3, t1, t2, t3, r, _, _ = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
             Yp_list =[]
@@ -947,7 +959,7 @@ class CrossSectionBeamInput(QDialog):
 
         elif self.section_type == 4: # Beam: T-section
 
-            h, w1, w2, t1, t2, r = self.parameters
+            h, w1, w2, t1, t2, r, _, _ = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
             Yp_list =[]

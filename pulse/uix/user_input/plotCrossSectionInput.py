@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.utils import error
+# from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.uix.user_input.PrintMessageInput import PrintMessageInput
 
@@ -32,8 +32,8 @@ class PlotCrossSectionInput(QDialog):
         
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
-        self.lines_id = self.opv.getListPickedEntities()
-        self.elements_id = self.opv.getListPickedElements()
+        self.line_id = self.opv.getListPickedEntities()
+        self.element_id = self.opv.getListPickedElements()
         self._get_dict_key_section()
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
@@ -49,17 +49,17 @@ class PlotCrossSectionInput(QDialog):
         self.pushButton_plot_cross_section = self.findChild(QPushButton, 'pushButton_plot_cross_section')  
         self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
 
-        if self.lines_id != []:
+        if self.line_id != []:
             self.lineEdit_id_labels.setText("Line ID:")
-            self.write_ids(self.lines_id)
+            self.write_ids(self.line_id)
             self.radioButton_selected_lines.setChecked(True)
 
-        elif self.elements_id != []:
+        elif self.element_id != []:
             self.lineEdit_id_labels.setText("Element ID:")
-            self.write_ids(self.elements_id)
+            self.write_ids(self.element_id)
             self.radioButton_selected_elements.setChecked(True)
         else:
-            self.lineEdit_id_labels.setText("Selected ID:")
+            self.lineEdit_id_labels.setText("Line ID:")
             self.lineEdit_selected_ID.setText("")
         self.exec_()
 
@@ -74,6 +74,13 @@ class PlotCrossSectionInput(QDialog):
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
 
+        if self.flagEntity:
+            self.lineEdit_id_labels.setText("Line ID:")
+            self.write_ids(self.line_id)
+        elif self.flagElements:
+            self.lineEdit_id_labels.setText("Element ID:")
+            self.write_ids(self.element_id)
+
     def write_ids(self, list_ids):
         text = ""
         for _id in list_ids:
@@ -82,16 +89,16 @@ class PlotCrossSectionInput(QDialog):
 
     def update(self):
 
-        self.lines_id = self.opv.getListPickedEntities()
-        self.elements_id = self.opv.getListPickedElements()
+        self.line_id = self.opv.getListPickedEntities()
+        self.element_id = self.opv.getListPickedElements()
 
-        if self.lines_id != []:
+        if self.line_id != []:
             self.lineEdit_id_labels.setText("Line ID:")
-            self.write_ids(self.lines_id)
+            self.write_ids(self.line_id)
             self.radioButton_selected_lines.setChecked(True)
-        elif self.elements_id != []:
+        elif self.element_id != []:
             self.lineEdit_id_labels.setText("Element ID:")
-            self.write_ids(self.elements_id)
+            self.write_ids(self.element_id)
             self.radioButton_selected_elements.setChecked(True)
         else:
             self.lineEdit_id_labels.setText("Selected ID:")
