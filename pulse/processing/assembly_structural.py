@@ -2,7 +2,7 @@ from time import time
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from pulse.utils import timer
+from pulse.utils import timer, error
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
@@ -23,11 +23,27 @@ class AssemblyStructural:
         return global_prescribed
 
     def get_prescribed_values(self):
+    
         global_prescribed = []
+        list_prescribed_dofs = []
+        cols = len(self.frequencies)
+        
         for node in self.mesh.nodes.values():
             if node.there_are_prescribed_dofs:
-                global_prescribed.extend(node.get_prescribed_dofs_bc_values())
-        return global_prescribed
+                global_prescribed.extend(node.get_prescribed_dofs_bc_values())      
+
+        try:    
+            aux_ones = np.ones(cols, dtype=complex)
+            for value in global_prescribed:
+                if isinstance(value, complex):
+                    list_prescribed_dofs.append(aux_ones*value)
+                elif isinstance(value, np.ndarray):
+                    list_prescribed_dofs.append(value)
+            array_prescribed_values = np.array(list_prescribed_dofs)
+        except Exception as e:
+            error(str(e))
+
+        return global_prescribed, array_prescribed_values
 
     def get_unprescribed_indexes(self):
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
@@ -44,10 +60,18 @@ class AssemblyStructural:
         rows, cols = self.mesh.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-
+        # mat_exp = np.zeros((18,18), dtype=float)
         for index, element in enumerate(self.mesh.structural_elements.values()):
+            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()  
+            # if element.index == 101:
+            #     # mat_exp[:12,:12] = mat_Me[index,:,:]
+            #     np.savetxt('Me_elements_101.csv', mat_exp, delimiter=",")
+            # if element.index == 102:
+            #     # mat_exp[6:,6:] = mat_exp[6:,6:] + mat_Me[index,:,:]
+            #     np.savetxt('Me_elements_102.csv', mat_Me[index,:,:], delimiter=",")
 
-            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()            
+        # np.savetxt('Me.csv', mat_Me[0,:,:], delimiter=",")
+        # np.savetxt('Ke.csv', mat_Ke[0,:,:], delimiter=",")
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -87,7 +111,6 @@ class AssemblyStructural:
             # processing mass added
             if node.there_are_lumped_stiffness:
                 position = node.global_dof
-                # data_Klump.append(node.lumped_stiffness)
                 self.nodes_connected_to_springs.append(node)
                 list_Klump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
                 ind_Klump.append(position)
@@ -96,7 +119,6 @@ class AssemblyStructural:
             if node.there_are_lumped_masses:
                 position = node.global_dof
                 self.nodes_with_lumped_masses.append(node)
-                # data_Mlump.append(node.lumped_masses)
                 list_Mlump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_masses, node.lumped_masses))
                 ind_Mlump.append(position)
 
@@ -104,7 +126,6 @@ class AssemblyStructural:
             if node.there_are_lumped_dampings:
                 position = node.global_dof
                 self.nodes_connected_to_dampers.append(node)
-                # data_Clump.append(node.lumped_dampings)
                 list_Clump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
                 ind_Clump.append(position)
                 flag_Clump = True
@@ -138,8 +159,8 @@ class AssemblyStructural:
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         cols = len(self.frequencies)
-        loads = np.zeros((total_dof, cols), dtype = complex)
-        pressure_loads = np.zeros((total_dof, cols), dtype = complex)
+        loads = np.zeros((total_dof, cols), dtype=complex)
+        pressure_loads = np.zeros((total_dof, cols), dtype=complex)
 
         # distributed loads
         for element in self.mesh.structural_elements.values():
@@ -171,13 +192,11 @@ class AssemblyStructural:
         pressure_loads = pressure_loads[unprescribed_indexes,:]
 
         if loads_matrix3D:
-            # loads = loads.reshape(-1, 1)*np.ones((len(frequencies),1,1))
-            loads = loads.reshape((len(self.frequencies), total_dof, 1))
-            loads += pressure_loads.reshape((1,pressure_loads.shape[0],len(self.frequencies))).T
+            loads = loads.T.reshape((len(self.frequencies), loads.shape[0], 1))
+            loads += pressure_loads.T.reshape((len(self.frequencies), pressure_loads.shape[0],1))
         else:
-            # loads = loads.reshape(-1, 1)@np.ones((1, len(frequencies)))
             loads += pressure_loads
-     
+
         return loads
     
     def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):

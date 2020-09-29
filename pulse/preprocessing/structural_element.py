@@ -8,6 +8,8 @@ NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
+decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
+
 def gauss_quadracture(integration_points):
     if integration_points == 1:
         points = [0]
@@ -38,9 +40,11 @@ class StructuralElement:
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
+        self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
+        self.decoupling_info = kwargs.get('decoupling_info', None)
 
-        self.caped_end = kwargs.get('caped_end',False)
-        self.stress_intensification = kwargs.get('stress_intensification',True)
+        self.caped_end = kwargs.get('caped_end', False)
+        self.stress_intensification = kwargs.get('stress_intensification', True)
 
         self._Dab = None
         self._Bab = None
@@ -385,10 +389,9 @@ class StructuralElement:
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
  
-        alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
-
-        # alpha_rect = (12 + 11*nu)/(10*(1 + nu))
-        k_2 = 1/alpha
+        # alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
+        # k_2 = alpha
+        k_2 = 1
 
         # Others constitutive properties
         # I_3     = I_2
@@ -404,6 +407,7 @@ class StructuralElement:
         beta_12_c   = (2. - Phi_12) * beta_12_a
         beta_13_c   = (2. - Phi_13) * beta_13_a
 
+        
         ke = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         # stiffness matrix diagonal construction
@@ -435,7 +439,14 @@ class StructuralElement:
         ke[[4,10],[2,2]] = - 6 * beta_13_a / L**2
         ke[[8,10],[4,8]] =   6 * beta_13_a / L**2
 
-        return self.symmetrize(ke)
+        # if decoupling_matrix is None:
+        #     Ke = self.symmetrize(me)
+        # else:
+        #     Ke = self.symmetrize(me)*decoupling_matrix
+
+        Ke = self.symmetrize(ke)*self.decoupling_matrix
+
+        return Ke
 
     def mass_matrix_beam(self):
         """ Element mass matrix in the element coordinate system."""
@@ -456,11 +467,9 @@ class StructuralElement:
         J   = self.cross_section._polar_moment_area()
 
         alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
-        k_2 = 1/alpha
+        k_2 = alpha
+        k_2 = 1
         
-        # alpha_rect = (12 + 11*nu)/(10*(1 + nu))
-        # k_2 = 1/alpha_rect
-
         # Others constitutive constants
         # I_3     = I_2
         J_p     = J
@@ -468,7 +477,6 @@ class StructuralElement:
 
         # Auxiliar constantes
         # 1st group
-        # print(k_2, A, G)
         a_12 = 1. / (k_2 * A * G)
         a_13 = 1. / (k_3 * A * G)
         b_12 = 1. / (E * I_3)
@@ -504,6 +512,7 @@ class StructuralElement:
         gamma_12 = rho * L / (b_12 * L**2 + 12*a_12)**2
         gamma_13 = rho * L / (b_13 * L**2 + 12*a_13)**2
 
+
         me = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         # Mass matrix diagonal construction
@@ -537,7 +546,17 @@ class StructuralElement:
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
 
-        return self.symmetrize(me)
+        # if decoupling_matrix is None:
+        #     Me = self.symmetrize(me)
+        # else:
+        #     Me = self.symmetrize(me)*decoupling_matrix
+
+        # if np.sum(self.decoupling_matrix) != 144:
+        #     print(self.index)
+        
+        Me = self.symmetrize(me)*self.decoupling_matrix
+
+        return Me
 
     def get_shear_coefficient(self, section_info, poisson):
 

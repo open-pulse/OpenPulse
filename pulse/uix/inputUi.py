@@ -3,6 +3,7 @@ from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
 #
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
+from pulse.uix.user_input.couplingDOFsInput import CouplingDOFsInput
 from pulse.uix.user_input.materialInput import MaterialInput
 from pulse.uix.user_input.fluidInput import FluidInput
 from pulse.uix.user_input.crossSectionInput import CrossSectionInput
@@ -102,6 +103,13 @@ class InputUi:
         
         if read.update_cross_section:
             self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
+
+
+    def setRotationDecoupling(self):
+        read = CouplingDOFsInput(self.project, self.opv)  
+        if read.complete:
+            self.project.mesh.rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
+            print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
 
     def set_material(self):

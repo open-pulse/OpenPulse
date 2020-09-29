@@ -177,7 +177,8 @@ class Project:
                 self.load_cross_section_by_entity(int(key), cross)
         # print(self.lines_multiples_cross_sections)
 
-    def load_mapped_cross_section(self):        
+    def load_mapped_cross_section(self):    
+        # print("mapped cross-section")    
         label_etypes = ['pipe_1', 'pipe_2', 'beam_1']
         indexes = [0, 1, 2]
         dict_etype_index = dict(zip(label_etypes,indexes))
@@ -197,6 +198,7 @@ class Project:
             insulation_density = element.cross_section.insulation_density
 
             e_type  = element.element_type
+
             if e_type is None:
                 e_type = 'pipe_1'
                 self.acoustic_analysis = True
@@ -204,6 +206,8 @@ class Project:
             poisson = element.material.poisson_ratio
             if poisson is None:
                 poisson = 0
+
+            #TODO: codify section_parameters of BEAM element
             
             index_etype = dict_etype_index[e_type]
             map_cross_section_to_elements[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype, insulation_thickness, insulation_density])].append(index)
@@ -412,6 +416,7 @@ class Project:
 
     def load_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
+            # print(entity_id)
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)

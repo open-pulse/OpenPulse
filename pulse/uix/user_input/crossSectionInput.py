@@ -8,10 +8,12 @@ import configparser
 
 # from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.uix.user_input.PrintMessageInput import PrintMessageInput
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+window_title = "ERROR MESSAGE"
 
 class CrossSectionInput(QDialog):
     def __init__(self, project, opv, external_diameter=0, thickness=0, offset_y=0, offset_z=0, pipe_to_beam=False, beam_to_pipe=False, *args, **kwargs):
@@ -187,7 +189,6 @@ class CrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Elements IDs:")
             self.write_ids(self.elements_id)
 
-
     def radioButtonEvent_beam_section_type(self):
         self.rectangular_flag = self.radioButton_rectangular_section.isChecked()
         self.circular_flag = self.radioButton_circular_section.isChecked()
@@ -221,7 +222,6 @@ class CrossSectionInput(QDialog):
         self.currentTab_beam = self.tabWidget_section_beam_info1.currentIndex()
 
     def check_input_elements(self):
-
         try:
             tokens = self.lineEdit_selected_ID.text().strip().split(',')
             try:
@@ -233,12 +233,12 @@ class CrossSectionInput(QDialog):
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Element ID input"
                 message = "Inform a valid Element ID before to confirm the input."
-                self.info_text = [title, message]     
+                self.info_text = [title, message, window_title]     
                 return True
         except Exception:
             title = "Error: invalid Element ID input"
             message = "Wrong input for Node ID's."
-            self.info_text = [title, message]   
+            self.info_text = [title, message, window_title]   
             return True
 
         try:
@@ -247,11 +247,12 @@ class CrossSectionInput(QDialog):
         except Exception:
             title = "Error: invalid Element ID input"
             message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message]
+            self.info_text = [title, message, window_title]
             return True
         return False
 
     def check_input_lines(self):
+        
         try:
             tokens = self.lineEdit_selected_ID.text().strip().split(',')
             try:
@@ -263,12 +264,12 @@ class CrossSectionInput(QDialog):
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Line ID input"
                 message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message]
+                self.info_text = [title, message, window_title]
                 return True
         except Exception:
             title = "Error: invalid Line ID input"
             message = "Wrong input for Line ID."
-            self.info_text = [title, message]
+            self.info_text = [title, message, window_title]
             return True
         try:
             for line in self.line_typed:
@@ -276,16 +277,17 @@ class CrossSectionInput(QDialog):
         except Exception:
             title = "Error: invalid Line ID"
             message = "The Line ID input values must be\n major than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message]
+            self.info_text = [title, message, window_title]
             return True
         return False
 
     def check_pipe(self):
-
+        
         if self.flagElements:
             if self.check_input_elements():
                 PrintMessageInput(self.info_text) 
                 return
+
         elif self.flagEntity:
             if self.check_input_lines():
                 PrintMessageInput(self.info_text) 
@@ -295,12 +297,12 @@ class CrossSectionInput(QDialog):
             if self.lineEdit_outerDiameter.text() == "":
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Insert some value (OUTER DIAMETER)."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
             elif self.lineEdit_thickness.text() == "":
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Insert some value (THICKENSS)."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
 
             offset_y = float(0)
@@ -313,14 +315,14 @@ class CrossSectionInput(QDialog):
             except Exception:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Wrong input to the OUTER DIAMETER."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
             try:
                 thickness = float(self.lineEdit_thickness.text())
             except Exception:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Wrong input to the THICKENSS."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
 
             if self.lineEdit_offset_y.text() != "":
@@ -329,7 +331,7 @@ class CrossSectionInput(QDialog):
                 except Exception:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Wrong input to the OFFSET Y."
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return
 
             if self.lineEdit_offset_z.text() != "":
@@ -338,7 +340,7 @@ class CrossSectionInput(QDialog):
                 except Exception:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Wrong input to the OFFSET Z."
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return
            
             if self.lineEdit_InsulationDensity.text() != "":
@@ -347,7 +349,7 @@ class CrossSectionInput(QDialog):
                 except Exception:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Wrong input to the INSULATION DENSITY."
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return
            
             if self.lineEdit_InsulationThickness.text() != "":
@@ -356,31 +358,31 @@ class CrossSectionInput(QDialog):
                 except Exception:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Wrong input to the INSULATION THICKNESS."
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return
            
             if thickness > (outerDiameter/2):
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The THICKNESS must be less or \nequals to the OUTER RADIUS."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
 
             elif thickness == 0.0:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The THICKNESS must be greater than zero."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
             
             elif abs(offset_y) > 0.2*(outerDiameter/2):
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The OFFSET_Y must be less than 20{%} \nof the external radius."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
             
             elif abs(offset_z) > 0.2*(outerDiameter/2):
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The OFFSET_Z must be less than 20{%} \nof the external radius."
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return
             
             section_info = ["Pipe section", [outerDiameter, thickness, offset_y, offset_z, insulation_thickness]]
@@ -405,7 +407,7 @@ class CrossSectionInput(QDialog):
         if self.flagElements:
             if self.check_input_elements():
                 return
-        else:
+        elif self.flagEntity:
             if self.check_input_lines():
                 PrintMessageInput(self.info_text) 
                 return            
@@ -437,7 +439,7 @@ class CrossSectionInput(QDialog):
                 elif shear_coefficient > 1:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "The SHEAR FACTOR must be less or equals to 1."
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return
                 
                 self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
@@ -457,17 +459,17 @@ class CrossSectionInput(QDialog):
                 if out <= 0 and only_positive_values:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Insert a positive value to the {}.".format(label)
-                    PrintMessageInput([title, message]) 
+                    PrintMessageInput([title, message, window_title]) 
                     return None
             except Exception:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Wrong input to the {}.".format(label)
-                PrintMessageInput([title, message]) 
+                PrintMessageInput([title, message, window_title]) 
                 return None
         else:
             title = "INPUT CROSS-SECTION ERROR"
             message = "Insert some value to the {}.".format(label)
-            PrintMessageInput([title, message]) 
+            PrintMessageInput([title, message, window_title]) 
             return None
         return out
 
@@ -608,7 +610,7 @@ class CrossSectionBeamInput(QDialog):
                 if thickness > np.min([(base/2), (height/2)]):
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Error in THICKNESS value input."
-                    PrintMessageInput([title, message])
+                    PrintMessageInput([title, message, window_title])
                     self.stop = True
                     return             
                 else:
@@ -621,6 +623,7 @@ class CrossSectionBeamInput(QDialog):
             area = base*height - base_in*height_in
             Iyy = ((height**3)*base/12) - ((height_in**3)*base_in/12)
             Izz = ((base**3)*height/12) - (base_in**3)*height_in/12
+            print(area, Iyy, Izz)
             Iyz = 0.
             Yc, Zc = 0, 0
             
@@ -640,7 +643,7 @@ class CrossSectionBeamInput(QDialog):
             if outer_diameter_beam <= inner_diameter_beam:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The OUTER DIAMETER must be greater than INNER DIAMETER."
-                PrintMessageInput([title, message])
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
             
@@ -672,7 +675,7 @@ class CrossSectionBeamInput(QDialog):
             if height < (t1 + t3):
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The HEIGHT must be greater than t1+t3 summation."
-                PrintMessageInput([title, message])
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
 
@@ -719,7 +722,7 @@ class CrossSectionBeamInput(QDialog):
             if height < (t1 + t3):
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The HEIGHT must be greater than t1+t3 summation."
-                PrintMessageInput([title, message])
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
 
@@ -781,7 +784,7 @@ class CrossSectionBeamInput(QDialog):
             if height < t1:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The HEIGHT must be greater than t1."
-                PrintMessageInput([title, message])
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
 
@@ -831,7 +834,7 @@ class CrossSectionBeamInput(QDialog):
                     if out < 0:
                         title = "INPUT CROSS-SECTION ERROR"
                         message = "Insert a positive value to the {}.".format(label)
-                        PrintMessageInput([title, message])
+                        PrintMessageInput([title, message, window_title])
                         self.stop = True
                         return None
                     elif out == 0:
@@ -840,13 +843,13 @@ class CrossSectionBeamInput(QDialog):
                     if out <= 0:
                         title = "INPUT CROSS-SECTION ERROR"
                         message = "Insert a positive value to the {}.".format(label)
-                        PrintMessageInput([title, message])
+                        PrintMessageInput([title, message, window_title])
                         self.stop = True
                         return None
             except Exception:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Wrong input for {}.".format(label)
-                PrintMessageInput([title, message])
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return None
         else:
@@ -855,7 +858,7 @@ class CrossSectionBeamInput(QDialog):
             else: 
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "Insert some value for {}.".format(label)
-                PrintMessageInput([title, message])                   
+                PrintMessageInput([title, message, window_title])                   
                 self.stop = True
                 return None
         return out

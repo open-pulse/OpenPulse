@@ -33,6 +33,9 @@ class PrintMessageInput(QDialog):
         self.text_info = text_info
         self.Label_title.setText(text_info[0])
         self.Label_message.setText(text_info[1])
+        
+        if len(text_info)>2:
+            self.setWindowTitle(text_info[2])
 
         self.exec_()
 

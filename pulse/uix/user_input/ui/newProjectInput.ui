@@ -6,70 +6,96 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>222</height>
+    <width>567</width>
+    <height>271</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>0</width>
-    <height>222</height>
+    <width>567</width>
+    <height>271</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>99999</width>
-    <height>222</height>
+    <width>567</width>
+    <height>271</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Create new Project</string>
   </property>
-  <widget class="QWidget" name="widget" native="true">
+  <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>481</width>
-     <height>225</height>
+     <width>567</width>
+     <height>271</height>
     </rect>
    </property>
-   <widget class="QWidget" name="verticalLayoutWidget_2">
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+   <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>40</x>
-      <y>36</y>
-      <width>91</width>
-      <height>21</height>
+      <x>54</x>
+      <y>72</y>
+      <width>150</width>
+      <height>25</height>
      </rect>
     </property>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
-     <item>
-      <widget class="QLabel" name="label_2">
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project name&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <property name="minimumSize">
+     <size>
+      <width>150</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>170</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project directory:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
    </widget>
    <widget class="QDialogButtonBox" name="button_create_project">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>190</y>
-      <width>461</width>
-      <height>23</height>
+      <x>374</x>
+      <y>232</y>
+      <width>181</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -81,13 +107,155 @@
      <bool>true</bool>
     </property>
    </widget>
+   <widget class="QToolButton" name="toolButton_search_project_folder">
+    <property name="geometry">
+     <rect>
+      <x>458</x>
+      <y>74</y>
+      <width>75</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>75</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>75</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>0</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Search</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>6</y>
+      <width>551</width>
+      <height>33</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>14</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;New project&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>86</x>
+      <y>42</y>
+      <width>113</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>12</pointsize>
+      <weight>75</weight>
+      <italic>false</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project name:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="line_project_name">
+    <property name="geometry">
+     <rect>
+      <x>202</x>
+      <y>42</y>
+      <width>250</width>
+      <height>25</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>250</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>250</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>8</x>
-      <y>100</y>
-      <width>470</width>
-      <height>81</height>
+      <x>16</x>
+      <y>108</y>
+      <width>533</width>
+      <height>115</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -98,16 +266,16 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>470</width>
+      <width>600</width>
       <height>16777215</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>8</pointsize>
+      <pointsize>11</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -118,54 +286,16 @@
      <attribute name="title">
       <string>Import geometry</string>
      </attribute>
-     <widget class="QWidget" name="verticalLayoutWidget_4">
-      <property name="geometry">
-       <rect>
-        <x>8</x>
-        <y>6</y>
-        <width>86</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QLabel" name="label_3">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Geometry file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="verticalLayoutWidget_7">
-      <property name="geometry">
-       <rect>
-        <x>8</x>
-        <y>30</y>
-        <width>85</width>
-        <height>21</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_7">
-       <item>
-        <widget class="QLabel" name="label_4">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Element size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QLineEdit" name="line_element_size">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>96</x>
-        <y>30</y>
+        <x>126</x>
+        <y>44</y>
         <width>131</width>
-        <height>20</height>
+        <height>25</height>
        </rect>
       </property>
       <property name="layoutDirection">
@@ -196,10 +326,10 @@
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>234</x>
-        <y>30</y>
-        <width>57</width>
-        <height>19</height>
+        <x>256</x>
+        <y>44</y>
+        <width>75</width>
+        <height>25</height>
        </rect>
       </property>
       <property name="text">
@@ -212,10 +342,10 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>96</x>
-        <y>6</y>
-        <width>260</width>
-        <height>20</height>
+        <x>125</x>
+        <y>10</y>
+        <width>300</width>
+        <height>25</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -227,13 +357,13 @@
       <property name="minimumSize">
        <size>
         <width>260</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>260</width>
-        <height>20</height>
+        <width>300</width>
+        <height>25</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -242,6 +372,12 @@
         <height>1</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
@@ -249,10 +385,10 @@
      <widget class="QToolButton" name="toolButton_import_geometry">
       <property name="geometry">
        <rect>
-        <x>360</x>
-        <y>6</y>
+        <x>434</x>
+        <y>10</y>
         <width>80</width>
-        <height>20</height>
+        <height>25</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -264,13 +400,13 @@
       <property name="minimumSize">
        <size>
         <width>80</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>80</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -283,71 +419,59 @@
        <string>Import</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_4">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>44</y>
+        <width>105</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Element size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>10</y>
+        <width>111</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Geometry file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
       <string>Import mesh</string>
      </attribute>
-     <widget class="QWidget" name="verticalLayoutWidget_11">
-      <property name="geometry">
-       <rect>
-        <x>4</x>
-        <y>2</y>
-        <width>135</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_11">
-       <item>
-        <widget class="QLabel" name="label_5">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Nodal coordinates file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="verticalLayoutWidget_14">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>30</y>
-        <width>140</width>
-        <height>23</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_14">
-       <item>
-        <widget class="QLabel" name="label_6">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Connectivity matrix file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
      <widget class="QLineEdit" name="line_conn">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>142</x>
-        <y>32</y>
-        <width>240</width>
-        <height>20</height>
+        <x>180</x>
+        <y>48</y>
+        <width>260</width>
+        <height>25</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>240</width>
-        <height>20</height>
+        <width>260</width>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>240</width>
-        <height>20</height>
+        <width>260</width>
+        <height>25</height>
        </size>
       </property>
       <property name="alignment">
@@ -360,10 +484,10 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>142</x>
-        <y>4</y>
-        <width>240</width>
-        <height>20</height>
+        <x>180</x>
+        <y>12</y>
+        <width>260</width>
+        <height>25</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -374,14 +498,14 @@
       </property>
       <property name="minimumSize">
        <size>
-        <width>240</width>
-        <height>20</height>
+        <width>260</width>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>240</width>
-        <height>20</height>
+        <width>260</width>
+        <height>25</height>
        </size>
       </property>
       <property name="baseSize">
@@ -397,10 +521,10 @@
      <widget class="QToolButton" name="toolButton_import_conn">
       <property name="geometry">
        <rect>
-        <x>386</x>
-        <y>32</y>
+        <x>446</x>
+        <y>48</y>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -412,13 +536,13 @@
       <property name="minimumSize">
        <size>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -434,10 +558,10 @@
      <widget class="QToolButton" name="toolButton_import_cord">
       <property name="geometry">
        <rect>
-        <x>386</x>
-        <y>4</y>
+        <x>446</x>
+        <y>12</y>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -449,13 +573,13 @@
       <property name="minimumSize">
        <size>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>75</width>
-        <height>20</height>
+        <height>25</height>
        </size>
       </property>
       <property name="sizeIncrement">
@@ -474,106 +598,57 @@
        <string>Import</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>2</x>
+        <y>48</y>
+        <width>177</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Connectivity matrix file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>6</x>
+        <y>12</y>
+        <width>173</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Nodal coordinates file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </widget>
-   </widget>
-   <widget class="QWidget" name="verticalLayoutWidget_16">
-    <property name="geometry">
-     <rect>
-      <x>24</x>
-      <y>68</y>
-      <width>106</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <layout class="QVBoxLayout" name="verticalLayout_16">
-     <item>
-      <widget class="QLabel" name="label_8">
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project directory&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-   <widget class="QToolButton" name="toolButton_search_project_folder">
-    <property name="geometry">
-     <rect>
-      <x>390</x>
-      <y>68</y>
-      <width>75</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>75</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>75</width>
-      <height>21</height>
-     </size>
-    </property>
-    <property name="sizeIncrement">
-     <size>
-      <width>0</width>
-      <height>1</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Search</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>2</x>
-      <y>4</y>
-      <width>479</width>
-      <height>27</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;New project&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_project_folder">
     <property name="enabled">
@@ -581,48 +656,32 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>144</x>
-      <y>68</y>
-      <width>242</width>
-      <height>20</height>
+      <x>202</x>
+      <y>74</y>
+      <width>250</width>
+      <height>25</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>242</width>
-      <height>0</height>
+      <width>250</width>
+      <height>25</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>242</width>
-      <height>16777215</height>
+      <width>250</width>
+      <height>25</height>
      </size>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="line_project_name">
-    <property name="geometry">
-     <rect>
-      <x>144</x>
-      <y>38</y>
-      <width>242</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>242</width>
-      <height>0</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>242</width>
-      <height>16777215</height>
-     </size>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>11</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

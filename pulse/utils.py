@@ -50,6 +50,8 @@ def mm_to_m(mm):
 
 def error( msg, title = " ERROR "):
     msg_box = QMessageBox()
+    msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
+    # msg_box.setWindowModality(Qt.WindowModal)
     msg_box.setIcon(QMessageBox.Critical)
     msg_box.setText(msg)
     msg_box.setWindowTitle(title)
@@ -57,8 +59,8 @@ def error( msg, title = " ERROR "):
 
 def info_messages(msg, title = " INFORMATION "):
     msg_box = QMessageBox()
-    setWindowFlags(Qt.WindowStaysOnTopHint)
-    setWindowModality(Qt.WindowModal)
+    msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
+    # msg_box.setWindowModality(Qt.WindowModal)
     msg_box.setIcon(QMessageBox.Information)
     msg_box.setText(msg)
     msg_box.setWindowTitle(title)

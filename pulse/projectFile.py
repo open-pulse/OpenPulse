@@ -30,8 +30,8 @@ class ProjectFile:
         self.element_type_is_structural = False
 
         self._entity_file_name = "entity.dat"
-        self._node_structural_file_name = "structural_boundary_conditions_info.dat"
-        self._node_acoustic_file_name = "acoustic_boundary_conditions_info.dat"
+        self._node_structural_file_name = "structural_nodal_info.dat"
+        self._node_acoustic_file_name = "acoustic_nodal_info.dat"
         self._elements_file_name = "elements_info.dat"
         self._project_base_name = "project.ini"
 

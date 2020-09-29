@@ -3,7 +3,6 @@ import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_structural import AssemblyStructural
-# from pulse.postprocessing.plot_structural_data import get_stress_data
 from pulse.utils import error
 
 class SolutionStructural:
@@ -23,15 +22,15 @@ class SolutionStructural:
         self.nodes_connected_to_dampers = self.assembly.nodes_connected_to_dampers
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
-        self.prescribed_values = self.assembly.get_prescribed_values()
+        self.prescribed_values, self.array_prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
+
         self.flag_Modal_prescribed_NonNull_DOFs = False
         self.flag_ModeSup_prescribed_NonNull_DOFs = False
         self.warning_Clump = ""
         self.warning_ModeSup_prescribedDOFs = ""
         self.warning_Modal_prescribedDOFs = ""
         self.solution = None
-
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
         rows = solution.shape[0] + len(self.prescribed_indexes)
@@ -51,25 +50,11 @@ class SolutionStructural:
 
         F = self.assembly.get_global_loads()
         unprescribed_indexes = self.unprescribed_indexes
-        prescribed_values = self.prescribed_values
 
         rows = len(unprescribed_indexes)
         cols = len(self.frequencies)
         F_eq = np.zeros((rows,cols), dtype=complex)
         
-        try:    
-            list_prescribed_dofs = []
-            aux_ones = np.ones(cols, dtype=complex)
-            for value in prescribed_values:
-                if isinstance(value, complex):
-                    list_prescribed_dofs.append(aux_ones*value)
-                elif isinstance(value, np.ndarray):
-                    list_prescribed_dofs.append(value)
-            self.array_prescribed_values = np.array(list_prescribed_dofs)
-        except Exception as e:
-            error(str(e))
-            return F_eq
-
         if np.sum(self.array_prescribed_values) != 0:
             
             Kr_add_lump = complex(0)
@@ -215,12 +200,12 @@ class SolutionStructural:
             omega = 2*np.pi*self.frequencies.reshape(cols,1,1)
             omega_n = 2*np.pi*natural_frequencies
             F_kg = (omega_n**2)
-            F_mg =  - (omega**2)
+            F_mg =  -(omega**2)
             F_cg = 1j*((betaH + betaV*omega)*(omega_n**2) + (alphaH + omega*alphaV)) 
             diag = np.divide(1, (F_kg + F_mg + F_cg))*np.eye(number_modes)
             F_aux = modal_shape.T @ F
             solution = modal_shape @ (diag @ F_aux)
-            solution = solution.reshape(cols, rows).T
+            solution = solution.reshape(cols, rows).T 
         
         else:
         

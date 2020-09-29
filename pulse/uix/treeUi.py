@@ -24,9 +24,10 @@ class TreeUi(QTreeWidget):
 
     def _createNames(self):
         self.name_top_structuralmodelSetup = "Structural Model Setup"
+        self.name_child_setElementType = "Set Element Type"
+        self.name_child_setRotationDecoupling = "Set Rotation Decoupling"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
-        self.name_child_setElementType = "Set Element Type"
         self.name_child_setPrescribedDofs = "Set Prescribed DOFs"
         self.name_child_setNodalLoads = "Set Nodal Loads"
         self.name_child_addMassSpringDamper = "Add: Mass / Spring / Damper"
@@ -44,7 +45,7 @@ class TreeUi(QTreeWidget):
         self.name_child_selectAnalysisType = "Select Analysis Type"
         self.name_child_analisysSetup = "Analysis Setup"
         self.name_child_selectTheOutputResults = "Select the Outputs Results"
-        self.name_child_runAnalysis = "Run Analysis"
+        self.name_child_runAnalysis = "Run Analysis (F5)"
 
         self.name_top_resultsViewer_structural = "Results Viewer - Structural"
         self.name_child_plotStructuralModeShapes = "Plot Structural Mode Shapes"
@@ -102,6 +103,7 @@ class TreeUi(QTreeWidget):
     def _createItems(self):
         self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
         self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
+        self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
         self.item_child_set_material = QTreeWidgetItem([self.name_child_set_material])
         self.item_child_set_crossSection = QTreeWidgetItem([self.name_child_set_crossSection])
         self.item_child_setPrescribedDofs = QTreeWidgetItem([self.name_child_setPrescribedDofs])
@@ -170,6 +172,7 @@ class TreeUi(QTreeWidget):
         # Font setup - internal items
 
         self.item_child_setElementType.setFont(0, self.font_internal)
+        self.item_child_setRotationDecoupling.setFont(0, self.font_internal)
         self.item_child_set_material.setFont(0, self.font_internal)
         self.item_child_set_crossSection.setFont(0, self.font_internal)
         self.item_child_setPrescribedDofs.setFont(0, self.font_internal)
@@ -208,6 +211,7 @@ class TreeUi(QTreeWidget):
     def _addItems(self):
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
         self.addTopLevelItem(self.item_child_setElementType)
+        self.addTopLevelItem(self.item_child_setRotationDecoupling)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
@@ -265,6 +269,8 @@ class TreeUi(QTreeWidget):
             self.mainWindow.getInputWidget().set_cross_section()
         elif item.text(0) == self.name_child_setElementType:
             self.mainWindow.getInputWidget().setElementType()
+        elif item.text(0) == self.name_child_setRotationDecoupling:
+            self.mainWindow.getInputWidget().setRotationDecoupling()
         elif item.text(0) == self.name_child_setPrescribedDofs:
             self.mainWindow.getInputWidget().setDOF()
         elif item.text(0) == self.name_child_setNodalLoads:

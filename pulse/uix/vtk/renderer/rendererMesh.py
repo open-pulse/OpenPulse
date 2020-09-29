@@ -266,7 +266,7 @@ class RendererMesh(vtkRendererBase):
 
                 area = element.cross_section.area
                 Iyy = element.cross_section.second_moment_area_y
-                Izz = element.cross_section.second_moment_area_y
+                Izz = element.cross_section.second_moment_area_z
                 Iyz = element.cross_section.second_moment_area_yz
                 additional_section_info = element.cross_section.additional_section_info
 

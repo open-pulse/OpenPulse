@@ -408,28 +408,13 @@ if select == 1:
             """Cross section second polar moment of area [m**4]."""
             return self.second_moment_area_y + self.second_moment_area_z
 
-        # def shear_form_factor(self):
-        #     """Shear form factor for a tube.
-        #     Parameter
-        #     ---------
-        #     poisson_ratio : float
-        #         Poisson's ratio [ ]"""
-        #     alpha = self.D_internal / self.D_external
-        #     # auxiliar = alpha / (1 + (alpha**2))
-        #     return 6 / (7 + 20 * ((alpha / (1 + (alpha**2)))**2))
-        
-        # def shear_area(self, element_length, young_modulus):
-        #     shear_area = self.area() * self.shear_form_factor()
-        #     return 1 / (( 1 / shear_area) + element_length**2/(12 * young_modulus * self.moment_area()))
+# if __name__ == "__main__":
 
-
-if __name__ == "__main__":
-
-    external_diameter = 0.05
-    thickness = 0.002
-    offset = [0, 0]
-    cross = CrossSection(external_diameter, thickness, offset[0], offset[1], 0.3, element_type = 'pipe', division_number = 64)
-    cross.update_properties()
+#     external_diameter = 0.05
+#     thickness = 0.002
+#     offset = [0, 0]
+#     cross = CrossSection(external_diameter, thickness, offset[0], offset[1], 0.3, element_type = 'pipe', division_number = 64)
+#     cross.update_properties()
 
     # %timeit cross.update_properties(poisson_ratio = 0.3, element_type = 'pipe_1')
 

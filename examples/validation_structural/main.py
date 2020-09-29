@@ -20,33 +20,52 @@ from pulse.animation.plot_function import plot_results
 
 t0 = time()
 # PREPARING MESH
-element_type = 'pipe_1'
+element_type = 'beam_1'
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
 mesh = Mesh()
 
 load_file = 1
 if load_file==1:
     mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6))
-    mesh.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0]))
+    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6, dtype=complex))
+    mesh.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0], dtype=complex))
 if load_file==2:
     mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6))
-    mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0]))
+    mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
+    mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
+
+mat_out = mesh.rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
 mesh.set_element_type_by_element('all', element_type)
 mesh.set_material_by_element('all', steel)
-offset = [0.005, 0.005]
-cross_section = CrossSection(0.05, 0.008, offset[0], offset[1], steel.poisson_ratio, element_type=element_type, division_number=64)
+
+
+d_out = 0.05
+d_in = 0.034
+area = np.pi*((d_out**2)-(d_in**2))/4
+Iyy =  np.pi*((d_out**4)-(d_in**4))/64
+Izz = np.pi*((d_out**4)-(d_in**4))/64
+Iyz = 0
+
+section_info = ["Generic section", None]
+
+cross_section = CrossSection(d_out, 0, 0, 0, steel.poisson_ratio, element_type=element_type, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, additional_section_info=section_info) 
+
+# offset = [0.005, 0.005]
+# cross_section = CrossSection(0.05, 0.008, offset[0], offset[1], steel.poisson_ratio, element_type=element_type, division_number=64)
+
 mesh.set_cross_section_by_element('all', cross_section)
 
-solution = SolutionStructural(mesh)
 f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
+
+solution = SolutionStructural(mesh, frequencies)
+
 modes = 200
-direct = solution.direct_method(frequencies, is_viscous_lumped=True)
-modal = solution.mode_superposition(frequencies, modes, fastest=True)
+global_damping = [0, 0, 0, 0]
+direct = solution.direct_method(global_damping)
+modal = solution.mode_superposition(modes, global_damping, fastest=True)
 # natural_frequencies, modal_shape = solution.modal_analysis(modes=20)
 dt = time()-t0
 print('Total elapsed time:', dt,'[s]')
@@ -88,31 +107,34 @@ elif load_file==2:
         local_dof_response  = 2 # Get the response at the following degree of freedom
 
 
-Xd = get_structural_frf(mesh, direct, node_response, local_dof_response)
-Xs = get_structural_frf(mesh, modal, node_response, local_dof_response)
+Xd = get_structural_frf(mesh, direct, node_response, local_dof_response, absolute=True)
+Xs = get_structural_frf(mesh, modal, node_response, local_dof_response, absolute=True)
 
-test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
+# test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
 
-if run==1:
-    file1 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Ux_n436.csv", "r")
-    FRF = np.loadtxt(file1, delimiter=",", skiprows=2)
-    file1.close()
-elif run==2:
-    file2 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uy_n187.csv", "r")
-    FRF = np.loadtxt(file2, delimiter=",", skiprows=2)
-    file2.close()
-elif run==3:
-    file3 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uz_n711.csv", "r")
-    FRF = np.loadtxt(file3, delimiter=",", skiprows=2)
-    file3.close()
-else:
-    print("Invalid run number entry!")
+# if run==1:
+#     # file1 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Ux_n436.csv", "r")
+#     file1 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Ux_node436_Fx_node361.csv"
+#     FRF = np.loadtxt(file1, delimiter=",", skiprows=2)
+#     # file1.close()
+# elif run==2:
+#     # file2 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uy_n187.csv", "r")
+#     file2 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Uy_node187_Fx_node361.csv"
+#     FRF = np.loadtxt(file2, delimiter=",", skiprows=2)
+#     # file2.close()
+# elif run==3:
+#     # file3 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uz_n711.csv", "r")
+#     file3 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Uz_node711_Fx_node361.csv"
+#     FRF = np.loadtxt(file3, delimiter=",", skiprows=2)
+#     # file3.close()
+# else:
+#     print("Invalid run number entry!")
 
 fig = plt.figure(figsize=[12,8])
 ax = fig.add_subplot(1,1,1)
 plt.semilogy(frequencies, np.abs(Xd), color = [0,0,0], linewidth=3)
 plt.semilogy(frequencies, np.abs(Xs), color = [1,0,0], linewidth=1.5)
-plt.semilogy(FRF[:,0], np.abs(FRF[:,1] + 1j*FRF[:,2]), color = [0,0,1], linewidth=1)
+# plt.semilogy(FRF[:,0], np.abs(FRF[:,1] + 1j*FRF[:,2]), color = [0,0,1], linewidth=1)
 ax.set_title(('FRF: Direct and Mode Superposition Methods'), fontsize = 18, fontweight = 'bold')
 ax.set_xlabel(('Frequency [Hz]'), fontsize = 16, fontweight = 'bold')
 ax.set_ylabel(("FRF's magnitude [m]"), fontsize = 16, fontweight = 'bold')

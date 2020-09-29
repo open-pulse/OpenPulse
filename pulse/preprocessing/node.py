@@ -8,7 +8,7 @@ def distance(a, b):
     return np.linalg.norm(a.coordinates - b.coordinates)
 
 class Node:
-    def __init__(self, x, y, z, global_index=None, external_index=None):
+    def __init__(self, x, y, z, **kwargs):
         self.x = x
         self.y = y
         self.z = z
@@ -46,8 +46,12 @@ class Node:
         # 1 -> unflanged pipe
         # 2 -> flanged pipe
         
-        self.global_index = global_index
-        self.external_index = external_index
+        self.global_index = kwargs.get('global_index', None)
+        self.external_index = kwargs.get('external_index', None)
+
+        # self.displacement_dofs = kwargs.get('displacement_dofs', [])
+        # self.rotation_dofs = kwargs.get('rotation_dofs', [])
+        # self.coupled_dofs = kwargs.get('coupled_dofs', None)
 
     @property
     def coordinates(self):

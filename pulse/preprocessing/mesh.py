@@ -10,6 +10,7 @@ from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error
+from collections import defaultdict
 
 class Mesh:
     def __init__(self):
@@ -38,11 +39,13 @@ class Mesh:
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
         self.elements_with_adding_mass_effect = []
+        self.elements_with_decoupled_dofs = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
         self.flag_fluid_mass_effect = False
         self.group_index = 0
+        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
 
     def generate(self, path, element_size):
         self.reset_variables()
@@ -88,6 +91,55 @@ class Mesh:
 
         return neighbor_diameters    
     
+
+    def neighboor_elements_of_node(self, node_ID):
+
+        node = self.nodes[node_ID]
+        neighboor_elments = defaultdict(list)      
+
+        for element in self.acoustic_elements.values():
+            first = element.first_node
+            last = element.last_node
+
+            if node in [first, last]:
+                neighboor_elments[node].append(element.index)
+
+        return neighboor_elments[node]
+
+
+    def rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False]):
+
+        node = self.nodes[node_ID]
+        element = self.structural_elements[element_ID]
+        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        N = DOF_PER_NODE_STRUCTURAL
+        bool_mask = DOFS_PER_ELEMENT*[False]
+        mat_out = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+
+        if node in [element.first_node]:
+            for index, value in enumerate(rotations_to_decouple):
+                bool_mask[int(N/2)+index] = value
+            num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
+            mat_out[:N,:] = mat_out[:N,:]*(num_mask.reshape(1,-1))
+            mat_out[:,:N] = mat_out[:,:N]*num_mask
+            
+        elif node in [element.last_node]:
+            for index, value in enumerate(rotations_to_decouple):
+                bool_mask[int(3*N/2)+index] = value
+            num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
+            mat_out[N:,:] = mat_out[N:,:]*(num_mask.reshape(1,-1))
+            mat_out[:,N:] = mat_out[:,N:]*num_mask
+
+        else:
+            print('The input Node is not correlated with the input Element.')
+            return
+            
+        element.decoupling_matrix = mat_out 
+        element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
+        self.elements_with_decoupled_dofs.append(element)
+ 
+        return mat_out  
+
     def _initialize_gmsh(self, path):
         gmsh.initialize('', False)
         gmsh.open(path)
@@ -101,7 +153,7 @@ class Mesh:
         gmsh.option.setNumber('Mesh.ElementOrder', 1)
         gmsh.option.setNumber('Mesh.Algorithm', 2)
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', 1e-06)
+        gmsh.option.setNumber('Geometry.Tolerance', 1e-08)
 
     def _create_entities(self):
 
@@ -322,12 +374,12 @@ class Mesh:
         for element in slicer(self.acoustic_elements, elements):
             element.cross_section = cross_section
 
-    def set_cross_section_by_line(self, lines, cross_section):
-        for elements in slicer(self.line_to_elements, lines):
+    def set_cross_section_by_line(self, line, cross_section):
+        for elements in slicer(self.line_to_elements, line):
             self.set_cross_section_by_element(elements, cross_section)
     
-    def set_element_type_by_line(self, lines, element_type):
-        for elements in slicer(self.line_to_elements, lines):
+    def set_element_type_by_line(self, line, element_type):
+        for elements in slicer(self.line_to_elements, line):
             self.set_element_type_by_element(elements, element_type)
 
     # Structural physical quantities
