@@ -179,11 +179,11 @@ class DOFInput(QDialog):
 
             if self.lineEdit_nodeID.text()=="":
                 error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return
+                return True
 
         except Exception:
             error("Wrong input for Node ID's!", "Error Node ID's")
-            return
+            return True
 
         try:
             for node in self.nodes_typed:
@@ -191,7 +191,8 @@ class DOFInput(QDialog):
         except:
             message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
             error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return
+            return True
+        return False
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -243,7 +244,9 @@ class DOFInput(QDialog):
 
     def check_single_values(self):
 
-        self.check_input_nodes()
+        if self.check_input_nodes():
+            print("deveria parar")
+            return
 
         if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
             prescribed_dofs = self.check_complex_entries(self.lineEdit_real_alldofs, self.lineEdit_imag_alldofs, "all dofs")
@@ -377,7 +380,8 @@ class DOFInput(QDialog):
 
     def check_table_values(self):
 
-        self.check_input_nodes()
+        if self.check_input_nodes():
+            return
 
         ux = uy = uz = None
         if self.lineEdit_path_table_ux != "":
