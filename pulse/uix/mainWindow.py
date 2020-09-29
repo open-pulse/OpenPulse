@@ -126,6 +126,11 @@ class MainWindow(QMainWindow):
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
+        self.setcappedEnd_action = QAction('&Set capped End', self)        
+        self.setcappedEnd_action.setShortcut('Alt+7')
+        self.setcappedEnd_action.setStatusTip('Set capped End')
+        self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
+
         #Acoustic Model Setup
         self.set_fluid_action = QAction('&Set Fluid', self)        
         self.set_fluid_action.setShortcut('Ctrl+Alt+1')
@@ -268,6 +273,7 @@ class MainWindow(QMainWindow):
         modelSetup.addAction(self.setDOF_action)
         modelSetup.addAction(self.setForce_action)
         modelSetup.addAction(self.setMass_action)
+        modelSetup.addAction(self.setcappedEnd_action)
 
         modelSetup.addAction(self.set_fluid_action)
         modelSetup.addAction(self.setAcousticPressure_action)
