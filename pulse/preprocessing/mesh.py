@@ -126,6 +126,10 @@ class Mesh:
             num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
             mat_out[:N,:] = mat_out[:N,:]*(num_mask.reshape(1,-1))
             mat_out[:,:N] = mat_out[:,:N]*num_mask
+            # mat_out[:int(N/2),:int(N/2)] = np.eye(int(N/2))
+            
+            # mat_out[N:,:N] = np.zeros((N,N),dtype=int)
+            # mat_out[:N,N:] = np.zeros((N,N),dtype=int)
             
         elif node in [element.last_node]:
             for index, value in enumerate(rotations_to_decouple):
@@ -133,11 +137,12 @@ class Mesh:
             num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
             mat_out[N:,:] = mat_out[N:,:]*(num_mask.reshape(1,-1))
             mat_out[:,N:] = mat_out[:,N:]*num_mask
-
+            # mat_out[N:,:N] = np.zeros((N,N),dtype=int)
+            # mat_out[:N,N:] = np.zeros((N,N),dtype=int)
         else:
             print('The input Node is not correlated with the input Element.')
             return
-            
+        print(mat_out)
         element.decoupling_matrix = mat_out 
         element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
         self.elements_with_decoupled_dofs.append(element)

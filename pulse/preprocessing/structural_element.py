@@ -77,7 +77,7 @@ class StructuralElement:
 
     def matrices_gcs(self):
         """ Element striffness and mass matrix in the global coordinate system."""
-        R = self.rotation_matrix
+        self._rot = R = self.rotation_matrix
         Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
             stiffness = Rt @ self.stiffness_matrix_pipes() @ R
