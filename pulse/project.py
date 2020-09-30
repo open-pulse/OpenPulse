@@ -175,7 +175,6 @@ class Project:
                 # self._set_entity_cross_section(key.split("-")[0], cross)
             else:
                 self.load_cross_section_by_entity(int(key), cross)
-        # print(self.lines_multiples_cross_sections)
 
         # capped end
         for key, capped in dict_capped_end_element.items():
@@ -421,7 +420,6 @@ class Project:
 
     def load_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
-            # print(entity_id)
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)

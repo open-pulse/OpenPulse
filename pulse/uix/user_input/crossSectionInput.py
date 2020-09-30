@@ -6,7 +6,6 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-# from pulse.utils import error
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.uix.user_input.printMessageInput import PrintMessageInput
 
@@ -232,7 +231,7 @@ class CrossSectionInput(QDialog):
             
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Element ID input"
-                message = "Inform a valid Element ID before to confirm the input."
+                message = "Inform a valid Element ID before \nto confirm the input."
                 self.info_text = [title, message, window_title]     
                 return True
         except Exception:
@@ -246,7 +245,7 @@ class CrossSectionInput(QDialog):
                 self.elementID = self.structural_elements[element].index
         except Exception:
             title = "Error: invalid Element ID input"
-            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
+            message = " The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
             self.info_text = [title, message, window_title]
             return True
         return False
@@ -276,7 +275,7 @@ class CrossSectionInput(QDialog):
                 self.line = self.dict_tag_to_entity[line]
         except Exception:
             title = "Error: invalid Line ID"
-            message = "The Line ID input values must be\n major than 1 and less than {}.".format(len(self.dict_tag_to_entity))
+            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
             self.info_text = [title, message, window_title]
             return True
         return False
@@ -623,7 +622,7 @@ class CrossSectionBeamInput(QDialog):
             area = base*height - base_in*height_in
             Iyy = ((height**3)*base/12) - ((height_in**3)*base_in/12)
             Izz = ((base**3)*height/12) - (base_in**3)*height_in/12
-            print(area, Iyy, Izz)
+
             Iyz = 0.
             Yc, Zc = 0, 0
             

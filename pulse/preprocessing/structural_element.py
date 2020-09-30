@@ -31,9 +31,15 @@ def shape_function(ksi):
 
 class StructuralElement:
     def __init__(self, first_node, last_node, index, **kwargs):
+
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
+
+        self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
+                                            (self.last_node.y + self.first_node.y)/2,
+                                            (self.last_node.z + self.first_node.z)/2 ]
+        
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
@@ -159,6 +165,10 @@ class StructuralElement:
 
         return R
     
+    def get_local_coordinate_system(self):
+        #
+        return
+
     def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""
         L = self.length
@@ -546,11 +556,6 @@ class StructuralElement:
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
 
-        # if decoupling_matrix is None:
-        #     Me = self.symmetrize(me)
-        # else:
-        #     Me = self.symmetrize(me)*decoupling_matrix
-
         # if np.sum(self.decoupling_matrix) != 144:
         #     print(self.index)
         
@@ -621,7 +626,5 @@ class StructuralElement:
 
         elif section_label == "Generic section":
             shear_coefficient = self.cross_section.shear_coefficient
-
-        # print(section_label, parameters, shear_coefficient)
 
         return shear_coefficient

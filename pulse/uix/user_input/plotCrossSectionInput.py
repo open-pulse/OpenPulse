@@ -120,7 +120,7 @@ class PlotCrossSectionInput(QDialog):
                 return True
             
             if self.lineEdit_selected_ID.text() == "":
-                message = "Inform a valid Element ID before to confirm the input."
+                message = "Inform a valid Element ID before \nto confirm the input."
                 title = "Error: empty Element ID input"
                 self.info_text = [title, message]
                 return True
@@ -170,7 +170,7 @@ class PlotCrossSectionInput(QDialog):
             for line in self.line_typed:
                 self.line = self.dict_tag_to_entity[line]
         except Exception:
-            message = "The Line ID input values must be\n major than 1 and less than {}.".format(len(self.dict_tag_to_entity))
+            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
             title = "Error: invalid Line ID"
             self.info_text = [title, message]
             return True
@@ -190,7 +190,7 @@ class PlotCrossSectionInput(QDialog):
 
             entity = self.dict_tag_to_entity[self.line_typed[0]]
             if entity.crossSection is None:
-                message = "Please, define a cross-section to the selected line \nbefore trying to plot the section."
+                message = "Please, define a cross-section to the \nselected line before trying to plot the section."
                 title = "Error: undefined line cross-section"
                 self.info_text = [title, message]
                 return None
@@ -204,7 +204,7 @@ class PlotCrossSectionInput(QDialog):
 
             element = self.structural_elements[self.element_typed[0]]
             if element.cross_section is None:
-                message = "Please, define a cross-section to the selected element \nbefore trying to plot the section."
+                message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
                 title = "Error: undefined element cross-section"
                 self.info_text = [title, message]     
                 PrintMessageInput(self.info_text)       

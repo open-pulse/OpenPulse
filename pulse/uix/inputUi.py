@@ -109,7 +109,7 @@ class InputUi:
     def setRotationDecoupling(self):
         read = CouplingDOFsInput(self.project, self.opv)  
         if read.complete:
-            self.project.mesh.rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
+            self.project.mesh.set_rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
             print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
 

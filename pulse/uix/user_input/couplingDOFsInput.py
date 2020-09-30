@@ -84,7 +84,7 @@ class CouplingDOFsInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.plot_section()
+            self.check_get_nodes()
         if event.key() == Qt.Key_Escape:
             plt.close()
             self.close()
@@ -127,7 +127,7 @@ class CouplingDOFsInput(QDialog):
                 return True
             
             if self.lineEdit_selected_element.text() == "":
-                message = "Inform a valid Element ID before to confirm the input."
+                message = "Inform a valid Element ID before \nto confirm the input."
                 title = "Error: empty Element ID input"
                 window_title = "Error message"
                 self.info_text = [title, message, window_title]
@@ -182,3 +182,7 @@ class CouplingDOFsInput(QDialog):
         for element in self.project.mesh.elements_with_decoupled_dofs:
             element.decoupling_matrix = np.ones((N,N), dtype=int)
         self.project.mesh.elements_with_decoupled_dofs = []
+        message = "The rotation deccoupling applied \nto all dofs has been reseted." 
+        title = "Rotations dofs decoupling"
+        window_title = "WARNING"
+        PrintMessageInput([title, message, window_title])

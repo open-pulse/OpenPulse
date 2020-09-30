@@ -111,38 +111,59 @@ class Mesh:
         return neighboor_elments[node]
 
 
-    def rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False]):
+    def set_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False]):
 
+        _base = np.array([[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+                             [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]])
+        
         node = self.nodes[node_ID]
         element = self.structural_elements[element_ID]
         DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         N = DOF_PER_NODE_STRUCTURAL
-        bool_mask = DOFS_PER_ELEMENT*[False]
-        mat_out = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        if node in [element.first_node]:
+        if rotations_to_decouple.count(False) == 3:
+            mat_out = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+
+        elif rotations_to_decouple.count(True) == 3:  
+            mat_out = _base
+
+        elif node in [element.first_node]:
+  
+            temp = _base[:int(N/2), :int(N/2)].copy()
+            _base[:N,:N] = np.zeros((N,N), dtype=int)
+            _base[:int(N/2), :int(N/2)] = temp
+
             for index, value in enumerate(rotations_to_decouple):
-                bool_mask[int(N/2)+index] = value
-            num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
-            mat_out[:N,:] = mat_out[:N,:]*(num_mask.reshape(1,-1))
-            mat_out[:,:N] = mat_out[:,:N]*num_mask
-            # mat_out[:int(N/2),:int(N/2)] = np.eye(int(N/2))
-            
-            # mat_out[N:,:N] = np.zeros((N,N),dtype=int)
-            # mat_out[:N,N:] = np.zeros((N,N),dtype=int)
-            
+                if not value:
+                    ij = index + int(N/2)
+                    _base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    _base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = _base
+
         elif node in [element.last_node]:
+   
+            temp = _base[N:int(3*N/2), N:int(3*N/2)].copy()
+            _base[N:,N:] = np.zeros((N,N), dtype=int)
+            _base[N:int(3*N/2), N:int(3*N/2)] = temp
+
             for index, value in enumerate(rotations_to_decouple):
-                bool_mask[int(3*N/2)+index] = value
-            num_mask = np.array([1 if not value else 0 for value in bool_mask]).reshape(-1,1)
-            mat_out[N:,:] = mat_out[N:,:]*(num_mask.reshape(1,-1))
-            mat_out[:,N:] = mat_out[:,N:]*num_mask
-            # mat_out[N:,:N] = np.zeros((N,N),dtype=int)
-            # mat_out[:N,N:] = np.zeros((N,N),dtype=int)
-        else:
-            print('The input Node is not correlated with the input Element.')
-            return
-        print(mat_out)
+                if not value:
+                    ij = index + int(3*N/2)
+                    _base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    _base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = _base
+
+        # print(mat_out)
         element.decoupling_matrix = mat_out 
         element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
         self.elements_with_decoupled_dofs.append(element)
