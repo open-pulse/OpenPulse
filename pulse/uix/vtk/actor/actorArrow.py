@@ -65,7 +65,7 @@ class ActorArrow(vtkActorBase):
         if self.xyz == -2:
             transform.RotateZ(90)
         elif self.xyz == -3:
-            transform.RotateY(90)
+            transform.RotateY(-90)
 
         if self.xyz == 1:
             transform.RotateY(180)
