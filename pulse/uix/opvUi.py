@@ -208,6 +208,9 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changeColorCross(self):
         pass #Well.. Actually it is only here just in case it is necessary
 
+    def updateRendererMesh(self):
+        self.rendererMesh.plotNodes()
+
     def transformPoints(self, points_id):
         self.rendererMesh.transformPoints(points_id)
         
