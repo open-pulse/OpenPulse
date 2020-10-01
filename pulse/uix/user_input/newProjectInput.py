@@ -229,7 +229,7 @@ class NewProjectInput(QDialog):
             'Density': 7860,
             'Young Modulus': 210,
             'Poisson': 0.3,
-            'Color': '[0,0,255]' #Blue
+            'Color': '[169,169,169]' #DarkGray
         }
 
         config['STAINLESS_STEEL'] = {
@@ -265,7 +265,7 @@ class NewProjectInput(QDialog):
             'Density': 2770,
             'Young Modulus': 71,
             'Poisson': 0.333,
-            'Color': '[160,160,160]' #Grey
+            'Color': '[220,220,220]' #Gainsboro
         }
 
         config['BRASS'] = {
