@@ -145,6 +145,7 @@ class CouplingDOFsInput(QDialog):
                 self.element_id = self.structural_elements[element].index
         except Exception:
             message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
+            # message = str(e)
             title = "Error: invalid Element ID input"
             window_title = "Error message"
             self.info_text = [title, message, window_title]

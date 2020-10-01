@@ -60,15 +60,9 @@ class AssemblyStructural:
         rows, cols = self.mesh.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-        # mat_exp = np.zeros((18,18), dtype=float)
+
         for index, element in enumerate(self.mesh.structural_elements.values()):
-            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()  
-            # if element.index == 101:
-            #     # mat_exp[:12,:12] = mat_Me[index,:,:]
-            #     np.savetxt('Me_elements_101.csv', mat_exp, delimiter=",")
-            # if element.index == 102:
-            #     # mat_exp[6:,6:] = mat_exp[6:,6:] + mat_Me[index,:,:]
-            #     np.savetxt('Me_elements_102.csv', mat_Me[index,:,:], delimiter=",")
+            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs() 
 
         # np.savetxt('Me.csv', mat_Me[0,:,:], delimiter=",")
         # np.savetxt('Ke.csv', mat_Ke[0,:,:], delimiter=",")

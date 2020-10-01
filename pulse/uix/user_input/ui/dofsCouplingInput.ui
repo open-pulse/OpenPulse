@@ -951,7 +951,7 @@
      <number>0</number>
     </property>
     <property name="text">
-     <string>Choose the DOFs to uncouple*:</string>
+     <string>Choose the DOFs to uncouple:</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

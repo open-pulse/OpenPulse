@@ -159,15 +159,24 @@ class StructuralElement:
             C[2,1] = -sin(gamma)
             C[2,2] = 0.
 
+        self.sub_rotation_matrix = C
         R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = C
 
         return R
     
-    def get_local_coordinate_system(self):
-        #
-        return
+    def get_local_coordinate_system_info(self):
+
+        R = self.sub_rotation_matrix
+        invR = np.linalg.inv(R)
+
+        u = invR@np.array([1,0,0])
+        v = invR@np.array([0,1,0])
+        w = invR@np.array([0,0,1])
+        directional_vectors = [u, v, w]
+        print(self.center_element_coordinates, directional_vectors)
+        return self.center_element_coordinates, directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""
