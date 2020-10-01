@@ -72,7 +72,7 @@ class ActorArrow(vtkActorBase):
         elif self.xyz == 2:
             transform.RotateZ(-90)
         elif self.xyz == 3:
-            transform.RotateY(-90)
+            transform.RotateY(90)
 
     def setNormalizedColor(self, color):
         self.normalizedColor = color
