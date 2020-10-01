@@ -220,6 +220,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+        self.opv.updateRendererMesh()
         print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
 
     def setVolumeVelocity(self):
@@ -228,6 +229,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+        self.opv.updateRendererMesh()
         print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
 
     def setSpecificImpedance(self):
@@ -237,6 +239,7 @@ class InputUi:
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
             self.flag_imported_table = True
+        self.opv.updateRendererMesh()
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
@@ -246,6 +249,7 @@ class InputUi:
             return
         else:
             self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
+            self.opv.updateRendererMesh()
             print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):

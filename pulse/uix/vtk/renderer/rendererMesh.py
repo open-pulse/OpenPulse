@@ -20,6 +20,7 @@ class RendererMesh(vtkRendererBase):
         self.axes = dict()
 
         self.selectionNodesActor = None
+        self.selectionNodesActorAcoustic = None
         self.selectionElementsActor = None
         self.selectionTubeActor = None
 
@@ -30,17 +31,51 @@ class RendererMesh(vtkRendererBase):
         selectedElements = [self.project.get_element(i) for i in self.getListPickedElements()]
 
         self._renderer.RemoveActor(self.selectionNodesActor)
+        self._renderer.RemoveActor(self.selectionNodesActorAcoustic)
         self._renderer.RemoveActor(self.selectionElementsActor)
         self._renderer.RemoveActor(self.selectionTubeActor)
         
         if selectedNodes:
+            selectedNodesAcoustic = []
+            volume_velocity = self.project.get_mesh().nodes_with_volume_velocity #Vermelha
+            acoustic_pressure = self.project.get_mesh().nodes_with_acoustic_pressure #Branca
+            specific_impedance = self.project.get_mesh().nodes_with_specific_impedance #Verde
+            radiation_impedance = self.project.get_mesh().nodes_with_radiation_impedance #Rosa
+            #Remove nodes with volume velocity from nodes[]
+            for node in volume_velocity:
+                if node in selectedNodes:
+                    selectedNodesAcoustic.append(node)
+                    selectedNodes.remove(node)
+            #Remove nodes with acoustic_pressure from nodes[]
+            for node in acoustic_pressure:
+                if node in selectedNodes:
+                    selectedNodesAcoustic.append(node)
+                    selectedNodes.remove(node)
+            #Remove nodes with specific_impedance from nodes[]
+            for node in specific_impedance:
+                if node in selectedNodes:
+                    selectedNodesAcoustic.append(node)
+                    selectedNodes.remove(node)
+            #Remove nodes with specific_impedance from nodes[]
+            for node in radiation_impedance:
+                if node in selectedNodes:
+                    selectedNodesAcoustic.append(node)
+                    selectedNodes.remove(node)
+
             source = vtk.vtkCubeSource()
-            source.SetXLength(3)
-            source.SetYLength(3)
-            source.SetZLength(3)
+            source.SetXLength(2)
+            source.SetYLength(2)
+            source.SetZLength(2)
             self.selectionNodesActor = self.createActorNodes(selectedNodes,source)
             self.selectionNodesActor.GetProperty().SetColor(255,0,0)
-            self._renderer.AddActor(self.selectionNodesActor)    
+            self._renderer.AddActor(self.selectionNodesActor)   
+
+            
+            source = vtk.vtkSphereSource()
+            source.SetRadius(3)
+            self.selectionNodesActorAcoustic = self.createActorNodes(selectedNodesAcoustic,source)
+            self.selectionNodesActorAcoustic.GetProperty().SetColor(255,0,0)
+            self._renderer.AddActor(self.selectionNodesActorAcoustic)    
         
         if selectedElements:
             self.selectionElementsActor = self.createActorElements(selectedElements)
@@ -68,9 +103,6 @@ class RendererMesh(vtkRendererBase):
 
     def getListPickedElements(self):
         return self._style.getListPickedElements()
-        
-    def update(self):
-        self.opv.update()
     
     # def updateAllAxes(self):
     #     pass
@@ -106,14 +138,59 @@ class RendererMesh(vtkRendererBase):
             self.elementsBounds[key] = bounds
 
     def plotNodes(self):
-        nodes = self.project.get_nodes().values()
+        nodes = list(self.project.get_nodes().values())
+        volume_velocity = self.project.get_mesh().nodes_with_volume_velocity #Vermelha
+        acoustic_pressure = self.project.get_mesh().nodes_with_acoustic_pressure #Branca
+        specific_impedance = self.project.get_mesh().nodes_with_specific_impedance #Verde
+        radiation_impedance = self.project.get_mesh().nodes_with_radiation_impedance #Rosa
+        #Remove nodes with volume velocity from nodes[]
+        for node in volume_velocity:
+            if node in nodes:
+                nodes.remove(node)
+        #Remove nodes with acoustic_pressure from nodes[]
+        for node in acoustic_pressure:
+            if node in nodes:
+                nodes.remove(node)
+        #Remove nodes with specific_impedance from nodes[]
+        for node in specific_impedance:
+            if node in nodes:
+                nodes.remove(node)
+        #Remove nodes with specific_impedance from nodes[]
+        for node in radiation_impedance:
+            if node in nodes:
+                nodes.remove(node)
+
         source = vtk.vtkCubeSource()
         source.SetXLength(2)
         source.SetYLength(2)
         source.SetZLength(2)
         actor = self.createActorNodes(nodes,source)
         actor.GetProperty().SetColor(1,1,0)
-        self._renderer.AddActor(actor)       
+        self._renderer.AddActor(actor)
+
+        cube_source = vtk.vtkCubeSource()
+        cube_source.SetXLength(4)
+        cube_source.SetYLength(4)
+        cube_source.SetZLength(4)
+
+        sphere_source = vtk.vtkSphereSource()
+        sphere_source.SetRadius(3)
+        actor = self.createActorNodes(volume_velocity,sphere_source)
+        actor.GetProperty().SetColor(1,0.2,0.2)
+        self._renderer.AddActor(actor)
+
+        actor = self.createActorNodes(acoustic_pressure,sphere_source)
+        actor.GetProperty().SetColor(1,1,1)
+        self._renderer.AddActor(actor)
+
+        actor = self.createActorNodes(specific_impedance,cube_source)
+        actor.GetProperty().SetColor(1,0.07,0.57)
+        self._renderer.AddActor(actor)
+
+        actor = self.createActorNodes(radiation_impedance,cube_source)
+        actor.GetProperty().SetColor(0,1,0)
+        self._renderer.AddActor(actor)
+
     
     def plotElements(self):
         elements = self.project.get_elements().values()
@@ -137,7 +214,7 @@ class RendererMesh(vtkRendererBase):
         mapper = vtk.vtkPolyDataMapper()
 
         for node in nodes:
-            x,y,z = node.coordinates
+            x,y,z = node.x, node.y, node.z
             points.InsertNextPoint(x,y,z)
         
         data.SetPoints(points)
