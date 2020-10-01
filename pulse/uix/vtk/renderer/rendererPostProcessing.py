@@ -38,7 +38,7 @@ class RendererPostProcessing(vtkRendererBase):
 
     def getColorTable(self, r_def=None):
         if self.stress:
-            return ColorTable(self.project, self.project.stresses_values_for_color_table)
+            return ColorTable(self.project, self.project.stresses_values_for_color_table, elementary_plot=True)
         else:
             return ColorTable(self.project, r_def)
 

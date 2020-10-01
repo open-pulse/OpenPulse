@@ -330,52 +330,58 @@ class SolutionStructural:
         p0 = pressure_external
 
         for element in elements:
-            # Internal Loads
-            structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
-            if self.solution is None:
-                error("Strutural analysis must be performed to obtain the stress field.")
-                return
 
-            u = self.solution[structural_dofs, :]
-            Dab = element._Dab
-            Bab = element._Bab
-
-            Dts = element._Dts
-            Bts = element._Bts
-
-            rot = element._rot
-            T = element.cross_section.principal_axis_translation
+            if element.element_type in ['beam_1']:
+                element.stress = np.zeros((7, len(self.frequencies)))
             
-            normal = Dab @ Bab @ T @ rot @ u
-            shear = Dts @ Bts @ T @ rot @ u
+            elif element.element_type in ['pipe_1', 'pipe_2']:
+                # Internal Loads
+                structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
+                if self.solution is None:
+                    error("Strutural analysis must be performed to obtain the stress field.")
+                    return
 
-            element.internal_load = np.multiply(np.r_[normal, shear],damping)
-            # Stress
-            do = element.cross_section.external_diameter
-            di = element.cross_section.internal_diameter
-            ro = do/2
-            area = element.cross_section.area
-            Iy = element.cross_section.second_moment_area_y
-            Iz = element.cross_section.second_moment_area_z
-            J = element.cross_section.polar_moment_area
+                u = self.solution[structural_dofs, :]
+                Dab = element._Dab
+                Bab = element._Bab
 
-            acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
-            
-            if self.acoustic_solution is not None:
-                p = self.acoustic_solution[acoustic_dofs, :]
-            else:
-                p = np.zeros((2, len(self.frequencies)))
-            pm = np.sum(p,axis=0)/2
-            hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
+                Dts = element._Dts
+                Bts = element._Bts
 
-            element.stress = np.c_[element.internal_load[0]/area,
-                                   element.internal_load[2] * ro/Iy,
-                                   element.internal_load[1] * ro/Iz,
-                                   hoop_stress,
-                                   element.internal_load[3] * ro/J,
-                                   element.internal_load[4]/area,
-                                   element.internal_load[5]/area].T
+                rot = element._rot
+                T = element.cross_section.principal_axis_translation
+                
+                normal = Dab @ Bab @ T @ rot @ u
+                shear = Dts @ Bts @ T @ rot @ u
+
+                element.internal_load = np.multiply(np.r_[normal, shear],damping)
+                # Stress
+                do = element.cross_section.external_diameter
+                di = element.cross_section.internal_diameter
+                ro = do/2
+                area = element.cross_section.area
+                Iy = element.cross_section.second_moment_area_y
+                Iz = element.cross_section.second_moment_area_z
+                J = element.cross_section.polar_moment_area
+
+                acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
+                
+                if self.acoustic_solution is not None:
+                    p = self.acoustic_solution[acoustic_dofs, :]
+                else:
+                    p = np.zeros((2, len(self.frequencies)))
+                pm = np.sum(p,axis=0)/2
+                hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
+
+                element.stress = np.c_[element.internal_load[0]/area,
+                                        element.internal_load[2] * ro/Iy,
+                                        element.internal_load[1] * ro/Iz,
+                                        hoop_stress,
+                                        element.internal_load[3] * ro/J,
+                                        element.internal_load[4]/area,
+                                        element.internal_load[5]/area].T
 
             self.stress_field_dict[element.index] = element.stress
+            # print(element.stress.shape)
             
         return self.stress_field_dict
