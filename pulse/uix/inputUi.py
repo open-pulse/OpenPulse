@@ -319,27 +319,29 @@ class InputUi:
 
     def analysisTypeInput(self):
 
-        inputs = AnalysisTypeInput()
-        if inputs.method_ID == -1:
+        read = AnalysisTypeInput()
+        if read.method_ID == -1:
             return
-        self.analysis_ID = inputs.analysis_ID
-        self.analysis_type_label = inputs.analysis_type_label
-        self.analysis_method_label = inputs.analysis_method_label
+        self.analysis_ID = read.analysis_ID
+        self.analysis_type_label = read.analysis_type_label
+        self.analysis_method_label = read.analysis_method_label
  
         if self.analysis_ID is None:
             return
  
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        self.project.set_modes(inputs.modes)
+        self.project.set_modes(read.modes)
         self.project.set_acoustic_solution(None)
         self.project.set_structural_solution(None)
 
         if self.analysis_ID in [2,4]:
-            if not inputs.complete:
+            if not read.complete:
                 return
             else:
+                self.setup_analysis_complete = True
                 self.runAnalysis()
         else:
+            self.setup_analysis_complete = False
             self.analysisSetup()
         
     def analysisSetup(self):

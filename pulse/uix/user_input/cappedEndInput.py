@@ -262,6 +262,7 @@ class cappedEndInput(QDialog):
                         self.set_capped_end_to_lines(select)
                         self.replaced = True
                 self.dkey = None 
+        self.close()
         
     def set_capped_end_to_elements(self, selection):
         

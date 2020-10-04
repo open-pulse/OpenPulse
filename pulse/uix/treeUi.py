@@ -217,10 +217,10 @@ class TreeUi(QTreeWidget):
     def _addItems(self):
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
         self.addTopLevelItem(self.item_child_setElementType)
-        self.addTopLevelItem(self.item_child_setRotationDecoupling)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
+        self.addTopLevelItem(self.item_child_setRotationDecoupling)
         self.addTopLevelItem(self.item_child_setNodalLoads)
         self.addTopLevelItem(self.item_child_addMassSpringDamper)
         self.addTopLevelItem(self.item_child_setcappedEnd)

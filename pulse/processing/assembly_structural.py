@@ -26,7 +26,10 @@ class AssemblyStructural:
     
         global_prescribed = []
         list_prescribed_dofs = []
-        cols = len(self.frequencies)
+        if self.frequencies is None:
+            cols = 1
+        else:
+            cols = len(self.frequencies)
         
         for node in self.mesh.nodes.values():
             if node.there_are_prescribed_dofs:
@@ -83,7 +86,11 @@ class AssemblyStructural:
     def get_lumped_matrices(self):
 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        cols = len(self.frequencies)
+        
+        if self.frequencies is None:
+            cols = 1
+        else:
+            cols = len(self.frequencies)
 
         list_Mlump = []
         list_Klump = []

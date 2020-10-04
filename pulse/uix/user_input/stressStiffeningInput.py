@@ -71,7 +71,7 @@ class StressStiffeningInput(QDialog):
         self.flag_pressure_effect = self.checkBox_pressure_effect.isChecked()
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')  
-        # self.pushButton_confirm.clicked.connect(self.check_dofs_coupling)
+        self.pushButton_confirm.clicked.connect(self.confirm_)
         self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset') 
         # self.pushButton_reset.clicked.connect(self.check_reset_all)
         
@@ -90,6 +90,10 @@ class StressStiffeningInput(QDialog):
             self.radioButton_all_lines.setChecked(True)      
 
         self.exec_()
+
+    def confirm_(self):
+        self.close()
+
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

@@ -410,12 +410,14 @@ class StructuralElement:
         
         aux_s1 = 1 if self.capped_end else 0
         
-        sigma_1 = aux_s1*(Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-        sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-        sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        # sigma_1 = aux_s1*(Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        # sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        # sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+
+        sigma_1, sigma_r, sigma_c, sigma_1t = 0, 0, 0, 0
 
         sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
-        sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
+        # sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
 
         return sigma_1a, sigma_1t
 
