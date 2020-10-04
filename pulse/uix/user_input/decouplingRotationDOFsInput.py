@@ -12,10 +12,10 @@ from pulse.uix.user_input.printMessageInput import PrintMessageInput
 import numpy as np
 import matplotlib.pyplot as plt    
     
-class CouplingDOFsInput(QDialog):
+class DecouplingRotationDOFsInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/dofsCouplingInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/decouplingRotationDOFsInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

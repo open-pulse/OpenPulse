@@ -94,13 +94,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.check_element_correction_type()
         elif event.key() == Qt.Key_Delete:
             self.remove_element_length_correction_by_group()
         elif event.key() == Qt.Key_Escape:
             self.close()
         
-
     def radioButtonEvent(self):
         self.flag_expansion = self.radioButton_expansion.isChecked()
         self.flag_side_branch = self.radioButton_side_branch.isChecked()
@@ -158,7 +157,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 section = self.dict_label.format("Selection-{}".format(ind))
             else:
                 break
-        self.set_elements_to_correct(type_id, section)
+        self.set_elements_to_correct(type_id, section, _print=True)
         self.replaced = False
         temp_dict = self.dict_group_elements.copy()
         for key, values in temp_dict.items():
@@ -189,15 +188,16 @@ class AcousticElementLengthCorrectionInput(QDialog):
                     else:
                         self.dkey = key
                         self.remove_element_length_correction_by_group()
-            self.dkey = None           
+            self.dkey = None  
+        self.close()         
 
-    def set_elements_to_correct(self, type_id, section):
-        
+    def set_elements_to_correct(self, type_id, section, _print=False): 
         self.project.set_element_length_correction_by_elements(list(np.sort(self.elements_typed)), type_id, section)
-        if len(self.elements_id)>20:
-            print("Set acoustic element length correction due the {} at {} selected elements".format(self.type_label, len(self.elements_id)))
-        else:
-            print("Set acoustic element length correction due the {} at elements: {}".format(self.type_label, self.elements_id))
+        if _print:
+            if len(self.elements_id)>20:
+                print("Set acoustic element length correction due the {} at {} selected elements".format(self.type_label, len(self.elements_id)))
+            else:
+                print("Set acoustic element length correction due the {} at elements: {}".format(self.type_label, self.elements_id))
         self.load_elements_info()
 
     def load_elements_info(self):
@@ -268,6 +268,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
     def update(self):
         self.write_ids(self.opv.getListPickedElements())
+        self.elements_id = self.opv.getListPickedElements()
 
 
 class GetInformationOfGroup(QDialog):
@@ -278,6 +279,10 @@ class GetInformationOfGroup(QDialog):
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.type = key_elements[0]
         self.list_of_elements = key_elements[1]
         self.dict_keys_labels = dict_keys_labels

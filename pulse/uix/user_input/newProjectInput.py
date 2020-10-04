@@ -229,7 +229,8 @@ class NewProjectInput(QDialog):
             'Density': 7860,
             'Young Modulus': 210,
             'Poisson': 0.3,
-            'Color': '[0,0,255]' #Blue
+            'Thermal expansion coefficient': 1.2e-5,
+            'Color': '[170,170,170]' #Light Gray
         }
 
         config['STAINLESS_STEEL'] = {
@@ -238,6 +239,7 @@ class NewProjectInput(QDialog):
             'Density': 7750,
             'Young Modulus': 193,
             'Poisson': 0.31,
+            'Thermal expansion coefficient': 1.7e-5,
             'Color': '[126,46,31]' #Wood color
         }
 
@@ -247,6 +249,7 @@ class NewProjectInput(QDialog):
             'Density': 8220,
             'Young Modulus': 212,
             'Poisson': 0.315,
+            'Thermal expansion coefficient': 1.2e-5,
             'Color': '[0,255,255]' #Cyan
         }
 
@@ -256,6 +259,7 @@ class NewProjectInput(QDialog):
             'Density': 7200,
             'Young Modulus': 110,
             'Poisson': 0.28,
+            'Thermal expansion coefficient': 1.1e-5,
             'Color': '[50,50,50]' #Dark Grey
         }
 
@@ -265,7 +269,8 @@ class NewProjectInput(QDialog):
             'Density': 2770,
             'Young Modulus': 71,
             'Poisson': 0.333,
-            'Color': '[160,160,160]' #Grey
+            'Thermal expansion coefficient': 2.3e-5,
+            'Color': '[255,255,255]' #White
         }
 
         config['BRASS'] = {
@@ -274,6 +279,7 @@ class NewProjectInput(QDialog):
             'Density': 8150,
             'Young Modulus': 96,
             'Poisson': 0.345,
+            'Thermal expansion coefficient': 1.9e-5,
             'Color': '[181,166,66]' #Brass color
         }
 

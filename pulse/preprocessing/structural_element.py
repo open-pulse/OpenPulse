@@ -49,14 +49,19 @@ class StructuralElement:
         self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)
         self.decoupling_info = kwargs.get('decoupling_info', None)
 
-        self.capped_end = kwargs.get('capped_end',False)
-        self.stress_intensification = kwargs.get('stress_intensification',True)
+        self.capped_end = kwargs.get('capped_end', False)
+        self.stress_intensification = kwargs.get('stress_intensification', True)
 
         self._Dab = None
         self._Bab = None
         self._Dts = None
         self._Bts = None
         self._rot = None
+
+        self.internal_pressure = kwargs.get('internal_pressure', 0)
+        self.external_pressure = kwargs.get('external_pressure', 0)
+        self.internal_temperature = kwargs.get('internal_temperature', 0)
+        self.external_temperature = kwargs.get('external_temperature', 0)
 
         self.stress = None
         self.internal_load = None
@@ -175,7 +180,7 @@ class StructuralElement:
         v = invR@np.array([0,1,0])
         w = invR@np.array([0,0,1])
         directional_vectors = [u, v, w]
-        print(self.center_element_coordinates, directional_vectors)
+        # print(self.center_element_coordinates, directional_vectors)
         return self.center_element_coordinates, directional_vectors 
 
     def stiffness_matrix_pipes(self):
@@ -192,6 +197,9 @@ class StructuralElement:
         J = self.cross_section.polar_moment_area
         res_y = self.cross_section.res_y
         res_z = self.cross_section.res_z
+
+        # Stress stiffening
+        sigma_1a, sigma_1t = self.stress_stiffening()
 
         # Shear coefficiets
         aly = 1/res_y
@@ -256,9 +264,12 @@ class StructuralElement:
             Bts[[2],[10]] = phi[1]
             self._Bts = Bts
 
-            Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
-            Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
-            
+            Kabe += Bab.T @ (Dab+sigma_1a) @ Bab * det_jacob * weigth
+            Ktse += Bts.T @ (Dts+sigma_1t) @ Bts * det_jacob * weigth
+
+            # Kab_geo += Bab.T @ Sigma_1a @ Bab * det_jacob * weigth
+            # Kt_geo += Bab.T @ Sigma_1t @ Bab * det_jacob * weigth
+               
         Ke = Kabe + Ktse
 
         return principal_axis.T @ Ke @ principal_axis
@@ -385,8 +396,30 @@ class StructuralElement:
 
         return F_p
 
+    def stress_stiffening(self):
+        Din = self.cross_section.external_diameter
+        Dout = self.cross_section.internal_diameter
+        nu = self.material.poisson_ratio
+        E = self.material.young_modulus
+        alpha = self.material.thermal_expansion_coefficient
+
+        Pin = self.internal_pressure
+        Pout = self.external_pressure
+        Tin = self.internal_temperature
+        Tout = self.external_temperature
+        
+        aux_s1 = 1 if self.capped_end else 0
+        
+        sigma_1 = aux_s1*(Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+
+        sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
+        sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
+
+        return sigma_1a, sigma_1t
+
     ##
-    #@staticmethod
     def symmetrize(self, a):
         """ Take a matrix a and symmetrize it."""
         return a + a.T - np.diag(a.diagonal())

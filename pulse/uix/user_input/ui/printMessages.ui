@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>421</width>
-    <height>229</height>
+    <width>500</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>421</width>
-    <height>229</height>
+    <height>300</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>421</width>
-    <height>229</height>
+    <width>500</width>
+    <height>300</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -29,10 +29,22 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>48</y>
-     <width>421</width>
-     <height>181</height>
+     <y>52</y>
+     <width>500</width>
+     <height>248</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>500</width>
+     <height>248</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>500</width>
+     <height>248</height>
+    </size>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -43,19 +55,31 @@
    <widget class="QLabel" name="Label_message">
     <property name="geometry">
      <rect>
-      <x>18</x>
-      <y>14</y>
-      <width>383</width>
-      <height>113</height>
+      <x>10</x>
+      <y>12</y>
+      <width>480</width>
+      <height>185</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>480</width>
+      <height>185</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>480</width>
+      <height>185</height>
+     </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
+      <pointsize>14</pointsize>
+      <weight>50</weight>
+      <italic>false</italic>
+      <bold>false</bold>
      </font>
     </property>
     <property name="frameShape">
@@ -65,7 +89,7 @@
      <enum>QFrame::Sunken</enum>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic;&quot;&gt;message&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:16pt;&quot;&gt;message&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -77,18 +101,18 @@
    <widget class="QPushButton" name="pushButton_close">
     <property name="geometry">
      <rect>
-      <x>166</x>
-      <y>138</y>
-      <width>87</width>
-      <height>32</height>
+      <x>200</x>
+      <y>204</y>
+      <width>100</width>
+      <height>35</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -108,9 +132,21 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>421</width>
-     <height>49</height>
+     <width>500</width>
+     <height>53</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>500</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>500</width>
+     <height>16777215</height>
+    </size>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -122,9 +158,9 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>6</y>
-      <width>401</width>
-      <height>37</height>
+      <y>8</y>
+      <width>480</width>
+      <height>38</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -136,23 +172,23 @@
     <widget class="QLabel" name="Label_title">
      <property name="geometry">
       <rect>
-       <x>52</x>
+       <x>4</x>
        <y>6</y>
-       <width>283</width>
+       <width>473</width>
        <height>29</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>13</pointsize>
+       <pointsize>14</pointsize>
        <weight>75</weight>
        <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;CROSS-SECTION INPUT ERROR&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;TITLE&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>

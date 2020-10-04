@@ -9,7 +9,8 @@ class Material:
         self.poisson_ratio = kwargs.get("poisson_ratio", None)
         self.shear_modulus = kwargs.get("shear_modulus", None)
         self.color = kwargs.get("color", None)
-        
+
+        self.thermal_expansion_coefficient = kwargs.get('thermal_expansion_coefficient', None)
         self._calculate_remaining_properties()
 
     @property

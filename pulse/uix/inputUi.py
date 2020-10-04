@@ -3,7 +3,7 @@ from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
 #
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
-from pulse.uix.user_input.couplingDOFsInput import CouplingDOFsInput
+from pulse.uix.user_input.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 from pulse.uix.user_input.materialInput import MaterialInput
 from pulse.uix.user_input.fluidInput import FluidInput
 from pulse.uix.user_input.crossSectionInput import CrossSectionInput
@@ -22,6 +22,7 @@ from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
 from pulse.uix.user_input.cappedEndInput import cappedEndInput
+from pulse.uix.user_input.stressStiffeningInput import StressStiffeningInput
 #
 from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
 from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
@@ -40,6 +41,7 @@ from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcoustic
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
 #
 from pulse.uix.user_input.LogTimes import LogTimes
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
 #
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
@@ -107,7 +109,7 @@ class InputUi:
 
 
     def setRotationDecoupling(self):
-        read = CouplingDOFsInput(self.project, self.opv)  
+        read = DecouplingRotationDOFsInput(self.project, self.opv)  
         if read.complete:
             self.project.mesh.set_rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
             print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
@@ -222,6 +224,10 @@ class InputUi:
         if read.type_label is None:
             return
 
+    def set_stress_stress_stiffening(self):
+        StressStiffeningInput(self.project, self.opv)
+        return
+
     def setAcousticPressure(self):
         read = AcousticPressureInput(self.project, self.opv, self.opv.transformPoints)
         if read.acoustic_pressure is None:
@@ -257,8 +263,10 @@ class InputUi:
             print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
-        # element_id = self.opv.getListPickedElements()
-        error("This feature is currently under development and \nit will be available in the future updates.", title="WARNING")
+        window_title = "WARNING"
+        title = "UNAVAILABLE FUNCTIONALITY"
+        message = "This feature is currently under development and \nit will be available in the future updates."
+        PrintMessageInput([title, message, window_title])
 
     def set_acoustic_element_length_correction(self):
         read = AcousticElementLengthCorrectionInput(self.project, self.opv)
