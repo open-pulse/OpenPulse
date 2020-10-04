@@ -42,7 +42,7 @@ class vtkSymbols:
         transform.Translate(startPoint)
         transform.Concatenate(matrix)
         #transform.Scale(length, length, length)
-        transform.Scale(0.1, 0.1, 0.1)
+        transform.Scale(0.01, 0.01, 0.01)
 
         transformPD = vtk.vtkTransformPolyDataFilter()
         transformPD.SetTransform(transform)
