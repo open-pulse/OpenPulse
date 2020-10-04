@@ -7,6 +7,69 @@ class vtkSymbols:
     def __init__(self):
         pass
 
+    def arrow(self, start, end):
+        arrowSource = vtk.vtkArrowSource()
+        startPoint = start
+        endPoint = end
+        rng = vtk.vtkMinimalStandardRandomSequence()
+        rng.SetSeed(8775070)  # For testing.
+
+        normalizedX = [0] * 3
+        normalizedY = [0] * 3
+        normalizedZ = [0] * 3
+
+        vtk.vtkMath.Subtract(endPoint, startPoint, normalizedX)
+        length = vtk.vtkMath.Norm(normalizedX)
+        vtk.vtkMath.Normalize(normalizedX)
+
+        arbitrary = [0] * 3
+        for i in range(0, 3):
+            rng.Next()
+            arbitrary[i] = rng.GetRangeValue(-10, 10)
+        vtk.vtkMath.Cross(normalizedX, arbitrary, normalizedZ)
+        vtk.vtkMath.Normalize(normalizedZ)
+
+        vtk.vtkMath.Cross(normalizedZ, normalizedX, normalizedY)
+        matrix = vtk.vtkMatrix4x4()
+
+        matrix.Identity()
+        for i in range(0, 3):
+            matrix.SetElement(i, 0, normalizedX[i])
+            matrix.SetElement(i, 1, normalizedY[i])
+            matrix.SetElement(i, 2, normalizedZ[i])
+
+        transform = vtk.vtkTransform()
+        transform.Translate(startPoint)
+        transform.Concatenate(matrix)
+        #transform.Scale(length, length, length)
+        transform.Scale(0.1, 0.1, 0.1)
+
+        transformPD = vtk.vtkTransformPolyDataFilter()
+        transformPD.SetTransform(transform)
+        transformPD.SetInputConnection(arrowSource.GetOutputPort())
+
+        mapper = vtk.vtkPolyDataMapper()
+        actor = vtk.vtkActor()
+        mapper.SetInputConnection(arrowSource.GetOutputPort())
+        actor.SetUserMatrix(transform.GetMatrix())
+        actor.SetMapper(mapper)
+        return actor
+
+    def getElementAxe(self, element):
+        center, direction = element.get_local_coordinate_system_info()
+        arrows = []
+        x = self.arrow(center, center+direction[0])
+        x.GetProperty().SetColor(1,0,0)
+        y = self.arrow(center, center+direction[1])
+        y.GetProperty().SetColor(0,1,0)
+        z = self.arrow(center, center+direction[2])
+        z.GetProperty().SetColor(0,0,1)
+
+        arrows.append(x)
+        arrows.append(y)
+        arrows.append(z)
+        return arrows
+
     def getDamper(self, node, shift=0.01, u_def=[]):
         a = self.getReal(node.get_lumped_dampings())
         v = [1,2,3]
