@@ -18,6 +18,7 @@ class RendererMesh(vtkRendererBase):
         self.nodesBounds = dict() # (x,y,z) coordinates
         self.elementsBounds = dict() # bounding coordinates
         self.axes = dict()
+        self.elementAxe = []
 
         self.selectionNodesActor = None
         self.selectionNodesActorAcoustic = None
@@ -89,6 +90,7 @@ class RendererMesh(vtkRendererBase):
             self._renderer.AddActor(self.selectionTubeActor)        
 
         self.updateInfoText()
+        self.plotElementAxes()
         self.update()
         renWin = self._renderer.GetRenderWindow()
         if renWin:
@@ -204,7 +206,17 @@ class RendererMesh(vtkRendererBase):
         actor.GetProperty().SetColor(0.7,0.7,0.8)
         actor.GetProperty().SetOpacity(0.2)
         self._renderer.AddActor(actor)
-    
+
+    def plotElementAxes(self):
+        listSelected = self.getListPickedElements()
+        for i in self.elementAxe:
+            self._renderer.RemoveActor(i)
+        if len(listSelected) == 1:
+            arrows = self.symbols.getElementAxe(self.project.get_element(listSelected[0]))
+            self.elementAxe = arrows
+            for i in self.elementAxe:
+                self._renderer.AddActor(i)
+
     def createActorNodes(self, nodes, source):
         points = vtk.vtkPoints()
         data = vtk.vtkPolyData()
