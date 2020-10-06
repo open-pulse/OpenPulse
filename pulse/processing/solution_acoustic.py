@@ -28,7 +28,7 @@ class SolutionAcoustic:
 
         rows = self.all_dofs
         cols = solution.shape[1]
-        # print(rows, cols, self.prescribed_indexes)
+
         full_solution = np.zeros((rows, cols), dtype=complex)
         full_solution[self.get_pipe_and_unprescribed_indexes, :] = solution
         full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
@@ -45,7 +45,7 @@ class SolutionAcoustic:
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
-        # print(Kr[0].shape[0], Kr_lump[0].shape[0])
+ 
         aux_ones = np.ones(cols, dtype=complex)
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
         list_prescribed_values = []
@@ -56,7 +56,6 @@ class SolutionAcoustic:
             elif isinstance(value, np.ndarray):
                 list_prescribed_values.append(value)
 
-        # print(list_prescribed_values)
         self.array_prescribed_values = np.array(list_prescribed_values)
 
         for i in range(cols):
