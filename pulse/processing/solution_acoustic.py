@@ -10,7 +10,7 @@ class SolutionAcoustic:
 
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
-
+        self.all_dofs = len(mesh.nodes)
         self.assembly = AssemblyAcoustic(mesh, frequencies)
         self.frequencies = frequencies
 
@@ -21,14 +21,16 @@ class SolutionAcoustic:
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
+        self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
 
       
     def _reinsert_prescribed_dofs(self, solution):
-        rows = solution.shape[0] + len(self.prescribed_indexes)
-        cols = solution.shape[1]
 
+        rows = self.all_dofs
+        cols = solution.shape[1]
+        # print(rows, cols, self.prescribed_indexes)
         full_solution = np.zeros((rows, cols), dtype=complex)
-        full_solution[self.unprescribed_indexes, :] = solution
+        full_solution[self.get_pipe_and_unprescribed_indexes, :] = solution
         full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         
         return full_solution
@@ -37,12 +39,13 @@ class SolutionAcoustic:
 
         volume_velocity = self.assembly.get_global_volume_velocity()
                 
-        Kr = [(sparse_matrix.toarray())[self.unprescribed_indexes, :] for sparse_matrix in self.Kr]
+        Kr = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr]
 
-        Kr_lump = [(sparse_matrix.toarray())[self.unprescribed_indexes, :] for sparse_matrix in self.Kr_lump]
+        Kr_lump = [(sparse_matrix.toarray())[self.get_pipe_and_unprescribed_indexes, :] for sparse_matrix in self.Kr_lump]
 
         rows = Kr[0].shape[0]  
         cols = len(self.frequencies)
+        # print(Kr[0].shape[0], Kr_lump[0].shape[0])
         aux_ones = np.ones(cols, dtype=complex)
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
         list_prescribed_values = []
@@ -53,6 +56,7 @@ class SolutionAcoustic:
             elif isinstance(value, np.ndarray):
                 list_prescribed_values.append(value)
 
+        # print(list_prescribed_values)
         self.array_prescribed_values = np.array(list_prescribed_values)
 
         for i in range(cols):

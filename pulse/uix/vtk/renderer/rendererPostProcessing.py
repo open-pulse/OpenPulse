@@ -24,30 +24,34 @@ class RendererPostProcessing(vtkRendererBase):
         self.frequencyIndice = -1
         self.sliderFactor = 1
         self.valueFactor = -1
-        self.stress = False
+        self.stress_field_plot = False
+        self.pressure_field_plot = False
 
     def reset(self):
         for actor in self._renderer.GetActors():
             self._renderer.RemoveActor(actor)
 
-    def setStress(self, value):
-        self.stress = value
-
-    def getStress(self):
-        return self.stress
-
     def getColorTable(self, r_def=None):
-        if self.stress:
-            return ColorTable(self.project, self.project.stresses_values_for_color_table, elementary_plot=True)
+        if self.stress_field_plot:
+            return ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
+        elif self.pressure_field_plot:
+            return ColorTable(self.project, r_def, pressure_field_plot=True)
         else:
             return ColorTable(self.project, r_def)
 
-    def plot(self, acoustic=False):
+    def plot(self, pressure_field_plot=False, stress_field_plot=False):
         self.reset()
-        if acoustic:
-            _, connect, coord, r_def = get_acoustic_response(self.project.get_mesh(), self.project.get_acoustic_solution(), self.frequencyIndice)
+        self.stress_field_plot = stress_field_plot
+        self.pressure_field_plot = pressure_field_plot
+        if self.pressure_field_plot:
+            _, connect, coord, r_def = get_acoustic_response( self.project.get_mesh(), 
+                                                              self.project.get_acoustic_solution(), 
+                                                              self.frequencyIndice)
         else:
-            connect, coord, r_def, self.valueFactor  = get_structural_response(self.project.get_mesh(), self.project.get_structural_solution(), self.frequencyIndice, gain=self.sliderFactor)            
+            connect, coord, r_def, self.valueFactor = get_structural_response(  self.project.get_mesh(), 
+                                                                                self.project.get_structural_solution(), 
+                                                                                self.frequencyIndice, 
+                                                                                gain=self.sliderFactor)            
 
         # self.valueFactor
         colorTable = self.getColorTable(r_def=r_def)
@@ -58,7 +62,7 @@ class RendererPostProcessing(vtkRendererBase):
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress_field_plot)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 
@@ -117,9 +121,9 @@ class RendererPostProcessing(vtkRendererBase):
 
     def updateUnitText(self):
         if self.project.stresses_values_for_color_table == []:
-            self.stress = False
+            self.stress_field_plot = False
         self._renderer.RemoveActor2D(self.textActorUnit)   
-        unit = self.project.get_unit(stress=self.stress)
+        unit = self.project.get_unit(stress=self.stress_field_plot)
         text = "Unit: [{}]".format(unit)
         self.textActorUnit.SetInput(text)
         textProperty = vtk.vtkTextProperty()

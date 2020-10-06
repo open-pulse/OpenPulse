@@ -163,7 +163,6 @@ class Mesh:
                     _base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
             mat_out = _base
 
-        # print(mat_out)
         element.decoupling_matrix = mat_out 
         element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
         self.elements_with_decoupled_dofs.append(element)
@@ -378,6 +377,12 @@ class Mesh:
         I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
         return I.flatten(), J.flatten()
 
+    def map_structural_to_acoustic_elements(self):
+        dict_structural_to_acoustic_elements = {}
+        for key, element in self.structural_elements.items():
+            dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
+        return dict_structural_to_acoustic_elements 
+
     def get_dict_of_entities(self):
         dict_tag_entity={}
         for entity in self.entities:
@@ -560,7 +565,7 @@ class Mesh:
 
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
-        # print(flag, reset)
+        
         if reset and flag:
             self.flag_fluid_mass_effect = False
             for element in self.structural_elements.values():
@@ -701,6 +706,87 @@ class Mesh:
             elif self.radius[last] < radius:
                 self.radius[last] = radius
         return self.radius
+
+    def get_beam_elements_global_dofs(self):
+        list_gdofs = []  
+        for element in self.structural_elements.values():
+            if element.element_type in ['beam_1']:
+                
+                gdofs_node_first = element.first_node.global_index
+                gdofs_node_last = element.last_node.global_index
+                
+                if gdofs_node_first not in list_gdofs:
+                    list_gdofs.append(gdofs_node_first)
+                
+                if gdofs_node_last not in list_gdofs:
+                    list_gdofs.append(gdofs_node_last)
+                
+                elements_node_first = self.neighboor_elements_of_node(element.first_node.external_index)
+                elements_node_last = self.neighboor_elements_of_node(element.last_node.external_index)
+
+                if len(elements_node_first) > 2:
+                    list_gdofs.remove(gdofs_node_first)
+                    # print("Node: {} || Global dofs: {}".format(element.first_node.external_index, gdofs_node_first))
+                if len(elements_node_last) > 2:
+                    list_gdofs.remove(gdofs_node_last) 
+                    # print("Node: {} || Global dofs: {}".format(element.last_node.external_index, gdofs_node_last))     
+
+        beam_gdofs = np.array(list_gdofs).flatten()
+        return beam_gdofs
+
+    def get_pipe_elements_global_dofs(self):
+        self.beam_gdofs = self.get_beam_elements_global_dofs()
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
+        all_indexes = np.arange(total_dof)
+        pipe_gdofs = np.delete(all_indexes, self.beam_gdofs)
+        return pipe_gdofs
+
+    def get_beam_nodes_and_indexes(self):
+        list_beam_nodes = []
+        list_node_ids = []
+        for element in self.structural_elements.values():
+            if element.element_type in ['beam_1']:
+                
+                node_first = element.first_node
+                node_last = element.last_node
+                
+                if node_first not in list_beam_nodes:
+                    list_beam_nodes.append(node_first)
+                    list_node_ids.append(node_first.global_index)
+                
+                if node_last not in list_beam_nodes:
+                    list_beam_nodes.append(node_last)
+                    list_node_ids.append(node_last.global_index)
+                
+                elements_node_first = self.neighboor_elements_of_node(element.first_node.global_index)
+                elements_node_last = self.neighboor_elements_of_node(element.last_node.global_index)
+
+                if len(elements_node_first) > 2:
+                    list_beam_nodes.remove(node_first)
+                    list_node_ids.remove(node_first.global_index)
+
+                if len(elements_node_last) > 2:
+                    list_beam_nodes.remove(node_last) 
+                    list_node_ids.remove(node_last.global_index)  
+
+        beam_nodes = np.array(list_beam_nodes).flatten()
+        return beam_nodes, list_node_ids
+
+    def get_pipe_elements(self):
+        list_elements = []
+        dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
+        for element in self.structural_elements.values():
+            if element.element_type not in ['beam_1']:
+                list_elements.append(dict_structural_to_acoustic_elements[element])
+        return list_elements   
+    
+    def get_beam_elements(self):
+        list_elements = []
+        dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
+        for element in self.structural_elements.values():
+            if element.element_type in ['beam_1']:
+                list_elements.append(dict_structural_to_acoustic_elements[element])
+        return list_elements
 
     def check_material_all_elements(self):
         self.check_set_material = False

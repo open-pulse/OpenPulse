@@ -180,7 +180,7 @@ class StructuralElement:
         v = invR@np.array([0,1,0])
         w = invR@np.array([0,0,1])
         directional_vectors = [u, v, w]
-        # print(self.center_element_coordinates, directional_vectors)
+
         return self.center_element_coordinates, directional_vectors 
 
     def stiffness_matrix_pipes(self):
@@ -373,18 +373,22 @@ class StructuralElement:
         A = self.cross_section.area
         Do = self.cross_section.external_diameter
         Di = self.cross_section.internal_diameter
-        stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-        aux = np.zeros([DOF_PER_ELEMENT, 1])
+        rows = DOF_PER_ELEMENT
+        cols = len(frequencies)
+
+        if self.element_type in ['pipe_1', 'pipe_2']:
+            stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
+        else:
+            return np.zeros((rows, cols))
+
+        aux = np.zeros([rows, 1])
         aux[0], aux[6] = 1, -1
         R = self.rotation_matrix
 
-        if self.element_type == 'pipe_1':
+        if self.element_type in ['pipe_1']:
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
-            principal_axis = np.eye(DOF_PER_ELEMENT)
-        else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+        elif self.element_type in ['pipe_2']:
+            principal_axis = np.eye(rows)
 
         if self.capped_end:
             capped_end = 1
@@ -408,16 +412,15 @@ class StructuralElement:
         Tin = self.internal_temperature
         Tout = self.external_temperature
         
-        aux_s1 = 1 if self.capped_end else 0
-        
-        # sigma_1 = aux_s1*(Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-        # sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-        # sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-
-        sigma_1, sigma_r, sigma_c, sigma_1t = 0, 0, 0, 0
+        if self.capped_end:
+            sigma_1 = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        else:
+            sigma_1 = 0
+        sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+        sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
 
         sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
-        # sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
+        sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
 
         return sigma_1a, sigma_1t
 
@@ -599,9 +602,6 @@ class StructuralElement:
         me[8 , 4] = -gamma_13 * (A * a_13u_4 / 420 + I_2 * a_13t_2 / 30)
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
-
-        # if np.sum(self.decoupling_matrix) != 144:
-        #     print(self.index)
         
         Me = self.symmetrize(me)*self.decoupling_matrix
 

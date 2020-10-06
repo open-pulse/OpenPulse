@@ -526,7 +526,7 @@ class InputUi:
             plot = PlotAcousticPressureFieldInput(self.opv, self.frequencies)
             if plot.frequency is None:
                 return
-            self.opv.changeAndPlotAnalysis(plot.frequency, acoustic=True)
+            self.opv.changeAndPlotAnalysis(plot.frequency, pressure_field_plot=True)
         else:
             return
 

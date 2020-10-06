@@ -2,12 +2,17 @@ import vtk
 import numpy as np
 
 class ColorTable(vtk.vtkLookupTable):
-    def __init__(self, project, valueVector, elementary_plot=False):
+    def __init__(self, project, valueVector, stress_field_plot=False, pressure_field_plot=False):
         super().__init__()
+
         self.project = project
         self.valueVector = valueVector
-        self.elementary_plot = elementary_plot
-        self.elements = project.mesh.structural_elements
+        self.stress_field_plot = stress_field_plot
+        self.pressure_field_plot = pressure_field_plot
+
+        self.structural_elements = project.mesh.structural_elements
+        self.beam_nodes, self.beam_node_ids = project.mesh.get_beam_nodes_and_indexes()
+
         # self.matriz = matriz
         # self.normal = {}
         self.min_value = min(self.valueVector)
@@ -25,12 +30,16 @@ class ColorTable(vtk.vtkLookupTable):
         return np.linalg.norm(cord1 - cord2)
 
     def get_color_by_id(self, key):
+
         if self.is_empty():
             return [255,255,255]
                 
-        if self.elementary_plot and self.elements[key+1].element_type in ['beam_1']:
+        if self.stress_field_plot and self.structural_elements[key+1].element_type in ['beam_1']:
             return [255,255,255]
-
+        
+        if self.pressure_field_plot and key in self.beam_node_ids: 
+            return [255,255,255]
+        
         color_temp = [0,0,0]
         self.GetColor(self.valueVector[key], color_temp)
         

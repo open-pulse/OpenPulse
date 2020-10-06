@@ -128,7 +128,7 @@ class PlotStressFieldInput(QDialog):
         self.stress_field = np.real([array[self.stress_key, self.selected_index] for array in self.stress_data.values()])
         self.project.set_stresses_values_for_color_table(self.stress_field)
         self.project.set_min_max_type_stresses(np.min(self.stress_field), np.max(self.stress_field), self.stress_label)
-        self.opv.changeAndPlotAnalysis(self.selected_index, stressColor=True)
+        self.opv.changeAndPlotAnalysis(self.selected_index, stress_field_plot=True)
 
     def load(self):
         for frequency in self.frequencies:

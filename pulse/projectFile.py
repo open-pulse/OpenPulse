@@ -374,9 +374,19 @@ class ProjectFile:
                             density =  str(material_list[material]['density'])
                             youngmodulus =  str(material_list[material]['young modulus'])
                             poisson =  str(material_list[material]['poisson'])
+                            thermal_expansion_coefficient = str(material_list[material]['thermal expansion coefficient'])
                             color =  str(material_list[material]['color'])
                             youngmodulus = float(youngmodulus)*(10**(9))
-                            temp_material = Material(name, float(density), identifier=int(identifier), young_modulus=youngmodulus, poisson_ratio=float(poisson), color=color)
+                            if thermal_expansion_coefficient == "":
+                                thermal_expansion_coefficient = float(0)
+                            else:
+                                thermal_expansion_coefficient = float(thermal_expansion_coefficient)
+                            temp_material = Material(name, float(density), 
+                                                            young_modulus = youngmodulus, 
+                                                            poisson_ratio = float(poisson), 
+                                                            thermal_expansion_coefficient = thermal_expansion_coefficient,
+                                                            color = color,
+                                                            identifier = int(identifier))
                             dict_material[int(entity)] = temp_material
             
             if 'fluid id' in entityFile[entity].keys():    
