@@ -189,11 +189,6 @@ class MainWindow(QMainWindow):
         self.analysisSetup_action.setStatusTip('Analysis Setup')
         self.analysisSetup_action.triggered.connect(self.getInputWidget().analysisSetup)
 
-        self.selectOutput_action = QAction('&Select the Outputs Results', self)        
-        self.selectOutput_action.setShortcut('Alt+E')
-        self.selectOutput_action.setStatusTip('Select the Outputs Results')
-        self.selectOutput_action.triggered.connect(self.getInputWidget().analysisOutputResults)
-
         self.runAnalysis_action = QAction('&Run Analysis', self)        
         # self.runAnalysis_action.setShortcut('F5')
         self.runAnalysis_action.setStatusTip('Run Analysis')
@@ -288,7 +283,6 @@ class MainWindow(QMainWindow):
 
         analysisMenu.addAction(self.selectAnalysisType_action)
         analysisMenu.addAction(self.analysisSetup_action)
-        analysisMenu.addAction(self.selectOutput_action)
         analysisMenu.addAction(self.runAnalysis_action)
 
         resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)

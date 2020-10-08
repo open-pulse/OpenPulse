@@ -7,10 +7,14 @@ from PyQt5 import uic
 import configparser
 import numpy as np
 
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import remove_bc_from_file
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
 
-class cappedEndInput(QDialog):
-    def __init__(self, project, lines_id, elements_id, *args, **kwargs):
+window_title1 = "ERROR"
+window_title2 = "WARNING"
+
+class CappedEndInput(QDialog):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/cappedEndInput.ui', self)
 
@@ -18,11 +22,20 @@ class cappedEndInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
+        self.lines_id = self.opv.getListPickedEntities()
+        self.elements_id = self.opv.getListPickedElements()
+
         self.structural_elements = self.project.mesh.structural_elements
+        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
         self.entities = self.project.mesh.entities
-        self.lines_id = lines_id
-        self.elements_id = elements_id
+        self.complete = False
+        self.info_text = ["NO MESSAGE", "No message", "NO MESSAGE"]
 
         self.project_lines = {}
         for line in self.project.mesh.all_lines:
@@ -30,16 +43,15 @@ class cappedEndInput(QDialog):
 
         self.dict_group_elements = project.mesh.group_elements_with_capped_end
         self.dict_group_lines = project.mesh.group_lines_with_capped_end
-        self.elements_id = elements_id
-        self.type_label = "'capped End'"
-        self.dkey = None
+        self.lines_with_capped_end = project.mesh.lines_with_capped_end
+    
+        self.dictkey_to_remove = None
         self.elements_info_path = project.file._element_info_path
         self.entity_path = project.file._entity_path
-        self.dict_label = "capped END || {}"
+        self.dictKey_label = "CAPPED END || {}"
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')
-        self.label_selection = self.findChild(QLabel, 'label_selection')
+        self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
 
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
         self.radioButton_all_lines.toggled.connect(self.radioButtonEvent)
@@ -50,23 +62,29 @@ class cappedEndInput(QDialog):
         self.radioButton_selected_elements = self.findChild(QRadioButton, 'radioButton_selected_elements')
         self.radioButton_selected_elements.toggled.connect(self.radioButtonEvent)
         
-        self.radioButton_cappedEnd = self.findChild(QRadioButton, 'radioButton_cappedEnd')
-        self.radioButton_cappedEnd.toggled.connect(self.radioButtonEvent)
+        self.radioButton_enable_cappedEnd = self.findChild(QRadioButton, 'radioButton_enable_cappedEnd')
+        self.radioButton_enable_cappedEnd.toggled.connect(self.radioButtonEvent_enable_disable)
+        self.radioButton_disable_cappedEnd = self.findChild(QRadioButton, 'radioButton_disable_cappedEnd')
+        self.radioButton_disable_cappedEnd.toggled.connect(self.radioButtonEvent_enable_disable)
+        self.flag_cappedEnd_enable = self.radioButton_enable_cappedEnd.isChecked()
 
         self.flagAll = self.radioButton_all_lines.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
-        self.flagcappedEnd = self.radioButton_cappedEnd.isChecked()
 
         self.treeWidget_cappedEnd_elements = self.findChild(QTreeWidget, 'treeWidget_cappedEnd_elements')
         self.treeWidget_cappedEnd_elements.setColumnWidth(0, 100)
         self.treeWidget_cappedEnd_elements.itemClicked.connect(self.on_click_item_elem)
         self.treeWidget_cappedEnd_elements.itemDoubleClicked.connect(self.on_doubleclick_item_elem)
+        self.treeWidget_cappedEnd_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_cappedEnd_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
         self.treeWidget_cappedEnd_lines = self.findChild(QTreeWidget, 'treeWidget_cappedEnd_lines')
         self.treeWidget_cappedEnd_lines.setColumnWidth(0, 100)
         self.treeWidget_cappedEnd_lines.itemClicked.connect(self.on_click_item_line)
         self.treeWidget_cappedEnd_lines.itemDoubleClicked.connect(self.on_doubleclick_item_line)
+        self.treeWidget_cappedEnd_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_cappedEnd_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
         self.tabWidget_cappedEnd = self.findChild(QTabWidget, 'tabWidget_cappedEnd')
         self.tabWidget_cappedEnd.currentChanged.connect(self.tabEvent_)
@@ -85,28 +103,57 @@ class cappedEndInput(QDialog):
         self.pushButton_get_information_line.clicked.connect(self.get_information_line)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.check_element_capped_end)
+        self.pushButton_confirm.clicked.connect(self.check_capped_end)
+
+        self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
+        self.pushButton_reset_all.clicked.connect(self.check_reset_all)
 
         if self.lines_id != []:
-            self.label_selection.setText("Lines IDs:")
-            self.write_ids(lines_id)
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
         elif self.elements_id != []:
-            self.label_selection.setText("Elements IDs:")
-            self.write_ids(elements_id)
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(self.elements_id)
             self.radioButton_selected_elements.setChecked(True)
         else:
-            self.label_selection.setText("Lines IDs:")
-            self.lineEdit_elementID.setText("All lines")
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all_lines.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(False)
 
         if self.elements_id != []:
-            self.write_ids(elements_id)
+            self.write_ids(self.elements_id)
 
         self.load_lines_info()
         self.load_elements_info()
+        self.update_buttons_()
         self.tabEvent_()
         self.exec_()
+
+    def update_buttons_(self):
+        self.pushButton_get_information_elem.setDisabled(True)
+        self.pushButton_get_information_line.setDisabled(True)
+        self.pushButton_remove_elem.setDisabled(True)
+        self.pushButton_remove_line.setDisabled(True)        
+
+    def update(self):
+
+        self.lines_id = self.opv.getListPickedEntities()
+        self.elements_id = self.opv.getListPickedElements()
+
+        if self.lines_id != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(self.lines_id)
+            self.radioButton_selected_lines.setChecked(True)
+        elif self.elements_id != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(self.elements_id)
+            self.radioButton_selected_elements.setChecked(True)
+        else:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all_lines.setChecked(True)
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_cappedEnd.currentIndex()
@@ -119,32 +166,39 @@ class cappedEndInput(QDialog):
                 self.write_ids(self.lines_id)
             elif self.flagAll:
                 text = "Lines IDs:"
-                self.lineEdit_elementID.setText("All lines")
-        elif self.currentTab_ == 1: 
+                self.lineEdit_selected_ID.setText("All lines")
+        elif self.currentTab_ == 1:
             text = "Group:"
-            self.lineEdit_elementID.setText("")
-        self.label_selection.setText(text)
+            self.lineEdit_selected_ID.setText("")
+            self.lineEdit_selected_ID.setDisabled(True)
+            self.pushButton_remove_line.setDisabled(True)
+            self.pushButton_get_information_line.setDisabled(True)
+            self.pushButton_remove_elem.setDisabled(True)
+            self.pushButton_get_information_elem.setDisabled(True)   
+        self.lineEdit_id_labels.setText(text)
 
     def write_ids(self, list_ids):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
-        self.lineEdit_elementID.setText(text)
+        self.lineEdit_selected_ID.setText(text)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
-        elif event.key() == Qt.Key_Delete:
-            self.remove_cappedEnd_by_group()
+            self.check_capped_end()
+        # elif event.key() == Qt.Key_Delete:
+        #     self.remove_cappedEnd_by_group()
         elif event.key() == Qt.Key_Escape:
             self.close()
         
-
     def radioButtonEvent(self):
+
         self.flagAll = self.radioButton_all_lines.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
-        self.flagcappedEnd = self.radioButton_cappedEnd.isChecked()
+        self.flagcappedEnd = self.radioButton_enable_cappedEnd.isChecked()
+        self.lineEdit_selected_ID.setEnabled(True)
+
         if self.currentTab_ == 0:
             if self.radioButton_selected_elements.isChecked():
                 text = "Elements IDs:"
@@ -154,329 +208,351 @@ class cappedEndInput(QDialog):
                 self.write_ids(self.lines_id)
             elif self.radioButton_all_lines.isChecked():
                 text = "Lines IDs:"
-                self.lineEdit_elementID.setText("All lines")
+                self.lineEdit_selected_ID.setText("All lines")
+                self.lineEdit_selected_ID.setEnabled(False)
         elif self.currentTab_ == 1: 
             text = "Group:"
-            self.lineEdit_elementID.setText("")
-        self.label_selection.setText(text)
-     
-    def check_input_elements(self):
-        if self.flagAll:
-            self.set_capped_end_to_all_lines()
-        else:
-            try:
-                tokens = self.lineEdit_elementID.text().strip().split(',')
-                try:
-                    tokens.remove('')
-                except:     
-                    pass
-                self.typed_id = np.sort(list(map(int, tokens))).tolist()
+            self.lineEdit_selected_ID.setText("")
+        self.lineEdit_id_labels.setText(text)
 
-                if self.lineEdit_elementID.text()=="":
-                    error("Inform a valid Element ID before to confirm the input!", title = "ERROR IN ELEMENT ID's")
-                    return True
-
-            except Exception:
-                error("Wrong input for Element ID's!", "ERROR IN ELEMENT ID's")
-                return True
-
-            try:
-                if self.flagElements:
-                    for element_id in self.typed_id:
-                        self.structural_elements[element_id]
-                elif self.flagEntity:
-                    for entity_id in self.typed_id:
-                        self.project_lines[entity_id]
-                elif self.flagAll:
-                    self.typed_id = 'all'
-                
-            except:
-                if self.flagElements:
-                    message = ["The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))]
-                    error(message[0], title = " INCORRECT ELEMENT ID INPUT! ")
-                elif self.flagEntity:
-                    message = ["The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.entities))]
-                    error(message[0], title = " INCORRECT ELEMENT ID INPUT! ")
-                return True
-
-    def check_element_capped_end(self):
-
-        if self.check_input_elements():
-            return
-
-        size = len(self.dict_group_elements) + len(self.dict_group_lines)
-        selection = self.dict_label.format("Selection-{}".format(size+1))
-
-        ind = 0
-        while True:
-            if selection in self.dict_group_elements.keys():
-                ind += 1
-                selection = self.dict_label.format("Selection-{}".format(ind))
-            else:
-                break
-
-        if self.flagElements:
-            self.set_capped_end_to_elements(selection)
-            self.replaced = False
-            temp_dict = self.dict_group_elements.copy()
-            for select, item in temp_dict.items():
-                _, elements = item
-                if self.typed_id == elements:
-                    if self.replaced:
-                        self.dkey = select
-                        self.remove_elem_group()
-                    else:
-                        self.set_capped_end_to_elements(select)
-                        self.replaced = True
-                else:
-                    count1, count2 = 0, 0
-                    for element in self.typed_id:
-                        if element in elements:
-                            count1 += 1
-                    fill_rate1 = count1/len(self.typed_id)
-
-                    for element in elements:
-                        if element in self.typed_id:
-                            count2 += 1
-                    fill_rate2 = count2/len(elements)
-                    
-                    if np.max([fill_rate1, fill_rate2])>0.5 :
-                        if not self.replaced:
-                            self.set_capped_end_to_elements(select)
-                            self.replaced = True
-                        else:
-                            self.dkey = select
-                            self.remove_elem_group()
-                self.dkey = None 
-        elif self.flagEntity:
-            self.set_capped_end_to_lines(selection)
-            self.replaced = False
-            temp_dict = self.dict_group_lines.copy()
-            for select, item in temp_dict.items():
-                _, lines = item
-                if self.typed_id == lines:
-                    if self.replaced:
-                        self.dkey = select
-                        self.remove_line_group()
-                    else:
-                        self.set_capped_end_to_lines(select)
-                        self.replaced = True
-                self.dkey = None 
-        self.close()
-        
-    def set_capped_end_to_elements(self, selection):
-        
-        self.project.set_capped_end_by_elements(self.typed_id, True, selection)
-        if len(self.typed_id)>20:
-            print("Set capped end correction to {} selected elements".format(len(self.typed_id)))
-        else:
-            print("Set capped end at elements: {}".format(self.typed_id))
-        self.load_elements_info()
-
-    def set_capped_end_to_lines(self, selection):
-        self.project.set_capped_end_by_line(self.typed_id, True, selection)
-        if len(self.typed_id)>20:
-            print("Set capped end correction to {} selected lines".format(len(self.typed_id)))
-        else:
-            print("Set capped end to lines: {}".format(self.typed_id))
-        self.load_lines_info()
-
-    def set_capped_end_to_all_lines(self):
-        message = None
-        for select, item in self.dict_group_elements.items():
-            _, elements = item
-            self.project.mesh.set_capped_end_by_element(elements, None, select, delete_from_dict=False)
-            key_strings = ["list of elements"]
-            remove_bc_from_file([select], self.elements_info_path, key_strings, message)
-        for select, item in self.dict_group_lines.items():
-            _, lines = item
-            self.project.mesh.set_capped_end_by_line(lines, None, select, delete_from_dict=False)
-            self.remove_lines_from_file(select, message)
-
-        selection = self.dict_label.format("Selection-{}".format(1))
-        self.project.set_capped_end_by_line("all", True, selection)
-        print("Set capped end correction to all lines")
-
-        self.dict_group_elements = self.project.mesh.group_elements_with_capped_end
-        self.dict_group_lines = self.project.mesh.group_lines_with_capped_end
-
-        self.load_lines_info()
-        self.load_elements_info()
+    def radioButtonEvent_enable_disable(self):
+        self.flag_cappedEnd_enable = self.radioButton_enable_cappedEnd.isChecked()
 
     def load_elements_info(self):
-        
         self.treeWidget_cappedEnd_elements.clear()
-        for section, value in self.dict_group_elements.items():
+        for section, elements in self.dict_group_elements.items():
             key = section.split(" || ")[1]
-            new = QTreeWidgetItem([key, str(value[1])])
+            new = QTreeWidgetItem([key, str(elements)])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_cappedEnd_elements.addTopLevelItem(new)  
 
-    def load_lines_info(self):
-        
+    def load_lines_info(self):        
         self.treeWidget_cappedEnd_lines.clear()
-        for section, value in self.dict_group_lines.items():
-            key = section.split(" || ")[1]
-            new = QTreeWidgetItem([key, str(value[1])])
+        lines = self.project.mesh.lines_with_capped_end
+        if len(lines) != 0:
+            new = QTreeWidgetItem(["Enabled lines" , str(lines)])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_cappedEnd_lines.addTopLevelItem(new)           
 
     def on_click_item_elem(self, item):
-        self.lineEdit_elementID.setText(item.text(0))
+        self.lineEdit_selected_ID.setText(item.text(0))
+        self.lineEdit_id_labels.setText("Group")
+        self.lineEdit_selected_ID.setDisabled(True)
         self.pushButton_remove_line.setDisabled(True)
         self.pushButton_get_information_line.setDisabled(True)
         self.pushButton_remove_elem.setDisabled(False)
         self.pushButton_get_information_elem.setDisabled(False)        
 
     def on_click_item_line(self, item):
-        self.lineEdit_elementID.setText(item.text(0))
+        text = item.text(1).replace("[","")
+        text = text.replace("]","")
+        self.lineEdit_selected_ID.setText(text)
+        self.lineEdit_id_labels.setText("Lines IDs")
+        self.lineEdit_selected_ID.setDisabled(True)
         self.pushButton_remove_line.setDisabled(False)
         self.pushButton_get_information_line.setDisabled(False)
         self.pushButton_remove_elem.setDisabled(True)
         self.pushButton_get_information_elem.setDisabled(True)        
 
     def on_doubleclick_item_elem(self, item):
-        self.lineEdit_elementID.setText(item.text(0))
+        self.lineEdit_selected_ID.setText(item.text(0))
         if self.currentTab_ == 1:
             self.remove_elem_group()
 
     def on_doubleclick_item_line(self, item):
-        self.lineEdit_elementID.setText(item.text(0))
+        self.lineEdit_selected_ID.setText(item.text(1))
         if self.currentTab_ == 1:
             self.remove_line_group()
 
-    def remove_elements(self, key, reset=False):
-        section = key
+    def get_list_typed_entries(self):
+        tokens = self.lineEdit_selected_ID.text().strip().split(',')
+        try:
+            tokens.remove('')
+        except:     
+            pass
+        output = list(map(int, tokens))
+        return output
 
-        if not reset:
-            group_label = section.split(" || ")[1]
-            message = "The element length correction attributed to the {} of element(s) have been removed.".format(group_label)
-        else:
-            message = None
+    def check_input_elements(self):
         
-        elements = self.dict_group_elements[section][1]
-        self.project.mesh.set_capped_end_by_element(elements, None, section, delete_from_dict=True)
-        key_strings = ["list of elements"]
-        remove_bc_from_file([section], self.elements_info_path, key_strings, message)
+        try:
+            self.elements_typed = np.sort(self.get_list_typed_entries()).tolist()
+            if self.lineEdit_selected_ID.text()=="":
+                title = "Error: empty Element ID input"
+                message = "Inform a valid Element ID before to confirm the input!"
+                self.info_text = [title, message, window_title1]
+                return True
+        except Exception:
+            title = "Error: invalid Element ID input"
+            message = "Wrong input for Element ID's!"
+            self.info_text = [title, message, window_title1]
+            return True
+
+        try:
+            for _element_id in self.elements_typed:
+                self.elementID = self.structural_elements[_element_id].index
+        except:
+            title = "Error: invalid Element ID input"
+            message = "The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
+            self.info_text = [title, message, window_title1]
+            return True
+        return False
+
+    def check_input_lines(self):
+        
+        try:
+            self.lines_typed = self.get_list_typed_entries()
+            if self.lineEdit_selected_ID.text()=="":
+                title = "Error: empty Line ID input"
+                message = "Inform a valid Line ID before \nto confirm the input.."
+                self.info_text = [title, message, window_title1]
+                return True
+        except Exception:
+            title = "Error: invalid Line ID input"
+            message = "Wrong input for Line ID."
+            self.info_text = [title, message, window_title1]
+            return True
+
+        try:
+            for line in self.lines_typed:
+                self.line = self.dict_tag_to_entity[line]
+        except Exception:
+            title = "Error: invalid Line ID"
+            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
+            self.info_text = [title, message, window_title1]
+            return True
+        return False
+
+    def check_capped_end(self):
+
+        if self.flagAll:
+            self.set_capped_end_to_all_lines()
+            print("Set capped end correction to all lines.")
+
+        elif self.flagElements:
+            if self.check_input_elements():
+                PrintMessageInput([self.info_text])
+                return
+
+            size = len(self.project.mesh.group_elements_with_capped_end)
+            selection = self.dictKey_label.format("Selection-{}".format(size+1))
+            self.set_capped_end_to_elements(selection)
+            self.replaced = False
+
+            # checking the oversampling of elements in each group of elements
+            if size > 0:
+                temp_dict = self.dict_group_elements.copy()
+                for select, elements in temp_dict.items():
+                    if list(np.sort(self.elements_typed)) == list(np.sort(elements)):
+                        if self.replaced:
+                            self.dictkey_to_remove = select
+                            self.remove_elem_group()
+                        else:
+                            self.set_capped_end_to_elements(select)
+                            self.replaced = True
+                    else:    
+                        count1, count2 = 0, 0
+                        for element in self.elements_typed:
+                            if element in elements:
+                                count1 += 1
+                        fill_rate1 = count1/len(self.elements_typed)
+
+                        for element in elements:
+                            if element in self.elements_typed:
+                                count2 += 1
+                        fill_rate2 = count2/len(elements)
+                        
+                        if np.max([fill_rate1, fill_rate2])>0.5 :
+                            if self.replaced:
+                                self.dictkey_to_remove = select
+                                self.remove_elem_group()
+                            else:
+                                self.set_capped_end_to_elements(select)
+                                self.replaced = True
+                    self.dictkey_to_remove = None 
+
+            if len(self.elements_typed)>20:
+                print("Set capped end correction to {} selected elements".format(len(self.elements_typed)))
+            else:
+                print("Set capped end at elements: {}".format(self.elements_typed))
+        
+        elif self.flagEntity:
+            if self.check_input_lines():
+                PrintMessageInput([self.info_text])
+                return
+
+            self.set_capped_end_to_lines()
+            self.replaced = False
+
+            if len(self.lines_typed)>20:
+                print("Set capped end correction to {} selected lines".format(len(self.lines_typed)))
+            else:
+                print("Set capped end to lines: {}".format(self.lines_typed))
+            
+        self.complete = True
+        self.close()
+        
+    def remove_elements(self, key, reset=False):
+        section = key        
+        elements = self.dict_group_elements[section]
+        self.project.set_capped_end_by_elements(elements, False, section)
         self.load_elements_info()
+        group_label = section.split(" || ")[1]
+        print("The element capped end enabled to the {} of element(s) have been removed.".format(group_label))
 
     def remove_elem_group(self):
-        if self.dkey is None:
-            key = self.dict_label.format(self.lineEdit_elementID.text())
-            if "Selection-" in self.lineEdit_elementID.text():
-                self.remove_elements(key)
-            self.lineEdit_elementID.setText("")
+        if self.dictkey_to_remove is None:
+            text = self.lineEdit_selected_ID.text()
+            key = self.dictKey_label.format(text)
+            self.remove_elements(key)
+            self.lineEdit_selected_ID.setText("")
         else:
-            self.remove_elements(self.dkey)
-
-    def remove_lines(self, key, reset=False):
-        section = key
-
-        if not reset:
-            group_label = section.split(" || ")[1]
-            message = "The element length correction attributed to the {} of line(s) have been removed.".format(group_label)
-        else:
-            message = None
-
-        lines = self.dict_group_lines[section][1]
-        self.project.mesh.set_capped_end_by_line(lines, None, section, delete_from_dict=True)
-        self.remove_lines_from_file(section, message)
-        self.load_lines_info()
+            self.remove_elements(self.dictkey_to_remove)
 
     def remove_line_group(self):
-        if self.dkey is None:
-            key = self.dict_label.format(self.lineEdit_elementID.text())
-            if "Selection-" in self.lineEdit_elementID.text():
-                self.remove_lines(key)
-            self.lineEdit_elementID.setText("")
-        else:
-            self.remove_lines(self.dkey)
-
-    def remove_lines_from_file(self, section, message):
-        try:
-            bc_removed = False
-            config = configparser.ConfigParser()
-            config.read(self.entity_path)
-
-            for entity_id in config.sections():
-                keys = list(config[entity_id].keys())
-                if 'capped end' in keys:
-                    if config[entity_id]['capped end'] == section:
-                        config[entity_id]['capped end'] = ''
-                        bc_removed = True
-            
-            with open(self.entity_path, 'w') as config_file:
-                config.write(config_file)
-            
-            if message is not None and bc_removed:
-                info_messages(message)
-        
-        except Exception as e:
-            error(str(e))
+        lines = self.project.mesh.lines_with_capped_end.copy()
+        self.project.set_capped_end_by_line(lines, False)
+        self.load_lines_info()
+        self.lineEdit_selected_ID.setText("")
     
-    # def remove_all_element_capped_end(self):
-    #     temp_dict_groups = self.dict_group_elements.copy()
-    #     keys = temp_dict_groups.keys()
-    #     for key in keys:
-    #         self.remove_function(key, reset=True)
-    #     info_messages("The element length correction of all elements has been removed.", title=">>> WARNING <<<")
+    def set_capped_end_to_elements(self, selection):
+        self.project.set_capped_end_by_elements(self.elements_typed, self.flag_cappedEnd_enable, selection)
+        self.load_elements_info()
 
+    def set_capped_end_to_lines(self):
+        self.project.set_capped_end_by_line(self.lines_typed, self.flag_cappedEnd_enable)
+        self.load_lines_info()
+
+    def set_capped_end_to_all_lines(self):
+        self.project.set_capped_end_by_line("all", True)
+        self.load_lines_info()
+        self.load_elements_info()
+
+    def check_reset_all(self):
+        temp_dict_group_elements = self.dict_group_elements.copy()
+        for key, elements in temp_dict_group_elements.items():
+            self.project.set_capped_end_by_elements(elements, False, key)
+        self.project.set_capped_end_by_line("all", False)
+        self.load_elements_info()
+        self.load_lines_info()
+        self.lineEdit_selected_ID.setText("")
+        title = "CAPPED END RESET"
+        message = "The capped end effect has been removed \nfrom all elements of the structural model."
+        PrintMessageInput([title, message, window_title2])
+    
     def get_information_elem(self):
         try:
-            selected_key = self.dict_label.format(self.lineEdit_elementID.text())
+            selected_key = self.dictKey_label.format(self.lineEdit_selected_ID.text())
             if "Selection-" in selected_key:
                 values = self.dict_group_elements[selected_key]
-                GetInformationOfGroup(values, "Elements")
+                GetInformationOfGroup(self.project, values, "Elements")
             else:
-                error("Please, select a group in the list to get the information.", title="ERROR IN GROUP SELECTION")
-                return
+                title = "UNSELECTED GROUP OF ELEMENTS"
+                message = "Please, select a group in the list to get the information."
+                PrintMessageInput([title, message, window_title2])
+                  
         except Exception as e:
-            error(str(e), title="ERROR WHILE GETTING INFORMATION OF SELECTED GROUP")
+            title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
+            message = str(e)
+            PrintMessageInput([title, message, window_title1])
 
     def get_information_line(self):
         try:
-            selected_key = self.dict_label.format(self.lineEdit_elementID.text())
-            if "Selection-" in selected_key:
-                values = self.dict_group_lines[selected_key]
-                GetInformationOfGroup(values, "Lines")
+            if self.lineEdit_selected_ID.text() != "":
+                list_lines = self.get_list_typed_entries()            
+                read = GetInformationOfGroup(self.project, list_lines, "Lines")
+                if read.lines_removed:
+                    self.load_lines_info()
             else:
-                error("Please, select a group in the list to get the information.", title="ERROR IN GROUP SELECTION")
-                return
+                title = "UNSELECTED GROUP OF LINES"
+                message = "Please, select a group in the list to get the information."
+                PrintMessageInput([title, message, window_title2])
+                
         except Exception as e:
-            error(str(e), title="ERROR WHILE GETTING INFORMATION OF SELECTED GROUP")
+            title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
+            message = str(e)
+            PrintMessageInput([title, message, window_title1])
 
 
 class GetInformationOfGroup(QDialog):
-    def __init__(self, values, line_or_elem, *args, **kwargs):
+    def __init__(self, project, values, label, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/getInformationOfGroupInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-        self.type = line_or_elem
-        self.list_of_elements = values[1]
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
-        self.treeWidget_length_correction_group_info = self.findChild(QTreeWidget, 'treeWidget_length_correction_group_info')
-        self.treeWidget_length_correction_group_info.setColumnWidth(1, 20)
-        self.treeWidget_length_correction_group_info.setColumnWidth(2, 140)
+        if label == "Elements":
+            uic.loadUi('pulse/uix/user_input/ui/getGroupInformationInput.ui', self)
+            self.flagElements = True
+            self.flagLines = False
+
+        elif label == "Lines":
+            uic.loadUi('pulse/uix/user_input/ui/getGroupInformationAndRemoveInput.ui', self)
+            self.flagLines = True
+            self.flagElements = False
+            self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+            self.lineEdit_selected_ID.setDisabled(True)
+            self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
+            self.lineEdit_id_labels.setText("Line ID")
+            self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
+            self.pushButton_remove.clicked.connect(self.check_remove)
+            self.lines_removed = False
+
+        self.label = label
+        self.list_of_values = values
+        self.project = project
+
+        self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
+        self.treeWidget_group_info.headerItem().setText(0, self.label)
+        self.treeWidget_group_info.headerItem().setText(1, "Capped end")
+        self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        
+        self.treeWidget_group_info.setColumnWidth(1, 20)
+        self.treeWidget_group_info.setColumnWidth(2, 140)
+        self.treeWidget_group_info.itemClicked.connect(self.on_click_item_)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
-
         self.load_group_info()
         self.exec_()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Escape:
             self.close()
+        elif event.key() == Qt.Key_Delete:
+            self.check_remove()
+
+    def on_click_item_(self, item):
+        text = item.text(0)
+        self.lineEdit_selected_ID.setText(text)
+        self.lineEdit_selected_ID.setDisabled(True)
+        self.pushButton_remove.setDisabled(False)
+
+    def check_remove(self):
+        if self.flagLines:
+            if self.lineEdit_selected_ID.text() != "":
+                line = int(self.lineEdit_selected_ID.text())
+                if line in self.list_of_values:
+                    self.list_of_values.remove(line)
+                self.project.set_capped_end_by_line(line, False)
+                self.load_group_info()
+                self.lines_removed = True
+        self.lineEdit_selected_ID.setText("")
 
     def load_group_info(self):
-        for element in self.list_of_elements:
-            if self.type:
-                new = QTreeWidgetItem([str(element), "capped end"])
-                self.treeWidget_length_correction_group_info.addTopLevelItem(new)
-            else:
-                pass
-    
+        self.treeWidget_group_info.clear()
+        for value in self.list_of_values:
+            new = QTreeWidgetItem([str(value), "Enabled"])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_group_info.addTopLevelItem(new)
+
     def force_to_close(self):
         self.close()
 

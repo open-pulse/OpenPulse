@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Information of selected group</string>
   </property>
-  <widget class="QTreeWidget" name="treeWidget_length_correction_group_info">
+  <widget class="QTreeWidget" name="treeWidget_group_info">
    <property name="geometry">
     <rect>
      <x>18</x>
@@ -49,6 +49,7 @@
    <property name="font">
     <font>
      <family>Arial</family>
+     <pointsize>10</pointsize>
      <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>
@@ -86,18 +87,18 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>48</x>
-      <y>6</y>
-      <width>217</width>
-      <height>29</height>
+      <x>12</x>
+      <y>4</y>
+      <width>291</width>
+      <height>33</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -115,28 +116,28 @@
   <widget class="QPushButton" name="pushButton_close">
    <property name="geometry">
     <rect>
-     <x>118</x>
+     <x>108</x>
      <y>346</y>
-     <width>80</width>
+     <width>100</width>
      <height>29</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>80</width>
+     <width>100</width>
      <height>29</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>80</width>
+     <width>100</width>
      <height>29</height>
     </size>
    </property>
    <property name="font">
     <font>
      <family>Arial</family>
-     <pointsize>11</pointsize>
+     <pointsize>14</pointsize>
      <weight>75</weight>
      <italic>true</italic>
      <bold>true</bold>

@@ -264,13 +264,11 @@ class StructuralElement:
             Bts[[2],[10]] = phi[1]
             self._Bts = Bts
 
-            Kabe += Bab.T @ (Dab+sigma_1a) @ Bab * det_jacob * weigth
-            Ktse += Bts.T @ (Dts+sigma_1t) @ Bts * det_jacob * weigth
-
-            # Kab_geo += Bab.T @ Sigma_1a @ Bab * det_jacob * weigth
-            # Kt_geo += Bab.T @ Sigma_1t @ Bab * det_jacob * weigth
-               
-        Ke = Kabe + Ktse
+            Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
+            Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
+            Kabt_geo += Bab.T @ (sigma_1a + sigma_1t) @ Bab * det_jacob * weigth
+              
+        Ke = Kabe + Ktse + Kabt_geo
 
         return principal_axis.T @ Ke @ principal_axis
 
@@ -369,7 +367,7 @@ class StructuralElement:
         return principal_axis.T @ Fe
 
     def force_vector_acoustic_gcs(self, frequencies, pressure_avg, pressure_external):
-
+        
         A = self.cross_section.area
         Do = self.cross_section.external_diameter
         Di = self.cross_section.internal_diameter
@@ -401,6 +399,10 @@ class StructuralElement:
         return F_p
 
     def stress_stiffening(self):
+        
+        if self.element_type in ['beam_1']:
+            return 0, 0
+        
         Din = self.cross_section.external_diameter
         Dout = self.cross_section.internal_diameter
         nu = self.material.poisson_ratio

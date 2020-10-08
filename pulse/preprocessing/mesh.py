@@ -25,6 +25,7 @@ class Mesh:
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
+        self.group_elements_with_stress_stiffening = {}
         self.group_lines_with_capped_end = {}
         self.entities = []
         self.connectivity_matrix = []
@@ -575,43 +576,60 @@ class Mesh:
             for element in self.structural_elements.values():
                 element.adding_mass_effect = True
 
-    def set_capped_end_by_element(self, elements, value, selection, delete_from_dict=False):       
+    def set_capped_end_by_elements(self, elements, value, selection):       
         for element in slicer(self.structural_elements, elements):
             element.capped_end = value
-            if element not in self.element_with_capped_end:
-                self.element_with_capped_end.append(element)
-            if value is None:
+            if value:
+                if element not in self.element_with_capped_end:
+                    self.element_with_capped_end.append(element)
+            else:
                 if element in self.element_with_capped_end:
                     self.element_with_capped_end.remove(element)
-        if delete_from_dict:
-            self.group_elements_with_capped_end.pop(selection) 
+        if value:
+            self.group_elements_with_capped_end[selection] = elements
         else:
-            self.group_elements_with_capped_end[selection] = [value, elements]
+            if selection in self.group_elements_with_capped_end.keys():
+                self.group_elements_with_capped_end.pop(selection) 
 
     def set_capped_end_line_to_element(self, lines, value):
         for elements in slicer(self.line_to_elements, lines):
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
-
-    def set_capped_end_by_line(self, lines, value, selection, delete_from_dict=False):
+ 
+    def set_capped_end_by_line(self, lines, value):
         self.set_capped_end_line_to_element(lines, value)
         for tag in lines:
-            if tag not in self.lines_with_capped_end:
-                self.lines_with_capped_end.append(tag)
-            if value is None:
+            if value:
+                if tag not in self.lines_with_capped_end:
+                    self.lines_with_capped_end.append(tag)
+            else:
                 if tag in self.lines_with_capped_end:
                     self.lines_with_capped_end.remove(tag)
-        if delete_from_dict:
-            self.group_lines_with_capped_end.pop(selection) 
-        else:
-            self.group_lines_with_capped_end[selection] = [value, lines]
 
-    def set_capped_end_all_lines(self, value, selection):
+    def set_capped_end_all_lines(self, value):
         self.set_capped_end_line_to_element("all", value)
-        self.group_lines_with_capped_end = {}
         self.group_elements_with_capped_end = {}
+        self.lines_with_capped_end = []
         if value:
-            self.group_lines_with_capped_end[selection] = [value, self.all_lines]
+            for line in self.all_lines:
+                self.lines_with_capped_end.append(line)
+
+    def set_stress_stiffening_by_line(self, line, parameters):
+        for elements in slicer(self.line_to_elements, line):
+            self.set_stress_stiffening_by_elements(elements, parameters)
+
+    def set_stress_stiffening_by_elements(self, elements, parameters, section=None, delete_from_dict=False):
+        for element in slicer(self.structural_elements, elements):
+            element.external_temperature = parameters[0]
+            element.internal_temperature = parameters[1]
+            element.external_pressure = parameters[2]
+            element.internal_pressure = parameters[3]
+            
+            if section is not None:
+                if delete_from_dict:
+                    self.group_elements_with_stress_stiffening.pop(section) 
+                else:
+                    self.group_elements_with_stress_stiffening[section] = [parameters, elements]
 
     def set_stress_intensification_by_element(self, elements, value):       
         for element in slicer(self.structural_elements, elements):

@@ -47,17 +47,29 @@
     <property name="geometry">
      <rect>
       <x>14</x>
-      <y>8</y>
+      <y>4</y>
       <width>371</width>
-      <height>25</height>
+      <height>32</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>0</width>
+      <height>32</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>32</height>
+     </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -94,7 +106,7 @@
     <property name="geometry">
      <rect>
       <x>6</x>
-      <y>42</y>
+      <y>44</y>
       <width>389</width>
       <height>259</height>
      </rect>
@@ -114,7 +126,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
@@ -131,15 +143,27 @@
       <property name="geometry">
        <rect>
         <x>96</x>
-        <y>184</y>
+        <y>182</y>
         <width>171</width>
-        <height>29</height>
+        <height>32</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>32</height>
+       </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>11</pointsize>
+        <pointsize>14</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -155,22 +179,37 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>28</x>
-        <y>22</y>
-        <width>327</width>
-        <height>27</height>
+        <x>8</x>
+        <y>20</y>
+        <width>368</width>
+        <height>32</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>368</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>368</width>
+        <height>32</height>
+       </size>
       </property>
       <property name="font">
        <font>
-        <pointsize>11</pointsize>
+        <pointsize>13</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
       <property name="frameShape">
        <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
       <property name="text">
        <string>Select the element length correction type:</string>
@@ -182,10 +221,10 @@
      <widget class="QWidget" name="gridLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>118</x>
+        <x>128</x>
         <y>72</y>
-        <width>131</width>
-        <height>87</height>
+        <width>132</width>
+        <height>89</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout">
@@ -193,15 +232,20 @@
         <widget class="QRadioButton" name="radioButton_loop">
          <property name="minimumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="text">
           <string>Loop</string>
@@ -212,15 +256,20 @@
         <widget class="QRadioButton" name="radioButton_expansion">
          <property name="minimumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="text">
           <string>Expansion</string>
@@ -234,15 +283,20 @@
         <widget class="QRadioButton" name="radioButton_side_branch">
          <property name="minimumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>105</width>
-           <height>20</height>
+           <width>130</width>
+           <height>25</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <pointsize>12</pointsize>
+          </font>
          </property>
          <property name="text">
           <string>Side branch</string>
@@ -294,7 +348,7 @@
       <property name="geometry">
        <rect>
         <x>22</x>
-        <y>36</y>
+        <y>38</y>
         <width>341</width>
         <height>150</height>
        </rect>
@@ -338,23 +392,26 @@
      <widget class="QLabel" name="label_30">
       <property name="geometry">
        <rect>
-        <x>18</x>
-        <y>4</y>
-        <width>347</width>
+        <x>4</x>
+        <y>6</y>
+        <width>373</width>
         <height>27</height>
        </rect>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>11</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
       <property name="frameShape">
        <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
       <property name="text">
        <string>Select a group to remove the length correction:</string>
@@ -369,28 +426,28 @@
      <widget class="QPushButton" name="pushButton_get_information">
       <property name="geometry">
        <rect>
-        <x>278</x>
-        <y>152</y>
-        <width>80</width>
-        <height>29</height>
+        <x>268</x>
+        <y>150</y>
+        <width>90</width>
+        <height>32</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>80</width>
-        <height>29</height>
+        <width>90</width>
+        <height>32</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>80</width>
-        <height>29</height>
+        <width>90</width>
+        <height>32</height>
        </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>10</pointsize>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -405,18 +462,18 @@
    <widget class="QLabel" name="label_selection">
     <property name="geometry">
      <rect>
-      <x>19</x>
+      <x>12</x>
       <y>10</y>
-      <width>95</width>
-      <height>21</height>
+      <width>113</width>
+      <height>26</height>
      </rect>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>10</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -430,10 +487,10 @@
    <widget class="QLineEdit" name="lineEdit_elementID">
     <property name="geometry">
      <rect>
-      <x>118</x>
+      <x>130</x>
       <y>10</y>
       <width>170</width>
-      <height>24</height>
+      <height>26</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -451,9 +508,9 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>10</pointsize>
+      <pointsize>11</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -470,28 +527,28 @@
    <widget class="QPushButton" name="pushButton_reset_confirm">
     <property name="geometry">
      <rect>
-      <x>308</x>
-      <y>8</y>
+      <x>310</x>
+      <y>10</y>
       <width>80</width>
-      <height>29</height>
+      <height>26</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>80</width>
-      <height>29</height>
+      <height>26</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>80</width>
-      <height>29</height>
+      <height>26</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>

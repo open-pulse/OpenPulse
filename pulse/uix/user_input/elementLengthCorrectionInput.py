@@ -7,7 +7,9 @@ from PyQt5 import uic
 import configparser
 import numpy as np
 
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import info_messages, remove_bc_from_file
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
+window_title = "ERROR"
 
 class AcousticElementLengthCorrectionInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -115,24 +117,31 @@ class AcousticElementLengthCorrectionInput(QDialog):
             self.elements_typed = list(map(int, tokens))
 
             if self.lineEdit_elementID.text()=="":
-                error("Inform a valid Element ID before to confirm the input!", title = "ERROR IN ELEMENT ID's")
+                title = "ERROR IN ELEMENT ID's"
+                message = "Inform a valid Element ID before to confirm the input!"
+                self.info_text = [title, message, window_title]
                 return True
 
         except Exception:
-            error("Wrong input for Element ID's!", "ERROR IN ELEMENT ID's")
+            title = "ERROR IN ELEMENT ID's"
+            message = "Wrong input for Element ID's!"
+            self.info_text = [title, message, window_title]
             return True
 
         try:
             for element_id in self.elements_typed:
                 self.acoustic_elements[element_id]
         except:
-            message = [" The Element ID input values must be\n major than 1 and less than {}.".format(len(self.acoustic_elements))]
-            error(message[0], title = " INCORRECT ELEMENT ID INPUT! ")
+            title = "INCORRECT ELEMENT ID INPUT"
+            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.acoustic_elements))
+            self.info_text = [title, message, window_title]
             return True
+        return False
 
     def check_element_correction_type(self):
 
         if self.check_input_elements():
+            PrintMessageInput(self.info_text)
             return
 
         if self.flag_expansion:
@@ -150,13 +159,6 @@ class AcousticElementLengthCorrectionInput(QDialog):
         size = len(self.dict_group_elements)
         section = self.dict_label.format("Selection-{}".format(size+1))
 
-        ind = 0
-        while True:
-            if section in self.dict_group_elements.keys():
-                ind += 1
-                section = self.dict_label.format("Selection-{}".format(ind))
-            else:
-                break
         self.set_elements_to_correct(type_id, section, _print=True)
         self.replaced = False
         temp_dict = self.dict_group_elements.copy()
@@ -252,7 +254,10 @@ class AcousticElementLengthCorrectionInput(QDialog):
         keys = temp_dict_groups.keys()
         for key in keys:
             self.remove_function(key, reset=True)
-        info_messages("The element length correction of all elements has been removed.", title=">>> WARNING <<<")
+        window_title = "WARNING" 
+        title = "INFO MESSAGE"
+        message = "The element length correction of \nall elements has been removed."
+        PrintMessageInput([title, message, window_title])
 
     def get_information_of_group(self):
         try:
@@ -261,10 +266,15 @@ class AcousticElementLengthCorrectionInput(QDialog):
                 values = self.dict_group_elements[selected_key]
                 GetInformationOfGroup(values, self.dict_correction_types)
             else:
-                error("Please, select a group in the list to get the information.", title="ERROR IN GROUP SELECTION")
-                return
-        except Exception as e:
-            error(str(e), title="ERROR WHILE GETTING INFORMATION OF SELECTED GROUP")
+                title = "ERROR IN GROUP SELECTION"
+                message = "Please, select a group in the list to get the information."
+                self.info_text = [title, message, window_title]
+                PrintMessageInput(self.info_text)
+        except Exception as er:
+            title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
+            message = str(er)
+            self.info_text = [title, message, window_title]
+            PrintMessageInput(self.info_text)
 
     def update(self):
         self.write_ids(self.opv.getListPickedElements())
@@ -274,7 +284,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 class GetInformationOfGroup(QDialog):
     def __init__(self, key_elements, dict_keys_labels, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/getInformationOfGroupInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/getGroupInformationInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -287,9 +297,9 @@ class GetInformationOfGroup(QDialog):
         self.list_of_elements = key_elements[1]
         self.dict_keys_labels = dict_keys_labels
 
-        self.treeWidget_length_correction_group_info = self.findChild(QTreeWidget, 'treeWidget_length_correction_group_info')
-        self.treeWidget_length_correction_group_info.setColumnWidth(1, 20)
-        self.treeWidget_length_correction_group_info.setColumnWidth(2, 140)
+        self.treeWidget_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
+        self.treeWidget_group_info.setColumnWidth(1, 20)
+        self.treeWidget_group_info.setColumnWidth(2, 140)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
@@ -305,7 +315,7 @@ class GetInformationOfGroup(QDialog):
         for element in self.list_of_elements:
             text = self.dict_keys_labels[self.type]
             new = QTreeWidgetItem([str(element), text])
-            self.treeWidget_length_correction_group_info.addTopLevelItem(new)
+            self.treeWidget_group_info.addTopLevelItem(new)
     
     def force_to_close(self):
         self.close()

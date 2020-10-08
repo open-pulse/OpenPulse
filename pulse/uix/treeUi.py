@@ -46,7 +46,6 @@ class TreeUi(QTreeWidget):
         self.name_top_analysis = "Analysis"
         self.name_child_selectAnalysisType = "Select Analysis Type"
         self.name_child_analisysSetup = "Analysis Setup"
-        self.name_child_selectTheOutputResults = "Select the Outputs Results"
         self.name_child_runAnalysis = "Run Analysis (F5)"
 
         self.name_top_resultsViewer_structural = "Results Viewer - Structural"
@@ -126,7 +125,6 @@ class TreeUi(QTreeWidget):
         self.item_top_analysis = QTreeWidgetItem([self.name_top_analysis])
         self.item_child_selectAnalysisType = QTreeWidgetItem([self.name_child_selectAnalysisType])
         self.item_child_analisysSetup = QTreeWidgetItem([self.name_child_analisysSetup])
-        self.item_child_selectTheOutputResults = QTreeWidgetItem([self.name_child_selectTheOutputResults])
         self.item_child_runAnalysis = QTreeWidgetItem([self.name_child_runAnalysis])
 
         self.item_top_resultsViewer_structural = QTreeWidgetItem([self.name_top_resultsViewer_structural])
@@ -195,7 +193,6 @@ class TreeUi(QTreeWidget):
 
         self.item_child_selectAnalysisType.setFont(0, self.font_internal)
         self.item_child_analisysSetup.setFont(0, self.font_internal)
-        self.item_child_selectTheOutputResults.setFont(0, self.font_internal)
         self.item_child_runAnalysis.setFont(0, self.font_internal)
 
         self.item_child_plotStructuralModeShapes.setFont(0, self.font_internal)
@@ -211,7 +208,6 @@ class TreeUi(QTreeWidget):
         self.item_child_plot_TL_NR.setFont(0, self.font_internal)
 
         # self.item_child_setElementType.setDisabled(True)
-        self.item_child_selectTheOutputResults.setDisabled(True)
         #self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
@@ -238,7 +234,6 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_top_analysis)
         self.addTopLevelItem(self.item_child_selectAnalysisType)
         self.addTopLevelItem(self.item_child_analisysSetup)
-        self.addTopLevelItem(self.item_child_selectTheOutputResults)
         self.addTopLevelItem(self.item_child_runAnalysis)
 
         self.addTopLevelItem(self.item_top_resultsViewer_structural)
@@ -294,8 +289,6 @@ class TreeUi(QTreeWidget):
             self._updateItems()
         elif item.text(0) == self.name_child_analisysSetup:
             self.mainWindow.getInputWidget().analysisSetup()
-        elif item.text(0) == self.name_child_selectTheOutputResults:
-            self.mainWindow.getInputWidget().analysisOutputResults()
         elif item.text(0) == self.name_child_runAnalysis:
             self.mainWindow.getInputWidget().runAnalysis()
             self._updateItems()

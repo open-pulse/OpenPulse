@@ -13,7 +13,6 @@ from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
 #
 from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
 from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
-from pulse.uix.user_input.analysisOutputResultsInput import AnalysisOutputResultsInput
 from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 #
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
@@ -21,7 +20,7 @@ from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
-from pulse.uix.user_input.cappedEndInput import cappedEndInput
+from pulse.uix.user_input.cappedEndInput import CappedEndInput
 from pulse.uix.user_input.stressStiffeningInput import StressStiffeningInput
 #
 from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
@@ -218,10 +217,8 @@ class InputUi:
             self.opv.transformPoints(read.nodes_typed)
 
     def setcappedEnd(self):
-        lines_id = self.opv.getListPickedEntities()
-        elements_id = self.opv.getListPickedElements()
-        read = cappedEndInput(self.project, lines_id, elements_id)
-        if read.type_label is None:
+        read = CappedEndInput(self.project, self.opv)
+        if not read.complete:
             return
 
     def set_stress_stress_stiffening(self):
@@ -384,9 +381,6 @@ class InputUi:
             return False
         return True
       
-    def analysisOutputResults(self):
-        AnalysisOutputResultsInput()
-
     def runAnalysis(self):
 
         t0 = time()

@@ -1,12 +1,15 @@
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.utils import error
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.utils import error, remove_bc_from_file
 import configparser
+from collections import defaultdict
 import os
 import numpy as np
 from math import pi
-from pulse.utils import remove_bc_from_file
+
+window_title = "ERROR"
 
 class ProjectFile:
     def __init__(self):
@@ -222,6 +225,7 @@ class ProjectFile:
             config.write(config_file)
     
     def get_dict_of_entities_from_file(self):
+
         material_list = configparser.ConfigParser()
         material_list.read(self._material_list_path)
 
@@ -234,13 +238,16 @@ class ProjectFile:
         element_file = configparser.ConfigParser()
         element_file.read(self._element_info_path)
    
-        dict_material = {}
-        dict_cross = {}
-        dict_element_type = {}
-        dict_fluid = {}
-        dict_length_correction = {}
-        temp_dict = {}
-        dict_capped_end_element = {}
+        self.dict_material = {}
+        self.dict_cross = {}
+        self.dict_element_type = {}
+        self.dict_fluid = {}
+        self.dict_length_correction = {}
+        self.temp_dict = {}
+        self.dict_stress_stiffening = {}
+        self.dict_capped_end = defaultdict(list)
+
+        title = "ERROR WHILE LOADING DATA FROM FILE"
 
         for entity in entityFile.sections():
 
@@ -249,10 +256,10 @@ class ProjectFile:
                 element_type = entityFile[entity]['Element Type']
 
                 if element_type != "":
-                    dict_element_type[int(entity)] = element_type
+                    self.dict_element_type[int(entity)] = element_type
                     self.element_type_is_structural = True
                 else:
-                    dict_element_type[int(entity)] = 'pipe_1'
+                    self.dict_element_type[int(entity)] = 'pipe_1'
 
             diam_ext = ""
             thickness = ""
@@ -285,10 +292,12 @@ class ProjectFile:
                         insulation_thickness = float(insulation_thickness)
                         insulation_density = float(insulation_density)
                         cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
-                        dict_cross[entity] = [cross, get_list_elements]
+                        self.dict_cross[entity] = [cross, get_list_elements]
                     except Exception as er:
-                        error(str(er), title = "Error while loading cross-section parameters from file")
-                        return {}, {}, {}, {}, {}
+                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
+                        message = str(er)
+                        PrintMessageInput([title, message, window_title])
+
             else:
 
                 area, Iyy, Izz, Iyz, section_type, section_parameters = "", "", "", "", "", ""
@@ -328,11 +337,12 @@ class ProjectFile:
                         cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
                                         additional_section_info=[section_type, list_section_parameters], shear_coefficient=_shear_coefficient[0])
                         
-                        dict_cross[entity] = cross
+                        self.dict_cross[entity] = cross
                         
                     except Exception as er:
-                        error(str(er), title = "Error while loading cross-section parameters from file")
-                        return {}, {}, {}, {}, {}
+                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
+                        message = str(er)
+                        PrintMessageInput([title, message, window_title])
                 
                 if 'outer diameter' in entityFile[entity].keys():
                     diam_ext = entityFile[entity]['outer Diameter']
@@ -357,10 +367,11 @@ class ProjectFile:
                         section_info = ["Pipe section", [diam_ext, thickness, offset_y, offset_z, insulation_thickness]]
                         cross = CrossSection(diam_ext, thickness, offset_y, offset_z, 
                                             insulation_thickness=insulation_thickness, insulation_density=insulation_density, additional_section_info=section_info)
-                        dict_cross[entity] = cross
+                        self.dict_cross[entity] = cross
                     except Exception as er:
-                        error(str(er), title = "Error while loading cross-section parameters from file")
-                        return {}, {}, {}, {}, {}
+                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
+                        message = str(er)
+                        PrintMessageInput([title, message, window_title])
                     
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
@@ -387,7 +398,7 @@ class ProjectFile:
                                                             thermal_expansion_coefficient = thermal_expansion_coefficient,
                                                             color = color,
                                                             identifier = int(identifier))
-                            dict_material[int(entity)] = temp_material
+                            self.dict_material[int(entity)] = temp_material
             
             if 'fluid id' in entityFile[entity].keys():    
                 fluid_id = entityFile[entity]['fluid id']
@@ -403,22 +414,25 @@ class ProjectFile:
                             # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
                             color =  str(fluid_list[fluid]['color'])
                             temp_fluid = Fluid(name, float(fluid_density), float(speed_of_sound), color=color, identifier=int(identifier))
-                            dict_fluid[int(entity)] = temp_fluid
+                            self.dict_fluid[int(entity)] = temp_fluid
                                 
                 if 'capped end' in entityFile[entity].keys():
                     capped_end = entityFile[entity]['capped end']
                     if capped_end != "":
-                        temp_dict[int(entity)] = capped_end
-        
-        dict_capped_end_entity = {}
-        for selection in set(temp_dict.values()):
-            lines=[]
-            for line, select in temp_dict.items():
-                if select == selection:
-                    lines.append(line)
-            dict_capped_end_entity[selection] = [True, lines]
+                        self.dict_capped_end[capped_end].append(int(entity))
+            
+            if 'stress stiffening parameters' in entityFile[entity].keys():
+                list_parameters = entityFile[entity]['stress stiffening parameters']
+                _list_parameters = self._get_list_of_values_from_string(list_parameters, are_values_int=False)
+                try:
+                    self.dict_stress_stiffening[int(entity)] = _list_parameters
+                except Exception as er:
+                    window_title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE"
+                    message = str(er)
+                    PrintMessageInput([title, message, window_title])
 
         for section in list(element_file.sections()):
+
             try:
                 if "ACOUSTIC ELEMENT LENGTH CORRECTION" in section:
                     if 'length correction type' in  element_file[section].keys():
@@ -427,21 +441,37 @@ class ProjectFile:
                         list_elements = element_file[section]['list of elements']
                         get_list_elements = self._get_list_of_values_from_string(list_elements)
                     if length_correction_type in [0,1,2] and get_list_elements != []:
-                        dict_length_correction[section] = [get_list_elements, length_correction_type]
+                        self.dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as er:  
-                error(str(er), title="ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION")
-                # return {}, {}, {}, {}, {}
+                window_title = "ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION FROM FILE"
+                message = str(er)
+                PrintMessageInput([title, message, window_title])
 
             try:
-                if "capped END" in section:
+                if "CAPPED END" in section:
                     if 'list of elements' in element_file[section].keys():
-                        list_elements = element_file[section]['list of elements']
-                        get_list_elements = self._get_list_of_values_from_string(list_elements)
-                        dict_capped_end_element[section] = [True, get_list_elements]
+                        _list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                        self.dict_capped_end[section] = get_list_elements
             except Exception as er:  
-                error(str(er), title="ERROR WHILE LOADING capped END")
+                window_title = "ERROR WHILE LOADING CAPPED END FROM FILE"
+                message = str(er)
+                PrintMessageInput([title, message, window_title])
 
-        return dict_material, dict_cross, dict_element_type, dict_fluid, dict_length_correction, dict_capped_end_entity, dict_capped_end_element
+            try:
+                if "STRESS STIFFENING" in section:
+                    if 'stress stiffening parameters' in  element_file[section].keys():
+                        _list_parameters = element_file[section]['stress stiffening parameters']
+                        get_list_parameters = self._get_list_of_values_from_string(_list_parameters, are_values_int=False)
+                    if 'list of elements' in  element_file[section].keys():
+                        _list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                    self.dict_stress_stiffening[section] = [get_list_elements, get_list_parameters]
+            except Exception as er: 
+                window_title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
+                message = str(er)
+                PrintMessageInput([title, message, window_title])
+                
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
@@ -547,33 +577,97 @@ class ProjectFile:
                                 }
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
+    
+    def add_stress_stiffnening_in_file_by_line(self, entity_id, parameters): 
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+ 
+        if str(entity_id) in list(config.sections()):
+            config[str(entity_id)]['stress stiffening parameters'] = str(parameters)
+        else:
+            config[str(entity_id)] = { 
+                                        'stress stiffening parameters': str(parameters)
+                                     }  
 
-    def add_capped_end_element_in_file(self, elements, _type, section): 
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
+    def add_stress_stiffnening_in_file_by_group_elements(self, section, elements, parameters): 
+ 
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+        
+        if section in list(config.sections()):
+            config[section]['stress stiffening parameters'] = str(parameters)
+            config[section]['list of elements'] = str(elements)
+        else:
+            config[section] =   { 
+                                  'stress stiffening parameters': str(parameters),
+                                  'list of elements': str(elements)
+                                }
+
+        with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
+
+    def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
+
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
-        if section in list(config.sections()):
-            config[section]['list of elements'] = str(elements)
-        else:
-            config[section] =   { 
-                                  'list of elements': str(elements)
-                                }
+        for section in list(config.sections()):
+            if "STRESS STIFFENING" in section:
+                config.remove_section(section)
+
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_capped_end_entity_in_file(self, entity_id, value, selection):
+    def remove_stress_stiffnening_in_file_by_line(self, entity_id): 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['capped end'] = selection
-        else:
-            config[str(entity_id)] = { 
-                                        'capped end': selection
-                                    }
+        config.remove_option(section=str(entity_id), option='stress stiffening parameters')
+
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
-    
+
+    def modify_capped_end_element_in_file(self, elements, value, section): 
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+
+        if value:
+            if section in list(config.sections()):
+                config[section]['list of elements'] = str(elements)
+            else:
+                config[section] =   { 'list of elements': str(elements) }
+        else:    
+            config.remove_section(section)
+        
+        with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
+
+    def modify_capped_end_entity_in_file(self, entity_id, value):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        if value:    
+            if str(entity_id) in list(config.sections()):
+                config[str(entity_id)]['capped end'] = str(value)
+            else:
+                config[str(entity_id)] = { 'capped end': str(value) }
+        else:
+            config.remove_option(section=str(entity_id), option='capped end')
+
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
+    # def remove_capped_end_entity_in_file(self, entity_id): 
+    #     config = configparser.ConfigParser()
+    #     config.read(self._entity_path)
+    #     config.remove_option(section=str(entity_id), option='capped end')
+    #     with open(self._entity_path, 'w') as config_file:
+    #         config.write(config_file)
+
     def add_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
         config.read(self._entity_path)

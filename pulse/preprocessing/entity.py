@@ -1,7 +1,7 @@
 # from pulse.preprocessing.material import Material
 
 class Entity:
-    def __init__(self, tag):
+    def __init__(self, tag, **kwargs):
         self.tag = tag
         self.nodes = []
         self.elements = []
@@ -12,6 +12,10 @@ class Entity:
         self.additional_section_info = None
         self.capped_end = None
         self.length_correction = None
+        self.internal_pressure = kwargs.get('internal_pressure', None)
+        self.external_pressure = kwargs.get('external_pressure', None)
+        self.internal_temperature = kwargs.get('internal_temperature', None)
+        self.external_temperature = kwargs.get('external_temperature', None)
 
     def insertNode(self, node):
         self.nodes.append(node)
