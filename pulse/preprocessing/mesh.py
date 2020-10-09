@@ -27,6 +27,7 @@ class Mesh:
         self.group_elements_with_capped_end = {}
         self.group_elements_with_stress_stiffening = {}
         self.group_lines_with_capped_end = {}
+        self.dict_lines_with_stress_stiffening = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -43,6 +44,7 @@ class Mesh:
         self.element_with_length_correction = []
         self.element_with_capped_end = []
         self.lines_with_capped_end = []
+        self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
         self.elements_with_decoupled_dofs = []
         self.radius = {}
@@ -591,34 +593,66 @@ class Mesh:
             if selection in self.group_elements_with_capped_end.keys():
                 self.group_elements_with_capped_end.pop(selection) 
 
-    def set_capped_end_line_to_element(self, lines, value):
+    # def set_capped_end_line_to_element(self, lines, value):
+    #     for elements in slicer(self.line_to_elements, lines):
+    #         for element in slicer(self.structural_elements, elements):
+    #             element.capped_end = value
+ 
+    def set_capped_end_by_line(self, lines, value):
+        # self.set_capped_end_line_to_element(lines, value)
+        if isinstance(lines, int):
+            lines = [lines]
+
         for elements in slicer(self.line_to_elements, lines):
             for element in slicer(self.structural_elements, elements):
                 element.capped_end = value
- 
-    def set_capped_end_by_line(self, lines, value):
-        self.set_capped_end_line_to_element(lines, value)
-        for tag in lines:
+        if lines == "all":
+            self.group_elements_with_capped_end = {}
+            self.lines_with_capped_end = []
             if value:
-                if tag not in self.lines_with_capped_end:
-                    self.lines_with_capped_end.append(tag)
-            else:
-                if tag in self.lines_with_capped_end:
-                    self.lines_with_capped_end.remove(tag)
+                for line in self.all_lines:
+                    self.lines_with_capped_end.append(line)
+        else:
+            for tag in lines:
+                if value:
+                    if tag not in self.lines_with_capped_end:
+                        self.lines_with_capped_end.append(tag)
+                else:
+                    if tag in self.lines_with_capped_end:
+                        self.lines_with_capped_end.remove(tag)
 
-    def set_capped_end_all_lines(self, value):
-        self.set_capped_end_line_to_element("all", value)
-        self.group_elements_with_capped_end = {}
-        self.lines_with_capped_end = []
-        if value:
-            for line in self.all_lines:
-                self.lines_with_capped_end.append(line)
+    # def set_capped_end_all_lines(self, value):
+    #     self.set_capped_end_line_to_element("all", value)
+    #     self.group_elements_with_capped_end = {}
+    #     self.lines_with_capped_end = []
+    #     if value:
+    #         for line in self.all_lines:
+    #             self.lines_with_capped_end.append(line)
 
-    def set_stress_stiffening_by_line(self, line, parameters):
-        for elements in slicer(self.line_to_elements, line):
+    def set_stress_stiffening_by_line(self, lines, parameters, remove=False):
+        if isinstance(lines, int):
+            lines = [lines]
+        for elements in slicer(self.line_to_elements, lines):
             self.set_stress_stiffening_by_elements(elements, parameters)
+        if lines == "all":
+            self.group_elements_with_stress_stiffening = {}
+            self.lines_with_stress_stiffening = []
+            if not remove:
+                for line in self.all_lines:
+                    self.lines_with_stress_stiffening.append(line)
+                    self.dict_lines_with_stress_stiffening[line] = parameters
+        else:
+            for line in lines:
+                if remove:
+                    if line in self.lines_with_stress_stiffening:
+                        self.lines_with_stress_stiffening.remove(line) 
+                        self.dict_lines_with_stress_stiffening.pop(line)               
+                else:
+                    if line not in self.lines_with_stress_stiffening:
+                        self.lines_with_stress_stiffening.append(line)
+                        self.dict_lines_with_stress_stiffening[line] = parameters
 
-    def set_stress_stiffening_by_elements(self, elements, parameters, section=None, delete_from_dict=False):
+    def set_stress_stiffening_by_elements(self, elements, parameters, section=None, remove=False):
         for element in slicer(self.structural_elements, elements):
             element.external_temperature = parameters[0]
             element.internal_temperature = parameters[1]
@@ -626,8 +660,9 @@ class Mesh:
             element.internal_pressure = parameters[3]
             
             if section is not None:
-                if delete_from_dict:
-                    self.group_elements_with_stress_stiffening.pop(section) 
+                if remove:
+                    if section in self.group_elements_with_stress_stiffening.keys():
+                        self.group_elements_with_stress_stiffening.pop(section) 
                 else:
                     self.group_elements_with_stress_stiffening[section] = [parameters, elements]
 

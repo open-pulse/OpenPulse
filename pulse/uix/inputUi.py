@@ -146,7 +146,7 @@ class InputUi:
             if len(entities_id) == 0:
                 return
             for entity in entities_id:
-                self.project.set_fluid_by_Entity(entity, fld.fluid)
+                self.project.set_fluid_by_entity(entity, fld.fluid)
             print("[Set Fluid] - {} defined in the entities {}".format(fld.fluid.name, entities_id))
             self.opv.changeColorEntities(entities_id, fld.fluid.getNormalizedColorRGB())
         else:

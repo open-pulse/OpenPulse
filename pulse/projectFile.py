@@ -578,40 +578,41 @@ class ProjectFile:
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
     
-    def add_stress_stiffnening_in_file_by_line(self, entity_id, parameters): 
+    def modify_stress_stiffnening_entity_in_file(self, entity_id, parameters, remove=False,): 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
- 
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['stress stiffening parameters'] = str(parameters)
+
+        if remove:
+            if str(entity_id) in list(config.sections()):
+                config.remove_option(section=str(entity_id), option='stress stiffening parameters')
         else:
-            config[str(entity_id)] = { 
-                                        'stress stiffening parameters': str(parameters)
-                                     }  
+            if str(entity_id) in list(config.sections()):
+                config[str(entity_id)]['stress stiffening parameters'] = str(parameters)
+            else:
+                config[str(entity_id)] = { 'stress stiffening parameters': str(parameters) }  
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_stress_stiffnening_in_file_by_group_elements(self, section, elements, parameters): 
- 
+    def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
-        
-        if section in list(config.sections()):
-            config[section]['stress stiffening parameters'] = str(parameters)
-            config[section]['list of elements'] = str(elements)
+
+        if remove:
+            config.remove_section(section)
         else:
-            config[section] =   { 
-                                  'stress stiffening parameters': str(parameters),
-                                  'list of elements': str(elements)
-                                }
+            if section in list(config.sections()):
+                config[section]['stress stiffening parameters'] = str(parameters)
+                config[section]['list of elements'] = str(elements)
+            else:
+                config[section] =  { 'stress stiffening parameters': str(parameters),
+                                     'list of elements': str(elements)                }
 
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
 
     def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
-
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
@@ -621,14 +622,6 @@ class ProjectFile:
                 config.remove_section(section)
 
         with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
-
-    def remove_stress_stiffnening_in_file_by_line(self, entity_id): 
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        config.remove_option(section=str(entity_id), option='stress stiffening parameters')
-
-        with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
     def modify_capped_end_element_in_file(self, elements, value, section): 
@@ -660,13 +653,6 @@ class ProjectFile:
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
-
-    # def remove_capped_end_entity_in_file(self, entity_id): 
-    #     config = configparser.ConfigParser()
-    #     config.read(self._entity_path)
-    #     config.remove_option(section=str(entity_id), option='capped end')
-    #     with open(self._entity_path, 'w') as config_file:
-    #         config.write(config_file)
 
     def add_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
