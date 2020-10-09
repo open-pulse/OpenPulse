@@ -105,14 +105,17 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.AddActor2D(self.textActorStress)
 
     def updateInfoText(self):
-        mode = self.project.get_modes()
+        # mode = self.project.get_modes()
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
-        else:
+        elif self.project.analysis_ID == 2:
             frequencies = self.project.get_structural_natural_frequencies()
-            text += "Mode: {}\n".format(mode)
+            text += "Mode: {}\n".format(self.frequencyIndice +1)
+        elif self.project.analysis_ID == 4:
+            frequencies = self.project.get_acoustic_natural_frequencies()
+            text += "Mode: {}\n".format(self.frequencyIndice +1)
         text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)

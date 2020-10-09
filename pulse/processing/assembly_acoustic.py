@@ -35,6 +35,7 @@ class AssemblyAcoustic:
         self.beam_gdofs = mesh.beam_gdofs
         self.acoustic_elements = mesh.get_pipe_elements()
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(mesh.nodes)
+        self.neighbor_diameters = mesh.neighbor_elements_diameter_global()
 
     def get_prescribed_indexes(self):
         global_prescribed = []
@@ -67,6 +68,46 @@ class AssemblyAcoustic:
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
         return unprescribed_pipe_indexes
 
+    def get_length_corretion(self, element):
+        length_correction = 0
+        if element.acoustic_length_correction is not None:
+            first = element.first_node.global_index
+            last = element.last_node.global_index
+
+            di_actual = element.cross_section.internal_diameter
+
+            diameters_first = np.array(self.neighbor_diameters[first])
+            diameters_last = np.array(self.neighbor_diameters[last])
+
+            corrections_first = [0]
+            corrections_last = [0]
+
+            for _,_,di in diameters_first:
+                if di_actual < di:
+                    if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                        correction = length_correction_expansion(di_actual, di)
+                    elif element.acoustic_length_correction == 1:
+                        correction = length_correction_branch(di_actual, di)
+                        if len(diameters_first) == 2:
+                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                    else:
+                        print("Datatype not understood")
+                    corrections_first.append(correction)
+
+            for _,_,di in diameters_last:
+                if di_actual < di:
+                    if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                        correction = length_correction_expansion(di_actual, di)
+                    elif element.acoustic_length_correction == 1:
+                        correction = length_correction_branch(di_actual, di)
+                        if len(diameters_last) == 2:
+                            print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
+                    else:
+                        print("Datatype not understood")
+                    corrections_last.append(correction)
+            length_correction = max(corrections_first) + max(corrections_last)
+        return length_correction
+
     def get_global_matrices(self):
 
         ones = np.ones(len(self.frequencies), dtype='float64')
@@ -76,8 +117,6 @@ class AssemblyAcoustic:
 
         rows, cols = self.mesh.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
-        neighbor_diameters = self.mesh.neighbor_elements_diameter_global()
-
         for element in self.acoustic_elements:
             
             index = element.index
@@ -85,45 +124,7 @@ class AssemblyAcoustic:
             start = (index-1) * ENTRIES_PER_ELEMENT
             end = start + ENTRIES_PER_ELEMENT
 
-            length_correction = 0
-
-            if element.acoustic_length_correction is not None:
-                first = element.first_node.global_index
-                last = element.last_node.global_index
-
-                di_actual = element.cross_section.internal_diameter
-
-                diameters_first = np.array(neighbor_diameters[first])
-                diameters_last = np.array(neighbor_diameters[last])
-
-                corrections_first = [0]
-                corrections_last = [0]
-
-                for _,_,di in diameters_first:
-                    if di_actual < di:
-                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
-                            correction = length_correction_expansion(di_actual, di)
-                        elif element.acoustic_length_correction == 1:
-                            correction = length_correction_branch(di_actual, di)
-                            if len(diameters_first) == 2:
-                                print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
-                        else:
-                            print("Datatype not understood")
-                        corrections_first.append(correction)
-
-                for _,_,di in diameters_last:
-                    if di_actual < di:
-                        if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
-                            correction = length_correction_expansion(di_actual, di)
-                        elif element.acoustic_length_correction == 1:
-                            correction = length_correction_branch(di_actual, di)
-                            if len(diameters_last) == 2:
-                                print("Warning: Expansion identified in acoustic \ndomain is being corrected as side branch.")
-                        else:
-                            print("Datatype not understood")
-                        corrections_last.append(correction)
-                length_correction = max(corrections_first) + max(corrections_last)
-            # data arrangement: pressures are arranged in columns and each row corresponds to one frequency of the analysis
+            length_correction = self.get_length_corretion(element)
             data_k[:, start:end] = element.matrix(self.frequencies, ones, length_correction = length_correction)
             
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
@@ -184,6 +185,29 @@ class AssemblyAcoustic:
         Kr_lump = [full[:, prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump  
+
+    def get_global_matrices_modal(self):
+
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
+        number_elements = len(self.mesh.acoustic_elements)
+
+        rows, cols = self.mesh.get_global_acoustic_indexes()
+        mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        for index, element in enumerate(self.mesh.acoustic_elements.values()):
+            length_correction = self.get_length_corretion(element)
+            mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)            
+
+        full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
+        full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
+        
+        unprescribed_indexes = self.get_unprescribed_indexes()
+
+        K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
+        M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
+
+        return K, M
 
     def get_global_volume_velocity(self):
 

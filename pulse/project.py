@@ -767,6 +767,9 @@ class Project:
 
     def set_acoustic_natural_frequencies(self, value):
         self.natural_frequencies_acoustic = value
+
+    def get_acoustic_natural_frequencies(self):
+        return self.natural_frequencies_acoustic
     
     def set_structural_natural_frequencies(self, value):
         self.natural_frequencies_structural  = value

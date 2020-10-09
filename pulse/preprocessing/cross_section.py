@@ -351,7 +351,7 @@ if select == 1:
             self.z_shear = (psi_y.T @ FT)/ccg
 
         def offset_rotation(self, el_type = 'pipe_1'):
-            if el_type is 'pipe_2':
+            if el_type == 'pipe_2':
                 self.principal_axis = np.eye(12)
             else:
                 y_c = self.y_centroid
