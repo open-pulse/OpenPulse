@@ -188,7 +188,8 @@ class Project:
         # Stress Stiffening to Entities and Elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
-                self.load_stress_stiffening_by_elements(parameters[0], parameters[1])
+                print(key)
+                self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
             else:
                 self.load_stress_stiffening_by_entity(key, parameters)        
 
@@ -410,39 +411,43 @@ class Project:
         labels = ["damping coefficients", "torsional damping coefficients"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
-    def set_stress_stiffening_by_elements(self, section, elements, parameters):
-        self.mesh.set_stress_stiffening_by_elements(elements, parameters, section=section)
-        self.file.add_stress_stiffnening_in_file_by_group_elements(section, elements, parameters)
+    def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
+        self.mesh.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
+        self.file.modify_stress_stiffnening_element_in_file(elements, parameters, section, remove=remove)
 
-    def set_stress_stiffening_by_line(self, entity_id, parameters, reset=False):
+    def set_stress_stiffening_by_line(self, lines, parameters, remove=False):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+        
         if self.file.get_import_type() == 0:
-            self.mesh.set_stress_stiffening_by_line(entity_id, parameters)
+            self.mesh.set_stress_stiffening_by_line(lines, parameters, remove=remove)
         elif self.file.get_import_type() == 1:
             self.mesh.set_stress_stiffening_by_elements('all', parameters)
         
-        if reset:
-            self._set_entity_stress_stiffening(entity_id, [None, None, None, None])
-            self.file.remove_stress_stiffnening_in_file_by_line(entity_id)
-        else:
-            self._set_entity_stress_stiffening(entity_id, parameters)
-            self.file.add_stress_stiffnening_in_file_by_line(entity_id, parameters)
+        for line in lines:    
+            if remove:
+                self._set_entity_stress_stiffening(line, [None, None, None, None])
+                self.file.modify_stress_stiffnening_entity_in_file(line, [], remove=True)
+            else:
+                self._set_entity_stress_stiffening(line, parameters)
+                self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
 
     def set_stress_stiffening_to_all_lines(self, parameters):
         self.mesh.set_stress_stiffening_by_elements('all', parameters)
         self._set_all_entity_stress_stiffening(parameters)
-        for entity in self.mesh.entities:
-            self.file.add_stress_stiffnening_in_file_by_line(entity.get_tag(), parameters)
+        for line in self.mesh.all_lines:
+            self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
 
     def load_material_by_entity(self, entity_id, material):
         if self.file.get_import_type() == 0:
             self.mesh.set_material_by_line(entity_id, material)
         elif self.file.get_import_type() == 1:
             self.mesh.set_material_by_element('all', material)
-
         self._set_entity_material(entity_id, material)
     
-    def load_stress_stiffening_by_elements(self, elements_id, parameters):
-        self.mesh.set_stress_stiffening_by_elements(elements_id, parameters)
+    def load_stress_stiffening_by_elements(self, elements_id, parameters, section=None):
+        self.mesh.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
 
     def load_stress_stiffening_by_entity(self, entity_id, parameters):
         # print(entity_id, parameters)
@@ -457,7 +462,6 @@ class Project:
             self.mesh.set_fluid_by_line(entity_id, fluid)
         elif self.file.get_import_type() == 1:
             self.mesh.set_fluid_by_element('all', fluid)
-
         self._set_entity_fluid(entity_id, fluid)
 
     def load_cross_section_by_element(self, elements_id, cross_section):
@@ -468,7 +472,6 @@ class Project:
             self.mesh.set_cross_section_by_line(entity_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
-
         self._set_entity_cross_section(entity_id, cross_section)
 
     def load_element_type_by_entity(self, entity_id, element_type):
@@ -476,7 +479,6 @@ class Project:
             self.mesh.set_element_type_by_line(entity_id, element_type)
         elif self.file.get_import_type() == 1:
             self.mesh.set_element_type_by_element('all', element_type)
-
         self._set_entity_element_type(entity_id, element_type)
 
     def load_structural_loads_by_node(self, node_id, values):
@@ -617,12 +619,11 @@ class Project:
     def set_capped_end_by_line(self, lines, value):
         if isinstance(lines, int):
             lines = [lines]
+        self.mesh.set_capped_end_by_line(lines, value)
         if lines == "all":
-            self.mesh.set_capped_end_all_lines(value)
             for tag in self.mesh.all_lines:
                 self.file.modify_capped_end_entity_in_file(tag, value)
         else:
-            self.mesh.set_capped_end_by_line(lines, value)
             for tag in lines:
                 if value:
                     self.file.modify_capped_end_entity_in_file(tag, value)

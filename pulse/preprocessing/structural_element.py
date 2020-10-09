@@ -200,7 +200,7 @@ class StructuralElement:
 
         # Stress stiffening
         sigma_1a, sigma_1t = self.stress_stiffening()
-
+ 
         # Shear coefficiets
         aly = 1/res_y
         alz = 1/res_z
@@ -241,6 +241,7 @@ class StructuralElement:
 
         Kabe = 0
         Ktse = 0
+        Kabt_geo = 0
 
         for point, weigth in zip( points, weigths ):
 
@@ -266,7 +267,7 @@ class StructuralElement:
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
-            Kabt_geo += Bab.T @ (sigma_1a + sigma_1t) @ Bab * det_jacob * weigth
+            Kabt_geo += (sigma_1a + sigma_1t) * Bab.T @ Bab * det_jacob * weigth
               
         Ke = Kabe + Ktse + Kabt_geo
 

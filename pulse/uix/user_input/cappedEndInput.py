@@ -267,6 +267,8 @@ class CappedEndInput(QDialog):
             self.remove_line_group()
 
     def get_list_typed_entries(self):
+        if self.lineEdit_selected_ID.text() == "":
+            return []
         tokens = self.lineEdit_selected_ID.text().strip().split(',')
         try:
             tokens.remove('')
@@ -278,12 +280,12 @@ class CappedEndInput(QDialog):
     def check_input_elements(self):
         
         try:
-            self.elements_typed = np.sort(self.get_list_typed_entries()).tolist()
-            if self.lineEdit_selected_ID.text()=="":
+            if self.lineEdit_selected_ID.text() == "":
                 title = "Error: empty Element ID input"
                 message = "Inform a valid Element ID before to confirm the input!"
                 self.info_text = [title, message, window_title1]
                 return True
+            self.elements_typed = np.sort(self.get_list_typed_entries()).tolist()
         except Exception:
             title = "Error: invalid Element ID input"
             message = "Wrong input for Element ID's!"
@@ -303,12 +305,12 @@ class CappedEndInput(QDialog):
     def check_input_lines(self):
         
         try:
-            self.lines_typed = self.get_list_typed_entries()
-            if self.lineEdit_selected_ID.text()=="":
+            if self.lineEdit_selected_ID.text() == "":
                 title = "Error: empty Line ID input"
                 message = "Inform a valid Line ID before \nto confirm the input.."
                 self.info_text = [title, message, window_title1]
                 return True
+            self.lines_typed = self.get_list_typed_entries()
         except Exception:
             title = "Error: invalid Line ID input"
             message = "Wrong input for Line ID."
@@ -333,7 +335,7 @@ class CappedEndInput(QDialog):
 
         elif self.flagElements:
             if self.check_input_elements():
-                PrintMessageInput([self.info_text])
+                PrintMessageInput(self.info_text)
                 return
 
             size = len(self.project.mesh.group_elements_with_capped_end)
@@ -380,7 +382,7 @@ class CappedEndInput(QDialog):
         
         elif self.flagEntity:
             if self.check_input_lines():
-                PrintMessageInput([self.info_text])
+                PrintMessageInput(self.info_text)
                 return
 
             self.set_capped_end_to_lines()
@@ -513,8 +515,8 @@ class GetInformationOfGroup(QDialog):
         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
         
-        self.treeWidget_group_info.setColumnWidth(1, 20)
-        self.treeWidget_group_info.setColumnWidth(2, 140)
+        self.treeWidget_group_info.setColumnWidth(0, 80)
+        self.treeWidget_group_info.setColumnWidth(1, 140)
         self.treeWidget_group_info.itemClicked.connect(self.on_click_item_)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
