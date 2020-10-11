@@ -405,12 +405,7 @@ class InputUi:
             if self.frequencies is None:
                 return
             if len(self.frequencies) == 0:
-                return          
-        
-        if self.analysis_ID == 4:
-            # Temporary: breaking code execution to avoid errors in interface usage
-            error("The Acoustic Modal Analysis is under development \nand, therefore, it is not currently available.", title=" WARNING ")
-            return
+                return
 
         if self.analysis_ID == 2:
             self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
@@ -500,13 +495,13 @@ class InputUi:
     def plotAcousticModeShapes(self):
         self.project.plot_pressure_field = True
         solution = self.project.get_acoustic_solution()
-        if self.analysis_ID == 2:
+        if self.analysis_ID == 4:
             if solution is None:
                 return
             plot = PlotAcousticModeShapeInput(self.opv, self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
-            self.opv.changeAndPlotAnalysis(plot.mode_index)
+            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True)
         else:
             return
 

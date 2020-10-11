@@ -88,26 +88,31 @@ class AcousticElement:
         cossine = np.cos(kLe, dtype='float64')
         matrix = ((1j/(sine*self.impedance))*np.array([-cossine, ones, ones, -cossine])).T
         
+        self.radiation_impedance(wave_number, self.fluid.impedance)
+        return matrix
+
+    def radiation_impedance(self, wave_number, fluid_impedance):
+        radius = self.cross_section.internal_diameter / 2
         if self.first_node.radiation_impedance_type == 0:
             self.first_node.radiation_impedance = self.fluid.impedance + 0j
         elif self.first_node.radiation_impedance_type == 1:
-            radius = self.cross_section.internal_diameter / 2
-            fluid_impedance = self.fluid.impedance
             self.first_node.radiation_impedance = unflanged_termination_impedance(wave_number, radius, fluid_impedance)
         elif self.first_node.radiation_impedance_type == 2:
-            radius = self.cross_section.internal_diameter / 2
-            fluid_impedance = self.fluid.impedance
             self.first_node.radiation_impedance = flanged_termination_impedance(wave_number, radius, fluid_impedance)
 
         if self.last_node.radiation_impedance_type == 0:
             self.last_node.radiation_impedance = self.fluid.impedance + 0j
         elif self.last_node.radiation_impedance_type == 1:
-            radius = self.cross_section.internal_diameter / 2
-            fluid_impedance = self.fluid.impedance
             self.last_node.radiation_impedance = unflanged_termination_impedance(wave_number, radius, fluid_impedance)
         elif self.last_node.radiation_impedance_type == 2:
-            radius = self.cross_section.internal_diameter / 2
-            fluid_impedance = self.fluid.impedance
             self.last_node.radiation_impedance = flanged_termination_impedance(wave_number, radius, fluid_impedance)
-        
-        return matrix
+    
+    def fem_1d_matrix(self, length_correction=0 ):
+        length = self.length + length_correction
+        rho = self.fluid.density
+        area = self.cross_section.area_fluid
+        c = self.speed_of_sound_corrected()
+
+        Ke = area/(rho*length) * np.array([[1,-1],[-1,1]])
+        Me = area * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
+        return Ke, Me

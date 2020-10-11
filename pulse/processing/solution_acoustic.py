@@ -8,30 +8,35 @@ class SolutionAcoustic:
 
     def __init__(self, mesh, frequencies):
 
-        if frequencies[0]==0:
+        if frequencies is None:
+            pass
+        elif frequencies[0]==0:
             frequencies[0] = float(1e-4)
         self.all_dofs = len(mesh.nodes)
         self.assembly = AssemblyAcoustic(mesh, frequencies)
         self.frequencies = frequencies
-
-        self.K, self.Kr = self.assembly.get_global_matrices()
-        self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
-        self.Kadd_lump = [ self.K[i] + self.K_lump[i] for i in range(len(self.frequencies))]
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
         self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
 
-      
-    def _reinsert_prescribed_dofs(self, solution):
+    def get_global_matrices(self):
+        self.K, self.Kr = self.assembly.get_global_matrices()
+        self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
+        self.Kadd_lump = [ self.K[i] + self.K_lump[i] for i in range(len(self.frequencies))]
+
+    def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
 
         rows = self.all_dofs
         cols = solution.shape[1]
 
         full_solution = np.zeros((rows, cols), dtype=complex)
         full_solution[self.get_pipe_and_unprescribed_indexes, :] = solution
-        full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
+        if modal_analysis:
+            full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
+        else:
+            full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         
         return full_solution
 
@@ -69,6 +74,7 @@ class SolutionAcoustic:
 
         """ 
         """
+        self.get_global_matrices()
         volume_velocity = self.get_combined_volume_velocity()
 
         rows = self.K[0].shape[0]
@@ -81,3 +87,26 @@ class SolutionAcoustic:
         solution = self._reinsert_prescribed_dofs(solution)
 
         return solution
+
+    def modal_analysis(self, modes=20, which='LM', sigma=0.01):
+
+        K, M = self.assembly.get_global_matrices_modal()
+        
+        eigen_values, eigen_vectors = eigs(K, M=M, k=modes, which=which, sigma=sigma)
+
+        positive_real = np.absolute(np.real(eigen_values))
+        natural_frequencies = np.sqrt(positive_real)/(2*np.pi)
+        modal_shape = np.real(eigen_vectors)
+
+        index_order = np.argsort(natural_frequencies)
+        natural_frequencies = natural_frequencies[index_order]
+        modal_shape = modal_shape[:, index_order]
+
+        modal_shape = self._reinsert_prescribed_dofs(modal_shape, modal_analysis=True)
+        for value in self.prescribed_values:
+            if value is not None:
+                if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
+                    self.flag_Modal_prescribed_NonNull_DOFs = True
+                    self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                                                        "The null value has been attributed to those DOFs with non-zero values."]
+        return natural_frequencies, modal_shape
