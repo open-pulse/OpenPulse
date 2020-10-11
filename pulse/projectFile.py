@@ -246,6 +246,7 @@ class ProjectFile:
         self.temp_dict = {}
         self.dict_stress_stiffening = {}
         self.dict_capped_end = defaultdict(list)
+        self.dict_B2XP_rotation_decoupling = {}
 
         title = "ERROR WHILE LOADING DATA FROM FILE"
 
@@ -471,6 +472,23 @@ class ProjectFile:
                 window_title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
                 message = str(er)
                 PrintMessageInput([title, message, window_title])
+
+            try:
+                if "B2PX ROTATION DECOUPLING" in section:
+                    if 'list of elements' in  element_file[section].keys():
+                        _list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(_list_elements)
+                    if 'list of nodes' in  element_file[section].keys():
+                        _list_nodes = element_file[section]['list of nodes']
+                        get_list_nodes = self._get_list_of_values_from_string(_list_nodes)
+                    if 'rotation dofs mask' in  element_file[section].keys():
+                        _dofs_mask = element_file[section]['rotation dofs mask']
+                        get_dofs_mask = self._get_list_bool_from_string(_dofs_mask)
+                    self.dict_B2XP_rotation_decoupling[section] = [get_list_elements, get_list_nodes, get_dofs_mask]
+            except Exception as er: 
+                window_title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
+                message = str(er)
+                PrintMessageInput([title, message, window_title])
                 
 
     def add_cross_section_in_file(self, entity_id, cross_section):   
@@ -578,6 +596,30 @@ class ProjectFile:
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
     
+    def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+
+        if remove:
+            config.remove_section(section)
+        elif reset:
+            for section in list(config.sections()):
+                if 'B2PX ROTATION DECOUPLING' in section:
+                    config.remove_section(section) 
+        else:
+            if section in list(config.sections()):
+                config[section]['list of elements'] = str(elements)
+                config[section]['list of nodes'] = str(nodes)
+                config[section]['rotation dofs mask'] = str(rotations_maks)
+            else:
+                config[section] = { 'list of elements': str(elements),
+                                    'list of nodes': str(nodes),
+                                    'rotation dofs mask': str(rotations_maks) }
+
+        with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
+
     def modify_stress_stiffnening_entity_in_file(self, entity_id, parameters, remove=False,): 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -792,6 +834,13 @@ class ProjectFile:
             if offset[1] != '0.0':
                 offset_z = float(offset[1])
         return offset_y, offset_z
+
+    def _get_list_bool_from_string(self, input_string):
+        for text in ["[", "]", " "]:
+            input_string = input_string.replace(text,"")
+        list_of_strings = input_string.strip().split(",")
+        list_bool = [True if item=="True" else False for item in list_of_strings]
+        return list_bool
 
     def _get_list_of_values_from_string(self, input_string, are_values_int=True):
         

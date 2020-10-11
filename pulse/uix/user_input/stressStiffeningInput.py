@@ -12,9 +12,8 @@ from pulse.uix.user_input.printMessageInput import PrintMessageInput
 import numpy as np
 import matplotlib.pyplot as plt
 
-window_title = "ERROR MESSAGE"
-window_title1 = "ERROR"
-window_title2 = "WARNING"
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
 class StressStiffeningInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -299,12 +298,12 @@ class StressStiffeningInput(QDialog):
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Element ID input"
                 message = "Inform a valid Element ID before \nto confirm the input."
-                self.info_text = [title, message, window_title]     
+                self.info_text = [title, message, window_title1]     
                 return True
         except Exception:
             title = "Error: invalid Element ID input"
             message = "Wrong input for Node ID's."
-            self.info_text = [title, message, window_title]   
+            self.info_text = [title, message, window_title1]   
             return True
 
         try:
@@ -313,7 +312,7 @@ class StressStiffeningInput(QDialog):
         except Exception:
             title = "Error: invalid Element ID input"
             message = " The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message, window_title]
+            self.info_text = [title, message, window_title1]
             return True
         return False
 
@@ -330,12 +329,12 @@ class StressStiffeningInput(QDialog):
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Line ID input"
                 message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message, window_title]
+                self.info_text = [title, message, window_title1]
                 return True
         except Exception:
             title = "Error: invalid Line ID input"
             message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title]
+            self.info_text = [title, message, window_title1]
             return True
         try:
             for line in self.lines_typed:
@@ -343,7 +342,7 @@ class StressStiffeningInput(QDialog):
         except Exception:
             title = "Error: invalid Line ID"
             message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message, window_title]
+            self.info_text = [title, message, window_title1]
             return True
         return False
 
@@ -358,7 +357,7 @@ class StressStiffeningInput(QDialog):
         if not (self.flag_thermal_effect or self.flag_pressure_effect):
             title = "NONE EFFECT HAS BEEN SELECTED"
             message = "Please, enable at least one effect \nbefore to confirm the attribution."
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title1])
             self.stop = True
             return True
 
@@ -415,7 +414,7 @@ class StressStiffeningInput(QDialog):
                 return
             title = "STRESS STIFFENING INPUT ERROR"
             message = "Wrong input to the {}.".format(self.error_label)
-            PrintMessageInput([title, message, window_title])
+            PrintMessageInput([title, message, window_title1])
         else:
 
             if self.flagElements:
@@ -461,8 +460,6 @@ class StressStiffeningInput(QDialog):
                                     self.replaced = True
                         self.dictkey_to_remove = None 
 
-                # self.project.set_stress_stiffening_by_elements(section, self.elements_typed, self.stress_stiffening_parameters)
-
             elif self.flagEntity:
                 if self.check_input_lines():
                     PrintMessageInput(self.info_text) 
@@ -492,10 +489,10 @@ class StressStiffeningInput(QDialog):
         self.update_info()
         self.update_buttons_()
         self.lineEdit_selected_ID.setText("")
-        window_title = "WARNING MESSAGE"
+        
         title = "STRESS STIFFENING REMOVAL"
         message = "The stress stiffening applied \nto all lines has been removed."
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([title, message, window_title2])
 
     def remove_elements(self, key, reset=False):
         section = key        

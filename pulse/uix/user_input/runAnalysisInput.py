@@ -72,7 +72,7 @@ class RunAnalysisInput(QDialog):
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = self.solve.get_reactions_at_springs_and_dampers()
 
         elif self.analysis_ID == 2: # Structural Modal Analysis
-            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes)
+            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
 
         elif self.analysis_ID == 4: # Acoustic Modal Analysis
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes)

@@ -28,6 +28,7 @@ class Mesh:
         self.group_elements_with_stress_stiffening = {}
         self.group_lines_with_capped_end = {}
         self.dict_lines_with_stress_stiffening = {}
+        self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
         self.connectivity_matrix = []
         self.nodal_coordinates_matrix = []
@@ -43,10 +44,11 @@ class Mesh:
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
         self.element_with_capped_end = []
+        self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
+        self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
-        self.elements_with_decoupled_dofs = []
         self.radius = {}
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
@@ -114,62 +116,118 @@ class Mesh:
         return neighboor_elments[node]
 
 
-    def set_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False]):
+    def set_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False], remove=False):
+        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        N = DOF_PER_NODE_STRUCTURAL
+        mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
 
-        _base = np.array([[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-                             [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                             [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                             [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                             [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                             [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                             [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]])
+        neighboor_elements = self.neighboor_elements_of_node(node_ID)
+        if len(neighboor_elements)<3:
+            return mat_ones
+        
+        mat_base = np.array(  [[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+                            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]  )
         
         node = self.nodes[node_ID]
         element = self.structural_elements[element_ID]
-        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
-        N = DOF_PER_NODE_STRUCTURAL
-
-        if rotations_to_decouple.count(False) == 3:
-            mat_out = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+        
+        if rotations_to_decouple.count(False) == 3 or remove:
+            mat_out = mat_ones
 
         elif rotations_to_decouple.count(True) == 3:  
-            mat_out = _base
+            mat_out = mat_base
 
         elif node in [element.first_node]:
   
-            temp = _base[:int(N/2), :int(N/2)].copy()
-            _base[:N,:N] = np.zeros((N,N), dtype=int)
-            _base[:int(N/2), :int(N/2)] = temp
+            temp = mat_base[:int(N/2), :int(N/2)].copy()
+            mat_base[:N,:N] = np.zeros((N,N), dtype=int)
+            mat_base[:int(N/2), :int(N/2)] = temp
 
             for index, value in enumerate(rotations_to_decouple):
                 if not value:
                     ij = index + int(N/2)
-                    _base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    _base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = _base
+                    mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    mat_base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = mat_base
 
         elif node in [element.last_node]:
    
-            temp = _base[N:int(3*N/2), N:int(3*N/2)].copy()
-            _base[N:,N:] = np.zeros((N,N), dtype=int)
-            _base[N:int(3*N/2), N:int(3*N/2)] = temp
+            temp = mat_base[N:int(3*N/2), N:int(3*N/2)].copy()
+            mat_base[N:,N:] = np.zeros((N,N), dtype=int)
+            mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
 
             for index, value in enumerate(rotations_to_decouple):
                 if not value:
                     ij = index + int(3*N/2)
-                    _base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    _base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = _base
+                    mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    mat_base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = mat_base
 
-        element.decoupling_matrix = mat_out 
+        section = str(rotations_to_decouple)
+        element.decoupling_matrix = mat_out
         element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
-        self.elements_with_decoupled_dofs.append(element)
- 
+
+        if remove:
+
+            if element_ID in self.dict_elements_with_B2PX_rotation_decoupling[section]:
+                self.dict_elements_with_B2PX_rotation_decoupling[section].remove(element_ID)  
+            if node_ID in self.dict_nodes_with_B2PX_rotation_decoupling[section]:
+                self.dict_nodes_with_B2PX_rotation_decoupling[section].remove(node_ID)
+            
+            element.decoupling_info = None
+
+        else: 
+                     
+            if section not in list(self.dict_elements_with_B2PX_rotation_decoupling.keys()):
+                self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
+                self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID)  
+
+            count = 0
+            temp_dict = self.dict_elements_with_B2PX_rotation_decoupling.copy()
+            for key, elements in temp_dict.items(): 
+                count += 1
+                temp_list_nodes = self.dict_nodes_with_B2PX_rotation_decoupling[key].copy()
+                temp_list_elements = self.dict_elements_with_B2PX_rotation_decoupling[key].copy()  
+                
+                if key == str([False,False,False]):
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes.remove(node_ID)
+                                temp_list_elements.remove(element_ID)
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+
+                elif key == section:
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes[index] = node_ID
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+                    else:
+                        self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
+                        self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID) 
+
+                elif key != section:
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes.remove(node_ID)
+                                temp_list_elements.remove(element_ID)
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+                
         return mat_out  
 
     def _initialize_gmsh(self, path):
@@ -779,10 +837,8 @@ class Mesh:
 
                 if len(elements_node_first) > 2:
                     list_gdofs.remove(gdofs_node_first)
-                    # print("Node: {} || Global dofs: {}".format(element.first_node.external_index, gdofs_node_first))
                 if len(elements_node_last) > 2:
                     list_gdofs.remove(gdofs_node_last) 
-                    # print("Node: {} || Global dofs: {}".format(element.last_node.external_index, gdofs_node_last))     
 
         beam_gdofs = np.array(list_gdofs).flatten()
         return beam_gdofs

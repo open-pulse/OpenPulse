@@ -157,6 +157,7 @@ class Project:
         dict_element_length_correction = self.file.dict_length_correction
         dict_capped_end = self.file.dict_capped_end
         dict_stress_stiffening = self.file.dict_stress_stiffening
+        dict_B2PX_rotation_decoupling = self.file.dict_B2XP_rotation_decoupling
 
         self.lines_multiples_cross_sections = []
 
@@ -185,10 +186,16 @@ class Project:
             else:
                 self.load_cross_section_by_entity(int(key), cross)
 
+        # B2PX Rotation Decoupling
+        for key, item in dict_B2PX_rotation_decoupling.items():
+            if "B2PX ROTATION DECOUPLING" in str(key):
+                self.mesh.dict_B2PX_rotation_decoupling[str(item[2])] = [item[0], item[1], key]
+                for i in range(len(item[0])):
+                    self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
+                    
         # Stress Stiffening to Entities and Elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
-                print(key)
                 self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
             else:
                 self.load_stress_stiffening_by_entity(key, parameters)        
@@ -268,7 +275,6 @@ class Project:
             
             if len(dict_multiple_cross_sections) == 1:
                 if np.sort(list_elements).tolist() == np.sort(list(dict_multiple_cross_sections.values()))[0].tolist():
-                    # print("Line: {}".format(line))
                     self.set_cross_section_by_entity(line, _cross_section)
             else:
                 self.file.add_multiple_cross_section_in_file(line, dict_multiple_cross_sections)     
@@ -391,6 +397,39 @@ class Project:
         labels = ["displacements", "rotations"]
         self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
 
+    def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove=False):
+        self.mesh.set_B2PX_rotation_decoupling(element_id, node_id, rotations_to_decouple=rotations_mask, remove=remove)
+        count_add, count_remove = 0, 0
+        temp_dict = self.mesh.dict_elements_with_B2PX_rotation_decoupling.copy()
+
+        for key, elements in temp_dict.items():
+            count_add += 1
+            section_key = "B2PX ROTATION DECOUPLING || Selection-{}".format(count_add-count_remove)              
+            nodes = self.mesh.dict_nodes_with_B2PX_rotation_decoupling[key] 
+
+            if elements != []:   
+                self.file.modify_B2PX_rotation_decoupling_in_file(elements, nodes, key, section_key)
+                self.mesh.dict_B2PX_rotation_decoupling[key] = [elements, nodes, section_key]
+
+            elif elements == [] or rotations_mask==str([False, False, False]):
+                count_remove += 1
+                self.file.modify_B2PX_rotation_decoupling_in_file(elements, nodes, key, section_key, remove=True)
+                self.mesh.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
+                self.mesh.dict_elements_with_B2PX_rotation_decoupling.pop(key)
+                self.mesh.dict_B2PX_rotation_decoupling.pop(key)
+
+    def reset_B2PX_totation_decoupling(self):
+        N = self.mesh.DOFS_ELEMENT
+        mat_reset = np.ones((N,N), dtype=int)
+        for list_elements in self.mesh.dict_elements_with_B2PX_rotation_decoupling.values():
+            for element_ID in list_elements:
+                element = self.mesh.structural_elements[element_ID]
+                element.decoupling_matrix = mat_reset
+                element.decoupling_info = None
+        self.mesh.dict_nodes_with_B2PX_rotation_decoupling = {}
+        self.mesh.dict_elements_with_B2PX_rotation_decoupling = {}
+        self.file.modify_B2PX_rotation_decoupling_in_file([], [], [], [], reset=True)
+
     def set_loads_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_structural_load_bc_by_node(node_id, values)
         labels = ["forces", "moments"]
@@ -450,7 +489,6 @@ class Project:
         self.mesh.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
 
     def load_stress_stiffening_by_entity(self, entity_id, parameters):
-        # print(entity_id, parameters)
         if self.file.get_import_type() == 0:
             self.mesh.set_stress_stiffening_by_line(entity_id, parameters)
         elif self.file.get_import_type() == 1:
@@ -492,6 +530,9 @@ class Project:
 
     def load_damper_by_node(self, node_id, dampings):
         self.mesh.add_damper_to_node(node_id, dampings)
+    
+    def load_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple):
+        self.mesh.set_B2PX_rotation_decoupling(element_ID, node_ID, rotations_to_decouple=rotations_to_decouple)
     
     def load_capped_end_by_elements(self, elements, value, selection):
         self.mesh.set_capped_end_by_elements(elements, value, selection)
@@ -702,8 +743,9 @@ class Project:
                 return False
         return True
 
-    def set_modes(self, modes):
+    def set_modes_sigma(self, modes, sigma=1e-2):
         self.modes = modes
+        self.sigma = sigma
 
     def get_frequencies(self):
         return self.frequencies

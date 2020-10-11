@@ -1176,7 +1176,7 @@
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>11</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <italic>false</italic>
         <bold>true</bold>
@@ -1189,7 +1189,7 @@
        <enum>QFrame::Sunken</enum>
       </property>
       <property name="text">
-       <string>Select a group to remove the capped end setting:</string>
+       <string>Get more info or remove a selected group:</string>
       </property>
       <property name="textFormat">
        <enum>Qt::AutoText</enum>

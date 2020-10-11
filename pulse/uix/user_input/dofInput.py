@@ -245,7 +245,6 @@ class DOFInput(QDialog):
     def check_single_values(self):
 
         if self.check_input_nodes():
-            print("deveria parar")
             return
 
         if self.lineEdit_real_alldofs.text() != "" or self.lineEdit_imag_alldofs.text() != "":
@@ -356,7 +355,6 @@ class DOFInput(QDialog):
         imag_values = np.imag(self.imported_values)
         abs_values = np.imag(self.imported_values)
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
-        print(self.new_load_path_table)
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
         return values
 

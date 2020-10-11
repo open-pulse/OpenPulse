@@ -105,7 +105,7 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.AddActor2D(self.textActorStress)
 
     def updateInfoText(self):
-        mode = self.project.get_modes()
+        mode = self.frequencyIndice+1
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:

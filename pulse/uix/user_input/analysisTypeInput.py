@@ -27,6 +27,7 @@ class AnalysisTypeInput(QDialog):
         self.analysis_method_label = None
 
         self.modes = 0
+        self.sigma_factor = 1e-4
 
         #Analysis ID 0 ==> Structural Harmonic Analysis - Direct Method
         #Analysis ID 1 ==> Structural Harmonic Analysis - Mode Superposition Method
@@ -101,6 +102,7 @@ class AnalysisTypeInput(QDialog):
         if modal.modes is None:
             return
         self.modes = modal.modes
+        self.sigma_factor = modal.sigma_factor
         self.analysis_ID = 2
         self.analysis_type_label = "Structural Modal Analysis"
         self.complete = modal.complete

@@ -110,7 +110,7 @@ class InputUi:
     def setRotationDecoupling(self):
         read = DecouplingRotationDOFsInput(self.project, self.opv)  
         if read.complete:
-            self.project.mesh.set_rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
+            # self.project.mesh.set_rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
             print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
 
@@ -327,7 +327,7 @@ class InputUi:
             return
  
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
-        self.project.set_modes(read.modes)
+        self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         self.project.set_acoustic_solution(None)
         self.project.set_structural_solution(None)
 
@@ -375,7 +375,7 @@ class InputUi:
         self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
-            self.project.set_modes(setup.modes)
+            self.project.set_modes_sigma(setup.modes)
             self.project.set_damping(self.global_damping)
         else:
             return False

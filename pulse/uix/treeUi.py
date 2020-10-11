@@ -252,38 +252,70 @@ class TreeUi(QTreeWidget):
         
     def on_click_item(self, item, column):
         self.mainWindow.getInputWidget().beforeInput()
+
         if item.text(0) == self.name_child_set_material:
+            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_material()
+
         elif item.text(0) == self.name_child_set_fluid: 
+            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_fluid()
+
         elif item.text(0) == self.name_child_setAcousticPressure:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setAcousticPressure()
+
         elif item.text(0) == self.name_child_setVolumeVelocity: 
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setVolumeVelocity()
+
         elif item.text(0) == self.name_child_setSpecificImpedance:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setSpecificImpedance()
+
         elif item.text(0) == self.name_child_set_radiation_impedance:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().set_radiation_impedance()
+
         elif item.text(0) == self.name_child_add_perforated_plate:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_perforated_plate()
+
         elif item.text(0) == self.name_child_set_acoustic_element_length_correction:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
+
         elif item.text(0) == self.name_child_set_crossSection:
             self.mainWindow.getInputWidget().set_cross_section()
+            self.mainWindow.plot_entities_radius()
+
         elif item.text(0) == self.name_child_setElementType:
             self.mainWindow.getInputWidget().setElementType()
+
         elif item.text(0) == self.name_child_setRotationDecoupling:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setRotationDecoupling()
+
         elif item.text(0) == self.name_child_setPrescribedDofs:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setDOF()
+
         elif item.text(0) == self.name_child_setNodalLoads:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setNodalLoads()
+
         elif item.text(0) == self.name_child_addMassSpringDamper:
+            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().addMassSpringDamper()
+
         elif item.text(0) == self.name_child_setcappedEnd:
+            # self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().setcappedEnd()
+
         elif item.text(0) == self.name_child_set_stress_stiffening:
+            # self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analysisTypeInput()
             self._updateItems()
