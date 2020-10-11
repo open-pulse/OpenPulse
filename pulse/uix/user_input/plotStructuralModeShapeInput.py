@@ -32,7 +32,6 @@ class PlotStructuralModeShapeInput(QDialog):
 
         self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
         self.lineEdit_natural_frequency.setDisabled(True)
-        # self.lineEdit_mode = self.findChild(QLineEdit, 'lineEdit_mode')
 
         self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
         self.treeWidget.setColumnWidth(0, 120)
