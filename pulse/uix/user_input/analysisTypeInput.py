@@ -113,6 +113,7 @@ class AnalysisTypeInput(QDialog):
         if modal.modes is None:
             return
         self.modes = modal.modes
+        self.sigma_factor = modal.sigma_factor
         self.analysis_ID = 4
         self.analysis_type_label = "Acoustic Modal Analysis"
         self.complete = modal.complete
