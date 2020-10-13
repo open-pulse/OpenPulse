@@ -193,8 +193,9 @@ class DecouplingRotationDOFsInput(QDialog):
             return True
 
         try:
-            for element in self.element_typed:
-                self.element_id = self.structural_elements[element].index
+            for elem_ID in self.element_typed:
+                self.element = self.structural_elements[elem_ID]
+                self.element_id = self.structural_elements[elem_ID].index
         except Exception:
             message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
             title = "Error: invalid Element ID input"
@@ -243,10 +244,16 @@ class DecouplingRotationDOFsInput(QDialog):
             message = "There are no rotation DOFs decoupling in the current setup. \nYou should tick at least one rotation DOF before continue."
             PrintMessageInput([title, message, window_title1])
             return 
-
-        self.project.set_B2PX_rotation_decoupling(self.element_id, self.selected_node_id, self.rotations_mask)
-        self.complete = True
-        self.close()
+        
+        if self.element.element_type in ['beam_1']:
+            self.project.set_B2PX_rotation_decoupling(self.element_id, self.selected_node_id, self.rotations_mask)
+            self.complete = True
+            self.close()
+        else:
+            title = "INVALID DECOUPLING SETUP"
+            message = "The selected element have a {} formulation, you should have a \nBEAM_1 element type in selection to decouple the rotation dofs. \nTry to choose another element or change the element type formulation.".format(self.element.element_type.upper())
+            PrintMessageInput([title, message, window_title1])
+            return
 
     def check_reset_all(self):
         self.project.reset_B2PX_totation_decoupling()

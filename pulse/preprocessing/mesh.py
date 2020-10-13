@@ -46,6 +46,7 @@ class Mesh:
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
+        self.dict_element_type_to_lines = defaultdict(list)
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -454,10 +455,12 @@ class Mesh:
         for node in self.nodes.values():
             node.global_index = None
 
-    def set_element_type_by_element(self, elements, element_type):
-        self.element_type = element_type
+    def set_element_type_by_element(self, elements, element_type, remove=False):
+        # self.element_type = element_type
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
+        if remove:
+            self.dict_element_type_to_lines.pop(element_type)
     
     def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False):
         if update_cross_section:
@@ -474,9 +477,26 @@ class Mesh:
         for elements in slicer(self.line_to_elements, line):
             self.set_cross_section_by_element(elements, cross_section)
     
-    def set_element_type_by_line(self, line, element_type):
+    def set_element_type_by_line(self, line, element_type, remove=False):
         for elements in slicer(self.line_to_elements, line):
             self.set_element_type_by_element(elements, element_type)
+
+        if remove:
+            self.dict_element_type_to_lines.pop(element_type)
+        elif element_type != "":
+            temp_dict = self.dict_element_type_to_lines.copy()
+            if element_type not in list(temp_dict.keys()):
+                self.dict_element_type_to_lines[element_type].append(line)
+            else:
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_element_type_to_lines[key].remove(line)
+                    else:
+                        if line not in lines:
+                            self.dict_element_type_to_lines[key].append(line)
+                    if self.dict_element_type_to_lines[key] == []:
+                        self.dict_element_type_to_lines.pop(key)
 
     # Structural physical quantities
     def set_material_by_element(self, elements, material):       

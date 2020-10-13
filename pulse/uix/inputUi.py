@@ -89,30 +89,15 @@ class InputUi:
         return load_project.complete
 
     def setElementType(self):
-        entities_id = self.opv.getListPickedEntities()
-        read = ElementTypeInput(self.project, entities_id)
-        # if read.element_type is None:
-        #     return
-        if read.flagEntity:
-            if len(entities_id) == 0:
-                return
-            for entity in entities_id:
-                self.project.set_element_type_by_entity(entity, read.element_type)
-            print("[Set Element Type] - defined in the entities {}".format(entities_id))
-        else:
-            self.project.set_element_type_to_all(read.element_type)
-            print("[Set Element Type] - defined in all the entities")
-        
-        if read.update_cross_section:
-            self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
-
+        read = ElementTypeInput(self.project, self.opv)
+        if read.complete:           
+            if read.update_cross_section:
+                self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
 
     def setRotationDecoupling(self):
         read = DecouplingRotationDOFsInput(self.project, self.opv)  
         if read.complete:
-            # self.project.mesh.set_rotation_decoupling(read.element_id, read.selected_node_id, read.rotations_mask)
             print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
-
 
     def set_material(self):
         mat = MaterialInput(self.opv, self.project.get_material_list_path())

@@ -696,15 +696,15 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_element_type_in_file(self, entity_id, element_type):
+    def modify_element_type_in_file(self, entity_id, element_type):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
+
         if str(entity_id) in list(config.sections()):
             config[str(entity_id)]['element type'] = element_type
         else:
-            config[str(entity_id)] = { 
-                                        'element type': element_type
-                                     }    
+            config[str(entity_id)] = { 'element type': element_type }   
+
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
