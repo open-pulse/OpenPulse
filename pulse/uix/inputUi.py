@@ -501,7 +501,7 @@ class InputUi:
             plot = PlotAcousticModeShapeInput(self.opv, self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
-            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True)
+            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True, real_part = plot.real_part)
         else:
             return
 

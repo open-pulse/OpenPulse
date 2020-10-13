@@ -16,7 +16,7 @@ window_title2 = "WARNING MESSAGE"
 class PlotAcousticModeShapeInput(QDialog):
     def __init__(self, opv, natural_frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/plotStructuralModeShapeInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/plotAcousticModeShapeInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -41,10 +41,23 @@ class PlotAcousticModeShapeInput(QDialog):
         self.treeWidget.itemClicked.connect(self.on_click_item)
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 
+        self.radioButton_real_part = self.findChild(QRadioButton, 'radioButton_real_part')
+        self.radioButton_real_part.toggled.connect(self.radioButtonEvent)
+
+        # self.radioButton_abs = self.findChild(QRadioButton, 'radioButton_abs')
+        # self.radioButton_abs.toggled.connect(self.radioButtonEvent)
+
+        self.real_part = self.radioButton_real_part.isChecked()
+        self.abs_part = self.radioButton_abs.isChecked()
+
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.confirm_selection)
         self.load()
         self.exec_()
+
+    def radioButtonEvent(self):
+        self.real_part = self.radioButton_real_part.isChecked()
+        # self.abs_part = self.radioButton_abs.isChecked()
 
     def get_dict_modes_frequencies(self):
         modes = np.arange(1,len(self.natural_frequencies)+1,1)
