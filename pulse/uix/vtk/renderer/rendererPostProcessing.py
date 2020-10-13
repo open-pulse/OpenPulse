@@ -39,14 +39,15 @@ class RendererPostProcessing(vtkRendererBase):
         else:
             return ColorTable(self.project, r_def)
 
-    def plot(self, pressure_field_plot=False, stress_field_plot=False):
+    def plot(self, pressure_field_plot=False, stress_field_plot=False,  real_part = True):
         self.reset()
         self.stress_field_plot = stress_field_plot
         self.pressure_field_plot = pressure_field_plot
         if self.pressure_field_plot:
             _, connect, coord, r_def = get_acoustic_response( self.project.get_mesh(), 
                                                               self.project.get_acoustic_solution(), 
-                                                              self.frequencyIndice)
+                                                              self.frequencyIndice,
+                                                              real_part = real_part)
         else:
             connect, coord, r_def, self.valueFactor = get_structural_response(  self.project.get_mesh(), 
                                                                                 self.project.get_structural_solution(), 
