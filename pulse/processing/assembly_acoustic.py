@@ -197,7 +197,7 @@ class AssemblyAcoustic:
 
         # for index, element in enumerate(self.mesh.acoustic_elements.values()):
         for element in self.acoustic_elements:
-            index = element.index
+            index = element.index - 1
             length_correction = self.get_length_corretion(element)
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)            
 
