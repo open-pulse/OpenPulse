@@ -381,7 +381,7 @@ class Project:
         self.mesh.set_element_type_by_element('all', element_type)
         self._set_all_entity_element_type(element_type)
         for entity in self.mesh.entities:
-            self.file.add_element_type_in_file(entity.get_tag(), element_type)
+            self.file.modify_element_type_in_file(entity.get_tag(), element_type)
 
     def set_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
@@ -390,8 +390,8 @@ class Project:
             self.mesh.set_element_type_by_element('all', element_type)
 
         self._set_entity_element_type(entity_id, element_type)
-        self.file.add_element_type_in_file(entity_id, element_type)
-
+        self.file.modify_element_type_in_file(entity_id, element_type)
+        
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]

@@ -230,47 +230,50 @@ class PlotCrossSectionInput(QDialog):
             theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
             d_in = d_out - 2*thickness
 
-            Zp_out = (d_out/2)*np.cos(theta)
-            Yp_out = (d_out/2)*np.sin(theta)
-            Zp_in = (d_in/2)*np.cos(-theta)
-            Yp_in = (d_in/2)*np.sin(-theta)
+            Yp_out = (d_out/2)*np.cos(theta)
+            Zp_out = (d_out/2)*np.sin(theta)
+            Yp_in = (d_in/2)*np.cos(-theta)
+            Zp_in = (d_in/2)*np.sin(-theta)
 
-            Zp_list = [list(Zp_out), list(Zp_in),[0]]
-            Yp_list = [list(Yp_out), list(Yp_in), [-(d_out/2)]]
+            Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
 
-            Zp_right = [value for _list in Zp_list for value in _list]
             Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_left = -np.flip(Zp_right)
-            Yp_left = np.flip(Yp_right)
+            Zp_right = [value for _list in Zp_list for value in _list]
 
-            Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
+            Yp_left = -np.flip(Yp_right)
+            Zp_left =  np.flip(Zp_right)
+            
             Yp = np.array([Yp_right, Yp_left]).flatten() + Yc
-
+            Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
+            
             if insulation_thickness != float(0):
 
-                Zp_out_ins = ((d_out+2*insulation_thickness)/2)*np.cos(theta)
-                Yp_out_ins = ((d_out+2*insulation_thickness)/2)*np.sin(theta)
-                Zp_in_ins = (d_out/2)*np.cos(-theta)
-                Yp_in_ins = (d_out/2)*np.sin(-theta)
+                Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
+                Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
+                Yp_in_ins = (d_out/2)*np.cos(-theta)
+                Zp_in_ins = (d_out/2)*np.sin(-theta)
 
-                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins),[0]]
-                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [-(d_out/2)]]
+                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
+                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
 
-                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
                 Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-                Zp_left_ins = -np.flip(Zp_right_ins)
-                Yp_left_ins = np.flip(Yp_right_ins)
+                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
 
-                self.Zp_ins = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Zc
+                Yp_left_ins = -np.flip(Yp_right_ins)
+                Zp_left_ins =  np.flip(Zp_right_ins)
+
                 self.Yp_ins = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Yc
-
+                self.Zp_ins = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Zc
+                
         if self.section_type == 1: # Rectangular section
 
             b, h, b_in, h_in, Yc, Zc = self.parameters
-            Zp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
-            Yp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
-            Zp_left = -np.flip(Zp_right)
-            Yp_left = np.flip(Yp_right)
+            Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
+            Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
+
+            Yp_left = -np.flip(Yp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -288,13 +291,14 @@ class PlotCrossSectionInput(QDialog):
             Yp_in = (d_in/2)*np.cos(-theta)
             Zp_in = (d_in/2)*np.sin(-theta)
 
-            Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            Yp_list = [list(Yp_out), list(Yp_in), [0]]
             Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
 
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
+
             Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -304,19 +308,19 @@ class PlotCrossSectionInput(QDialog):
             h, w1, w2, w3, t1, t2, t3, r, Yc, Zc = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
-            Zp_list =[]
-            Zp_list.append([0, w3, w3, w2+r]) 
-            Zp_list.append(list(np.flip(-z_r+w2)))
-            Zp_list.append([w2, w2])
-            Zp_list.append(list(w2-z_r))
-            Zp_list.append([w2+r, w1, w1, 0, 0])
-
             Yp_list =[]
-            Yp_list.append([-(h/2), -(h/2), -(t2/2), -(t2/2)]) 
-            Yp_list.append(list(np.flip((-y_r+r)-(t2/2))))
-            Yp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Yp_list.append(list(y_r+(t2/2)-r))
-            Yp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)])
+            Yp_list.append([0, w3, w3, w2+r]) 
+            Yp_list.append(list(np.flip(-y_r+w2)))
+            Yp_list.append([w2, w2])
+            Yp_list.append(list(w2-y_r))
+            Yp_list.append([w2+r, w1, w1, 0, 0])
+
+            Zp_list =[]
+            Zp_list.append([-(h/2), -(h/2), -(t2/2), -(t2/2)]) 
+            Zp_list.append(list(np.flip((-z_r+r)-(t2/2))))
+            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
+            Zp_list.append(list(z_r+(t2/2)-r))
+            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)])
 
             Yp = [value for _list in Yp_list for value in _list]
             Zp = [value for _list in Zp_list for value in _list]
@@ -326,24 +330,25 @@ class PlotCrossSectionInput(QDialog):
             h, w1, w2, w3, t1, t2, t3, r, Yc, Zc = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
-            Zp_list =[]
-            Zp_list.append([0, w3/2, w3/2, (w2/2)+r]) 
-            Zp_list.append(list(np.flip(-z_r+(w2/2))))
-            Zp_list.append([w2/2, w2/2])
-            Zp_list.append(list((w2/2)-z_r))
-            Zp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
             Yp_list =[]
-            Yp_list.append([-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3)]) 
-            Yp_list.append(list(np.flip((-y_r+r)-((h/2)-t3))))
-            Yp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Yp_list.append(list(y_r+(h/2)-t1-r))
-            Yp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2)])
+            Yp_list.append([0, w3/2, w3/2, (w2/2)+r]) 
+            Yp_list.append(list(np.flip(-y_r+(w2/2))))
+            Yp_list.append([w2/2, w2/2])
+            Yp_list.append(list((w2/2)-y_r))
+            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
+
+            Zp_list =[]
+            Zp_list.append([-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3)]) 
+            Zp_list.append(list(np.flip((-z_r+r)-((h/2)-t3))))
+            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
+            Zp_list.append(list(z_r+(h/2)-t1-r))
+            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2)])
 
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
-            Yp_left =  np.flip(Yp_right)
-            Zp_left = -np.flip(Zp_right)
+
+            Yp_left = -np.flip(Yp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -353,20 +358,21 @@ class PlotCrossSectionInput(QDialog):
             h, w1, w2, t1, t2, r, Yc, Zc = self.parameters
             y_r, z_r = self.get_points_at_radius(r)
 
-            Zp_list =[]
-            Zp_list.append([0, w2/2, w2/2])
-            Zp_list.append(list((w2/2)-z_r))
-            Zp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
             Yp_list =[]
-            Yp_list.append([-(t2/2), -(t2/2), (h/2)-t1-r])
-            Yp_list.append(list(y_r+(t2/2)-r))
-            Yp_list.append([(t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1])
+            Yp_list.append([0, w2/2, w2/2])
+            Yp_list.append(list((w2/2)-y_r))
+            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
+
+            Zp_list =[]
+            Zp_list.append([-(t2/2), -(t2/2), (h/2)-t1-r])
+            Zp_list.append(list(z_r+(t2/2)-r))
+            Zp_list.append([(t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1])
 
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
-            Yp_left =  np.flip(Yp_right)
-            Zp_left = -np.flip(Zp_right)
+
+            Yp_left = -np.flip(Yp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -388,8 +394,8 @@ class PlotCrossSectionInput(QDialog):
 
             d_theta = (np.pi/2)/N
             theta = np.arange(d_theta, (np.pi/2), d_theta)
-            z_r = -r + r*np.cos(theta)
-            y_r = r*np.sin(theta)
+            y_r = -r + r*np.cos(theta)
+            z_r = r*np.sin(theta)
 
             return y_r, z_r
 
@@ -411,22 +417,22 @@ class PlotCrossSectionInput(QDialog):
         fig = plt.figure(figsize=[8,8])
         ax = fig.add_subplot(1,1,1)
 
-        first_plot, = plt.fill(Zp, Yp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(Zc, Yc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
+        first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
+        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
 
         if self.section_type == 0 and self.insulation_thickness != float(0):
-            third_plot, = plt.fill(self.Zp_ins, self.Yp_ins, color=[0.5,1,1], linewidth=2, zorder=4) 
+            third_plot, = plt.fill(self.Yp_ins, self.Zp_ins, color=[0.5,1,1], linewidth=2, zorder=4) 
             _max = np.max(np.abs(np.array([self.Zp_ins, self.Yp_ins])))*1.2
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Zc, Yc))
+            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
             third_plot.set_label("Insulation material")
             plt.legend(handles=[second_plot, third_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
         else:
-            second_plot.set_label("y: %7.5e // z: %7.5e" % (Zc, Yc))
+            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
             plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
 
         ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
-        ax.set_xlabel('z [m]', fontsize = 16, fontweight = 'bold')
-        ax.set_ylabel('y [m]', fontsize = 16, fontweight = 'bold')
+        ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
+        ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
         
         f = 1.25
         if self.section_type == 3:
