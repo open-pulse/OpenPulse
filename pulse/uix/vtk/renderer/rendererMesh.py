@@ -205,7 +205,7 @@ class RendererMesh(vtkRendererBase):
         actor = self.createActorTubes(elements)
 
         actor.GetProperty().SetColor(0.7,0.7,0.8)
-        actor.GetProperty().SetOpacity(0.05)
+        actor.GetProperty().SetOpacity(0.06)
 
         actor.GetProperty().BackfaceCullingOff()
         actor.GetProperty().ShadingOff()
@@ -273,27 +273,58 @@ class RendererMesh(vtkRendererBase):
         mapper.SetInputConnection(source.GetOutputPort())
         actor.SetMapper(mapper)
         return actor
-
+    
     def createActorTubes(self, elements):
-        source = vtk.vtkAppendPolyData()
-        mapper = vtk.vtkPolyDataMapper()
-        actor = vtk.vtkActor()
- 
-        polygon = vtk.vtkRegularPolygonSource()
-        
-        for element in elements:
-            cross_section = element.cross_section
-            if cross_section:
-                polygon.SetRadius(cross_section.external_diameter / 2)
-                polygon.SetNumberOfSides(10)
-            else:
-                polygon.SetRadius(0)
-            tube = self.generalSectionTube(element, polygon.GetOutputPort())
-            source.AddInputData(tube.GetOutput())
+        try:
+            source = vtk.vtkAppendPolyData()
+            mapper = vtk.vtkPolyDataMapper()
+            actor = vtk.vtkActor()
 
-        mapper.SetInputConnection(source.GetOutputPort())
-        actor.SetMapper(mapper)
-        return actor
+            for element in elements:
+                cross_section = element.cross_section
+                if not cross_section:
+                    continue
+
+                label, parameters, *args = cross_section.additional_section_info
+                if label == "Pipe section":
+                    polygon = vtk.vtkRegularPolygonSource()
+                    polygon.SetRadius(cross_section.external_diameter / 2)
+                    polygon.SetNumberOfSides(10)
+                else:
+                    polygon = self.createSectionPolygon(element)
+            
+                tube = self.generalSectionTube(element, polygon.GetOutputPort())
+                source.AddInputData(tube.GetOutput())
+
+            mapper.SetInputConnection(source.GetOutputPort())
+            actor.SetMapper(mapper)
+            return actor
+        except:
+            pass 
+
+    def createSectionPolygon(self, element):
+        Yp, Zp, Yc, Zc, dict_lines_to_points = self.project.get_mesh().get_cross_section_points(element.index)
+        points = vtk.vtkPoints()
+        edges = vtk.vtkCellArray()
+        data = vtk.vtkPolyData()
+        poly = vtk.vtkPolygon()
+        source = vtk.vtkTriangleFilter()
+
+        for x, y in zip(Yp, Zp):
+            points.InsertNextPoint(x-Yc, y-Zc, 0)    
+        
+        n = len(Yp)
+
+        poly.GetPointIds().SetNumberOfIds(n)
+        for i in range(n):
+            poly.GetPointIds().SetId(i,i)
+        edges.InsertNextCell(poly)
+        
+        data.SetPoints(points)
+        data.SetPolys(edges)
+        source.AddInputData(data)
+
+        return source
 
     def generalSectionTube(self, element, section):
         start = element.last_node.coordinates
