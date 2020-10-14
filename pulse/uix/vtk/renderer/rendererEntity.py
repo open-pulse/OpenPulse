@@ -226,7 +226,8 @@ class RendererEntity(vtkRendererBase):
         normalizedX = (end - start)
         normalizedX /= np.linalg.norm(normalizedX)
 
-        normalizedZ = np.cross(normalizedX, [5,7,11]) # [5,7,11] is random
+        temp = [2,3,4] # random
+        normalizedZ = np.cross(normalizedX, temp) 
         normalizedZ /= np.linalg.norm(normalizedZ)
 
         normalizedY = np.cross(normalizedZ, normalizedX)
@@ -246,6 +247,7 @@ class RendererEntity(vtkRendererBase):
         extrusion.SetInputConnection(section)
         transformation.Translate(start)
         transformation.Concatenate(matrix)
+        transformation.RotateZ(-27) # just to look cooler
         data.SetTransform(transformation)
         data.SetInputConnection(extrusion.GetOutputPort())
         data.Update()
