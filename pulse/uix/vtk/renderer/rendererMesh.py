@@ -275,16 +275,13 @@ class RendererMesh(vtkRendererBase):
         return actor
     
     def createActorTubes(self, elements):
-        try:
-            source = vtk.vtkAppendPolyData()
-            mapper = vtk.vtkPolyDataMapper()
-            actor = vtk.vtkActor()
+        source = vtk.vtkAppendPolyData()
+        mapper = vtk.vtkPolyDataMapper()
+        actor = vtk.vtkActor()
 
-            for element in elements:
-                cross_section = element.cross_section
-                if not cross_section:
-                    continue
-
+        for element in elements:
+            cross_section = element.cross_section
+            if cross_section:
                 label, parameters, *args = cross_section.additional_section_info
                 if label == "Pipe section":
                     polygon = vtk.vtkRegularPolygonSource()
@@ -292,15 +289,17 @@ class RendererMesh(vtkRendererBase):
                     polygon.SetNumberOfSides(10)
                 else:
                     polygon = self.createSectionPolygon(element)
+            else: # not cross section
+                polygon = vtk.vtkRegularPolygonSource()
+                polygon.SetRadius(0.01)
+                polygon.SetNumberOfSides(10)
             
-                tube = self.generalSectionTube(element, polygon.GetOutputPort())
-                source.AddInputData(tube.GetOutput())
+            tube = self.generalSectionTube(element, polygon.GetOutputPort())
+            source.AddInputData(tube.GetOutput())
 
-            mapper.SetInputConnection(source.GetOutputPort())
-            actor.SetMapper(mapper)
-            return actor
-        except:
-            pass 
+        mapper.SetInputConnection(source.GetOutputPort())
+        actor.SetMapper(mapper)
+        return actor
 
     def createSectionPolygon(self, element):
         Yp, Zp, Yc, Zc, dict_lines_to_points = self.project.get_mesh().get_cross_section_points(element.index)
