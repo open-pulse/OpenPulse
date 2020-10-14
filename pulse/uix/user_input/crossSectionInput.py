@@ -880,7 +880,7 @@ class CrossSectionBeamInput(QDialog):
             Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
             Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
             Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -898,17 +898,17 @@ class CrossSectionBeamInput(QDialog):
             Yp_in = (d_in/2)*np.cos(-theta)
             Zp_in = (d_in/2)*np.sin(-theta)
 
-            Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            Yp_list = [list(Yp_out), list(Yp_in), [0]]
             Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
 
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
+
             Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
-
 
         elif self.section_type == 2: # Beam: C-section
 
@@ -954,7 +954,7 @@ class CrossSectionBeamInput(QDialog):
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
             Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -977,7 +977,7 @@ class CrossSectionBeamInput(QDialog):
             Yp_right = [value for _list in Yp_list for value in _list]
             Zp_right = [value for _list in Zp_list for value in _list]
             Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
+            Zp_left =  np.flip(Zp_right)
 
             Yp = np.array([Yp_right, Yp_left]).flatten()
             Zp = np.array([Zp_right, Zp_left]).flatten()
@@ -1005,7 +1005,7 @@ class CrossSectionBeamInput(QDialog):
             return
 
         Yp, Zp = self.get_points_to_plot_section()
-        _max = np.max(np.abs(np.array([Yp,Zp])))
+        _max = np.max(np.abs(np.array([Yp, Zp])))
 
         fig = plt.figure(figsize=[8,8])
         ax = fig.add_subplot(1,1,1)

@@ -1,6 +1,6 @@
 from collections import deque
 from random import choice
-
+from collections import defaultdict
 import gmsh 
 import numpy as np
 from time import time
@@ -9,8 +9,9 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error
-from collections import defaultdict
+
 
 class Mesh:
     def __init__(self):
@@ -993,3 +994,123 @@ class Mesh:
                 if node.volume_velocity is not None:
                     self.is_there_volume_velocity = True
                     return    
+    
+    def get_cross_section_points(self, element_ID):
+
+        labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
+        dict_sections = dict(zip(labels, np.arange(7)))
+
+        element = self.structural_elements[element_ID]
+        section_label, section_parameters = element.cross_section.additional_section_info
+        section_type = dict_sections[section_label]
+        
+        # if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
+        #     return 0, 0, 0, 0
+            # N = element.cross_section.division_number
+            # d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
+            # Yc, Zc = offset_y, offset_z
+
+            # d_theta = np.pi/N
+            # theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
+            # d_in = d_out - 2*thickness
+
+            # Yp_out = (d_out/2)*np.cos(theta)
+            # Zp_out = (d_out/2)*np.sin(theta)
+            # Yp_in = (d_in/2)*np.cos(-theta)
+            # Zp_in = (d_in/2)*np.sin(-theta)
+
+            # Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            # Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
+
+            # Yp_right = [value for _list in Yp_list for value in _list]
+            # Zp_right = [value for _list in Zp_list for value in _list]
+            # Yp_left = -np.flip(Yp_right)
+            # Zp_left = np.flip(Zp_right)
+
+            # Yp = np.array([Yp_right, Yp_left]).flatten() + Yc
+            # Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
+
+            # if insulation_thickness != float(0):
+
+            #     Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
+            #     Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
+            #     Yp_in_ins = (d_out/2)*np.cos(-theta)
+            #     Zp_in_ins = (d_out/2)*np.sin(-theta)
+
+            #     Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
+            #     Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
+
+            #     Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
+            #     Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
+            #     Yp_left_ins = -np.flip(Yp_right_ins)
+            #     Zp_left_ins = np.flip(Zp_right_ins)
+
+            #     Yp = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
+            #     Zp = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
+
+        if section_type == 1: # Rectangular section
+
+            b, h, b_in, h_in, Yc, Zc = section_parameters
+            Yp = [(b/2), (b/2), -(b/2), -(b/2), (b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
+            Zp = [-(h/2), (h/2), (h/2), -(h/2), -(h_in/2), (h_in/2), (h_in/2), -(h_in/2)]
+
+        elif section_type == 2: # Circular section
+            
+            N = 60# element.cross_section.division_number
+            d_out, d_in, Yc, Zc = section_parameters
+            
+            d_theta = np.pi/N
+            theta = np.arange(0, (2*np.pi)+d_theta, d_theta)
+
+            Yp_out = (d_out/2)*np.cos(theta)
+            Zp_out = (d_out/2)*np.sin(theta)
+            Yp_in = (d_in/2)*np.cos(-theta)
+            Zp_in = (d_in/2)*np.sin(-theta)
+
+            Yp_list = [list(Yp_out), list(Yp_in), [0]]
+            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
+
+            Yp_right = [value for _list in Yp_list for value in _list]
+            Zp_right = [value for _list in Zp_list for value in _list]
+
+            Yp_left = -np.flip(Yp_right)
+            Zp_left = np.flip(Zp_right)
+
+            Yp = np.array([Yp_right, Yp_left]).flatten()
+            Zp = np.array([Zp_right, Zp_left]).flatten()
+
+        elif section_type == 3: # Beam: C-section
+
+            h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
+            Yp = [0, w3, w3, w2, w2, w1, w1, 0]
+            Zp = [0, 0, t3, t3, (h-t1), (h-t1), h, h]
+
+        elif section_type == 4: # Beam: I-section
+
+            h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
+            Yp = [w3, w3, w2, w2, w1, w1, -(w1), -(w1), -(w2), -(w2), -(w3), -(w3)]
+            Zp = [-(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2), (h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2)]
+
+        elif section_type == 5: # Beam: T-section
+
+            h, w1, w2, t1, t2, _, Yc, Zc = section_parameters
+            Yp = [(w2/2), (w2/2), (w1/2), (w1/2), -(w1/2), -(w1/2), -(w2/2), -(w2/2)]
+            Zp = [-(t2/2), (t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1, (t2/2), (t2/2), -(t2/2)]
+
+        # elif section_type == 6: # Beam: Generic section
+    
+            # message = "The GENERIC BEAM SECTION cannot be ploted."
+            # title = "Error while graphing cross-section"
+            # info_text = [title, message]
+            # PrintMessageInput(info_text)
+
+            # return 0, 0, 0, 0
+
+        dict_lines_to_points = {}
+        list_indexes = list(np.arange(len(Yp)))
+        list_indexes.append(0)
+        
+        for k in range(len(Yp)):
+            dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
+
+        return Yp, Zp, Yc, Zc, dict_lines_to_points
