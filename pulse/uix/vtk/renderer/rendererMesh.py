@@ -5,7 +5,9 @@ from pulse.uix.vtk.actor.actorPoint import ActorPoint
 from pulse.uix.vtk.actor.actorElement import ActorElement
 from pulse.uix.vtk.actor.actorArrow import ActorArrow
 from pulse.uix.vtk.vtkSymbols import vtkSymbols
+
 import vtk
+import numpy as np 
 
 class RendererMesh(vtkRendererBase):
     def __init__(self, project, opv):
@@ -13,7 +15,6 @@ class RendererMesh(vtkRendererBase):
         self.project = project
         self.opv = opv 
         self.symbols = vtkSymbols()
-        self.plotRadius = False
         
         self.nodesBounds = dict() # (x,y,z) coordinates
         self.elementsBounds = dict() # bounding coordinates
@@ -62,15 +63,15 @@ class RendererMesh(vtkRendererBase):
                 if node in selectedNodes:
                     selectedNodesAcoustic.append(node)
                     selectedNodes.remove(node)
+            #Shame on you
 
             source = vtk.vtkCubeSource()
-            source.SetXLength(2)
-            source.SetYLength(2)
-            source.SetZLength(2)
+            source.SetXLength(3)
+            source.SetYLength(3)
+            source.SetZLength(3)
             self.selectionNodesActor = self.createActorNodes(selectedNodes,source)
             self.selectionNodesActor.GetProperty().SetColor(255,0,0)
             self._renderer.AddActor(self.selectionNodesActor)   
-
             
             source = vtk.vtkSphereSource()
             source.SetRadius(3)
@@ -105,9 +106,6 @@ class RendererMesh(vtkRendererBase):
 
     def getListPickedElements(self):
         return self._style.getListPickedElements()
-    
-    # def updateAllAxes(self):
-    #     pass
 
     def plot(self):
         self.reset()
@@ -168,6 +166,8 @@ class RendererMesh(vtkRendererBase):
         source.SetZLength(2)
         actor = self.createActorNodes(nodes,source)
         actor.GetProperty().SetColor(1,1,0)
+        actor.GetProperty().BackfaceCullingOff()
+        actor.GetProperty().ShadingOff()
         self._renderer.AddActor(actor)
 
         cube_source = vtk.vtkCubeSource()
@@ -203,8 +203,13 @@ class RendererMesh(vtkRendererBase):
     def plotTubes(self):
         elements = self.project.get_elements().values()
         actor = self.createActorTubes(elements)
+
         actor.GetProperty().SetColor(0.7,0.7,0.8)
-        actor.GetProperty().SetOpacity(0.2)
+        actor.GetProperty().SetOpacity(0.06)
+
+        actor.GetProperty().BackfaceCullingOff()
+        actor.GetProperty().ShadingOff()
+        actor.GetProperty().LightingOff()
         self._renderer.AddActor(actor)
 
     def plotElementAxes(self):
@@ -268,7 +273,7 @@ class RendererMesh(vtkRendererBase):
         mapper.SetInputConnection(source.GetOutputPort())
         actor.SetMapper(mapper)
         return actor
-
+    
     def createActorTubes(self, elements):
         source = vtk.vtkAppendPolyData()
         mapper = vtk.vtkPolyDataMapper()
@@ -277,16 +282,82 @@ class RendererMesh(vtkRendererBase):
         for element in elements:
             cross_section = element.cross_section
             if cross_section:
-                size = cross_section.external_diameter / 2
-            else:
-                size = 0.002
-            plot = ActorElement(element, size)
-            plot.build()
-            source.AddInputData(plot.getActor().GetMapper().GetInput())
+                label, parameters, *args = cross_section.additional_section_info
+                if label == "Pipe section":
+                    polygon = vtk.vtkRegularPolygonSource()
+                    polygon.SetRadius(cross_section.external_diameter / 2)
+                    polygon.SetNumberOfSides(10)
+                else:
+                    polygon = self.createSectionPolygon(element)
+            else: # not cross section
+                polygon = vtk.vtkRegularPolygonSource()
+                polygon.SetRadius(0.01)
+                polygon.SetNumberOfSides(10)
+            
+            tube = self.generalSectionTube(element, polygon.GetOutputPort())
+            source.AddInputData(tube.GetOutput())
 
         mapper.SetInputConnection(source.GetOutputPort())
         actor.SetMapper(mapper)
         return actor
+
+    def createSectionPolygon(self, element):
+        Yp, Zp, Yc, Zc, dict_lines_to_points = self.project.get_mesh().get_cross_section_points(element.index)
+        points = vtk.vtkPoints()
+        edges = vtk.vtkCellArray()
+        data = vtk.vtkPolyData()
+        poly = vtk.vtkPolygon()
+        source = vtk.vtkTriangleFilter()
+
+        for x, y in zip(Yp, Zp):
+            points.InsertNextPoint(x-Yc, y-Zc, 0)    
+        
+        n = len(Yp)
+
+        poly.GetPointIds().SetNumberOfIds(n)
+        for i in range(n):
+            poly.GetPointIds().SetId(i,i)
+        edges.InsertNextCell(poly)
+        
+        data.SetPoints(points)
+        data.SetPolys(edges)
+        source.AddInputData(data)
+
+        return source
+
+    def generalSectionTube(self, element, section):
+        start = element.last_node.coordinates
+        end = element.first_node.coordinates
+        size = element.length
+
+        normalizedX = (end - start)
+        normalizedX /= np.linalg.norm(normalizedX)
+
+        normalizedZ = np.cross(normalizedX, [5,7,11]) # [5,7,11] is random
+        normalizedZ /= np.linalg.norm(normalizedZ)
+
+        normalizedY = np.cross(normalizedZ, normalizedX)
+
+        matrix = vtk.vtkMatrix4x4()
+        matrix.Identity()
+        for i in range(3):
+            matrix.SetElement(i, 0, normalizedZ[i])
+            matrix.SetElement(i, 1, normalizedY[i])
+            matrix.SetElement(i, 2, normalizedX[i])
+
+        data = vtk.vtkTransformPolyDataFilter()
+        extrusion = vtk.vtkLinearExtrusionFilter()
+        transformation = vtk.vtkTransform()
+
+        extrusion.SetScaleFactor(size)
+        extrusion.SetInputConnection(section)
+        transformation.Translate(start)
+        transformation.Concatenate(matrix)
+        transformation.RotateZ(-27) # just to look cooler
+        data.SetTransform(transformation)
+        data.SetInputConnection(extrusion.GetOutputPort())
+        data.Update()
+        return data
 
     def update(self):
         self.opv.update()

@@ -3,6 +3,7 @@ from pulse.uix.vtk.vtkInteractorBase import vtkInteractorBase
 from pulse.uix.vtk.actor.actorLine import ActorLine
 from pulse.uix.vtk.vtkInteractorStyleClicker import vtkInteractorStyleClicker
 import vtk
+import numpy as np
 
 class RendererEntity(vtkRendererBase):
     def __init__(self, project, opv):
@@ -130,11 +131,17 @@ class RendererEntity(vtkRendererBase):
 
     def plot(self):
         self.reset()
+        mesh = self.project.get_mesh()
         for entity in self.project.get_entities():
-            plot = ActorLine(entity, self.plotRadius)
-            plot.build()
-            self.actors[plot.getActor()] = entity.get_tag()
-            self._renderer.AddActor(plot.getActor())
+            elements = [mesh.structural_elements[i] for i in mesh.line_to_elements[entity.tag]]
+            actor = self.createActorTubes(elements)
+            self.actors[actor] = entity.get_tag()
+            self._renderer.AddActor(actor)
+
+            # plot = ActorLine(entity, self.plotRadius)
+            # plot.build()
+            # self.actors[plot.getActor()] = entity.get_tag()
+            # self._renderer.AddActor(plot.getActor())
 
     def changeColorEntities(self, entity_id, color):
         self._style.clear()
@@ -155,3 +162,93 @@ class RendererEntity(vtkRendererBase):
 
     def getPlotRadius(self):
         return self.plotRadius
+
+
+
+
+    # apaga por favor tá todo mundo pedindo pra apagar...
+    def createActorTubes(self, elements):
+        source = vtk.vtkAppendPolyData()
+        mapper = vtk.vtkPolyDataMapper()
+        actor = vtk.vtkActor()
+
+        for element in elements:
+            cross_section = element.cross_section
+            if cross_section and self.plotRadius:
+                label, parameters, *args = cross_section.additional_section_info
+                if label == "Pipe section":
+                    polygon = vtk.vtkRegularPolygonSource()
+                    polygon.SetRadius(cross_section.external_diameter / 2)
+                    polygon.SetNumberOfSides(20)
+                else:
+                    polygon = self.createSectionPolygon(element)
+            else:
+                polygon = vtk.vtkRegularPolygonSource()
+                polygon.SetRadius(0.01)
+                polygon.SetNumberOfSides(20)
+
+            tube = self.generalSectionTube(element, polygon.GetOutputPort())
+            source.AddInputData(tube.GetOutput())
+
+        mapper.SetInputConnection(source.GetOutputPort())
+        actor.SetMapper(mapper)
+        return actor
+
+    def createSectionPolygon(self, element):
+        Yp, Zp, Yc, Zc, dict_lines_to_points = self.project.get_mesh().get_cross_section_points(element.index)
+        points = vtk.vtkPoints()
+        edges = vtk.vtkCellArray()
+        data = vtk.vtkPolyData()
+        poly = vtk.vtkPolygon()
+        source = vtk.vtkTriangleFilter()
+
+        for x, y in zip(Yp, Zp):
+            points.InsertNextPoint(x-Yc, y-Zc, 0)    
+        
+        n = len(Yp)
+
+        poly.GetPointIds().SetNumberOfIds(n)
+        for i in range(n):
+            poly.GetPointIds().SetId(i,i)
+        edges.InsertNextCell(poly)
+        
+        data.SetPoints(points)
+        data.SetPolys(edges)
+        source.AddInputData(data)
+
+        return source
+
+    def generalSectionTube(self, element, section):
+        start = element.last_node.coordinates
+        end = element.first_node.coordinates
+        size = element.length
+
+        normalizedX = (end - start)
+        normalizedX /= np.linalg.norm(normalizedX)
+
+        temp = [2,3,4] # random
+        normalizedZ = np.cross(normalizedX, temp) 
+        normalizedZ /= np.linalg.norm(normalizedZ)
+
+        normalizedY = np.cross(normalizedZ, normalizedX)
+
+        matrix = vtk.vtkMatrix4x4()
+        matrix.Identity()
+        for i in range(3):
+            matrix.SetElement(i, 0, normalizedZ[i])
+            matrix.SetElement(i, 1, normalizedY[i])
+            matrix.SetElement(i, 2, normalizedX[i])
+
+        data = vtk.vtkTransformPolyDataFilter()
+        extrusion = vtk.vtkLinearExtrusionFilter()
+        transformation = vtk.vtkTransform()
+
+        extrusion.SetScaleFactor(size)
+        extrusion.SetInputConnection(section)
+        transformation.Translate(start)
+        transformation.Concatenate(matrix)
+        transformation.RotateZ(-27) # just to look cooler
+        data.SetTransform(transformation)
+        data.SetInputConnection(extrusion.GetOutputPort())
+        data.Update()
+        return data
