@@ -36,6 +36,8 @@ class AssemblyAcoustic:
         self.acoustic_elements = mesh.get_pipe_elements()
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(mesh.nodes)
         self.neighbor_diameters = mesh.neighbor_elements_diameter_global()
+        self.prescribed_indexes = self.get_prescribed_indexes()
+        self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
 
     def get_prescribed_indexes(self):
         global_prescribed = []
@@ -54,14 +56,12 @@ class AssemblyAcoustic:
 
     def get_unprescribed_indexes(self):
         all_indexes = np.arange(self.total_dof)
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
+        unprescribed_indexes = np.delete(all_indexes, self.prescribed_indexes)
         return unprescribed_indexes
 
     def get_pipe_and_unprescribed_indexes(self):
         all_indexes = np.arange(self.total_dof)
-        prescribed_indexes = self.get_prescribed_indexes()
-        indexes_to_remove = prescribed_indexes.copy()
+        indexes_to_remove = self.prescribed_indexes.copy()
         for dof in list(self.beam_gdofs):
             indexes_to_remove.append(dof)
         indexes_to_remove = np.sort(indexes_to_remove)
@@ -129,20 +129,14 @@ class AssemblyAcoustic:
             
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
 
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
-
-        K = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
-        Kr = [full[:, prescribed_indexes] for full in full_K]
+        K = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_K]
+        Kr = [full[:, self.prescribed_indexes] for full in full_K]
 
         return K, Kr
             
     def get_lumped_matrices(self):
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
-
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
         
         data_Klump = []
         ind_Klump = []
@@ -181,8 +175,8 @@ class AssemblyAcoustic:
         else:
             full_K = [csr_matrix((data, (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for data in data_Klump]
         
-        K_lump = [full[unprescribed_indexes, :][:, unprescribed_indexes] for full in full_K]
-        Kr_lump = [full[:, prescribed_indexes] for full in full_K]
+        K_lump = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_K]
+        Kr_lump = [full[:, self.prescribed_indexes] for full in full_K]
 
         return K_lump, Kr_lump  
 
@@ -204,11 +198,8 @@ class AssemblyAcoustic:
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         
-        # unprescribed_indexes = self.get_unprescribed_indexes()
-        unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
-
-        K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
-        M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
+        K = full_K[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
 
         return K, M
 
@@ -222,7 +213,6 @@ class AssemblyAcoustic:
                 position = node.global_index
                 volume_velocity[:, position] += node.get_volume_velocity(self.frequencies)
         
-        unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
-        volume_velocity = volume_velocity[:, unprescribed_indexes]
+        volume_velocity = volume_velocity[:, self.unprescribed_indexes]
 
         return volume_velocity

@@ -1054,14 +1054,18 @@ class Mesh:
             #     Yp_left_ins = -np.flip(Yp_right_ins)
             #     Zp_left_ins = np.flip(Zp_right_ins)
 
-            #     Yp = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
-            #     Zp = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
+            #     Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
+            #     Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
 
         if section_type == 1: # Rectangular section
 
             b, h, b_in, h_in, Yc, Zc = section_parameters
-            Yp = [(b/2), (b/2), -(b/2), -(b/2), (b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
-            Zp = [-(h/2), (h/2), (h/2), -(h/2), -(h_in/2), (h_in/2), (h_in/2), -(h_in/2)]
+            if b_in == 0:
+                Ys = [(b/2), (b/2), -(b/2), -(b/2)]
+                Zs = [-(h/2), (h/2), (h/2), -(h/2)]
+            else:
+                Ys = [(b/2), (b/2), -(b/2), -(b/2), (b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
+                Zs = [-(h/2), (h/2), (h/2), -(h/2), -(h_in/2), (h_in/2), (h_in/2), -(h_in/2)]
 
         elif section_type == 2: # Circular section
             
@@ -1085,26 +1089,35 @@ class Mesh:
             Yp_left = -np.flip(Yp_right)
             Zp_left = np.flip(Zp_right)
 
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
+            Ys = np.array([Yp_right, Yp_left]).flatten()
+            Zs = np.array([Zp_right, Zp_left]).flatten()
 
         elif section_type == 3: # Beam: C-section
 
             h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
             Yp = [0, w3, w3, w2, w2, w1, w1, 0]
-            Zp = [0, 0, t3, t3, (h-t1), (h-t1), h, h]
+            Zp = [-(h/2), -(h/2), -((h-t3)/2), -((h-t3)/2), ((h-t1)/2), ((h-t1)/2), (h/2), (h/2)]
+
+            Ys = list(np.array(Yp)-Yc)
+            Zs = list(np.array(Zp)-Zc)
 
         elif section_type == 4: # Beam: I-section
 
             h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
-            Yp = [w3, w3, w2, w2, w1, w1, -(w1), -(w1), -(w2), -(w2), -(w3), -(w3)]
+            Yp = [(w3/2), (w3/2), (w2/2), (w2/2), (w1/2), (w1/2), -(w1/2), -(w1/2), -(w2/2), -(w2/2), -((w3/2)), -((w3/2))]
             Zp = [-(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2), (h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2)]
+
+            Ys = list(np.array(Yp)-Yc)
+            Zs = list(np.array(Zp)-Zc)
 
         elif section_type == 5: # Beam: T-section
 
             h, w1, w2, t1, t2, _, Yc, Zc = section_parameters
             Yp = [(w2/2), (w2/2), (w1/2), (w1/2), -(w1/2), -(w1/2), -(w2/2), -(w2/2)]
             Zp = [-(t2/2), (t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1, (t2/2), (t2/2), -(t2/2)]
+
+            Ys = list(np.array(Yp)-Yc)
+            Zs = list(np.array(Zp)-Zc)
 
         # elif section_type == 6: # Beam: Generic section
     
@@ -1115,11 +1128,11 @@ class Mesh:
 
             # return 0, 0, 0, 0
 
-        dict_lines_to_points = {}
-        list_indexes = list(np.arange(len(Yp)))
-        list_indexes.append(0)
+        # dict_lines_to_points = {}
+        # list_indexes = list(np.arange(len(Yp)))
+        # list_indexes.append(0)
         
-        for k in range(len(Yp)):
-            dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
+        # for k in range(len(Yp)):
+        #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
 
-        return Yp, Zp, Yc, Zc, dict_lines_to_points
+        return Ys, Zs#, Yc, Zc, dict_lines_to_points

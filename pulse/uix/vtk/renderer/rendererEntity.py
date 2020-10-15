@@ -164,8 +164,6 @@ class RendererEntity(vtkRendererBase):
         return self.plotRadius
 
 
-
-
     # apaga por favor tá todo mundo pedindo pra apagar...
     def createActorTubes(self, elements):
         source = vtk.vtkAppendPolyData()
@@ -195,19 +193,19 @@ class RendererEntity(vtkRendererBase):
         return actor
 
     def createSectionPolygon(self, element):
-        Yp, Zp, Yc, Zc, dict_lines_to_points = self.project.get_mesh().get_cross_section_points(element.index)
+        Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
         points = vtk.vtkPoints()
         edges = vtk.vtkCellArray()
         data = vtk.vtkPolyData()
         poly = vtk.vtkPolygon()
         source = vtk.vtkTriangleFilter()
 
-        for x, y in zip(Yp, Zp):
-            points.InsertNextPoint(x-Yc, y-Zc, 0)    
+        for x, y in zip(Ys, Zs):
+            points.InsertNextPoint(x, y, 0)    
         
-        n = len(Yp)
-
+        n = len(Ys)
         poly.GetPointIds().SetNumberOfIds(n)
+
         for i in range(n):
             poly.GetPointIds().SetId(i,i)
         edges.InsertNextCell(poly)
@@ -220,24 +218,17 @@ class RendererEntity(vtkRendererBase):
 
     def generalSectionTube(self, element, section):
         start = element.last_node.coordinates
-        end = element.first_node.coordinates
         size = element.length
-
-        normalizedX = (end - start)
-        normalizedX /= np.linalg.norm(normalizedX)
-
-        temp = [2,3,4] # random
-        normalizedZ = np.cross(normalizedX, temp) 
-        normalizedZ /= np.linalg.norm(normalizedZ)
-
-        normalizedY = np.cross(normalizedZ, normalizedX)
-
+ 
+        _, directional_vectors = element.get_local_coordinate_system_info()
+        u, v, w = directional_vectors
+        
         matrix = vtk.vtkMatrix4x4()
         matrix.Identity()
         for i in range(3):
-            matrix.SetElement(i, 0, normalizedZ[i])
-            matrix.SetElement(i, 1, normalizedY[i])
-            matrix.SetElement(i, 2, normalizedX[i])
+            matrix.SetElement(i, 0, v[i])
+            matrix.SetElement(i, 1, w[i])
+            matrix.SetElement(i, 2, u[i])
 
         data = vtk.vtkTransformPolyDataFilter()
         extrusion = vtk.vtkLinearExtrusionFilter()
@@ -247,7 +238,7 @@ class RendererEntity(vtkRendererBase):
         extrusion.SetInputConnection(section)
         transformation.Translate(start)
         transformation.Concatenate(matrix)
-        transformation.RotateZ(-27) # just to look cooler
+
         data.SetTransform(transformation)
         data.SetInputConnection(extrusion.GetOutputPort())
         data.Update()
