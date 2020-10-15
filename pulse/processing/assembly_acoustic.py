@@ -195,14 +195,17 @@ class AssemblyAcoustic:
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for index, element in enumerate(self.mesh.acoustic_elements.values()):
+        # for index, element in enumerate(self.mesh.acoustic_elements.values()):
+        for element in self.acoustic_elements:
+            index = element.index - 1
             length_correction = self.get_length_corretion(element)
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.fem_1d_matrix(length_correction)            
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         
-        unprescribed_indexes = self.get_unprescribed_indexes()
+        # unprescribed_indexes = self.get_unprescribed_indexes()
+        unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
 
         K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
         M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
