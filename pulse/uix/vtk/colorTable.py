@@ -11,7 +11,7 @@ class ColorTable(vtk.vtkLookupTable):
         self.pressure_field_plot = pressure_field_plot
 
         self.structural_elements = project.mesh.structural_elements
-        self.beam_nodes, self.beam_node_ids = project.mesh.get_beam_nodes_and_indexes()
+        self.beam_node_ids = project.mesh.list_beam_node_ids
 
         # self.matriz = matriz
         # self.normal = {}

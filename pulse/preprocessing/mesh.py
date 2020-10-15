@@ -888,8 +888,8 @@ class Mesh:
                     list_beam_nodes.append(node_last)
                     list_node_ids.append(node_last.global_index)
                 
-                elements_node_first = self.neighboor_elements_of_node(element.first_node.global_index)
-                elements_node_last = self.neighboor_elements_of_node(element.last_node.global_index)
+                elements_node_first = self.neighboor_elements_of_node(element.first_node.external_index)
+                elements_node_last = self.neighboor_elements_of_node(element.last_node.external_index)
 
                 if len(elements_node_first) > 2:
                     list_beam_nodes.remove(node_first)
@@ -897,10 +897,19 @@ class Mesh:
 
                 if len(elements_node_last) > 2:
                     list_beam_nodes.remove(node_last) 
-                    list_node_ids.remove(node_last.global_index)  
+                    list_node_ids.remove(node_last.global_index) 
 
-        beam_nodes = np.array(list_beam_nodes).flatten()
-        return beam_nodes, list_node_ids
+        # return list_beam_nodes, list_node_ids
+        return list_node_ids
+        
+    def _process_beam_nodes_and_indexes(self):
+        list_beam_elements = self.get_beam_elements()
+        if len(list_beam_elements) == len(self.structural_elements):
+            self.list_beam_node_ids = list(np.arange(len(self.nodes)))
+            return True
+        else:
+            self.list_beam_node_ids = self.get_beam_nodes_and_indexes()
+            return False
 
     def get_pipe_elements(self):
         list_elements = []

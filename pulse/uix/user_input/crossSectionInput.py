@@ -175,6 +175,7 @@ class CrossSectionInput(QDialog):
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
         self.lineEdit_selected_ID.setEnabled(True)
+        self.lineEdit_selected_ID.setText("")
 
         if self.flagAll:
             self.lineEdit_selected_ID.setText("All lines")
@@ -182,11 +183,13 @@ class CrossSectionInput(QDialog):
 
         elif self.flagEntity:
             self.lineEdit_id_labels.setText("Lines IDs:")
-            self.write_ids(self.lines_id)
+            if self.lines_id != []:
+                self.write_ids(self.lines_id)
 
         elif self.flagElements:
             self.lineEdit_id_labels.setText("Elements IDs:")
-            self.write_ids(self.elements_id)
+            if self.elements_id != []:
+                self.write_ids(self.elements_id)
 
     def radioButtonEvent_beam_section_type(self):
         self.rectangular_flag = self.radioButton_rectangular_section.isChecked()
@@ -227,7 +230,7 @@ class CrossSectionInput(QDialog):
                 tokens.remove('')
             except:
                 pass
-            self.element_typed = list(map(int, tokens))
+            self.elements_typed = list(map(int, tokens))
             
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Element ID input"
@@ -241,7 +244,7 @@ class CrossSectionInput(QDialog):
             return True
 
         try:
-            for element in self.element_typed:
+            for element in self.elements_typed:
                 self.elementID = self.structural_elements[element].index
         except Exception:
             title = "Error: invalid Element ID input"
@@ -258,7 +261,7 @@ class CrossSectionInput(QDialog):
                 tokens.remove('')
             except:
                 pass
-            self.line_typed = list(map(int, tokens))
+            self.lines_typed = list(map(int, tokens))
             
             if self.lineEdit_selected_ID.text()=="":
                 title = "Error: empty Line ID input"
@@ -271,7 +274,7 @@ class CrossSectionInput(QDialog):
             self.info_text = [title, message, window_title]
             return True
         try:
-            for line in self.line_typed:
+            for line in self.lines_typed:
                 self.line = self.dict_tag_to_entity[line]
         except Exception:
             title = "Error: invalid Line ID"

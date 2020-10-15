@@ -63,7 +63,7 @@ class RendererPostProcessing(vtkRendererBase):
         #     plot.build()
         #     self._renderer.AddActor(plot.getActor())
     
-        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress_field_plot)
+        plot = ActorAnalysis(self.project, connect, coord, colorTable, self.stress_field_plot, self.pressure_field_plot)
         plot.build()
         self._renderer.AddActor(plot.getActor())
 

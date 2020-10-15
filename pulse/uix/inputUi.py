@@ -149,19 +149,21 @@ class InputUi:
             return
 
         if read.flagEntity:
-            if len(read.lines_id) == 0:
+            if len(read.lines_typed) == 0:
                 return
-            for line in read.lines_id:
+            for line in read.lines_typed:
                 self.project.set_cross_section_by_entity(line, read.cross_section)
                 self.project.set_element_type_by_entity(line, read.element_type)
-            print("[Set Cross-section] - defined at lines {}".format(read.lines_id))
+            print("[Set Cross-section] - defined at lines {}".format(read.lines_typed))
+
         elif read.flagElements:
-            if len(read.elements_id) == 0:
+            if len(read.elements_typed) == 0:
                 return
             else:
-                self.project.set_cross_section_by_elements(read.elements_id, read.cross_section)
-                if len(read.elements_id)>20:
-                    print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_id)))
+                self.project.set_cross_section_by_elements(read.elements_typed, read.cross_section)
+                if len(read.elements_typed) > 20:
+                    print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_typed)))
+
         else:
             self.project.set_cross_section_to_all(read.cross_section)
             self.project.set_element_type_to_all(read.element_type)
@@ -386,10 +388,20 @@ class InputUi:
         self.project.time_to_process_cross_sections = time()-t0
         self.project.get_dict_multiple_cross_sections()
         t0 = time()
+
         if self.analysis_ID in [0,1,3,5,6]:
             if self.frequencies is None:
                 return
             if len(self.frequencies) == 0:
+                return
+
+        if self.project.mesh._process_beam_nodes_and_indexes():
+            if self.analysis_ID not in [0,1,2]:
+                title = "INCORRECT ANALYSIS TYPE"
+                message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
+                window_title = "WARNING MESSAGE"
+                info_text = [title, message, window_title]
+                PrintMessageInput(info_text)
                 return
 
         if self.analysis_ID == 2:

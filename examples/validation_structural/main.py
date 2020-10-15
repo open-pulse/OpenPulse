@@ -34,7 +34,7 @@ if load_file==2:
     mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
     mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
 
-mat_out = mesh.set_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
+mat_out = mesh.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
 mesh.set_element_type_by_element('all', element_type)
 mesh.set_material_by_element('all', steel)

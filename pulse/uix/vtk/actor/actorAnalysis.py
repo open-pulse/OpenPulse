@@ -3,14 +3,15 @@ import numpy as np
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorAnalysis(vtkActorBase):
-    def __init__(self, project, connect, coord_def, color_table, stress):
+    def __init__(self, project, connect, coord_def, color_table, stress_field, pressure_field):
         super().__init__()
 
         self.project = project
         self.connect = connect
         self.coord_def = coord_def
         self.colorTable = color_table
-        self.stress = stress
+        self.stress_field = stress_field
+        self.pressure_field = pressure_field
         self.elements = self.project.get_elements()
 
         self._nodes = vtk.vtkPoints()
@@ -46,7 +47,7 @@ class ActorAnalysis(vtkActorBase):
 
     def filter(self):
         indice = self.coord_def[:,0]
-        if self.stress:
+        if self.stress_field:
             for key, _ in self.elements.items():
                 self._colorFilter.InsertTypedTuple(key-1, self.colorTable.get_color_by_id(key-1))
             self._object.GetCellData().SetScalars(self._colorFilter)
@@ -77,7 +78,7 @@ class ActorAnalysis(vtkActorBase):
         self._mapper.SetInputData(self._tubeFilter.GetOutput())
         self._mapper.ScalarVisibilityOn()
         self._mapper.SelectColorArray("Colors")
-        if self.stress:
+        if self.stress_field:
             self._mapper.SetScalarModeToUseCellFieldData()
         else:
             self._mapper.SetScalarModeToUsePointFieldData()
