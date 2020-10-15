@@ -353,6 +353,7 @@ class RendererMesh(vtkRendererBase):
         extrusion.SetInputConnection(section)
         transformation.Translate(start)
         transformation.Concatenate(matrix)
+        transformation.RotateZ(-27) # just to look cooler
         data.SetTransform(transformation)
         data.SetInputConnection(extrusion.GetOutputPort())
         data.Update()
