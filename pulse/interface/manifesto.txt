@@ -2,6 +2,8 @@ Essa parte do código é dedicada à Interface e apena à Interface.
 Ela deve ser bela e organizada.
 Ela será documentada assim: https://www.sphinx-doc.org/en/master/usage/extensions/example_google.html
 
+#confia no pai que o sucesso vem
+
 A nomeação será padronizada de novo (finalmente)
 Como estaremos usando bibliotecas feitas em C++, como VTK e PyQt, nomearemos funções de modo a 
 pra evitar que as diferenças de nomeção fiquem muito esquisitas (principalmente com herança).
