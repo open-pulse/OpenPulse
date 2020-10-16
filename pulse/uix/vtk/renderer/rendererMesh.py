@@ -29,8 +29,10 @@ class RendererMesh(vtkRendererBase):
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
     
     def highlight(self, obj, event):
-        selectedNodes = [self.project.get_node(i) for i in self.getListPickedPoints()]
-        selectedElements = [self.project.get_element(i) for i in self.getListPickedElements()]
+        # selectedNodes = [self.project.get_node(i) for i in self.getListPickedPoints()]
+        # selectedElements = [self.project.get_element(i) for i in self.getListPickedElements()]
+        selectedNodes = [self.project.mesh.nodes[i] for i in self.getListPickedPoints()]
+        selectedElements = [self.project.mesh.structural_elements[i] for i in self.getListPickedElements()]
 
         self._renderer.RemoveActor(self.selectionNodesActor)
         self._renderer.RemoveActor(self.selectionNodesActorAcoustic)
