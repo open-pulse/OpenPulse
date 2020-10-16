@@ -326,7 +326,7 @@ class RendererMesh(vtkRendererBase):
         return source
 
     def generalSectionTube(self, element, section):
-        start = element.last_node.coordinates
+        start = element.first_node.coordinates
         size = element.length
  
         _, directional_vectors = element.get_local_coordinate_system_info()
