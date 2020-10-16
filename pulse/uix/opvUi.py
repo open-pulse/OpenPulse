@@ -153,6 +153,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.update()
 
     def changePlotToEntities(self):
+        if self.rendererEntity.getInUse():
+            return
         self.beforeChangePlot()
         self.rendererEntity.setInUse(True)
         self.SetInteractorStyle(self.rendererEntity.getStyle())
@@ -160,7 +162,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
 
-    def changePlotToMesh(self):       
+    def changePlotToMesh(self):
+        if self.rendererMesh.getInUse():
+            return
         self.beforeChangePlot()
         self.rendererMesh.setInUse(True)
         self.rendererMesh.updateAllAxes()
