@@ -41,10 +41,10 @@ class RendererMesh(vtkRendererBase):
         
         if selectedNodes:
             selectedNodesAcoustic = []
-            volume_velocity = self.project.get_mesh().nodes_with_volume_velocity #Vermelha
-            acoustic_pressure = self.project.get_mesh().nodes_with_acoustic_pressure #Branca
-            specific_impedance = self.project.get_mesh().nodes_with_specific_impedance #Verde
-            radiation_impedance = self.project.get_mesh().nodes_with_radiation_impedance #Rosa
+            volume_velocity = self.project.mesh.nodes_with_volume_velocity #Vermelha
+            acoustic_pressure = self.project.mesh.nodes_with_acoustic_pressure #Branca
+            specific_impedance = self.project.mesh.nodes_with_specific_impedance #Verde
+            radiation_impedance = self.project.mesh.nodes_with_radiation_impedance #Rosa
             #Remove nodes with volume velocity from nodes[]
             for node in volume_velocity:
                 if node in selectedNodes:
@@ -141,10 +141,10 @@ class RendererMesh(vtkRendererBase):
 
     def plotNodes(self):
         nodes = list(self.project.get_nodes().values())
-        volume_velocity = self.project.get_mesh().nodes_with_volume_velocity #Vermelha
-        acoustic_pressure = self.project.get_mesh().nodes_with_acoustic_pressure #Branca
-        specific_impedance = self.project.get_mesh().nodes_with_specific_impedance #Verde
-        radiation_impedance = self.project.get_mesh().nodes_with_radiation_impedance #Rosa
+        volume_velocity = self.project.mesh.nodes_with_volume_velocity #Vermelha
+        acoustic_pressure = self.project.mesh.nodes_with_acoustic_pressure #Branca
+        specific_impedance = self.project.mesh.nodes_with_specific_impedance #Verde
+        radiation_impedance = self.project.mesh.nodes_with_radiation_impedance #Rosa
         #Remove nodes with volume velocity from nodes[]
         for node in volume_velocity:
             if node in nodes:

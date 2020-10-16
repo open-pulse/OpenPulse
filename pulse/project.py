@@ -212,11 +212,8 @@ class Project:
         indexes = [0, 1, 2]
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
-        # dict_tag_entity = self.mesh.get_dict_of_entities()
-        # map_cross_section_to_lines = defaultdict(list)
         map_cross_section_to_elements = defaultdict(list)
 
-        # for line, entity in dict_tag_entity.items():
         for index, element in self.mesh.structural_elements.items():
 
             ext_diam = element.cross_section.external_diameter
@@ -235,19 +232,32 @@ class Project:
             poisson = element.material.poisson_ratio
             if poisson is None:
                 poisson = 0
-
-            #TODO: codify section_parameters of BEAM element
             
             index_etype = dict_etype_index[e_type]
-            map_cross_section_to_elements[str([ext_diam, thickness, offset_y, offset_z, poisson, index_etype, insulation_thickness, insulation_density])].append(index)
 
+            map_cross_section_to_elements[str([ ext_diam, 
+                                                thickness, 
+                                                offset_y, 
+                                                offset_z, 
+                                                poisson, 
+                                                index_etype, 
+                                                insulation_thickness, 
+                                                insulation_density ])].append(index)
+            
         for key, elements in map_cross_section_to_elements.items():
+
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[5]]
+            section_info = ['Pipe section', [vals[0], vals[1], vals[2], vals[3], vals[7]]]
+
             if el_type in ['pipe_1', 'pipe_2']:
-                cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], poisson_ratio=vals[4], element_type=el_type, insulation_thickness=vals[6], insulation_density=vals[7])
-                # list_flatten = [item for sublist in elements for item in sublist]
+                cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], 
+                                            poisson_ratio=vals[4], 
+                                            element_type=el_type, 
+                                            insulation_thickness=vals[6], 
+                                            insulation_density=vals[7],
+                                            additional_section_info=section_info)
                 self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
 
     def get_dict_multiple_cross_sections(self):

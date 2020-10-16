@@ -49,25 +49,30 @@ class SnaptoCursor(object):
 
 
 class PlotAcousticFrequencyResponseInput(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, solution, list_node_ids, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, frequencies, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plotAcousticFrequencyResponseInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-        self.userPath = os.path.expanduser('~')
-        self.save_path = ""
 
-        self.mesh = mesh
-        
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+        self.projec = project
+        self.mesh = project.mesh
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
+
+        self.list_node_IDs = self.opv.getListPickedPoints()
+        self.userPath = os.path.expanduser('~')
+        self.save_path = ""
         self.nodeID = 0
         self.imported_data = None
-
-        self.writeNodes(list_node_ids)
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
@@ -114,6 +119,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
+        self.writeNodes(self.list_node_IDs)
         self.exec_()
 
     def update_cursor(self):
@@ -128,6 +134,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
+
+    def update(self):
+        self.list_node_IDs = self.opv.getListPickedPoints()
+        if self.list_node_IDs != []:
+            self.writeNodes(self.list_node_IDs)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:

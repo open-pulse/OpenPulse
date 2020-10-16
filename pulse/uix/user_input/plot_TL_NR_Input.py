@@ -49,7 +49,7 @@ class SnaptoCursor(object):
 
 
 class Plot_TL_NR_Input(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, solution, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, frequencies, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/plot_TL_NR_Input.ui', self)
 
@@ -57,7 +57,14 @@ class Plot_TL_NR_Input(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.mesh = mesh
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+        self.projec = project
+        self.mesh = project.mesh
+
         self.userPath = os.path.expanduser('~')
         self.path = ""
         self.save_path = ""

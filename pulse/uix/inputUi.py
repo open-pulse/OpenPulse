@@ -517,27 +517,25 @@ class InputUi:
             return
 
     def plotStructuralFrequencyResponse(self):
-        node_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStructuralFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, node_id)
+            PlotStructuralFrequencyResponseInput(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
 
     def plotAcousticFrequencyResponse(self):
-        node_id = self.opv.getListPickedPoints()
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            PlotAcousticFrequencyResponseInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution, node_id)
+            PlotAcousticFrequencyResponseInput(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            Plot_TL_NR_Input(self.project.get_mesh(), self.analysis_method_label, self.frequencies, solution)
+            Plot_TL_NR_Input(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
 
     def plotStressField(self):
         self.project.plot_pressure_field = False
