@@ -42,13 +42,11 @@ class PlotAcousticModeShapeInput(QDialog):
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.radioButton_real_part = self.findChild(QRadioButton, 'radioButton_real_part')
+        self.radioButton_absolute = self.findChild(QRadioButton, 'radioButton_absolute')
         self.radioButton_real_part.toggled.connect(self.radioButtonEvent)
 
-        # self.radioButton_abs = self.findChild(QRadioButton, 'radioButton_abs')
-        # self.radioButton_abs.toggled.connect(self.radioButtonEvent)
-
-        self.real_part = self.radioButton_real_part.isChecked()
-        self.abs_part = self.radioButton_abs.isChecked()
+        self.flag_real_part = self.radioButton_real_part.isChecked()
+        self.flag_absolute = self.radioButton_absolute.isChecked()
 
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.confirm_selection)
@@ -56,8 +54,8 @@ class PlotAcousticModeShapeInput(QDialog):
         self.exec_()
 
     def radioButtonEvent(self):
-        self.real_part = self.radioButton_real_part.isChecked()
-        # self.abs_part = self.radioButton_abs.isChecked()
+        self.flag_real_part = self.radioButton_real_part.isChecked()
+        self.flag_absolute = self.radioButton_absolute.isChecked()
 
     def get_dict_modes_frequencies(self):
         modes = np.arange(1,len(self.natural_frequencies)+1,1)

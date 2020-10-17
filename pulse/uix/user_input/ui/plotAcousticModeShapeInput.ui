@@ -289,7 +289,7 @@ color: rgb(0, 0, 0);</string>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_abs">
+      <widget class="QRadioButton" name="radioButton_absolute">
        <property name="minimumSize">
         <size>
          <width>100</width>

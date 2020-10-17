@@ -123,7 +123,7 @@
        </font>
       </property>
       <property name="text">
-       <string>20</string>
+       <string>40</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -288,7 +288,7 @@
       <property name="geometry">
        <rect>
         <x>224</x>
-        <y>80</y>
+        <y>72</y>
         <width>49</width>
         <height>30</height>
        </rect>
@@ -324,7 +324,7 @@
       <property name="geometry">
        <rect>
         <x>42</x>
-        <y>80</y>
+        <y>72</y>
         <width>80</width>
         <height>30</height>
        </rect>
@@ -360,7 +360,7 @@
       <property name="geometry">
        <rect>
         <x>122</x>
-        <y>80</y>
+        <y>72</y>
         <width>100</width>
         <height>30</height>
        </rect>
@@ -397,7 +397,7 @@
       <property name="geometry">
        <rect>
         <x>76</x>
-        <y>128</y>
+        <y>118</y>
         <width>200</width>
         <height>32</height>
        </rect>
@@ -430,21 +430,21 @@
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>16</x>
-        <y>8</y>
-        <width>320</width>
+        <x>6</x>
+        <y>4</y>
+        <width>340</width>
         <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>320</width>
+        <width>340</width>
         <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>320</width>
+        <width>340</width>
         <height>30</height>
        </size>
       </property>
@@ -458,7 +458,7 @@
        </font>
       </property>
       <property name="text">
-       <string>The Sigma factor allows to change the</string>
+       <string>The Sigma allows to find eigenvalues</string>
       </property>
       <property name="textFormat">
        <enum>Qt::AutoText</enum>
@@ -470,21 +470,21 @@
      <widget class="QLabel" name="label_8">
       <property name="geometry">
        <rect>
-        <x>16</x>
-        <y>34</y>
-        <width>320</width>
+        <x>6</x>
+        <y>32</y>
+        <width>340</width>
         <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>320</width>
+        <width>340</width>
         <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>320</width>
+        <width>340</width>
         <height>30</height>
        </size>
       </property>
@@ -498,7 +498,47 @@
        </font>
       </property>
       <property name="text">
-       <string> eigensolver algorithm convergence:</string>
+       <string>near sigma using shift-invert mode</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::AutoText</enum>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>18</x>
+        <y>154</y>
+        <width>320</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>320</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>320</width>
+        <height>20</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Note: see scipy.sparse.linalg.eigs for more details.</string>
       </property>
       <property name="textFormat">
        <enum>Qt::AutoText</enum>

@@ -9,11 +9,10 @@ import configparser
 import numpy as np
 
 class AnalysisSetupInput(QDialog):
-    def __init__(self, analysis_info, global_damping, f_min = 0, f_max = 0, f_step = 0):
+    def __init__(self, project, f_min = 0, f_max = 0, f_step = 0):
         super().__init__()
-        self.analysis_ID = analysis_info[0]
-        title = analysis_info[1]
-        subtitle = analysis_info[2]
+
+        self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1,6]:
             uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_ModeSuperpositionMethod.ui', self)
@@ -26,8 +25,9 @@ class AnalysisSetupInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.currentTab = 0
-
+        title = project.analysis_type_label
+        subtitle = project.analysis_method_label
+        
         self.complete = False
         self.flag_run = False
         self.frequencies = []
@@ -36,7 +36,7 @@ class AnalysisSetupInput(QDialog):
         self.f_max = f_max
         self.f_step = f_step
 
-        self.global_damping = global_damping
+        self.global_damping = project.global_damping
         self.modes = 0
 
         self.label_title = self.findChild(QLabel, 'label_title')
@@ -54,10 +54,10 @@ class AnalysisSetupInput(QDialog):
         self.lineEdit_fmax = self.findChild(QLineEdit, 'lineEdit_max')
         self.lineEdit_fstep = self.findChild(QLineEdit, 'lineEdit_step')
 
-        self.pushButton_confirm_exit = self.findChild(QPushButton, 'pushButton_confirm_exit')
-        self.pushButton_confirm_exit.clicked.connect(self.check_exit)
-        self.pushButton_confirm_run = self.findChild(QPushButton, 'pushButton_confirm_run')
-        self.pushButton_confirm_run.clicked.connect(self.check_run)
+        self.pushButton_confirm_close = self.findChild(QPushButton, 'pushButton_confirm_close')
+        self.pushButton_confirm_close.clicked.connect(self.check_exit)
+        self.pushButton_confirm_run_analysis = self.findChild(QPushButton, 'pushButton_confirm_run_analysis')
+        self.pushButton_confirm_run_analysis.clicked.connect(self.check_run)
 
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
@@ -65,22 +65,23 @@ class AnalysisSetupInput(QDialog):
         
         self.label_title.setText(title)
         self.label_subtitle.setText(subtitle)
+        
         if self.f_step != 0:
             self.lineEdit_fmin.setText(str(self.f_min))
             self.lineEdit_fmax.setText(str(self.f_max))
             self.lineEdit_fstep.setText(str(self.f_step))
 
         if True in [True if damp != 0 else False for damp in self.global_damping]:
-            self.lineEdit_av.setText(str(global_damping[0]))
-            self.lineEdit_bv.setText(str(global_damping[1]))
-            self.lineEdit_ah.setText(str(global_damping[2]))
-            self.lineEdit_bh.setText(str(global_damping[3]))
+            self.lineEdit_av.setText(str(self.global_damping[0]))
+            self.lineEdit_bv.setText(str(self.global_damping[1]))
+            self.lineEdit_ah.setText(str(self.global_damping[2]))
+            self.lineEdit_bh.setText(str(self.global_damping[3]))
 
         self.exec_()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.check_run()
         elif event.key() == Qt.Key_Escape:
             self.close()
 

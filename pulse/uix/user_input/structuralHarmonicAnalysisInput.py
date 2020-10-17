@@ -16,13 +16,10 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.index = -1
-
         self.comboBox = self.findChild(QComboBox, 'comboBox')
-        # self.comboBox.currentIndexChanged.connect(self.selectionChange)
-
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
-
+        
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -31,9 +28,6 @@ class StructuralHarmonicAnalysisInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.index = -1
             self.close()
-
-    # def selectionChange(self, index):
-    #     self.index = self.comboBox.currentIndex()
 
     def check(self):
         self.index = self.comboBox.currentIndex()

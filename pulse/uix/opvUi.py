@@ -173,10 +173,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.resetCamera()
         self.afterChangePlot()
 
-    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part = True):
+    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True):
         self.beforeChangePlot()
         self.changeFrequency(frequency_indice)
         self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        if self.project.analysis_ID in [4]:
+            self.rendererAnalysis.setColorScalling(real_part)
         self.rendererAnalysis.setSliderFactor(self.sliderScale)
         self.rendererAnalysis.setInUse(True)
         # self.rendererAnalysis.setStress(plot_stress_field)

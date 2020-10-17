@@ -59,7 +59,7 @@
    <property name="frameShadow">
     <enum>QFrame::Plain</enum>
    </property>
-   <widget class="QPushButton" name="pushButton_confirm_run">
+   <widget class="QPushButton" name="pushButton_confirm_run_analysis">
     <property name="geometry">
      <rect>
       <x>232</x>
@@ -81,10 +81,10 @@
      <string notr="true">background-color: rgb(170, 255, 255);</string>
     </property>
     <property name="text">
-     <string>Confirm and Run</string>
+     <string>Run Analysis</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_confirm_exit">
+   <widget class="QPushButton" name="pushButton_confirm_close">
     <property name="geometry">
      <rect>
       <x>38</x>
@@ -103,7 +103,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Confirm and Exit</string>
+     <string>Confirm and Close</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_modes">
@@ -156,7 +156,7 @@
    <widget class="QTabWidget" name="tabWidget">
     <property name="geometry">
      <rect>
-      <x>24</x>
+      <x>26</x>
       <y>56</y>
       <width>381</width>
       <height>171</height>
@@ -165,7 +165,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
@@ -289,7 +289,7 @@
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -317,7 +317,7 @@
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -345,7 +345,7 @@
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -450,7 +450,7 @@
         <x>28</x>
         <y>6</y>
         <width>101</width>
-        <height>59</height>
+        <height>61</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -479,9 +479,9 @@ Viscous</string>
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>76</y>
+        <y>74</y>
         <width>101</width>
-        <height>59</height>
+        <height>61</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_6">
@@ -584,7 +584,7 @@ Hysteretic</string>
       <property name="geometry">
        <rect>
         <x>128</x>
-        <y>76</y>
+        <y>74</y>
         <width>52</width>
         <height>60</height>
        </rect>
@@ -660,7 +660,7 @@ Hysteretic</string>
         <x>188</x>
         <y>6</y>
         <width>101</width>
-        <height>57</height>
+        <height>61</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -684,7 +684,7 @@ Hysteretic</string>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -712,7 +712,7 @@ Hysteretic</string>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -728,10 +728,10 @@ Hysteretic</string>
      <widget class="QWidget" name="verticalLayoutWidget_10">
       <property name="geometry">
        <rect>
-        <x>298</x>
+        <x>292</x>
         <y>4</y>
         <width>61</width>
-        <height>60</height>
+        <height>63</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -802,8 +802,8 @@ Hysteretic</string>
      <widget class="QWidget" name="verticalLayoutWidget_11">
       <property name="geometry">
        <rect>
-        <x>298</x>
-        <y>76</y>
+        <x>292</x>
+        <y>74</y>
         <width>61</width>
         <height>60</height>
        </rect>
@@ -877,9 +877,9 @@ Hysteretic</string>
       <property name="geometry">
        <rect>
         <x>188</x>
-        <y>76</y>
+        <y>74</y>
         <width>101</width>
-        <height>57</height>
+        <height>61</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_12">
@@ -903,7 +903,7 @@ Hysteretic</string>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -931,7 +931,7 @@ Hysteretic</string>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>9</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>

@@ -44,6 +44,7 @@ class Project:
         self.time_to_process_cross_sections = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
+        self.lines_with_cross_section_by_elements = []
 
 
     def reset_info(self):

@@ -344,10 +344,11 @@ class InputUi:
             self.project.load_frequencies_from_table()
             self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
   
-        self.global_damping = self.project.global_damping
-  
-        analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
-        read = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
+        self.global_damping = self.project.global_damping    
+        read = AnalysisSetupInput(self.project, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
+
+        if not read.complete and self.project.setup_analysis_complete:
+            return
 
         self.frequencies = read.frequencies
         self.f_min = read.f_min
@@ -360,7 +361,6 @@ class InputUi:
             self.project.setup_analysis_complete = False
             return False
         else:
-            print("passei aqui")
             self.project.setup_analysis_complete = True
 
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
@@ -508,7 +508,7 @@ class InputUi:
             plot = PlotAcousticModeShapeInput(self.opv, self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
-            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True, real_part = plot.real_part)
+            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True, real_part=plot.flag_real_part)
         else:
             return
 
