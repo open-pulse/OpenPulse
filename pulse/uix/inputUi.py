@@ -49,7 +49,8 @@ from pulse.utils import error
 #
 from time import time
 
-
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 class InputUi:
     def __init__(self, project, parent=None):
         self.project = project
@@ -251,10 +252,9 @@ class InputUi:
             print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
-        window_title = "WARNING"
         title = "UNAVAILABLE FUNCTIONALITY"
         message = "This feature is currently under development and \nit will be available in the future updates."
-        PrintMessageInput([title, message, window_title])
+        PrintMessageInput([title, message, window_title2])
 
     def set_acoustic_element_length_correction(self):
         read = AcousticElementLengthCorrectionInput(self.project, self.opv)
@@ -311,6 +311,7 @@ class InputUi:
         self.analysis_method_label = read.analysis_method_label
  
         if self.analysis_ID is None:
+            self.project.analysis_ID = None
             return
  
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
@@ -327,10 +328,10 @@ class InputUi:
         else:
             self.setup_analysis_complete = False
             self.analysisSetup()
-        
+    
     def analysisSetup(self):
         
-        if self.project.analysis_ID is None:
+        if self.project.analysis_ID in [None, 2, 4]:
             return
         if self.project.file._project_name == "":
             return
@@ -346,33 +347,43 @@ class InputUi:
         self.global_damping = self.project.global_damping
   
         analysis_info = [self.analysis_ID, self.analysis_type_label, self.analysis_method_label]    
-        setup = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
-       
-        self.frequencies = setup.frequencies
-        self.f_min = setup.f_min
-        self.f_max = setup.f_max
-        self.f_step = setup.f_step
-        self.global_damping = setup.global_damping
-        self.setup_analysis_complete = setup.complete
+        read = AnalysisSetupInput(analysis_info, self.global_damping, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
 
-        if not setup.complete:
+        self.frequencies = read.frequencies
+        self.f_min = read.f_min
+        self.f_max = read.f_max
+        self.f_step = read.f_step
+        self.global_damping = read.global_damping
+        self.setup_analysis_complete = read.complete
+
+        if not read.complete:
+            self.project.setup_analysis_complete = False
             return False
+        else:
+            print("passei aqui")
+            self.project.setup_analysis_complete = True
 
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
         self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
-            self.project.set_modes_sigma(setup.modes)
+            self.project.set_modes_sigma(read.modes)
             self.project.set_damping(self.global_damping)
-        else:
-            return False
+        # else:
+        #     return False
+
+        if read.flag_run:
+            self.runAnalysis()
         return True
       
     def runAnalysis(self):
 
         t0 = time()
         if self.analysis_ID is None or not self.setup_analysis_complete:
-            error("Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model.")
+            
+            title = "INCOMPLETE SETUP ANALYSIS" 
+            message = "Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model."
+            PrintMessageInput([title, message, window_title1])
             return
 
         if self.flag_imported_table:
@@ -399,8 +410,7 @@ class InputUi:
             if self.analysis_ID not in [0,1,2]:
                 title = "INCORRECT ANALYSIS TYPE"
                 message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
-                window_title = "WARNING MESSAGE"
-                info_text = [title, message, window_title]
+                info_text = [title, message, window_title2]
                 PrintMessageInput(info_text)
                 return
 

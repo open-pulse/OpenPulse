@@ -10,7 +10,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_structural_frf
-from pulse.utils import error
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
+
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -140,7 +143,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title2])
     
     def writeNodes(self, list_node_ids):
         text = ""
@@ -186,10 +191,13 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title2])
         except Exception as e:
+            title = "ERROR WHILE LOADING TABLE"
             message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
+            PrintMessageInput([title, message[0], window_title1])
             return
 
     def choose_path_export_results(self):
@@ -210,16 +218,24 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                 try:
                     self.nodeID = self.mesh.nodes[node_typed[0]].external_index
                 except:
-                    error("Incorrect Node ID input!")
+                    title = "INVALID NODE ID"
+                    message = "You have typed an incorrect Node ID" 
+                    PrintMessageInput([title, message, window_title1])
                     return
             elif len(node_typed) == 0:
-                error("Please, enter a valid Node ID!")
+                title = "INVALID NODE ID"
+                message = "Please, enter a valid Node ID."
+                PrintMessageInput([title, message, window_title1])
                 return
             else:
-                error("Multiple Node IDs", "Error Node ID's")
+                title = "MULTIPLE NODE IDs"
+                message = "Please, type or select only one Node ID."
+                PrintMessageInput([title, message, window_title1])
                 return
         except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
+            title = "INVALID NODE ID"
+            message = "Wrong input for Node ID."
+            PrintMessageInput([title, message, window_title1])
             return
 
         if self.radioButton_ux.isChecked():
@@ -261,10 +277,14 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
-                error("Plese, choose a folder before trying export the results!")
+                title = "None folder selected"
+                message = "Plese, choose a folder before trying export the results."
+                PrintMessageInput([title, message, window_title1])
                 return
         else:
-            error("Inform a file name before trying export the results!")
+            title = "Empty file name"
+            message = "Inform a file name before trying export the results."
+            PrintMessageInput([title, message, window_title1])
             return
         
         self.check(export=True)
@@ -280,7 +300,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results has been exported.")
+        title = "Information"
+        message = "The results has been exported."
+        PrintMessageInput([title, message, window_title2])
 
     def plot(self):
 

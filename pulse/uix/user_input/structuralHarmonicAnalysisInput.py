@@ -15,11 +15,10 @@ class StructuralHarmonicAnalysisInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.index = 0
+        self.index = -1
 
         self.comboBox = self.findChild(QComboBox, 'comboBox')
-        self.comboBox.currentIndexChanged.connect(self.selectionChange)
-        self.index = self.comboBox.currentIndex()
+        # self.comboBox.currentIndexChanged.connect(self.selectionChange)
 
         self.pushButton_2 = self.findChild(QPushButton, 'pushButton_2')
         self.pushButton_2.clicked.connect(self.button_clicked)
@@ -33,10 +32,11 @@ class StructuralHarmonicAnalysisInput(QDialog):
             self.index = -1
             self.close()
 
-    def selectionChange(self, index):
-        self.index = self.comboBox.currentIndex()
+    # def selectionChange(self, index):
+    #     self.index = self.comboBox.currentIndex()
 
     def check(self):
+        self.index = self.comboBox.currentIndex()
         self.close()
 
     def button_clicked(self):

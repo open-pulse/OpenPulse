@@ -19,6 +19,8 @@ class AnalysisSetupInput(QDialog):
             uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_ModeSuperpositionMethod.ui', self)
         elif self.analysis_ID in [0,3,5]:
             uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_DirectMethod.ui', self)
+        else:
+            return
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -27,6 +29,7 @@ class AnalysisSetupInput(QDialog):
         self.currentTab = 0
 
         self.complete = False
+        self.flag_run = False
         self.frequencies = []
 
         self.f_min = f_min
@@ -51,8 +54,10 @@ class AnalysisSetupInput(QDialog):
         self.lineEdit_fmax = self.findChild(QLineEdit, 'lineEdit_max')
         self.lineEdit_fstep = self.findChild(QLineEdit, 'lineEdit_step')
 
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.check)
+        self.pushButton_confirm_exit = self.findChild(QPushButton, 'pushButton_confirm_exit')
+        self.pushButton_confirm_exit.clicked.connect(self.check_exit)
+        self.pushButton_confirm_run = self.findChild(QPushButton, 'pushButton_confirm_run')
+        self.pushButton_confirm_run.clicked.connect(self.check_run)
 
         self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
         self.tabWidget.currentChanged.connect(self.tabEvent)
@@ -82,7 +87,7 @@ class AnalysisSetupInput(QDialog):
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
-    def check(self):
+    def check_exit(self):
         input_fmin = input_fmax = input_fstep = 0
         if self.analysis_ID not in [2,4]:
             #Verify Modes
@@ -170,3 +175,7 @@ class AnalysisSetupInput(QDialog):
         
         self.complete = True
         self.close()
+    
+    def check_run(self):
+        self.check_exit()
+        self.flag_run = True

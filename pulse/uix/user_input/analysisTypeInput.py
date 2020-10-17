@@ -74,8 +74,9 @@ class AnalysisTypeInput(QDialog):
         self.close()
 
     def harmonic_acoustic(self):
-        select = AcousticHarmonicAnalysisInput()
-        self.method_ID = select.index
+        # select = AcousticHarmonicAnalysisInput()
+        # self.method_ID = select.index
+        self.method_ID = 0
         self.analysis_type_label = "Acoustic Harmonic Analysis"
         if self.method_ID == 0:
             self.analysis_ID = 3

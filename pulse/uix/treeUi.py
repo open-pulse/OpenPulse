@@ -319,11 +319,17 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analysisTypeInput()
             self._updateItems()
+            
         elif item.text(0) == self.name_child_analisysSetup:
-            self.mainWindow.getInputWidget().analysisSetup()
+            if not self.item_child_analisysSetup.isDisabled():
+                self.mainWindow.getInputWidget().analysisSetup()
+                self._updateItems()
+
         elif item.text(0) == self.name_child_runAnalysis:
-            self.mainWindow.getInputWidget().runAnalysis()
-            self._updateItems()
+            if not self.item_child_runAnalysis.isDisabled():
+                self.mainWindow.getInputWidget().runAnalysis()
+                self._updateItems()
+
         elif item.text(0) == self.name_child_plotStructuralModeShapes:
             self.mainWindow.getInputWidget().plotStructuralModeShapes()
         elif item.text(0) == self.name_child_plotDisplacementField:
@@ -359,6 +365,16 @@ class TreeUi(QTreeWidget):
             self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
+            self.item_child_analisysSetup.setDisabled(True)
+            self.item_child_runAnalysis.setDisabled(True)
+        
+        if self.project.analysis_ID in [None, 2,4]:
+            self.item_child_analisysSetup.setDisabled(True)
+        else:
+            self.item_child_analisysSetup.setDisabled(False)
+        
+        if self.project.analysis_ID not in [None] and self.project.setup_analysis_complete:
+            self.item_child_runAnalysis.setDisabled(False)
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
         
