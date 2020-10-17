@@ -8,26 +8,29 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow
+from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu
 
 from pulse.uix.infoUi import InfoUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.inputUi import InputUi
+from pulse.uix.config import Config
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
+        self.config = Config()
         self.project = Project()
-        self._load_icons()
+        self._loadIcons()
         self._config()
-        self._create_basic_layout()
-        self._create_actions()
-        self._create_menu_bar()
-        self._create_tool_bar()
+        self._createBasicLayout()
+        self._createActions()
+        self._createMenuBar()
+        self._createToolBar()
         self.show()
+        self.loadRecentProject()
 
-    def _load_icons(self):
+    def _loadIcons(self):
         icons_path = 'pulse\\data\\icons\\'
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'add.png')
@@ -39,25 +42,25 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(QSize(800, 600))
         self.showMaximized()
         self.setWindowIcon(self.pulse_icon)
-        self._change_window_title()
+        self.changeWindowTitle()
 
-    def _change_window_title(self, msg = ""):
+    def changeWindowTitle(self, msg = ""):
         title = "OpenPulse"
         if (msg != ""):
             title += " - " + msg
         self.setWindowTitle(title)
 
-    def _create_actions(self):
+    def _createActions(self):
         #File
         self.new_action = QAction(self.new_icon, '&New Project', self)        
         self.new_action.setShortcut('Ctrl+N')
         self.new_action.setStatusTip('New Project')
-        self.new_action.triggered.connect(self.new_call)
+        self.new_action.triggered.connect(self.newProject_call)
 
         self.import_action = QAction(self.open_icon, '&Import Project', self)       
         self.import_action.setShortcut('Ctrl+O')
         self.import_action.setStatusTip('Import Project')
-        self.import_action.triggered.connect(self.import_call)
+        self.import_action.triggered.connect(lambda: self.importProject_call())
 
         self.saveAsPng_action = QAction(self.saveImage_icon, '&Save as PNG', self)       
         self.saveAsPng_action.setShortcut('Ctrl+S')
@@ -240,65 +243,109 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
+    def _createRecentProjectsActions(self):
+        self.importRecent_action = {}
+        for value in self.config.recentProjects:
+            import_action = QAction('&'+str(value) + "     "+str(self.config.recentProjects[value]), self)       
+            import_action.setStatusTip(value)
+            self.importRecent_action[value] = import_action
+        try:
+            temp = list(self.config.recentProjects.items())
+            self.importRecent_action[temp[0][0]].triggered.connect(lambda: self.importRecentProject_call(temp[0][1]))
+            self.importRecent_action[temp[1][0]].triggered.connect(lambda: self.importRecentProject_call(temp[1][1]))
+            self.importRecent_action[temp[2][0]].triggered.connect(lambda: self.importRecentProject_call(temp[2][1]))
+            self.importRecent_action[temp[3][0]].triggered.connect(lambda: self.importRecentProject_call(temp[3][1]))
+            self.importRecent_action[temp[4][0]].triggered.connect(lambda: self.importRecentProject_call(temp[4][1]))
+            self.importRecent_action[temp[5][0]].triggered.connect(lambda: self.importRecentProject_call(temp[5][1]))
+            self.importRecent_action[temp[6][0]].triggered.connect(lambda: self.importRecentProject_call(temp[6][1]))
+            self.importRecent_action[temp[7][0]].triggered.connect(lambda: self.importRecentProject_call(temp[7][1]))
+            self.importRecent_action[temp[8][0]].triggered.connect(lambda: self.importRecentProject_call(temp[8][1]))
+            self.importRecent_action[temp[9][0]].triggered.connect(lambda: self.importRecentProject_call(temp[9][1]))
+        except Exception:
+            pass
 
-    def _create_menu_bar(self):
+    def _createMenuRecentProjects(self):
+        self.recentProjectsMenu = QMenu("Recents Projects", parent=self)
+        for i in self.importRecent_action:
+            self.recentProjectsMenu.addAction(self.importRecent_action[i])
+    
+    def _loadProjectMenu(self):
+        self._createRecentProjectsActions()
+        self._createMenuRecentProjects()
+        self.projectMenu.clear()
+        self.projectMenu.addAction(self.new_action)
+        self.projectMenu.addAction(self.import_action)
+        self.projectMenu.addMenu(self.recentProjectsMenu)
+        self.projectMenu.addAction(self.saveAsPng_action)
+        self.projectMenu.addAction(self.exit_action)
+
+    def _loadGraphicMenu(self):
+        self.graphicMenu.addAction(self.entities_action)
+        self.graphicMenu.addAction(self.entities_action_radius)
+        self.graphicMenu.addAction(self.mesh_action)
+        self.graphicMenu.addAction(self.section_action)
+
+    def _loadModelSetupMenu(self):
+        self.modelSetupMenu.addAction(self.setElementType_action)
+        self.modelSetupMenu.addAction(self.set_material_action)
+        self.modelSetupMenu.addAction(self.set_crossSection_action)
+        self.modelSetupMenu.addAction(self.setDOF_action)
+        self.modelSetupMenu.addAction(self.setForce_action)
+        self.modelSetupMenu.addAction(self.setMass_action)
+        self.modelSetupMenu.addAction(self.setcappedEnd_action)
+
+        self.modelSetupMenu.addAction(self.set_fluid_action)
+        self.modelSetupMenu.addAction(self.setAcousticPressure_action)
+        self.modelSetupMenu.addAction(self.setVolumeVelocity_action)
+        self.modelSetupMenu.addAction(self.setSpecificImpedance_action)
+        self.modelSetupMenu.addAction(self.set_radiation_impedance_action)
+        self.modelSetupMenu.addAction(self.add_perforated_plate_action)
+        self.modelSetupMenu.addAction(self.set_acoustic_element_length_correction_action)
+
+    def _loadModelInfoMenu(self):
+        self.modelInfoMenu.addAction(self.structural_model_info_action)
+        self.modelInfoMenu.addAction(self.acoustic_model_info_action)
+
+    def _loadAnalysisMenu(self):
+        self.analysisMenu.addAction(self.selectAnalysisType_action)
+        self.analysisMenu.addAction(self.analysisSetup_action)
+        self.analysisMenu.addAction(self.runAnalysis_action)
+
+    def _loadResultsViewerMenu(self):
+        self.resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
+        self.resultsViewerMenu.addAction(self.plotDisplacementField_action)
+        self.resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plotSressField_action)
+        self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
+
+        self.resultsViewerMenu.addAction(self.plotPressureField_action)
+        self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
+        self.resultsViewerMenu.addAction(self.plot_TL_NR)
+
+    def _loadHelpMenu(self):
+        self.helpMenu.addAction(self.help_action)
+
+    def _createMenuBar(self):
         menuBar = self.menuBar()
 
-        projectMenu = menuBar.addMenu('&Project')
-        graphicMenu = menuBar.addMenu('&Graphic')
-        modelSetup = menuBar.addMenu('&Model Setup')
-        model_info = menuBar.addMenu('&Model Info')
-        analysisMenu = menuBar.addMenu('&Analysis')
-        resultsViewerMenu = menuBar.addMenu('&Results Viewer')
-        helpMenu = menuBar.addMenu("&Help")
+        self.projectMenu = menuBar.addMenu('&Project')
+        self.graphicMenu = menuBar.addMenu('&Graphic')
+        self.modelSetupMenu = menuBar.addMenu('&Model Setup')
+        self.modelInfoMenu = menuBar.addMenu('&Model Info')
+        self.analysisMenu = menuBar.addMenu('&Analysis')
+        self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
+        self.helpMenu = menuBar.addMenu("&Help")
 
-        projectMenu.addAction(self.new_action)
-        projectMenu.addAction(self.import_action)
-        projectMenu.addAction(self.saveAsPng_action)
-        projectMenu.addAction(self.exit_action)
+        self._loadProjectMenu()
+        self._loadGraphicMenu()
+        self._loadModelSetupMenu()
+        self._loadModelInfoMenu()
+        self._loadAnalysisMenu()
+        self._loadResultsViewerMenu()
+        self._loadHelpMenu()
 
-        graphicMenu.addAction(self.entities_action)
-        graphicMenu.addAction(self.entities_action_radius)
-        graphicMenu.addAction(self.mesh_action)
-        graphicMenu.addAction(self.section_action)
-
-        modelSetup.addAction(self.setElementType_action)
-        modelSetup.addAction(self.set_material_action)
-        modelSetup.addAction(self.set_crossSection_action)
-        modelSetup.addAction(self.setDOF_action)
-        modelSetup.addAction(self.setForce_action)
-        modelSetup.addAction(self.setMass_action)
-        modelSetup.addAction(self.setcappedEnd_action)
-
-        modelSetup.addAction(self.set_fluid_action)
-        modelSetup.addAction(self.setAcousticPressure_action)
-        modelSetup.addAction(self.setVolumeVelocity_action)
-        modelSetup.addAction(self.setSpecificImpedance_action)
-        modelSetup.addAction(self.set_radiation_impedance_action)
-        modelSetup.addAction(self.add_perforated_plate_action)
-        modelSetup.addAction(self.set_acoustic_element_length_correction_action)
-
-        model_info.addAction(self.structural_model_info_action)
-        model_info.addAction(self.acoustic_model_info_action)
-
-        analysisMenu.addAction(self.selectAnalysisType_action)
-        analysisMenu.addAction(self.analysisSetup_action)
-        analysisMenu.addAction(self.runAnalysis_action)
-
-        resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
-        resultsViewerMenu.addAction(self.plotDisplacementField_action)
-        resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
-        resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
-        resultsViewerMenu.addAction(self.plotSressField_action)
-        resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
-
-        resultsViewerMenu.addAction(self.plotPressureField_action)
-        resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
-        resultsViewerMenu.addAction(self.plot_TL_NR)
-
-        helpMenu.addAction(self.help_action)
-
-    def _create_tool_bar(self):
+    def _createToolBar(self):
         self.toolbar = QToolBar("Enable Toolbar")
         self.toolbar.setIconSize(QSize(26,26))
         self.toolbar.setMovable(False)
@@ -309,7 +356,7 @@ class MainWindow(QMainWindow):
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
 
-    def _create_basic_layout(self):
+    def _createBasicLayout(self):
         self.info_widget = InfoUi(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
@@ -321,17 +368,29 @@ class MainWindow(QMainWindow):
         working_area.addWidget(self.opv_widget)
         working_area.setSizes([100,400])
 
-    def new_call(self):
-        if self.inputWidget.new_project():
-            self.reset_info()
-            self._change_window_title(self.project.get_project_name())
+    def newProject_call(self):
+        if self.inputWidget.new_project(self.config):
+            self._loadProjectMenu()
+            self.changeWindowTitle(self.project.get_project_name())
             self.draw()
 
-    def import_call(self):
-        loaded = self.inputWidget.loadProject()
-        if loaded:
-            self._change_window_title(self.project.get_project_name())
+    def importProject_call(self, path=None):
+        if self.inputWidget.loadProject(self.config, path):
+            self._loadProjectMenu()
+            self.changeWindowTitle(self.project.get_project_name())
             self.draw()
+
+    def importRecentProject_call(self, dir):
+        self.importProject_call(dir)
+
+    def loadRecentProject(self):
+        if self.config.openLastProject and self.config.haveRecentProjects():
+            self.importProject_call(self.config.getMostRecentProjectDir())
+        else:
+            if self.inputWidget.getStarted(self.config):
+                self._loadProjectMenu()
+                self.changeWindowTitle(self.project.get_project_name())
+                self.draw()
 
     def savePNG_call(self):
         userPath = expanduser('~')
@@ -341,10 +400,6 @@ class MainWindow(QMainWindow):
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.getOPVWidget().savePNG(path)
-
-    def reset_info(self):
-        return
-        #self.opv_widget.reset_info()
 
     def plot_entities(self):
         self.opv_widget.plotEntities()

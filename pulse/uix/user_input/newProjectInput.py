@@ -11,7 +11,7 @@ import numpy as np
 from PyQt5 import uic
 
 class NewProjectInput(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/newProjectInput.ui', self)
 
@@ -20,6 +20,7 @@ class NewProjectInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.config = config
         self.create = False
         self.stop = False
 
@@ -164,6 +165,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
+            self.config.writeRecentProject(self.line_project_name.text(), self.project_folder_path)
             self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
             return True
         elif self.currentTab == 1:
@@ -175,6 +177,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_conn.text(), new_conn_path)
             element_size = 0
             import_type = 1
+            self.config.writeRecentProject(self.line_project_name.text(), self.project_file_path)
             self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
             return True
         return False

@@ -1,6 +1,7 @@
 #
 from pulse.uix.user_input.newProjectInput import NewProjectInput
 from pulse.uix.user_input.loadProjectInput import LoadProjectInput
+from pulse.uix.user_input.getStartedInput import GetStartedInput
 #
 from pulse.uix.user_input.elementTypeInput import ElementTypeInput
 from pulse.uix.user_input.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
@@ -79,15 +80,17 @@ class InputUi:
         except:
             return
 
-    def new_project(self):
-        new_project_input = NewProjectInput(self.project)
-        self.project.project_folder_path = new_project_input.project_folder_path
+    def new_project(self, config):
+        new_project_input = NewProjectInput(self.project, config)
         return new_project_input.create
 
-    def loadProject(self):
-        load_project = LoadProjectInput(self.project)
-        self.project.project_folder_path = load_project.project_folder_path
+    def loadProject(self, config, path=None):
+        load_project = LoadProjectInput(self.project, config, path)
         return load_project.complete
+
+    def getStarted(self, config):
+        getStarted = GetStartedInput(self.project, config, self)
+        return getStarted.draw
 
     def setElementType(self):
         read = ElementTypeInput(self.project, self.opv)
