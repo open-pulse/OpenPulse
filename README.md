@@ -32,6 +32,8 @@ python pulse.py
     numpy
     PyQt5
     vtk
+    gmsh-sdk
+    h5py
     
 ## Documentation
 
