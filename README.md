@@ -43,6 +43,8 @@ python pulse.py
 
 - [User Guide for Coupled Analysis (empty)](https://).
 
+- Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
+
 ## ISMA2020 - International Conference on Noise and Vibration Engineering
 
 - [Presentation](https://www.youtube.com/watch?v=iarKDAei6fg&t).
