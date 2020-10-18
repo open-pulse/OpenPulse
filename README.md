@@ -10,7 +10,7 @@ You can try it out now by running the tutorial on binder.
 
 ## Installing
 
-- **Install Python 3.7.7** ([download](https://www.python.org/downloads/release/python-377/)).
+- **Install Python 3.7.6** ([download](https://www.python.org/downloads/release/python-376/)).
 
 - **Install OpenPulse**.
 Clone or download [OpenPulse](https://github.com/open-pulse/OpenPulse) files. In the case of download, unzip the received file and open a terminal in the main folder (an easy way to do this is to enter the folder, press shift and right click, then "Open PowerShell here"). So, enter the command: 
@@ -26,12 +26,14 @@ python pulse.py
 
 ## Requirements
 
-    Python v. 3.7.7 
+    Python v. 3.7.6 
     scipy
     matplotlib
     numpy
     PyQt5
     vtk
+    gmsh-sdk
+    h5py
     
 ## Documentation
 
@@ -42,6 +44,13 @@ python pulse.py
 - [User Guide for Acoustic Analysis](https://open-pulse.github.io/OpenPulse/doc/TEMP_Acoustic_UserGuide.pdf).
 
 - [User Guide for Coupled Analysis (empty)](https://).
+
+- Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
+
+## ISMA2020 - International Conference on Noise and Vibration Engineering
+
+- [Presentation](https://www.youtube.com/watch?v=iarKDAei6fg&t).
+- [Full Paper](https://github.com/open-pulse/OpenPulse/blob/master/doc/ISMA_2020_PRE.pdf).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
