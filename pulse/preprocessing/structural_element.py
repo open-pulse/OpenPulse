@@ -384,17 +384,18 @@ class StructuralElement:
         aux[0], aux[6] = 1, -1
         R = self.rotation_matrix
 
-        if self.element_type in ['pipe_1']:
-            principal_axis = self.cross_section.principal_axis
-        elif self.element_type in ['pipe_2']:
-            principal_axis = np.eye(rows)
+        # if self.element_type in ['pipe_1']:
+        #     principal_axis = self.cross_section.principal_axis
+        # elif self.element_type in ['pipe_2']:
+        #     principal_axis = np.eye(rows)
 
         if self.capped_end:
             capped_end = 1
         else:
             capped_end = 0
 
-        aux = R.T @ principal_axis.T @ aux
+        # aux = R.T @ principal_axis.T @ aux
+        aux = R.T @ aux
         F_p = (capped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p
