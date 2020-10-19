@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QLineEdit, QToolButton, QWidget, QFileDialog, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QMessageBox, QSpinBox
-from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -7,10 +6,14 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 import os
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 import matplotlib.pyplot as plt
 import numpy as np
 
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
+
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -64,6 +67,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
         self.projec = project
         self.mesh = project.mesh
+        self.nodes = project.mesh.nodes
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
@@ -127,7 +131,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title2])
     
     def writeNodes(self, list_node_ids):
         text = ""
@@ -155,13 +161,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
-    def messages(self, msg, title = " Information "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
         self.import_name = basename(self.import_path)
@@ -173,10 +172,14 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",",skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title2])
         except Exception as e:
+            title = "ERROR WHILE LOADING TABLE"
             message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
+            PrintMessageInput([title, message[0], window_title1])
+            return
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
@@ -191,22 +194,34 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             except:
                 pass
             node_typed = list(map(int, tokens))
-            if len(node_typed) == 1:
-                try:
-                    self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-                except:
-                    message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-                    error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                    return
-            elif len(node_typed) == 0:
-                error("Please, enter a valid Node ID!")
-                return
-            else:
-                error("Multiple Node IDs", title="Error Node ID's")
-                return
+
         except Exception:
-            error("Wrong input for Node ID's!", title="Error Node ID's")
-            return
+            title = "INVALID NODE ID"
+            message = "Wrong input for Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
+
+        if len(node_typed) == 1:
+            try:
+                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
+            except:
+                title = "INVALID NODE ID"
+                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
+                PrintMessageInput([title, message, window_title1])
+                return True
+
+        elif len(node_typed) == 0:
+            title = "INVALID NODE ID"
+            message = "Please, enter a valid Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
+            
+        else:
+            title = "MULTIPLE NODE IDs"
+            message = "Please, type or select only one Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
+
                 
         if self.checkBox_dB.isChecked():
             self.scale_dB = True
@@ -216,20 +231,25 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         if not export:
             self.plot()
 
-
     def ExportResults(self):
 
         if self.lineEdit_FileName.text() != "":
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
-                error("Plese, choose a folder before trying export the results!")
+                title = "None folder selected"
+                message = "Plese, choose a folder before trying export the results."
+                PrintMessageInput([title, message, window_title1])
                 return
         else:
-            error("Inform a file name before trying export the results!")
+            title = "Empty file name"
+            message = "Inform a file name before trying export the results."
+            PrintMessageInput([title, message, window_title1])
             return
 
-        self.check(export=True)
+        if self.check(export=True):
+            return
+
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
@@ -242,7 +262,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results has been exported.")
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title2])
 
     def dB(self, data):
         p_ref = 20e-6 
@@ -265,7 +287,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
                     ax.set_ylabel("Acoustic Response - Real [Pa]", fontsize = 14, fontweight = 'bold')
                 elif self.plotImag:
                     ax.set_ylabel("Acoustic Response - Imaginary [Pa]", fontsize = 14, fontweight = 'bold')
-                self.messages("The dB scalling can only be applied with the absolute \nY-axis representation, therefore, it will be ignored.")
+                title = "Plot Information"
+                message = "The dB scalling can only be applied with the absolute \nY-axis representation, therefore, it will be ignored."
+                PrintMessageInput([title, message, window_title2])
         else:
             if self.plotAbs:
                 ax.set_ylabel("Acoustic Response - Absolute [Pa]", fontsize = 14, fontweight = 'bold')

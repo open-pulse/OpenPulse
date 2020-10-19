@@ -6,11 +6,15 @@ from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 
+from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
+from pulse.uix.user_input.printMessageInput import PrintMessageInput
+
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -64,7 +68,7 @@ class Plot_TL_NR_Input(QDialog):
 
         self.projec = project
         self.mesh = project.mesh
-
+        self.nodes = project.mesh.nodes
         self.userPath = os.path.expanduser('~')
         self.path = ""
         self.save_path = ""
@@ -139,47 +143,60 @@ class Plot_TL_NR_Input(QDialog):
             except:
                 pass
             node_typed = list(map(int, tokens))
-            if len(node_typed) == 1:
-                try:
-                    self.mesh.nodes[node_typed[0]].external_index
-                except:
-                    message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-                    error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                    return 
-            elif len(node_typed) == 0:
-                error("Please, enter a valid Node ID!")
-                return
-            else:
-                error("Multiple Node IDs", title="Error Node ID's")
-                return
+
         except Exception:
-            error("Wrong input for Node ID's!", title="Error Node ID's")
-            return
-        
+            title = "INVALID NODE ID"
+            message = "Wrong input for Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return None, False
+
+        if len(node_typed) == 1:
+            try:
+                self.mesh.nodes[node_typed[0]].external_index
+            except:
+                title = "INVALID NODE ID"
+                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
+                PrintMessageInput([title, message, window_title1])
+                return None, False
+
+        elif len(node_typed) == 0:
+            title = "INVALID NODE ID"
+            message = "Please, enter a valid Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return None, False
+
+        else:
+            title = "MULTIPLE NODE IDs"
+            message = "Please, type or select only one Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return None, False
+
         return node_typed[0], True
-    
-    def messages(self, msg, title = " Information "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title2])
 
     def radioButtonEvent_TL_NR(self):
         self.flagTL = self.radioButton_TL.isChecked()
         self.flagNR = self.radioButton_NR.isChecked()
 
     def check(self, export=False):
+
         self.input_node, input_ok = self.check_node(self.lineEdit_inputNodeID)
-        self.output_node, output_ok = self.check_node(self.lineEdit_outputNodeID)
-        if input_ok and output_ok and not export:
-            self.plot()
-        else:
+        if not input_ok:
             return
+
+        self.output_node, output_ok = self.check_node(self.lineEdit_outputNodeID)
+        if not output_ok:
+            return
+
+        if export:
+            return
+        else:
+            self.plot()
 
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
@@ -192,10 +209,13 @@ class Plot_TL_NR_Input(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title2])
         except Exception as e:
+            title = "ERROR WHILE LOADING TABLE"
             message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
+            PrintMessageInput([title, message[0], window_title1])
             return
 
     def choose_path_export_results(self):
@@ -209,10 +229,14 @@ class Plot_TL_NR_Input(QDialog):
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
-                error("Plese, choose a folder before trying export the results!")
+                title = "None folder selected"
+                message = "Plese, choose a folder before trying export the results."
+                PrintMessageInput([title, message, window_title1])
                 return
         else:
-            error("Inform a file name before trying export the results!")
+            title = "Empty file name"
+            message = "Inform a file name before trying export the results."
+            PrintMessageInput([title, message, window_title1])            
             return
             
         self.check(export=True)
@@ -235,7 +259,9 @@ class Plot_TL_NR_Input(QDialog):
 
         if self.flagTL:
             if True in check_name_TL:
-                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
+                title = "File name recheck"
+                message = "Please, it's recommended to check the file name before export the results!"
+                PrintMessageInput([title, message, window_title2])
                 return
             self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
             data_to_export = np.array([freq, TL]).T
@@ -243,13 +269,18 @@ class Plot_TL_NR_Input(QDialog):
             np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         else:
             if True in check_name_NR:
-                self.messages("Please, it's recommended to check the file name before export the results!", title=" Warning ")
+                title = "File name recheck"
+                message = "Please, it's recommended to check the file name before export the results!"
+                PrintMessageInput([title, message, window_title2])
                 return
             self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
             data_to_export = np.array([freq, NR]).T
             header = "Frequency[Hz], NR - Magnitude [dB]"
             np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results has been exported.")
+            
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title2])
 
     def get_minor_external_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]
@@ -279,8 +310,9 @@ class Plot_TL_NR_Input(QDialog):
             delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
             NR = 10*np.log10(delta)
         else:
+            title = "Invalid pressure values"
             message = "The input pressure must be different from zero value!"
-            error(message, title=" Input pressure value Error ")
+            PrintMessageInput([title, message, window_title1])
         return TL, NR
 
     def plot(self):

@@ -67,6 +67,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.projec = project
         self.mesh = project.mesh
+        self.nodes = project.mesh.nodes
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
@@ -173,13 +174,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
-    def messages(self, msg, title = " Information "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
         self.import_name = basename(self.import_path)
@@ -214,29 +208,30 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             except:
                 pass
             node_typed = list(map(int, tokens))
-            if len(node_typed) == 1:
-                try:
-                    self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-                except:
-                    title = "INVALID NODE ID"
-                    message = "You have typed an incorrect Node ID" 
-                    PrintMessageInput([title, message, window_title1])
-                    return
-            elif len(node_typed) == 0:
-                title = "INVALID NODE ID"
-                message = "Please, enter a valid Node ID."
-                PrintMessageInput([title, message, window_title1])
-                return
-            else:
-                title = "MULTIPLE NODE IDs"
-                message = "Please, type or select only one Node ID."
-                PrintMessageInput([title, message, window_title1])
-                return
         except Exception:
             title = "INVALID NODE ID"
             message = "Wrong input for Node ID."
             PrintMessageInput([title, message, window_title1])
-            return
+            return True
+
+        if len(node_typed) == 1:
+            try:
+                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
+            except:
+                title = "INVALID NODE ID"
+                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
+                PrintMessageInput([title, message, window_title1])
+                return True
+        elif len(node_typed) == 0:
+            title = "INVALID NODE ID"
+            message = "Please, enter a valid Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
+        else:
+            title = "MULTIPLE NODE IDs"
+            message = "Please, type or select only one Node ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
 
         if self.radioButton_ux.isChecked():
             self.localDof = 0
@@ -287,7 +282,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
         
-        self.check(export=True)
+        if self.check(export=True):
+            return
+
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
