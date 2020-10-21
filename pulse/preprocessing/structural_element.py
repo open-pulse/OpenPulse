@@ -9,6 +9,7 @@ DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
+zeros_3x3 = np.zeros((3,3), dtype=float)
 
 def gauss_quadracture(integration_points):
     if integration_points == 1:
@@ -199,7 +200,7 @@ class StructuralElement:
         res_z = self.cross_section.res_z
 
         # Stress stiffening
-        sigma_1a, sigma_1t = self.stress_stiffening()
+        S = self.stress_stiffening()
  
         # Shear coefficiets
         aly = 1/res_y
@@ -267,7 +268,7 @@ class StructuralElement:
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
-            Kabt_geo += (sigma_1a + sigma_1t) * Bab.T @ Bab * det_jacob * weigth
+            Kabt_geo += Bab.T @ S @ Bab * det_jacob * weigth
               
         Ke = Kabe + Ktse + Kabt_geo
 
@@ -401,9 +402,11 @@ class StructuralElement:
         return F_p
 
     def stress_stiffening(self):
+
+        S = zeros_3x3.copy()
         
         if self.element_type in ['beam_1']:
-            return 0, 0
+            return S
         
         Din = self.cross_section.external_diameter
         Dout = self.cross_section.internal_diameter
@@ -426,7 +429,9 @@ class StructuralElement:
         sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
         sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
 
-        return sigma_1a, sigma_1t
+        S[0,0] = sigma_1a + sigma_1t
+
+        return S
 
     ##
     def symmetrize(self, a):

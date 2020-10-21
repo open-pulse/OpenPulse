@@ -77,11 +77,11 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
-    def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new_project(self, project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
-        self.file.new(project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.new(project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
         self._project_name = project_name
-        self.project_folder_path = project_path
+        self.project_folder_path = project_folder_path
 
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
@@ -95,7 +95,7 @@ class Project:
         self.reset_info()
         self.file.load(project_file_path)
         self._project_name = self.file._project_name
-        self.project_folder_path = project_file_path
+        self.project_folder_path = os.path.dirname(project_file_path)
 
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
@@ -106,7 +106,6 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
 
-        # if self.file.temp_table_name is None:
         self.load_analysis_file()
         if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
