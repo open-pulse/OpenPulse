@@ -6,6 +6,10 @@ from pulse.uix.vtk.actor.actorElement import ActorElement
 from pulse.uix.vtk.actor.actorArrow import ActorArrow
 from pulse.uix.vtk.vtkSymbols import vtkSymbols
 
+from pulse.interface.tubeActor import TubeActor
+
+from time import time 
+
 import vtk
 import numpy as np 
 
@@ -113,9 +117,21 @@ class RendererMesh(vtkRendererBase):
         self.reset()
         self.saveNodesBounds()
         self.saveElementsBounds()
-        self.plotNodes()
-        self.plotElements()
-        self.plotTubes()
+        self.plotTeste()
+        # self.plotNodes()
+        # self.plotElements()
+        # self.plotTubes()
+    
+    def plotTeste(self):
+        start_time = time()
+
+        elements = self.project.get_elements().values()
+        tube = TubeActor(elements, self.project)
+        tube.build()
+        self._renderer.AddActor(tube.getActor())
+
+        end_time = time()
+        print('time to plot', end_time - start_time)
     
     def saveNodesBounds(self):
         self.nodesBounds.clear()
