@@ -1118,6 +1118,10 @@ class Mesh:
 
             Ys = list(np.array(Yp)-Yc)
             Zs = list(np.array(Zp)-Zc)
+        
+        else:
+            Ys = [0]
+            Zs = [0]
 
         # elif section_type == 6: # Beam: Generic section
     
@@ -1128,11 +1132,5 @@ class Mesh:
 
             # return 0, 0, 0, 0
 
-        # dict_lines_to_points = {}
-        # list_indexes = list(np.arange(len(Yp)))
-        # list_indexes.append(0)
         
-        # for k in range(len(Yp)):
-        #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
-
-        return Ys, Zs#, Yc, Zc, dict_lines_to_points
+        return Ys, Zs
