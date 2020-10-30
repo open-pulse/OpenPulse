@@ -3,9 +3,10 @@ import math
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorArrow(vtkActorBase):
-    def __init__(self, node, xyz=1, u_def=[]):
+    def __init__(self, node, radius, xyz=1, u_def=[]):
         super().__init__()
         self.node = node
+        self.radius = radius
         self.xyz = xyz
         if u_def == []:
             self.x = node.x
@@ -39,7 +40,7 @@ class ActorArrow(vtkActorBase):
         self.arrowSource.SetTipRadius(0)
 
     def transform(self):
-        self._actor.SetScale(0.2,0.2,0.2)
+        self._actor.SetScale(self.radius*12, self.radius*12, self.radius*12)
         transform = vtk.vtkTransform()
         self.translate(transform)
         self.rotate(transform)

@@ -4,8 +4,8 @@ from pulse.uix.vtk.actor.actorArrow import ActorArrow
 from pulse.uix.vtk.actor.actorDamper import ActorDamper
 
 class vtkSymbols:
-    def __init__(self):
-        pass
+    def __init__(self, project):
+        self.project = project
 
     def arrow(self, start, end):
         arrowSource = vtk.vtkArrowSource()
@@ -42,7 +42,7 @@ class vtkSymbols:
         transform.Translate(startPoint)
         transform.Concatenate(matrix)
         #transform.Scale(length, length, length)
-        transform.Scale(0.01, 0.01, 0.01)
+        transform.Scale(self.project.get_element_size(), self.project.get_element_size(), self.project.get_element_size())
 
         transformPD = vtk.vtkTransformPolyDataFilter()
         transformPD.SetTransform(transform)
@@ -92,7 +92,7 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
-            a = ActorArrow(node, xyz=v[i], u_def=u_def)
+            a = ActorArrow(node, self.project.get_element_size(), xyz=v[i], u_def=u_def)
             a.setNormalizedColor([1,1,0])
             a.setShiftValue(shift)
             a.removeTipLenght()
@@ -127,7 +127,7 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
-            a = ActorArrow(node, xyz=v[i], u_def=u_def)
+            a = ActorArrow(node, self.project.get_element_size(), xyz=v[i], u_def=u_def)
             a.removeShaftRadius()
             a.setNormalizedColor([0,1,0])
             a.setShiftValue(shift)
@@ -157,7 +157,7 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
-            a = ActorArrow(node, xyz=v[i])
+            a = ActorArrow(node, self.project.get_element_size(), xyz=v[i])
             a.setNormalizedColor([1,0,0])
             a.setShiftValue(shift)
             a.build()
@@ -187,7 +187,7 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
-            a = ActorArrow(node, xyz=v[i])
+            a = ActorArrow(node, self.project.get_element_size(), xyz=v[i])
             a.removeShaftRadius()
             a.setNormalizedColor([1,0.64,0])
             a.setShiftValue(shift)
@@ -217,7 +217,7 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
-            a = ActorArrow(node, xyz=v[i])
+            a = ActorArrow(node, self.project.get_element_size(), xyz=v[i])
             a.setNormalizedColor([0,0,1])
             a.setShiftValue(shift)
             a.build()

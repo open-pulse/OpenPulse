@@ -16,7 +16,7 @@ class RendererPostProcessing(vtkRendererBase):
         super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
-        self.symbols = vtkSymbols()
+        self.symbols = vtkSymbols(self.project)
         self.textActorUnit = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.colorbar = vtk.vtkScalarBarActor()

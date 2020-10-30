@@ -14,7 +14,7 @@ class RendererMesh(vtkRendererBase):
         super().__init__(vtkMeshClicker(self))
         self.project = project
         self.opv = opv 
-        self.symbols = vtkSymbols()
+        self.symbols = vtkSymbols(self.project)
         
         self.nodesBounds = dict() # (x,y,z) coordinates
         self.elementsBounds = dict() # bounding coordinates
