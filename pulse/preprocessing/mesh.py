@@ -9,9 +9,12 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
+from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.uix.user_input.printMessageInput import PrintMessageInput
+
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error
 
+window_title1 = "ERROR"
 
 class Mesh:
     def __init__(self):
@@ -56,6 +59,7 @@ class Mesh:
         self.all_lines = []
         self.flag_fluid_mass_effect = False
         self.group_index = 0
+        self.volume_velocity_table_index = 0
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
 
     def generate(self, path, element_size):
@@ -789,14 +793,33 @@ class Mesh:
                     self.nodes_with_acoustic_pressure.remove(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values):
-        for node in slicer(self.nodes, nodes):
-            node.volume_velocity = values
-            node.acoustic_pressure = None
-            if not node in self.nodes_with_volume_velocity:
-                self.nodes_with_volume_velocity.append(node)
-            if values is None:
-                if node in self.nodes_with_volume_velocity:
-                    self.nodes_with_volume_velocity.remove(node)
+        try:
+            for node in slicer(self.nodes, nodes):
+                if node.volume_velocity is None or values is None:
+                    node.volume_velocity = values
+                elif isinstance(node.volume_velocity, np.ndarray) and isinstance(values, np.ndarray):
+                    if node.volume_velocity.shape == values.shape:
+                        node.volume_velocity += values 
+                    else:
+                        title = "ERROR WHILE SETTING VOLUME VELOCITY"
+                        message = "The arrays length mismatch. It is recommended to check the frequency setup before continue."
+                        message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
+                        message += "New array length: {}".format(str(values.shape).replace(",", ""))
+                        PrintMessageInput([title, message, window_title1])
+                        return True  
+                node.acoustic_pressure = None
+                if not node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.append(node)
+                if values is None:
+                    if node in self.nodes_with_volume_velocity:
+                        self.nodes_with_volume_velocity.remove(node)
+                elif isinstance(values, np.ndarray):
+                    self.volume_velocity_table_index += 1 
+        except Exception as error:
+            title = "ERROR WHILE SET VOLUME VELOCITY"
+            message = str(error)
+            PrintMessageInput([title, message, window_title1])
+            return True  
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -1136,3 +1159,20 @@ class Mesh:
         #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
 
         return Ys, Zs#, Yc, Zc, dict_lines_to_points
+
+    def add_compressor_excitation(self, parameters):
+                
+        list_parameters = []
+        for key, parameter in parameters.items():
+            if key != 'cylinder label':
+                list_parameters.append(parameter)
+
+        if 'cylinder label' in parameters.keys():
+            CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
+        else:
+            compressor = CompressorModel(list_parameters)
+        
+
+          
+
+        

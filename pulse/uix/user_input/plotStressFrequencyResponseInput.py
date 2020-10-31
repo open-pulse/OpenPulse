@@ -286,7 +286,7 @@ class PlotStressFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results has been exported.")
+        self.messages("The results have been exported.")
 
     def get_stress_data(self):
         

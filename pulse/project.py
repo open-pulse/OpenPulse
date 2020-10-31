@@ -302,7 +302,8 @@ class Project:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
         for key, VelVol in volume_velocity.items():
             if VelVol is not None:
-                self.load_volume_velocity_bc_by_node(key, VelVol)
+                for data in VelVol:
+                    self.load_volume_velocity_bc_by_node(key, data)
         for key, SpecImp in specific_impedance.items():
             if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
@@ -611,10 +612,15 @@ class Project:
         label = ["acoustic pressure"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name=""):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, values) 
-        label = ["volume velocity"] 
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)    
+    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name="", table_index=None):
+        if self.mesh.set_volume_velocity_bc_by_node(node_id, values):
+            return True
+        if table_index is None:
+            label = ["volume velocity"]
+        else:
+            label = ["volume velocity - {}".format(table_index)]
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)
+        return False    
     
     def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_specific_impedance_bc_by_node(node_id, values) 

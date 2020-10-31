@@ -11,22 +11,19 @@ from pulse.uix.user_input.crossSectionInput import CrossSectionInput
 from pulse.uix.user_input.dofInput import DOFInput
 from pulse.uix.user_input.loadsInput import LoadsInput
 from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
-#
-from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
-from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
-from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
+from pulse.uix.user_input.cappedEndInput import CappedEndInput
+from pulse.uix.user_input.stressStiffeningInput import StressStiffeningInput
 #
 from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
 from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
 from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
 from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
-from pulse.uix.user_input.cappedEndInput import CappedEndInput
-from pulse.uix.user_input.stressStiffeningInput import StressStiffeningInput
+from pulse.uix.user_input.compressorModelinput import CompressorModelInput
 #
-from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
-from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
-from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
+from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
+from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
+from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
 #
 from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
 from pulse.uix.user_input.plotDisplacementFieldInput import PlotDisplacementFieldInput
@@ -39,6 +36,10 @@ from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShap
 from pulse.uix.user_input.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
 from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
+#
+from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
+from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
+from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
 #
 from pulse.uix.user_input.LogTimes import LogTimes
 from pulse.uix.user_input.printMessageInput import PrintMessageInput
@@ -263,6 +264,11 @@ class InputUi:
         read = AcousticElementLengthCorrectionInput(self.project, self.opv)
         if read.type_label is None:
             return
+
+    def add_compressor_excitation(self):
+        CompressorModelInput(self.project, self.opv)
+        self.opv.updateRendererMesh()
+        return
         
     def _load_frequencies_from_table(self, obj):
             self.project.file.f_min = obj.f_min

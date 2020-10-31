@@ -790,7 +790,7 @@ class ProjectFile:
         node_acoustic_list.read(self._node_acoustic_path)
 
         dict_pressure = {}
-        dict_volume_velocity = {}  
+        dict_volume_velocity = defaultdict(list)  
         dict_specific_impedance = {}
         dict_radiation_impedance = {}
 
@@ -804,11 +804,12 @@ class ProjectFile:
                 if acoustic_pressure is not None:
                     dict_pressure[node_id] = acoustic_pressure
 
-            if "volume velocity" in keys:
-                str_volume_velocity = node_acoustic_list[str(node)]['volume velocity']
-                volume_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, "volume velocity")
-                if volume_velocity is not None:
-                    dict_volume_velocity[node_id] = volume_velocity
+            for key in keys:
+                if "volume velocity" in key:
+                    str_volume_velocity = node_acoustic_list[str(node)][key]
+                    volume_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, key)
+                    if volume_velocity is not None:
+                        dict_volume_velocity[node_id].append(volume_velocity)
 
             if "specific impedance" in keys:
                 str_specific_impedance = node_acoustic_list[str(node)]['specific impedance']

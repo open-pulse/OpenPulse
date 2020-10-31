@@ -213,7 +213,7 @@ class PlotReactionsInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",",skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The reactions data has been imported.")
+            self.messages("The reactions data have been imported.")
         except Exception as e:
             message = [str(e) + " It is recommended to skip the header rows."] 
             error(message[0], title="ERROR WHILE LOADING TABLE")
@@ -403,7 +403,7 @@ class PlotReactionsInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results has been exported.")
+        self.messages("The results have been exported.")
 
     def plot(self):
 

@@ -256,7 +256,7 @@ class AcousticPressureInput(QDialog):
 
         self.check_input_nodes()
         key_strings = ["acoustic pressure"]
-        message = "The acoustic pressure attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        message = "The acoustic pressure attributed to the {} node(s) has been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.mesh.set_acoustic_pressure_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)

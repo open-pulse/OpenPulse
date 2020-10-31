@@ -186,7 +186,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             title = "Information"
-            message = "The results has been imported."
+            message = "The results have been imported."
             PrintMessageInput([title, message, window_title2])
         except Exception as e:
             title = "ERROR WHILE LOADING TABLE"
@@ -298,7 +298,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
         title = "Information"
-        message = "The results has been exported."
+        message = "The results have been exported."
         PrintMessageInput([title, message, window_title2])
 
     def plot(self):

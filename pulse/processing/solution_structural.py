@@ -120,7 +120,7 @@ class SolutionStructural:
                 if value is not None:
                     if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
                         self.flag_Modal_prescribed_NonNull_DOFs = True
-                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                             "The null value has been attributed to those DOFs with non-zero values."]
         return natural_frequencies, modal_shape
 

@@ -210,7 +210,7 @@ class Plot_TL_NR_Input(QDialog):
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             title = "Information"
-            message = "The results has been imported."
+            message = "The results have been imported."
             PrintMessageInput([title, message, window_title2])
         except Exception as e:
             title = "ERROR WHILE LOADING TABLE"

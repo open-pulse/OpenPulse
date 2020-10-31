@@ -27,7 +27,6 @@ class LoadsInput(QDialog):
 
         self.project = project
         self.transform_points = opv.transformPoints
-        self.opv = opv
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 

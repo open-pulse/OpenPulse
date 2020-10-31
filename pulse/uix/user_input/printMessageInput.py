@@ -25,6 +25,7 @@ class PrintMessageInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.Label_message = self.findChild(QLabel, 'Label_message')
+        self.Label_message.setWordWrap(True)
         self.Label_title = self.findChild(QLabel, 'Label_title')
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')

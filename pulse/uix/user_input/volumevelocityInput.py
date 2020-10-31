@@ -204,7 +204,7 @@ class VolumeVelocityInput(QDialog):
 
                 real_values = np.real(self.imported_values)
                 imag_values = np.imag(self.imported_values)
-                abs_values = np.imag(self.imported_values)
+                abs_values = np.abs(self.imported_values)
                 data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
                 np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
@@ -214,7 +214,7 @@ class VolumeVelocityInput(QDialog):
         return self.imported_values, self.basename
 
     def load_volume_velocity_table(self):
-        header = "Volume velocity || Frequency [Hz], real[Pa], imaginary[Pa], absolute[Pa]"
+        header = "Volume velocity || Frequency [Hz], real[m³/s], imaginary[m³/s], absolute[m³/s]"
         self.volume_velocity, self.basename_volume_velocity = self.load_table(self.lineEdit_load_table_path, header)
     
     def check_table_values(self):

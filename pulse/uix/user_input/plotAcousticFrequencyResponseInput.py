@@ -173,7 +173,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
             title = "Information"
-            message = "The results has been imported."
+            message = "The results have been imported."
             PrintMessageInput([title, message, window_title2])
         except Exception as e:
             title = "ERROR WHILE LOADING TABLE"
@@ -278,6 +278,13 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         frequencies = self.frequencies
         response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
 
+        if complex(0) in response:
+            response += np.ones(len(response), dtype=float)*(1e-8)
+
+        # if complex(0) in response:
+        #     self.checkBox_dB.setChecked(False)
+        #     self.scale_dB = self.checkBox_dB.isChecked()
+
         if self.scale_dB :
             if self.plotAbs:
                 response = self.dB(response)
@@ -309,7 +316,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         
         if self.imported_data is None:
 
-            if self.plotAbs and not self.scale_dB:
+            if self.plotAbs and not self.scale_dB and not complex(0) in response:
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
             else:
                 first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
@@ -328,8 +335,8 @@ class PlotAcousticFrequencyResponseInput(QDialog):
                 imported_Yvalues = data[:,1]
             elif self.plotImag:
                 imported_Yvalues = data[:,2]
-                
-            if self.plotAbs and not self.scale_dB:
+
+            if self.plotAbs and not self.scale_dB and not complex(0) in response:
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")            
             else:

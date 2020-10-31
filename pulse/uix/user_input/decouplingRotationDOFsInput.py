@@ -257,7 +257,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
     def check_reset_all(self):
         self.project.reset_B2PX_totation_decoupling()
-        message = "The rotation deccoupling applied \nto all dofs has been reseted." 
+        message = "The rotation decoupling applied \nto all dofs has been reseted." 
         title = "Rotations dofs decoupling"
         window_title = "WARNING"
         PrintMessageInput([title, message, window_title])

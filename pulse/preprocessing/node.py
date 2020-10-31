@@ -40,12 +40,10 @@ class Node:
         self.volume_velocity = None
         self.specific_impedance = None
         self.radiation_impedance = None
-        self.radiation_impedance_type = None
-        # radiation_impedance_type :
-        # 0 -> anechoic termination
-        # 1 -> unflanged pipe
-        # 2 -> flanged pipe
+        self.radiation_impedance_type = None # radiation_impedance_type : 0 -> anechoic termination; 1 -> unflanged pipe; 2 -> flanged pipe.
         
+        self.volume_velocity_table_index = 0
+
         self.global_index = kwargs.get('global_index', None)
         self.external_index = kwargs.get('external_index', None)
 
