@@ -8,7 +8,7 @@ from PyQt5 import uic
 import numpy as np
 import configparser
 
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"

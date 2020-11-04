@@ -33,6 +33,7 @@ class TreeUi(QTreeWidget):
         self.name_child_addMassSpringDamper = "Add: Mass / Spring / Damper"
         self.name_child_setcappedEnd = "Set Capped End"
         self.name_child_set_stress_stiffening = "Set Stress Stiffening"
+        self.name_child_add_nodal_links = "Add Nodal Links"
 
         self.name_top_acousticmodelSetup = "Acoustic Model Setup"
         self.name_child_set_fluid = "Set Fluid"
@@ -113,6 +114,7 @@ class TreeUi(QTreeWidget):
         self.item_child_addMassSpringDamper = QTreeWidgetItem([self.name_child_addMassSpringDamper])
         self.item_child_setcappedEnd = QTreeWidgetItem([self.name_child_setcappedEnd])
         self.item_child_set_stress_stiffening = QTreeWidgetItem([self.name_child_set_stress_stiffening])
+        self.item_child_add_nodal_links = QTreeWidgetItem([self.name_child_add_nodal_links])
 
         self.item_top_acousticmodelSetup = QTreeWidgetItem([self.name_top_acousticmodelSetup])
         self.item_child_set_fluid = QTreeWidgetItem([self.name_child_set_fluid])
@@ -184,6 +186,7 @@ class TreeUi(QTreeWidget):
         self.item_child_addMassSpringDamper.setFont(0, self.font_internal)
         self.item_child_setcappedEnd.setFont(0, self.font_internal)
         self.item_child_set_stress_stiffening.setFont(0, self.font_internal)
+        self.item_child_add_nodal_links.setFont(0, self.font_internal)
 
         self.item_child_set_fluid.setFont(0, self.font_internal)
         self.item_child_setAcousticPressure.setFont(0, self.font_internal)
@@ -224,6 +227,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_addMassSpringDamper)
         self.addTopLevelItem(self.item_child_setcappedEnd)
         self.addTopLevelItem(self.item_child_set_stress_stiffening)
+        self.addTopLevelItem(self.item_child_add_nodal_links)
 
         self.addTopLevelItem(self.item_top_acousticmodelSetup)      
         self.addTopLevelItem(self.item_child_set_fluid)             
@@ -291,6 +295,10 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_set_stress_stiffening:
             # self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+        
+        elif item.text(0) == self.name_child_add_nodal_links:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().add_nodal_links()
 
         elif item.text(0) == self.name_child_set_fluid: 
             self.mainWindow.plot_entities()

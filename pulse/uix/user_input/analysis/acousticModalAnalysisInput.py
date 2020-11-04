@@ -6,16 +6,16 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 from math import pi
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
-class StructuralModalAnalysisInput(QDialog):
+class AcousticModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/structuralModalAnalysisInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/acousticModalAnalysisInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

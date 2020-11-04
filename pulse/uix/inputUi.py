@@ -1,48 +1,49 @@
 #
-from pulse.uix.user_input.newProjectInput import NewProjectInput
-from pulse.uix.user_input.loadProjectInput import LoadProjectInput
-from pulse.uix.user_input.getStartedInput import GetStartedInput
+from pulse.uix.user_input.project.newProjectInput import NewProjectInput
+from pulse.uix.user_input.project.loadProjectInput import LoadProjectInput
+from pulse.uix.user_input.project.getStartedInput import GetStartedInput
 #
-from pulse.uix.user_input.elementTypeInput import ElementTypeInput
-from pulse.uix.user_input.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
-from pulse.uix.user_input.materialInput import MaterialInput
-from pulse.uix.user_input.fluidInput import FluidInput
-from pulse.uix.user_input.crossSectionInput import CrossSectionInput
-from pulse.uix.user_input.dofInput import DOFInput
-from pulse.uix.user_input.loadsInput import LoadsInput
-from pulse.uix.user_input.massSpringDamperInput import MassSpringDamperInput
-from pulse.uix.user_input.cappedEndInput import CappedEndInput
-from pulse.uix.user_input.stressStiffeningInput import StressStiffeningInput
+from pulse.uix.user_input.structural_model_setup.elementTypeInput import ElementTypeInput
+from pulse.uix.user_input.structural_model_setup.materialInput import MaterialInput
+from pulse.uix.user_input.structural_model_setup.crossSectionInput import CrossSectionInput
+from pulse.uix.user_input.structural_model_setup.dofInput import DOFInput
+from pulse.uix.user_input.structural_model_setup.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
+from pulse.uix.user_input.structural_model_setup.loadsInput import LoadsInput
+from pulse.uix.user_input.structural_model_setup.massSpringDamperInput import MassSpringDamperInput
+from pulse.uix.user_input.structural_model_setup.cappedEndInput import CappedEndInput
+from pulse.uix.user_input.structural_model_setup.stressStiffeningInput import StressStiffeningInput
+from pulse.uix.user_input.structural_model_setup.nodalLinksInput import NodalLinksInput
 #
-from pulse.uix.user_input.acousticpressureInput import AcousticPressureInput
-from pulse.uix.user_input.volumevelocityInput import VolumeVelocityInput
-from pulse.uix.user_input.specificimpedanceInput import SpecificImpedanceInput
-from pulse.uix.user_input.radiationImpedanceInput import RadiationImpedanceInput
-from pulse.uix.user_input.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
-from pulse.uix.user_input.compressorModelinput import CompressorModelInput
+from pulse.uix.user_input.acoustic_model_setup.fluidInput import FluidInput
+from pulse.uix.user_input.acoustic_model_setup.acousticpressureInput import AcousticPressureInput
+from pulse.uix.user_input.acoustic_model_setup.volumevelocityInput import VolumeVelocityInput
+from pulse.uix.user_input.acoustic_model_setup.specificimpedanceInput import SpecificImpedanceInput
+from pulse.uix.user_input.acoustic_model_setup.radiationImpedanceInput import RadiationImpedanceInput
+from pulse.uix.user_input.acoustic_model_setup.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
+from pulse.uix.user_input.acoustic_model_setup.compressorModelinput import CompressorModelInput
 #
-from pulse.uix.user_input.analysisTypeInput import AnalysisTypeInput
-from pulse.uix.user_input.analysisSetupInput import AnalysisSetupInput
-from pulse.uix.user_input.runAnalysisInput import RunAnalysisInput
+from pulse.uix.user_input.analysis.analysisTypeInput import AnalysisTypeInput
+from pulse.uix.user_input.analysis.analysisSetupInput import AnalysisSetupInput
+from pulse.uix.user_input.analysis.runAnalysisInput import RunAnalysisInput
 #
-from pulse.uix.user_input.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
-from pulse.uix.user_input.plotDisplacementFieldInput import PlotDisplacementFieldInput
-from pulse.uix.user_input.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
-from pulse.uix.user_input.plotReactionsInput import PlotReactionsInput
-from pulse.uix.user_input.plotStressFieldInput import PlotStressFieldInput
-from pulse.uix.user_input.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
+from pulse.uix.user_input.structural_plots.plotStructuralModeShapeInput import PlotStructuralModeShapeInput
+from pulse.uix.user_input.structural_plots.plotDisplacementFieldInput import PlotDisplacementFieldInput
+from pulse.uix.user_input.structural_plots.plotStructuralFrequencyResponseInput import PlotStructuralFrequencyResponseInput
+from pulse.uix.user_input.structural_plots.plotReactionsInput import PlotReactionsInput
+from pulse.uix.user_input.structural_plots.plotStressFieldInput import PlotStressFieldInput
+from pulse.uix.user_input.structural_plots.plotStressFrequencyResponseInput import PlotStressFrequencyResponseInput
 #
-from pulse.uix.user_input.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
-from pulse.uix.user_input.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
-from pulse.uix.user_input.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
-from pulse.uix.user_input.plot_TL_NR_Input import Plot_TL_NR_Input
+from pulse.uix.user_input.acoustic_plots.plotAcousticModeShapeInput import PlotAcousticModeShapeInput
+from pulse.uix.user_input.acoustic_plots.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
+from pulse.uix.user_input.acoustic_plots.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
+from pulse.uix.user_input.acoustic_plots.plot_TL_NR_Input import Plot_TL_NR_Input
 #
-from pulse.uix.user_input.plotCrossSectionInput import PlotCrossSectionInput
-from pulse.uix.user_input.structuralModel_InfoInput import StructuralModelInfoInput
-from pulse.uix.user_input.acousticModel_InfoInput import AcousticModelInfoInput
+from pulse.uix.user_input.structural_plots.plotCrossSectionInput import PlotCrossSectionInput
+from pulse.uix.user_input.structural_model_setup.structuralModel_InfoInput import StructuralModelInfoInput
+from pulse.uix.user_input.acoustic_model_setup.acousticModel_InfoInput import AcousticModelInfoInput
 #
-from pulse.uix.user_input.LogTimes import LogTimes
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.uix.user_input.project.LogTimes import LogTimes
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 #
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
@@ -215,6 +216,10 @@ class InputUi:
 
     def set_stress_stress_stiffening(self):
         StressStiffeningInput(self.project, self.opv)
+        return
+
+    def add_nodal_links(self):
+        NodalLinksInput(self.project, self.opv)
         return
 
     def setAcousticPressure(self):

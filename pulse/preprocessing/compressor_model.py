@@ -1,6 +1,5 @@
 
 import numpy as np
-import plotly.graph_objects as go
 from matplotlib import pyplot as plt
 
 def offset_to_tdc(array, tdc):
@@ -41,7 +40,7 @@ class CompressorModel:
            clearance,                          # Clearance volume as percentage of full volume (%)
            TDC_crank_angle_1,                  # Crank angle (degrees) at which piston is at top dead center
            rotational_speed,                   # Compressor rotation speed (rpm)
-           capactity,                          # Capacity of compression stage (%)
+           capacity,                           # Capacity of compression stage (%)
            isentropic_coefficient,             # Compressed gas isentropic exponent
            molar_mass,                         # Molar mass [kg/kmol]
            pressure_at_suction,                # Pressure at suction
@@ -56,62 +55,32 @@ class CompressorModel:
         self.D = bore_diameter
         self.r = stroke/2
         self.L = rod_lenght
-        self.rod = rod_diameter
-        self.pressure_ratio = pressure_ratio
+        self.rod_diam = rod_diameter
+        self.p_ratio = pressure_ratio
         self.c = clearance/100
         self.tdc1 = TDC_crank_angle_1*np.pi/180
         self.rpm = rotational_speed
+        self.capacity = capacity/100
         self.k = isentropic_coefficient
         self.molar_mass = molar_mass
-        self.pressure_at_suction = pressure_at_suction
-        self.Ts = temperature_at_suction
+        self.p_suc = pressure_at_suction
+        self.T_suc = temperature_at_suction
         self.double_effect = double_effect
         
         self.area_head_end = np.pi*(bore_diameter**2)/4
         self.area_crank_end = np.pi*((bore_diameter**2)-(rod_diameter**2))/4
-        self.vr = (self.pressure_at_suction)**(-1/self.k)       # Volume ratio considering isentropic compression
+        self.vr = (self.p_suc)**(-1/self.k)       # Volume ratio considering isentropic compression
 
         self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
-        self.R = self.Ru/self.molar_mass       # Gas constant [J/kg.K]
-
-        self.number_points = kwargs.get('number_points', 0)
+        self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
+        self.rho_suc = self.p_suc*(9.80665e4)/(self.R*(self.T_suc+273.15))
+  
+        self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 250)
-        self.compression_stage = kwargs.get('compression_stage', 1)
+        
         self.number_of_cylinders = kwargs.get('number_of_cylinders', 1)
         self.tdc2 = kwargs.get('TDC_crank_angle_2', 90)*np.pi/180 
-
-        self.poly_sig = np.poly1d(np.array([ 4.07662578e-12, -1.76845633e-09,  3.22571698e-07, -3.21443114e-05,
-                                            1.90316519e-03, -6.81078403e-02,  1.42782751e+00, -1.53184727e+01,
-                                            9.36732673e+01]))
-
-        if capactity == 100:
-            self.cap = 1
-        elif capactity == 0:
-            self.cap = 0
-        elif capactity > 0 and capactity < 100:
-            self.cap = self.poly_sig(capactity)/100
-        else:
-            self.cap = 1
-
-    def cap_real(self):
-        
-        r = (float(self.cap)*100 - self.poly_sig).roots
-        cap_real = np.real(r)[np.argmin([np.abs(np.imag(a)) for a in r])]
-        if cap_real > 100:
-            cap_real = 100
-        elif cap_real < 0:
-            cap_real = 0
-    
-        return cap_real #self.cap*100
-
-    def update_interstages_parameters(self):
-        self.pr = self.pressure_ratio**(1/3)
-        if self.compression_stage == 1:
-            self.ps = self.pressure_at_suction
-        elif self.compression_stage == 2:
-            self.ps = self.pressure_at_suction*self.pr
-        elif self.compression_stage == 3:
-            self.ps = self.pressure_at_suction*(self.pr**2)
+        self.cap = None
 
     def recip_v(self, tdc=None):
         N = self.number_points + 1
@@ -136,14 +105,18 @@ class CompressorModel:
         x = r * np.cos(t-tdc) + np.sqrt(l**2 - r**2*np.sin(t-tdc)**2) - x_mean
         return x 
 
-    def p_head_end(self, tdc=None, full_output=False, plot_process=False, aux_process=False):
+    def p_head_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False, aux_process=False):
 
         N = self.number_points + 1
-        self.update_interstages_parameters()
         ang = np.linspace(0, 2*np.pi, N)
 
-        if tdc == None:
+        if tdc is None:
             tdc = self.tdc1
+                
+        if capacity is None:
+            if self.cap is None:
+                self.cap = self.process_capacity(capacity=self.capacity)
+            capacity = self.cap
 
         open_suc = [False]*N
         open_disch = [False]*N
@@ -153,10 +126,8 @@ class CompressorModel:
             print('Cylinder does not have Head End Pressure.')
         else:
             x = self.recip_x(tdc=0)
-            # open_suc = [False]*N
-            # open_disch = [False]*N
             p, vol = [], []
-            p0 = self.pr
+            p0 = self.p_ratio
             p_aux = p0
             l0 = self.c*(2*self.r)
             i = 0
@@ -166,15 +137,14 @@ class CompressorModel:
                 if p_aux < 1:
                     p_aux = 1
                     open_suc[i] = True
-                p.append(p_aux*self.ps)
-                # rho.append(p_aux*self.ps/(self.R*self.T))
+                p.append(p_aux*self.p_suc)
                 vol.append(self.area_head_end*(l0 + x[0]-x[i]))
                 i += 1
 
             if i < N:
                 #SUCTION CYCLE
                 while i <= (N-1)/2:
-                    p.append(1*self.ps)
+                    p.append(1*self.p_suc)
                     vol.append(self.area_head_end*(l0 + x[0]-x[i]))
                     open_suc[i] = True
                     i += 1
@@ -182,31 +152,23 @@ class CompressorModel:
                 #COMPRESSION CYCLE
                 p0 = 1
                 i0 = i
-                # while p_aux < self.pr and i < N:
-                #     p_aux = p0*(l0 + 2*self.r)**self.k / (l0 + x[0]-x[i])**self.k
-                #     vol.append(self.area_head_end*(l0 + x[0]-x[i]))
-                #     if p_aux > self.pr:
-                #         p_aux = self.pr
-                #         open_disch[i] = True
-                #     p.append(p_aux*self.ps)
-                #     i += 1
-                while p_aux < self.pr and i < N:
+                while p_aux < self.p_ratio and i < N:
                     vol.append(self.area_head_end*(l0 + x[0] - x[i]))
-                    if (2*np.pi-ang[i])/np.pi > self.cap:
+                    if (2*np.pi-ang[i])/np.pi > capacity:
                         p_aux = 1
                         open_suc[i] = True
                         i0 = i
                     else:
                         p_aux = p0*((l0 + x[0] - x[i0])/(l0 + x[0] - x[i]))**self.k
-                    if p_aux > self.pr:
-                        p_aux = self.pr
+                    if p_aux > self.p_ratio:
+                        p_aux = self.p_ratio
                         open_disch[i] = True
                     i += 1
-                    p.append(p_aux*self.ps)
+                    p.append(p_aux*self.p_suc)
 
                 #DISCHARGE CYCLE
                 while i < N:
-                    p.append(self.pr*self.ps)
+                    p.append(self.p_ratio*self.p_suc)
                     vol.append(self.area_head_end*(l0 + x[0]-x[i]))
                     open_disch[i] = True
                     i += 1
@@ -216,15 +178,14 @@ class CompressorModel:
         open_suc = offset_to_tdc(open_suc, tdc)
         open_disch = offset_to_tdc(open_disch, tdc)
      
-        if plot_process:
+        if plot_pv:
             return vol, p
-
-        if full_output:
+        elif full_output:
             return p, open_suc, open_disch
         else:
             return p
 
-    def p_crank_end(self, tdc=None, full_output=False, plot_process=False):
+    def p_crank_end(self, tdc=None, capacity=None, full_output=False, plot_pv=False):
 
         if tdc == None:
             tdc = self.tdc1
@@ -232,11 +193,15 @@ class CompressorModel:
         if not self.double_effect and self.active_cylinder != 'CRANK END':
             print('Cylinder does not have Crank End Pressure.')
 
-        vol, pressure = self.p_head_end(tdc-np.pi, full_output=full_output, plot_process=plot_process)
-        vol = list(np.array(vol)*(self.D**2 - self.rod**2)/self.D**2)
-        return vol, pressure
+        if plot_pv:
+            vol, pressure = self.p_head_end(tdc=(tdc-np.pi), capacity=capacity, full_output=full_output, plot_pv=plot_pv)
+            vol = list(np.array(vol)*(self.D**2 - self.rod_diam**2)/self.D**2)
+            return vol, pressure
+        else:
+            pressure = self.p_head_end(tdc=(tdc-np.pi), capacity=capacity, full_output=full_output, plot_pv=plot_pv)
+            return pressure
 
-    def flow_head_end(self, tdc=None, aux_process=False):
+    def flow_head_end(self, tdc=None, capacity=None, aux_process=False):
 
         N = self.number_points
 
@@ -248,7 +213,7 @@ class CompressorModel:
             return { 'in_flow': np.zeros(N+1),
                      'out_flow': np.zeros(N+1) }
         else:
-            _, open_suc, open_disch = self.p_head_end(tdc=0, full_output=True, aux_process=aux_process)
+            _, open_suc, open_disch = self.p_head_end(tdc=0, capacity=capacity, full_output=True, aux_process=aux_process)
 
             vel = self.recip_v(tdc=0)
             flow_in = np.zeros(N+1)
@@ -266,11 +231,11 @@ class CompressorModel:
             return { 'in_flow': flow_in,
                      'out_flow': flow_out }
 
-    def flow_crank_end(self, tdc=None):
+    def flow_crank_end(self, tdc=None, capacity=None):
 
         N = self.number_points
 
-        if tdc == None:
+        if tdc is None:
             tdc = self.tdc1
 
         if not self.double_effect and self.active_cylinder != 'CRANK END':
@@ -278,45 +243,108 @@ class CompressorModel:
             return { 'in_flow': np.zeros(N+1),
                      'out_flow': np.zeros(N+1) }
         else:
-            aux_dict = self.flow_head_end(tdc-np.pi, aux_process=True)
-            flow_in = aux_dict['in_flow'] * (self.D**2 - self.rod**2)/self.D**2
-            flow_out = aux_dict['out_flow'] * (self.D**2 - self.rod**2)/self.D**2
+            aux_dict = self.flow_head_end(tdc=(tdc-np.pi), capacity=capacity, aux_process=True)
+            flow_in = aux_dict['in_flow'] * (self.D**2 - self.rod_diam**2)/self.D**2
+            flow_out = aux_dict['out_flow'] * (self.D**2 - self.rod_diam**2)/self.D**2
             return { 'in_flow': flow_in,
                      'out_flow': flow_out }
 
-    def process_sum_of_volumetric_flow_rate(self, key):
+    def mass_flow_crank_end(self, tdc=None, capacity=None):
+        vf = self.flow_crank_end(tdc=tdc, capacity=capacity)
+        mf = -vf['in_flow']*self.rho_suc
+        return mf
+
+    def mass_flow_head_end(self, tdc=None, capacity=None):
+        vf = self.flow_head_end(tdc=tdc, aux_process=True, capacity=capacity)
+        mf = -vf['in_flow']*self.rho_suc
+        return mf
+    
+    # def total_mass_flow(self):
+    #     N = self.number_points
+    #     T = 60 / self.rpm
+    #     dt = np.linspace(0,T,N)[1]
+    #     f_he = np.sum(self.mass_flow_head_end(N)*dt)*self.rpm/60
+    #     f_ce = np.sum(self.mass_flow_crank_end(N)*dt)*self.rpm/60
+    #     return f_he + f_ce
+
+    def process_sum_of_volumetric_flow_rate(self, key, capacity=None):
 
         if self.double_effect:
 
             if self.number_of_cylinders == 1:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1)[key] + self.flow_head_end(tdc=self.tdc1)[key]
-                # print('double_effect', 1)
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
             else:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1)[key] + self.flow_head_end(tdc=self.tdc1)[key]
-                flow_rate += self.flow_crank_end(tdc=self.tdc2)[key] + self.flow_head_end(tdc=self.tdc2)[key]
-                # print('double_effect', 2)
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key] + self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
         elif self.active_cylinder == 'HEAD END':
 
             if self.number_of_cylinders == 1:
-                flow_rate = self.flow_head_end(tdc=self.tdc1)[key]
-                # print('head end', 1)
+                flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
             else:
-                flow_rate = self.flow_head_end(tdc=self.tdc1)[key]
-                flow_rate += self.flow_head_end(tdc=self.tdc2)[key]
-                # print('head end', 2)
+                flow_rate = self.flow_head_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_head_end(tdc=self.tdc2, capacity=capacity)[key]
 
         elif self.active_cylinder == 'CRANK END':
 
             if self.number_of_cylinders == 1:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1)[key]
-                # print('crank end', 1)
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
             else:
-                flow_rate = self.flow_crank_end(tdc=self.tdc1)[key]
-                flow_rate += self.flow_crank_end(tdc=self.tdc2)[key]
-                # print('crank end', 2)
+                flow_rate = self.flow_crank_end(tdc=self.tdc1, capacity=capacity)[key]
+                flow_rate += self.flow_crank_end(tdc=self.tdc2, capacity=capacity)[key]
 
         return flow_rate
+
+    def get_in_mass_flow(self, capacity):
+        return -np.mean(self.process_sum_of_volumetric_flow_rate('in_flow', capacity=capacity))*self.rho_suc
+
+    def get_nearest_capacity(self, list_caps, nearest_absolute=True):
+        values = np.array([self.get_in_mass_flow(capacity=_cap) for _cap in list_caps])
+        if nearest_absolute:
+            indexes = np.argsort(np.abs(values - self.final_mass_flow))
+        else:
+            indexes = np.argsort(values - np.min(values))
+        output = np.array(list_caps)[indexes]
+        return output[0]
+
+    def process_capacity(self, capacity=1):
+        if capacity<0.1:
+            return -1
+        mass_flow_full_capacity = self.get_in_mass_flow(capacity=1)
+        self.final_mass_flow = capacity*mass_flow_full_capacity
+
+        i = 0
+        cap_aux, flow_aux, ratio = [], [], []
+        cap_aux.append(capacity)
+        periodic = False
+        count_out = 100
+
+        while periodic==False and i != count_out: 
+            iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
+            flow_aux.append(iter_flow)
+            ratio.append(iter_flow/self.final_mass_flow)
+            avg_flow_iter = (self.final_mass_flow + iter_flow)/2
+            # print("Iter. flow: {} \nCapacity: {} \nRatio: {}\n".format(iter_flow, cap_aux[i], (iter_flow/self.final_mass_flow)))
+            if avg_flow_iter == self.final_mass_flow:
+                return cap_aux[i]
+            cap_aux.append(cap_aux[i]*(self.final_mass_flow/avg_flow_iter))    
+                    
+            if i > 2:
+                if ratio[i-1]==ratio[i-2]: # promote the linear average if ratio not changes in 3 iterations
+                    if ratio[i]==ratio[i-1]:
+                        cap = np.mean(cap_aux[-2:])
+                        # print(cap_aux[-3:])
+                    else: # promote the linear interpolation if periodic
+                        A = flow_aux[i-1] - self.final_mass_flow
+                        B = self.final_mass_flow - flow_aux[i]
+                        cap = (B*cap_aux[i-1] + A*cap_aux[i])/(A+B) 
+                    # print("Interp 1:", cap)
+                    # print("Number of iterations:", i+1)
+                    periodic = True
+                    list_caps = [cap, cap_aux[i-1], cap_aux[i]]
+                    cap = self.get_nearest_capacity(list_caps, nearest_absolute=True)
+            i += 1  
+        return cap
 
     def FFT_periodic(self, x_t, one_sided = True):
         N = x_t.shape[0]
@@ -350,16 +378,16 @@ class CompressorModel:
         flow_rate = flow_rate[:len(freq)]
         return freq, flow_rate
 
-    def plot_PV_diagram_head_end(self, plot_process=True):
-        vol, pressure = self.p_head_end(plot_process=plot_process)
+    def plot_PV_diagram_head_end(self, plot_pv=True):
+        vol, pressure = self.p_head_end(plot_pv=plot_pv)
 
         x_label = "Volume [m³]"
         y_label = "Pressure [kgf/cm²]"
         title = "P-V RECIPROCATING COMPRESSOR DIAGRAM"
         plot(vol, pressure, x_label, y_label, title)
 
-    def plot_PV_diagram_crank_end(self, plot_process=True):
-        vol, pressure = self.p_crank_end(plot_process=plot_process)
+    def plot_PV_diagram_crank_end(self, plot_pv=True):
+        vol, pressure = self.p_crank_end(plot_pv=plot_pv)
 
         x_label = "Volume [m³]"
         y_label = "Pressure [kgf/cm²]"
@@ -368,7 +396,7 @@ class CompressorModel:
 
     def plot_pressure_vs_time(self):
         N = self.number_points
-        _, pressure = self.p_head_end(plot_process=True)
+        _, pressure = self.p_head_end(plot_pv=True)
         T = 60/self.rpm
         dt = T/N
         time = np.arange(0, T+dt, dt)
@@ -380,7 +408,7 @@ class CompressorModel:
 
     def plot_volume_vs_time(self):
         N = self.number_points
-        volume, _ = self.p_head_end(plot_process=True)
+        volume, _ = self.p_head_end(plot_pv=True)
         T = 60/self.rpm
         dt = T/N
         time = np.arange(0, T+dt, dt)
@@ -412,6 +440,21 @@ class CompressorModel:
         title = "TIME PLOT OF VOLUMETRIC FLOW RATE AT DISCHARGE"
         plot(time, flow_rate, x_label, y_label, title)
     
+    def plot_rod_pressure_load_frequency(self, revolutions):
+        pressure_head = self.p_head_end()
+        pressure_crank = self.p_crank_end()
+        rod_pressure_load_time = (pressure_head*(self.D**2) - pressure_crank*((self.D**2) - (self.rod_diam**2)))*(np.pi/4)
+
+        freq, rod_pressure_load = self.process_FFT_of_(rod_pressure_load_time, revolutions)
+        freq = freq[freq <= self.max_frequency]
+        rod_pressure_load = rod_pressure_load[:len(freq)]
+
+        x_label = "Frequency [Hz]"
+        y_label = "Rod pressure load [N]"
+        title = "FREQUENCY PLOT OF ROD PRESSURE LOAD"
+        plot(freq, rod_pressure_load, x_label, y_label, title, _absolute=True)  
+
+
     def plot_volumetric_flow_rate_at_suction_frequency(self, revolutions):
         freq, flow_rate = self.process_FFT_of_volumetric_flow_rate(revolutions, 'in_flow')
         x_label = "Frequency [Hz]"
@@ -428,7 +471,7 @@ class CompressorModel:
 
     def plot_head_end_pressure_vs_angle(self):
         N = self.number_points
-        _, pressure = self.p_head_end(plot_process=True)
+        _, pressure = self.p_head_end(plot_pv=True)
 
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
@@ -440,7 +483,7 @@ class CompressorModel:
 
     def plot_head_end_volume_vs_angle(self):
         N = self.number_points
-        volume, _ = self.p_head_end(plot_process=True)
+        volume, _ = self.p_head_end(plot_pv=True)
 
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
@@ -452,7 +495,7 @@ class CompressorModel:
 
     def plot_crank_end_pressure_vs_angle(self):
         N = self.number_points
-        _, pressure = self.p_crank_end(plot_process=True)
+        _, pressure = self.p_crank_end(plot_pv=True)
 
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
@@ -464,7 +507,7 @@ class CompressorModel:
 
     def plot_crank_end_volume_vs_angle(self):
         N = self.number_points
-        volume, _ = self.p_crank_end(plot_process=True)
+        volume, _ = self.p_crank_end(plot_pv=True)
 
         d_theta = 360/N
         angle = np.arange(0, N+1, 1)*d_theta
@@ -473,3 +516,38 @@ class CompressorModel:
         y_label = "Volume [m³]"
         title = "CRANK END VOLUME vs ANGLE"
         plot(angle, volume, x_label, y_label, title)
+
+if __name__ == "__main__":
+
+    parameters = [  1,              # Cylinder bore diameter [m]
+                    0.3,            # Length of compressor full stroke [m]
+                    0.8,            # Connecting rod length [m]
+                    0.2,            # Rod diameter [m]
+                    1.9,            # Compressor pressure ratio Pd/Ps
+                    6,              # Clearance volume as percentage of full volume (%)
+                    0,              # Crank angle (degrees) at which piston is at top dead center
+                    360,            # Compressor rotation speed (rpm)
+                    20,             # Capacity of compression stage (%)
+                    1.4,            # Compressed gas isentropic exponent
+                    2.01568,        # Molar mass [kg/kmol]
+                    19,             # Pressure at suction [kgf/cm²]
+                    45,             # Temperature at suction [°C]
+                    True ]          # Compressor is double effect (bool)
+    
+    cylinder = CompressorModel(parameters)
+    cylinder.number_of_cylinders = 1
+    cylinder.number_points = 10000
+    rho_suc = cylinder.rho_suc
+
+    # # cylinder.plot_rod_pressure_load_frequency(6)
+    cap = 60/100
+    res_cap = cylinder.process_capacity(capacity=cap)
+
+    mass_flow_full_capacity = -np.mean(cylinder.process_sum_of_volumetric_flow_rate('in_flow', capacity=1))*rho_suc
+    partial_flow = -np.mean(cylinder.process_sum_of_volumetric_flow_rate('in_flow', capacity=res_cap))*rho_suc
+    print((partial_flow/mass_flow_full_capacity)*100)
+
+    # poly_sig = np.poly1d(np.array([ 4.07662578e-12, -1.76845633e-09,  3.22571698e-07, -3.21443114e-05,
+    #                                 1.90316519e-03, -6.81078403e-02,  1.42782751e+00, -1.53184727e+01,
+    #                                 9.36732673e+01]))
+    # print(poly_sig(60)/100)

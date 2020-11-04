@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 
 from pulse.preprocessing.compressor_model import CompressorModel
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -116,6 +116,9 @@ class CompressorModelInput(QDialog):
 
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_discharge_time')
         self.pushButton_plot_volumetric_flow_rate_at_discharge_time.clicked.connect(self.plot_volumetric_flow_rate_at_discharge_time)
+
+        self.pushButton_plot_rod_pressure_load_frequency = self.findChild(QPushButton, 'pushButton_plot_rod_pressure_load_frequency')
+        self.pushButton_plot_rod_pressure_load_frequency.clicked.connect(self.plot_rod_pressure_load_frequency)
 
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency = self.findChild(QPushButton, 'pushButton_plot_volumetric_flow_rate_at_suction_frequency')
         self.pushButton_plot_volumetric_flow_rate_at_suction_frequency.clicked.connect(self.plot_volumetric_flow_rate_at_suction_frequency)
@@ -369,6 +372,11 @@ class CompressorModelInput(QDialog):
 
         if self.check_input_parameters(self.lineEdit_capacity, "CAPACITY"):
             return True
+        elif self.value<10:
+            title = "INVALID INPUT VALUE TO THE STAGE CAPACITY"
+            message = "The compressor stage capacity value must be greater or equals to 10%."
+            PrintMessageInput([title, message, window_title1])
+            return True
         else:
             self.parameters['capacity'] = self.value
 
@@ -419,7 +427,6 @@ class CompressorModelInput(QDialog):
                 list_parameters.append(parameter)
 
         self.compressor = CompressorModel(list_parameters)
-        self.compressor.compression_stage = self.parameters['compression stage']
         self.compressor.number_of_cylinders = self.parameters['number of cylinders']
         
         if 'cylinder label' in self.parameters.keys():
@@ -491,6 +498,7 @@ class CompressorModelInput(QDialog):
         return 'table{}_compressor_excitation_{}.dat'.format( self.size, label)
 
     def process_all_inputs(self):
+        self.project.file.temp_table_name = None
         if self.check_all_nodes():
             return
         if self.check_all_parameters():
@@ -592,6 +600,11 @@ class CompressorModelInput(QDialog):
         self.compressor.plot_volumetric_flow_rate_at_discharge_time()
         return
     
+    def plot_rod_pressure_load_frequency(self):
+        self.process_aquisition_parameters()
+        self.compressor.plot_rod_pressure_load_frequency(self.N_rev)
+        return
+
     def plot_volumetric_flow_rate_at_suction_frequency(self):
         self.process_aquisition_parameters()
         self.compressor.plot_volumetric_flow_rate_at_suction_frequency(self.N_rev)
@@ -633,13 +646,31 @@ class CompressorModelInput(QDialog):
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
         return    
-    
+
+    def double_confirm_action(self):
+        confirm_act = QMessageBox.question(
+            self,
+            "QUIT",
+            "Are you sure want to remove all compressor excitations?",
+            QMessageBox.No | QMessageBox.Yes)
+        
+        if confirm_act == QMessageBox.Yes:
+            return False
+        else:
+            return True
+            
     def reset_all(self):
+        if self.double_confirm_action():
+            return
         self.get_dict_of_volume_velocity_from_file()
         for node in self.dict_volume_velocity.keys():
             self.node_ID_remove = int(node)
             self.reset_node()
         self.node_ID_remove = None
+        title = "RESET OF COMPRESSOR EXCITATION"
+        message = "All compressor excitations have been removed from the model."
+        PrintMessageInput([title, message, window_title2])
+        self.mesh.volume_velocity_table_index = 0
 
     def reset_node(self):
         self.get_dict_of_volume_velocity_from_file()

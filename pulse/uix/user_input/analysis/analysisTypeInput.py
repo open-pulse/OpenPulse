@@ -6,11 +6,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.uix.user_input.structuralHarmonicAnalysisInput import StructuralHarmonicAnalysisInput
-from pulse.uix.user_input.acousticHarmonicAnalysisInput import AcousticHarmonicAnalysisInput
-from pulse.uix.user_input.coupledHarmonicAnalysisInput import CoupledHarmonicAnalysisInput
-from pulse.uix.user_input.structuralModalAnalysisInput import StructuralModalAnalysisInput
-from pulse.uix.user_input.acousticModalAnalysisInput import AcousticModalAnalysisInput
+from pulse.uix.user_input.analysis.structuralHarmonicAnalysisInput import StructuralHarmonicAnalysisInput
+from pulse.uix.user_input.analysis.acousticHarmonicAnalysisInput import AcousticHarmonicAnalysisInput
+from pulse.uix.user_input.analysis.coupledHarmonicAnalysisInput import CoupledHarmonicAnalysisInput
+from pulse.uix.user_input.analysis.structuralModalAnalysisInput import StructuralModalAnalysisInput
+from pulse.uix.user_input.analysis.acousticModalAnalysisInput import AcousticModalAnalysisInput
 
 class AnalysisTypeInput(QDialog):
     def __init__(self, *args, **kwargs):

@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt  
 
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
