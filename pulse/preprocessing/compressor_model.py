@@ -1,19 +1,35 @@
-
 import numpy as np
 from matplotlib import pyplot as plt
 
-def offset_to_tdc(array, tdc):
+'''
+COMPRESSOR MODEL                                     
+
+Objective: build an equivalent compressor excitation to the acoustic FE model
+
+Output: volumetric flow (acoustic volume velocity)
+
+Assumptions:
+
+1) Stead flow;
+2) Ideal gas behaviour;
+3) Compression and expansion cycles are isentropic processes;
+4) The suction and discharge pressures remains constant during suction and discharge cycles, respectively;
+5) No heat exchange in Suction and Discharge cycles; 
+
+'''
+
+def offset_to_tdc(input_array, tdc):
 
     while tdc < 0:
         tdc += 2*np.pi
 
-    N = len(array)
-    array2 = np.zeros(N)
+    N = len(input_array)
+    output_array = np.zeros(N)
     i_tdc = round(tdc/(2*np.pi/(N-1)))
-    array2[i_tdc:] = array[0:N-i_tdc]
-    array2[0:i_tdc] = array[N-i_tdc:]
+    output_array[i_tdc:] = input_array[0:N-i_tdc]
+    output_array[0:i_tdc] = input_array[N-i_tdc:]
 
-    return array2
+    return output_array
 
 def plot(x, y, x_label, y_label, title, label="", _absolute=False):
 
@@ -74,6 +90,9 @@ class CompressorModel:
         self.Ru = 8314.4621                     # Universal ideal gas constant [J/kmol.K]
         self.R = self.Ru/self.molar_mass        # Gas constant [J/kg.K]
         self.rho_suc = self.p_suc*(9.80665e4)/(self.R*(self.T_suc+273.15))
+        
+        self.T_disc = (self.T_suc+273.15)*(self.p_ratio**((self.k-1)/self.k))
+        self.rho_disc = (self.p_suc*(9.80665e4)*self.p_ratio)/(self.R*self.T_disc)
   
         self.number_points = kwargs.get('number_points', 1000)
         self.max_frequency = kwargs.get('max_frequency', 250)
@@ -259,13 +278,11 @@ class CompressorModel:
         mf = -vf['in_flow']*self.rho_suc
         return mf
     
-    # def total_mass_flow(self):
-    #     N = self.number_points
-    #     T = 60 / self.rpm
-    #     dt = np.linspace(0,T,N)[1]
-    #     f_he = np.sum(self.mass_flow_head_end(N)*dt)*self.rpm/60
-    #     f_ce = np.sum(self.mass_flow_crank_end(N)*dt)*self.rpm/60
-    #     return f_he + f_ce
+    def total_mass_flow(self):
+        N = self.number_points
+        f_he = np.sum(self.mass_flow_head_end())/N
+        f_ce = np.sum(self.mass_flow_crank_end())/N
+        return f_he + f_ce
 
     def process_sum_of_volumetric_flow_rate(self, key, capacity=None):
 
@@ -295,8 +312,11 @@ class CompressorModel:
 
         return flow_rate
 
-    def get_in_mass_flow(self, capacity):
+    def get_in_mass_flow(self, capacity=None):
         return -np.mean(self.process_sum_of_volumetric_flow_rate('in_flow', capacity=capacity))*self.rho_suc
+
+    def get_out_mass_flow(self, capacity=None):
+        return np.mean(self.process_sum_of_volumetric_flow_rate('out_flow', capacity=capacity))*self.rho_disc
 
     def get_nearest_capacity(self, list_caps, nearest_absolute=True):
         values = np.array([self.get_in_mass_flow(capacity=_cap) for _cap in list_caps])
@@ -308,43 +328,80 @@ class CompressorModel:
         return output[0]
 
     def process_capacity(self, capacity=1):
-        if capacity<0.1:
+        cap_aux, mass_flow_aux, ratio, iterations = [], [], [], []
+        
+        if capacity < 0.005 or capacity > 1: # capacity >= 0.5% and <=100%
             return -1
+
         mass_flow_full_capacity = self.get_in_mass_flow(capacity=1)
-        self.final_mass_flow = capacity*mass_flow_full_capacity
 
-        i = 0
-        cap_aux, flow_aux, ratio = [], [], []
-        cap_aux.append(capacity)
-        periodic = False
-        count_out = 100
+        if capacity == 1:
+            return capacity
+        else:
+            self.final_mass_flow = capacity*mass_flow_full_capacity
+            # print("Set point:", self.final_mass_flow)
 
-        while periodic==False and i != count_out: 
-            iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
-            flow_aux.append(iter_flow)
-            ratio.append(iter_flow/self.final_mass_flow)
-            avg_flow_iter = (self.final_mass_flow + iter_flow)/2
-            # print("Iter. flow: {} \nCapacity: {} \nRatio: {}\n".format(iter_flow, cap_aux[i], (iter_flow/self.final_mass_flow)))
-            if avg_flow_iter == self.final_mass_flow:
-                return cap_aux[i]
-            cap_aux.append(cap_aux[i]*(self.final_mass_flow/avg_flow_iter))    
-                    
-            if i > 2:
-                if ratio[i-1]==ratio[i-2]: # promote the linear average if ratio not changes in 3 iterations
-                    if ratio[i]==ratio[i-1]:
-                        cap = np.mean(cap_aux[-2:])
-                        # print(cap_aux[-3:])
-                    else: # promote the linear interpolation if periodic
-                        A = flow_aux[i-1] - self.final_mass_flow
-                        B = self.final_mass_flow - flow_aux[i]
-                        cap = (B*cap_aux[i-1] + A*cap_aux[i])/(A+B) 
-                    # print("Interp 1:", cap)
-                    # print("Number of iterations:", i+1)
-                    periodic = True
-                    list_caps = [cap, cap_aux[i-1], cap_aux[i]]
-                    cap = self.get_nearest_capacity(list_caps, nearest_absolute=True)
-            i += 1  
-        return cap
+            cap_aux.append(capacity)
+            stable = False
+            _interp = False
+            self.flag_max_iter = True
+            max_iter = 100
+            i = 0
+
+            while stable == False and i != max_iter: 
+                
+                iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
+
+                while iter_flow < 0: # temporary structure due to a negative flow rate at small capacities
+                    cap_aux[i] *= 2
+                    iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
+                    if iter_flow > 0: # improve the convergence reducing the domain
+                        temp_cap = cap_aux[i]*(3/2)
+                        iter_flow_temp = self.get_in_mass_flow(capacity=temp_cap)
+                        cap_aux[i] = self.linear_interpolation(cap_aux[i], temp_cap, iter_flow, iter_flow_temp, self.final_mass_flow)
+                        iter_flow = self.get_in_mass_flow(capacity=cap_aux[i])
+
+                mass_flow_aux.append(iter_flow)
+                avg_mass_flow = (self.final_mass_flow + iter_flow)/2
+                ratio.append(iter_flow/self.final_mass_flow)
+              
+                # print("Iter. flow: {} \nAvg. flow: {}".format(iter_flow, avg_mass_flow ))
+                # print("Capacity: {} \nRatio: {}\n".format(cap_aux[i], (iter_flow/self.final_mass_flow)))
+
+                if len(mass_flow_aux) >= 2:
+                    cap = self.linear_interpolation(cap_aux[i-1], cap_aux[i], mass_flow_aux[i-1], mass_flow_aux[i], self.final_mass_flow)
+                    cap_aux.append(cap) 
+                else:
+                    cap_aux.append(cap_aux[i]*(self.final_mass_flow/avg_mass_flow)) 
+                        
+                if i > 2:
+                    if ratio[i-1]==ratio[i-2]: # promote the linear average if ratio does not change in 3 iterations
+                        if ratio[i]==ratio[i-1]:
+                            cap = np.mean(cap_aux[-2:])
+                        else: # promote the linear interpolation if periodic
+                            cap = self.linear_interpolation(cap_aux[i-1], cap_aux[i], mass_flow_aux[i-1], mass_flow_aux[i], self.final_mass_flow)
+                        stable = True
+                        list_caps = [cap, cap_aux[i-1], cap_aux[i]]
+                        cap = self.get_nearest_capacity(list_caps, nearest_absolute=True)
+                iterations.append(i)
+                i += 1 
+                
+            if i == max_iter:
+                self.flag_max_iter = True 
+            # self.plot_convergence(iterations, ratio)
+            return cap
+
+    def linear_interpolation(self, x1, x2, y1, y2, y):
+        A = y-y1
+        B = y2-y
+        if y1==y2:
+            if y>y1:
+                x = ((x1 + x2)/2)*1.01
+            else:
+                x = ((x1 + x2)/2)*0.99
+        else:
+            x = (A*x2 + B*x1)/(A+B)
+        return x
 
     def FFT_periodic(self, x_t, one_sided = True):
         N = x_t.shape[0]
@@ -517,7 +574,16 @@ class CompressorModel:
         title = "CRANK END VOLUME vs ANGLE"
         plot(angle, volume, x_label, y_label, title)
 
+    def plot_convergence(self, x, y):
+        x_label = "Iteration"
+        y_label = "Ratio"
+        title = "CONVERGENTCE PLOT"
+        plot(x, y, x_label, y_label, title)
+
+
 if __name__ == "__main__":
+
+    cap = 90
 
     parameters = [  1,              # Cylinder bore diameter [m]
                     0.3,            # Length of compressor full stroke [m]
@@ -527,7 +593,7 @@ if __name__ == "__main__":
                     6,              # Clearance volume as percentage of full volume (%)
                     0,              # Crank angle (degrees) at which piston is at top dead center
                     360,            # Compressor rotation speed (rpm)
-                    20,             # Capacity of compression stage (%)
+                    cap,             # Capacity of compression stage (%)
                     1.4,            # Compressed gas isentropic exponent
                     2.01568,        # Molar mass [kg/kmol]
                     19,             # Pressure at suction [kgf/cm²]
@@ -536,18 +602,21 @@ if __name__ == "__main__":
     
     cylinder = CompressorModel(parameters)
     cylinder.number_of_cylinders = 1
-    cylinder.number_points = 10000
+    cylinder.number_points = 1000
     rho_suc = cylinder.rho_suc
+    # cylinder.plot_rod_pressure_load_frequency(6)
+    # cylinder.plot_PV_diagram_head_end()
 
-    # # cylinder.plot_rod_pressure_load_frequency(6)
-    cap = 60/100
+    mass_in = cylinder.get_in_mass_flow()
+    mass_out = cylinder.get_out_mass_flow()
+    total_mass = cylinder.total_mass_flow()
+    print(mass_in, mass_out, 200*(mass_in-mass_out)/(mass_in+mass_out))
+    print(total_mass)
+
+    cap = cap/100
     res_cap = cylinder.process_capacity(capacity=cap)
+    print(res_cap)
 
     mass_flow_full_capacity = -np.mean(cylinder.process_sum_of_volumetric_flow_rate('in_flow', capacity=1))*rho_suc
     partial_flow = -np.mean(cylinder.process_sum_of_volumetric_flow_rate('in_flow', capacity=res_cap))*rho_suc
     print((partial_flow/mass_flow_full_capacity)*100)
-
-    # poly_sig = np.poly1d(np.array([ 4.07662578e-12, -1.76845633e-09,  3.22571698e-07, -3.21443114e-05,
-    #                                 1.90316519e-03, -6.81078403e-02,  1.42782751e+00, -1.53184727e+01,
-    #                                 9.36732673e+01]))
-    # print(poly_sig(60)/100)
