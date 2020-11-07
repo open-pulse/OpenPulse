@@ -65,14 +65,10 @@ class CompressorModelInput(QDialog):
         self.lineEdit_pressure_at_suction = self.findChild(QLineEdit, 'lineEdit_pressure_at_suction')
         self.lineEdit_temperature_at_suction = self.findChild(QLineEdit, 'lineEdit_temperature_at_suction')
 
-        self.radioButton_double_effect = self.findChild(QRadioButton, 'radioButton_double_effect')
-        self.radioButton_single_effect = self.findChild(QRadioButton, 'radioButton_single_effect')
         self.radioButton_both_cylinders = self.findChild(QRadioButton, 'radioButton_both_cylinders')
         self.radioButton_head_end_cylinder = self.findChild(QRadioButton, 'radioButton_head_end_cylinder')
         self.radioButton_crank_end_cylinder = self.findChild(QRadioButton, 'radioButton_crank_end_cylinder')
 
-        self.radioButton_double_effect.clicked.connect(self.radioButtonEvent_effects)
-        self.radioButton_single_effect.clicked.connect(self.radioButtonEvent_effects)
         self.radioButton_both_cylinders.clicked.connect(self.radioButtonEvent_compression_setup)
         self.radioButton_head_end_cylinder.clicked.connect(self.radioButtonEvent_compression_setup)
         self.radioButton_crank_end_cylinder.clicked.connect(self.radioButtonEvent_compression_setup)
@@ -86,7 +82,6 @@ class CompressorModelInput(QDialog):
         self.radioButton_connected_at_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
 
         self.radioButtonEvent_compression_setup()
-        self.radioButtonEvent_effects()
         self.radioButtonEvent_connections_compressor_to_pipelines()
 
         self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
@@ -187,26 +182,38 @@ class CompressorModelInput(QDialog):
             self.pushButton_confirm.setDisabled(True)
         else:
             self.pushButton_confirm.setDisabled(False)
-
-    def radioButtonEvent_compression_setup(self):
+    
+    def update_compressing_cylinders_setup(self):
         self.both_cylinders = self.radioButton_both_cylinders.isChecked()
         self.head_end_cylinder = self.radioButton_head_end_cylinder.isChecked()
         self.crank_end_cylinder = self.radioButton_crank_end_cylinder.isChecked()
+
+        self.single_acting = False
+        self.double_acting = False
+        self.pushButton_plot_PV_diagram_head_end.setDisabled(False)
+        self.pushButton_plot_PV_diagram_crank_end.setDisabled(False)
+        self.pushButton_plot_pressure_head_end_angle.setDisabled(False)
+        self.pushButton_plot_pressure_crank_end_angle.setDisabled(False)
+        self.pushButton_plot_volume_head_end_angle.setDisabled(False)
+        self.pushButton_plot_volume_crank_end_angle.setDisabled(False)
+
         if self.both_cylinders:
-            self.radioButton_double_effect.setChecked(True)
-        else:
-            self.radioButton_single_effect.setChecked(True)
-        self.double_effect = self.radioButton_double_effect.isChecked()
-        self.single_effect = self.radioButton_single_effect.isChecked()
-   
-    def radioButtonEvent_effects(self):
-        self.double_effect = self.radioButton_double_effect.isChecked()
-        self.single_effect = self.radioButton_single_effect.isChecked()
-        if self.double_effect:
-            self.radioButton_both_cylinders.setChecked(True)
-        else:
-            self.radioButton_both_cylinders.setChecked(False)
-            self.radioButton_head_end_cylinder.setChecked(True) 
+            self.double_acting = True
+
+        if self.head_end_cylinder:
+            self.pushButton_plot_PV_diagram_crank_end.setDisabled(True)
+            self.pushButton_plot_pressure_crank_end_angle.setDisabled(True)
+            self.pushButton_plot_volume_crank_end_angle.setDisabled(True)
+            self.single_acting = True
+
+        if self.crank_end_cylinder:
+            self.pushButton_plot_PV_diagram_head_end.setDisabled(True)
+            self.pushButton_plot_pressure_head_end_angle.setDisabled(True)
+            self.pushButton_plot_volume_head_end_angle.setDisabled(True)
+            self.single_acting = True
+
+    def radioButtonEvent_compression_setup(self):
+        self.update_compressing_cylinders_setup()
 
     def radioButtonEvent_connections_compressor_to_pipelines(self):
         self.connection_at_suction_and_discharge = self.radioButton_connected_at_suction_and_discharge.isChecked()
@@ -408,12 +415,12 @@ class CompressorModelInput(QDialog):
                 return True
             else:
                 self.parameters['TDC crank angle 2'] = self.value
-                self.tdc2 = self.value
+                # self.tdc2 = self.value
 
-        if self.double_effect:
+        if self.double_acting:
             self.parameters['double effect'] = True
 
-        if self.single_effect:
+        if self.single_acting:
             if self.head_end_cylinder:
                 cylinder_label = 'HEAD END'
             elif self.crank_end_cylinder:
@@ -432,7 +439,7 @@ class CompressorModelInput(QDialog):
         if 'cylinder label' in self.parameters.keys():
             self.compressor.active_cylinder = self.parameters['cylinder label']
         if 'TDC crank angle 2' in self.parameters.keys():
-            self.compressor.TDC_crank_angle_2 = self.parameters['TDC crank angle 2']
+            self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
 
         return False
     

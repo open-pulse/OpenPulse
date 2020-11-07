@@ -281,10 +281,6 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         if complex(0) in response:
             response += np.ones(len(response), dtype=float)*(1e-8)
 
-        # if complex(0) in response:
-        #     self.checkBox_dB.setChecked(False)
-        #     self.scale_dB = self.checkBox_dB.isChecked()
-
         if self.scale_dB :
             if self.plotAbs:
                 response = self.dB(response)
@@ -326,9 +322,12 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
             data = self.imported_data
             imported_Xvalues = data[:,0]
-
+            
             if self.plotAbs:
                 imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2]) 
+                if complex(0) in imported_Yvalues:
+                    imported_Yvalues += np.ones(len(imported_Yvalues), dtype=float)*(1e-8)
+
                 if self.scale_dB :
                     imported_Yvalues = self.dB(imported_Yvalues)
             elif self.plotReal:
