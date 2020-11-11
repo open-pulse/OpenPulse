@@ -165,8 +165,9 @@ class StructuralElement:
             C[2,2] = 0.
 
         self.sub_rotation_matrix = C
-        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
+        self.inverse_sub_rotation_matrix = np.linalg.inv(C)
 
+        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = C
 
         return R

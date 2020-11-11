@@ -1,71 +1,78 @@
 import vtk
 import numpy as np 
+from time import time
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
+
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project):
+    def __init__(self, elements, project, deformation=None, colorTable=None):
         super().__init__()
 
         self.elements = elements
         self.project = project
 
+        self.deformation = deformation
+        self.colorTable = colorTable
+
         self._appendData = vtk.vtkAppendPolyData()
         self._mapper = vtk.vtkPolyDataMapper()
 
-        self._cacheSection = dict()
+        self._cachePolygon = dict()
         self._cacheMatrix = dict()
     
     def source(self):
-        for element in self.elements:
-            tubeSection = self.createTubeSection(element)
-            transformation = self.createElementTransformation(element)
-            tubeSection.SetTransform(transformation)
-            tubeSection.Update()
-          
-            copyData = vtk.vtkPolyData()
-            copyData.DeepCopy(tubeSection.GetOutput())
+        a = time()
+        sections = [self.createTubeSection(element) for element in self.elements]
+        b = time()
+        matrices = [self.createMatrix(element) for element in self.elements] 
+        c = time()
+        colors = [self.normalizeColor(element) for element in self.elements]
+        d = time()
+        self._appendData = self.generateTube(sections, matrices, colors)
+        e = time()
+        print(b-a, c-b, d-c, e-d)
 
-            self._appendData.AddInputData(copyData)
-    
     def filter(self):
         pass
     
     def map(self):
-        # Use this if you need performance, but loading time will be much longer
-        # self._appendData.Update()
-        # self._mapper.SetInputData(self._appendData.GetOutput())
-        self._mapper.SetInputConnection(self._appendData.GetOutputPort())
+        self._appendData.Update()
+        self._mapper.SetInputData(self._appendData.GetOutput())
     
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().BackfaceCullingOff()
         self._actor.GetProperty().ShadingOff()
 
+    def normalizeColor(self, element):
+        if self.colorTable is None:
+            return (255,255,255)
+        else:
+            return self.colorTable.get_color_by_id(element.index)
+
     def createTubeSection(self, element):
-        if element.cross_section in self._cacheSection:
-            return self._cacheSection[element.cross_section]
-
-        extruderFilter = vtk.vtkLinearExtrusionFilter()
-        transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
-
-        polygon = vtk.vtkRegularPolygonSource()
-        polygon.SetNumberOfSides(20)
+        if element.cross_section in self._cachePolygon:
+            return self._cachePolygon[element.cross_section]   
+    
+        NUMBER_OF_SIDES = 20
+        MINIMUM_RADIUS = 0.01
 
         if not element.cross_section:
-            polygon.SetRadius(0.01)
+            polygon = vtk.vtkRegularPolygonSource()
+            polygon.SetNumberOfSides(NUMBER_OF_SIDES)
+            polygon.SetRadius(MINIMUM_RADIUS)
         else:
             label, parameters, *args = element.cross_section.additional_section_info
             if label == "Pipe section":
+                polygon = vtk.vtkRegularPolygonSource()
+                polygon.SetNumberOfSides(NUMBER_OF_SIDES)
                 polygon.SetRadius(element.cross_section.external_diameter / 2)
             else:
                 polygon = self.createSectionPolygon(element)
-
-        extruderFilter.SetInputConnection(polygon.GetOutputPort())
-        transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
-
-        self._cacheSection[element.cross_section] = transformPolyDataFilter
-        return transformPolyDataFilter
+        
+        self._cachePolygon[element.cross_section] = polygon
+        return polygon
 
     def createSectionPolygon(self, element):
         points = vtk.vtkPoints()
@@ -85,31 +92,76 @@ class TubeActor(vtkActorBase):
         polyData.SetPoints(points)
         polyData.SetPolys(edges)
         triangleFilter.AddInputData(polyData)
-
         return triangleFilter
     
-    def createElementTransformation(self, element):
-        start = element.first_node.coordinates
-        end = element.last_node.coordinates
-        size = element.length
+    def createMatrix(self, element):
+        vec = tuple(element.last_node.coordinates - element.first_node.coordinates)
 
-        vector = tuple(end-start)
-        if vector not in self._cacheMatrix:
-            _, directionalVectors = element.get_local_coordinate_system_info()
-            u, v, w = directionalVectors
-            matrix = vtk.vtkMatrix4x4()
-            matrix.Identity()
-            for i in range(3):
-                matrix.SetElement(i, 0, v[i])
-                matrix.SetElement(i, 1, w[i])
-                matrix.SetElement(i, 2, u[i]) 
-            self._cacheMatrix[vector] = matrix
+        if vec in self._cacheMatrix:
+            # this cache may not look so usefull here
+            # but it acelerates self._appendData.Update() 
+            scale, rotation = self._cacheMatrix[vec]
         else:
-            matrix = self._cacheMatrix[vector]
+            scale = self.createScaleMatrix(element)
+            rotation = self.createRotationMatrix(element)
+            self._cacheMatrix[vec] = scale, rotation
 
-        transformation = vtk.vtkTransform()
-        transformation.Translate(start)
-        transformation.Concatenate(matrix)
-        transformation.Scale(1,1,size)
+        translation = self.createTranslationMatrix(element)
+        final = (rotation + translation) * scale
+        
+        matrix = vtk.vtkMatrix4x4()
+        matrix.DeepCopy(final.flatten()) # numpy to vtk
+        return matrix
 
-        return transformation
+    def createRotationMatrix(self, element):
+        u,v,w = element.inverse_sub_rotation_matrix.T # directional vectors
+        matrix = np.identity(4)
+        matrix[0:3, 0] = v
+        matrix[0:3, 1] = w
+        matrix[0:3, 2] = u 
+        return matrix
+
+    def createTranslationMatrix(self, element):
+        start = element.first_node.coordinates
+        matrix = np.zeros((4,4))
+        matrix[0:3, 3] = start 
+        return matrix
+    
+    def createScaleMatrix(self, element):
+        size = element.length
+        matrix = np.ones((4,4))
+        matrix[:, 2] = size
+        return matrix
+
+    
+    def generateTube(self, sections, matrices, colors):
+        # this may be the most costly function and should be implemented in c++ 
+        data = vtk.vtkAppendPolyData()
+
+        for section, matrix, color in zip(sections, matrices, colors):
+            transformation = vtk.vtkTransform()
+            extruderFilter = vtk.vtkLinearExtrusionFilter()
+            transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
+
+            transformation.Concatenate(matrix)
+            extruderFilter.SetInputConnection(section.GetOutputPort())
+            transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
+            transformPolyDataFilter.SetTransform(transformation)
+            transformPolyDataFilter.Update()
+
+            tube = transformPolyDataFilter.GetOutput()
+            self.paint(tube, color)
+            data.AddInputData(tube)
+
+        return data
+
+    def paint(self, data, color):
+        faces = data.GetNumberOfCells()
+        colors = vtk.vtkUnsignedCharArray()
+        colors.SetNumberOfComponents(3)
+        colors.SetNumberOfTuples(faces)
+
+        for i in range(faces):
+            colors.SetTuple(i, color)
+        
+        data.GetCellData().SetScalars(colors)
