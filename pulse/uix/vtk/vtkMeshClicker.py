@@ -91,10 +91,14 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.selectActors()
 
     def rightButtonPressEvent(self, obj, event):
-        self.StartRotate()
+        if self.__altKeyClicked:
+            self.StartDolly()
+        else:
+            self.StartRotate()
     
     def rightButtonReleaseEvent(self, obj, event):
         self.EndRotate()
+        self.EndDolly()
 
     def mouseMoveEvent(self, obj, event):  
         self.OnMouseMove()
