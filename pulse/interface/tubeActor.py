@@ -4,7 +4,6 @@ from time import time
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
-
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project, deformation=None, colorTable=None):
         super().__init__()
@@ -22,17 +21,11 @@ class TubeActor(vtkActorBase):
         self._cacheMatrix = dict()
     
     def source(self):
-        a = time()
         sections = [self.createTubeSection(element) for element in self.elements]
-        b = time()
         matrices = [self.createMatrix(element) for element in self.elements] 
-        c = time()
         colors = [self.normalizeColor(element) for element in self.elements]
-        d = time()
         self._appendData = self.generateTube(sections, matrices, colors)
-        e = time()
-        print(b-a, c-b, d-c, e-d)
-
+        
     def filter(self):
         pass
     
@@ -43,6 +36,7 @@ class TubeActor(vtkActorBase):
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().BackfaceCullingOff()
+        self._actor.GetProperty().LightingOff()
         self._actor.GetProperty().ShadingOff()
 
     def normalizeColor(self, element):
@@ -132,12 +126,10 @@ class TubeActor(vtkActorBase):
         matrix = np.ones((4,4))
         matrix[:, 2] = size
         return matrix
-
     
     def generateTube(self, sections, matrices, colors):
         # this may be the most costly function and should be implemented in c++ 
         data = vtk.vtkAppendPolyData()
-
         for section, matrix, color in zip(sections, matrices, colors):
             transformation = vtk.vtkTransform()
             extruderFilter = vtk.vtkLinearExtrusionFilter()
@@ -152,7 +144,6 @@ class TubeActor(vtkActorBase):
             tube = transformPolyDataFilter.GetOutput()
             self.paint(tube, color)
             data.AddInputData(tube)
-
         return data
 
     def paint(self, data, color):
@@ -163,5 +154,4 @@ class TubeActor(vtkActorBase):
 
         for i in range(faces):
             colors.SetTuple(i, color)
-        
         data.GetCellData().SetScalars(colors)
