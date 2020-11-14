@@ -141,7 +141,6 @@ class AssemblyStructural:
                 for i in range(2):
                     i_indexes_K.append(indexes_i[i])
                     j_indexes_K.append(indexes_j[i])
-                    print(node.loaded_table_for_elastic_link_stiffness)
                     list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
 
         for cluster_data in self.mesh.dict_nodes_with_elastic_link_damping.values():
