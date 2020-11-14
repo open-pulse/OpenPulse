@@ -136,9 +136,9 @@
       <property name="geometry">
        <rect>
         <x>54</x>
-        <y>6</y>
+        <y>8</y>
         <width>322</width>
-        <height>155</height>
+        <height>153</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -209,7 +209,7 @@
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>88</y>
+         <y>84</y>
          <width>139</width>
          <height>25</height>
         </rect>
@@ -361,7 +361,7 @@
        <property name="geometry">
         <rect>
          <x>158</x>
-         <y>120</y>
+         <y>118</y>
          <width>120</width>
          <height>26</height>
         </rect>
@@ -391,7 +391,7 @@
         <enum>Qt::ClickFocus</enum>
        </property>
        <property name="text">
-        <string>1197</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -401,7 +401,7 @@
        <property name="geometry">
         <rect>
          <x>158</x>
-         <y>88</y>
+         <y>84</y>
          <width>120</width>
          <height>26</height>
         </rect>
@@ -431,7 +431,7 @@
         <enum>Qt::ClickFocus</enum>
        </property>
        <property name="text">
-        <string>1147</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -444,7 +444,7 @@
        <property name="geometry">
         <rect>
          <x>14</x>
-         <y>120</y>
+         <y>118</y>
          <width>141</width>
          <height>25</height>
         </rect>
@@ -598,7 +598,7 @@
          <x>0</x>
          <y>32</y>
          <width>322</width>
-         <height>49</height>
+         <height>45</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -626,7 +626,7 @@
         <property name="geometry">
          <rect>
           <x>172</x>
-          <y>12</y>
+          <y>10</y>
           <width>120</width>
           <height>26</height>
          </rect>
@@ -670,7 +670,7 @@ background-color: rgb(255, 255, 255);</string>
         <property name="geometry">
          <rect>
           <x>14</x>
-          <y>12</y>
+          <y>10</y>
           <width>155</width>
           <height>26</height>
          </rect>
@@ -1166,7 +1166,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e9</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1200,7 +1200,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e9</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1503,7 +1503,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e9</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1699,7 +1699,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e4</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1733,7 +1733,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e4</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2005,7 +2005,7 @@ background-color: rgb(255, 255, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>1e4</string>
+              <string/>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -2255,6 +2255,24 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -2271,6 +2289,24 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Ky">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="font">
               <font>
@@ -2348,6 +2384,24 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -2398,6 +2452,24 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Kz">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="font">
               <font>
@@ -2518,6 +2590,24 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -2568,6 +2658,24 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Krz">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="sizeIncrement">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
              </property>
              <property name="font">
               <font>
@@ -2780,6 +2888,18 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -2796,6 +2916,18 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Cy">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
              </property>
              <property name="font">
               <font>
@@ -2881,6 +3013,18 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -2931,6 +3075,18 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Cz">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
              </property>
              <property name="font">
               <font>
@@ -3081,6 +3237,18 @@ background-color: rgb(255, 255, 255);</string>
              <property name="enabled">
               <bool>true</bool>
              </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
+             </property>
              <property name="font">
               <font>
                <pointsize>8</pointsize>
@@ -3131,6 +3299,18 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLineEdit" name="lineEdit_path_table_Crz">
              <property name="enabled">
               <bool>true</bool>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>22</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>22</height>
+              </size>
              </property>
              <property name="font">
               <font>
