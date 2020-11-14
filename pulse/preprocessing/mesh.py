@@ -42,6 +42,7 @@ class Mesh:
         self.nodes_with_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
+        self.pair_of_nodes_with_elastic_nodal_links = []
         self.nodes_with_acoustic_pressure = []
         self.nodes_with_volume_velocity = []
         self.nodes_with_specific_impedance = []
@@ -51,6 +52,8 @@ class Mesh:
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_element_type_to_lines = defaultdict(list)
+        self.dict_nodes_with_elastic_link_stiffness = {}
+        self.dict_nodes_with_elastic_link_damping = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -111,12 +114,6 @@ class Mesh:
             if node in [first, last]:
                 neighboor_elments[node].append(element.index)
         return neighboor_elments[node]
-
-    def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
-        node_1 = self.nodes[nodeID_1]
-        node_2 = self.nodes[nodeID_2]
-        nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
-        return np.sort(nodes_gdofs)
 
     def _initialize_gmsh(self, path):
         gmsh.initialize('', False)
@@ -1166,9 +1163,65 @@ class Mesh:
         if 'cylinder label' in parameters.keys():
             CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
         else:
-            compressor = CompressorModel(list_parameters)
+            CompressorModel(list_parameters)
         
+    def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
+        node_1 = self.nodes[nodeID_1]
+        node_2 = self.nodes[nodeID_2]
+        nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
+        reord_gdofs = np.sort(nodes_gdofs)
+        if  list(nodes_gdofs) == list(reord_gdofs):
+            first_node = node_1
+            last_node = node_2
+        else:
+            first_node = node_2
+            last_node = node_1
+        return reord_gdofs, first_node, last_node          
 
-          
+    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, parameters, _stiffness=False, _damping=False):
 
+        if not (_stiffness or _damping):
+            return
+
+        gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)        
+        gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
+        gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
+
+        pos_data = parameters
+        neg_data = [-value if value is not None else None for value in parameters]
+        mask = [False if value is None else True for value in parameters]
+
+        check_tables = [isinstance(value, np.ndarray) for value in parameters]
+
+        if True in check_tables:
+            node1.loaded_table_for_elastic_link_stiffness = True
+            node2.loaded_table_for_elastic_link_damping = True
+            value_labels = ["Table"]*check_tables.count(True)
+        else:
+            value_labels = np.array(parameters)[mask]
+            node1.loaded_table_for_elastic_link_stiffness = False
+            node2.loaded_table_for_elastic_link_stiffness = False
+            node1.loaded_table_for_elastic_link_damping = False
+            node2.loaded_table_for_elastic_link_damping = False
+            
+        indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
+        indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
+        out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
+        element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
+        element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
+
+        key = "{}-{}".format(node1.external_index, node2.external_index)
         
+        if _stiffness:
+            self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
+            node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_stiffness = True
+            node2.there_are_elastic_nodal_link_stiffness = True
+        
+        if _damping:
+            self.dict_nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_damping[key] = [mask, value_labels]
+            node2.elastic_nodal_link_damping[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_damping = True
+            node2.there_are_elastic_nodal_link_damping = True

@@ -12,7 +12,7 @@ from pulse.uix.user_input.structural_model_setup.loadsInput import LoadsInput
 from pulse.uix.user_input.structural_model_setup.massSpringDamperInput import MassSpringDamperInput
 from pulse.uix.user_input.structural_model_setup.cappedEndInput import CappedEndInput
 from pulse.uix.user_input.structural_model_setup.stressStiffeningInput import StressStiffeningInput
-from pulse.uix.user_input.structural_model_setup.nodalLinksInput import NodalLinksInput
+from pulse.uix.user_input.structural_model_setup.elasticNodalLinksInput import ElasticNodalLinksInput
 #
 from pulse.uix.user_input.acoustic_model_setup.fluidInput import FluidInput
 from pulse.uix.user_input.acoustic_model_setup.acousticpressureInput import AcousticPressureInput
@@ -218,8 +218,8 @@ class InputUi:
         StressStiffeningInput(self.project, self.opv)
         return
 
-    def add_nodal_links(self):
-        NodalLinksInput(self.project, self.opv)
+    def add_elastic_nodal_links(self):
+        ElasticNodalLinksInput(self.project, self.opv)
         return
 
     def setAcousticPressure(self):

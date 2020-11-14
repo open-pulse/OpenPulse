@@ -139,10 +139,10 @@ class MainWindow(QMainWindow):
         self.stressStiffening_action.setStatusTip('Set Strees Stiffening')
         self.stressStiffening_action.triggered.connect(self.getInputWidget().set_stress_stress_stiffening)
 
-        self.nodalLinks_action = QAction('&Add Nodal Links', self)        
+        self.nodalLinks_action = QAction('&Add Elastic Nodal Links', self)        
         # self.nodalLinks_action.setShortcut('Alt+7')
-        self.nodalLinks_action.setStatusTip('Add Nodal Links')
-        self.nodalLinks_action.triggered.connect(self.getInputWidget().add_nodal_links)
+        self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
+        self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
 
         #Acoustic Model Setup
         self.set_fluid_action = QAction('&Set Fluid', self)        

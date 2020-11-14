@@ -34,6 +34,14 @@ class Node:
         self.lumped_dampings = [None, None, None, None, None, None]
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
+        
+        self.elastic_nodal_link_stiffness = {}
+        self.there_are_elastic_nodal_link_stiffness = False
+        self.loaded_table_for_elastic_link_stiffness = False
+
+        self.elastic_nodal_link_damping = {}
+        self.there_are_elastic_nodal_link_damping = False
+        self.loaded_table_for_elastic_link_damping = False
 
         # Acoustic boundary conditions and specific impedance
         self.acoustic_pressure = None

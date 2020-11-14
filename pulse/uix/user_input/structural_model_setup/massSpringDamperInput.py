@@ -405,20 +405,25 @@ class MassSpringDamperInput(QDialog):
 
         self.close()
 
-    def load_table(self, lineEdit, text, header):
+    def load_table(self, lineEdit, text, header, direct_load=False):
         
-        self.basename = ""
-        window_label = 'Choose a table to import the {} nodal load'.format(text)
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
+        self.project.file.temp_table_name = None
+        
+        if direct_load:
+            self.path_imported_table = lineEdit.text()
+        else:
+            self.basename = ""
+            window_label = 'Choose a table to import the {} nodal load'.format(text)
+            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
+            lineEdit.setText(self.path_imported_table)
 
         if self.path_imported_table == "":
             return "", ""
-
+        
         self.basename = os.path.basename(self.path_imported_table)
-        lineEdit.setText(self.path_imported_table)
         if self.basename != "":
             self.imported_table_name = self.basename
-        
+
         if "\\" in self.project_folder_path:
             self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
         elif "/" in self.project_folder_path:
@@ -531,25 +536,43 @@ class MassSpringDamperInput(QDialog):
             return
 
         Mx = My = Mz = None
-        if self.lineEdit_path_table_Mx != "":
-            if self.Mx_table is not None:
+        if self.lineEdit_path_table_Mx.text() != "":
+            if self.Mx_table is None:
+                header = "Mx || Frequency [Hz], value[kg]"
+                Mx, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx", header, direct_load=True)
+            else:
                 Mx = self.Mx_table
-        if self.lineEdit_path_table_My != "":
-            if self.My_table is not None:
+        if self.lineEdit_path_table_My.text() != "":
+            if self.My_table is None:
+                header = "My || Frequency [Hz], value[kg]"
+                My, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My", header, direct_load=True)
+            else:
                 My = self.My_table
-        if self.lineEdit_path_table_Mz != "":
-            if self.Mz_table is not None:
+        if self.lineEdit_path_table_Mz.text() != "":
+            if self.Mz_table is None:
+                header = "Mz || Frequency [Hz], value[kg]"
+                Mz, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz", header, direct_load=True)
+            else:
                 Mz = self.Mz_table
 
         Jx = Jy = Jz = None
-        if self.lineEdit_path_table_Jx != "":
-            if self.Jx_table is not None:
+        if self.lineEdit_path_table_Jx.text() != "":
+            if self.Jx_table is None:
+                header = "Jx || Frequency [Hz], value[kg.m²]"
+                Jx, self.basename_Jx = self.load_table(self.lineEdit_path_table_Jx, "Jx", header, direct_load=True)
+            else:
                 Jx = self.Jx_table
-        if self.lineEdit_path_table_Jy != "":
-            if self.Jy_table is not None:
+        if self.lineEdit_path_table_Jy.text() != "":
+            if self.Jy_table is None:
+                header = "Jy || Frequency [Hz], value[kg.m²]"
+                Jy, self.basename_Jy = self.load_table(self.lineEdit_path_table_Jy, "Jy", header, direct_load=True)
+            else:
                 Jy = self.Jy_table
-        if self.lineEdit_path_table_Jz != "":
-            if self.Jz_table is not None:
+        if self.lineEdit_path_table_Jz.text() != "":
+            if self.Jz_table is None:
+                header = "Jz || Frequency [Hz], value[kg.m²]"
+                Jz, self.basename_Jz = self.load_table(self.lineEdit_path_table_Jz, "Jz", header, direct_load=True)
+            else:
                 Jz = self.Jz_table
         
         lumped_masses = [Mx, My, Mz, Jx, Jy, Jz]
@@ -567,25 +590,43 @@ class MassSpringDamperInput(QDialog):
             return
 
         Kx = Ky = Kz = None
-        if self.lineEdit_path_table_Kx != "":
-            if self.Kx_table is not None:
+        if self.lineEdit_path_table_Kx.text() != "":
+            if self.Kx_table is None:
+                header = "Kx || Frequency [Hz], value[N/m]"
+                Kx, self.basename_Kx = self.load_table(self.lineEdit_path_table_Kx, "Kx", header, direct_load=True)
+            else:
                 Kx = self.Kx_table
-        if self.lineEdit_path_table_Ky != "":
-            if self.Ky_table is not None:
+        if self.lineEdit_path_table_Ky.text() != "":
+            if self.Ky_table is None:
+                header = "Ky || Frequency [Hz], value[N/m]"
+                Ky, self.basename_Ky = self.load_table(self.lineEdit_path_table_Ky, "Ky", header, direct_load=True)
+            else:
                 Ky = self.Ky_table
-        if self.lineEdit_path_table_Kz != "":
-            if self.Kz_table is not None:
+        if self.lineEdit_path_table_Kz.text() != "":
+            if self.Kz_table is None:
+                header = "Kz || Frequency [Hz], value[N/m]"
+                Kz, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header, direct_load=True)
+            else:
                 Kz = self.Kz_table
 
         Krx = Kry = Krz = None
-        if self.lineEdit_path_table_Krx != "":
-            if self.Krx_table is not None:
+        if self.lineEdit_path_table_Krx.text() != "":
+            if self.Krx_table is None:
+                header = "Krx || Frequency [Hz], value[N.m/rad]"
+                Krx, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header, direct_load=True)
+            else:
                 Krx = self.Krx_table
-        if self.lineEdit_path_table_Kry != "":
-            if self.Kry_table is not None:
+        if self.lineEdit_path_table_Kry.text() != "":
+            if self.Kry_table is None:
+                header = "Kry || Frequency [Hz], value[N.m/rad]"
+                Kry, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header, direct_load=True)
+            else:
                 Kry = self.Kry_table
-        if self.lineEdit_path_table_Krz != "":
-            if self.Krz_table is not None:
+        if self.lineEdit_path_table_Krz.text() != "":
+            if self.Krz_table is None:
+                header = "Krz || Frequency [Hz], value[N.m/rad]"
+                Krz, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header, direct_load=True)
+            else:
                 Krz = self.Krz_table
         
         lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
@@ -603,25 +644,43 @@ class MassSpringDamperInput(QDialog):
             return
 
         Cx = Cy = Cz = None
-        if self.lineEdit_path_table_Cx != "":
-            if self.Cx_table is not None:
+        if self.lineEdit_path_table_Cx.text() != "":
+            if self.Cx_table is None:
+                header = "Cx || Frequency [Hz], value[N.s/m]"
+                Cx, self.basename_Cx = self.load_table(self.lineEdit_path_table_Cx, "Cx", header, direct_load=True)
+            else:
                 Cx = self.Cx_table
-        if self.lineEdit_path_table_Cy != "":
-            if self.Cy_table is not None:
+        if self.lineEdit_path_table_Cy.text() != "":
+            if self.Cy_table is None:
+                header = "Cy || Frequency [Hz], value[N.s/m]"
+                Cy, self.basename_Cy = self.load_table(self.lineEdit_path_table_Cy, "Cy", header, direct_load=True)
+            else:
                 Cy = self.Cy_table
-        if self.lineEdit_path_table_Cz != "":
-            if self.Cz_table is not None:
+        if self.lineEdit_path_table_Cz.text() != "":
+            if self.Cz_table is None:
+                header = "Cz || Frequency [Hz], value[N.s/m]"
+                Cz, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header, direct_load=True)
+            else:
                 Cz = self.Cz_table
 
         Crx = Cry = Crz = None
-        if self.lineEdit_path_table_Crx != "":
-            if self.Crx_table is not None:
+        if self.lineEdit_path_table_Crx.text() != "":
+            if self.Crx_table is None:
+                header = "Crx || Frequency [Hz], value[N.m/rad/s]"
+                Crx, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header, direct_load=True)
+            else:
                 Crx = self.Crx_table
-        if self.lineEdit_path_table_Cry != "":
-            if self.Cry_table is not None:
+        if self.lineEdit_path_table_Cry.text() != "":
+            if self.Cry_table is None:
+                header = "Cry || Frequency [Hz], value[N.m/rad/s]"
+                Cry, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header, direct_load=True)
+            else:
                 Cry = self.Cry_table
-        if self.lineEdit_path_table_Crz != "":
-            if self.Crz_table is not None:
+        if self.lineEdit_path_table_Crz.text() != "":
+            if self.Crz_table is None:
+                header = "Crz || Frequency [Hz], value[N.m/rad/s]"
+                Crz, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header, direct_load=True)
+            else:
                 Crz = self.Crz_table
             
         lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]

@@ -85,6 +85,7 @@ class AssemblyStructural:
         
     def get_lumped_matrices(self):
 
+        N = DOF_PER_NODE_STRUCTURAL
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         
         if self.frequencies is None:
@@ -92,17 +93,18 @@ class AssemblyStructural:
         else:
             cols = len(self.frequencies)
 
-        list_Mlump = []
-        list_Klump = []
-        list_Clump = []
+        list_Kdata = []
+        list_Mdata = []
+        list_Cdata = []
 
-        ind_Mlump = []
-        ind_Klump = []
-        ind_Clump = []
-
+        i_indexes_M, j_indexes_M = [], []
+        i_indexes_K, j_indexes_K = [], []
+        i_indexes_C, j_indexes_C = [], []
+        
         self.nodes_with_lumped_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
+        self.nodes_with_nodal_elastic_links = []
 
         flag_Clump = False
 
@@ -113,35 +115,57 @@ class AssemblyStructural:
             if node.there_are_lumped_stiffness:
                 position = node.global_dof
                 self.nodes_connected_to_springs.append(node)
-                list_Klump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
-                ind_Klump.append(position)
+                list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_stiffness, node.lumped_stiffness))
+                i_indexes_K.append(position)
+                j_indexes_K.append(position)
 
             # processing mass added
             if node.there_are_lumped_masses:
                 position = node.global_dof
                 self.nodes_with_lumped_masses.append(node)
-                list_Mlump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_masses, node.lumped_masses))
-                ind_Mlump.append(position)
+                list_Mdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_masses, node.lumped_masses))
+                i_indexes_M.append(position)
+                j_indexes_M.append(position)
 
             # processing damper added
             if node.there_are_lumped_dampings:
                 position = node.global_dof
                 self.nodes_connected_to_dampers.append(node)
-                list_Clump.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
-                ind_Clump.append(position)
+                list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_lumped_dampings, node.lumped_dampings))
+                i_indexes_C.append(position)
+                j_indexes_C.append(position)
                 flag_Clump = True
-
-        data_Klump = np.array(list_Klump).reshape(-1, cols)
-        data_Mlump = np.array(list_Mlump).reshape(-1, cols)
-        data_Clump = np.array(list_Clump).reshape(-1, cols)
         
-        ind_Klump = np.array(ind_Klump).flatten()
-        ind_Mlump = np.array(ind_Mlump).flatten()
-        ind_Clump = np.array(ind_Clump).flatten()
+        for cluster_data in self.mesh.dict_nodes_with_elastic_link_stiffness.values():
+            for indexes_i, indexes_j, data, in cluster_data:
+                for i in range(2):
+                    i_indexes_K.append(indexes_i[i])
+                    j_indexes_K.append(indexes_j[i])
+                    print(node.loaded_table_for_elastic_link_stiffness)
+                    list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
 
-        full_K = [csr_matrix((data_Klump[:,j], (ind_Klump, ind_Klump)), shape=[total_dof, total_dof]) for j in range(cols)]
-        full_M = [csr_matrix((data_Mlump[:,j], (ind_Mlump, ind_Mlump)), shape=[total_dof, total_dof]) for j in range(cols)]
-        full_C = [csr_matrix((data_Clump[:,j], (ind_Clump, ind_Clump)), shape=[total_dof, total_dof]) for j in range(cols)]
+        for cluster_data in self.mesh.dict_nodes_with_elastic_link_damping.values():
+            for indexes_i, indexes_j, data, in cluster_data:
+                for i in range(2):
+                    i_indexes_C.append(indexes_i[i])
+                    j_indexes_C.append(indexes_j[i])
+                    list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_damping, data[i]))
+
+        data_Klump = np.array(list_Kdata).reshape(-1, cols)
+        data_Mlump = np.array(list_Mdata).reshape(-1, cols)
+        data_Clump = np.array(list_Cdata).reshape(-1, cols)
+        
+        i_indexes_K = np.array(i_indexes_K).flatten()
+        i_indexes_M = np.array(i_indexes_M).flatten()
+        i_indexes_C = np.array(i_indexes_C).flatten()
+
+        j_indexes_K = np.array(j_indexes_K).flatten()
+        j_indexes_M = np.array(j_indexes_M).flatten()
+        j_indexes_C = np.array(j_indexes_C).flatten()
+
+        full_K = [csr_matrix((data_Klump[:,j], (i_indexes_K, j_indexes_K)), shape=[total_dof, total_dof]) for j in range(cols)]
+        full_M = [csr_matrix((data_Mlump[:,j], (i_indexes_M, j_indexes_M)), shape=[total_dof, total_dof]) for j in range(cols)]
+        full_C = [csr_matrix((data_Clump[:,j], (i_indexes_C, j_indexes_C)), shape=[total_dof, total_dof]) for j in range(cols)]
 
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = self.get_unprescribed_indexes()

@@ -737,9 +737,15 @@ class ProjectFile:
         self.dict_lumped_inertia = {}
         self.dict_lumped_stiffness = {}
         self.dict_lumped_damping = {}
+        self.dict_elastic_link_stiffness = {}
+        self.dict_elastic_link_damping = {}
 
         for node in node_structural_list.sections():
-            node_id = int(node)
+            # if "CONNECTING LINKS" in node:
+            try:
+                node_id = int(node)
+            except:
+                node_id = node
             keys = list(node_structural_list[node].keys())
 
             if "displacements" in keys and "rotations" in keys:
@@ -781,8 +787,24 @@ class ProjectFile:
                 lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels)
                 if lumped_damping is not None:
                     self.dict_lumped_damping[node_id] = lumped_damping
+
+            if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
+                connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
+                connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
+                labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
+                connecting_stiffness = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels)
+                if connecting_stiffness is not None:
+                    self.dict_elastic_link_stiffness[node_id] = connecting_stiffness
         
-        return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping
+            if "connecting damping" in keys and "connecting torsional damping" in keys:
+                connecting_damping = node_structural_list[str(node)]['connecting damping']
+                connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
+                labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
+                connecting_damping = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels)
+                if connecting_damping is not None:
+                    self.dict_elastic_link_damping[node_id] = connecting_damping
+
+        return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping, self.dict_elastic_link_stiffness, self.dict_elastic_link_damping
 
     def get_dict_of_acoustic_bc_from_file(self):
 
@@ -903,8 +925,9 @@ class ProjectFile:
                     try:
                         output[i] = self.structural_tables_load(first[i], labels[0][i])
                         output[i+3] = self.structural_tables_load(last[i], labels[1][i])
-                    except Exception as e:
-                        error(str(e), title = "ERROR")
+                    except Exception as err:
+                        error(str(err), title = "ERROR")
+        # print(output)
         return output
 
     def structural_tables_load(self, table_name, label):
@@ -968,31 +991,44 @@ class ProjectFile:
             key_strings = ['specific impedance']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 
-    def add_structural_bc_in_file(self, nodesID_list, values, loaded_table, table_name, labels):
+    def add_structural_bc_in_file(self, nodesID_list, values, labels):
         for node_id in nodesID_list:
             config = configparser.ConfigParser()
             config.read(self._node_structural_path)
             if str(node_id) in config.sections():
-                if loaded_table:
-                    config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
-                    config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
-                else:
-                    config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
-                    config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
+                # if loaded_table:
+                #     table_name = values
+                #     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
+                #     config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
+                #     if len(labels)==3:
+                #         config[str(node_id)][labels[2]]  = "{}".format(table_name[6])
+                # else:
+                config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
+                config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
+                if len(labels)==3:
+                    config[str(node_id)][labels[2]]  = "{}".format(values[6])
                 self.write_bc_in_file(self._node_structural_path, config)
                 self._single_structural_excitation_bc([node_id], labels)
             else:
-                if loaded_table:
-                    config[str(node_id)] =  {
-                                            labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
-                                            labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
-                                            }
+                # if loaded_table:
+                #     if len(labels)==3:
+                #         config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
+                #                                     labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5]),
+                #                                     labels[2]: "{}".format(table_name[6])   }
+                #     else:
+                #         config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
+                #                                     labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])   }
+                # else:
+                if len(labels)==3:
+                    config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
+                                                labels[1]: "[{},{},{}]".format(values[3], values[4], values[5]),
+                                                labels[2]: "{}".format(values[6])   }
                 else:
-                    config[str(node_id)] =  {
-                                            labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
-                                            labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])
-                                            }
+                    config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
+                                                labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])   }
+
                 self.write_bc_in_file(self._node_structural_path, config)
+
 
     def add_acoustic_bc_in_file(self, list_nodesID, value, loaded_table, table_name, label):
         for node_id in list_nodesID:
