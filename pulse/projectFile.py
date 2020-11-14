@@ -768,7 +768,7 @@ class ProjectFile:
                 masses = node_structural_list[str(node)]['masses']
                 moments_of_inertia = node_structural_list[str(node)]['moments of inertia']
                 labels = [["m_x","m_y","m_z"],["Jx","Jy","Jz"]]
-                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia, labels)
+                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia, labels, _complex=False)
                 if lumped_inertia is not None:
                     self.dict_lumped_inertia[node_id] = lumped_inertia
 
@@ -776,7 +776,7 @@ class ProjectFile:
                 spring_stiffness = node_structural_list[str(node)]['spring stiffness']
                 torsional_spring_stiffness = node_structural_list[str(node)]['torsional spring stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
-                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels)
+                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels, _complex=False)
                 if lumped_stiffness is not None:
                     self.dict_lumped_stiffness[node_id] = lumped_stiffness
 
@@ -784,7 +784,7 @@ class ProjectFile:
                 damping_coefficients = node_structural_list[str(node)]['damping coefficients']
                 torsional_damping_coefficients = node_structural_list[str(node)]['torsional damping coefficients']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
-                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels)
+                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels, _complex=False)
                 if lumped_damping is not None:
                     self.dict_lumped_damping[node_id] = lumped_damping
 
@@ -792,16 +792,16 @@ class ProjectFile:
                 connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
                 connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
-                connecting_stiffness = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels)
-                if connecting_stiffness is not None:
+                connecting_stiffness = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels, _complex=False)
+                if connecting_stiffness.count(None) != 6:
                     self.dict_elastic_link_stiffness[node_id] = connecting_stiffness
         
             if "connecting damping" in keys and "connecting torsional damping" in keys:
                 connecting_damping = node_structural_list[str(node)]['connecting damping']
                 connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
-                connecting_damping = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels)
-                if connecting_damping is not None:
+                connecting_damping = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels, _complex=False)
+                if connecting_damping.count(None) != 6:
                     self.dict_elastic_link_damping[node_id] = connecting_damping
 
         return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping, self.dict_elastic_link_stiffness, self.dict_elastic_link_damping
@@ -908,7 +908,7 @@ class ProjectFile:
                         error(message, title = "LOADING TABLE ERROR")             
         return output
 
-    def _get_structural_bc_from_string(self, first, last, labels):
+    def _get_structural_bc_from_string(self, first, last, labels, _complex=True):
         
         first = first[1:-1].split(',')
         last = last[1:-1].split(',')
@@ -918,16 +918,22 @@ class ProjectFile:
             for i in range(3):
                 try:
                     if first[i] != 'None':
-                        output[i] = complex(first[i])
+                        if _complex:
+                            output[i] = complex(first[i])
+                        else:
+                            output[i] = float(first[i])
                     if last[i] != 'None':
-                        output[i+3] = complex(last[i])
+                        if _complex:
+                            output[i+3] = complex(last[i])
+                        else:
+                            output[i+3] = float(last[i])
                 except Exception:
                     try:
                         output[i] = self.structural_tables_load(first[i], labels[0][i])
                         output[i+3] = self.structural_tables_load(last[i], labels[1][i])
                     except Exception as err:
                         error(str(err), title = "ERROR")
-        # print(output)
+        # print("Output: ", output)
         return output
 
     def structural_tables_load(self, table_name, label):

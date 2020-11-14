@@ -188,6 +188,16 @@ class Mesh:
             last_node  = self.nodes[map_nodes[connect[1]]]
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
 
+    # def _create_dict_gdofs_to_external_indexes(self):
+    #     # t0 = time()
+    #     self.dict_gdofs_to_external_indexes = {}
+    #     for external_index, node in self.nodes.items():
+    #         for gdof in node.global_dof:
+    #             self.dict_gdofs_to_external_indexes[gdof] = external_index
+    #     # dt = time()-t0
+    #     # print(len(self.dict_gdofs_to_external_indexes))
+    #     # print("Time to process: ", dt)
+
     def _map_lines_to_elements(self, mesh_loaded=False):
         if mesh_loaded:
             self.line_to_elements[1] = list(self.structural_elements.keys())
@@ -235,6 +245,7 @@ class Mesh:
                     stack.appendleft(neighbour)
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        # self._create_dict_gdofs_to_external_indexes()
 
     def load_mesh(self, coordinates, connectivity):
 
@@ -266,6 +277,7 @@ class Mesh:
         self.get_connectivity_matrix()
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
+        # self._create_dict_gdofs_to_external_indexes()
 
     def get_nodal_coordinates_matrix(self, reordering=True):
     # Process the coordinates matrix for all nodes

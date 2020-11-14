@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-from pulse.postprocessing.plot_structural_data import get_structural_response
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
+# from pulse.postprocessing.plot_structural_data import get_structural_response
+# from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
 from pulse.uix.vtk.renderer.rendererElement import RendererElement

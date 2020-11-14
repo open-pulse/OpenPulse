@@ -85,7 +85,6 @@ class AssemblyStructural:
         
     def get_lumped_matrices(self):
 
-        N = DOF_PER_NODE_STRUCTURAL
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         
         if self.frequencies is None:
@@ -224,10 +223,14 @@ class AssemblyStructural:
         return loads
     
     def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):
-        
+       
         if there_are_table:
             list_arrays = [np.zeros_like(self.frequencies) if bc is None else bc for bc in boundary_condition]
             self.no_table = False
         else:
-            list_arrays = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in boundary_condition]
+            if self.frequencies is None:
+                frequencies = 1
+            else:
+                frequencies = self.frequencies
+            list_arrays = [np.zeros_like(frequencies) if bc is None else np.ones_like(frequencies)*bc for bc in boundary_condition]
         return list_arrays

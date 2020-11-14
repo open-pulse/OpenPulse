@@ -1,5 +1,5 @@
 import numpy as np
-
+from time import time
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 
 # this is temporary, and will be changed a lot
@@ -15,23 +15,25 @@ def get_structural_frf(mesh, solution, node, dof, absolute=False, real=False, im
         results = solution[position]
     return results
 
-def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=True):
-   
+def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normalize=True):
+       
     data = np.real(solution)
-    rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
-    cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
-    Uxyz = np.zeros((rows, cols))
-    Rxyz = np.zeros((rows, cols))
-    Uxyz[:,0] = np.arange( 0, rows, 1 )
-    Rxyz[:,0] = np.arange( 0, rows, 1 )
+    rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
 
-    for j in range( data.shape[1] ):
-            
-        Uxyz[:, 1+3*j], Uxyz[:, 2+3*j], Uxyz[:, 3+3*j] = data[ind+0, j], data[ind+1, j], data[ind+2, j]
-        Rxyz[:, 1+3*j], Rxyz[:, 2+3*j], Rxyz[:, 3+3*j] = data[ind+3, j], data[ind+4, j], data[ind+5, j]
+    # these commented lines will be removed soon
+    # cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])
+    
+    # Uxyz = np.zeros((rows, cols))
+    # Rxyz = np.zeros((rows, cols))
+    # Uxyz[:,0] = np.arange( 0, rows, 1 )
+    # Rxyz[:,0] = np.arange( 0, rows, 1 )
+    # for j in range( data.shape[1] ):
+    #     Uxyz[:, 1+3*j], Uxyz[:, 2+3*j], Uxyz[:, 3+3*j] = data[ind+0, j], data[ind+1, j], data[ind+2, j]
+    #     Rxyz[:, 1+3*j], Rxyz[:, 2+3*j], Rxyz[:, 3+3*j] = data[ind+3, j], data[ind+4, j], data[ind+5, j]
+    # u_x, u_y, u_z = Uxyz[:,1+3*(column)], Uxyz[:,2+3*(column)], Uxyz[:,3+3*(column)]
 
-    u_x, u_y, u_z = Uxyz[:,1+3*(column)], Uxyz[:,2+3*(column)], Uxyz[:,3+3*(column)]
+    u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
     r_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     
     if Normalize:
@@ -45,7 +47,7 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=
     coord = mesh.nodal_coordinates_matrix
     connect = mesh.connectivity_matrix
 
-    if gain == []:
+    if gain is None:
         factor = (scf/r_max)
     else:
         factor = gain*(scf/r_max)
@@ -54,7 +56,22 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=[], Normalize=
     coord_def[:,1] = coord[:,1] + u_x*factor
     coord_def[:,2] = coord[:,2] + u_y*factor
     coord_def[:,3] = coord[:,3] + u_z*factor
-        
+
+    # t0 = time()
+    nodes = mesh.nodes
+    for node in nodes.values():
+        global_index = node.global_index 
+        node.deformed_coordinates = coord_def[global_index, 1:]
+    # dt = time() - t0
+    # print(dt)
+
+    # t0 = time()
+    # elements = mesh.structural_elements
+    # for element in elements.values():
+    #     element.get_deformed_local_coordinate_system_info()
+    # dt = time() - t0
+    # print(dt)
+
     return connect, coord_def, r_def, factor
 
 def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imaginary=False):
