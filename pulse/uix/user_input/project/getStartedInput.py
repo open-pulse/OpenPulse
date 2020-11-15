@@ -53,7 +53,7 @@ class GetStartedInput(QDialog):
         self.continue_button.clicked.connect(self.continueButtonEvent)
 
         self.recentProjectsList = list(self.config.recentProjects.items())[::-1]
-        for i in range(len(self.recentProjectsList)):
+        for i in range(4 if len(self.recentProjectsList) > 4 else len(self.recentProjectsList)):
             self.project_button[i].setVisible(True)
             self.project_dir[i] = self.recentProjectsList[i][1]
             text = str(self.recentProjectsList[i][0]) + "\n" + str(self.recentProjectsList[i][1])

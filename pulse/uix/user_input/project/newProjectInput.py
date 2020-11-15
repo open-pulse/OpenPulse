@@ -165,7 +165,7 @@ class NewProjectInput(QDialog):
             copyfile(self.line_import_geometry.text(), new_geometry_path)
             element_size = float(self.line_element_size.text())
             import_type = 0
-            self.config.writeRecentProject(self.line_project_name.text(), self.project_folder_path)
+            self.config.writeRecentProject(self.line_project_name.text(), self.project_file_path)
             self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
             return True
         elif self.currentTab == 1:
