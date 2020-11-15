@@ -53,14 +53,14 @@ class ActorArrow(vtkActorBase):
         elif self.xyz == -2:
             transform.Translate(self.x, self.y +self.shiftValue, self.z)
         elif self.xyz == -3:
-            transform.Translate(self.x, self.y, self.z -self.shiftValue)
+            transform.Translate(self.x, self.y, self.z + self.shiftValue)
 
         if self.xyz == 1:
             transform.Translate(self.x -self.shiftValue, self.y, self.z)
         elif self.xyz == 2:
             transform.Translate(self.x, self.y -self.shiftValue, self.z)
         elif self.xyz == 3:
-            transform.Translate(self.x, self.y, self.z +self.shiftValue)
+            transform.Translate(self.x, self.y, self.z - self.shiftValue)
 
     def rotate(self, transform):
         if self.xyz == -2:

@@ -207,7 +207,7 @@ class InputUi:
             print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
         if read.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
-            self.opv.transformPoints(read.nodes_typed)
+        self.opv.transformPoints(read.nodes_typed)
 
     def setcappedEnd(self):
         read = CappedEndInput(self.project, self.opv)

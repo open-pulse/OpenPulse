@@ -2,16 +2,18 @@ import vtk
 import math
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
-class ActorDamper(vtkActorBase):
-    def __init__(self, node, xyz=1, u_def=[]):
+class ActorSpring(vtkActorBase):
+    def __init__(self, node, radius, xyz=1, u_def=[]):
         super().__init__()
         self.nV = 256
         self.nCyc = 10
         self.rT1 = 0.1
         self.rT2 = 0.5
         self.rS = 0.8
-        self.h = 13
+        self.h = 12
         self.nTv = 8
+
+        self.radius = radius
 
         self.node = node
         self.xyz = xyz
@@ -77,7 +79,7 @@ class ActorDamper(vtkActorBase):
         self.shiftValue = value + 0.05
 
     def transform(self):
-        self._actor.SetScale(0.01,0.01,0.01)
+        self._actor.SetScale(self.radius,self.radius,self.radius)
         transform = vtk.vtkTransform()
         self.translate(transform)
         self.rotate(transform)
@@ -90,26 +92,24 @@ class ActorDamper(vtkActorBase):
         elif self.xyz == -2:
             transform.Translate(self.x, self.y +self.shiftValue, self.z)
         elif self.xyz == -3:
-            transform.Translate(self.x, self.y, self.z -self.shiftValue)
+            transform.Translate(self.x, self.y, self.z + self.shiftValue)
 
         if self.xyz == 1:
             transform.Translate(self.x -self.shiftValue, self.y, self.z)
         elif self.xyz == 2:
             transform.Translate(self.x, self.y -self.shiftValue, self.z)
         elif self.xyz == 3:
-            transform.Translate(self.x, self.y, self.z +self.shiftValue)
+            transform.Translate(self.x, self.y, self.z - self.shiftValue)
 
     def rotate(self, transform):
         if self.xyz == -1:
             transform.RotateY(90)
         elif self.xyz == -2:
             transform.RotateX(-90)
-        elif self.xyz == -3:
-            transform.RotateY(180)
 
         if self.xyz == 1:
             transform.RotateY(-90)
         elif self.xyz == 2:
             transform.RotateX(90)
-        # elif self.xyz == -3:
-        #     transform.RotateY(-90)
+        elif self.xyz == 3:
+            transform.RotateY(180)

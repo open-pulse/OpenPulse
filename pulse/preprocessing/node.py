@@ -85,6 +85,9 @@ class Node:
     def get_lumped_dampings(self):
         return self.lumped_dampings
 
+    def get_lumped_stiffness(self):
+        return self.lumped_stiffness
+
     def get_prescribed_dofs_bc_indexes(self):
         return [i for i, j in enumerate(self.prescribed_dofs) if j is not None]
 

@@ -1,7 +1,7 @@
 import vtk
 import numpy as np
 from pulse.uix.vtk.actor.actorArrow import ActorArrow
-from pulse.uix.vtk.actor.actorDamper import ActorDamper
+from pulse.uix.vtk.actor.actorSpring import ActorSpring
 
 class vtkSymbols:
     def __init__(self, project):
@@ -70,6 +70,34 @@ class vtkSymbols:
         arrows.append(z)
         return arrows
 
+    def getSpring(self, node, shift=0.01, u_def=[]):
+        a = self.getReal(node.get_lumped_stiffness())
+        v = [1,2,3]
+        for i in range(0,3):
+            try:
+                if a[i] is None or a[i] == 0:
+                    v[i] = 0
+                elif a[i] < 0:
+                    v[i] = -1*v[i]
+            except Exception as e:
+                if isinstance(a[i], np.ndarray):
+                    pass
+                else:
+                    print(e)
+
+        if v.count(0) == 3:
+            return []
+
+        arrows = []
+        for i in range(3):
+            if v[i] == 0:
+                continue
+            b = ActorSpring(node, self.project.get_element_size(), xyz=v[i], u_def=u_def)
+            b.setShiftValue(-0.04)
+            b.build()
+            arrows.append(b.getActor())
+        return arrows
+
     def getDamper(self, node, shift=0.01, u_def=[]):
         a = self.getReal(node.get_lumped_dampings())
         v = [1,2,3]
@@ -99,10 +127,6 @@ class vtkSymbols:
             a.build()
             arrows.append(a.getActor())
 
-            b = ActorDamper(node, xyz=v[i], u_def=u_def)
-            b.setShiftValue(shift)
-            b.build()
-            arrows.append(b.getActor())
         return arrows
 
     def getArrowBC(self, node, shift=0.01, u_def=[]):
