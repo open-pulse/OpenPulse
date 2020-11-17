@@ -5,19 +5,24 @@ from time import time
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class NodesActor(vtkActorBase):
-    def __init__(self, nodes, project):
+    def __init__(self, nodes, project, color=(255,255,63)):
         super().__init__()
 
         self.nodes = nodes 
         self.project = project
 
+        self._key_index = {j:i for i,j in enumerate(self.nodes.keys())}
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkPolyDataMapper()
+        self._colors = vtk.vtkUnsignedCharArray()
+        self._colors.SetNumberOfComponents(3)
+        self._colors.SetNumberOfTuples(len(self.nodes))
+        self.setColor(color)
 
     def source(self):
         points = vtk.vtkPoints()
         data = vtk.vtkPolyData()
-        for node in self.nodes:
+        for index, node in self.nodes.items():
             x,y,z = node.x, node.y, node.z
             points.InsertNextPoint(x,y,z)
         data.SetPoints(points)
@@ -26,7 +31,7 @@ class NodesActor(vtkActorBase):
         vertexFilter.SetInputData(data)
         vertexFilter.Update()
 
-        self._data.ShallowCopy(vertexFilter.GetOutput())
+        self._data.DeepCopy(vertexFilter.GetOutput())
 
     def filter(self):
         pass 
@@ -39,3 +44,13 @@ class NodesActor(vtkActorBase):
         self._actor.GetProperty().RenderPointsAsSpheresOn()
         self._actor.GetProperty().SetPointSize(10)
         self._actor.GetProperty().LightingOff()
+
+    def setColor(self, color, keys=None):
+        c = vtk.vtkUnsignedCharArray()
+        c.ShallowCopy(self._colors)
+        keys = keys if keys else self.nodes.keys()
+        for key in keys:
+            index = self._key_index[key]
+            c.SetTuple(index, color)
+        self._data.GetPointData().SetScalars(c)
+        self._colors = c
