@@ -4,6 +4,7 @@ from scipy.sparse import issparse
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 import configparser
+import numpy as np
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -47,6 +48,139 @@ def m_to_mm(m):
 
 def mm_to_m(mm):
     return float(mm) / 1000
+
+def inverse_matrix_3x3xN(A):
+    
+    b = 1/( A[:,0,0]*A[:,1,1]*A[:,2,2] + A[:,0,1]*A[:,1,2]*A[:,2,0] +
+            A[:,0,2]*A[:,1,0]*A[:,2,1] - A[:,0,2]*A[:,1,1]*A[:,2,0] -
+            A[:,0,1]*A[:,1,0]*A[:,2,2] - A[:,0,0]*A[:,1,2]*A[:,2,1] )
+
+    b11 =    A[:,1,1]*A[:,2,2] - A[:,1,2]*A[:,2,1]
+    b12 = -( A[:,0,1]*A[:,2,2] - A[:,0,2]*A[:,2,1] )
+    b13 =    A[:,0,1]*A[:,1,2] - A[:,0,2]*A[:,1,1]
+    
+    b21 = -( A[:,1,0]*A[:,2,2] - A[:,1,2]*A[:,2,0] )
+    b22 =    A[:,0,0]*A[:,2,2] - A[:,0,2]*A[:,2,0]
+    b23 = -( A[:,0,0]*A[:,1,2] - A[:,0,2]*A[:,1,0] )
+
+    b31 =    A[:,1,0]*A[:,2,1] - A[:,1,1]*A[:,2,0]
+    b32 = -( A[:,0,0]*A[:,2,1] - A[:,0,1]*A[:,2,0] )
+    b33 =    A[:,0,0]*A[:,1,1] - A[:,0,1]*A[:,1,0]
+
+    invA = (b*np.array([[b11,b12,b13],[b21,b22,b23],[b31,b32,b33]])).T
+    # invA = (b*np.array([[b11,b21,b31],[b12,b22,b32],[b13,b23,b33]])).T
+    
+    return invA
+
+def inverse_matrix_3x3(A):
+    
+    b = 1/( A[0,0]*A[1,1]*A[2,2] + A[0,1]*A[1,2]*A[2,0] +
+            A[0,2]*A[1,0]*A[2,1] - A[0,2]*A[1,1]*A[2,0] -
+            A[0,1]*A[1,0]*A[2,2] - A[0,0]*A[1,2]*A[2,1] )
+
+    b11 =    A[1,1]*A[2,2] - A[1,2]*A[2,1]
+    b12 = -( A[0,1]*A[2,2] - A[0,2]*A[2,1] )
+    b13 =    A[0,1]*A[1,2] - A[0,2]*A[1,1]
+    
+    b21 = -( A[1,0]*A[2,2] - A[1,2]*A[2,0] )
+    b22 =    A[0,0]*A[2,2] - A[0,2]*A[2,0]
+    b23 = -( A[0,0]*A[1,2] - A[0,2]*A[1,0] )
+
+    b31 =    A[1,0]*A[2,1] - A[1,1]*A[2,0]
+    b32 = -( A[0,0]*A[2,1] - A[0,1]*A[2,0] )
+    b33 =    A[0,0]*A[1,1] - A[0,1]*A[1,0]
+
+    invA = b*np.array([[b11,b12,b13],[b21,b22,b23],[b31,b32,b33]])
+    
+    return invA
+
+def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
+    """ Make the rotation from the element coordinate system to the global doordinate system."""
+    # Rotation Matrix
+
+    L_ = np.sqrt(delta_x**2 + delta_y**2)
+    L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
+
+    cos_gamma = np.cos(gamma)
+    sin_gamma = np.sin(gamma)
+
+    if L_ > 0.0001*L:
+        sine = delta_y/L_
+        cossine = delta_x/L_
+    else:
+        sine = 0
+        cossine = 1
+        
+    # perform a double check and remove these lines if it is not necessary
+    # C = np.zeros((3,3), dtype=float)
+    # if L_ != 0.:
+    #     C[0,:] = [  cossine * L_ / L, sine * L_ / L, delta_z / L  ]
+
+    #     C[1,:] = [  -cossine * delta_z * sin_gamma / L - sine * cos_gamma,
+    #                 -sine * delta_z * sin_gamma / L + cossine * cos_gamma,
+    #                 L_ * sin_gamma / L  ] 
+
+    #     C[2,:] = [  -cossine * delta_z * cos_gamma / L + sine * sin_gamma,
+    #                 -sine * delta_z * cos_gamma / L - cossine * sin_gamma,
+    #                 L_ * cos_gamma / L  ] 
+    # else:
+    #     # C[0,0], C[0,1], C[1,2], C[2,2] = 0., 0., 0., 0. 
+    #     C[0,2] = delta_z/np.abs(delta_z)
+    #     #
+    #     C[1,0] = -(delta_z/np.abs(delta_z))*sin_gamma
+    #     C[1,1] = cos_gamma
+    #     #
+    #     C[2,0] = -(delta_z/np.abs(delta_z))*cos_gamma
+    #     C[2,1] = -sin_gamma
+
+    a = [   cossine * L_, sine * L_, delta_z   ]
+
+    b = [   -cossine * delta_z * sin_gamma - sine * cos_gamma * L,
+            -sine * delta_z * sin_gamma + cossine * cos_gamma * L,
+            L_ * sin_gamma   ] 
+
+    c = [   -cossine * delta_z * cos_gamma + sine * sin_gamma * L,
+            -sine * delta_z * cos_gamma - cossine * sin_gamma * L,
+            L_ * cos_gamma   ] 
+
+    return np.array([a,b,c])/L
+
+
+def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
+    """ Make the rotation from the element coordinate system to the global doordinate system."""
+    # Rotation Matrix
+
+    number_elements = len(delta_x)
+    L_ = np.sqrt(delta_x**2 + delta_y**2)
+    L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
+    
+    cos_gamma = np.cos(gamma)
+    sin_gamma = np.sin(gamma)
+
+    data_rot = np.zeros((number_elements,3,3), dtype=float)
+    sine = np.zeros(number_elements, dtype=float)
+    cossine = np.zeros(number_elements, dtype=float)
+
+    for i in range(number_elements):
+
+        if L_[i] > 0.0001*L[i]:
+            sine[i] = delta_y[i]/L_[i]
+            cossine[i] = delta_x[i]/L_[i]
+        else:
+            sine[i] = 0
+            cossine[i] = 1
+
+    data_rot = np.array([   cossine * L_ / L, 
+                            sine * L_ / L, 
+                            delta_z / L, 
+                            -cossine * delta_z * sin_gamma / L - sine * cos_gamma,
+                            -sine * delta_z * sin_gamma / L + cossine * cos_gamma,
+                            L_ * sin_gamma / L,
+                            -cossine * delta_z * cos_gamma / L + sine * sin_gamma,
+                            -sine * delta_z * cos_gamma / L - cossine * sin_gamma,
+                            L_ * cos_gamma / L   ])
+
+    return data_rot.T.reshape(-1,3,3)
 
 def error( msg, title = " ERROR "):
     msg_box = QMessageBox()

@@ -62,16 +62,18 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     for node in nodes.values():
         global_index = node.global_index 
         node.deformed_coordinates = coord_def[global_index, 1:]
+    mesh.process_inverse_of_all_deformed_elements()
     # dt = time() - t0
     # print(dt)
 
     # t0 = time()
     # elements = mesh.structural_elements
+    # list_test = []
     # for element in elements.values():
     #     element.get_deformed_local_coordinate_system_info()
     # dt = time() - t0
     # print(dt)
-
+    
     return connect, coord_def, r_def, factor
 
 def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imaginary=False):
