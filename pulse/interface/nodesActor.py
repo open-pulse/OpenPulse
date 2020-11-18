@@ -17,7 +17,6 @@ class NodesActor(vtkActorBase):
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.nodes))
-        self.setColor(color)
 
     def source(self):
         points = vtk.vtkPoints()

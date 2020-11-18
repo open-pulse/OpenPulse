@@ -2,6 +2,7 @@ import vtk
 import numpy as np 
 from time import time
 
+from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class TubeActor(vtkActorBase):
@@ -12,55 +13,59 @@ class TubeActor(vtkActorBase):
         self.project = project
         self.deformation = deformation
 
+        self.transparent = True
+
+        self._data = vtk.vtkPolyData()
+        self._mapper = vtk.vtkPolyDataMapper()
+        self._colors = vtk.vtkUnsignedCharArray()
+        self._colors.SetNumberOfComponents(3)
+
         self._cachePolygon = dict()
         self._cacheMatrix = dict()
-        self._tubeData = dict()
-    
+        self._colorSlices = dict()
+
+    def update(self):
+        opacity = 0.03 if self.transparent else 1
+        lightining = not self.transparent
+        
+        self._actor.GetProperty().SetOpacity(opacity)
+        self._actor.GetProperty().SetLighting(lightining)
+
     def source(self):
         indexes = list(self.elements.keys())
         sections = [self.createTubeSection(element) for element in self.elements.values()]
         matrices = [self.createMatrix(element) for element in self.elements.values()]
         
-        self._tubeData = self.getTubeData(indexes, sections, matrices)
-        self.setColor(color=(255,255,255))
+        tubeData = self.getTubeData(indexes, sections, matrices)       
+        self._data = self.mergeData(tubeData)
+    
+    def map(self):
+        self._mapper.SetInputData(self._data)
+        self._mapper.SetColorModeToDirectScalars()
 
-        self._appendData = vtk.vtkAppendPolyData()
-        for i in self._tubeData.values():
-            self._appendData.AddInputData(i)
-        
     def filter(self):
         pass
     
-    def map(self):
-        self._appendData.Update()
-        self._mapper = vtk.vtkPolyDataMapper()
-        self._mapper.SetInputData(self._appendData.GetOutput())
-    
     def actor(self):
+        self.update()
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().BackfaceCullingOff()
-        self._actor.GetProperty().LightingOff()
-    
+
     def setColor(self, color, keys=None):
-        if keys is None:
-            keys = self._tubeData.keys()
+        c = vtk.vtkUnsignedCharArray()
+        c.DeepCopy(self._colors)
+
+        keys = keys if keys else self.elements.keys()
         for key in keys:
-            data = self._tubeData[key]
-            self.paint(data, color)
+            start, end = self._colorSlices[key]
+            for i in range(start, end):
+                c.SetTuple(i, color)
+
+        self._data.GetPointData().SetScalars(c)
+        self._colors = c
 
     def setColorTable(self, colorTable):
-        for key, data in self._tubeData.items():
-            color = colorTable.get_color_by_id(key)
-            self.paint(data, color)
-
-    def paint(self, data, color):
-        faces = data.GetNumberOfCells()
-        colors = vtk.vtkUnsignedCharArray()
-        colors.SetNumberOfComponents(3)
-        colors.SetNumberOfTuples(faces)
-        for i in range(faces):
-            colors.SetTuple(i, color)
-        data.GetCellData().SetScalars(colors)
+        pass
 
     def createTubeSection(self, element):
         if element.cross_section in self._cachePolygon:
@@ -146,15 +151,39 @@ class TubeActor(vtkActorBase):
     def getTubeData(self, indexes, sections, matrices):
         # this may be the most costly function and should be implemented in c++ 
         tubeData = dict()
-        for index, section, matrix in zip(indexes, sections, matrices):
-            transformation = vtk.vtkTransform()
-            extruderFilter = vtk.vtkLinearExtrusionFilter()
-            transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
+        transformation = vtk.vtkTransform()
+        extruderFilter = vtk.vtkLinearExtrusionFilter()
+        transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
+        transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
+        transformPolyDataFilter.SetTransform(transformation)
 
-            transformation.Concatenate(matrix)
+        for index, section, matrix in zip(indexes, sections, matrices):
             extruderFilter.SetInputConnection(section.GetOutputPort())
-            transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
-            transformPolyDataFilter.SetTransform(transformation)
+            transformation.SetMatrix(matrix)
             transformPolyDataFilter.Update()
-            tubeData[index] = transformPolyDataFilter.GetOutput()
+
+            data = vtk.vtkPolyData()
+            data.ShallowCopy(transformPolyDataFilter.GetOutput())
+            tubeData[index] = data
+
         return tubeData
+
+    def mergeData(self, dataset):
+        data = vtk.vtkPolyData()
+        appendData = vtk.vtkAppendPolyData()
+        cleanData = vtk.vtkCleanPolyData()
+
+        size = 0
+        for key, data in dataset.items():
+            points = data.GetNumberOfPoints()
+            appendData.AddInputData(data)
+            self._colorSlices[key] = (size, size+points)
+            size += points
+        self._colors.SetNumberOfTuples(size)
+
+        cleanData.SetInputConnection(appendData.GetOutputPort())
+        cleanData.PointMergingOff()
+        cleanData.Update()
+        data.DeepCopy(cleanData.GetOutput())
+
+        return data

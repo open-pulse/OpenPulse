@@ -28,6 +28,7 @@ class opvRenderer(vtkRendererBase):
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
     
     def plot(self):
+        s = time()
         self.reset()
         self.saveNodesBounds()
         self.saveElementsBounds()
@@ -44,6 +45,7 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvTubes)
         plt(self.opvNodes)
         plt(self.opvLines)
+        print('current', time()-s)
     
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -94,11 +96,22 @@ class opvRenderer(vtkRendererBase):
         selectedElements = self.getListPickedElements()
         selectedEntities = []
         
-        nodesColor = (255,255,63)
-        self.opvNodes.setColor(nodesColor) # clear colors
+        nodesColor = (255, 255, 63)
+        linesColor = (10, 10, 10)
+        tubesColor = (255, 255, 255)
+        selectionColor = (255, 0, 0)
+
+        # clear colors
+        self.opvNodes.setColor(nodesColor)
+        self.opvLines.setColor(linesColor)
+        self.opvTubes.setColor(tubesColor)
 
         if selectedNodes:
-            self.opvNodes.setColor((255,0,0), keys=selectedNodes)
+            self.opvNodes.setColor(selectionColor, keys=selectedNodes)
+
+        if selectedElements:
+            self.opvLines.setColor(selectionColor, keys=selectedElements)
+            self.opvTubes.setColor(selectionColor, keys=selectedElements)
 
     # info text
     def updateInfoText(self, obj, event):
