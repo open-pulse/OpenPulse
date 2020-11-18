@@ -14,7 +14,7 @@ class DataUi(QTabWidget):
     def _close_tab(self, index):
         current_widget = self.widget(index)
         self.removeTab(index)
-        print(self.currentIndex)
+        # print(self.currentIndex)
 
     def _remove_repeated_tabs(self, new_tab):
         for tab in range(self.count()):

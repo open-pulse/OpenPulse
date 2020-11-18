@@ -1,4 +1,3 @@
-
 from math import pi, sqrt, sin, cos
 import numpy as np
 
@@ -9,6 +8,7 @@ DOF_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 
 decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
+zeros_3x3 = np.zeros((3,3), dtype=float)
 
 def gauss_quadracture(integration_points):
     if integration_points == 1:
@@ -36,6 +36,10 @@ class StructuralElement:
         self.last_node = last_node
         self.index = index
 
+        self.delta_x = self.last_node.x - self.first_node.x
+        self.delta_y = self.last_node.y - self.first_node.y
+        self.delta_z = self.last_node.z - self.first_node.z
+
         self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
@@ -58,6 +62,10 @@ class StructuralElement:
         self._Bts = None
         self._rot = None
 
+        self.sub_rotation_matrix = None
+        self.directional_vectors = None
+        self.deformed_directional_vectors = None
+
         self.internal_pressure = kwargs.get('internal_pressure', 0)
         self.external_pressure = kwargs.get('external_pressure', 0)
         self.internal_temperature = kwargs.get('internal_temperature', 0)
@@ -66,8 +74,8 @@ class StructuralElement:
         self.stress = None
         self.internal_load = None
 
-        self.rotation_matrix = self._rotation_matrix()
-        self.transpose_rotation_matrix = self.rotation_matrix.T
+        # self.element_rotation_matrix = self._element_rotation_matrix()
+        # self.transpose_rotation_matrix = self.element_rotation_matrix.T
 
     @property
     def length(self):
@@ -88,8 +96,9 @@ class StructuralElement:
 
     def matrices_gcs(self):
         """ Element striffness and mass matrix in the global coordinate system."""
-        self._rot = R = self.rotation_matrix
-        Rt = self.transpose_rotation_matrix
+        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()###############
+        Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
+        # Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
             stiffness = Rt @ self.stiffness_matrix_pipes() @ R
             mass = Rt @ self.mass_matrix_pipes() @ R
@@ -100,7 +109,7 @@ class StructuralElement:
 
     def stiffness_matrix_gcs(self):
         """ Element striffness matrix in the global coordinate system."""
-        R = self.rotation_matrix
+        R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
             return Rt @ self.stiffness_matrix_pipes() @ R
@@ -109,7 +118,7 @@ class StructuralElement:
 
     def mass_matrix_gcs(self):
         """ Element mass matrix in the global coordinate system."""
-        R = self.rotation_matrix
+        R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
             return Rt @ self.mass_matrix_pipes() @ R
@@ -120,69 +129,49 @@ class StructuralElement:
         Rt = self.transpose_rotation_matrix
         return Rt @ self.force_vector()
 
-    def _rotation_matrix(self):
-        """ Make the rotation from the element coordinate system to the global doordinate system."""
-        # Rotation Matrix
-        gamma = 0
-        delta_x = self.last_node.x - self.first_node.x
-        delta_y = self.last_node.y - self.first_node.y
-        delta_z = self.last_node.z - self.first_node.z
+    def _element_rotation_matrix(self):
 
-        L_ = sqrt(delta_x**2 + delta_y**2)
-        L  = sqrt(delta_x**2 + delta_y**2 + delta_z**2)
-
-        if L_ > 0.0001*L:
-            sine = delta_y/L_
-            cossine = delta_x/L_
-        else:
-            sine = 0
-            cossine = 1
-
-        C = np.zeros((3,3))
-        if L_ != 0.:
-            C[0,] = np.array([[cossine * L_ / L,
-                            sine * L_ / L,
-                            delta_z / L] ])
-
-            C[1,] = np.array([[-cossine * delta_z * sin(gamma) / L - sine * cos(gamma),
-                            -sine * delta_z * sin(gamma) / L + cossine * cos(gamma),
-                            L_ * sin(gamma) / L] ])
-
-            C[2,] = np.array([ [-cossine * delta_z * cos(gamma) / L + sine * sin(gamma),
-                                -sine * delta_z * cos(gamma) / L - cossine * sin(gamma),
-                                L_ * cos(gamma) / L] ])
-        else:
-            C[0,0] = 0.
-            C[0,1] = 0.
-            C[0,2] = delta_z/np.abs(delta_z)
-            #
-            C[1,0] = -(delta_z/np.abs(delta_z)) * sin(gamma)
-            C[1,1] = cos(gamma)
-            C[1,2] = 0.
-            #
-            C[2,0] = -(delta_z/np.abs(delta_z)) * cos(gamma)
-            C[2,1] = -sin(gamma)
-            C[2,2] = 0.
-
-        self.sub_rotation_matrix = C
-        self.inverse_sub_rotation_matrix = np.linalg.inv(C)
-
-        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
-        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = C
+        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        # self.sub_rotation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
+        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_rotation_matrix
 
         return R
     
     def get_local_coordinate_system_info(self):
 
-        R = self.sub_rotation_matrix
-        invR = np.linalg.inv(R)
+        # invR = np.linalg.inv(self.sub_rotation_matrix)
+        # u = invR@np.array([1,0,0])
+        # v = invR@np.array([0,1,0])
+        # w = invR@np.array([0,0,1])
+        # invR = inverse_matrix_3x3(self.sub_rotation_matrix)
+        # u ,v, w = invR.T
+        # self.directional_vectors = [u, v, w]
 
-        u = invR@np.array([1,0,0])
-        v = invR@np.array([0,1,0])
-        w = invR@np.array([0,0,1])
-        directional_vectors = [u, v, w]
+        return self.center_element_coordinates, self.directional_vectors 
 
-        return self.center_element_coordinates, directional_vectors 
+    # def get_deformed_local_coordinate_system_info(self):
+
+    #     ''' Important note: you must solve a structural analysis and call the plot function before calling this fuction. 
+    #         The deformed coordinates attribute of the node is updated whenever the get_structural_response function is acessed. 
+    #         The calculation performance is in accordance with the expectations.  
+    #     '''
+
+    #     # if self.last_node.deformed_coordinates is not None and self.first_node.deformed_coordinates is not None:
+    #     #     delta_x, delta_y, delta_z = self.last_node.deformed_coordinates - self.first_node.deformed_coordinates
+    #     #     self.R_def = _rotation_matrix(delta_x, delta_y, delta_z)
+    #     #     self.deformed_center_element_coordinates = (self.last_node.deformed_coordinates + self.first_node.deformed_coordinates)/2
+    #     # else:
+    #     #     return -1, -1 
+
+    #     # invR = np.linalg.inv(self.R_def)
+    #     # u = invR@np.array([1,0,0])
+    #     # v = invR@np.array([0,1,0])
+    #     # w = invR@np.array([0,0,1])
+    #     # invR = inverse_matrix_3x3(self.R_def)
+    #     # u, v , w = invR.T
+    #     # deformed_directional_vectors = [u, v, w]
+
+    #     return self.deformed_center_element_coordinates, self.deformed_directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""
@@ -200,7 +189,7 @@ class StructuralElement:
         res_z = self.cross_section.res_z
 
         # Stress stiffening
-        sigma_1a, sigma_1t = self.stress_stiffening()
+        S = self.stress_stiffening()
  
         # Shear coefficiets
         aly = 1/res_y
@@ -268,7 +257,7 @@ class StructuralElement:
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
-            Kabt_geo += (sigma_1a + sigma_1t) * Bab.T @ Bab * det_jacob * weigth
+            Kabt_geo += Bab.T @ S @ Bab * det_jacob * weigth
               
         Ke = Kabe + Ktse + Kabt_geo
 
@@ -383,27 +372,30 @@ class StructuralElement:
 
         aux = np.zeros([rows, 1])
         aux[0], aux[6] = 1, -1
-        R = self.rotation_matrix
+        R = self.element_rotation_matrix
 
-        if self.element_type in ['pipe_1']:
-            principal_axis = self.cross_section.principal_axis
-        elif self.element_type in ['pipe_2']:
-            principal_axis = np.eye(rows)
+        # if self.element_type in ['pipe_1']:
+        #     principal_axis = self.cross_section.principal_axis
+        # elif self.element_type in ['pipe_2']:
+        #     principal_axis = np.eye(rows)
 
         if self.capped_end:
             capped_end = 1
         else:
             capped_end = 0
 
-        aux = R.T @ principal_axis.T @ aux
+        # aux = R.T @ principal_axis.T @ aux
+        aux = R.T @ aux
         F_p = (capped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
 
         return F_p
 
     def stress_stiffening(self):
+
+        S = zeros_3x3.copy()
         
         if self.element_type in ['beam_1']:
-            return 0, 0
+            return S
         
         Din = self.cross_section.external_diameter
         Dout = self.cross_section.internal_diameter
@@ -426,7 +418,9 @@ class StructuralElement:
         sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
         sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
 
-        return sigma_1a, sigma_1t
+        S[0,0] = sigma_1a + sigma_1t
+
+        return S
 
     ##
     def symmetrize(self, a):
@@ -517,7 +511,7 @@ class StructuralElement:
 
         # Material properities
         rho = self.material.density
-        nu = self.material.poisson_ratio
+        # nu = self.material.poisson_ratio
         E   = self.material.young_modulus
         G   = self.material.shear_modulus
 

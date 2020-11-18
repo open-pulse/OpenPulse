@@ -9,9 +9,12 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
-from pulse.uix.user_input.printMessageInput import PrintMessageInput
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error
+from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_3x3xN, _rotation_matrix_3x3, _rotation_matrix_3x3xN
+
+window_title1 = "ERROR"
 
 class Mesh:
     def __init__(self):
@@ -39,6 +42,7 @@ class Mesh:
         self.nodes_with_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
+        self.pair_of_nodes_with_elastic_nodal_links = []
         self.nodes_with_acoustic_pressure = []
         self.nodes_with_volume_velocity = []
         self.nodes_with_specific_impedance = []
@@ -48,6 +52,8 @@ class Mesh:
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_element_type_to_lines = defaultdict(list)
+        self.dict_nodes_with_elastic_link_stiffness = {}
+        self.dict_nodes_with_elastic_link_damping = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -56,6 +62,7 @@ class Mesh:
         self.all_lines = []
         self.flag_fluid_mass_effect = False
         self.group_index = 0
+        self.volume_velocity_table_index = 0
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
 
     def generate(self, path, element_size):
@@ -87,150 +94,26 @@ class Mesh:
 
     def neighbor_elements_diameter_global(self):
         neighbor_diameters = dict()
-
         for index, element in self.acoustic_elements.items():
             first = element.first_node.global_index
             last = element.last_node.global_index
             neighbor_diameters.setdefault(first, [])
             neighbor_diameters.setdefault(last, [])
-
             external = element.cross_section.external_diameter
             internal = element.cross_section.internal_diameter
-
             neighbor_diameters[first].append((index, external, internal))
             neighbor_diameters[last].append((index, external, internal))
-
         return neighbor_diameters    
     
-
     def neighboor_elements_of_node(self, node_ID):
-
         node = self.nodes[node_ID]
         neighboor_elments = defaultdict(list)      
-
         for element in self.acoustic_elements.values():
             first = element.first_node
             last = element.last_node
-
             if node in [first, last]:
                 neighboor_elments[node].append(element.index)
-
         return neighboor_elments[node]
-
-
-    def set_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False], remove=False):
-        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
-        N = DOF_PER_NODE_STRUCTURAL
-        mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
-
-        neighboor_elements = self.neighboor_elements_of_node(node_ID)
-        if len(neighboor_elements)<3:
-            return mat_ones
-        
-        mat_base = np.array(  [[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
-                            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
-                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
-                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
-                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
-                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
-                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]  )
-        
-        node = self.nodes[node_ID]
-        element = self.structural_elements[element_ID]
-        
-        if rotations_to_decouple.count(False) == 3 or remove:
-            mat_out = mat_ones
-
-        elif rotations_to_decouple.count(True) == 3:  
-            mat_out = mat_base
-
-        elif node in [element.first_node]:
-  
-            temp = mat_base[:int(N/2), :int(N/2)].copy()
-            mat_base[:N,:N] = np.zeros((N,N), dtype=int)
-            mat_base[:int(N/2), :int(N/2)] = temp
-
-            for index, value in enumerate(rotations_to_decouple):
-                if not value:
-                    ij = index + int(N/2)
-                    mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    mat_base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = mat_base
-
-        elif node in [element.last_node]:
-   
-            temp = mat_base[N:int(3*N/2), N:int(3*N/2)].copy()
-            mat_base[N:,N:] = np.zeros((N,N), dtype=int)
-            mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
-
-            for index, value in enumerate(rotations_to_decouple):
-                if not value:
-                    ij = index + int(3*N/2)
-                    mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
-                    mat_base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
-            mat_out = mat_base
-
-        section = str(rotations_to_decouple)
-        element.decoupling_matrix = mat_out
-        element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
-
-        if remove:
-
-            if element_ID in self.dict_elements_with_B2PX_rotation_decoupling[section]:
-                self.dict_elements_with_B2PX_rotation_decoupling[section].remove(element_ID)  
-            if node_ID in self.dict_nodes_with_B2PX_rotation_decoupling[section]:
-                self.dict_nodes_with_B2PX_rotation_decoupling[section].remove(node_ID)
-            
-            element.decoupling_info = None
-
-        else: 
-                     
-            if section not in list(self.dict_elements_with_B2PX_rotation_decoupling.keys()):
-                self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
-                self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID)  
-
-            count = 0
-            temp_dict = self.dict_elements_with_B2PX_rotation_decoupling.copy()
-            for key, elements in temp_dict.items(): 
-                count += 1
-                temp_list_nodes = self.dict_nodes_with_B2PX_rotation_decoupling[key].copy()
-                temp_list_elements = self.dict_elements_with_B2PX_rotation_decoupling[key].copy()  
-                
-                if key == str([False,False,False]):
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes.remove(node_ID)
-                                temp_list_elements.remove(element_ID)
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
-
-                elif key == section:
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes[index] = node_ID
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
-                    else:
-                        self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
-                        self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID) 
-
-                elif key != section:
-                    if element_ID in elements:
-                        for index, element in enumerate(elements):
-                            if element == element_ID:
-                                temp_list_nodes.remove(node_ID)
-                                temp_list_elements.remove(element_ID)
-                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
-                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
-                
-        return mat_out  
 
     def _initialize_gmsh(self, path):
         gmsh.initialize('', False)
@@ -305,6 +188,16 @@ class Mesh:
             last_node  = self.nodes[map_nodes[connect[1]]]
             self.acoustic_elements[map_elements[i]] = AcousticElement(first_node, last_node, map_elements[i])
 
+    # def _create_dict_gdofs_to_external_indexes(self):
+    #     # t0 = time()
+    #     self.dict_gdofs_to_external_indexes = {}
+    #     for external_index, node in self.nodes.items():
+    #         for gdof in node.global_dof:
+    #             self.dict_gdofs_to_external_indexes[gdof] = external_index
+    #     # dt = time()-t0
+    #     # print(len(self.dict_gdofs_to_external_indexes))
+    #     # print("Time to process: ", dt)
+
     def _map_lines_to_elements(self, mesh_loaded=False):
         if mesh_loaded:
             self.line_to_elements[1] = list(self.structural_elements.keys())
@@ -352,6 +245,10 @@ class Mesh:
                     stack.appendleft(neighbour)
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        # t0 = time()
+        self.process_all_rotation_matrices()
+        # print("Time to process: ", time()-t0)
+        # self._create_dict_gdofs_to_external_indexes()
 
     def load_mesh(self, coordinates, connectivity):
 
@@ -383,6 +280,8 @@ class Mesh:
         self.get_connectivity_matrix()
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
+        self.process_all_rotation_matrices()
+        # self._create_dict_gdofs_to_external_indexes()
 
     def get_nodal_coordinates_matrix(self, reordering=True):
     # Process the coordinates matrix for all nodes
@@ -645,6 +544,120 @@ class Mesh:
                 if node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.remove(node) 
 
+    def set_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple=[False, False, False], remove=False):
+        DOFS_PER_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        N = DOF_PER_NODE_STRUCTURAL
+        mat_ones = np.ones((DOFS_PER_ELEMENT,DOFS_PER_ELEMENT), dtype=int)
+
+        neighboor_elements = self.neighboor_elements_of_node(node_ID)
+        if len(neighboor_elements)<3:
+            return mat_ones
+        
+        mat_base = np.array(  [[1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0],
+                            [1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0],
+                            [1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0],
+                            [1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1],
+                            [1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 1],
+                            [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+                            [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0]]  )
+        
+        node = self.nodes[node_ID]
+        element = self.structural_elements[element_ID]
+        
+        if rotations_to_decouple.count(False) == 3 or remove:
+            mat_out = mat_ones
+
+        elif rotations_to_decouple.count(True) == 3:  
+            mat_out = mat_base
+
+        elif node in [element.first_node]:
+  
+            temp = mat_base[:int(N/2), :int(N/2)].copy()
+            mat_base[:N,:N] = np.zeros((N,N), dtype=int)
+            mat_base[:int(N/2), :int(N/2)] = temp
+
+            for index, value in enumerate(rotations_to_decouple):
+                if not value:
+                    ij = index + int(N/2)
+                    mat_base[:, [ij, ij+N]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    mat_base[[ij, ij+N], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = mat_base
+
+        elif node in [element.last_node]:
+   
+            temp = mat_base[N:int(3*N/2), N:int(3*N/2)].copy()
+            mat_base[N:,N:] = np.zeros((N,N), dtype=int)
+            mat_base[N:int(3*N/2), N:int(3*N/2)] = temp
+
+            for index, value in enumerate(rotations_to_decouple):
+                if not value:
+                    ij = index + int(3*N/2)
+                    mat_base[:, [ij-N, ij]] = np.ones((DOFS_PER_ELEMENT, 2), dtype=int)
+                    mat_base[[ij-N, ij], :] = np.ones((2, DOFS_PER_ELEMENT), dtype=int) 
+            mat_out = mat_base
+
+        section = str(rotations_to_decouple)
+        element.decoupling_matrix = mat_out
+        element.decoupling_info = [element_ID, node_ID, rotations_to_decouple]
+
+        if remove:
+
+            if element_ID in self.dict_elements_with_B2PX_rotation_decoupling[section]:
+                self.dict_elements_with_B2PX_rotation_decoupling[section].remove(element_ID)  
+            if node_ID in self.dict_nodes_with_B2PX_rotation_decoupling[section]:
+                self.dict_nodes_with_B2PX_rotation_decoupling[section].remove(node_ID)
+            
+            element.decoupling_info = None
+
+        else: 
+                     
+            if section not in list(self.dict_elements_with_B2PX_rotation_decoupling.keys()):
+                self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
+                self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID)  
+
+            count = 0
+            temp_dict = self.dict_elements_with_B2PX_rotation_decoupling.copy()
+            for key, elements in temp_dict.items(): 
+                count += 1
+                temp_list_nodes = self.dict_nodes_with_B2PX_rotation_decoupling[key].copy()
+                temp_list_elements = self.dict_elements_with_B2PX_rotation_decoupling[key].copy()  
+                
+                if key == str([False, False, False]):
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes.remove(node_ID)
+                                temp_list_elements.remove(element_ID)
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+
+                elif key == section:
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes[index] = node_ID
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+                    else:
+                        self.dict_elements_with_B2PX_rotation_decoupling[section].append(element_ID)
+                        self.dict_nodes_with_B2PX_rotation_decoupling[section].append(node_ID) 
+
+                elif key != section:
+                    if element_ID in elements:
+                        for index, element in enumerate(elements):
+                            if element == element_ID:
+                                temp_list_nodes.remove(node_ID)
+                                temp_list_elements.remove(element_ID)
+                                self.dict_nodes_with_B2PX_rotation_decoupling[key] = temp_list_nodes
+                                self.dict_elements_with_B2PX_rotation_decoupling[key] = temp_list_elements
+                
+        return mat_out  
+
     def enable_fluid_mass_adding_effect(self, reset=False):
         flag = self.flag_fluid_mass_effect
         
@@ -789,14 +802,33 @@ class Mesh:
                     self.nodes_with_acoustic_pressure.remove(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values):
-        for node in slicer(self.nodes, nodes):
-            node.volume_velocity = values
-            node.acoustic_pressure = None
-            if not node in self.nodes_with_volume_velocity:
-                self.nodes_with_volume_velocity.append(node)
-            if values is None:
-                if node in self.nodes_with_volume_velocity:
-                    self.nodes_with_volume_velocity.remove(node)
+        try:
+            for node in slicer(self.nodes, nodes):
+                if node.volume_velocity is None or values is None:
+                    node.volume_velocity = values
+                elif isinstance(node.volume_velocity, np.ndarray) and isinstance(values, np.ndarray):
+                    if node.volume_velocity.shape == values.shape:
+                        node.volume_velocity += values 
+                    else:
+                        title = "ERROR WHILE SETTING VOLUME VELOCITY"
+                        message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
+                        message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
+                        message += "New array length: {}".format(str(values.shape).replace(",", ""))
+                        PrintMessageInput([title, message, window_title1])
+                        return True  
+                node.acoustic_pressure = None
+                if not node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.append(node)
+                if values is None:
+                    if node in self.nodes_with_volume_velocity:
+                        self.nodes_with_volume_velocity.remove(node)
+                elif isinstance(values, np.ndarray):
+                    self.volume_velocity_table_index += 1 
+        except Exception as error:
+            title = "ERROR WHILE SET VOLUME VELOCITY"
+            message = str(error)
+            PrintMessageInput([title, message, window_title1])
+            return True  
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
         for node in slicer(self.nodes, nodes):
@@ -1133,4 +1165,104 @@ class Mesh:
             # return 0, 0, 0, 0
 
         
-        return Ys, Zs
+        # for k in range(len(Yp)):
+        #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
+
+        return Ys, Zs#, Yc, Zc, dict_lines_to_points
+
+    def add_compressor_excitation(self, parameters):
+                
+        list_parameters = []
+        for key, parameter in parameters.items():
+            if key != 'cylinder label':
+                list_parameters.append(parameter)
+
+        if 'cylinder label' in parameters.keys():
+            CompressorModel(list_parameters, active_cyl=parameters['cylinder label'])
+        else:
+            CompressorModel(list_parameters)
+        
+    def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
+        node_1 = self.nodes[nodeID_1]
+        node_2 = self.nodes[nodeID_2]
+        nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()
+        reord_gdofs = np.sort(nodes_gdofs)
+        if  list(nodes_gdofs) == list(reord_gdofs):
+            first_node = node_1
+            last_node = node_2
+        else:
+            first_node = node_2
+            last_node = node_1
+        return reord_gdofs, first_node, last_node          
+
+    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, parameters, _stiffness=False, _damping=False):
+
+        if not (_stiffness or _damping):
+            return
+
+        gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)        
+        gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
+        gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
+
+        pos_data = parameters
+        neg_data = [-value if value is not None else None for value in parameters]
+        mask = [False if value is None else True for value in parameters]
+
+        check_tables = [isinstance(value, np.ndarray) for value in parameters]
+
+        if True in check_tables:
+            node1.loaded_table_for_elastic_link_stiffness = True
+            node2.loaded_table_for_elastic_link_damping = True
+            value_labels = ["Table"]*check_tables.count(True)
+        else:
+            value_labels = np.array(parameters)[mask]
+            node1.loaded_table_for_elastic_link_stiffness = False
+            node2.loaded_table_for_elastic_link_stiffness = False
+            node1.loaded_table_for_elastic_link_damping = False
+            node2.loaded_table_for_elastic_link_damping = False
+            
+        indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
+        indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
+        out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
+        element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
+        element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
+
+        key = "{}-{}".format(node1.external_index, node2.external_index)
+        
+        if _stiffness:
+            self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
+            node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_stiffness = True
+            node2.there_are_elastic_nodal_link_stiffness = True
+        
+        if _damping:
+            self.dict_nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_damping[key] = [mask, value_labels]
+            node2.elastic_nodal_link_damping[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_damping = True
+            node2.there_are_elastic_nodal_link_damping = True
+
+    def process_inverse_of_all_deformed_elements(self):
+        delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
+        for index, element in enumerate(self.structural_elements.values()):
+            delta_data[index, :] = element.last_node.deformed_coordinates - element.first_node.deformed_coordinates 
+            # element.deformed_center_element_coordinates = (element.last_node.deformed_coordinates + element.first_node.deformed_coordinates)/2 
+        mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
+        output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        for index, element in enumerate(self.structural_elements.values()):
+            element.deformed_directional_vectors = output_data[index,:,:]
+ 
+    def process_all_rotation_matrices(self):
+        delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
+        for index, element in enumerate(self.structural_elements.values()):
+            delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
+        mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
+        output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        for index, element in enumerate(self.structural_elements.values()):
+            element.sub_rotation_matrix = mat_rotation_data[index, :, :]
+            element.directional_vectors = output_data[index, :, :]
+             
+    # def process_all_rotation_matrices(self):
+    #     for element in self.structural_elements.values():
+    #         element.sub_rotation_matrix = _rotation_matrix_3x3(element.delta_x, element.delta_y, element.delta_z)

@@ -34,20 +34,27 @@ class Node:
         self.lumped_dampings = [None, None, None, None, None, None]
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
+        
+        self.elastic_nodal_link_stiffness = {}
+        self.there_are_elastic_nodal_link_stiffness = False
+        self.loaded_table_for_elastic_link_stiffness = False
+
+        self.elastic_nodal_link_damping = {}
+        self.there_are_elastic_nodal_link_damping = False
+        self.loaded_table_for_elastic_link_damping = False
 
         # Acoustic boundary conditions and specific impedance
         self.acoustic_pressure = None
         self.volume_velocity = None
         self.specific_impedance = None
         self.radiation_impedance = None
-        self.radiation_impedance_type = None
-        # radiation_impedance_type :
-        # 0 -> anechoic termination
-        # 1 -> unflanged pipe
-        # 2 -> flanged pipe
+        self.radiation_impedance_type = None # radiation_impedance_type : 0 -> anechoic termination; 1 -> unflanged pipe; 2 -> flanged pipe.
         
+        self.volume_velocity_table_index = 0
+
         self.global_index = kwargs.get('global_index', None)
         self.external_index = kwargs.get('external_index', None)
+        self.deformed_coordinates = None
 
         # self.displacement_dofs = kwargs.get('displacement_dofs', [])
         # self.rotation_dofs = kwargs.get('rotation_dofs', [])
@@ -77,6 +84,9 @@ class Node:
 
     def get_lumped_dampings(self):
         return self.lumped_dampings
+
+    def get_lumped_stiffness(self):
+        return self.lumped_stiffness
 
     def get_prescribed_dofs_bc_indexes(self):
         return [i for i, j in enumerate(self.prescribed_dofs) if j is not None]

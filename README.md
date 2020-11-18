@@ -1,6 +1,6 @@
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*v1.0*
+*v0.4*
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to import the geometry of the pipe system (lines in IGES), insert materials properties, set sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -32,16 +32,29 @@ python pulse.py
     numpy
     PyQt5
     vtk
+    gmsh-sdk
+    h5py
     
 ## Documentation
 
-- Theory Reference for [1D Acoustics using FETM](https://open-pulse.github.io/OpenPulse/doc/Acoustics.pdf), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM (empty)](https://), [Solution Types (empty)](https://) and [Matrix Assembly Technique using Python](https://open-pulse.github.io/OpenPulse/doc/Assembly.pdf).
+- Theory Reference for [1D Acoustics using FETM](https://open-pulse.github.io/OpenPulse/doc/Acoustics.pdf), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM (in Portuguese)](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_D___Weak_Coupling.pdf), [Solution Types (empty)](https://), [Matrix Assembly Technique using Python](https://open-pulse.github.io/OpenPulse/doc/Assembly.pdf) and [Stress Stiffening (Prestress)](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_E___Prestress.pdf).
 
 - [User Guide for Structural Analysis (in Portuguese)](https://open-pulse.github.io/OpenPulse/doc/TEMP_Structural_UserGuide.pdf).
 
 - [User Guide for Acoustic Analysis](https://open-pulse.github.io/OpenPulse/doc/TEMP_Acoustic_UserGuide.pdf).
 
 - [User Guide for Coupled Analysis (empty)](https://).
+
+- Project page on [Researchgate](https://www.researchgate.net/project/Acoustically-Induced-Vibration-in-Pipeline-Systems).
+
+## ISMA2020 - International Conference on Noise and Vibration Engineering
+
+- [Presentation](https://www.youtube.com/watch?v=iarKDAei6fg&t).
+- [Full Paper](https://github.com/open-pulse/OpenPulse/blob/master/doc/ISMA_2020_PRE.pdf).
+
+## Next events
+
+- The 179th Meeting of the Acoustical Society of America, 7-11 December 2020, with the work: Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional numerical parametric study. Diego Martín Tuozzo, Olavo M. Silva and Arcanjo Lenzi.
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.

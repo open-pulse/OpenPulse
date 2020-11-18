@@ -134,6 +134,16 @@ class MainWindow(QMainWindow):
         self.setcappedEnd_action.setStatusTip('Set capped End')
         self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
 
+        self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
+        # self.stressStiffening_action.setShortcut('Alt+7')
+        self.stressStiffening_action.setStatusTip('Set Strees Stiffening')
+        self.stressStiffening_action.triggered.connect(self.getInputWidget().set_stress_stress_stiffening)
+
+        self.nodalLinks_action = QAction('&Add Elastic Nodal Links', self)        
+        # self.nodalLinks_action.setShortcut('Alt+7')
+        self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
+        self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
+
         #Acoustic Model Setup
         self.set_fluid_action = QAction('&Set Fluid', self)        
         self.set_fluid_action.setShortcut('Ctrl+Alt+1')
@@ -169,6 +179,11 @@ class MainWindow(QMainWindow):
         self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+7')
         self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
+
+        self.add_compressor_excitation_action = QAction('&Add Compressor Excitation', self)        
+        # self.add_compressor_excitation_action.setShortcut('Ctrl+Alt+7')
+        self.add_compressor_excitation_action.setStatusTip('Add Compressor Excitation')
+        self.add_compressor_excitation_action.triggered.connect(self.getInputWidget().add_compressor_excitation)
 
         #Model Informations
         self.structural_model_info_action = QAction('&Structural Model Info', self)    
@@ -286,21 +301,24 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.section_action)
 
     def _loadModelSetupMenu(self):
-        self.modelSetupMenu.addAction(self.setElementType_action)
-        self.modelSetupMenu.addAction(self.set_material_action)
-        self.modelSetupMenu.addAction(self.set_crossSection_action)
-        self.modelSetupMenu.addAction(self.setDOF_action)
-        self.modelSetupMenu.addAction(self.setForce_action)
-        self.modelSetupMenu.addAction(self.setMass_action)
-        self.modelSetupMenu.addAction(self.setcappedEnd_action)
+        self.structuralModelSetupMenu.addAction(self.setElementType_action)
+        self.structuralModelSetupMenu.addAction(self.set_material_action)
+        self.structuralModelSetupMenu.addAction(self.set_crossSection_action)
+        self.structuralModelSetupMenu.addAction(self.setDOF_action)
+        self.structuralModelSetupMenu.addAction(self.setForce_action)
+        self.structuralModelSetupMenu.addAction(self.setMass_action)
+        self.structuralModelSetupMenu.addAction(self.setcappedEnd_action)
+        self.structuralModelSetupMenu.addAction(self.stressStiffening_action)
+        self.structuralModelSetupMenu.addAction(self.nodalLinks_action)
 
-        self.modelSetupMenu.addAction(self.set_fluid_action)
-        self.modelSetupMenu.addAction(self.setAcousticPressure_action)
-        self.modelSetupMenu.addAction(self.setVolumeVelocity_action)
-        self.modelSetupMenu.addAction(self.setSpecificImpedance_action)
-        self.modelSetupMenu.addAction(self.set_radiation_impedance_action)
-        self.modelSetupMenu.addAction(self.add_perforated_plate_action)
-        self.modelSetupMenu.addAction(self.set_acoustic_element_length_correction_action)
+        self.acousticModelSetupMenu.addAction(self.set_fluid_action)
+        self.acousticModelSetupMenu.addAction(self.setAcousticPressure_action)
+        self.acousticModelSetupMenu.addAction(self.setVolumeVelocity_action)
+        self.acousticModelSetupMenu.addAction(self.setSpecificImpedance_action)
+        self.acousticModelSetupMenu.addAction(self.set_radiation_impedance_action)
+        self.acousticModelSetupMenu.addAction(self.add_perforated_plate_action)
+        self.acousticModelSetupMenu.addAction(self.set_acoustic_element_length_correction_action)
+        self.acousticModelSetupMenu.addAction(self.add_compressor_excitation_action)
 
     def _loadModelInfoMenu(self):
         self.modelInfoMenu.addAction(self.structural_model_info_action)
@@ -331,7 +349,9 @@ class MainWindow(QMainWindow):
 
         self.projectMenu = menuBar.addMenu('&Project')
         self.graphicMenu = menuBar.addMenu('&Graphic')
-        self.modelSetupMenu = menuBar.addMenu('&Model Setup')
+        self.structuralModelSetupMenu = menuBar.addMenu('&Structural Model Setup')
+        self.acousticModelSetupMenu = menuBar.addMenu('&Acoustic Model Setup')
+        
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')

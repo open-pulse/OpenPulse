@@ -97,13 +97,18 @@ class SolutionStructural:
 
     def modal_analysis(self, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_analysis=False):
 
-        if K==[] and M==[] and self.assembly.no_table:
-            Kadd_lump = self.K + self.K_lump[0]
-            Madd_lump = self.M + self.M_lump[0]
+        if K==[] and M==[]:
+            if self.assembly.no_table:
+                Kadd_lump = self.K + self.K_lump[0]
+                Madd_lump = self.M + self.M_lump[0]
+            else:
+                #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
+                Kadd_lump = self.K
+                Madd_lump = self.M
         else:
             Kadd_lump = K
             Madd_lump = M
-        
+
         eigen_values, eigen_vectors = eigs(Kadd_lump, M=Madd_lump, k=modes, which=which, sigma=sigma)
 
         positive_real = np.absolute(np.real(eigen_values))
@@ -120,7 +125,7 @@ class SolutionStructural:
                 if value is not None:
                     if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
                         self.flag_Modal_prescribed_NonNull_DOFs = True
-                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                        self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                             "The null value has been attributed to those DOFs with non-zero values."]
         return natural_frequencies, modal_shape
 
@@ -385,3 +390,4 @@ class SolutionStructural:
             # print(element.stress.shape)
             
         return self.stress_field_dict
+

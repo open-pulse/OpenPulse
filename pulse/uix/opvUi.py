@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-from pulse.postprocessing.plot_structural_data import get_structural_response
-from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
+# from pulse.postprocessing.plot_structural_data import get_structural_response
+# from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
 from pulse.uix.vtk.renderer.rendererElement import RendererElement
@@ -173,10 +173,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.resetCamera()
         self.afterChangePlot()
 
-    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part = True):
+    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True):
         self.beforeChangePlot()
         self.changeFrequency(frequency_indice)
         self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        if self.project.analysis_ID in [4]:
+            self.rendererAnalysis.setColorScalling(real_part)
         self.rendererAnalysis.setSliderFactor(self.sliderScale)
         self.rendererAnalysis.setInUse(True)
         # self.rendererAnalysis.setStress(plot_stress_field)

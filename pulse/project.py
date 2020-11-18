@@ -38,11 +38,13 @@ class Project:
         self.flag_set_crossSection = False
         self.plot_pressure_field = False
         self.is_file_loaded = False
+        self.setup_analysis_complete = False
 
         self.time_to_checking_entries = None 
         self.time_to_process_cross_sections = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
+        self.lines_with_cross_section_by_elements = []
 
 
     def reset_info(self):
@@ -75,11 +77,11 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
-    def new_project(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new_project(self, project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.reset_info()
-        self.file.new(project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.new(project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
         self._project_name = project_name
-        self.project_folder_path = project_path
+        self.project_folder_path = project_folder_path
 
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
@@ -93,7 +95,7 @@ class Project:
         self.reset_info()
         self.file.load(project_file_path)
         self._project_name = self.file._project_name
-        self.project_folder_path = project_file_path
+        self.project_folder_path = os.path.dirname(project_file_path)
 
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
@@ -104,7 +106,6 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
 
-        # if self.file.temp_table_name is None:
         self.load_analysis_file()
         if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
@@ -257,7 +258,14 @@ class Project:
                 self.file.add_multiple_cross_section_in_file(line, dict_multiple_cross_sections)     
 
     def load_structural_bc_file(self):
-        prescribed_dofs, external_loads, mass, spring, damper = self.file.get_dict_of_structural_bc_from_file()
+
+        [   prescribed_dofs, 
+            external_loads, 
+            mass, 
+            spring, 
+            damper, 
+            elastic_link_stiffness, 
+            elastic_link_damping    ] = self.file.get_dict_of_structural_bc_from_file()
         
         for key, dofs in prescribed_dofs.items():
             if isinstance(dofs, list):
@@ -285,14 +293,32 @@ class Project:
                 try:
                     self.load_spring_by_node(key, stiffness)
                 except Exception:
-                    error("There is some error while lumped stiffness data.")    
+                    error("There is some error while loading lumped stiffness data.")    
 
         for key, dampings in damper.items():
             if isinstance(dampings, list):
                 try:
                     self.load_damper_by_node(key, dampings)
                 except Exception:
-                    error("There is some error while lumped damping data.")   
+                    error("There is some error while loading lumped damping data.")   
+
+        for key, stiffness_data in elastic_link_stiffness.items():
+            if isinstance(stiffness_data, list):
+                nodes_str = key.split("-")
+                nodes = [int(node) for node in nodes_str]
+                try:
+                    self.load_elastic_nodal_link_stiffness(nodes, stiffness_data)
+                except Exception:
+                    error("There is some error while loading elastic nodal link stiffness data.")   
+
+        for key, damping_data in elastic_link_damping.items():
+            if isinstance(damping_data, list):
+                nodes_str = key.split("-")
+                nodes = [int(node) for node in nodes_str]
+                try:
+                    self.load_elastic_nodal_link_damping(nodes, damping_data)
+                except Exception:
+                    error("There is some error while loading elastic nodal link damping data.")  
 
     def load_acoustic_bc_file(self):
         pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.get_dict_of_acoustic_bc_from_file()
@@ -301,7 +327,8 @@ class Project:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
         for key, VelVol in volume_velocity.items():
             if VelVol is not None:
-                self.load_volume_velocity_bc_by_node(key, VelVol)
+                for data in VelVol:
+                    self.load_volume_velocity_bc_by_node(key, data)
         for key, SpecImp in specific_impedance.items():
             if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
@@ -372,7 +399,9 @@ class Project:
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]
-        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
+        if imported_table:
+            values = table_name
+        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove=False):
         self.mesh.set_B2PX_rotation_decoupling(element_id, node_id, rotations_to_decouple=rotations_mask, remove=remove)
@@ -410,22 +439,50 @@ class Project:
     def set_loads_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_structural_load_bc_by_node(node_id, values)
         labels = ["forces", "moments"]
-        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
+        if imported_table:
+            values = table_name
+        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_masses_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_mass_to_node(node_id, values)
         labels = ["masses", "moments of inertia"]
-        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
+        if imported_table:
+            values = table_name
+        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_stiffness_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_spring_to_node(node_id, values)
         labels = ["spring stiffness", "torsional spring stiffness"]
-        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
+        if imported_table:
+            values = table_name
+        self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_dampings_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.add_damper_to_node(node_id, values)
         labels = ["damping coefficients", "torsional damping coefficients"]
-        self.file.add_structural_bc_in_file(node_id, values, imported_table, table_name, labels)
+        if imported_table:
+            values = table_name        
+        self.file.add_structural_bc_in_file(node_id, values, labels)
+
+    def add_elastic_nodal_link_stiffness(self, nodeID_1, nodeID_2, parameters, imported_table, table_name=""):
+        self.mesh.add_elastic_nodal_link(nodeID_1, nodeID_2, parameters, _stiffness=True)
+        labels = ["connecting stiffness", "connecting torsional stiffness"]
+        section_string = ["{}-{}".format(min(nodeID_1, nodeID_2), max(nodeID_1, nodeID_2))]
+        if imported_table:
+            values = table_name
+        else:
+            values = parameters
+        self.file.add_structural_bc_in_file(section_string, values, labels)
+
+    def add_elastic_nodal_link_damping(self, nodeID_1, nodeID_2, parameters, imported_table, table_name=""):
+        self.mesh.add_elastic_nodal_link(nodeID_1, nodeID_2, parameters, _damping=True)
+        labels = ["connecting damping", "connecting torsional damping"]
+        section_string = ["{}-{}".format(min(nodeID_1, nodeID_2), max(nodeID_1, nodeID_2))]
+        if imported_table:
+            values = table_name
+        else:
+            values = parameters
+        self.file.add_structural_bc_in_file(section_string, values, labels)
 
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.mesh.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
@@ -507,7 +564,13 @@ class Project:
 
     def load_damper_by_node(self, node_id, dampings):
         self.mesh.add_damper_to_node(node_id, dampings)
+
+    def load_elastic_nodal_link_stiffness(self, nodes, stiffness_info):
+        self.mesh.add_elastic_nodal_link(nodes[0], nodes[1], stiffness_info, _stiffness=True)
     
+    def load_elastic_nodal_link_damping(self, nodes, damping_info):
+        self.mesh.add_elastic_nodal_link(nodes[0], nodes[1], damping_info, _damping=True)
+
     def load_B2PX_rotation_decoupling(self, element_ID, node_ID, rotations_to_decouple):
         self.mesh.set_B2PX_rotation_decoupling(element_ID, node_ID, rotations_to_decouple=rotations_to_decouple)
     
@@ -610,10 +673,15 @@ class Project:
         label = ["acoustic pressure"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name=""):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, values) 
-        label = ["volume velocity"] 
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)    
+    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name="", table_index=None):
+        if self.mesh.set_volume_velocity_bc_by_node(node_id, values):
+            return True
+        if table_index is None:
+            label = ["volume velocity"]
+        else:
+            label = ["volume velocity - {}".format(table_index)]
+        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)
+        return False    
     
     def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_specific_impedance_bc_by_node(node_id, values) 

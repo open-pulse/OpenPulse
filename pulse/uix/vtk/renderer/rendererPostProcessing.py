@@ -16,7 +16,7 @@ class RendererPostProcessing(vtkRendererBase):
         super().__init__(vtkInteractorStyleClicker(self))
         self.project = project
         self.opv = opv
-        self.symbols = vtkSymbols()
+        self.symbols = vtkSymbols(self.project)
         self.textActorUnit = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.colorbar = vtk.vtkScalarBarActor()
@@ -111,13 +111,16 @@ class RendererPostProcessing(vtkRendererBase):
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
+            text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
         elif self.project.analysis_ID == 2:
             frequencies = self.project.get_structural_natural_frequencies()
             text += "Mode: {}\n".format(mode)
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
         elif self.project.analysis_ID == 4:
             frequencies = self.project.get_acoustic_natural_frequencies()
             text += "Mode: {}\n".format(mode)
-        text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self.frequencyIndice])
+            text += "Color scalling: {}".format(self.color_scalling)
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor {:.1f}x\n".format(self.valueFactor)
         # vertical_position_adjust = None
@@ -129,6 +132,7 @@ class RendererPostProcessing(vtkRendererBase):
         self._renderer.RemoveActor2D(self.textActorUnit)   
         unit = self.project.get_unit(stress=self.stress_field_plot)
         text = "Unit: [{}]".format(unit)
+
         self.textActorUnit.SetInput(text)
         textProperty = vtk.vtkTextProperty()
         textProperty.SetFontSize(18)
@@ -161,6 +165,12 @@ class RendererPostProcessing(vtkRendererBase):
 
     def setFrequencyIndice(self, frequencyIndice):
         self.frequencyIndice = frequencyIndice
+    
+    def setColorScalling(self, real_part):
+        if real_part:
+            self.color_scalling = "real part"
+        else:
+            self.color_scalling = "absolute"
 
     def setSliderFactor(self, factor):
         self.sliderFactor = factor

@@ -18,7 +18,7 @@ class SolutionAcoustic:
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
-        self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
+        # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
 
     def get_global_matrices(self):
@@ -30,13 +30,14 @@ class SolutionAcoustic:
 
         rows = self.all_dofs
         cols = solution.shape[1]
-
         full_solution = np.zeros((rows, cols), dtype=complex)
         full_solution[self.get_pipe_and_unprescribed_indexes, :] = solution
+
         if modal_analysis:
             full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
         else:
-            full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
+            if len(self.prescribed_indexes) != 0:
+                full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         
         return full_solution
 
@@ -53,18 +54,19 @@ class SolutionAcoustic:
  
         aux_ones = np.ones(cols, dtype=complex)
         volume_velocity_eq = np.zeros((rows,cols), dtype=complex)
-        list_prescribed_values = []
 
-        for value in self.prescribed_values:
-            if isinstance(value, complex):
-                list_prescribed_values.append(aux_ones*value)
-            elif isinstance(value, np.ndarray):
-                list_prescribed_values.append(value)
+        if len(self.prescribed_values) != 0:  
+            list_prescribed_values = []
 
-        self.array_prescribed_values = np.array(list_prescribed_values)
-
-        for i in range(cols):
-            volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
+            for value in self.prescribed_values:
+                if isinstance(value, complex):
+                    list_prescribed_values.append(aux_ones*value)
+                elif isinstance(value, np.ndarray):
+                    list_prescribed_values.append(value)
+      
+            self.array_prescribed_values = np.array(list_prescribed_values)
+            for i in range(cols):
+                volume_velocity_eq[:, i] = np.sum((Kr[i] + Kr_lump[i]) * self.array_prescribed_values[:,i], axis=1)
         
         volume_velocity_combined = volume_velocity.T - volume_velocity_eq
         
@@ -107,6 +109,6 @@ class SolutionAcoustic:
             if value is not None:
                 if (isinstance(value, complex) and value != complex(0)) or (isinstance(value, np.ndarray) and sum(value) != complex(0)):
                     self.flag_Modal_prescribed_NonNull_DOFs = True
-                    self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values has been ignored in the modal analysis.\n"+
+                    self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                         "The null value has been attributed to those DOFs with non-zero values."]
         return natural_frequencies, modal_shape

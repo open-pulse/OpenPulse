@@ -33,6 +33,7 @@ class TreeUi(QTreeWidget):
         self.name_child_addMassSpringDamper = "Add: Mass / Spring / Damper"
         self.name_child_setcappedEnd = "Set Capped End"
         self.name_child_set_stress_stiffening = "Set Stress Stiffening"
+        self.name_child_add_elastic_nodal_links = "Add Elastic Nodal Links"
 
         self.name_top_acousticmodelSetup = "Acoustic Model Setup"
         self.name_child_set_fluid = "Set Fluid"
@@ -42,6 +43,7 @@ class TreeUi(QTreeWidget):
         self.name_child_set_radiation_impedance = "Set Radiation Impedance"
         self.name_child_add_perforated_plate = "Add Perforated Plate"
         self.name_child_set_acoustic_element_length_correction = "Set Element Length Correction"
+        self.name_child_add_compressor_excitation = 'Add Compressor Excitation'
         
         self.name_top_analysis = "Analysis"
         self.name_child_selectAnalysisType = "Select Analysis Type"
@@ -112,6 +114,7 @@ class TreeUi(QTreeWidget):
         self.item_child_addMassSpringDamper = QTreeWidgetItem([self.name_child_addMassSpringDamper])
         self.item_child_setcappedEnd = QTreeWidgetItem([self.name_child_setcappedEnd])
         self.item_child_set_stress_stiffening = QTreeWidgetItem([self.name_child_set_stress_stiffening])
+        self.item_child_add_elastic_nodal_links = QTreeWidgetItem([self.name_child_add_elastic_nodal_links])
 
         self.item_top_acousticmodelSetup = QTreeWidgetItem([self.name_top_acousticmodelSetup])
         self.item_child_set_fluid = QTreeWidgetItem([self.name_child_set_fluid])
@@ -121,6 +124,7 @@ class TreeUi(QTreeWidget):
         self.item_child_set_radiation_impedance = QTreeWidgetItem([self.name_child_set_radiation_impedance])
         self.item_child_add_perforated_plate = QTreeWidgetItem([self.name_child_add_perforated_plate])
         self.item_child_set_acoustic_element_length_correction = QTreeWidgetItem([self.name_child_set_acoustic_element_length_correction])
+        self.item_child_add_compressor_excitation = QTreeWidgetItem([self.name_child_add_compressor_excitation])
         
         self.item_top_analysis = QTreeWidgetItem([self.name_top_analysis])
         self.item_child_selectAnalysisType = QTreeWidgetItem([self.name_child_selectAnalysisType])
@@ -182,6 +186,7 @@ class TreeUi(QTreeWidget):
         self.item_child_addMassSpringDamper.setFont(0, self.font_internal)
         self.item_child_setcappedEnd.setFont(0, self.font_internal)
         self.item_child_set_stress_stiffening.setFont(0, self.font_internal)
+        self.item_child_add_elastic_nodal_links.setFont(0, self.font_internal)
 
         self.item_child_set_fluid.setFont(0, self.font_internal)
         self.item_child_setAcousticPressure.setFont(0, self.font_internal)
@@ -190,6 +195,7 @@ class TreeUi(QTreeWidget):
         self.item_child_set_radiation_impedance.setFont(0, self.font_internal)
         self.item_child_add_perforated_plate.setFont(0, self.font_internal)
         self.item_child_set_acoustic_element_length_correction.setFont(0, self.font_internal)
+        self.item_child_add_compressor_excitation.setFont(0, self.font_internal)
 
         self.item_child_selectAnalysisType.setFont(0, self.font_internal)
         self.item_child_analisysSetup.setFont(0, self.font_internal)
@@ -221,6 +227,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_addMassSpringDamper)
         self.addTopLevelItem(self.item_child_setcappedEnd)
         self.addTopLevelItem(self.item_child_set_stress_stiffening)
+        self.addTopLevelItem(self.item_child_add_elastic_nodal_links)
 
         self.addTopLevelItem(self.item_top_acousticmodelSetup)      
         self.addTopLevelItem(self.item_child_set_fluid)             
@@ -230,6 +237,7 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_set_radiation_impedance)     
         self.addTopLevelItem(self.item_child_add_perforated_plate) 
         self.addTopLevelItem(self.item_child_set_acoustic_element_length_correction) 
+        self.addTopLevelItem(self.item_child_add_compressor_excitation) 
 
         self.addTopLevelItem(self.item_top_analysis)
         self.addTopLevelItem(self.item_child_selectAnalysisType)
@@ -253,9 +261,44 @@ class TreeUi(QTreeWidget):
     def on_click_item(self, item, column):
         self.mainWindow.getInputWidget().beforeInput()
 
-        if item.text(0) == self.name_child_set_material:
+        if item.text(0) == self.name_child_setElementType:
+            self.mainWindow.getInputWidget().setElementType()
+
+        elif item.text(0) == self.name_child_set_material:
             self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_material()
+
+        elif item.text(0) == self.name_child_set_crossSection:
+            self.mainWindow.getInputWidget().set_cross_section()
+            self.mainWindow.plot_entities_radius()
+
+        elif item.text(0) == self.name_child_setPrescribedDofs:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().setDOF()
+
+        elif item.text(0) == self.name_child_setRotationDecoupling:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().setRotationDecoupling()
+
+        elif item.text(0) == self.name_child_setNodalLoads:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().setNodalLoads()
+
+        elif item.text(0) == self.name_child_addMassSpringDamper:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().addMassSpringDamper()
+
+        elif item.text(0) == self.name_child_setcappedEnd:
+            # self.mainWindow.plot_entities()
+            self.mainWindow.getInputWidget().setcappedEnd()
+
+        elif item.text(0) == self.name_child_set_stress_stiffening:
+            # self.mainWindow.plot_entities()
+            self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+        
+        elif item.text(0) == self.name_child_add_elastic_nodal_links:
+            self.mainWindow.plot_mesh()
+            self.mainWindow.getInputWidget().add_elastic_nodal_links()
 
         elif item.text(0) == self.name_child_set_fluid: 
             self.mainWindow.plot_entities()
@@ -285,63 +328,51 @@ class TreeUi(QTreeWidget):
             self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
 
-        elif item.text(0) == self.name_child_set_crossSection:
-            self.mainWindow.getInputWidget().set_cross_section()
-            self.mainWindow.plot_entities_radius()
-
-        elif item.text(0) == self.name_child_setElementType:
-            self.mainWindow.getInputWidget().setElementType()
-
-        elif item.text(0) == self.name_child_setRotationDecoupling:
+        elif item.text(0) == self.name_child_add_compressor_excitation:
             self.mainWindow.plot_mesh()
-            self.mainWindow.getInputWidget().setRotationDecoupling()
-
-        elif item.text(0) == self.name_child_setPrescribedDofs:
-            self.mainWindow.plot_mesh()
-            self.mainWindow.getInputWidget().setDOF()
-
-        elif item.text(0) == self.name_child_setNodalLoads:
-            self.mainWindow.plot_mesh()
-            self.mainWindow.getInputWidget().setNodalLoads()
-
-        elif item.text(0) == self.name_child_addMassSpringDamper:
-            self.mainWindow.plot_mesh()
-            self.mainWindow.getInputWidget().addMassSpringDamper()
-
-        elif item.text(0) == self.name_child_setcappedEnd:
-            # self.mainWindow.plot_entities()
-            self.mainWindow.getInputWidget().setcappedEnd()
-
-        elif item.text(0) == self.name_child_set_stress_stiffening:
-            # self.mainWindow.plot_entities()
-            self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+            self.mainWindow.getInputWidget().add_compressor_excitation()
 
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analysisTypeInput()
             self._updateItems()
+            
         elif item.text(0) == self.name_child_analisysSetup:
-            self.mainWindow.getInputWidget().analysisSetup()
+            if not self.item_child_analisysSetup.isDisabled():
+                self.mainWindow.getInputWidget().analysisSetup()
+                self._updateItems()
+
         elif item.text(0) == self.name_child_runAnalysis:
-            self.mainWindow.getInputWidget().runAnalysis()
-            self._updateItems()
+            if not self.item_child_runAnalysis.isDisabled():
+                self.mainWindow.getInputWidget().runAnalysis()
+                self._updateItems()
+
         elif item.text(0) == self.name_child_plotStructuralModeShapes:
             self.mainWindow.getInputWidget().plotStructuralModeShapes()
+
         elif item.text(0) == self.name_child_plotDisplacementField:
             self.mainWindow.getInputWidget().plotDisplacementField()
-        elif item.text(0) == self.name_child_plotAcousticModeShapes:
-            self.mainWindow.getInputWidget().plotAcousticModeShapes()
-        elif item.text(0) == self.name_child_plotAcousticPressureField:
-            self.mainWindow.getInputWidget().plotAcousticPressureField()
-        elif item.text(0) == self.name_child_plotReactionsFrequencyResponse:
-            self.mainWindow.getInputWidget().plotReactionsFrequencyResponse()
-        elif item.text(0) == self.name_child_plotStressField:
-            self.mainWindow.getInputWidget().plotStressField()
-        elif item.text(0) == self.name_child_plotStressFrequencyResponse:
-            self.mainWindow.getInputWidget().plotStressFrequencyResponse()
+
         elif item.text(0) == self.name_child_plotStructuralFrequencyResponse:
             self.mainWindow.getInputWidget().plotStructuralFrequencyResponse()
+
+        elif item.text(0) == self.name_child_plotReactionsFrequencyResponse:
+            self.mainWindow.getInputWidget().plotReactionsFrequencyResponse()
+
+        elif item.text(0) == self.name_child_plotStressField:
+            self.mainWindow.getInputWidget().plotStressField()
+
+        elif item.text(0) == self.name_child_plotStressFrequencyResponse:
+            self.mainWindow.getInputWidget().plotStressFrequencyResponse()
+
+        elif item.text(0) == self.name_child_plotAcousticModeShapes:
+            self.mainWindow.getInputWidget().plotAcousticModeShapes()
+
+        elif item.text(0) == self.name_child_plotAcousticPressureField:
+            self.mainWindow.getInputWidget().plotAcousticPressureField()
+         
         elif item.text(0) == self.name_child_plotAcousticFrequencyResponse:
             self.mainWindow.getInputWidget().plotAcousticFrequencyResponse()
+
         elif item.text(0) == self.name_child_plot_TL_NR:
             self.mainWindow.getInputWidget().plot_TL_NR()
 
@@ -359,6 +390,16 @@ class TreeUi(QTreeWidget):
             self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
+            self.item_child_analisysSetup.setDisabled(True)
+            self.item_child_runAnalysis.setDisabled(True)
+        
+        if self.project.analysis_ID in [None, 2,4]:
+            self.item_child_analisysSetup.setDisabled(True)
+        else:
+            self.item_child_analisysSetup.setDisabled(False)
+        
+        if self.project.analysis_ID not in [None] and self.project.setup_analysis_complete:
+            self.item_child_runAnalysis.setDisabled(False)
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
         

@@ -182,7 +182,7 @@ class RendererEntity(vtkRendererBase):
                     polygon = self.createSectionPolygon(element)
             else:
                 polygon = vtk.vtkRegularPolygonSource()
-                polygon.SetRadius(0.01)
+                polygon.SetRadius(self.project.get_element_size()/2)
                 polygon.SetNumberOfSides(20)
 
             tube = self.generalSectionTube(element, polygon.GetOutputPort())
