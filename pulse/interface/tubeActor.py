@@ -13,7 +13,7 @@ class TubeActor(vtkActorBase):
         self.project = project
         self.deformation = deformation
 
-        self.transparent = True
+        self.transparent = False
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkPolyDataMapper()
@@ -21,7 +21,6 @@ class TubeActor(vtkActorBase):
         self._colors.SetNumberOfComponents(3)
 
         self._cachePolygon = dict()
-        self._cacheMatrix = dict()
         self._colorSlices = dict()
 
     def update(self):
@@ -34,11 +33,12 @@ class TubeActor(vtkActorBase):
     def source(self):
         indexes = list(self.elements.keys())
         sections = [self.createTubeSection(element) for element in self.elements.values()]
-        matrices = [self.createMatrix(element) for element in self.elements.values()]
-        
-        tubeData = self.getTubeData(indexes, sections, matrices)       
-        self._data = self.mergeData(tubeData)
-    
+        matrices = self.createMatrices()
+
+        s = time()
+        self._data = self.getTubeData(indexes, sections, matrices.reshape(-1,16))       
+        print('aaa', time()-s)
+
     def map(self):
         self._mapper.SetInputData(self._data)
         self._mapper.SetColorModeToDirectScalars()
@@ -109,54 +109,49 @@ class TubeActor(vtkActorBase):
         triangleFilter.AddInputData(polyData)
         return triangleFilter
     
-    def createMatrix(self, element):
-        vec = tuple(element.last_node.coordinates - element.first_node.coordinates)
-
-        if vec in self._cacheMatrix:
-            # this cache may not look so usefull here
-            # but it acelerates self._appendData.Update() 
-            scale, rotation = self._cacheMatrix[vec]
-        else:
-            scale = self.createScaleMatrix(element)
-            rotation = self.createRotationMatrix(element)
-            self._cacheMatrix[vec] = scale, rotation
-
-        translation = self.createTranslationMatrix(element)
-        final = (rotation + translation) * scale
-        
-        matrix = vtk.vtkMatrix4x4()
-        matrix.DeepCopy(final.flatten()) # numpy to vtk
-        return matrix
-
-    def createRotationMatrix(self, element):
-        u,v,w = element.inverse_sub_rotation_matrix.T # directional vectors
-        matrix = np.identity(4)
-        matrix[0:3, 0] = v
-        matrix[0:3, 1] = w
-        matrix[0:3, 2] = u 
-        return matrix
-
-    def createTranslationMatrix(self, element):
-        start = element.first_node.coordinates
-        matrix = np.zeros((4,4))
-        matrix[0:3, 3] = start 
-        return matrix
+    def createMatrices(self):
+        scale = self.createScaleMatrices()
+        rotation = self.createRotationMatrices()
+        translation = self.createTranslationMatrices()
+        return (rotation + translation) * scale
     
-    def createScaleMatrix(self, element):
-        size = element.length
-        matrix = np.ones((4,4))
-        matrix[:, 2] = size
-        return matrix
+    def createRotationMatrices(self, deform=False):
+        # this is the uglyest thing i have done in my life
+        # but it need to be very fast
+        rotation = np.array([element.directional_vectors for element in self.elements.values()])
+        rotation = rotation[:, [1,2,0]]
+        rotation = np.transpose(rotation, axes=[0,2,1])
+        rotation = np.insert(rotation, 3, values=0, axis=1) 
+        rotation = np.insert(rotation, 3, values=0, axis=2)
+        rotation[:,3,3] = 1
+        return rotation
+
+    def createTranslationMatrices(self, deform=False):
+        size = (len(self.elements), 4, 4) 
+        translation = np.zeros(size)
+        translation[:, 0:3, 3] = [el.first_node.coordinates for el in self.elements.values()]
+        return translation
     
+    def createScaleMatrices(self, deform=False):
+        size = (len(self.elements), 4, 4) 
+        scale = np.ones(size)
+        for i, element in enumerate(self.elements.values()):
+            scale[i, :, 2] = element.length
+        return scale
+
     def getTubeData(self, indexes, sections, matrices):
-        # this may be the most costly function and should be implemented in c++ 
-        tubeData = dict()
         transformation = vtk.vtkTransform()
         extruderFilter = vtk.vtkLinearExtrusionFilter()
         transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
+        data = vtk.vtkPolyData()
+        appendData = vtk.vtkAppendPolyData()
+        cleanData = vtk.vtkCleanPolyData()   
+
         transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
         transformPolyDataFilter.SetTransform(transformation)
+        cleanData.SetInputConnection(appendData.GetOutputPort())
 
+        size = 0
         for index, section, matrix in zip(indexes, sections, matrices):
             extruderFilter.SetInputConnection(section.GetOutputPort())
             transformation.SetMatrix(matrix)
@@ -164,26 +159,18 @@ class TubeActor(vtkActorBase):
 
             data = vtk.vtkPolyData()
             data.ShallowCopy(transformPolyDataFilter.GetOutput())
-            tubeData[index] = data
-
-        return tubeData
-
-    def mergeData(self, dataset):
-        data = vtk.vtkPolyData()
-        appendData = vtk.vtkAppendPolyData()
-        cleanData = vtk.vtkCleanPolyData()
-
-        size = 0
-        for key, data in dataset.items():
-            points = data.GetNumberOfPoints()
             appendData.AddInputData(data)
-            self._colorSlices[key] = (size, size+points)
+            points = data.GetNumberOfPoints()
+            self._colorSlices[index] = (size, size+points)
             size += points
-        self._colors.SetNumberOfTuples(size)
 
-        cleanData.SetInputConnection(appendData.GetOutputPort())
+        self._colors.SetNumberOfTuples(size)     
+
         cleanData.PointMergingOff()
+        cleanData.PieceInvariantOn()
         cleanData.Update()
         data.DeepCopy(cleanData.GetOutput())
-
         return data
+
+
+       
