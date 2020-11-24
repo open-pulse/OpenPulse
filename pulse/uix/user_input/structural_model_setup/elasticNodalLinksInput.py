@@ -769,7 +769,7 @@ class ElasticNodalLinksInput(QDialog):
         confirm_act = QMessageBox.question(
             self,
             "QUIT",
-            "Are you sure want to remove all compressor excitations?",
+            "Are you sure you want to remove all compressor excitations?",
             QMessageBox.No | QMessageBox.Yes)
         
         if confirm_act == QMessageBox.Yes:

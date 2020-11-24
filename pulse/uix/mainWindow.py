@@ -1,9 +1,3 @@
-import sys
-from os.path import expanduser, basename, exists, dirname
-from pathlib import Path
-
-import numpy as np
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
@@ -16,9 +10,15 @@ from pulse.project import Project
 from pulse.uix.inputUi import InputUi
 from pulse.uix.config import Config
 
+import sys
+from os.path import expanduser, basename, exists, dirname
+from pathlib import Path
+import numpy as np
+
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
+
         self.config = Config()
         self.project = Project()
         self._loadIcons()
@@ -37,7 +37,7 @@ class MainWindow(QMainWindow):
         self.open_icon = QIcon(icons_path + 'upload.png')
         self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
-
+        
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
         self.showMaximized()
@@ -441,9 +441,9 @@ class MainWindow(QMainWindow):
         close = QMessageBox.question(
             self,
             "QUIT",
-            "Are you sure want to stop process?",
+            "Are you sure you want to stop process?",
             QMessageBox.No | QMessageBox.Yes)
-        
+               
         if close == QMessageBox.Yes:
             sys.exit()
         else:

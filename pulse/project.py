@@ -660,7 +660,10 @@ class Project:
             self.mesh.set_fluid_by_element('all', fluid)
 
         self._set_entity_fluid(entity_id, fluid)
-        self.file.add_fluid_in_file(entity_id, fluid.identifier)
+        if fluid is None:
+            self.file.add_fluid_in_file(entity_id, "")
+        else:
+            self.file.add_fluid_in_file(entity_id, fluid.identifier)
 
     def set_fluid(self, fluid):
         self.mesh.set_fluid_by_element('all', fluid)

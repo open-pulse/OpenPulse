@@ -14,6 +14,10 @@ class Fluid:
         self.speed_of_sound = speed_of_sound
         self.color = kwargs.get("color", None)
         self.identifier = kwargs.get("identifier", -1)
+        self.isentropic_exponent = kwargs.get("isentropic_exponent", None)
+        self.thermal_conductivity = kwargs.get("thermal_conductivity", None)
+        self.specific_heat_Cp = kwargs.get("specific_heat_Cp", None)
+        self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)     
 
     @property
     def impedance(self):

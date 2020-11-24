@@ -1,95 +1,117 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
-from pulse.utils import error, getColorRGB
 
 from pulse.preprocessing.fluid import Fluid
+from pulse.default_libraries import default_fluid_library
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
+
+
+def getColorRGB(color):
+    temp = color[1:-1]
+    tokens = temp.split(',')
+    return list(map(int, tokens))
 
 class FluidInput(QDialog):
-    def __init__(self, fluid_path, entities_id, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fluidPath = fluid_path
-        self.entities_id = entities_id
-        uic.loadUi('pulse/uix/user_input/ui/fluidInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/newFluidlnput.ui', self)
         
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+        self.project = project
+        self.fluid_path = project.get_fluid_list_path()
+        self.entities_id = opv.getListPickedEntities()
+        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
         
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
         self.flagEntity = False
 
-        self.same_fluid_name = False
         self.adding = False
         self.editing = False
-        self.list_names = []
-        self.list_ids = []
-        self.list_colors = []
-        self.temp_fluid_name = ""
-        self.temp_fluid_id = ""
         self.temp_fluid_color = ""
 
-        self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
-        self.treeWidget.setColumnWidth(1, 20)
-        self.treeWidget.setColumnWidth(5, 30)
-        self.treeWidget.setColumnWidth(3, 180)
-        self.treeWidget.itemClicked.connect(self.on_click_item)
-        self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
-
+        self.treeWidget_fluids = self.findChild(QTreeWidget, 'treeWidget_fluids')
+        for col_index, width in enumerate([140, 50, 80, 170, 180]):
+            self.treeWidget_fluids.setColumnWidth(col_index, width)
+        for col_index in [6,7,8,9]:
+            self.treeWidget_fluids.hideColumn(col_index)
+        self.treeWidget_fluids.itemClicked.connect(self.on_click_item)
+        self.treeWidget_fluids.itemDoubleClicked.connect(self.on_doubleclick_item)
+        #
         self.lineEdit_name = self.findChild(QLineEdit, 'lineEdit_name')
         self.lineEdit_id = self.findChild(QLineEdit, 'lineEdit_id')
+        self.lineEdit_color = self.findChild(QLineEdit, 'lineEdit_color')
         self.lineEdit_fluid_density = self.findChild(QLineEdit, 'lineEdit_fluid_density')
         self.lineEdit_speed_of_sound = self.findChild(QLineEdit, 'lineEdit_speed_of_sound')
         self.lineEdit_impedance = self.findChild(QLineEdit, 'lineEdit_impedance')
-        self.lineEdit_color = self.findChild(QLineEdit, 'lineEdit_color')
-
+        self.lineEdit_isentropic_exponent = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent')
+        self.lineEdit_thermal_conductivity = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity')
+        self.lineEdit_specific_heat_Cp = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp')
+        self.lineEdit_dynamic_viscosity = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity')
+        #
         self.lineEdit_name_edit = self.findChild(QLineEdit, 'lineEdit_name_edit')
         self.lineEdit_id_edit = self.findChild(QLineEdit, 'lineEdit_id_edit')
+        self.lineEdit_color_edit = self.findChild(QLineEdit, 'lineEdit_color_edit')
         self.lineEdit_fluid_density_edit = self.findChild(QLineEdit, 'lineEdit_fluid_density_edit')
         self.lineEdit_speed_of_sound_edit = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_edit')
         self.lineEdit_impedance_edit = self.findChild(QLineEdit, 'lineEdit_impedance_edit')
-        self.lineEdit_color_edit = self.findChild(QLineEdit, 'lineEdit_color_edit')
-        
+        self.lineEdit_isentropic_exponent_edit = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_edit')
+        self.lineEdit_thermal_conductivity_edit = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_edit')
+        self.lineEdit_specific_heat_Cp_edit = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_edit')
+        self.lineEdit_dynamic_viscosity_edit = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_edit')
+        #       
         self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
         self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
+        self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
         self.lineEdit_fluid_density_remove = self.findChild(QLineEdit, 'lineEdit_fluid_density_remove')
         self.lineEdit_speed_of_sound_remove = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_remove')
         self.lineEdit_impedance_remove = self.findChild(QLineEdit, 'lineEdit_impedance_remove')
-        self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
+        self.lineEdit_isentropic_exponent_remove = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_remove')
+        self.lineEdit_thermal_conductivity_remove = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_remove')
+        self.lineEdit_specific_heat_Cp_remove = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_remove')
+        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove')    
+        #
+        self.create_lists_of_lineEdit()
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_entity.toggled.connect(self.radioButtonEvent)
 
-        self.lineEdit_entity_ID = self.findChild(QLineEdit, 'lineEdit_nodeID')
+        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
         if self.entities_id != []:
-            self.write_ids(entities_id)
+            self.write_ids(self.entities_id)
             self.radioButton_entity.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all.setChecked(True)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.check)
+        self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
 
         self.pushButton_confirm_add_fluid = self.findChild(QPushButton, 'pushButton_confirm_add_fluid')
         self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
-        
-        self.pushButton_selected_fluid_to_edit = self.findChild(QPushButton, 'pushButton_selected_fluid_to_edit')
-        self.pushButton_selected_fluid_to_edit.clicked.connect(self.selected_fluid_to_edit)
 
         self.pushButton_confirm_fluid_edition = self.findChild(QPushButton, 'pushButton_confirm_fluid_edition')
         self.pushButton_confirm_fluid_edition.clicked.connect(self.check_edit_fluid)
-
-        self.pushButton_select_fluid_to_remove = self.findChild(QPushButton, 'pushButton_select_fluid_to_remove')
-        self.pushButton_select_fluid_to_remove.clicked.connect(self.select_fluid_to_remove)
 
         self.pushButton_confirm_fluid_removal = self.findChild(QPushButton, 'pushButton_confirm_fluid_removal')
         self.pushButton_confirm_fluid_removal.clicked.connect(self.confirm_fluid_removal)
@@ -97,349 +119,569 @@ class FluidInput(QDialog):
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
 
+        self.tabWidget_fluid = self.findChild(QTabWidget, 'tabWidget_fluid')
+        # self.tabWidget_fluid.currentChanged.connect(self.tab_event_update)
+        
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
 
         self.loadList()
         self.exec_()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
+    # def tab_event_update(self):
+    #     self.reset_add_texts()
+    #     self.reset_edit_texts()
+    #     self.reset_remove_texts()
 
-    def write_ids(self, list_ids):
+    def update(self):
+        self.entities_id = self.opv.getListPickedEntities()
+        if self.entities_id != []:
+            self.write_entities(self.entities_id)
+            self.radioButton_entity.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(False)
+
+    def write_entities(self, list_node_ids):
         text = ""
-        for _id in list_ids:
-            text += "{}, ".format(_id)
+        for node in list_node_ids:
+            text += "{}, ".format(node)
         self.lineEdit_selected_ID.setText(text)
 
-    def select_fluid_to_remove(self):
+    def create_lists_of_lineEdit(self):
+        self.list_add_lineEdit = [  self.lineEdit_name,
+                                    self.lineEdit_id,
+                                    self.lineEdit_color,
+                                    self.lineEdit_fluid_density,
+                                    self.lineEdit_speed_of_sound,
+                                    self.lineEdit_impedance,
+                                    self.lineEdit_isentropic_exponent,
+                                    self.lineEdit_thermal_conductivity,
+                                    self.lineEdit_specific_heat_Cp,
+                                    self.lineEdit_dynamic_viscosity ]  
 
-        if self.clicked_item is None:
-            error("Select a fluid in the list to be edited.")
-            return
+        self.list_edit_lineEdit = [ self.lineEdit_name_edit,
+                                    self.lineEdit_id_edit,
+                                    self.lineEdit_color_edit,
+                                    self.lineEdit_fluid_density_edit,
+                                    self.lineEdit_speed_of_sound_edit,
+                                    self.lineEdit_impedance_edit,
+                                    self.lineEdit_isentropic_exponent_edit,
+                                    self.lineEdit_thermal_conductivity_edit,
+                                    self.lineEdit_specific_heat_Cp_edit,
+                                    self.lineEdit_dynamic_viscosity_edit ]  
+        
+        self.list_remove_lineEdit = [   self.lineEdit_name_remove,
+                                        self.lineEdit_id_remove,
+                                        self.lineEdit_color_remove,
+                                        self.lineEdit_fluid_density_remove,
+                                        self.lineEdit_speed_of_sound_remove,
+                                        self.lineEdit_impedance_remove,
+                                        self.lineEdit_isentropic_exponent_remove,
+                                        self.lineEdit_thermal_conductivity_remove,
+                                        self.lineEdit_specific_heat_Cp_remove,
+                                        self.lineEdit_dynamic_viscosity_remove ]  
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_fluid_attribution()
+        elif event.key() == Qt.Key_Escape:
+            self.close() 
+
+    def check_input_name(self, name_string):
+        if name_string == "":
+            title = 'Empty fluid name'
+            message = "Please, insert a valid fluid name."
+            PrintMessageInput([title, message, window_title1])
+            return True
+        else:
+            if self.adding:
+                if name_string in self.list_names:
+                    title = 'Invalid fluid name'
+                    message = "Please, inform a different fluid name. It is already being used by other fluid!"
+                    PrintMessageInput([title, message, window_title1])
+                    return True
+            self.dict_inputs['name'] = name_string
+        
+    def check_input_fluid_id(self, id_string):
+        if id_string == "":
+            title = 'Empty fluid ID'
+            message = "Please, insert a valid fluid ID."
+            PrintMessageInput([title, message, window_title1])
+            return True
+        else:
+            try:
+                self.fluid_id = int(id_string)
+                if self.adding:
+                    if self.fluid_id in self.list_ids:
+                        title = 'Invalid fluid name'
+                        message = "Please, inform a different fluid ID. It is already being used by other fluid."
+                        PrintMessageInput([title, message, window_title1])
+                        return True
+                      
+            except Exception as err:
+                title = "Invalid fluid ID"
+                message = str(err)
+                PrintMessageInput([title, message, window_title1])
+                return True
+            self.dict_inputs['identifier'] = id_string
+    
+    def check_input_color(self, color_string):
+        if color_string == "":
+            title = 'Empty [r,g,b] color'
+            message = "Please, insert a valid [r,g,b] color to the fluid."
+            PrintMessageInput([title, message, window_title1])
+            return True
+        else:
+            
+            message = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
+            try:
+                self.colorRGB = getColorRGB(color_string)
+                message_color = (" The RGB color {} was already used.\n Please, input a different color.").format(self.colorRGB)
+
+                if len(self.colorRGB)!=3:
+                    title = 'Invalid [r,g,b] color'
+                    PrintMessageInput([title, message, window_title1])
+                    return True
+
+                if self.editing:
+                    temp_colorRGB = getColorRGB(self.temp_fluid_color)
+                    if temp_colorRGB != self.colorRGB:
+                        if self.colorRGB in self.list_colors:
+                            title = 'Invalid [r,g,b] color'
+                            PrintMessageInput([title, message_color, window_title1])
+                            return True 
+                        else:
+                            self.list_colors.remove(temp_colorRGB)
+                            
+                elif self.adding:
+                    if self.colorRGB in self.list_colors:
+                        title = 'Invalid [r,g,b] color'
+                        PrintMessageInput([title, message_color, window_title1])
+                        return True
+
+            except Exception as err:
+                title = 'Invalid [r,g,b] color'
+                message = str(err)
+                PrintMessageInput([title, message, window_title1])
+                return True
+            self.dict_inputs['color'] = color_string
+       
+
+    def check_input_lines(self):
         
         try:
+            tokens = self.lineEdit_selected_ID.text().strip().split(',')
+            try:
+                tokens.remove('')
+            except:
+                pass
+            self.lines_typed = list(map(int, tokens))
+            
+            if self.lineEdit_selected_ID.text()=="":
+                title = "Error: empty Line ID input"
+                message = "Inform a valid Line ID before to confirm the input."
+                self.info_text = [title, message, window_title1]
+                return True
+        except Exception:
+            title = "Error: invalid Line ID input"
+            message = "Wrong input for Line ID."
+            self.info_text = [title, message, window_title1]
+            return True
+            
+        try:
+            for line in self.lines_typed:
+                self.line = self.dict_tag_to_entity[line]
+        except Exception:
+            title = "Error: invalid Line ID"
+            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
+            self.info_text = [title, message, window_title1]
+            return True
+        return False
 
-            self.lineEdit_name_remove.setText(self.clicked_item.text(0))
-            self.lineEdit_id_remove.setText(self.clicked_item.text(1))
-            self.lineEdit_fluid_density_remove.setText(self.clicked_item.text(2))
-            self.lineEdit_speed_of_sound_remove.setText(self.clicked_item.text(3))
-            self.lineEdit_impedance_remove.setText(self.clicked_item.text(4))
-            self.lineEdit_color_remove.setText(self.clicked_item.text(5))
+    def check_input_parameters(self, input_string, label, _float=True):
+        title = "INPUT ERROR"
+        value_string = input_string
+        if value_string != "":
+            try:
+                if _float:
+                    value = float(value_string)
+                else:
+                    value = int(value_string) 
+                if value < 0:
+                    message = "You cannot input a negative value to the {}.".format(label)
+                    PrintMessageInput([title, message, window_title1])
+                    return True
+                else:
+                    self.value = value
+            except Exception:
+                message = "You have typed an invalid value to the {}.".format(label)
+                PrintMessageInput([title, message, window_title1])
+                return True
+        else:
+            self.value = None
+        return False
 
-        except Exception as e:
-            error(str(e), "Error with the fluid list data")
+    def check_all_inputs(self):
+
+        if self.check_input_parameters(self.fluid_density_string, 'fluid density'):
+            return True
+        else:
+            fluid_density = self.value
+            if fluid_density > 2000:
+                title = "Invalid density value"
+                message = "The input value for fluid density must be a positive number less than 2000."
+                PrintMessageInput([title, message, window_title1])
+                return False
+            self.dict_inputs['fluid density'] = fluid_density
+
+        if self.check_input_parameters(self.speed_of_sound_string, 'speed of sound'):
+            return True
+        else:
+            speed_of_sound = self.value
+            self.dict_inputs['speed of sound'] = speed_of_sound
+
+            impedance = fluid_density*speed_of_sound
+            impedance_string = str(fluid_density*speed_of_sound)
+            if self.adding:
+                self.lineEdit_impedance.setText(impedance_string)
+            elif self.editing:
+                self.lineEdit_impedance_edit.setText(impedance_string)
+            self.dict_inputs['impedance'] = impedance
+
+        if self.isentropic_exponent_string != "":     
+            if self.check_input_parameters(self.isentropic_exponent_string, 'isentropic exponent'):
+                return True
+            else:
+                isentropic_exponent = self.value
+                self.dict_inputs['isentropic exponent'] = isentropic_exponent
+
+        if self.thermal_conductivity_string != "":    
+            if self.check_input_parameters(self.thermal_conductivity_string, 'thermal conductivity'):
+                return True
+            else:
+                thermal_conductivity = self.value 
+                self.dict_inputs['thermal conductivity'] = thermal_conductivity
+        
+        if self.specific_heat_Cp_string != "":
+            if self.check_input_parameters(self.specific_heat_Cp_string, 'specific heat Cp'):
+                return True
+            else:
+                specific_heat_Cp = self.value 
+                self.dict_inputs['specific heat Cp'] = specific_heat_Cp
+        
+        if self.dynamic_viscosity_string != "":           
+            if self.check_input_parameters(self.dynamic_viscosity_string, 'dinamic viscosity'):
+                return True
+            else:
+                dynamic_viscosity = self.value 
+                self.dict_inputs['dynamic viscosity'] = dynamic_viscosity
+
+    def check_add_edit(self, parameters):
+
+        [   name_string, id_string, color_string,
+            self.fluid_density_string,
+            self.speed_of_sound_string,
+            self.impedance_string,
+            self.isentropic_exponent_string,
+            self.thermal_conductivity_string,
+            self.specific_heat_Cp_string,
+            self.dynamic_viscosity_string  ] = parameters
+
+        self.dict_inputs = {}
+
+        if self.check_input_name(name_string):
             return
 
-    def confirm_fluid_removal(self):
+        if self.check_input_fluid_id(id_string):
+            return
+
+        if self.check_input_color(color_string):
+            return
+
+        if name_string not in self.list_names:
+            self.list_names.append(name_string)
+
+        if self.fluid_id not in self.list_ids:
+            self.list_ids.append(self.fluid_id)
+
+        if self.colorRGB not in self.list_colors:
+            self.list_colors.append(self.colorRGB)
+
+        if self.check_all_inputs():
+            return
+        
         try:
             config = configparser.ConfigParser()
-            config.read(self.fluidPath)
-            if self.lineEdit_name_remove.text() != "":
-                config.remove_section(self.lineEdit_name_remove.text().upper())
-                with open(self.fluidPath, 'w') as config_file:
-                    config.write(config_file)
-                self.treeWidget.clear()
-                self.clicked_item = None
-                self.loadList()
-                self.lineEdit_name_remove.setText("")
-                self.lineEdit_id_remove.setText("")
-                self.lineEdit_fluid_density_remove.setText("")
-                self.lineEdit_speed_of_sound_remove.setText("")
-                self.lineEdit_impedance_remove.setText("")
-                self.lineEdit_color_remove.setText("")
-                
-            else:
-                return
-        except Exception as e:
-            error(str(e), "Error with the material removal")
+            config.read(self.fluid_path)
+            config[name_string.upper()] = self.dict_inputs
+
+            with open(self.fluid_path, 'w') as config_file:
+                config.write(config_file)
+                    
+        except Exception as err:
+            title = "Error while saving the fluid data to the file"
+            message = str(err)
+            PrintMessageInput([title, message, window_title1])
             return
 
-    def check(self):
+        if self.adding or self.editing:    
+            self.treeWidget_fluids.clear()
+            self.loadList()
+            self.adding = False
+            self.editing = False
+            self.reset_edit_texts()
+
+    def confirm_fluid_attribution(self):
+
         if self.clicked_item is None:
-            error("Select a fluid in the list")
+            title = "Empty fluid selection"
+            message = "Select a fluid in the list before trying to attribute a fluid to the entities."
+            PrintMessageInput([title, message, window_title1])
             return
         
         try:
+            isentropic_exponent = None
+            thermal_conductivity = None
+            specific_heat_Cp = None
+            dynamic_viscosity = None
+
             name = self.clicked_item.text(0)
             identifier = int(self.clicked_item.text(1))
-            fluid_density = float(self.clicked_item.text(2))
-            speed_of_sound = float(self.clicked_item.text(3))
-            # impedance = float(self.clicked_item.text(4))
-            color = self.clicked_item.text(5)
-            new_fluid = Fluid(name, fluid_density, speed_of_sound, identifier=identifier, color=color)
-            self.fluid = new_fluid
+            color = self.clicked_item.text(2)
+            fluid_density = float(self.clicked_item.text(3))
+            speed_of_sound = float(self.clicked_item.text(4))
+            # impedance = float(self.clicked_item.text(5)) # internal calculation
+            
+            if self.clicked_item.text(6) != "":
+                isentropic_exponent = float(self.clicked_item.text(6))
+            if self.clicked_item.text(7) != "":
+                thermal_conductivity = float(self.clicked_item.text(7))
+            if self.clicked_item.text(8) != "":
+                specific_heat_Cp = float(self.clicked_item.text(8))
+            if self.clicked_item.text(9) != "":
+                dynamic_viscosity = float(self.clicked_item.text(9))
+            
+            self.fluid = Fluid( name, 
+                                fluid_density, 
+                                speed_of_sound, 
+                                identifier = identifier, 
+                                color = color,
+                                isentropic_exponent = isentropic_exponent,
+                                thermal_conductivity = thermal_conductivity,
+                                specific_heat_Cp = specific_heat_Cp,
+                                dynamic_viscosity = dynamic_viscosity )
+
+            if self.flagEntity:
+                if self.check_input_lines():
+                    PrintMessageInput(self.info_text)
+                    return True
+                if len(self.entities_id) == 0:
+                    return
+                for entity in self.entities_id:
+                    self.project.set_fluid_by_entity(entity, self.fluid)
+                print("[Set Fluid] - {} defined in the entities {}".format(self.fluid.name, self.entities_id))
+                self.opv.changeColorEntities(self.entities_id, self.fluid.getNormalizedColorRGB())
+            
+            elif self.flagAll:
+                self.project.set_fluid(self.fluid)
+                entities = []
+                for entity in self.project.get_entities():
+                    entities.append(entity.get_tag())
+                print("[Set Fluid] - {} defined in all entities".format(self.fluid.name))
+                self.opv.changeColorEntities(entities, self.fluid.getNormalizedColorRGB())
+
             self.close()
+
         except Exception as e:
-            error(str(e), "Error with the fluid list data")
+            title = "Error with the fluid list data"
+            message = str(e)
+            PrintMessageInput([title, message, window_title1])
             return
             
     def loadList(self):
 
         self.list_names = []
         self.list_ids = []
-        self.list_colors = []
+        self.list_colors = []     
 
         try:
             config = configparser.ConfigParser()
-            config.read(self.fluidPath)
+            config.read(self.fluid_path)
 
             for fluid in config.sections():
+
                 rFluid = config[fluid]
+                keys = config[fluid].keys()
+
                 name = str(rFluid['name'])
                 identifier =  str(rFluid['identifier'])
+                color =  str(rFluid['color'])
                 fluid_density =  str(rFluid['fluid density'])
                 speed_of_sound =  str(rFluid['speed of sound'])
                 impedance =  str(rFluid['impedance'])
-                color =  str(rFluid['color'])
 
-                load_fluid = QTreeWidgetItem([name, identifier, fluid_density, speed_of_sound, impedance, color])
+                isentropic_exponent, thermal_conductivity, specific_heat_Cp, dynamic_viscosity = "", "", "", ""
+                if 'isentropic exponent' in keys:
+                    isentropic_exponent = str(rFluid['isentropic exponent'])
+                if 'thermal conductivity' in keys:
+                    thermal_conductivity = str(rFluid['thermal conductivity'])
+                if 'specific heat Cp' in keys:
+                    specific_heat_Cp = str(rFluid['specific heat Cp'])
+                if 'dynamic viscosity' in keys:
+                    dynamic_viscosity = str(rFluid['dynamic viscosity'])
+                
+                load_fluid = QTreeWidgetItem([  name, 
+                                                identifier, 
+                                                color, 
+                                                fluid_density, 
+                                                speed_of_sound, 
+                                                impedance,
+                                                isentropic_exponent,
+                                                thermal_conductivity,
+                                                specific_heat_Cp,
+                                                dynamic_viscosity  ])
                 colorRGB = getColorRGB(color)
                 self.list_names.append(name)
-                self.list_ids.append(identifier)
+                self.list_ids.append(int(identifier))
                 self.list_colors.append(colorRGB)
-                load_fluid.setBackground(5,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
-                load_fluid.setForeground(5,QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
-                self.treeWidget.addTopLevelItem(load_fluid)
-        except Exception as e:
-            error(str(e), "Error while loading the fluid list")
+                load_fluid.setBackground(2, QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+                load_fluid.setForeground(2, QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
+                for i in range(6):
+                    load_fluid.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_fluids.addTopLevelItem(load_fluid)
+        except Exception as err:
+            title = "Error while loading the fluid list data"
+            message = str(err)
+            PrintMessageInput([title, message, window_title1])
             self.close()
         
     def check_add_fluid(self):
-        name_string = self.lineEdit_name.text()
-        id_string = self.lineEdit_id.text()
-        fluid_density_string = self.lineEdit_fluid_density.text()
-        speed_of_sound_string = self.lineEdit_speed_of_sound.text()
-        # impedance_string = self.lineEdit_impedance.text()
-        color_string = self.lineEdit_color.text()
+        parameters = []
+        for lineEdit in self.list_add_lineEdit:
+            parameters.append(lineEdit.text())
         self.adding = True
-        self.check_add_edit(name_string, id_string, fluid_density_string, speed_of_sound_string, color_string)
+        self.editing = False
+        self.check_add_edit( parameters )
 
     def check_edit_fluid(self):
-        if self.editing:
-            name_string = self.lineEdit_name_edit.text()
-            id_string = self.lineEdit_id_edit.text()
-            fluid_density_string = self.lineEdit_fluid_density_edit.text()
-            speed_of_sound_string = self.lineEdit_speed_of_sound_edit.text()
-            # impedance_string = self.lineEdit_impedance_edit.text()
-            color_string = self.lineEdit_color_edit.text()
-            self.check_add_edit(name_string, id_string, fluid_density_string, speed_of_sound_string, color_string)        
-        else:
+        if self.lineEdit_name_edit.text() == "":
+            title = "Empty fluid selection"
+            message = "Please, select a fluid in the list to be edited."
+            PrintMessageInput([title, message, window_title2])
             return
-            
-    def check_add_edit(self, name_string, id_string, fluid_density_string, speed_of_sound_string, color_string):
+        parameters = []
+        for lineEdit in self.list_edit_lineEdit:
+            parameters.append(lineEdit.text())
+        self.adding = False
+        self.editing = True
+        self.check_add_edit( parameters )    
 
-        if name_string == "":
-            error("Insert a fluid name!")
-            return
-        else:
-            name = name_string
-            message_name = "Please, inform a different fluid name. \nIt is already being used by other fluid!"
-            if self.editing:
-                if self.temp_fluid_name == name:
-                    self.same_fluid_name = True
-                else:
-                    if name in self.list_names:
-                        error(message_name)
-                        return
-            elif self.adding:
-                if name in self.list_names:
-                        error(message_name)
-                        return
-
-        if id_string == "":
-            error("Insert a fluid ID!")
-            return
-        else:
-            try:
-                identifier = str(id_string)
-                message_id = "Please, inform a different fluid ID. \nIt is already being used by other fluid!"
-                if self.editing:
-                    if self.temp_fluid_id != identifier:
-                        if identifier in self.list_ids:
-                            error(message_id)
-                            return
-                elif self.adding:
-                    if identifier in self.list_ids:
-                        error(message_id)
-                        return
-            except Exception:
-                error("Value error (ID)")
-                return
-
-        if fluid_density_string == "":
-            error("Insert a fluid density!")
-            return
-        else:
-            try:
-                fluid_density = str(fluid_density_string)
-                if float(fluid_density)<0 or float(fluid_density)>2000:
-                    error("The input value for fluid density must be a positive \nnumber greater than 0 and less than 2000")
-                    return
-            except Exception:
-                error("Value error (fluid density)")
-                return 
-
-        if speed_of_sound_string == "":
-            error("Insert the speed of sound of the fluid!")
-            return
-        else:
-            try:
-                speed_of_sound = str(speed_of_sound_string)
-                if float(speed_of_sound)<0:
-                    error("The input value for speed of sound must be a positive number.")
-                    return
-            except Exception:
-                error("Value error (speed of sound)")
-                return
-
-            try:
-                impedance = str(float(fluid_density_string)*float(speed_of_sound_string))
-                if self.adding:
-                    self.lineEdit_impedance.setText(impedance)
-                elif self.editing:
-                    self.lineEdit_impedance_edit.setText(impedance)
-            except Exception:
-                error("Some error has occurred during impedance calculation.")
-                return 
-
-        if color_string == "":
-            error("Insert a fluid Color!")
-            return
-        else:
-            color = color_string
-            message = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
-            try:
-
-                colorRGB = getColorRGB(color)
-                message_color = (" The RGB color {} was already used.\n Please, input a different color.").format(colorRGB)
-
-                if len(colorRGB)!=3:
-                    error(message)
-                    return
-
-                if self.editing:
-                    if getColorRGB(self.temp_fluid_color) != colorRGB:
-                        if colorRGB in self.list_colors:
-                            error(message_color)
-                            return 
-                elif self.adding:
-                    if colorRGB in self.list_colors:
-                        error(message_color)
-                        return
-
-            except:
-                error(message)
-                return
-
-        try:
-            config = configparser.ConfigParser()
-            config.read(self.fluidPath)
-            config[name.upper()] = {
-            'name': name,
-            'identifier': identifier,
-            'fluid density': fluid_density,
-            'speed of sound': speed_of_sound,
-            'impedance': impedance,
-            'color': color
-            }
-            with open(self.fluidPath, 'w') as config_file:
-                config.write(config_file)
-                    
-        except Exception as e:
-            error(str(e), "Error while loading the fluid list")
-            return
-
-        if self.adding:    
-            self.treeWidget.clear()
-            self.loadList()
-            self.adding = False
-
-        elif self.editing:
-            self.treeWidget.clear()
-            self.clicked_item = None
-
-            self.loadList()
-            self.editing = False
-            self.lineEdit_name_edit.setText("")
-            self.lineEdit_id_edit.setText("")
-            self.lineEdit_fluid_density_edit.setText("")
-            self.lineEdit_speed_of_sound_edit.setText("")
-            self.lineEdit_impedance_edit.setText("")
-            self.lineEdit_color_edit.setText("")
-            self.same_fluid_name = False
-
-    def selected_fluid_to_edit(self):
-
-        if self.clicked_item is None:
-            error("Select a fluid in the list to be edited.")
-            return
-        
-        try:
-
-            self.lineEdit_name_edit.setText(self.clicked_item.text(0))
-            self.lineEdit_id_edit.setText(self.clicked_item.text(1))
-            self.lineEdit_fluid_density_edit.setText(self.clicked_item.text(2))
-            self.lineEdit_speed_of_sound_edit.setText(self.clicked_item.text(3))
-            self.lineEdit_impedance_edit.setText(self.clicked_item.text(4))
-            self.lineEdit_color_edit.setText(self.clicked_item.text(5))
-
-            self.temp_fluid_name = self.clicked_item.text(0)
-            self.temp_fluid_id = self.clicked_item.text(1)
-            self.temp_fluid_color = self.clicked_item.text(5)
-            
-            self.editing = True
-
-        except Exception as e:
-            error(str(e), "Error with the fluid list data")
-            return
-
-    def default_fluid_library(self):
-
-        config = configparser.ConfigParser()
-
-        config['AIR'] = {
-            'Name': 'air',
-            'Identifier': 1,
-            'Fluid density': 1.2041,
-            'Speed of sound': 343.21,
-            'Impedance': 413.25,
-            'Color': '[0,0,255]' } #Blue     
-
-        config['HYDROGEN'] = {
-            'Name': 'hydrogen',
-            'Identifier': 2,
-            'Fluid density': 0.087,
-            'Speed of sound': 1321.1,
-            'Impedance': 114.93,
-            'Color': '[255,0,255]' } #Magenta
-        
-        config['METHANE'] = {
-            'Name': 'methane',
-            'Identifier': 3,
-            'Fluid density': 0.657,
-            'Speed of sound': 446,
-            'Impedance': 293.02,
-            'Color': '[0,255,255]' } #Cyan
-
-        with open(self.fluidPath, 'w') as config_file:
-            config.write(config_file)
-        
-    def reset_library_to_default(self):
-        self.default_fluid_library()
-        self.treeWidget.clear()
-        self.loadList()
-
-    def on_click_item(self, item):
-        self.clicked_item = item
-
-    def on_doubleclick_item(self, item):
-        self.clicked_item = item
-        self.check()
-    
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
+
+    def on_click_item(self, item):
+        # self.current_index = self.tabWidget_fluid.currentIndex()
+        self.clicked_item = item
+        N = len(self.list_add_lineEdit)
+        for i in range(N):
+            self.list_add_lineEdit[i].setText(item.text(i))
+            self.list_edit_lineEdit[i].setText(item.text(i))
+            self.list_remove_lineEdit[i].setText(item.text(i))
+        self.temp_fluid_color = item.text(2)            
+
+    def on_doubleclick_item(self, item):
+        self.clicked_item = item
+        self.confirm_fluid_attribution()
+    
+    def double_confirm_action(self):
+        confirm_act = QMessageBox.question(
+            self,
+            "QUIT",
+            "Are you sure you want to reset to default fluids library?",
+            QMessageBox.No | QMessageBox.Yes)
+        
+        if confirm_act == QMessageBox.Yes:
+            return False
+        else:
+            return True
+
+    def confirm_fluid_removal(self):
+        self.adding = False
+        self.editing = False
+        try:
+
+            if self.lineEdit_name_remove.text() == "":
+                title = "Empty fluid selection"
+                message = "Please, select a fluid in the list before confirm the removal."
+                PrintMessageInput([title, message, window_title2])
+
+            else:
+                config = configparser.ConfigParser()
+                config.read(self.fluid_path)
+                config.remove_section(self.lineEdit_name_remove.text().upper())
+                with open(self.fluid_path, 'w') as config_file:
+                    config.write(config_file)
+
+                for tag, entity in self.dict_tag_to_entity.items():
+                    if entity.fluid.name == self.lineEdit_name_remove.text():
+                        self.project.set_fluid_by_entity(tag, None)
+
+                self.treeWidget_fluids.clear()
+                self.clicked_item = None
+                self.loadList()
+                self.reset_remove_texts() 
+
+        except Exception as err:
+            title = "Error with the material removal"
+            message = str(err)
+            PrintMessageInput([title, message, window_title1])
+
+    def reset_library_to_default(self):
+        if self.double_confirm_action():
+            return
+        default_fluid_library(self.fluid_path)
+        self.treeWidget_fluids.clear()
+        self.loadList()
+        self.reset_add_texts()
+        self.reset_edit_texts() 
+        self.reset_remove_texts() 
+    
+    def reset_add_texts(self):
+        self.lineEdit_name.setText("")
+        self.lineEdit_id.setText("")
+        self.lineEdit_fluid_density.setText("")
+        self.lineEdit_speed_of_sound.setText("")
+        self.lineEdit_impedance.setText("")
+        self.lineEdit_color.setText("")
+        self.lineEdit_isentropic_exponent.setText("")
+        self.lineEdit_thermal_conductivity.setText("") 
+        self.lineEdit_specific_heat_Cp.setText("") 
+        self.lineEdit_dynamic_viscosity.setText("") 
+
+    def reset_edit_texts(self):
+        self.lineEdit_name_edit.setText("")
+        self.lineEdit_id_edit.setText("")
+        self.lineEdit_fluid_density_edit.setText("")
+        self.lineEdit_speed_of_sound_edit.setText("")
+        self.lineEdit_impedance_edit.setText("")
+        self.lineEdit_color_edit.setText("")
+        self.lineEdit_isentropic_exponent_edit.setText("")
+        self.lineEdit_thermal_conductivity_edit.setText("") 
+        self.lineEdit_specific_heat_Cp_edit.setText("") 
+        self.lineEdit_dynamic_viscosity_edit.setText("") 
+
+    def reset_remove_texts(self):
+        self.lineEdit_name_remove.setText("")
+        self.lineEdit_id_remove.setText("")
+        self.lineEdit_fluid_density_remove.setText("")
+        self.lineEdit_speed_of_sound_remove.setText("")
+        self.lineEdit_impedance_remove.setText("")
+        self.lineEdit_color_remove.setText("")
+        self.lineEdit_isentropic_exponent_remove.setText("")
+        self.lineEdit_thermal_conductivity_remove.setText("") 
+        self.lineEdit_specific_heat_Cp_remove.setText("") 
+        self.lineEdit_dynamic_viscosity_remove.setText("") 

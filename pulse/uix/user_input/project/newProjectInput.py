@@ -1,14 +1,14 @@
 from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget
-from pulse.project import Project
 from PyQt5.QtGui import QIcon
-from os.path import basename
+from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import os
 import configparser
 from shutil import copyfile
 import numpy as np
 
-from PyQt5 import uic
+from pulse.project import Project
+from pulse.default_libraries import default_material_library, default_fluid_library
 
 class NewProjectInput(QDialog):
     def __init__(self, project, config, *args, **kwargs):
@@ -18,6 +18,9 @@ class NewProjectInput(QDialog):
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'add.png')
         self.setWindowIcon(self.icon)
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.project = project
         self.config = config
@@ -168,6 +171,7 @@ class NewProjectInput(QDialog):
             self.config.writeRecentProject(self.line_project_name.text(), self.project_file_path)
             self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
             return True
+            
         elif self.currentTab == 1:
             cord_file = self.line_import_cord.text().split('/')[-1]
             conn_file = self.line_import_conn.text().split('/')[-1]
@@ -192,8 +196,8 @@ class NewProjectInput(QDialog):
         geometry_file_name = ""
         cord_file_name = ""
         conn_file_name = ""
-        import_type = 0
         element_size = 0
+
         if self.currentTab == 0:
             geometry_file_name = self.line_import_geometry.text().split('/')[-1]
             import_type = 0
@@ -205,15 +209,15 @@ class NewProjectInput(QDialog):
 
         config = configparser.ConfigParser()
         config['PROJECT'] = {
-            'Name': self.line_project_name.text(),
-            'Element Size': str(element_size),
-            'Import Type': str(import_type),
-            'Geometry File': geometry_file_name,
-            'Cord File': cord_file_name,
-            'Conn File': conn_file_name,
-            'MaterialList File': self.materialListName,
-            'FluidList File': self.fluidListName
-        }
+                            'Name': self.line_project_name.text(),
+                            'Element Size': str(element_size),
+                            'Import Type': str(import_type),
+                            'Geometry File': geometry_file_name,
+                            'Cord File': cord_file_name,
+                            'Conn File': conn_file_name,
+                            'MaterialList File': self.materialListName,
+                            'FluidList File': self.fluidListName }
+
         with open(self.project_file_path, 'w') as config_file:
             config.write(config_file)
 
@@ -224,105 +228,13 @@ class NewProjectInput(QDialog):
         elif "/" in self.project_directory:
             self.material_list_path = '{}/{}'.format(self.project_folder_path, self.materialListName)
 
-        config = configparser.ConfigParser()
-
-        config['STEEL'] = {
-            'Name': 'steel',
-            'Identifier': 1,
-            'Density': 7860,
-            'Young Modulus': 210,
-            'Poisson': 0.3,
-            'Thermal expansion coefficient': 1.2e-5,
-            'Color': '[170,170,170]' #Light Gray
-        }
-
-        config['STAINLESS_STEEL'] = {
-            'Name': 'stainless_steel',
-            'Identifier': 2,
-            'Density': 7750,
-            'Young Modulus': 193,
-            'Poisson': 0.31,
-            'Thermal expansion coefficient': 1.7e-5,
-            'Color': '[126,46,31]' #Wood color
-        }
-
-        config['NI-CO-CR_ALLOY'] = {
-            'Name': 'Ni-Co-Cr_alloy',
-            'Identifier': 3,
-            'Density': 8220,
-            'Young Modulus': 212,
-            'Poisson': 0.315,
-            'Thermal expansion coefficient': 1.2e-5,
-            'Color': '[0,255,255]' #Cyan
-        }
-
-        config['CAST_IRON'] = {
-            'Name': 'cast_iron',
-            'Identifier': 4,
-            'Density': 7200,
-            'Young Modulus': 110,
-            'Poisson': 0.28,
-            'Thermal expansion coefficient': 1.1e-5,
-            'Color': '[50,50,50]' #Dark Grey
-        }
-
-        config['ALUMINUM'] = {
-            'Name': 'aluminum',
-            'Identifier': 5,
-            'Density': 2770,
-            'Young Modulus': 71,
-            'Poisson': 0.333,
-            'Thermal expansion coefficient': 2.3e-5,
-            'Color': '[255,255,255]' #White
-        }
-
-        config['BRASS'] = {
-            'Name': 'brass',
-            'Identifier': 6,
-            'Density': 8150,
-            'Young Modulus': 96,
-            'Poisson': 0.345,
-            'Thermal expansion coefficient': 1.9e-5,
-            'Color': '[181,166,66]' #Brass color
-        }
-
-        with open(self.material_list_path, 'w') as config_file:
-            config.write(config_file)
+        default_material_library(self.material_list_path)
 
     def createFluidFile(self):
 
         if "\\" in self.project_directory:
-             self.fluid_list_path = '{}\\{}'.format(self.project_folder_path, self.fluidListName)
+            self.fluid_list_path = '{}\\{}'.format(self.project_folder_path, self.fluidListName)
         elif "/" in self.project_directory:
-             self.fluid_list_path = '{}/{}'.format(self.project_folder_path, self.fluidListName)
+            self.fluid_list_path = '{}/{}'.format(self.project_folder_path, self.fluidListName)
 
-        config = configparser.ConfigParser()
-
-        config['AIR'] = {
-            'Name': 'air',
-            'Identifier': 1,
-            'Fluid density': 1.2041,
-            'Speed of sound': 343.21,
-            'Impedance': 413.25,
-            'Color': '[0,0,255]' #Blue
-        }
-
-        config['HYDROGEN'] = {
-            'Name': 'hydrogen',
-            'Identifier': 2,
-            'Fluid density': 0.087,
-            'Speed of sound': 1321.1,
-            'Impedance': 114.93,
-            'Color': '[255,0,255]' #Magenta
-        }
-
-        config['METHANE'] = {
-            'Name': 'methane',
-            'Identifier': 3,
-            'Fluid density': 0.657,
-            'Speed of sound': 446,
-            'Impedance': 293.02,
-            'Color': '[0,255,255]' #Cyan
-        }
-        with open(self.fluid_list_path, 'w') as config_file:
-            config.write(config_file)
+        default_fluid_library(self.fluid_list_path)

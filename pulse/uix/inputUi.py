@@ -127,27 +127,11 @@ class InputUi:
             self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
 
     def set_fluid(self):
-        entities_id = self.opv.getListPickedEntities()
-        fld = FluidInput(self.project.get_fluid_list_path(), entities_id)
+        
+        fld = FluidInput(self.project, self.opv)
         if fld.fluid is None:
             return
-
-        if fld.flagEntity:
-            entities_id = self.opv.getListPickedEntities()
-            if len(entities_id) == 0:
-                return
-            for entity in entities_id:
-                self.project.set_fluid_by_entity(entity, fld.fluid)
-            print("[Set Fluid] - {} defined in the entities {}".format(fld.fluid.name, entities_id))
-            self.opv.changeColorEntities(entities_id, fld.fluid.getNormalizedColorRGB())
-        else:
-            self.project.set_fluid(fld.fluid)
-            entities = []
-            for entity in self.project.get_entities():
-                entities.append(entity.get_tag())
-            print("[Set Fluid] - {} defined in all entities".format(fld.fluid.name))
-            self.opv.changeColorEntities(entities, fld.fluid.getNormalizedColorRGB())
-
+            
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
         read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
 
