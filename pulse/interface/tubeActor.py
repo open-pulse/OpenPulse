@@ -1,78 +1,99 @@
 import vtk
 import numpy as np 
 from time import time
+from collections import defaultdict
+from scipy.spatial.transform import Rotation
 
 from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project, deformation=None):
+    def __init__(self, elements, project):
         super().__init__()
 
         self.elements = elements
         self.project = project
-        self.deformation = deformation
+        self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
-        self.transparent = False
+        self.transparent = True
 
         self._data = vtk.vtkPolyData()
-        self._mapper = vtk.vtkPolyDataMapper()
+        self._mapper = vtk.vtkGlyph3DMapper()
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
+        self._colors.SetNumberOfTuples(len(self.elements))
 
-        self._cachePolygon = dict()
-        self._colorSlices = dict()
+    @property
+    def transparent(self):
+        return self.__transparent
 
-    def update(self):
-        opacity = 0.03 if self.transparent else 1
-        lightining = not self.transparent
-        
-        self._actor.GetProperty().SetOpacity(opacity)
-        self._actor.GetProperty().SetLighting(lightining)
+    @transparent.setter
+    def transparent(self, value):
+        if value:
+            self._actor.GetProperty().SetOpacity(0.1)
+            self._actor.GetProperty().SetLighting(False)
+        else:
+            self._actor.GetProperty().SetOpacity(1)
+            self._actor.GetProperty().SetLighting(True)
+        self.__transparent = value
 
     def source(self):
-        indexes = list(self.elements.keys())
-        sections = [self.createTubeSection(element) for element in self.elements.values()]
-        matrices = self.createMatrices()
+        points = vtk.vtkPoints()
+        sources = vtk.vtkIntArray()
+        sources.SetName('sources')
+        rotations = vtk.vtkDoubleArray()
+        rotations.SetNumberOfComponents(3)
+        rotations.SetName('rotations')
 
-        s = time()
-        self._data = self.getTubeData(indexes, sections, matrices.reshape(-1,16))       
-        print('aaa', time()-s)
+        cache = dict()
+        counter = 0
+        for element in self.elements.values():
+            x,y,z = element.first_node.coordinates
+            u,v,w = element.directional_vectors
+            points.InsertNextPoint(x,y,z)
+            rotations.InsertNextTuple((0,0,0))
+            if element.cross_section not in cache:
+                cache[element.cross_section] = counter
+                source = self.createTubeSection(element)
+                self._mapper.SetSourceData(counter, source)
+                counter += 1
+            sources.InsertNextTuple1(cache[element.cross_section])
+            
+        self._data.SetPoints(points)
+        self._data.GetPointData().AddArray(sources)
+        self._data.GetPointData().AddArray(rotations)
+        self._data.GetPointData().SetScalars(self._colors)
 
     def map(self):
         self._mapper.SetInputData(self._data)
-        self._mapper.SetColorModeToDirectScalars()
+        self._mapper.SourceIndexingOn()
+        self._mapper.SetSourceIndexArray('sources')
+        self._mapper.SetOrientationArray('rotations')
+        self._mapper.SetOrientationModeToRotation()
+        self._mapper.Update()
 
     def filter(self):
         pass
     
     def actor(self):
-        self.update()
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().BackfaceCullingOff()
 
     def setColor(self, color, keys=None):
         c = vtk.vtkUnsignedCharArray()
         c.DeepCopy(self._colors)
-
         keys = keys if keys else self.elements.keys()
         for key in keys:
-            start, end = self._colorSlices[key]
-            for i in range(start, end):
-                c.SetTuple(i, color)
-
+            index = self._key_index[key]
+            c.SetTuple(index, color)
         self._data.GetPointData().SetScalars(c)
         self._colors = c
-
-    def setColorTable(self, colorTable):
-        pass
+        self._mapper.Update()
 
     def createTubeSection(self, element):
-        if element.cross_section in self._cachePolygon:
-            return self._cachePolygon[element.cross_section]   
-    
         NUMBER_OF_SIDES = 20
         MINIMUM_RADIUS = 0.01
+        extruderFilter = vtk.vtkLinearExtrusionFilter()
 
         if not element.cross_section:
             polygon = vtk.vtkRegularPolygonSource()
@@ -86,8 +107,11 @@ class TubeActor(vtkActorBase):
             else:
                 polygon = self.createSectionPolygon(element)
         
-        self._cachePolygon[element.cross_section] = polygon
-        return polygon
+        size = self.project.get_element_size()
+        extruderFilter.SetInputConnection(polygon.GetOutputPort())
+        extruderFilter.SetScaleFactor(size)
+        extruderFilter.Update()
+        return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
         points = vtk.vtkPoints()
@@ -108,69 +132,3 @@ class TubeActor(vtkActorBase):
         polyData.SetPolys(edges)
         triangleFilter.AddInputData(polyData)
         return triangleFilter
-    
-    def createMatrices(self):
-        scale = self.createScaleMatrices()
-        rotation = self.createRotationMatrices()
-        translation = self.createTranslationMatrices()
-        return (rotation + translation) * scale
-    
-    def createRotationMatrices(self, deform=False):
-        # this is the uglyest thing i have done in my life
-        # but it need to be very fast
-        rotation = np.array([element.directional_vectors for element in self.elements.values()])
-        rotation = rotation[:, [1,2,0]]
-        rotation = np.transpose(rotation, axes=[0,2,1])
-        rotation = np.insert(rotation, 3, values=0, axis=1) 
-        rotation = np.insert(rotation, 3, values=0, axis=2)
-        rotation[:,3,3] = 1
-        return rotation
-
-    def createTranslationMatrices(self, deform=False):
-        size = (len(self.elements), 4, 4) 
-        translation = np.zeros(size)
-        translation[:, 0:3, 3] = [el.first_node.coordinates for el in self.elements.values()]
-        return translation
-    
-    def createScaleMatrices(self, deform=False):
-        size = (len(self.elements), 4, 4) 
-        scale = np.ones(size)
-        for i, element in enumerate(self.elements.values()):
-            scale[i, :, 2] = element.length
-        return scale
-
-    def getTubeData(self, indexes, sections, matrices):
-        transformation = vtk.vtkTransform()
-        extruderFilter = vtk.vtkLinearExtrusionFilter()
-        transformPolyDataFilter = vtk.vtkTransformPolyDataFilter()
-        data = vtk.vtkPolyData()
-        appendData = vtk.vtkAppendPolyData()
-        cleanData = vtk.vtkCleanPolyData()   
-
-        transformPolyDataFilter.SetInputConnection(extruderFilter.GetOutputPort())
-        transformPolyDataFilter.SetTransform(transformation)
-        cleanData.SetInputConnection(appendData.GetOutputPort())
-
-        size = 0
-        for index, section, matrix in zip(indexes, sections, matrices):
-            extruderFilter.SetInputConnection(section.GetOutputPort())
-            transformation.SetMatrix(matrix)
-            transformPolyDataFilter.Update()
-
-            data = vtk.vtkPolyData()
-            data.ShallowCopy(transformPolyDataFilter.GetOutput())
-            appendData.AddInputData(data)
-            points = data.GetNumberOfPoints()
-            self._colorSlices[index] = (size, size+points)
-            size += points
-
-        self._colors.SetNumberOfTuples(size)     
-
-        cleanData.PointMergingOff()
-        cleanData.PieceInvariantOn()
-        cleanData.Update()
-        data.DeepCopy(cleanData.GetOutput())
-        return data
-
-
-       
