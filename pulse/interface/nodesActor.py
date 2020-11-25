@@ -24,12 +24,12 @@ class NodesActor(vtkActorBase):
         for index, node in self.nodes.items():
             x,y,z = node.x, node.y, node.z
             points.InsertNextPoint(x,y,z)
+            self._colors.InsertNextTuple((255,255,255))
         data.SetPoints(points)
 
         vertexFilter = vtk.vtkVertexGlyphFilter()
         vertexFilter.SetInputData(data)
         vertexFilter.Update()
-
         self._data.DeepCopy(vertexFilter.GetOutput())
 
     def filter(self):
@@ -46,7 +46,7 @@ class NodesActor(vtkActorBase):
 
     def setColor(self, color, keys=None):
         c = vtk.vtkUnsignedCharArray()
-        c.ShallowCopy(self._colors)
+        c.DeepCopy(self._colors)
         keys = keys if keys else self.nodes.keys()
         for key in keys:
             index = self._key_index[key]
