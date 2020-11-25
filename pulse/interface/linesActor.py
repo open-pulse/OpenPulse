@@ -20,24 +20,25 @@ class LinesActor(vtkActorBase):
         self._colors.SetNumberOfTuples(len(self.elements))
         
     def source(self):
-        for element in self.elements.values():
-            points = vtk.vtkPoints()
-            edges = vtk.vtkCellArray()
+        data = vtk.vtkPolyData()
+        points = vtk.vtkPoints()
+        lines = vtk.vtkCellArray() 
+
+        current_point = 0
+        for key, element in self.elements.items():
+            points.InsertPoint(current_point, *element.first_node.coordinates)
+            points.InsertPoint(current_point + 1, *element.last_node.coordinates)
+            
             line = vtk.vtkLine()
-            obj = vtk.vtkPolyData()
+            line.GetPointIds().SetId(0, current_point)
+            line.GetPointIds().SetId(1, current_point + 1)
 
-            points.InsertPoint(0, *element.first_node.coordinates)
-            points.InsertPoint(1, *element.last_node.coordinates)
-            line.GetPointIds().SetId(0,0)
-            line.GetPointIds().SetId(1,1)
-            edges.InsertNextCell(line)
-
-            obj.SetPoints(points)
-            obj.SetLines(edges)
-            self._source.AddInputData(obj)
-
-        self._source.Update()
-        self._data.DeepCopy(self._source.GetOutput())
+            lines.InsertNextCell(line)
+            current_point += 2  # two points are added every element
+        
+        data.SetPoints(points)
+        data.SetLines(lines)
+        self._data = data
 
     def filter(self):
         pass 
