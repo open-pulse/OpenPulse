@@ -1,10 +1,8 @@
 import vtk
 import numpy as np 
 from time import time
-from collections import defaultdict
 from scipy.spatial.transform import Rotation
 
-from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class TubeActor(vtkActorBase):
@@ -22,6 +20,7 @@ class TubeActor(vtkActorBase):
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.elements))
+        
 
     @property
     def transparent(self):
@@ -52,6 +51,8 @@ class TubeActor(vtkActorBase):
             u,v,w = element.directional_vectors
             points.InsertNextPoint(x,y,z)
             rotations.InsertNextTuple((0,0,0))
+            self._colors.InsertNextTuple((255,255,255))
+            
             if element.cross_section not in cache:
                 cache[element.cross_section] = counter
                 source = self.createTubeSection(element)
