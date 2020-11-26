@@ -7,13 +7,13 @@ import configparser
 
 from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR"
-window_title2 = "WARNING"
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
-class ElementTypeInput(QDialog):
+class StructuralElementTypeInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/elementTypeInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/structuralElementTypeInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -86,19 +86,19 @@ class ElementTypeInput(QDialog):
         self.exec_()
     
     # def reset_all(self):
-    #     temp_dict = self.project.mesh.dict_element_type_to_lines
+    #     temp_dict = self.project.mesh.dict_structural_element_type_to_lines
     #     element_type = ""
     #     for line in self.project.mesh.all_lines:
-    #         self.project.set_element_type_by_entity(line, element_type)
+    #         self.project.set_structural_element_type_by_entity(line, element_type)
 
     # def group_remove(self):
     #     key = self.lineEdit_selected_group.text()
     #     if key != "":
     #         try:
-    #             lines = self.project.mesh.dict_element_type_to_lines[key]
+    #             lines = self.project.mesh.dict_structural_element_type_to_lines[key]
     #             for line in lines:
     #                 element_type = ""
-    #                 self.project.set_element_type_by_entity(line, element_type, remove=True)
+    #                 self.project.set_structural_element_type_by_entity(line, element_type, remove=True)
     #         except Exception as error:
     #             title = "ERROR WHILE DELETING GROUP OF LINES"
     #             message = str(error)
@@ -151,7 +151,7 @@ class ElementTypeInput(QDialog):
 
     def load_element_type_info(self):
         self.treeWidget_element_type.clear()
-        for key, lines in self.project.mesh.dict_element_type_to_lines.items():
+        for key, lines in self.project.mesh.dict_structural_element_type_to_lines.items():
             new = QTreeWidgetItem([str(key), str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -202,11 +202,13 @@ class ElementTypeInput(QDialog):
         if self.flagEntity:
             if len(self.lines_id) == 0:
                 return
-            for entity in self.lines_id:
-                self.project.set_element_type_by_entity(entity, self.element_type)
+            for line in self.lines_id:
+                self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in the entities {}".format(self.lines_id))
         elif self.flagAll:
-            self.project.set_element_type_to_all(self.element_type)
+            for line in self.project.mesh.all_lines:
+                self.project.set_structural_element_type_by_entity(line, self.element_type)
+            # self.project.set_structural_element_type_to_all(self.element_type)
             print("[Set Element Type] - defined in all the entities")
         self.complete = True
         self.close()
@@ -285,7 +287,7 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        lines = self.project.mesh.dict_element_type_to_lines[self.key]
+        lines = self.project.mesh.dict_structural_element_type_to_lines[self.key]
         for line in lines:
             new = QTreeWidgetItem([str(line), self.key])
             new.setTextAlignment(0, Qt.AlignCenter)

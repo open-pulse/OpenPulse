@@ -18,7 +18,7 @@ class RendererElement(vtkRendererBase):
             text = ""
             # vertical_position_adjust = None
         elif len(listActorsIDs) == 1:
-            element = self.project.get_element(int(listActorsIDs[0]))
+            element = self.project.get_structural_element(int(listActorsIDs[0]))
             # print(int(listActorsIDs[0]))
             text = "Element ID: {}\n".format(listActorsIDs[0])
             node = element.first_node

@@ -189,12 +189,12 @@ class PlotCrossSectionInput(QDialog):
                 return None
 
             entity = self.dict_tag_to_entity[self.line_typed[0]]
-            if entity.crossSection is None:
+            if entity.cross_section is None:
                 message = "Please, define a cross-section to the \nselected line before trying to plot the section."
                 title = "Error: undefined line cross-section"
                 self.info_text = [title, message]
                 return None
-            additional_section_info = entity.crossSection.additional_section_info
+            additional_section_info = entity.cross_section.additional_section_info
     
         elif self.flagElements:
 

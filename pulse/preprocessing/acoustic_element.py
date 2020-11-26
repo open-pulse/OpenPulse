@@ -43,6 +43,8 @@ class AcousticElement:
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
+        self.element_type = kwargs.get('element_type', 'dampingless')
+        self.hysteretic_damping = kwargs.get('hysteretic_damping', None)
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)

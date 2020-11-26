@@ -30,7 +30,7 @@ class RendererMesh(vtkRendererBase):
     
     def highlight(self, obj, event):
         # selectedNodes = [self.project.get_node(i) for i in self.getListPickedPoints()]
-        # selectedElements = [self.project.get_element(i) for i in self.getListPickedElements()]
+        # selectedElements = [self.project.get_structural_element(i) for i in self.getListPickedElements()]
         selectedNodes = [self.project.mesh.nodes[i] for i in self.getListPickedPoints()]
         selectedElements = [self.project.mesh.structural_elements[i] for i in self.getListPickedElements()]
 
@@ -219,7 +219,7 @@ class RendererMesh(vtkRendererBase):
         for i in self.elementAxe:
             self._renderer.RemoveActor(i)
         if len(listSelected) == 1:
-            arrows = self.symbols.getElementAxe(self.project.get_element(listSelected[0]))
+            arrows = self.symbols.getElementAxe(self.project.get_structural_element(listSelected[0]))
             self.elementAxe = arrows
             for i in self.elementAxe:
                 self._renderer.AddActor(i)
@@ -389,9 +389,10 @@ class RendererMesh(vtkRendererBase):
         listSelected = self.getListPickedElements()
         text = ''
         if len(listSelected) == 1:
-            element = self.project.get_element(listSelected[0])
+            structural_element = self.project.get_structural_element(listSelected[0])
+            acoustic_element = self.project.get_acoustic_element(listSelected[0])
             
-            if element.cross_section is None: 
+            if structural_element.cross_section is None: 
                 external_diameter = 'undefined'
                 thickness = 'undefined'
                 offset_y = 'undefined'
@@ -399,51 +400,51 @@ class RendererMesh(vtkRendererBase):
                 insulation_thickness = 'undefined'
                 insulation_density = 'undefined'
             else:
-                external_diameter = element.cross_section.external_diameter
-                thickness = element.cross_section.thickness
-                offset_y = element.cross_section.offset_y
-                offset_z = element.cross_section.offset_z
-                insulation_thickness = element.cross_section.insulation_thickness
-                insulation_density = element.cross_section.insulation_density
+                external_diameter = structural_element.cross_section.external_diameter
+                thickness = structural_element.cross_section.thickness
+                offset_y = structural_element.cross_section.offset_y
+                offset_z = structural_element.cross_section.offset_z
+                insulation_thickness = structural_element.cross_section.insulation_thickness
+                insulation_density = structural_element.cross_section.insulation_density
             
-            if element.material is None:
+            if structural_element.material is None:
                 material = 'undefined'
             else:
-                material = element.material.name.upper()
+                material = structural_element.material.name.upper()
 
-            if element.fluid is None:
+            if structural_element.fluid is None:
                 fluid = 'undefined'
             else:
-                fluid = element.fluid.name.upper()
+                fluid = structural_element.fluid.name.upper()
 
-            if element.element_type is None:
-                e_type = 'undefined'
-            elif 'BEAM' in element.element_type.upper():
+            if structural_element.element_type is None:
+                structural_element_type = 'undefined'
+            elif 'BEAM' in structural_element.element_type.upper():
 
-                area = element.cross_section.area
-                Iyy = element.cross_section.second_moment_area_y
-                Izz = element.cross_section.second_moment_area_z
-                Iyz = element.cross_section.second_moment_area_yz
-                additional_section_info = element.cross_section.additional_section_info
+                area = structural_element.cross_section.area
+                Iyy = structural_element.cross_section.second_moment_area_y
+                Izz = structural_element.cross_section.second_moment_area_z
+                Iyz = structural_element.cross_section.second_moment_area_yz
+                additional_section_info = structural_element.cross_section.additional_section_info
 
                 if additional_section_info is None:
-                    e_type = "{} (-)".format(element.element_type.upper())
+                    structural_element_type = "{} (-)".format(structural_element.element_type)
                 else:
-                    e_type = "{} ({})".format(element.element_type.upper(), additional_section_info[0].capitalize())
+                    structural_element_type = "{} ({})".format(structural_element.element_type, additional_section_info[0].capitalize())
 
             else:
-                e_type = element.element_type.upper()
+                structural_element_type = structural_element.element_type
 
-            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.first_node.x, element.first_node.y, element.first_node.z)
-            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(element.last_node.x, element.last_node.y, element.last_node.z)
+            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.first_node.x, structural_element.first_node.y, structural_element.first_node.z)
+            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.last_node.x, structural_element.last_node.y, structural_element.last_node.z)
 
             text += f'Element ID: {listSelected[0]} \n'
-            text += f'First Node ID: {element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
-            text += f'Last Node ID: {element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n\n'
+            text += f'First Node ID: {structural_element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
+            text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n\n'
             text += f'Material: {material} \n'
-            text += f'Element Type: {e_type} \n'
+            text += f'Strutural element type: {structural_element_type} \n'
             
-            if "PIPE" in e_type:        
+            if "PIPE" in structural_element_type:        
                 text += f'Diameter: {external_diameter} [m]\n'
                 text += f'Thickness: {thickness} [m]\n'
                 if offset_y != 0 or offset_z != 0:
@@ -453,14 +454,18 @@ class RendererMesh(vtkRendererBase):
                     text += f'Insulation thickness: {insulation_thickness} [m]\n'
                     text += f'Insulation density: {insulation_density} [kg/m³]\n'
 
-            elif "BEAM" in e_type:
+            elif "BEAM" in structural_element_type:
                 text += 'Area:  {} [m²]\n'.format(area)
                 text += 'Iyy:  {} [m^4]\n'.format(Iyy)
                 text += 'Izz:  {} [m^4]\n'.format(Izz)
                 text += 'Iyz:  {} [m^4]\n'.format(Iyz)
             
-            if element.fluid is not None:
+            if structural_element.fluid is not None:
                 text += f'\nFluid: {fluid} \n'
+            if acoustic_element.element_type is not None:
+                text += f'Acoustic element type: {acoustic_element.element_type} \n'
+            if acoustic_element.hysteretic_damping is not None:
+                text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
 
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'

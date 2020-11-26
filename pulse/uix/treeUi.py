@@ -24,7 +24,7 @@ class TreeUi(QTreeWidget):
 
     def _createNames(self):
         self.name_top_structuralmodelSetup = "Structural Model Setup"
-        self.name_child_setElementType = "Set Element Type"
+        self.name_child_setStructuralElementType = "Set Structural Element Type"
         self.name_child_setRotationDecoupling = "Set Rotation Decoupling (B2PX)"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
@@ -36,6 +36,7 @@ class TreeUi(QTreeWidget):
         self.name_child_add_elastic_nodal_links = "Add Elastic Nodal Links"
 
         self.name_top_acousticmodelSetup = "Acoustic Model Setup"
+        self.name_child_setAcousticElementType = "Set Acoustic Element Type"
         self.name_child_set_fluid = "Set Fluid"
         self.name_child_setAcousticPressure = "Set Acoustic Pressure"
         self.name_child_setVolumeVelocity = "Set Volume Velocity"
@@ -105,7 +106,7 @@ class TreeUi(QTreeWidget):
 
     def _createItems(self):
         self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
-        self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
+        self.item_child_setStructuralElementType = QTreeWidgetItem([self.name_child_setStructuralElementType])
         self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
         self.item_child_set_material = QTreeWidgetItem([self.name_child_set_material])
         self.item_child_set_crossSection = QTreeWidgetItem([self.name_child_set_crossSection])
@@ -117,6 +118,7 @@ class TreeUi(QTreeWidget):
         self.item_child_add_elastic_nodal_links = QTreeWidgetItem([self.name_child_add_elastic_nodal_links])
 
         self.item_top_acousticmodelSetup = QTreeWidgetItem([self.name_top_acousticmodelSetup])
+        self.item_child_setAcousticElementType = QTreeWidgetItem([self.name_child_setAcousticElementType])
         self.item_child_set_fluid = QTreeWidgetItem([self.name_child_set_fluid])
         self.item_child_setAcousticPressure = QTreeWidgetItem([self.name_child_setAcousticPressure])
         self.item_child_setVolumeVelocity = QTreeWidgetItem([self.name_child_setVolumeVelocity])
@@ -177,7 +179,7 @@ class TreeUi(QTreeWidget):
 
         # Font setup - internal items
 
-        self.item_child_setElementType.setFont(0, self.font_internal)
+        self.item_child_setStructuralElementType.setFont(0, self.font_internal)
         self.item_child_setRotationDecoupling.setFont(0, self.font_internal)
         self.item_child_set_material.setFont(0, self.font_internal)
         self.item_child_set_crossSection.setFont(0, self.font_internal)
@@ -188,6 +190,7 @@ class TreeUi(QTreeWidget):
         self.item_child_set_stress_stiffening.setFont(0, self.font_internal)
         self.item_child_add_elastic_nodal_links.setFont(0, self.font_internal)
 
+        self.item_child_setAcousticElementType.setFont(0, self.font_internal)
         self.item_child_set_fluid.setFont(0, self.font_internal)
         self.item_child_setAcousticPressure.setFont(0, self.font_internal)
         self.item_child_setVolumeVelocity.setFont(0, self.font_internal)
@@ -213,12 +216,12 @@ class TreeUi(QTreeWidget):
         self.item_child_plotAcousticFrequencyResponse.setFont(0, self.font_internal)
         self.item_child_plot_TL_NR.setFont(0, self.font_internal)
 
-        # self.item_child_setElementType.setDisabled(True)
+        # self.item_child_setStructuralElementType.setDisabled(True)
         #self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
-        self.addTopLevelItem(self.item_child_setElementType)
+        self.addTopLevelItem(self.item_child_setStructuralElementType)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
@@ -229,7 +232,8 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_set_stress_stiffening)
         self.addTopLevelItem(self.item_child_add_elastic_nodal_links)
 
-        self.addTopLevelItem(self.item_top_acousticmodelSetup)      
+        self.addTopLevelItem(self.item_top_acousticmodelSetup)  
+        self.addTopLevelItem(self.item_child_setAcousticElementType)    
         self.addTopLevelItem(self.item_child_set_fluid)             
         self.addTopLevelItem(self.item_child_setAcousticPressure) 
         self.addTopLevelItem(self.item_child_setVolumeVelocity)     
@@ -261,8 +265,8 @@ class TreeUi(QTreeWidget):
     def on_click_item(self, item, column):
         self.mainWindow.getInputWidget().beforeInput()
 
-        if item.text(0) == self.name_child_setElementType:
-            self.mainWindow.getInputWidget().setElementType()
+        if item.text(0) == self.name_child_setStructuralElementType:
+            self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item.text(0) == self.name_child_set_material:
             self.mainWindow.plot_entities()
@@ -299,6 +303,9 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_add_elastic_nodal_links:
             self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
+
+        elif item.text(0) == self.name_child_setAcousticElementType:
+            self.mainWindow.getInputWidget().set_acoustic_element_type()
 
         elif item.text(0) == self.name_child_set_fluid: 
             self.mainWindow.plot_entities()

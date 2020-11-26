@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>343</height>
+    <height>383</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,20 +22,20 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>343</height>
+    <height>383</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>343</height>
+    <height>383</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: Element Type</string>
+   <string> Set: Acoustic Element Type</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>56</y>
      <width>400</width>
-     <height>287</height>
+     <height>327</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -58,13 +58,13 @@
    <property name="minimumSize">
     <size>
      <width>400</width>
-     <height>287</height>
+     <height>327</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>400</width>
-     <height>287</height>
+     <height>327</height>
     </size>
    </property>
    <property name="font">
@@ -79,25 +79,25 @@
    <property name="frameShadow">
     <enum>QFrame::Plain</enum>
    </property>
-   <widget class="QTabWidget" name="tabWidget_element_type">
+   <widget class="QTabWidget" name="tabWidget_general">
     <property name="geometry">
      <rect>
       <x>10</x>
       <y>10</y>
       <width>383</width>
-      <height>267</height>
+      <height>309</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>383</width>
-      <height>0</height>
+      <height>309</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>383</width>
-      <height>16777215</height>
+      <height>309</height>
      </size>
     </property>
     <property name="font">
@@ -112,110 +112,15 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_setup">
      <attribute name="title">
       <string>Setup</string>
      </attribute>
-     <widget class="QComboBox" name="comboBox">
-      <property name="geometry">
-       <rect>
-        <x>146</x>
-        <y>134</y>
-        <width>85</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="layoutDirection">
-       <enum>Qt::LeftToRight</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
-      <property name="currentText">
-       <string>Pipe 1</string>
-      </property>
-      <property name="currentIndex">
-       <number>0</number>
-      </property>
-      <property name="maxCount">
-       <number>500</number>
-      </property>
-      <property name="insertPolicy">
-       <enum>QComboBox::InsertAtBottom</enum>
-      </property>
-      <property name="sizeAdjustPolicy">
-       <enum>QComboBox::AdjustToMinimumContentsLength</enum>
-      </property>
-      <property name="duplicatesEnabled">
-       <bool>false</bool>
-      </property>
-      <item>
-       <property name="text">
-        <string>Pipe 1</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Pipe 2</string>
-       </property>
-      </item>
-      <item>
-       <property name="text">
-        <string>Beam_1</string>
-       </property>
-      </item>
-     </widget>
-     <widget class="QLabel" name="label_2">
-      <property name="geometry">
-       <rect>
-        <x>64</x>
-        <y>78</y>
-        <width>249</width>
-        <height>32</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="midLineWidth">
-       <number>0</number>
-      </property>
-      <property name="text">
-       <string>Choose an element type:</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_confirm">
       <property name="geometry">
        <rect>
-        <x>128</x>
-        <y>184</y>
+        <x>130</x>
+        <y>234</y>
         <width>121</width>
         <height>32</height>
        </rect>
@@ -252,7 +157,7 @@
       <property name="geometry">
        <rect>
         <x>136</x>
-        <y>22</y>
+        <y>20</y>
         <width>220</width>
         <height>30</height>
        </rect>
@@ -296,7 +201,7 @@ color: rgb(0, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>14</x>
-        <y>24</y>
+        <y>22</y>
         <width>120</width>
         <height>26</height>
        </rect>
@@ -332,8 +237,305 @@ color: rgb(0, 0, 0);</string>
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
+     <widget class="QTabWidget" name="tabWidget_element_type">
+      <property name="geometry">
+       <rect>
+        <x>16</x>
+        <y>70</y>
+        <width>349</width>
+        <height>147</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_type">
+       <attribute name="title">
+        <string>Type</string>
+       </attribute>
+       <widget class="QLabel" name="label_2">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>18</y>
+          <width>305</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string>Choose an acoustic element type:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox">
+        <property name="geometry">
+         <rect>
+          <x>72</x>
+          <y>68</y>
+          <width>200</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>200</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;justify&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LeftToRight</enum>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="currentText">
+         <string>  Dampingless</string>
+        </property>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
+        <property name="maxCount">
+         <number>500</number>
+        </property>
+        <property name="insertPolicy">
+         <enum>QComboBox::InsertAtBottom</enum>
+        </property>
+        <property name="sizeAdjustPolicy">
+         <enum>QComboBox::AdjustToMinimumContentsLength</enum>
+        </property>
+        <property name="duplicatesEnabled">
+         <bool>false</bool>
+        </property>
+        <item>
+         <property name="text">
+          <string>  Dampingless</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>  Hysteretic</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>  Wide-duct</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>  LRF fluid equivalent</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>  LRF full</string>
+         </property>
+        </item>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_damping">
+       <attribute name="title">
+        <string>Damping</string>
+       </attribute>
+       <widget class="QLabel" name="label_18">
+        <property name="geometry">
+         <rect>
+          <x>238</x>
+          <y>70</y>
+          <width>70</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>70</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>[unit]</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_109">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>38</x>
+          <y>70</y>
+          <width>90</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>90</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>90</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;hysteretic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_hysteretic_damping">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>132</x>
+          <y>70</y>
+          <width>100</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>100</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_5">
+        <property name="geometry">
+         <rect>
+          <x>26</x>
+          <y>18</y>
+          <width>295</width>
+          <height>32</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
+        </property>
+        <property name="midLineWidth">
+         <number>0</number>
+        </property>
+        <property name="text">
+         <string>Insert a value to the damping:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </widget>
+     </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="tab_details">
      <attribute name="title">
       <string>Details</string>
      </attribute>
@@ -397,7 +599,7 @@ color: rgb(0, 0, 0);</string>
         <family>Arial</family>
         <pointsize>10</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -406,19 +608,41 @@ color: rgb(0, 0, 0);</string>
       </property>
       <column>
        <property name="text">
-        <string>Element type</string>
+        <string>ELEMENT TYPE</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
       <column>
        <property name="text">
-        <string>Lines</string>
+        <string>LINES</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
      </widget>
      <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
-        <x>58</x>
+        <x>28</x>
         <y>16</y>
         <width>80</width>
         <height>26</height>
@@ -461,21 +685,21 @@ color: rgb(0, 0, 0);</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>140</x>
+        <x>110</x>
         <y>14</y>
-        <width>150</width>
+        <width>220</width>
         <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>150</width>
+        <width>220</width>
         <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>150</width>
+        <width>220</width>
         <height>30</height>
        </size>
       </property>

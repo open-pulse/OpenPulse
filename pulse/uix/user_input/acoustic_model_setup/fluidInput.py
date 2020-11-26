@@ -1,9 +1,9 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView
+from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+from time import time
 
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
@@ -21,7 +21,7 @@ def getColorRGB(color):
 class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/newFluidlnput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/fluidlnput.ui', self)
         
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -47,10 +47,22 @@ class FluidInput(QDialog):
         self.temp_fluid_color = ""
 
         self.treeWidget_fluids = self.findChild(QTreeWidget, 'treeWidget_fluids')
-        for col_index, width in enumerate([140, 50, 80, 170, 180]):
+        header = self.treeWidget_fluids.headerItem()
+        
+        fnt = QFont()
+        fnt.setPointSize(11)
+        fnt.setBold(True)
+        # fnt.setItalic(True)
+        fnt.setFamily("Arial")
+
+        for col_index, width in enumerate([140, 50, 80, 170, 180, 172]):
             self.treeWidget_fluids.setColumnWidth(col_index, width)
+            header.setFont(col_index, fnt)
+            # header.setBackground(col_index, QBrush(QColor(200, 200, 200)))
+            # header.setForeground(col_index, QBrush(QColor(200, 200, 200)))
         for col_index in [6,7,8,9]:
             self.treeWidget_fluids.hideColumn(col_index)
+        #
         self.treeWidget_fluids.itemClicked.connect(self.on_click_item)
         self.treeWidget_fluids.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
@@ -482,14 +494,14 @@ class FluidInput(QDialog):
                     return
                 for entity in self.entities_id:
                     self.project.set_fluid_by_entity(entity, self.fluid)
+                    
                 print("[Set Fluid] - {} defined in the entities {}".format(self.fluid.name, self.entities_id))
                 self.opv.changeColorEntities(self.entities_id, self.fluid.getNormalizedColorRGB())
             
             elif self.flagAll:
-                self.project.set_fluid(self.fluid)
-                entities = []
-                for entity in self.project.get_entities():
-                    entities.append(entity.get_tag())
+                self.project.set_fluid_to_all_entities(self.fluid)
+                entities = self.project.mesh.all_lines
+
                 print("[Set Fluid] - {} defined in all entities".format(self.fluid.name))
                 self.opv.changeColorEntities(entities, self.fluid.getNormalizedColorRGB())
 
@@ -551,7 +563,9 @@ class FluidInput(QDialog):
                 load_fluid.setForeground(2, QBrush(QColor(colorRGB[0], colorRGB[1], colorRGB[2])))
                 for i in range(6):
                     load_fluid.setTextAlignment(i, Qt.AlignCenter)
+                    # load_fluid.setForeground(i, QColor(0,0,0))
                 self.treeWidget_fluids.addTopLevelItem(load_fluid)
+
         except Exception as err:
             title = "Error while loading the fluid list data"
             message = str(err)
@@ -566,22 +580,48 @@ class FluidInput(QDialog):
         self.editing = False
         self.check_add_edit( parameters )
 
+    def hightlight(self):
+        self.treeWidget_fluids.setStyleSheet("color:rgb(0, 0, 255)")
+        self.treeWidget_fluids.setLineWidth(2)
+
+    def remove_hightlight(self):
+        self.treeWidget_fluids.setStyleSheet("color:rgb(0, 0, 0)")
+        self.treeWidget_fluids.setLineWidth(1)
+    #     t0 = time()
+    #     dt = 0
+    #     while dt < 2:
+    #         dt = time() - t0
+    #     self.treeWidget_fluids.setStyleSheet("color:rgb(0, 0, 0)")
+    #     self.treeWidget_fluids.setLineWidth(1)
+
     def check_edit_fluid(self):
         if self.lineEdit_name_edit.text() == "":
             title = "Empty fluid selection"
             message = "Please, select a fluid in the list to be edited."
             PrintMessageInput([title, message, window_title2])
+            self.hightlight()
             return
         parameters = []
         for lineEdit in self.list_edit_lineEdit:
             parameters.append(lineEdit.text())
         self.adding = False
         self.editing = True
+        self.remove_hightlight()
         self.check_add_edit( parameters )    
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_entity.isChecked()
+        if self.flagEntity:
+            self.lineEdit_selected_ID.setEnabled(True)
+            self.entities_id = self.opv.getListPickedEntities()
+            if self.entities_id != []:
+                self.write_entities(self.entities_id)
+            else:
+                self.lineEdit_selected_ID.setText("")
+        elif self.flagAll:
+            self.lineEdit_selected_ID.setEnabled(False)
+            self.lineEdit_selected_ID.setText("All lines")
 
     def on_click_item(self, item):
         # self.current_index = self.tabWidget_fluid.currentIndex()
@@ -618,6 +658,8 @@ class FluidInput(QDialog):
                 title = "Empty fluid selection"
                 message = "Please, select a fluid in the list before confirm the removal."
                 PrintMessageInput([title, message, window_title2])
+                self.hightlight()
+                return
 
             else:
                 config = configparser.ConfigParser()
@@ -634,6 +676,7 @@ class FluidInput(QDialog):
                 self.clicked_item = None
                 self.loadList()
                 self.reset_remove_texts() 
+                self.remove_hightlight()
 
         except Exception as err:
             title = "Error with the material removal"

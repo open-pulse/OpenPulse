@@ -210,17 +210,10 @@ class ProjectFile:
 
     def create_entity_file(self, entities):
         config = configparser.ConfigParser()
-        for entity in entities:
-            config[str(entity.get_tag())] = {
-                'material id': '',
-                'outer diameter': '',
-                'thickness': '',
-                'offset [e_y, e_z]': '',
-                'insulation thickness': '',
-                'insulation density': '',
-                'element type': '',
-                'fluid id': ''
-            }
+        for entity_id in entities:
+            # config[str(entity.get_tag())] = {}
+            config[str(entity_id)] = {}
+
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
     
@@ -240,7 +233,8 @@ class ProjectFile:
    
         self.dict_material = {}
         self.dict_cross = {}
-        self.dict_element_type = {}
+        self.dict_structural_element_type = {}
+        self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
         self.dict_length_correction = {}
         self.temp_dict = {}
@@ -252,15 +246,25 @@ class ProjectFile:
 
         for entity in entityFile.sections():
 
-            if 'element type' in entityFile[entity].keys():
-
-                element_type = entityFile[entity]['Element Type']
-
-                if element_type != "":
-                    self.dict_element_type[int(entity)] = element_type
+            if 'structural element type' in entityFile[entity].keys():
+                structural_element_type = entityFile[entity]['structural element type']
+                if structural_element_type != "":
+                    self.dict_structural_element_type[int(entity)] = structural_element_type
                     self.element_type_is_structural = True
                 else:
-                    self.dict_element_type[int(entity)] = 'pipe_1'
+                    self.dict_structural_element_type[int(entity)] = 'pipe_1'
+            
+            if 'acoustic element type' in entityFile[entity].keys():
+                acoustic_element_type = entityFile[entity]['acoustic element type']
+                if acoustic_element_type != "":
+                    if acoustic_element_type == 'hysteretic':
+                        hysteretic_damping = entityFile[entity]['hysteretic damping']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(hysteretic_damping)]
+                    else:
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None]
+                    self.element_type_is_acoustic = True
+                else:
+                    self.dict_acoustic_element_type[int(entity)] = 'dampingless'
 
             diam_ext = ""
             thickness = ""
@@ -696,27 +700,35 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_element_type_in_file(self, entity_id, element_type):
+    def modify_structural_element_type_in_file(self, entity_id, element_type):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        config[str(entity_id)]['structural element type'] = element_type
+
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
+
+    def modify_acoustic_element_type_in_file(self, entity_id, element_type, hysteretic_damping=None):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['element type'] = element_type
-        else:
-            config[str(entity_id)] = { 'element type': element_type }   
+        _section = str(entity_id)
 
+        config[_section]['acoustic element type'] = element_type
+        if element_type == 'hysteretic':
+            config[_section]['hysteretic damping'] = str(hysteretic_damping)
+            
+        if element_type != 'hysteretic' and 'hysteretic damping' in config[_section].keys():
+            config.remove_option(section=_section, option='hysteretic damping')  
+    
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
     def add_material_in_file(self, entity_id, material_id):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        if str(entity_id) in list(config.sections()):
-            config[str(entity_id)]['material id'] = str(material_id)
-        else:
-            config[str(entity_id)] = { 
-                                        'material id': str(material_id)
-                                     }            
+        config[str(entity_id)]['material id'] = str(material_id)
+        
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
@@ -741,7 +753,6 @@ class ProjectFile:
         self.dict_elastic_link_damping = {}
 
         for node in node_structural_list.sections():
-            # if "CONNECTING LINKS" in node:
             try:
                 node_id = int(node)
             except:

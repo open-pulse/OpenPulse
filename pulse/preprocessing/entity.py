@@ -7,8 +7,10 @@ class Entity:
         self.elements = []
         self.material = None
         self.fluid = None
-        self.crossSection = None
-        self.element_type = None
+        self.cross_section = None
+        self.acoustic_element_type = None
+        self.hysteretic_damping = None
+        self.structural_element_type = None
         self.additional_section_info = None
         self.capped_end = None
         self.length_correction = None
@@ -43,10 +45,10 @@ class Entity:
         return self.material.getNormalizedColorRGB()
 
     def getCrossSection(self):
-        return self.crossSection
+        return self.cross_section
     
     def getElementType(self):
-        return self.element_type
+        return self.structural_element_type
 
     def getMaterial(self):
         return self.material

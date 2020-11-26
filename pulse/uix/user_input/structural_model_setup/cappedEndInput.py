@@ -33,9 +33,9 @@ class CappedEndInput(QDialog):
 
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
-        self.entities = self.project.mesh.entities
+        # self.entities = self.project.mesh.entities
         self.complete = False
-        self.info_text = ["NO MESSAGE", "No message", "NO MESSAGE"]
+        self.info_text = ["NO MESSAGE", "NO MESSAGE", "NO MESSAGE"]
 
         self.project_lines = {}
         for line in self.project.mesh.all_lines:

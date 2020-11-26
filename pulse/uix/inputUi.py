@@ -3,7 +3,7 @@ from pulse.uix.user_input.project.newProjectInput import NewProjectInput
 from pulse.uix.user_input.project.loadProjectInput import LoadProjectInput
 from pulse.uix.user_input.project.getStartedInput import GetStartedInput
 #
-from pulse.uix.user_input.structural_model_setup.elementTypeInput import ElementTypeInput
+from pulse.uix.user_input.structural_model_setup.structuralElementTypeInput import StructuralElementTypeInput
 from pulse.uix.user_input.structural_model_setup.materialInput import MaterialInput
 from pulse.uix.user_input.structural_model_setup.crossSectionInput import CrossSectionInput
 from pulse.uix.user_input.structural_model_setup.dofInput import DOFInput
@@ -14,6 +14,7 @@ from pulse.uix.user_input.structural_model_setup.cappedEndInput import CappedEnd
 from pulse.uix.user_input.structural_model_setup.stressStiffeningInput import StressStiffeningInput
 from pulse.uix.user_input.structural_model_setup.elasticNodalLinksInput import ElasticNodalLinksInput
 #
+from pulse.uix.user_input.acoustic_model_setup.acousticElementTypeInput import AcousticElementTypeInput
 from pulse.uix.user_input.acoustic_model_setup.fluidInput import FluidInput
 from pulse.uix.user_input.acoustic_model_setup.acousticpressureInput import AcousticPressureInput
 from pulse.uix.user_input.acoustic_model_setup.volumevelocityInput import VolumeVelocityInput
@@ -54,6 +55,7 @@ from time import time
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
+
 class InputUi:
     def __init__(self, project, parent=None):
         self.project = project
@@ -94,8 +96,8 @@ class InputUi:
         getStarted = GetStartedInput(self.project, config, self)
         return getStarted.draw
 
-    def setElementType(self):
-        read = ElementTypeInput(self.project, self.opv)
+    def setStructuralElementType(self):
+        read = StructuralElementTypeInput(self.project, self.opv)
         if read.complete:           
             if read.update_cross_section:
                 self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
@@ -121,16 +123,10 @@ class InputUi:
         else:
             self.project.set_material(mat.material)
             entities = []
-            for entity in self.project.get_entities():
+            for entity in self.project.entities:#get_entities():
                 entities.append(entity.get_tag())
             print("[Set Material] - {} defined in all entities".format(mat.material.name))
             self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
-
-    def set_fluid(self):
-        
-        fld = FluidInput(self.project, self.opv)
-        if fld.fluid is None:
-            return
             
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
         read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
@@ -143,7 +139,7 @@ class InputUi:
                 return
             for line in read.lines_typed:
                 self.project.set_cross_section_by_entity(line, read.cross_section)
-                self.project.set_element_type_by_entity(line, read.element_type)
+                self.project.set_structural_element_type_by_entity(line, read.element_type)
             print("[Set Cross-section] - defined at lines {}".format(read.lines_typed))
 
         elif read.flagElements:
@@ -156,7 +152,7 @@ class InputUi:
 
         else:
             self.project.set_cross_section_to_all(read.cross_section)
-            self.project.set_element_type_to_all(read.element_type)
+            self.project.set_structural_element_type_to_all(read.element_type)
             print("[Set Cross-section] - defined at all lines")
             
         self.opv.updateEntityRadius()
@@ -205,6 +201,16 @@ class InputUi:
     def add_elastic_nodal_links(self):
         ElasticNodalLinksInput(self.project, self.opv)
         return
+
+    def set_acoustic_element_type(self):
+        read = AcousticElementTypeInput(self.project, self.opv)
+        if not read.complete:
+            return
+
+    def set_fluid(self):
+        fld = FluidInput(self.project, self.opv)
+        if fld.fluid is None:
+            return
 
     def setAcousticPressure(self):
         read = AcousticPressureInput(self.project, self.opv, self.opv.transformPoints)
