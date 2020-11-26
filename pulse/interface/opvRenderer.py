@@ -8,6 +8,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
+from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 class opvRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -20,9 +21,10 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.entitiesBounds = dict()
 
-        self.opvTubes = None 
         self.opvNodes = None 
         self.opvLines = None
+        self.opvTubes = None 
+        self.opvDeformedTubes = None
 
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
@@ -33,18 +35,26 @@ class opvRenderer(vtkRendererBase):
         self.saveNodesBounds()
         self.saveElementsBounds()
 
-        self.opvTubes = TubeActor(self.project.get_elements(), self.project)
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_elements(), self.project)
+        self.opvTubes = TubeActor(self.project.get_elements(), self.project)
+        self.opvDeformedTubes = TubeDeformedActor(self.project.get_elements(), self.project)
 
         self.opvTubes.build()
         self.opvNodes.build()
         self.opvLines.build()
-        
+        try:
+            self.opvDeformedTubes.build()
+        except Exception as e:
+            print(e)
+
+        self.opvTubes.transparent = False
+            
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvTubes)
         plt(self.opvNodes)
         plt(self.opvLines)
+        plt(self.opvDeformedTubes)
         print('current', time()-s)
     
     def reset(self):
@@ -135,11 +145,14 @@ class opvRenderer(vtkRendererBase):
             text = ''
         return text
     
-    def getElementsInfoText(self):
+    def getElementsInfoText(self, *args, **kwargs):
         pass
     
-    def getEntityInfoText(self):
+    def getEntityInfoText(self, *args, **kwargs):
         pass 
 
-    def getPlotRadius(self):
-        return False
+    def getPlotRadius(self, *args, **kwargs):
+        return 
+    
+    def changeColorEntities(self, *args, **kwargs):
+        return 
