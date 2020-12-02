@@ -193,31 +193,28 @@ class NewProjectInput(QDialog):
         elif "/" in self.project_directory:
             self.project_file_path = '{}/{}'.format(self.project_folder_path, self.projectFileName)
 
-        geometry_file_name = ""
-        cord_file_name = ""
-        conn_file_name = ""
-        element_size = 0
+        config = configparser.ConfigParser()
+        config['PROJECT'] = {}
+        config['PROJECT']['Name'] = self.line_project_name.text()
 
         if self.currentTab == 0:
             geometry_file_name = self.line_import_geometry.text().split('/')[-1]
-            import_type = 0
             element_size = self.line_element_size.text()
+
+            config['PROJECT']['Import type'] = str(0)
+            config['PROJECT']['Element size'] = str(element_size)
+            config['PROJECT']['Geometry file'] = geometry_file_name
+
         elif self.currentTab == 1:
-            cord_file_name = self.line_import_cord.text().split('/')[-1]
-            conn_file_name = self.line_import_conn.text().split('/')[-1]
-            import_type = 1
-
-        config = configparser.ConfigParser()
-        config['PROJECT'] = {
-                            'Name': self.line_project_name.text(),
-                            'Element Size': str(element_size),
-                            'Import Type': str(import_type),
-                            'Geometry File': geometry_file_name,
-                            'Cord File': cord_file_name,
-                            'Conn File': conn_file_name,
-                            'MaterialList File': self.materialListName,
-                            'FluidList File': self.fluidListName }
-
+            nodal_coordinates_filename = self.line_import_cord.text().split('/')[-1]
+            connectivity_matrix_filename = self.line_import_conn.text().split('/')[-1]
+            config['PROJECT']['Import type'] = str(1)
+            config['PROJECT']['Nodal coordinates file'] = nodal_coordinates_filename
+            config['PROJECT']['Connectivity matrix file'] = connectivity_matrix_filename
+        
+        config['PROJECT']['Material list file'] = self.materialListName
+        config['PROJECT']['Fluid list file'] = self.fluidListName
+        
         with open(self.project_file_path, 'w') as config_file:
             config.write(config_file)
 

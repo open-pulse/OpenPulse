@@ -35,8 +35,8 @@ class FluidInput(QDialog):
         self.project = project
         self.fluid_path = project.get_fluid_list_path()
         self.entities_id = opv.getListPickedEntities()
-        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
-        
+        # self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_entities
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
@@ -281,7 +281,6 @@ class FluidInput(QDialog):
                 return True
             self.dict_inputs['color'] = color_string
        
-
     def check_input_lines(self):
         
         try:
@@ -305,13 +304,27 @@ class FluidInput(QDialog):
             
         try:
             for line in self.lines_typed:
-                self.line = self.dict_tag_to_entity[line]
+                entity = self.dict_tag_to_entity[line]
+                if entity.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                    self.flag_all_inputs = True
+                    pass
         except Exception:
             title = "Error: invalid Line ID"
             message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
             self.info_text = [title, message, window_title1]
             return True
         return False
+
+    def check_element_type_of_entities(self):
+        self.flag_all_inputs = False
+        if self.flagEntity:
+            if self.check_input_lines():
+                PrintMessageInput(self.info_text)
+                return True
+        elif self.flagAll:
+            entity_id = self.project.mesh.all_lines
+            if self.dict_tag_to_entity[entity_id[0]].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                self.flag_all_inputs = True
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -454,6 +467,8 @@ class FluidInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
         
+        self.check_element_type_of_entities()
+        
         try:
             isentropic_exponent = None
             thermal_conductivity = None
@@ -466,15 +481,35 @@ class FluidInput(QDialog):
             fluid_density = float(self.clicked_item.text(3))
             speed_of_sound = float(self.clicked_item.text(4))
             # impedance = float(self.clicked_item.text(5)) # internal calculation
+            message = "Please, update the fluid properties or select another fluid in the list before trying to attribute a fluid to the entities."
             
             if self.clicked_item.text(6) != "":
                 isentropic_exponent = float(self.clicked_item.text(6))
+            elif self.flag_all_inputs:
+                title = "Empty entry to the isentropic exponent"
+                PrintMessageInput([title, message, window_title1])
+                return
+
             if self.clicked_item.text(7) != "":
                 thermal_conductivity = float(self.clicked_item.text(7))
+            elif self.flag_all_inputs:
+                title = "Empty entry to the thermal conductivity"
+                PrintMessageInput([title, message, window_title1])
+                return
+
             if self.clicked_item.text(8) != "":
                 specific_heat_Cp = float(self.clicked_item.text(8))
+            elif self.flag_all_inputs:
+                title = "Empty entry to the specific heat Cp"
+                PrintMessageInput([title, message, window_title1])
+                return
+
             if self.clicked_item.text(9) != "":
                 dynamic_viscosity = float(self.clicked_item.text(9))
+            elif self.flag_all_inputs:
+                title = "Empty entry to the dynamic viscosity"
+                PrintMessageInput([title, message, window_title1])
+                return                
             
             self.fluid = Fluid( name, 
                                 fluid_density, 
@@ -487,9 +522,7 @@ class FluidInput(QDialog):
                                 dynamic_viscosity = dynamic_viscosity )
 
             if self.flagEntity:
-                if self.check_input_lines():
-                    PrintMessageInput(self.info_text)
-                    return True
+
                 if len(self.entities_id) == 0:
                     return
                 for entity in self.entities_id:
@@ -499,6 +532,7 @@ class FluidInput(QDialog):
                 self.opv.changeColorEntities(self.entities_id, self.fluid.getNormalizedColorRGB())
             
             elif self.flagAll:
+
                 self.project.set_fluid_to_all_entities(self.fluid)
                 entities = self.project.mesh.all_lines
 
@@ -507,12 +541,12 @@ class FluidInput(QDialog):
 
             self.close()
 
-        except Exception as e:
+        except Exception as err:
             title = "Error with the fluid list data"
-            message = str(e)
+            message = str(err)
             PrintMessageInput([title, message, window_title1])
             return
-            
+
     def loadList(self):
 
         self.list_names = []
