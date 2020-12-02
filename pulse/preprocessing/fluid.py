@@ -27,6 +27,18 @@ class Fluid:
     def bulk_modulus(self):
         return self.density * self.speed_of_sound**2
 
+    @property
+    def kinematic_viscosity(self):
+        return self.dynamic_viscosity / self.density
+
+    @property
+    def thermal_diffusivity(self):
+        return self.thermal_conductivity / (self.density * self.specific_heat_Cp) 
+
+    @property
+    def prandtl(self):
+        return self.specific_heat_Cp * self.dynamic_viscosity / self.thermal_conductivity
+
     def getColorRGB(self):
         temp = self.color[1:-1] #Remove "[ ]"
         tokens = temp.split(',')
