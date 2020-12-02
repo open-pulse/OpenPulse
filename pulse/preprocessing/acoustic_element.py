@@ -38,13 +38,6 @@ def flanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
     kr = wave_number * pipe_radius
     return fluid_impedance * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*kr)/ kr  ) +0j
 
-def j2j0(z):
-    mask = np.abs(np.imag(z))<700
-    value = np.zeros_like(z, dtype = complex)
-    value[mask] = jv(2, z[mask]) / jv(0, z[mask])
-    value[~mask] = -1
-    return value
-
 class AcousticElement:
     def __init__(self, first_node, last_node, index, **kwargs):
         self.first_node = first_node
@@ -60,20 +53,6 @@ class AcousticElement:
         # 0 -> expansion
         # 1 -> side_branch
         # 2 -> loop (to be defined. Use expansion insteed)
-
-        self.element_type = kwargs.get('element_type', 0)
-        # index: 0 - Dampingless
-        # index: 1 - Hysteretic
-        # index: 2 - Wide-duct
-        # index: 3 - LRF fluid equivalent
-        # index: 4 - LRF full
-        
-        self.damping_model = kwargs.get('damping_model', 0)
-        # for FETM 1D element type:
-        # 0 -> dampingless
-        # 1 -> hysteric damping
-        # 2 -> Wide duct attenuation model
-        # 3 -> Equivalent fluid LRF thermoviscous model
 
     @property
     def length(self):
@@ -104,112 +83,15 @@ class AcousticElement:
         factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
         return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
-    def matrix(self, frequencies, ones, length_correction=0):
-        if self.element_type in ['dampingless','hysteretic','wide-duct','LRF fluid equivalent']:
-            return self.fetm_1d_matrix(frequencies, ones, length_correction)
-        elif self.element_type == 'LRF full':
-            return self.lrf_thermoviscous_matrix(frequencies, ones, length_correction)
-
-    def lrf_thermoviscous_matrix(self, frequencies, ones, length_correction=0):
-        omega = 2 * pi * frequencies
-        rho = self.fluid.density
-        mu = self.fluid.dynamic_viscosity
-        gamma = self.fluid.isentropic_exponent
-        pr = self.fluid.prandtl
-        area = self.cross_section.area_fluid
-        c = self.speed_of_sound_corrected()
-        length = self.length + length_correction
-        radius = self.cross_section.internal_diameter / 2
-
-        s = radius * np.sqrt(rho * omega / mu)
-        sigma = sqrt(pr)
-
-        aux1 = j2j0(1j**(3/2) * s * sigma)
-        aux2 = j2j0(1j**(3/2) * s)
+    def matrix(self, frequencies, ones, length_correction = 0):
+        wave_number = 2*pi*frequencies / self.speed_of_sound_corrected()
+        kLe = wave_number * (self.length + length_correction)
+        sine = np.sin(kLe, dtype='float64')
+        cossine = np.cos(kLe, dtype='float64')
+        matrix = ((1j/(sine*self.impedance))*np.array([-cossine, ones, ones, -cossine])).T
         
-        n = 1 + aux1 * (gamma - 1)/gamma
-
-        T = np.sqrt( gamma * n / aux2 )
-
-        kappa_complex = T * omega / c
-        impedance_complex = c * rho * T
-        self.radiation_impedance(kappa_complex, impedance_complex)
-
-        G = - 1j * gamma * n / T
-
-        sinh = np.sinh(kappa_complex * length)
-        cosh = np.cosh(kappa_complex * length)
-
-        matrix = ((area * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
-        return matrix    
-    
-    def fetm_1d_matrix(self, frequencies, ones, length_correction = 0):
-        omega = 2 * pi * frequencies
-        kappa_complex, impedance_complex = self.fetm_damping_models(omega)
-        
-        area_fluid = self.cross_section.area_fluid
-
-        kappaLe = kappa_complex * (self.length + length_correction)
-        sine = np.sin(kappaLe)
-        cossine = np.cos(kappaLe)
-        matrix = ((area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
-
-        self.radiation_impedance(kappa_complex, impedance_complex)
+        self.radiation_impedance(wave_number, self.fluid.impedance)
         return matrix
-
-    def fetm_damping_models(self, omega):
-        c0 = self.speed_of_sound_corrected()
-        rho_0 = self.fluid.density
-        kappa_real = omega/c0
-        if self.element_type == 'dampingless':
-            return kappa_real, c0 * rho_0
-
-        elif self.element_type == 'hysteretic':
-            hysteresis = (1 - 1j*self.hysteretic_damping)
-            kappa_complex = kappa_real * hysteresis
-            impedance_complex = c0 * rho_0 * hysteresis
-            return kappa_complex, impedance_complex
-
-        elif self.element_type == 'wide-duct':
-            nu = self.fluid.kinematic_viscosity
-            pr = self.fluid.prandtl
-            gamma = self.fluid.isentropic_exponent
-            k = self.fluid.thermal_conductivity
-            radius = self.cross_section.internal_diameter / 2
-            
-            omega_min = min(omega)
-            omega_max = max(omega)
-
-            criterion_1 = radius > 0.1 * sqrt(2  * nu / omega_min)
-            criterion_2 = radius > 0.1 * sqrt(2  * k / omega_min)
-            criterion_3 = sqrt(omega_max * nu / c0**2) > 0.1
-            if np.any([criterion_1, criterion_2, criterion_3]):
-                pass
-            #     info_messages("Verification.")
-
-            const = 1 - 1j* np.sqrt(nu/(2*omega)) * ((1 + (gamma-1)/sqrt(pr))/radius)
-
-            kappa_complex = kappa_real*const
-            impedance_complex = rho_0*c0*const
-            return kappa_complex, impedance_complex
-
-        elif self.element_type == 'LRF fluid equivalent':
-            nu = self.fluid.kinematic_viscosity
-            gamma = self.fluid.isentropic_exponent
-            alpha = self.fluid.thermal_diffusivity
-            radius = self.cross_section.internal_diameter / 2
-
-            aux = np.sqrt(omega)
-            kappa_v = aux * np.sqrt(-1j / nu)
-            kappa_t = aux * np.sqrt(-1j / alpha)
-
-            y_v = - j2j0(kappa_v * radius)
-            y_t =   j2j0(kappa_t * radius) * (gamma-1) + gamma
-
-            kappa_complex = kappa_real * np.sqrt(y_t / y_v)
-            impedance_complex = c0 * rho_0 / np.sqrt(y_t * y_v)
-
-            return kappa_complex, impedance_complex
 
     def radiation_impedance(self, wave_number, fluid_impedance):
         radius = self.cross_section.internal_diameter / 2
