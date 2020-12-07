@@ -322,9 +322,10 @@ class FluidInput(QDialog):
                 PrintMessageInput(self.info_text)
                 return True
         elif self.flagAll:
-            entity_id = self.project.mesh.all_lines
-            if self.dict_tag_to_entity[entity_id[0]].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+            entity_0 = self.project.mesh.all_lines[0]
+            if self.dict_tag_to_entity[entity_0].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                 self.flag_all_inputs = True
+                return False
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -351,6 +352,8 @@ class FluidInput(QDialog):
 
     def check_all_inputs(self):
 
+        self.incomplete_inputs = False
+
         if self.check_input_parameters(self.fluid_density_string, 'fluid density'):
             return True
         else:
@@ -375,6 +378,8 @@ class FluidInput(QDialog):
             elif self.editing:
                 self.lineEdit_impedance_edit.setText(impedance_string)
             self.dict_inputs['impedance'] = impedance
+        
+        self.list_empty_inputs = []
 
         if self.isentropic_exponent_string != "":     
             if self.check_input_parameters(self.isentropic_exponent_string, 'isentropic exponent'):
@@ -382,6 +387,9 @@ class FluidInput(QDialog):
             else:
                 isentropic_exponent = self.value
                 self.dict_inputs['isentropic exponent'] = isentropic_exponent
+        else:
+            self.list_empty_inputs.append('isentropic exponent')
+            self.incomplete_inputs = True
 
         if self.thermal_conductivity_string != "":    
             if self.check_input_parameters(self.thermal_conductivity_string, 'thermal conductivity'):
@@ -389,20 +397,32 @@ class FluidInput(QDialog):
             else:
                 thermal_conductivity = self.value 
                 self.dict_inputs['thermal conductivity'] = thermal_conductivity
-        
+        else:
+            self.list_empty_inputs.append('thermal conductivity')
+            self.incomplete_inputs = True
+
         if self.specific_heat_Cp_string != "":
             if self.check_input_parameters(self.specific_heat_Cp_string, 'specific heat Cp'):
                 return True
             else:
                 specific_heat_Cp = self.value 
                 self.dict_inputs['specific heat Cp'] = specific_heat_Cp
-        
+        else:
+            self.list_empty_inputs.append('specific heat Cp')
+            self.incomplete_inputs = True
+
         if self.dynamic_viscosity_string != "":           
             if self.check_input_parameters(self.dynamic_viscosity_string, 'dinamic viscosity'):
                 return True
             else:
                 dynamic_viscosity = self.value 
                 self.dict_inputs['dynamic viscosity'] = dynamic_viscosity
+        else:
+            self.list_empty_inputs.append('dynamic viscosity')
+            self.incomplete_inputs = True
+        
+        if self.incomplete_inputs:
+            self.all_fluid_properties_message()
 
     def check_add_edit(self, parameters):
 
@@ -486,6 +506,7 @@ class FluidInput(QDialog):
             if self.clicked_item.text(6) != "":
                 isentropic_exponent = float(self.clicked_item.text(6))
             elif self.flag_all_inputs:
+                
                 title = "Empty entry to the isentropic exponent"
                 PrintMessageInput([title, message, window_title1])
                 return
@@ -613,6 +634,14 @@ class FluidInput(QDialog):
         self.adding = True
         self.editing = False
         self.check_add_edit( parameters )
+    
+    def all_fluid_properties_message(self):
+        title = "WARNING - EMPTY ENTRIES IN FLUID INPUTS"
+        message = "You should input all fluid properties if you are going to use the following acoustic element types: wide-duct, LRF fluid equivalent and LRF full." 
+        message += "\n\nEmpty entries:\n"
+        for label in self.list_empty_inputs:
+            message += "\n{}".format(label)
+        PrintMessageInput([title, message, window_title2])
 
     def hightlight(self):
         self.treeWidget_fluids.setStyleSheet("color:rgb(0, 0, 255)")
