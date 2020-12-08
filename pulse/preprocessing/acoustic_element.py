@@ -15,8 +15,8 @@ def poly_function(x):
     x = x.reshape(-1, 1) @ np.ones([1,7])
     return (x**b ) @ a
 
-def unflanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
-    kr = wave_number * pipe_radius
+def unflanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
+    kr = kappa_complex * pipe_radius
     mask = kr<=1
     
     kr_less_t_1 = kr[mask]
@@ -32,11 +32,11 @@ def unflanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
 
     aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
 
-    return fluid_impedance * (1 + aux_2)/(1 - aux_2) +0j
+    return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
 
-def flanged_termination_impedance(wave_number, pipe_radius, fluid_impedance):
-    kr = wave_number * pipe_radius
-    return fluid_impedance * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*kr)/ kr  ) +0j
+def flanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
+    kr = kappa_complex * pipe_radius
+    return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*kr)/ kr  ) +0j
 
 def j2j0(z):
     mask = np.abs(np.imag(z))<700
@@ -211,21 +211,21 @@ class AcousticElement:
 
             return kappa_complex, impedance_complex
 
-    def radiation_impedance(self, wave_number, fluid_impedance):
+    def radiation_impedance(self, kappa_complex, impedance_complex):
         radius = self.cross_section.internal_diameter / 2
         if self.first_node.radiation_impedance_type == 0:
-            self.first_node.radiation_impedance = self.fluid.impedance + 0j
+            self.first_node.radiation_impedance = impedance_complex + 0j
         elif self.first_node.radiation_impedance_type == 1:
-            self.first_node.radiation_impedance = unflanged_termination_impedance(wave_number, radius, fluid_impedance)
+            self.first_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
         elif self.first_node.radiation_impedance_type == 2:
-            self.first_node.radiation_impedance = flanged_termination_impedance(wave_number, radius, fluid_impedance)
+            self.first_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
 
         if self.last_node.radiation_impedance_type == 0:
-            self.last_node.radiation_impedance = self.fluid.impedance + 0j
+            self.last_node.radiation_impedance = impedance_complex + 0j
         elif self.last_node.radiation_impedance_type == 1:
-            self.last_node.radiation_impedance = unflanged_termination_impedance(wave_number, radius, fluid_impedance)
+            self.last_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
         elif self.last_node.radiation_impedance_type == 2:
-            self.last_node.radiation_impedance = flanged_termination_impedance(wave_number, radius, fluid_impedance)
+            self.last_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
     
     def fem_1d_matrix(self, length_correction=0 ):
         length = self.length + length_correction
