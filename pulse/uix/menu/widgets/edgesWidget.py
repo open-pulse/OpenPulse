@@ -4,6 +4,12 @@ from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 # from pulse.preprocessing.element import Element
 
 class EdgesWidget(QTreeWidget):
+    """MenuInfo Widget
+
+    This class is responsible for building a small area below of the item menu
+    when some item is clicked. This has been replaced for QDialog windows and currently isn't used.
+
+    """
     def __init__(self, edges):
         super().__init__()
         self.edges = edges

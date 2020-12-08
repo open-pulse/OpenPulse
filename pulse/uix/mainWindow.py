@@ -4,10 +4,10 @@ from PyQt5.QtCore import QSize
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu
 
-from pulse.uix.infoUi import InfoUi
+from pulse.uix.menu.Menu import Menu
+from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
-from pulse.uix.inputUi import InputUi
 from pulse.uix.config import Config
 
 import sys
@@ -391,14 +391,14 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.saveAsPng_action)
 
     def _createBasicLayout(self):
-        self.info_widget = InfoUi(self)
+        self.menuWidget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 
-        working_area.addWidget(self.info_widget)
+        working_area.addWidget(self.menuWidget)
         working_area.addWidget(self.opv_widget)
         working_area.setSizes([100,400])
 
@@ -470,8 +470,8 @@ class MainWindow(QMainWindow):
     def getInputWidget(self):
         return self.inputWidget
 
-    def getInfoWidget(self):
-        return self.info_widget
+    def getMenuWidget(self):
+        return self.menuWidget
 
     def getOPVWidget(self):
         return self.opv_widget

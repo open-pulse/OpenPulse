@@ -2,7 +2,13 @@ from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
-class TreeUi(QTreeWidget):
+class MenuItems(QTreeWidget):
+    """MenuUi
+
+    This class is responsible for creating, configuring and building the items
+    in the items menu, located on the right side of the interface.
+
+    """
     def __init__(self, main_window):
         super().__init__()
         self.mainWindow = main_window
@@ -18,11 +24,13 @@ class TreeUi(QTreeWidget):
         self._updateItems()
 
     def keyPressEvent(self, event):
+        """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
             self.mainWindow.getInputWidget().runAnalysis()
             self._updateItems()
 
     def _createNames(self):
+        """Create some variables to define the name of the items in the menu"""
         self.name_top_structuralmodelSetup = "Structural Model Setup"
         self.name_child_setStructuralElementType = "Set Structural Element Type"
         self.name_child_setRotationDecoupling = "Set Rotation Decoupling (B2PX)"
@@ -67,10 +75,14 @@ class TreeUi(QTreeWidget):
 
 
     def _createIcons(self):
+        """Create Icons objects that are placed on the right side of the item.
+            Currently isn't used.
+        """
         self.icon_child_set_material = QIcon()
         self.icon_child_set_material.addPixmap(QPixmap("pulse/data/icons/pulse.png"), QIcon.Active, QIcon.On)
 
     def _createFonts(self):
+        """Create Font objects that configure the font of the items."""
         self.font_top = QFont()
         #self.font_child = QFont()
 
@@ -88,7 +100,7 @@ class TreeUi(QTreeWidget):
         #self.font_internal.setWeight(75)
 
     def _createColorsBrush(self):
-        #
+        """Create Color objects that define the color of the text and/or background of the items."""
         color_top = QColor(178, 178, 178)
         self.brush_top = QBrush(color_top)
         self.brush_top.setStyle(Qt.SolidPattern)
@@ -98,6 +110,7 @@ class TreeUi(QTreeWidget):
         self.color_item_results_viewer.setStyle(Qt.SolidPattern)
 
     def _configTree(self):
+        """Define the initial configuration of the TreeWidget."""
         self.setColumnCount(1)
         self.setHeaderHidden(True)
         self.setTabKeyNavigation(True)
@@ -105,6 +118,7 @@ class TreeUi(QTreeWidget):
         self.itemClicked.connect(self.on_click_item)
 
     def _createItems(self):
+        """Create all TreeWidgetItems."""
         self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
         self.item_child_setStructuralElementType = QTreeWidgetItem([self.name_child_setStructuralElementType])
         self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
@@ -149,7 +163,7 @@ class TreeUi(QTreeWidget):
 
 
     def _configItems(self):
-
+        """Configure all items."""
         # Font setup - top items
 
         self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
@@ -220,6 +234,7 @@ class TreeUi(QTreeWidget):
         #self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
+        """Insert items on the TreeWidget."""
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
         self.addTopLevelItem(self.item_child_setStructuralElementType)
         self.addTopLevelItem(self.item_child_set_material)
@@ -263,6 +278,7 @@ class TreeUi(QTreeWidget):
 
         
     def on_click_item(self, item, column):
+        """This event is raised every time an item is clicked on the menu."""
         self.mainWindow.getInputWidget().beforeInput()
 
         if item.text(0) == self.name_child_setStructuralElementType:
@@ -385,7 +401,7 @@ class TreeUi(QTreeWidget):
 
 
     def _updateItems(self):
-
+        """Enable and disable items on menu when some condictions aren't satisfied."""
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)

@@ -2,6 +2,12 @@ from os.path import isfile
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QPushButton, QFormLayout, QMessageBox
 
 class GenerateWidget(QWidget):
+    """MenuInfo Widget
+
+    This class is responsible for building a small area below of the item menu
+    when some item is clicked. This has been replaced for QDialog windows and currently isn't used.
+
+    """
     def __init__(self, main_window):
         super().__init__()
         self.main_window = main_window
