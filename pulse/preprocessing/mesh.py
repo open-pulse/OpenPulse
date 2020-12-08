@@ -1038,6 +1038,15 @@ class Mesh:
                     self.check_set_crossSection = True
                     return
 
+    def check_fluid_inputs_in_all_elements(self):
+        self.check_all_fluid_inputs = False
+        for element in self.acoustic_elements.values():
+            if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
+                            element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
+                if None in _list:
+                    self.check_all_fluid_inputs = True
+                    return
     
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         self.is_there_loads = False

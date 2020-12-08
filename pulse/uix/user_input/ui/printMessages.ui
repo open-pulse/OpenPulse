@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>300</height>
+    <height>350</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>600</width>
-    <height>300</height>
+    <height>350</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>600</width>
-    <height>300</height>
+    <height>350</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -31,19 +31,19 @@
      <x>0</x>
      <y>52</y>
      <width>600</width>
-     <height>248</height>
+     <height>298</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>600</width>
-     <height>248</height>
+     <height>298</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>600</width>
-     <height>248</height>
+     <height>298</height>
     </size>
    </property>
    <property name="frameShape">
@@ -58,19 +58,19 @@
       <x>10</x>
       <y>12</y>
       <width>580</width>
-      <height>185</height>
+      <height>230</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>580</width>
-      <height>185</height>
+      <height>230</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>580</width>
-      <height>185</height>
+      <height>230</height>
      </size>
     </property>
     <property name="font">
@@ -102,7 +102,7 @@
     <property name="geometry">
      <rect>
       <x>250</x>
-      <y>204</y>
+      <y>252</y>
       <width>100</width>
       <height>35</height>
      </rect>

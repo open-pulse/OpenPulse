@@ -386,24 +386,38 @@ class ProjectFile:
                 if fluid_id.isnumeric():
                     fluid_id = int(fluid_id)
                     for fluid in fluid_list.sections():
+                        keys = list(fluid_list[fluid].keys())
                         if int(fluid_list[fluid]['identifier']) == fluid_id:
-                            name = str(fluid_list[fluid]['name'])
-                            identifier = str(fluid_list[fluid]['identifier'])
-                            fluid_density =  str(fluid_list[fluid]['fluid density'])
-                            speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
-                            isentropic_exponent =  str(fluid_list[fluid]['isentropic exponent'])
-                            thermal_conductivity =  str(fluid_list[fluid]['thermal conductivity'])
-                            specific_heat_Cp =  str(fluid_list[fluid]['specific heat Cp'])
-                            dynamic_viscosity =  str(fluid_list[fluid]['dynamic viscosity'])
-                            # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
-                            color =  str(fluid_list[fluid]['color'])
+                            name = fluid_list[fluid]['name']
+                            identifier = fluid_list[fluid]['identifier']
+                            fluid_density =  fluid_list[fluid]['fluid density']
+                            speed_of_sound =  fluid_list[fluid]['speed of sound']
+                            
+                            isentropic_exponent = None
+                            if 'isentropic exponent' in keys:
+                                isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
+                              
+                            thermal_conductivity = None
+                            if 'thermal conductivity' in keys:
+                                thermal_conductivity =  float(fluid_list[fluid]['thermal conductivity'])
+
+                            specific_heat_Cp = None
+                            if 'specific heat cp' in keys:
+                                specific_heat_Cp =  float(fluid_list[fluid]['specific heat cp'])
+                            
+                            dynamic_viscosity = None
+                            if 'dynamic viscosity' in keys:
+                                dynamic_viscosity =  float(fluid_list[fluid]['dynamic viscosity'])
+                              
+                            # acoustic_impedance =  fluid_list[fluid]['impedance']
+                            color =  fluid_list[fluid]['color']
                             temp_fluid = Fluid(name,
                                                float(fluid_density),
                                                float(speed_of_sound),
-                                               isentropic_exponent = float(isentropic_exponent),
-                                               thermal_conductivity = float(thermal_conductivity),
-                                               specific_heat_Cp = float(specific_heat_Cp),
-                                               dynamic_viscosity = float(dynamic_viscosity),
+                                               isentropic_exponent = isentropic_exponent,
+                                               thermal_conductivity = thermal_conductivity,
+                                               specific_heat_Cp = specific_heat_Cp,
+                                               dynamic_viscosity = dynamic_viscosity,
                                                color=color, identifier=int(identifier))
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
