@@ -3,7 +3,7 @@ from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
 class MenuItems(QTreeWidget):
-    """MenuUi
+    """Menu Items
 
     This class is responsible for creating, configuring and building the items
     in the items menu, located on the right side of the interface.

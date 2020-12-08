@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTabWidget
 
 class MenuInfo(QTabWidget):
-    """MenuInfo
+    """Menu Info
 
     This class is responsible for building a small area below of the item menu
     when some item is clicked. This has been replaced for QDialog windows and currently isn't used.

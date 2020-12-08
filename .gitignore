@@ -7,3 +7,5 @@ src/
 target/
 docs/
 .config
+
+doc/build/
