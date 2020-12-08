@@ -70,28 +70,33 @@ class ProjectFile:
         self.project_file_path = project_file_path
         project_file_path = project_file_path.replace('/', '\\')
         project_folder_path = os.path.dirname(project_file_path)
+        self._project_path = project_folder_path
+                
         config = configparser.ConfigParser()
         config.read(project_file_path)
 
         project_name = config['PROJECT']['Name']
-        element_size = config['PROJECT']['Element Size']
-        import_type = config['PROJECT']['Import Type']
-        geometry_file = config['PROJECT']['Geometry File']
-        coord_file = config['PROJECT']['Cord File']
-        conn_file = config['PROJECT']['Conn File']
-        material_list_file = config['PROJECT']['MaterialList File']
-        fluid_list_file = config['PROJECT']['FluidList File']
+        import_type = int(config['PROJECT']['Import type'])
 
-        self._project_path = project_folder_path
+        if import_type == 0:
+            element_size = config['PROJECT']['Element size']
+            geometry_file = config['PROJECT']['Geometry file']
+            self._element_size = float(element_size)
+            self._geometry_path = "{}\\{}".format(self._project_path, geometry_file)
+
+        elif import_type == 1:
+            coord_file = config['PROJECT']['Nodal coordinates file']
+            conn_file = config['PROJECT']['Connectivity matrix file']
+            self._conn_path = "{}\\{}".format(self._project_path, conn_file)
+            self._coord_path = "{}\\{}".format(self._project_path, coord_file)
+
+        material_list_file = config['PROJECT']['Material list file']
+        fluid_list_file = config['PROJECT']['Fluid list file']
+
         self._project_name = project_name
-        self._element_size = float(element_size)
-        self._import_type = int(import_type)
+        self._import_type = import_type
         self._material_list_path = "{}\\{}".format(self._project_path, material_list_file)
         self._fluid_list_path = "{}\\{}".format(self._project_path, fluid_list_file)
-        self._geometry_path = "{}\\{}".format(self._project_path, geometry_file)
-        self._conn_path = "{}\\{}".format(self._project_path, conn_file)
-        self._coord_path = "{}\\{}".format(self._project_path, coord_file)
-
         self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
         self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
@@ -109,12 +114,13 @@ class ProjectFile:
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
-        if "Frequency Setup" in sections:
-            keys = list(config['Frequency Setup'].keys())
+        
+        if "Frequency setup" in sections:
+            keys = list(config['Frequency setup'].keys())
             if "frequency min" in keys and "frequency max" in keys and "frequency step" in keys:
-                f_min = config['Frequency Setup']['frequency min']
-                f_max = config['Frequency Setup']['frequency max']
-                f_step = config['Frequency Setup']['frequency step']
+                f_min = config['Frequency setup']['frequency min']
+                f_max = config['Frequency setup']['frequency max']
+                f_step = config['Frequency setup']['frequency step']
 
         if "Global damping setup" in sections:
             keys = list(config['Global damping setup'].keys())
@@ -125,7 +131,7 @@ class ProjectFile:
                 beta_h = config['Global damping setup']['beta_h']
         
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
-    
+
         return float(f_min), float(f_max), float(f_step), global_damping
 
     def add_frequency_in_file(self, min_, max_, step_):
@@ -135,33 +141,11 @@ class ProjectFile:
         temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
-        sections = config.sections()
-        if "Frequency Setup" in sections:
-            keys = list(config['Frequency Setup'].keys())
-            if "frequency min" in keys:
-                config['Frequency Setup']['frequency min'] = min_
-            else:
-                config['Frequency Setup'] = {
-                    'frequency min' : min_
-                }
-            if "frequency max" in keys:
-                config['Frequency Setup']['frequency max'] = max_
-            else:
-                config['Frequency Setup'] = {
-                    'frequency max' : max_
-                }
-            if "frequency step" in keys:
-                config['Frequency Setup']['frequency step'] = step_
-            else:
-                config['Frequency Setup'] = {
-                    'frequency step' : step_
-                }
-        else:
-            config['Frequency Setup'] = {
-                'frequency min' : min_,
-                'frequency max' : max_,
-                'frequency step': step_,
-            }
+        # sections = config.sections()
+        config["Frequency setup"] = {}
+        config['Frequency setup']['frequency min'] = min_
+        config['Frequency setup']['frequency max'] = max_
+        config['Frequency setup']['frequency step'] = step_
 
         with open(temp_project_base_file_path, 'w') as config_file:
             config.write(config_file)
@@ -175,43 +159,34 @@ class ProjectFile:
         temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
+
+        config['Global damping setup'] = {}
+        config['Global damping setup']['alpha_v'] = alpha_v
+        config['Global damping setup']['beta_v'] = beta_v
+        config['Global damping setup']['alpha_h'] = alpha_h
+        config['Global damping setup']['beta_h'] = beta_h
+
+        with open(temp_project_base_file_path, 'w') as config_file:
+            config.write(config_file)
+
+    def reset_project_setup(self):
+        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
         sections = config.sections()
+
+        if "Frequency setup" in sections:
+            config.remove_section("Frequency setup")
+
         if "Global damping setup" in sections:
-            keys = list(config['Global damping setup'].keys())
-            
-            if 'alpha_v' in keys:
-                config['Global damping setup']['alpha_v'] = alpha_v
-            else:
-                config['Global damping setup'] = {'alpha_v' : alpha_v}
-
-            if 'beta_v' in keys:
-                config['Global damping setup']['beta_v'] = beta_v
-            else:
-                config['Global damping setup'] = {'beta_v' : beta_v}
-
-            if 'alpha_h' in keys:
-                config['Global damping setup']['alpha_h'] = alpha_h
-            else:
-                config['Global damping setup'] = {'alpha_h' : alpha_h}
-
-            if 'beta_h' in keys:
-                config['Global damping setup']['beta_h'] = beta_h
-            else:
-                config['Global damping setup'] = {'beta_h' : beta_h}
-
-        else:
-            config['Global damping setup'] = {  'alpha_v' : alpha_v,
-                                                'beta_v' : beta_v,
-                                                'alpha_h': alpha_h,
-                                                'beta_h': beta_h  } 
-
+            config.remove_section("Global damping setup")
+        
         with open(temp_project_base_file_path, 'w') as config_file:
             config.write(config_file)
 
     def create_entity_file(self, entities):
         config = configparser.ConfigParser()
         for entity_id in entities:
-            # config[str(entity.get_tag())] = {}
             config[str(entity_id)] = {}
 
         with open(self._entity_path, 'w') as config_file:

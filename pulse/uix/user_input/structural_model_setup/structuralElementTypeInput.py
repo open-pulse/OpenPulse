@@ -165,7 +165,7 @@ class StructuralElementTypeInput(QDialog):
         final_etype = self.element_type
 
         for tag in self.lines_id:
-            initial_etype = self.dict_entities[tag].element_type
+            initial_etype = self.dict_entities[tag].structural_element_type
             if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
                 self.update_cross_section = True
                 self.pipe_to_beam = True

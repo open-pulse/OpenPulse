@@ -362,14 +362,12 @@ class Mesh:
             node.global_index = None
 
     def set_structural_element_type_by_element(self, elements, element_type, remove=False):
-        # self.element_type = element_type
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
     def set_acoustic_element_type_by_element(self, elements, element_type, hysteretic_damping=None, remove=False):
-        # self.element_type = element_type
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
             element.hysteretic_damping = hysteretic_damping

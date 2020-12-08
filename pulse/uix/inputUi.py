@@ -2,6 +2,7 @@
 from pulse.uix.user_input.project.newProjectInput import NewProjectInput
 from pulse.uix.user_input.project.loadProjectInput import LoadProjectInput
 from pulse.uix.user_input.project.getStartedInput import GetStartedInput
+from pulse.uix.user_input.project.resetProjectInput import ResetProjectInput
 #
 from pulse.uix.user_input.structural_model_setup.structuralElementTypeInput import StructuralElementTypeInput
 from pulse.uix.user_input.structural_model_setup.materialInput import MaterialInput
@@ -95,6 +96,9 @@ class InputUi:
     def getStarted(self, config):
         getStarted = GetStartedInput(self.project, config, self)
         return getStarted.draw
+    
+    def reset_project(self):
+        ResetProjectInput(self.project, self.opv)
 
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
@@ -206,6 +210,17 @@ class InputUi:
         read = AcousticElementTypeInput(self.project, self.opv)
         if not read.complete:
             return
+        # if read.flagAll:
+        #     for entity in self.project.mesh.dict_entities.values():
+        #         if entity.fluid is None:
+        #             self.set_fluid()
+        #             return
+        # elif read.flagEntity:
+        #     for entity_id in self.lines_typed:
+        #         entity = self.project.mesh.dict_entities[entity_id]
+        #         if entity.fluid is None:
+        #             self.set_fluid()
+        self.set_fluid()
 
     def set_fluid(self):
         fld = FluidInput(self.project, self.opv)

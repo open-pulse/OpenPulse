@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'add.png')
         self.open_icon = QIcon(icons_path + 'upload.png')
+        self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
         
@@ -66,6 +67,11 @@ class MainWindow(QMainWindow):
         self.saveAsPng_action.setShortcut('Ctrl+S')
         self.saveAsPng_action.setStatusTip('Save as PNG')
         self.saveAsPng_action.triggered.connect(self.savePNG_call)
+
+        self.reset_action = QAction(self.reset_icon, '&Reset Project', self)       
+        self.reset_action.setShortcut('Ctrl+Sift+R')
+        self.reset_action.setStatusTip('Reset Project')
+        self.reset_action.triggered.connect(lambda: self.resetProject_call())
 
         self.exit_action = QAction(self.exit_icon, '&Exit', self)        
         self.exit_action.setShortcut('Ctrl+Shift+Q')
@@ -297,6 +303,7 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.import_action)
         self.projectMenu.addMenu(self.recentProjectsMenu)
         self.projectMenu.addAction(self.saveAsPng_action)
+        self.projectMenu.addAction(self.reset_action)
         self.projectMenu.addAction(self.exit_action)
 
     def _loadGraphicMenu(self):
@@ -379,6 +386,7 @@ class MainWindow(QMainWindow):
 
         self.toolbar.addAction(self.new_action)
         self.toolbar.addAction(self.import_action)
+        self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
 
@@ -405,6 +413,10 @@ class MainWindow(QMainWindow):
             self._loadProjectMenu()
             self.changeWindowTitle(self.project.get_project_name())
             self.draw()
+    
+    def resetProject_call(self):
+        self.inputWidget.reset_project()
+        return
 
     def importRecentProject_call(self, dir):
         self.importProject_call(dir)

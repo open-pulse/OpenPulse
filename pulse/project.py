@@ -106,6 +106,21 @@ class Project:
         if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
     
+    def reset_project(self):
+        self.reset_info()
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+        if os.path.exists(self.file._element_info_path):
+            os.remove(self.file._element_info_path)
+        if os.path.exists(self.file._node_structural_path):
+            os.remove(self.file._node_structural_path)
+        if os.path.exists(self.file._node_acoustic_path):
+            os.remove(self.file._node_acoustic_path)
+        self.file.reset_project_setup()
+        self.process_geometry_and_mesh()
+        self.file.create_entity_file(self.mesh.all_lines)
+        #TODO: set the render to entities
+ 
     def process_geometry_and_mesh(self):
 
         if self.file.get_import_type() == 0:
