@@ -140,7 +140,7 @@ class AcousticElement:
         sinh = np.sinh(kappa_complex * length)
         cosh = np.cosh(kappa_complex * length)
 
-        matrix = ((area * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
+        matrix = - ((area * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
         return matrix    
     
     def fetm_1d_matrix(self, frequencies, ones, length_correction = 0):
