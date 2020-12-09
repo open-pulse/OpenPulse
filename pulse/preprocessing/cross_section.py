@@ -3,7 +3,7 @@ select = 1
 
 if select == 1:
     import numpy as np
-    from math import pi, sqrt, cos, sin, atan
+    from math import pi, sqrt, cos, sin, atan, isnan, isinf
     from numpy.linalg import inv, pinv, norm
     from scipy.sparse import csc_matrix, coo_matrix
     from scipy.sparse.linalg import spilu, svds, splu, spsolve
@@ -299,6 +299,7 @@ if select == 1:
                     i += 1
                 data_ke[el,:,:] = Ke
             # t0 = time()
+            # print(True in [True if isnan(data) or isinf(data) else False for data in data_ke.reshape(-1)])
             K_lg = coo_matrix((data_ke.reshape(-1), (self.rows_ind, self.cols_ind)), shape=(NGL+1, NGL+1), dtype='float64')
                                              
             # Pseudo inverse used to remedy numerical instability

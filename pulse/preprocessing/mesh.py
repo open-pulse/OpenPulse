@@ -827,12 +827,14 @@ class Mesh:
     def set_acoustic_pressure_bc_by_node(self, nodes, value):
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = value
-            node.volume_velocity = None
             if not node in self.nodes_with_acoustic_pressure:
                 self.nodes_with_acoustic_pressure.append(node)
             if value is None:
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
+            node.volume_velocity = None
+            if node in self.nodes_with_volume_velocity:
+                self.nodes_with_volume_velocity.remove(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values):
         try:
@@ -849,7 +851,6 @@ class Mesh:
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
                         PrintMessageInput([title, message, window_title1])
                         return True  
-                node.acoustic_pressure = None
                 if not node in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.append(node)
                 if values is None:
@@ -857,6 +858,10 @@ class Mesh:
                         self.nodes_with_volume_velocity.remove(node)
                 elif isinstance(values, np.ndarray):
                     self.volume_velocity_table_index += 1 
+                node.acoustic_pressure = None
+                if node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.remove(node)
+
         except Exception as error:
             title = "ERROR WHILE SET VOLUME VELOCITY"
             message = str(error)

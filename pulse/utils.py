@@ -200,9 +200,10 @@ def info_messages(msg, title = " INFORMATION "):
     msg_box.setWindowTitle(title)
     msg_box.exec_()
 
-def remove_bc_from_file(entries_typed, path, key_strings, message):
+def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
 
     try:
+
         bc_removed = False
         config = configparser.ConfigParser()
         config.read(path)
@@ -212,36 +213,24 @@ def remove_bc_from_file(entries_typed, path, key_strings, message):
 
             if entry_id in config.sections():
                 keys = list(config[entry_id].keys())
-                for str_key in key_strings:
-                    if str_key in keys:
-                        # print("delete {} at entry {}".format(str_key, entry_id))
-                        config.remove_option(section=entry_id, option=str_key)
-                        if list(config[entry_id].keys())==[]:
-                            config.remove_section(entry_id)
-                        bc_removed = True
 
-        with open(path, 'w') as config_file:
-            config.write(config_file)
+                for key_to_remove in keys_to_remove:
+                    for key in keys:
+                        if key_to_remove in key:
+                            bc_removed = True
+                            config.remove_option(section=entry_id, option=key)
+                            if list(config[entry_id].keys())==[]:
+                                config.remove_section(entry_id)
+           
+            if bc_removed:
+                with open(path, 'w') as config_file:
+                    config.write(config_file)
 
         if message is not None and bc_removed:
             info_messages(message)
 
-    except Exception as e:
-        error(str(e))
-
-def isInteger(value):
-    try:
-        int(value)
-        return True
-    except:
-        return False
-
-def isFloat(value):
-    try:
-        float(value)
-        return True
-    except:
-        return False
+    except Exception as err:
+        error(str(err))
 
 def getColorRGB(color):
     temp = color[1:-1] #Remove "[ ]"

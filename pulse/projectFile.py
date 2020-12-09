@@ -314,8 +314,9 @@ class ProjectFile:
                         else:
                             list_section_parameters = None
                             shear_coefficient = float(shear_coefficient)
-                        cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
-                                        additional_section_info=[section_type, list_section_parameters], shear_coefficient=_shear_coefficient[0])
+                        cross = CrossSection(   external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
+                                                additional_section_info=[section_type, list_section_parameters], 
+                                                shear_coefficient=_shear_coefficient[0])
                         
                         self.dict_cross[entity] = cross
                         
@@ -345,8 +346,10 @@ class ProjectFile:
                         insulation_thickness = float(insulation_thickness)
                         insulation_density = float(insulation_density)
                         section_info = ["Pipe section", [diam_ext, thickness, offset_y, offset_z, insulation_thickness]]
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, 
-                                            insulation_thickness=insulation_thickness, insulation_density=insulation_density, additional_section_info=section_info)
+                        cross = CrossSection(   diam_ext, thickness, offset_y, offset_z, 
+                                                insulation_thickness=insulation_thickness, 
+                                                insulation_density=insulation_density, 
+                                                additional_section_info=section_info)
                         self.dict_cross[entity] = cross
                     except Exception as er:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
@@ -993,10 +996,12 @@ class ProjectFile:
             remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
 
     def _single_acoustic_excitation_bc(self, node_id, label):
-        if label[0] == 'acoustic pressure':
+        # if label[0] == 'acoustic pressure':
+        if 'acoustic pressure' in label[0]:
             key_strings = ['volume velocity']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        elif label[0] == 'volume velocity':
+        # elif label[0] == 'volume velocity':
+        elif 'volume velocity' in  label[0]:
             key_strings = ['acoustic pressure']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 

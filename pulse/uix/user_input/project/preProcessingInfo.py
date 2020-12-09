@@ -63,7 +63,6 @@ class PreProcessingInfo(QDialog):
             try:
                 float(diam_ext)
             except Exception:
-            # if not self.isFloat(diam_ext):
                 item2.setForeground(1, self.errorColor)
                 item1.setForeground(0, self.errorColor)
                 self.hasError = True
@@ -71,7 +70,6 @@ class PreProcessingInfo(QDialog):
             try:
                 float(diam_int)
             except Exception:
-            # if not self.isFloat(diam_int):
                 item2.setForeground(2, self.errorColor)
                 item1.setForeground(0, self.errorColor)
                 self.hasError = True
