@@ -303,7 +303,7 @@ if select == 1:
             K_lg = coo_matrix((data_ke.reshape(-1), (self.rows_ind, self.cols_ind)), shape=(NGL+1, NGL+1), dtype='float64')
                                              
             # Pseudo inverse used to remedy numerical instability
-            inv_K_lg = pinv(K_lg.toarray(), hermitian=True)
+            inv_K_lg = pinv(K_lg.toarray())#, hermitian=True)
 
             u2 = inv_K_lg @ np.append(Fy, 0)
             u3 = inv_K_lg @ np.append(Fz, 0)
