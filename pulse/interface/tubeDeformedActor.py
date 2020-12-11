@@ -23,10 +23,11 @@ class TubeDeformedActor(TubeActor):
         counter = 0
         for element in self.elements.values():
             x,y,z = element.first_node.deformed_coordinates
-            u,v,w = element.deformed_directional_vectors
             points.InsertNextPoint(x,y,z)
-            r = Rotation.from_matrix(np.concatenate((u,v,w)).reshape(3,3))
-            rotations.InsertNextTuple(r.as_euler('zxy', degrees=True))
+
+            uvw = element.deformed_directional_vectors # main difference is here
+            rotations_xyz = directional_vectors_xyz_rotation(uvw)
+            rotations.InsertNextTuple(rotations_xyz)
             self._colors.InsertNextTuple((255,255,255))
 
             if element.cross_section not in cache:
