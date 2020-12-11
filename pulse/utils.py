@@ -5,6 +5,8 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 import configparser
 import numpy as np
+from scipy.spatial.transform import Rotation
+
 
 def split_sequence(sequence, size):
     subsequences = []
@@ -181,6 +183,19 @@ def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
                             L_ * cos_gamma / L   ])
 
     return data_rot.T.reshape(-1,3,3)
+
+def directional_vectors_xyz_rotation(directional_vectors):
+    # we can perform much better doing it by hand
+    
+    # it's still a little bit weird
+    # for some reason the rotations are made in the z,x,y order
+    # so, to get the euler we need to do it backwards
+    
+    u,v,w = directional_vectors
+    matrix = np.concatenate((v,w,u)).reshape(3,3)
+    r = Rotation.from_matrix(matrix)
+    y,x,z = r.as_euler('yxz', degrees=True)
+    return x,y,z
 
 def error( msg, title = " ERROR "):
     msg_box = QMessageBox()
