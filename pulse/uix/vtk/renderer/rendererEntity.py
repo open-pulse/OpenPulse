@@ -23,16 +23,16 @@ class RendererEntity(vtkRendererBase):
 
             entity = self.project.get_entity(listActorsIDs[0])
             
-            e_type = 'undefined'
-            material_name = 'undefined'
+            structural_element_type = 'undefined'
+            # material_name = 'undefined'
             diam_ext, thickness = 'undefined', 'undefined'
             offset_y, offset_z = 'undefined', 'undefined'
             
-            if entity.getMaterial() is not None:
-                material_name = entity.getMaterial().getName()
+            # if entity.material is not None:
+            #     material_name = entity.material.name
 
-            if entity.element_type is not None:
-                e_type = entity.element_type.upper()
+            if entity.structural_element_type is not None:
+                structural_element_type = entity.structural_element_type
 
             if entity.tag in (self.project.lines_multiples_cross_sections or self.project.file.lines_multiples_cross_sections):
 
@@ -44,65 +44,88 @@ class RendererEntity(vtkRendererBase):
                     number_cross_sections = self.project.file.lines_multiples_cross_sections.count(entity.tag)
                     # print(self.project.file.lines_multiples_cross_sections)
 
-                if entity.element_type is not None and entity.element_type not in ['beam_1']:
+                if entity.structural_element_type not in [None, 'beam_1']:
                 
                     diam_ext, thickness = 'multiples', 'multiples'
                     offset_y, offset_z = 'multiples', 'multiples'
                     insulation_thickness, insulation_density = 'multiples', 'multiples'
 
                     text = 'Line ID  {} ({} cross-sections)\n\n'.format(listActorsIDs[0], number_cross_sections)              
-                    text += 'Material:  {}\n'.format(material_name)
-                    text += 'Element type:  {}\n'.format(e_type)
-                    text += 'External diameter: {} [m]\n'.format(diam_ext)
-                    text += 'Thickness: {} [m]\n'.format(thickness)
+                    text += 'Material:  {}\n'.format(entity.material.name)
+                    text += f'Structural element type:  {structural_element_type}\n'
+                    text += f'External diameter: {diam_ext} [m]\n'
+                    text += f'Thickness: {thickness} [m]\n'
                     if offset_y != 0 or offset_z != 0:
                         text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                     if insulation_thickness != 0 or insulation_density != 0: 
                         text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                    
+                    if entity.fluid is not None:
+                        text += f'\nFluid: {entity.fluid}' 
+
+                    if entity.acoustic_element_type is not None:
+                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+                    if entity.hysteretic_damping is not None:
+                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
 
             else:
 
-                if entity.getCrossSection() is not None:
-                    if entity.element_type is not None and entity.element_type not in ['beam_1']:
-                        text = ''
-                        diam_ext = entity.getCrossSection().external_diameter
-                        thickness = entity.getCrossSection().thickness
-                        offset_y = entity.getCrossSection().offset_y
-                        offset_z = entity.getCrossSection().offset_z
-                        insulation_thickness = entity.crossSection.insulation_thickness
-                        insulation_density = entity.crossSection.insulation_density
+                text = ''
+                text += f'Line ID  {listActorsIDs[0]}\n\n'
 
-                        text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
-                        text += 'Material:  {}\n'.format(material_name)
-                        text += 'Element type:  {}\n'.format(e_type)
-                        text += 'External Diameter:  {} [m]\n'.format(diam_ext)
-                        text += 'Thickness:  {} [m]\n'.format(thickness)
+                if entity.structural_element_type is not None:
+                    text += f'Structural element type:  {structural_element_type}\n'
+                
+                if entity.material is not None:
+                    text += f'Material:  {entity.material.name}\n'
+
+                if entity.cross_section is not None:
+                    if entity.structural_element_type not in [None, 'beam_1']:
+                        
+                        diam_ext = entity.cross_section.external_diameter
+                        thickness = entity.cross_section.thickness
+                        offset_y = entity.cross_section.offset_y
+                        offset_z = entity.cross_section.offset_z
+                        insulation_thickness = entity.cross_section.insulation_thickness
+                        insulation_density = entity.cross_section.insulation_density
+                                            
+                        text += f'External Diameter:  {diam_ext} [m]\n'
+                        text += f'Thickness:  {thickness} [m]\n'
                         if offset_y != 0 or offset_z != 0:
                             text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                         if insulation_thickness != 0 or insulation_density != 0: 
                             text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
-            
-                    elif entity.element_type is not None and entity.element_type in ['beam_1']:
+                           
+                    if entity.structural_element_type in ['beam_1']:
 
-                        text = ''
-                        area = entity.getCrossSection().area
-                        Iyy = entity.getCrossSection().second_moment_area_y
-                        Izz = entity.getCrossSection().second_moment_area_z
-                        Iyz = entity.getCrossSection().second_moment_area_yz
+                        # text = ''
+                        area = entity.cross_section.area
+                        Iyy = entity.cross_section.second_moment_area_y
+                        Izz = entity.cross_section.second_moment_area_z
+                        Iyz = entity.cross_section.second_moment_area_yz
                         additional_section_info = entity.getCrossSection().additional_section_info
 
                         text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
-                        text += 'Material:  {}\n'.format(material_name)
+                        text += 'Material:  {}\n'.format(entity.material.name)
 
                         if additional_section_info is not None:
-                            text += 'Element type:  {} ({})\n'.format(e_type, additional_section_info[0].capitalize())
+                            text += 'Structural element type:  {} ({})\n'.format(structural_element_type, additional_section_info[0].capitalize())
                         else:
-                            text += 'Element type:  {} (-)\n'.format(e_type)
+                            text += 'Structural element type:  {} (-)\n'.format(structural_element_type)
 
                         text += 'Area:  {} [m²]\n'.format(area)
                         text += 'Iyy:  {} [m^4]\n'.format(Iyy)
                         text += 'Izz:  {} [m^4]\n'.format(Izz)
                         text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+
+                if entity.fluid is not None:
+                    text += f'\nFluid: {entity.fluid.name}' 
+
+                if entity.acoustic_element_type is not None:
+                    text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+
+                if entity.hysteretic_damping is not None:
+                    text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
 
         else:
 
@@ -132,7 +155,7 @@ class RendererEntity(vtkRendererBase):
     def plot(self):
         self.reset()
         mesh = self.project.get_mesh()
-        for entity in self.project.get_entities():
+        for entity in self.project.entities:#get_entities():
             elements = [mesh.structural_elements[i] for i in mesh.line_to_elements[entity.tag]]
             actor = self.createActorTubes(elements)
             self.actors[actor] = entity.get_tag()

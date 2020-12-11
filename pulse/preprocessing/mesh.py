@@ -25,6 +25,7 @@ class Mesh:
         self.structural_elements = {}
         self.acoustic_elements = {}
         self.neighbours = {}
+        self.dict_entities = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
@@ -51,7 +52,10 @@ class Mesh:
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
-        self.dict_element_type_to_lines = defaultdict(list)
+
+        self.dict_structural_element_type_to_lines = defaultdict(list)
+        self.dict_acoustic_element_type_to_lines = defaultdict(list)
+
         self.dict_nodes_with_elastic_link_stiffness = {}
         self.dict_nodes_with_elastic_link_damping = {}
         self.lines_with_capped_end = []
@@ -156,6 +160,7 @@ class Mesh:
                 
             self.all_lines.append(tag)
             self.entities.append(newEntity)
+            self.dict_entities[tag] = newEntity
 
         gmsh.model.mesh.removeDuplicateNodes()
 
@@ -272,6 +277,7 @@ class Mesh:
             newEntity.insertEdge(edges)
             
         self.entities.append(newEntity)
+        self.dict_entities[1] = newEntity
         #Ordering global indexes
         for index, node in enumerate(self.nodes.values()):
             node.global_index = index
@@ -355,12 +361,18 @@ class Mesh:
         for node in self.nodes.values():
             node.global_index = None
 
-    def set_element_type_by_element(self, elements, element_type, remove=False):
-        # self.element_type = element_type
+    def set_structural_element_type_by_element(self, elements, element_type, remove=False):
         for element in slicer(self.structural_elements, elements):
             element.element_type = element_type
         if remove:
-            self.dict_element_type_to_lines.pop(element_type)
+            self.dict_structural_element_type_to_lines.pop(element_type)
+    
+    def set_acoustic_element_type_by_element(self, elements, element_type, hysteretic_damping=None, remove=False):
+        for element in slicer(self.acoustic_elements, elements):
+            element.element_type = element_type
+            element.hysteretic_damping = hysteretic_damping
+        if remove:
+            self.dict_acoustic_element_type_to_lines.pop(element_type)
     
     def set_cross_section_by_element(self, elements, cross_section, update_cross_section=False):
         if update_cross_section:
@@ -377,26 +389,47 @@ class Mesh:
         for elements in slicer(self.line_to_elements, line):
             self.set_cross_section_by_element(elements, cross_section)
     
-    def set_element_type_by_line(self, line, element_type, remove=False):
+    def set_structural_element_type_by_line(self, line, element_type, remove=False):
         for elements in slicer(self.line_to_elements, line):
-            self.set_element_type_by_element(elements, element_type)
+            self.set_structural_element_type_by_element(elements, element_type)
 
         if remove:
-            self.dict_element_type_to_lines.pop(element_type)
+            self.dict_structural_element_type_to_lines.pop(element_type)
         elif element_type != "":
-            temp_dict = self.dict_element_type_to_lines.copy()
+            temp_dict = self.dict_structural_element_type_to_lines.copy()
             if element_type not in list(temp_dict.keys()):
-                self.dict_element_type_to_lines[element_type].append(line)
+                self.dict_structural_element_type_to_lines[element_type].append(line)
             else:
                 for key, lines in temp_dict.items():
                     if key != element_type:
                         if line in lines:
-                            self.dict_element_type_to_lines[key].remove(line)
+                            self.dict_structural_element_type_to_lines[key].remove(line)
                     else:
                         if line not in lines:
-                            self.dict_element_type_to_lines[key].append(line)
-                    if self.dict_element_type_to_lines[key] == []:
-                        self.dict_element_type_to_lines.pop(key)
+                            self.dict_structural_element_type_to_lines[key].append(line)
+                    if self.dict_structural_element_type_to_lines[key] == []:
+                        self.dict_structural_element_type_to_lines.pop(key)
+
+    def set_acoustic_element_type_by_line(self, line, element_type, hysteretic_damping=None, remove=False):
+        for elements in slicer(self.line_to_elements, line):
+            self.set_acoustic_element_type_by_element(elements, element_type, hysteretic_damping=hysteretic_damping)
+
+        if remove:
+            self.dict_acoustic_element_type_to_lines.pop(element_type)
+        elif element_type != "":
+            temp_dict = self.dict_acoustic_element_type_to_lines.copy()
+            if element_type not in list(temp_dict.keys()):
+                self.dict_acoustic_element_type_to_lines[element_type].append(line)
+            else:
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_acoustic_element_type_to_lines[key].remove(line)
+                    else:
+                        if line not in lines:
+                            self.dict_acoustic_element_type_to_lines[key].append(line)
+                    if self.dict_acoustic_element_type_to_lines[key] == []:
+                        self.dict_acoustic_element_type_to_lines.pop(key)
 
     # Structural physical quantities
     def set_material_by_element(self, elements, material):       
@@ -1183,6 +1216,7 @@ class Mesh:
             CompressorModel(list_parameters)
         
     def get_gdofs_from_nodes(self, nodeID_1, nodeID_2):
+        
         node_1 = self.nodes[nodeID_1]
         node_2 = self.nodes[nodeID_2]
         nodes_gdofs = np.array([node_1.global_dof, node_2.global_dof]).flatten()

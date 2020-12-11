@@ -51,7 +51,7 @@ class RendererPoint(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        for entity in self.project.get_entities():
+        for entity in self.project.entities:#get_entities():
             plot = ActorLine(entity)
             plot.setRadius(0.001)
             plot.build()

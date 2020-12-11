@@ -36,7 +36,7 @@ if load_file==2:
 
 mat_out = mesh.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
-mesh.set_element_type_by_element('all', element_type)
+mesh.set_structural_element_type_by_element('all', element_type)
 mesh.set_material_by_element('all', steel)
 
 

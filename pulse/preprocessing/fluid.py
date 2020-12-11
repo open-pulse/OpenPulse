@@ -14,6 +14,10 @@ class Fluid:
         self.speed_of_sound = speed_of_sound
         self.color = kwargs.get("color", None)
         self.identifier = kwargs.get("identifier", -1)
+        self.isentropic_exponent = kwargs.get("isentropic_exponent", None)
+        self.thermal_conductivity = kwargs.get("thermal_conductivity", None)
+        self.specific_heat_Cp = kwargs.get("specific_heat_Cp", None)
+        self.dynamic_viscosity = kwargs.get("dynamic_viscosity", None)     
 
     @property
     def impedance(self):
@@ -22,6 +26,18 @@ class Fluid:
     @property
     def bulk_modulus(self):
         return self.density * self.speed_of_sound**2
+
+    @property
+    def kinematic_viscosity(self):
+        return self.dynamic_viscosity / self.density
+
+    @property
+    def thermal_diffusivity(self):
+        return self.thermal_conductivity / (self.density * self.specific_heat_Cp) 
+
+    @property
+    def prandtl(self):
+        return self.specific_heat_Cp * self.dynamic_viscosity / self.thermal_conductivity
 
     def getColorRGB(self):
         temp = self.color[1:-1] #Remove "[ ]"

@@ -2,6 +2,12 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 
 class NodesWidget(QTreeWidget):
+    """MenuInfo Widget
+
+    This class is responsible for building a small area below of the item menu
+    when some item is clicked. This has been replaced for QDialog windows and currently isn't used.
+
+    """
     def __init__(self, nodes):
         super().__init__()
         self.nodes = nodes

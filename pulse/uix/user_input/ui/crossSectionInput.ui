@@ -1490,6 +1490,9 @@
      <property name="focusPolicy">
       <enum>Qt::ClickFocus</enum>
      </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 0);</string>
+     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>

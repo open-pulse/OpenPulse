@@ -2,7 +2,13 @@ from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
 
-class TreeUi(QTreeWidget):
+class MenuItems(QTreeWidget):
+    """Menu Items
+
+    This class is responsible for creating, configuring and building the items
+    in the items menu, located on the right side of the interface.
+
+    """
     def __init__(self, main_window):
         super().__init__()
         self.mainWindow = main_window
@@ -18,13 +24,15 @@ class TreeUi(QTreeWidget):
         self._updateItems()
 
     def keyPressEvent(self, event):
+        """This deals with key events that are directly linked with the menu."""
         if event.key() == Qt.Key_F5:
             self.mainWindow.getInputWidget().runAnalysis()
             self._updateItems()
 
     def _createNames(self):
+        """Create some variables to define the name of the items in the menu"""
         self.name_top_structuralmodelSetup = "Structural Model Setup"
-        self.name_child_setElementType = "Set Element Type"
+        self.name_child_setStructuralElementType = "Set Structural Element Type"
         self.name_child_setRotationDecoupling = "Set Rotation Decoupling (B2PX)"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
@@ -36,6 +44,7 @@ class TreeUi(QTreeWidget):
         self.name_child_add_elastic_nodal_links = "Add Elastic Nodal Links"
 
         self.name_top_acousticmodelSetup = "Acoustic Model Setup"
+        self.name_child_setAcousticElementType = "Set Acoustic Element Type"
         self.name_child_set_fluid = "Set Fluid"
         self.name_child_setAcousticPressure = "Set Acoustic Pressure"
         self.name_child_setVolumeVelocity = "Set Volume Velocity"
@@ -66,10 +75,14 @@ class TreeUi(QTreeWidget):
 
 
     def _createIcons(self):
+        """Create Icons objects that are placed on the right side of the item.
+            Currently isn't used.
+        """
         self.icon_child_set_material = QIcon()
         self.icon_child_set_material.addPixmap(QPixmap("pulse/data/icons/pulse.png"), QIcon.Active, QIcon.On)
 
     def _createFonts(self):
+        """Create Font objects that configure the font of the items."""
         self.font_top = QFont()
         #self.font_child = QFont()
 
@@ -87,7 +100,7 @@ class TreeUi(QTreeWidget):
         #self.font_internal.setWeight(75)
 
     def _createColorsBrush(self):
-        #
+        """Create Color objects that define the color of the text and/or background of the items."""
         color_top = QColor(178, 178, 178)
         self.brush_top = QBrush(color_top)
         self.brush_top.setStyle(Qt.SolidPattern)
@@ -97,6 +110,7 @@ class TreeUi(QTreeWidget):
         self.color_item_results_viewer.setStyle(Qt.SolidPattern)
 
     def _configTree(self):
+        """Define the initial configuration of the TreeWidget."""
         self.setColumnCount(1)
         self.setHeaderHidden(True)
         self.setTabKeyNavigation(True)
@@ -104,8 +118,9 @@ class TreeUi(QTreeWidget):
         self.itemClicked.connect(self.on_click_item)
 
     def _createItems(self):
+        """Create all TreeWidgetItems."""
         self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
-        self.item_child_setElementType = QTreeWidgetItem([self.name_child_setElementType])
+        self.item_child_setStructuralElementType = QTreeWidgetItem([self.name_child_setStructuralElementType])
         self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
         self.item_child_set_material = QTreeWidgetItem([self.name_child_set_material])
         self.item_child_set_crossSection = QTreeWidgetItem([self.name_child_set_crossSection])
@@ -117,6 +132,7 @@ class TreeUi(QTreeWidget):
         self.item_child_add_elastic_nodal_links = QTreeWidgetItem([self.name_child_add_elastic_nodal_links])
 
         self.item_top_acousticmodelSetup = QTreeWidgetItem([self.name_top_acousticmodelSetup])
+        self.item_child_setAcousticElementType = QTreeWidgetItem([self.name_child_setAcousticElementType])
         self.item_child_set_fluid = QTreeWidgetItem([self.name_child_set_fluid])
         self.item_child_setAcousticPressure = QTreeWidgetItem([self.name_child_setAcousticPressure])
         self.item_child_setVolumeVelocity = QTreeWidgetItem([self.name_child_setVolumeVelocity])
@@ -147,7 +163,7 @@ class TreeUi(QTreeWidget):
 
 
     def _configItems(self):
-
+        """Configure all items."""
         # Font setup - top items
 
         self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
@@ -177,7 +193,7 @@ class TreeUi(QTreeWidget):
 
         # Font setup - internal items
 
-        self.item_child_setElementType.setFont(0, self.font_internal)
+        self.item_child_setStructuralElementType.setFont(0, self.font_internal)
         self.item_child_setRotationDecoupling.setFont(0, self.font_internal)
         self.item_child_set_material.setFont(0, self.font_internal)
         self.item_child_set_crossSection.setFont(0, self.font_internal)
@@ -188,6 +204,7 @@ class TreeUi(QTreeWidget):
         self.item_child_set_stress_stiffening.setFont(0, self.font_internal)
         self.item_child_add_elastic_nodal_links.setFont(0, self.font_internal)
 
+        self.item_child_setAcousticElementType.setFont(0, self.font_internal)
         self.item_child_set_fluid.setFont(0, self.font_internal)
         self.item_child_setAcousticPressure.setFont(0, self.font_internal)
         self.item_child_setVolumeVelocity.setFont(0, self.font_internal)
@@ -213,12 +230,13 @@ class TreeUi(QTreeWidget):
         self.item_child_plotAcousticFrequencyResponse.setFont(0, self.font_internal)
         self.item_child_plot_TL_NR.setFont(0, self.font_internal)
 
-        # self.item_child_setElementType.setDisabled(True)
+        # self.item_child_setStructuralElementType.setDisabled(True)
         #self.item_child_plotStressField.setDisabled(True)
 
     def _addItems(self):
+        """Insert items on the TreeWidget."""
         self.addTopLevelItem(self.item_top_structuralmodelSetup)
-        self.addTopLevelItem(self.item_child_setElementType)
+        self.addTopLevelItem(self.item_child_setStructuralElementType)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
@@ -229,7 +247,8 @@ class TreeUi(QTreeWidget):
         self.addTopLevelItem(self.item_child_set_stress_stiffening)
         self.addTopLevelItem(self.item_child_add_elastic_nodal_links)
 
-        self.addTopLevelItem(self.item_top_acousticmodelSetup)      
+        self.addTopLevelItem(self.item_top_acousticmodelSetup)  
+        self.addTopLevelItem(self.item_child_setAcousticElementType)    
         self.addTopLevelItem(self.item_child_set_fluid)             
         self.addTopLevelItem(self.item_child_setAcousticPressure) 
         self.addTopLevelItem(self.item_child_setVolumeVelocity)     
@@ -259,10 +278,11 @@ class TreeUi(QTreeWidget):
 
         
     def on_click_item(self, item, column):
+        """This event is raised every time an item is clicked on the menu."""
         self.mainWindow.getInputWidget().beforeInput()
 
-        if item.text(0) == self.name_child_setElementType:
-            self.mainWindow.getInputWidget().setElementType()
+        if item.text(0) == self.name_child_setStructuralElementType:
+            self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item.text(0) == self.name_child_set_material:
             self.mainWindow.plot_entities()
@@ -299,6 +319,9 @@ class TreeUi(QTreeWidget):
         elif item.text(0) == self.name_child_add_elastic_nodal_links:
             self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
+
+        elif item.text(0) == self.name_child_setAcousticElementType:
+            self.mainWindow.getInputWidget().set_acoustic_element_type()
 
         elif item.text(0) == self.name_child_set_fluid: 
             self.mainWindow.plot_entities()
@@ -378,7 +401,7 @@ class TreeUi(QTreeWidget):
 
 
     def _updateItems(self):
-
+        """Enable and disable items on menu when some condictions aren't satisfied."""
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)

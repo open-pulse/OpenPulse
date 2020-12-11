@@ -1,19 +1,21 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QSplitter
 
-from pulse.uix.dataUi import DataUi
-from pulse.uix.treeUi import TreeUi
-from pulse.uix.widgets.generateWidget import GenerateWidget
-from pulse.uix.widgets.nodesWidget import NodesWidget
-from pulse.uix.widgets.edgesWidget import EdgesWidget
-from pulse.uix.widgets.plotWidget import PlotWidget
+from pulse.uix.menu import *
+from pulse.uix.menu.widgets import *
 
-class InfoUi(QSplitter):
+class Menu(QSplitter):
+    """Menu
+
+    This class creates and configures the interface.
+    Also is responsible for creating the MenuItems Object.
+
+    """
     def __init__(self, main_window):
         super().__init__(Qt.Vertical)
         self.main_window = main_window
-        self.tree_widget = TreeUi(self.main_window)
-        self.data_widget = DataUi(self.main_window)
+        self.tree_widget = MenuItems(self.main_window)
+        self.data_widget = MenuInfo(self.main_window)
 
         self.addWidget(self.tree_widget)
         #self.addWidget(self.data_widget)

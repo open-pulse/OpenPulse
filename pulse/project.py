@@ -15,6 +15,7 @@ import os
 
 class Project:
     def __init__(self):
+
         self.mesh = Mesh()
         self.file = ProjectFile()
 
@@ -46,8 +47,8 @@ class Project:
         self.time_to_postprocess = None
         self.lines_with_cross_section_by_elements = []
 
-
     def reset_info(self):
+
         self.mesh = Mesh()
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -78,17 +79,15 @@ class Project:
         self.stress_label = ""
 
     def new_project(self, project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+        
         self.reset_info()
         self.file.new(project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
         self._project_name = project_name
         self.project_folder_path = project_folder_path
 
-        if self.file.get_import_type() == 0:
-            self.mesh.generate(self.file.geometry_path, self.file.element_size)
-        elif self.file.get_import_type() == 1:
-            self.mesh.load_mesh(self.file.coord_path, self.file.conn_path)
-
-        self.file.create_entity_file(self.get_entities())
+        self.process_geometry_and_mesh()
+        self.entities = self.mesh.dict_entities.values()
+        self.file.create_entity_file(self.mesh.all_lines)
 
     def load_project(self, project_file_path):
 
@@ -97,27 +96,47 @@ class Project:
         self._project_name = self.file._project_name
         self.project_folder_path = os.path.dirname(project_file_path)
 
+        self.process_geometry_and_mesh()
+        self.entities = self.mesh.dict_entities.values()
+        self.load_structural_bc_file()
+        self.load_acoustic_bc_file()
+        self.load_entity_file()
+        self.load_analysis_file()
+
+        if self.file.temp_table_name is not None:
+            self.load_frequencies_from_table()
+    
+    def reset_project(self):
+        self.reset_info()
+        if os.path.exists(self.file._entity_path):
+            os.remove(self.file._entity_path)
+        if os.path.exists(self.file._element_info_path):
+            os.remove(self.file._element_info_path)
+        if os.path.exists(self.file._node_structural_path):
+            os.remove(self.file._node_structural_path)
+        if os.path.exists(self.file._node_acoustic_path):
+            os.remove(self.file._node_acoustic_path)
+        self.file.reset_project_setup()
+        self.process_geometry_and_mesh()
+        self.file.create_entity_file(self.mesh.all_lines)
+        #TODO: set the render to entities
+ 
+    def process_geometry_and_mesh(self):
+
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
         elif self.file.get_import_type() == 1:
             self.mesh.load_mesh(self.file.coord_path, self.file.conn_path)
-
-        self.load_structural_bc_file()
-        self.load_acoustic_bc_file()
-        self.load_entity_file()
-
-        self.load_analysis_file()
-        if self.file.temp_table_name is not None:
-            self.load_frequencies_from_table()
   
     def set_entity(self, tag):
         return Entity(tag)
 
     def load_entity_file(self):
 
+        self.lines_multiples_cross_sections = []
         self.file.get_dict_of_entities_from_file()
-
-        dict_element_types = self.file.dict_element_type
+        dict_structural_element_type = self.file.dict_structural_element_type
+        dict_acoustic_element_types = self.file.dict_acoustic_element_type
         dict_element_length_correction = self.file.dict_length_correction
         dict_materials = self.file.dict_material
         dict_cross_sections = self.file.dict_cross
@@ -126,27 +145,30 @@ class Project:
         dict_capped_end = self.file.dict_capped_end
         dict_stress_stiffening = self.file.dict_stress_stiffening
         dict_B2PX_rotation_decoupling = self.file.dict_B2XP_rotation_decoupling
-
-        self.lines_multiples_cross_sections = []
-
-        # Element type to Entities
-        for key, el_type in dict_element_types.items():
+        
+        # Structural element type to the entities
+        for key, el_type in dict_structural_element_type.items():
             if self.file.element_type_is_structural:
-                self.load_element_type_by_entity(key, el_type)
+                self.load_structural_element_type_by_entity(key, el_type)
 
-        # Length correction to Elements
+        # Acoustic element type to the entities
+        for key, [el_type, hysteretic_damping] in dict_acoustic_element_types.items():
+            if self.file.element_type_is_acoustic:
+                self.load_acoustic_element_type_by_entity(key, el_type, hysteretic_damping=hysteretic_damping)
+
+        # Length correction to the elements
         for key, value in dict_element_length_correction.items():
             self.load_length_correction_by_elements(value[0], value[1], key)
 
-        # Material to Entities
+        # Material to the entities
         for key, mat in dict_materials.items():
             self.load_material_by_entity(key, mat)
 
-        # Fluid to Entities
+        # Fluid to the entities
         for key, fld in dict_fluids.items():
             self.load_fluid_by_entity(key, fld)
 
-        # Cross-section to Entities
+        # Cross-section to the entities
         for key, cross in dict_cross_sections.items():
             if "-" in key:
                 self.load_cross_section_by_element(cross[1], cross[0])
@@ -161,21 +183,22 @@ class Project:
                 for i in range(len(item[0])):
                     self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
                     
-        # Stress Stiffening to Entities and Elements
+        # Stress Stiffening to the entities and elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
                 self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
             else:
                 self.load_stress_stiffening_by_entity(key, parameters)        
 
-        # Capped end to Entities and Elements
+        # Capped end to the entities and elements
         for key, group in dict_capped_end.items():
             if "CAPPED END" in key:  
                 self.load_capped_end_by_elements(group, True, key)
             elif "True" in key:
                 self.load_capped_end_by_entity(group, True, key)
 
-    def load_mapped_cross_section(self):        
+    def load_mapped_cross_section(self):  
+
         label_etypes = ['pipe_1', 'pipe_2', 'beam_1']
         indexes = [0, 1, 2]
         dict_etype_index = dict(zip(label_etypes,indexes))
@@ -346,8 +369,8 @@ class Project:
     def set_material(self, material):
         self.mesh.set_material_by_element('all', material)
         self._set_all_entity_material(material)
-        for entity in self.mesh.entities:
-            self.file.add_material_in_file(entity.get_tag(), material.identifier)
+        for line in self.mesh.all_lines:
+            self.file.add_material_in_file(line, material.identifier)
 
     def set_material_by_entity(self, entity_id, material):
         if self.file.get_import_type() == 0:
@@ -360,9 +383,9 @@ class Project:
 
     def set_cross_section_to_all(self, cross_section):
         self.mesh.set_cross_section_by_element('all', cross_section)
-        self._set_all_entity_crossSection(cross_section)
-        for entity in self.mesh.entities:
-            self.file.add_cross_section_in_file(entity.get_tag(), cross_section)
+        self._set_all_entity_cross_section(cross_section)
+        for line in self.mesh.all_lines:
+            self.file.add_cross_section_in_file(line, cross_section)
 
     def set_cross_section_by_elements(self, elements, cross_section):
         self.mesh.set_cross_section_by_element(elements, cross_section)
@@ -381,21 +404,36 @@ class Project:
         self._set_entity_cross_section(entity_id, cross_section)
         self.file.add_cross_section_in_file(entity_id, cross_section)
 
-    def set_element_type_to_all(self, element_type):
-        self.mesh.set_element_type_by_element('all', element_type)
-        self._set_all_entity_element_type(element_type)
-        for entity in self.mesh.entities:
-            self.file.modify_element_type_in_file(entity.get_tag(), element_type)
+    def set_structural_element_type_to_all(self, element_type):
+        self.mesh.set_structural_element_type_by_element('all', element_type)
+        self._set_structural_element_type_to_all_entities(element_type)
+        for line in self.mesh.all_lines:
+            self.file.modify_structural_element_type_in_file(line, element_type)
 
-    def set_element_type_by_entity(self, entity_id, element_type):
+    def set_structural_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
-            self.mesh.set_element_type_by_line(entity_id, element_type)
+            self.mesh.set_structural_element_type_by_line(entity_id, element_type)
         elif self.file.get_import_type() == 1:
-            self.mesh.set_element_type_by_element('all', element_type)
+            self.mesh.set_structural_element_type_by_element('all', element_type)
 
-        self._set_entity_element_type(entity_id, element_type)
-        self.file.modify_element_type_in_file(entity_id, element_type)
+        self._set_structural_element_type_to_selected_entity(entity_id, element_type)
+        self.file.modify_structural_element_type_in_file(entity_id, element_type)
         
+    def set_acoustic_element_type_to_all(self, element_type, hysteretic_damping=None):
+        self.mesh.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
+        self._set_acoustic_element_type_to_all_entities(element_type, hysteretic_damping=hysteretic_damping)
+        for line_id in self.mesh.all_lines:
+            self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
+
+    def set_acoustic_element_type_by_entity(self, entity_id, element_type, hysteretic_damping=None):
+        if self.file.get_import_type() == 0:
+            self.mesh.set_acoustic_element_type_by_line(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+        elif self.file.get_import_type() == 1:
+            self.mesh.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
+
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]
@@ -546,12 +584,19 @@ class Project:
             self.mesh.set_cross_section_by_element('all', cross_section)
         self._set_entity_cross_section(entity_id, cross_section)
 
-    def load_element_type_by_entity(self, entity_id, element_type):
+    def load_structural_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
-            self.mesh.set_element_type_by_line(entity_id, element_type)
+            self.mesh.set_structural_element_type_by_line(entity_id, element_type)
         elif self.file.get_import_type() == 1:
-            self.mesh.set_element_type_by_element('all', element_type)
-        self._set_entity_element_type(entity_id, element_type)
+            self.mesh.set_structural_element_type_by_element('all', element_type)
+        self._set_structural_element_type_to_selected_entity(entity_id, element_type)
+
+    def load_acoustic_element_type_by_entity(self, entity_id, element_type, hysteretic_damping=None):
+        if self.file.get_import_type() == 0:
+            self.mesh.set_acoustic_element_type_by_line(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+        elif self.file.get_import_type() == 1:
+            self.mesh.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, hysteretic_damping=hysteretic_damping)
 
     def load_structural_loads_by_node(self, node_id, values):
         self.mesh.set_structural_load_bc_by_node(node_id, values)
@@ -589,8 +634,11 @@ class Project:
     def get_elements(self):
         return self.mesh.structural_elements
     
-    def get_element(self, element_id):
+    def get_structural_element(self, element_id):
         return self.mesh.structural_elements[element_id]
+
+    def get_acoustic_element(self, element_id):
+        return self.mesh.acoustic_elements[element_id]
 
     def set_frequencies(self, frequencies, min_, max_, step_):
         if max_ != 0 and step_ != 0:
@@ -602,46 +650,56 @@ class Project:
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, bc)
 
     def _set_entity_material(self, entity_id, material):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.material = material
-                return
+        entity = self.mesh.dict_entities[entity_id]
+        entity.material = material
 
     def _set_all_entity_material(self, material):
-        for entity in self.mesh.entities:
+        for entity in self.entities:
             entity.material = material
 
+    def _set_entity_fluid(self, entity_id, fluid):
+        entity = self.mesh.dict_entities[entity_id]
+        entity.fluid = fluid
+
+    def _set_all_entity_fluid(self, fluid):
+        for entity in self.entities:
+            entity.fluid = fluid
+
     def _set_entity_cross_section(self, entity_id, cross):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.crossSection = cross
-                return
+        entity = self.mesh.dict_entities[entity_id]
+        entity.cross_section = cross
 
-    def _set_all_entity_crossSection(self, cross):
-        for entity in self.mesh.entities:
-            entity.crossSection = cross
+    def _set_all_entity_cross_section(self, cross):
+        for entity in self.entities:
+            entity.cross_section = cross
 
-    def _set_entity_element_type(self, entity_id, element_type):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.element_type = element_type
-                return
+    def _set_structural_element_type_to_selected_entity(self, entity_id, element_type):
+        entity = self.mesh.dict_entities[entity_id]
+        entity.structural_element_type = element_type
 
-    def _set_all_entity_element_type(self, element_type):
-        for entity in self.mesh.entities:
-            entity.element_type = element_type
+    def _set_structural_element_type_to_all_entities(self, element_type):
+        for entity in self.entities:
+            entity.structural_element_type = element_type
+
+    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, hysteretic_damping=None):
+        entity = self.mesh.dict_entities[entity_id]
+        entity.acoustic_element_type = element_type
+        entity.hysteretic_damping = hysteretic_damping
+
+    def _set_acoustic_element_type_to_all_entities(self, element_type, hysteretic_damping=None):
+        for entity in self.entities: 
+            entity.acoustic_element_type = element_type
+            entity.hysteretic_damping = hysteretic_damping
 
     def _set_entity_stress_stiffening(self, entity_id, parameters):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.external_temperature = parameters[0]
-                entity.internal_temperature = parameters[1]
-                entity.external_pressure = parameters[2]
-                entity.internal_pressure = parameters[3]
-                return
+        entity = self.mesh.dict_entities[entity_id]
+        entity.external_temperature = parameters[0]
+        entity.internal_temperature = parameters[1]
+        entity.external_pressure = parameters[2]
+        entity.internal_pressure = parameters[3]
 
     def _set_all_entity_stress_stiffening(self, parameters):
-        for entity in self.mesh.entities:
+        for entity in self.entities:
             entity.external_temperature = parameters[0]
             entity.internal_temperature = parameters[1]
             entity.external_pressure = parameters[2]
@@ -660,13 +718,16 @@ class Project:
             self.mesh.set_fluid_by_element('all', fluid)
 
         self._set_entity_fluid(entity_id, fluid)
-        self.file.add_fluid_in_file(entity_id, fluid.identifier)
+        if fluid is None:
+            self.file.add_fluid_in_file(entity_id, "")
+        else:
+            self.file.add_fluid_in_file(entity_id, fluid.identifier)
 
-    def set_fluid(self, fluid):
+    def set_fluid_to_all_entities(self, fluid):
         self.mesh.set_fluid_by_element('all', fluid)
         self._set_all_entity_fluid(fluid)
-        for entity in self.mesh.entities:
-            self.file.add_fluid_in_file(entity.get_tag(), fluid.identifier)
+        for line in self.mesh.all_lines:
+            self.file.add_fluid_in_file(line, fluid.identifier)
 
     def set_acoustic_pressure_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, values) 
@@ -737,16 +798,6 @@ class Project:
     def load_length_correction_by_elements(self, elements, value, key):
         self.mesh.set_length_correction_by_element(elements, value, key)
 
-    def _set_entity_fluid(self, entity_id, fluid):
-        for entity in self.mesh.entities:
-            if entity.tag == entity_id:
-                entity.fluid = fluid
-                return
-
-    def _set_all_entity_fluid(self, fluid):
-        for entity in self.mesh.entities:
-            entity.fluid = fluid
-
     def get_map_nodes(self):
         return self.mesh.map_nodes
 
@@ -762,28 +813,27 @@ class Project:
     def get_nodes(self):
         return self.mesh.nodes
 
-    def get_entities(self):
-        return self.mesh.entities
+    # def get_entities(self):
+    #     return self.mesh.entities
 
     def get_node(self, node_id):
         return self.mesh.nodes[node_id]
 
     def get_entity(self, entity_id):
-        for entity in self.mesh.entities:
-            if entity.get_tag() == entity_id:
-                return entity
+        self.mesh.dict_entities[entity_id]
+        return self.mesh.dict_entities[entity_id]
 
     def get_element_size(self):
         return self.file.element_size
 
     def check_entity_material(self):
-        for entity in self.get_entities():
+        for entity in self.entities:#get_entities():
             if entity.getMaterial() is None:
                 return False
         return True
 
     def check_entity_crossSection(self):
-        for entity in self.get_entities():
+        for entity in self.entities:#get_entities():
             if entity.getCrossSection() is None:
                 return False
         return True

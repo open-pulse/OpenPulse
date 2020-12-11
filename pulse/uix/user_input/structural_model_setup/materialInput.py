@@ -7,7 +7,9 @@ from PyQt5 import uic
 import configparser
 
 from pulse.preprocessing.material import Material
+from pulse.default_libraries import default_fluid_library
 from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+
 window_title = "ERROR"
 
 class MaterialInput(QDialog):

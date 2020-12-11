@@ -28,8 +28,8 @@ class ActorLine(vtkActorBase):
 
     def changeRadius(self):
         if self.plotRadius:
-            if self.entity.crossSection is not None:
-                self.radius = self.entity.crossSection.external_radius
+            if self.entity.cross_section is not None:
+                self.radius = self.entity.cross_section.external_radius
 
     def source(self):
         for node in self.nodesList:

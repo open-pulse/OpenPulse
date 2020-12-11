@@ -43,11 +43,11 @@ class StructuralElement:
         self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
-        
+
+        self.element_type = kwargs.get('element_type', 'pipe_1')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
-        self.element_type = kwargs.get('element_type', 'pipe_1')
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)
         self.decoupling_matrix = kwargs.get('decoupling_matrix', decoupling_matrix)

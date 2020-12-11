@@ -1,24 +1,24 @@
-import sys
-from os.path import expanduser, basename, exists, dirname
-from pathlib import Path
-
-import numpy as np
-
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu
 
-from pulse.uix.infoUi import InfoUi
+from pulse.uix.menu.Menu import Menu
+from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
-from pulse.uix.inputUi import InputUi
 from pulse.uix.config import Config
+
+import sys
+from os.path import expanduser, basename, exists, dirname
+from pathlib import Path
+import numpy as np
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
+
         self.config = Config()
         self.project = Project()
         self._loadIcons()
@@ -35,9 +35,10 @@ class MainWindow(QMainWindow):
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'add.png')
         self.open_icon = QIcon(icons_path + 'upload.png')
+        self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
-
+        
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
         self.showMaximized()
@@ -51,7 +52,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
 
     def _createActions(self):
-        #File
+        # File
         self.new_action = QAction(self.new_icon, '&New Project', self)        
         self.new_action.setShortcut('Ctrl+N')
         self.new_action.setStatusTip('New Project')
@@ -67,17 +68,22 @@ class MainWindow(QMainWindow):
         self.saveAsPng_action.setStatusTip('Save as PNG')
         self.saveAsPng_action.triggered.connect(self.savePNG_call)
 
+        self.reset_action = QAction(self.reset_icon, '&Reset Project', self)       
+        self.reset_action.setShortcut('Ctrl+Sift+R')
+        self.reset_action.setStatusTip('Reset Project')
+        self.reset_action.triggered.connect(lambda: self.resetProject_call())
+
         self.exit_action = QAction(self.exit_icon, '&Exit', self)        
-        self.exit_action.setShortcut('Ctrl+Q')
+        self.exit_action.setShortcut('Ctrl+Shift+Q')
         self.exit_action.setStatusTip('Exit application')
         self.exit_action.triggered.connect(self.close)
 
-        #Help
+        # Help
         self.help_action = QAction('&Help', self)        
         self.help_action.setStatusTip('Help')
         self.help_action.setShortcut('F1')
 
-        #Graphics
+        # Graphics
         self.entities_action = QAction('&Entity', self)        
         self.entities_action.setShortcut('Ctrl+1')
         self.entities_action.setStatusTip('Plot Entities')
@@ -98,7 +104,7 @@ class MainWindow(QMainWindow):
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
-        #Structural Model Setup
+        # Structural Model Setup
         self.set_material_action = QAction('&Set Material', self)        
         self.set_material_action.setShortcut('Alt+1')
         self.set_material_action.setStatusTip('Set Material')
@@ -109,10 +115,10 @@ class MainWindow(QMainWindow):
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
-        self.setElementType_action = QAction('&Set Element Type', self)        
-        self.setElementType_action.setShortcut('Alt+3')
-        self.setElementType_action.setStatusTip('Set Element Type')
-        self.setElementType_action.triggered.connect(self.getInputWidget().setElementType)
+        self.setStructuralElementType_action = QAction('&Set Structural Element Type', self)        
+        self.setStructuralElementType_action.setShortcut('Alt+3')
+        self.setStructuralElementType_action.setStatusTip('Set Structural Element Type')
+        self.setStructuralElementType_action.triggered.connect(self.getInputWidget().setStructuralElementType)
 
         self.setDOF_action = QAction('&Set Prescribed DOFs', self)        
         self.setDOF_action.setShortcut('Alt+4')
@@ -144,48 +150,53 @@ class MainWindow(QMainWindow):
         self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
         self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
 
-        #Acoustic Model Setup
+        # Acoustic Model Setup
+        self.setAcousticElementType_action = QAction('&Set Acoustic Element Type', self)        
+        self.setAcousticElementType_action.setShortcut('Ctrl+Alt+1')
+        self.setAcousticElementType_action.setStatusTip('Set Acoustic Element Type')
+        self.setAcousticElementType_action.triggered.connect(self.getInputWidget().set_acoustic_element_type)
+
         self.set_fluid_action = QAction('&Set Fluid', self)        
-        self.set_fluid_action.setShortcut('Ctrl+Alt+1')
+        self.set_fluid_action.setShortcut('Ctrl+Alt+2')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
-        self.setAcousticPressure_action.setShortcut('Ctrl+Alt+2')
+        self.setAcousticPressure_action.setShortcut('Ctrl+Alt+3')
         self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
         self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
 
         self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
-        self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+3')
+        self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+4')
         self.setVolumeVelocity_action.setStatusTip('Set Volume Velocity')
         self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setVolumeVelocity)
 
         self.setSpecificImpedance_action = QAction('&Set Specific Impedance', self)        
-        self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+4')
+        self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+5')
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
         self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
-        self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+5')
+        self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+6')
         self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
         self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
         self.add_perforated_plate_action = QAction('&Add perforated plate', self)        
-        self.add_perforated_plate_action.setShortcut('Ctrl+Alt+6')
+        self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
         self.add_perforated_plate_action.setStatusTip('Add perforated plate')
         self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
 
         self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
-        self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+7')
+        self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+8')
         self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
 
         self.add_compressor_excitation_action = QAction('&Add Compressor Excitation', self)        
-        # self.add_compressor_excitation_action.setShortcut('Ctrl+Alt+7')
+        # self.add_compressor_excitation_action.setShortcut('Ctrl+Alt+9')
         self.add_compressor_excitation_action.setStatusTip('Add Compressor Excitation')
         self.add_compressor_excitation_action.triggered.connect(self.getInputWidget().add_compressor_excitation)
 
-        #Model Informations
+        # Structural and Acoustic Model Informations
         self.structural_model_info_action = QAction('&Structural Model Info', self)    
         self.structural_model_info_action.setShortcut('F3')    
         self.structural_model_info_action.setStatusTip('Structural Model Info')
@@ -196,7 +207,7 @@ class MainWindow(QMainWindow):
         self.acoustic_model_info_action.setStatusTip('Acoustic Model Info')
         self.acoustic_model_info_action.triggered.connect(self.getInputWidget().acoustic_model_info)
 
-        #Analysis
+        # Analysis
         self.selectAnalysisType_action = QAction('&Select Analysis Type', self)        
         self.selectAnalysisType_action.setShortcut('Alt+Q')
         self.selectAnalysisType_action.setStatusTip('Select Analysis Type')
@@ -212,7 +223,7 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.setStatusTip('Run Analysis')
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
-        #Results Viewer
+        # Results Viewer
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
@@ -292,6 +303,7 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.import_action)
         self.projectMenu.addMenu(self.recentProjectsMenu)
         self.projectMenu.addAction(self.saveAsPng_action)
+        self.projectMenu.addAction(self.reset_action)
         self.projectMenu.addAction(self.exit_action)
 
     def _loadGraphicMenu(self):
@@ -301,7 +313,7 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.section_action)
 
     def _loadModelSetupMenu(self):
-        self.structuralModelSetupMenu.addAction(self.setElementType_action)
+        self.structuralModelSetupMenu.addAction(self.setStructuralElementType_action)
         self.structuralModelSetupMenu.addAction(self.set_material_action)
         self.structuralModelSetupMenu.addAction(self.set_crossSection_action)
         self.structuralModelSetupMenu.addAction(self.setDOF_action)
@@ -311,6 +323,7 @@ class MainWindow(QMainWindow):
         self.structuralModelSetupMenu.addAction(self.stressStiffening_action)
         self.structuralModelSetupMenu.addAction(self.nodalLinks_action)
 
+        self.acousticModelSetupMenu.addAction(self.setAcousticElementType_action)
         self.acousticModelSetupMenu.addAction(self.set_fluid_action)
         self.acousticModelSetupMenu.addAction(self.setAcousticPressure_action)
         self.acousticModelSetupMenu.addAction(self.setVolumeVelocity_action)
@@ -373,18 +386,19 @@ class MainWindow(QMainWindow):
 
         self.toolbar.addAction(self.new_action)
         self.toolbar.addAction(self.import_action)
+        self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
 
     def _createBasicLayout(self):
-        self.info_widget = InfoUi(self)
+        self.menuWidget = Menu(self)
         self.opv_widget = OPVUi(self.project, self)
         self.inputWidget = InputUi(self.project, self)
 
         working_area = QSplitter(Qt.Horizontal)
         self.setCentralWidget(working_area)
 
-        working_area.addWidget(self.info_widget)
+        working_area.addWidget(self.menuWidget)
         working_area.addWidget(self.opv_widget)
         working_area.setSizes([100,400])
 
@@ -399,6 +413,10 @@ class MainWindow(QMainWindow):
             self._loadProjectMenu()
             self.changeWindowTitle(self.project.get_project_name())
             self.draw()
+    
+    def resetProject_call(self):
+        self.inputWidget.reset_project()
+        return
 
     def importRecentProject_call(self, dir):
         self.importProject_call(dir)
@@ -441,9 +459,9 @@ class MainWindow(QMainWindow):
         close = QMessageBox.question(
             self,
             "QUIT",
-            "Are you sure want to stop process?",
+            "Are you sure you want to stop process?",
             QMessageBox.No | QMessageBox.Yes)
-        
+               
         if close == QMessageBox.Yes:
             sys.exit()
         else:
@@ -452,8 +470,8 @@ class MainWindow(QMainWindow):
     def getInputWidget(self):
         return self.inputWidget
 
-    def getInfoWidget(self):
-        return self.info_widget
+    def getMenuWidget(self):
+        return self.menuWidget
 
     def getOPVWidget(self):
         return self.opv_widget
