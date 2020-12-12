@@ -43,10 +43,7 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.build()
         self.opvNodes.build()
         self.opvLines.build()
-
-        self.opvTubes.transparent = False
-            
-        # remove this
+        
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvTubes)
         plt(self.opvNodes)
@@ -54,23 +51,38 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvDeformedTubes)
         print('current', time()-s)
     
-    def plot_deformed(self):
+    def plotDeformed(self):
         try:
             self.opvDeformedTubes.build()
         except Exception as e:
             print(e)
 
-    def show_nodes(self, cond):
-        self._add_actor(self.opvNodes.getActor(), cond)
+    def showNodes(self, cond=True):
+        self.opvNodes.getActor().SetVisibility(cond)
 
-    def show_tubes(self, cond):
-        self._add_actor(self.opvTubes.getActor(), cond)
+    def showTubes(self, cond=True, transparent=True):
+        self.opvTubes.getActor().SetVisibility(cond)
+        self.opvTubes.transparent = transparent
     
-    def show_lines(self, cond):
-        self._add_actor(self.opvLines.getActor(), cond)
+    def showLines(self, cond=True):
+        self.opvLines.getActor().SetVisibility(cond)
 
-    def show_deformed_tubes(self, cond):
-        self._add_actor(self.opvDeformedTubes.getActor(), cond)
+    def showDeformedTubes(self, cond=True):
+        self.opvDeformedTubes.getActor().SetVisibility(cond)
+
+    # TODO: implement this
+    def selectLines(self, cond):
+        pass 
+
+    def selectTubes(self, cond):
+        pass
+
+    def selectNodes(self, cond):
+        pass
+
+    def selectEntities(self, cond):
+        pass
+
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -117,6 +129,10 @@ class opvRenderer(vtkRendererBase):
         return []
     
     def highlight(self, obj, event):
+        visual = [self.opvNodes, self.opvLines, self.opvTubes]
+        if any([v is None for v in visual]):
+            return
+
         selectedNodes = self.getListPickedPoints()
         selectedElements = self.getListPickedElements()
         selectedEntities = []
@@ -159,12 +175,6 @@ class opvRenderer(vtkRendererBase):
         else:
             text = ''
         return text
-
-    def _add_rm_actor(self, actor, cond):
-        self._renderer.RemoveActor(actor)
-        if cond:
-            self._renderer.AddActor(actor)
-    
     
     # functions to be removed but currently break the execution
     def getElementsInfoText(self, *args, **kwargs):
