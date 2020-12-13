@@ -12,6 +12,7 @@ class TubeDeformedActor(TubeActor):
     def __init__(self, elements, project):
         super().__init__(elements, project)
         self.transparent = False
+        self.colorTable = None
 
     def source(self):
         points = vtk.vtkPoints()
@@ -60,13 +61,13 @@ class TubeDeformedActor(TubeActor):
             return dist
 
         deformations = np.array([get_deform(element) for element in self.elements.values()])
-        Table = ColorTable(self.project, deformations)
+        self.colorTable = ColorTable(self.project, deformations)
 
         c = vtk.vtkUnsignedCharArray()
         c.DeepCopy(self._colors)
         for key, element in self.elements.items():
             index = self._key_index[key]
-            color = Table.get_color_by_id(index)
+            color = self.colorTable.get_color_by_id(index)
             c.SetTuple(index, color)
 
         self._data.GetPointData().SetScalars(c)

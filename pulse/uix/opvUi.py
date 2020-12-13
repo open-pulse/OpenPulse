@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-from pulse.postprocessing.plot_structural_data import get_structural_response
+# from pulse.postprocessing.plot_structural_data import get_structural_response
 # from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
 from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
@@ -13,6 +13,7 @@ from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
 from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
 from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer
+from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -27,8 +28,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh = RendererMesh(self.project, self)
         self.rendererAnalysis = RendererPostProcessing(self.project, self)
 
-        # this should be the only one in the near future
         self.opvRenderer = opvRenderer(self.project, self)
+        self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
         self.sliderScale = 1
@@ -156,20 +157,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.clearRendereresUse()
 
     def afterChangePlot(self):
-        self.applyCamera()
+        # self.applyCamera()
         self._updateAxes()
         self._updateSlider()
         self.update()
 
     def changePlotToEntities(self):
-        if not self.opvRenderer.getInUse():
-            self.beforeChangePlot()
-            self.opvRenderer.setInUse(True)
-            self.SetInteractorStyle(self.opvRenderer.getStyle())
-            self.GetRenderWindow().AddRenderer(self.opvRenderer.getRenderer())
+        self.setRenderer(self.opvRenderer)
 
-        # when opvRenderer be the only renderer
-        # just this changes will be needed
         self.opvRenderer.showNodes(False)
         self.opvRenderer.showTubes(True, transparent=False)
         self.opvRenderer.showLines(True)
@@ -190,14 +185,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.afterChangePlot()
 
     def changePlotToMesh(self):
-        if not self.opvRenderer.getInUse():
-            self.beforeChangePlot()
-            self.opvRenderer.setInUse(True)
-            self.SetInteractorStyle(self.opvRenderer.getStyle())
-            self.GetRenderWindow().AddRenderer(self.opvRenderer.getRenderer())
+        self.setRenderer(self.opvRenderer)
 
-        # when opvRenderer be the only renderer
-        # just this changes will be needed
         self.opvRenderer.showNodes(True)
         self.opvRenderer.showTubes(True, transparent=True)
         self.opvRenderer.showLines(True)
@@ -219,53 +208,35 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.rendererMesh.resetCamera()
         # self.afterChangePlot()
 
-    def changePlotToStress(self):
-        if not self.opvRenderer.getInUse():
+    def setRenderer(self, renderer):
+        if not renderer.getInUse():
             self.beforeChangePlot()
-            self.opvRenderer.setInUse(True)
-            self.SetInteractorStyle(self.opvRenderer.getStyle())
-            self.GetRenderWindow().AddRenderer(self.opvRenderer.getRenderer())
+            renderer.setInUse(True)
+            self.SetInteractorStyle(renderer.getStyle())
+            self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
-        # when opvRenderer be the only renderer
-        # just this changes will be needed
-        self.opvRenderer.plotDeformed()
-
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showTubes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showDeformedTubes(True)
-        self.opvRenderer.update()
-        self.opvRenderer.selectLines(False)
-        self.opvRenderer.selectTubes(False)
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectEntities(False)
-
-    
     def changePlotToPressure(self):
         pass
 
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
         # we call it so many times in so many different files that 
         # i will just continue my code from here and we organize all 
-        # these in the future
-
-        sliderFactor = 1
+        # these in the future. Im sorry
+        
+        self.setRenderer(self.opvAnalisysRenderer)
+        self.opvAnalisysRenderer.updateHud()
 
         if pressure_field_plot:
-            _, connect, coord, r_def = get_acoustic_response(self.project.get_mesh(), 
-                                                             self.project.get_acoustic_solution(), 
-                                                             frequency_indice,
-                                                             real_part = real_part)
+            self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
         elif True or stress_field_plot:
-            connect, coord, r_def, self.valueFactor = get_structural_response(self.project.get_mesh(), 
-                                                                              self.project.get_structural_solution(), 
-                                                                              frequency_indice, 
-                                                                              gain=sliderFactor)
+            # please be more carefull when calling this function and select
+            # at least one between pressure_field_plot or stress_field_plot
+            # then remove this "True or" statement
+            self.opvAnalisysRenderer.showDeformation(frequency_indice, gain=1)
         else:
-            print('No analisys selected')
+            raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
 
-        self.changePlotToStress()
-
+        
         # # TODO: delete this 
         # self.beforeChangePlot()
         # self.changeFrequency(frequency_indice)
@@ -288,6 +259,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def plotMesh(self):
         self.opvRenderer.plot()
+        self.opvAnalisysRenderer.plot()
+
         self.rendererMesh.plot()
 
     def getListPickedEntities(self):

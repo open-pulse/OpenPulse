@@ -30,7 +30,6 @@ class opvRenderer(vtkRendererBase):
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
     
     def plot(self):
-        s = time()
         self.reset()
         self.saveNodesBounds()
         self.saveElementsBounds()
@@ -49,7 +48,9 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvNodes)
         plt(self.opvLines)
         plt(self.opvDeformedTubes)
-        print('current', time()-s)
+
+        self._renderer.ResetCameraClippingRange()
+        
     
     def plotDeformed(self):
         try:
@@ -92,9 +93,6 @@ class opvRenderer(vtkRendererBase):
         self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
-
-    def setPlotRadius(self, plt):
-        pass
 
     # selection 
     def saveNodesBounds(self):
@@ -188,3 +186,6 @@ class opvRenderer(vtkRendererBase):
     
     def changeColorEntities(self, *args, **kwargs):
         return 
+
+    def setPlotRadius(self, plt):
+        pass
