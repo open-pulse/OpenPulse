@@ -18,6 +18,7 @@ class TubeActor(vtkActorBase):
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
+        self.colorTable = None
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.elements))
@@ -93,6 +94,19 @@ class TubeActor(vtkActorBase):
         self._data.GetPointData().SetScalars(c)
         self._colors = c
         self._mapper.Update()
+    
+    def setColorTable(self, colorTable):
+        self.colorTable = colorTable
+
+        c = vtk.vtkUnsignedCharArray()
+        c.DeepCopy(self._colors)
+        for key, element in self.elements.items():
+            index = self._key_index[element.index]
+            color = self.colorTable.get_color_by_id(index)
+            c.SetTuple(index, color)
+
+        self._data.GetPointData().SetScalars(c)
+        self._colors = c
 
     def createTubeSection(self, element):
         NUMBER_OF_SIDES = 20

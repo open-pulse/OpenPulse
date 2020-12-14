@@ -12,7 +12,6 @@ class TubeDeformedActor(TubeActor):
     def __init__(self, elements, project):
         super().__init__(elements, project)
         self.transparent = False
-        self.colorTable = None
 
     def source(self):
         points = vtk.vtkPoints()
@@ -43,32 +42,3 @@ class TubeDeformedActor(TubeActor):
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)
-        self.setColorTable()
-
-    def map(self):
-        self._mapper.SetInputData(self._data)
-        self._mapper.SourceIndexingOn()
-        self._mapper.SetSourceIndexArray('sources')
-        self._mapper.SetOrientationArray('rotations')
-        self._mapper.SetOrientationModeToRotation()
-        self._mapper.Update()
-
-    def setColorTable(self):
-        def get_deform(element):
-            start = element.first_node.coordinates
-            end = element.first_node.deformed_coordinates
-            dist = np.linalg.norm(start - end)
-            return dist
-
-        deformations = np.array([get_deform(element) for element in self.elements.values()])
-        self.colorTable = ColorTable(self.project, deformations)
-
-        c = vtk.vtkUnsignedCharArray()
-        c.DeepCopy(self._colors)
-        for key, element in self.elements.items():
-            index = self._key_index[key]
-            color = self.colorTable.get_color_by_id(index)
-            c.SetTuple(index, color)
-
-        self._data.GetPointData().SetScalars(c)
-        self._colors = c
