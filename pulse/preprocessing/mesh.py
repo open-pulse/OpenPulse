@@ -1078,49 +1078,48 @@ class Mesh:
         section_label, section_parameters, *args = element.cross_section.additional_section_info
         section_type = dict_sections[section_label]
 
-        # if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
-        #     return 0, 0, 0, 0
-            # N = element.cross_section.division_number
-            # d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
-            # Yc, Zc = offset_y, offset_z
+        if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
+            # return 0, 0, 0, 0
+            N = element.cross_section.division_number
+            d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
+            Yc, Zc = offset_y, offset_z
 
-            # d_theta = np.pi/N
-            # theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-            # d_in = d_out - 2*thickness
+            d_theta = np.pi/N
+            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
+            d_in = d_out - 2*thickness
 
-            # Yp_out = (d_out/2)*np.cos(theta)
-            # Zp_out = (d_out/2)*np.sin(theta)
-            # Yp_in = (d_in/2)*np.cos(-theta)
-            # Zp_in = (d_in/2)*np.sin(-theta)
+            Yp_out = (d_out/2)*np.cos(theta)
+            Zp_out = (d_out/2)*np.sin(theta)
+            Yp_in = (d_in/2)*np.cos(-theta)
+            Zp_in = (d_in/2)*np.sin(-theta)
 
-            # Yp_list = [list(Yp_out), list(Yp_in),[0]]
-            # Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
+            Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
 
-            # Yp_right = [value for _list in Yp_list for value in _list]
-            # Zp_right = [value for _list in Zp_list for value in _list]
-            # Yp_left = -np.flip(Yp_right)
-            # Zp_left = np.flip(Zp_right)
+            Yp_right = [value for _list in Yp_list for value in _list]
+            Zp_right = [value for _list in Zp_list for value in _list]
+            Yp_left = -np.flip(Yp_right)
+            Zp_left = np.flip(Zp_right)
 
-            # Yp = np.array([Yp_right, Yp_left]).flatten() + Yc
-            # Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
+            Ys = np.array([Yp_right, Yp_left]).flatten() + Yc
+            Zs = np.array([Zp_right, Zp_left]).flatten() + Zc
 
-            # if insulation_thickness != float(0):
+            if insulation_thickness != float(0):
+                Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
+                Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
+                Yp_in_ins = (d_out/2)*np.cos(-theta)
+                Zp_in_ins = (d_out/2)*np.sin(-theta)
 
-            #     Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
-            #     Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
-            #     Yp_in_ins = (d_out/2)*np.cos(-theta)
-            #     Zp_in_ins = (d_out/2)*np.sin(-theta)
+                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
+                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
 
-            #     Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
-            #     Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
+                Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
+                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
+                Yp_left_ins = -np.flip(Yp_right_ins)
+                Zp_left_ins = np.flip(Zp_right_ins)
 
-            #     Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-            #     Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
-            #     Yp_left_ins = -np.flip(Yp_right_ins)
-            #     Zp_left_ins = np.flip(Zp_right_ins)
-
-            #     Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
-            #     Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
+                Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
+                Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
 
         if section_type == 1: # Rectangular section
 
@@ -1185,8 +1184,9 @@ class Mesh:
             Zs = list(np.array(Zp)-Zc)
         
         else:
-            Ys = [0]
-            Zs = [0]
+            # A very small triangle to prevent bugs
+            Ys = [0, 1e-10, 0]
+            Zs = [0, 0, 1e-10]
 
         # elif section_type == 6: # Beam: Generic section
     

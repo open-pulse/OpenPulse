@@ -117,12 +117,6 @@ class TubeActor(vtkActorBase):
             polygon = vtk.vtkRegularPolygonSource()
             polygon.SetRadius(MINIMUM_RADIUS)
         else:
-            # label, parameters, *args = element.cross_section.additional_section_info
-            # if label == "Pipe section":
-            #     polygon = vtk.vtkRegularPolygonSource()
-            #     polygon.SetNumberOfSides(NUMBER_OF_SIDES)
-            #     polygon.SetRadius(element.cross_section.external_diameter / 2)
-            # else:
             polygon = self.createSectionPolygon(element)
         
         size = self.project.get_element_size()
