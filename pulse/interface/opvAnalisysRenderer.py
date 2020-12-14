@@ -3,9 +3,12 @@ import vtk
 from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
 
+from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
+from pulse.interface.tubeActor import TubeActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+
 
 
 class opvAnalisysRenderer(vtkRendererBase):
@@ -26,7 +29,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.entitiesBounds = dict()
 
         self.opvDeformedTubes = None
-        # TODO: add self.opvPressureTubes
+        self.opvPressureTubes = None
         self.slider = None
         self._createSlider()
 
@@ -34,10 +37,14 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.reset()
 
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_elements(), self.project)
+        self.opvPressureTubes = TubeActor(self.project.get_elements(), self.project)
+
+        self.opvPressureTubes.transparent = False
 
         self._createSlider()
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
+        plt(self.opvPressureTubes)
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -54,24 +61,48 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createScaleBar()
 
 
-    def showDeformation(self, frequency, gain=1):
+    def showStressField(self, frequency, gain=1):
         mesh = self.project.get_mesh()
         solution = self.project.get_structural_solution()
         self._lastFrequency = frequency
 
-        get_structural_response(mesh, solution, frequency, gain)
+        _, _, r_def, _ = get_structural_response(mesh, solution, frequency, gain)
         self.opvDeformedTubes.build()
 
-        colorTable = self.opvDeformedTubes.colorTable
+        colorTable = ColorTable(self.project, r_def, stress_field_plot=True)
+        self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
+        
+        self.slider.SetEnabled(True)
+        self.opvDeformedTubes.getActor().SetVisibility(True)
+        self.opvPressureTubes.getActor().SetVisibility(False)
+
         self.updateInfoText()
         self._renderer.ResetCameraClippingRange()
         self.opv.update()
         self.update()
 
     def showPressureField(self, frequency, real_part):
-        print('showPressureField not implemented yet')
+        mesh = self.project.get_mesh()
+        solution = self.project.get_acoustic_solution()
+        self._lastFrequency = frequency
+        self._colorScalling = 'real part' if real_part else 'absolute'
 
+        *args, r_def = get_acoustic_response(mesh, solution, frequency, real_part)
+        self.opvPressureTubes.build()
+
+        colorTable = ColorTable(self.project, r_def, pressure_field_plot=True)
+        self.opvPressureTubes.setColorTable(colorTable)
+        self.colorbar.SetLookupTable(colorTable)
+        
+        self.slider.SetEnabled(False)
+        self.opvDeformedTubes.getActor().SetVisibility(False)
+        self.opvPressureTubes.getActor().SetVisibility(True)
+
+        self.updateInfoText()
+        self._renderer.ResetCameraClippingRange()
+        self.opv.update()
+        self.update()
 
     def _createSlider(self):
         self.slider = vtk.vtkSliderWidget()
@@ -103,7 +134,6 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self.slider.SetInteractor(self.opv)
         self.slider.SetRepresentation(sld)
-        self.slider.SetEnabled(True)
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _sliderCallback(self, slider, b):
@@ -112,7 +142,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         if sliderValue == 0: 
             sliderValue = 0.1
         slider.GetRepresentation().SetValue(sliderValue)
-        self.showDeformation(self._lastFrequency, sliderValue)
+        self.showStressField(self._lastFrequency, sliderValue)
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()
@@ -147,7 +177,7 @@ class opvAnalisysRenderer(vtkRendererBase):
     # info text
     def updateInfoText(self, *args, **kwargs):
         mode = self._lastFrequency + 14
-        sliderValue = self.slider.GetRepresentation().GetValue()
+        magnif = abs(self.slider.GetRepresentation().GetValue())
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
@@ -161,9 +191,9 @@ class opvAnalisysRenderer(vtkRendererBase):
             frequencies = self.project.get_acoustic_natural_frequencies()
             text += "Mode: {}\n".format(mode)
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._lastFrequency])
-            text += "Color scalling: {}".format(self.color_scalling)
+            text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
-            text += "\nMagnification factor {:.2f}x\n".format(sliderValue)
+            text += "\nMagnification factor {:.2f}x\n".format(magnif)
         # vertical_position_adjust = None
         self.createInfoText(text)
 

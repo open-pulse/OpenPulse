@@ -163,43 +163,47 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.update()
 
     def changePlotToEntities(self):
-        self.setRenderer(self.opvRenderer)
+        # self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showTubes(True, transparent=False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showDeformedTubes(False)
-        self.opvRenderer.update()
-        self.opvRenderer.selectLines(False)
-        self.opvRenderer.selectTubes(False)
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectEntities(True)
+        # self.opvRenderer.showNodes(False)
+        # self.opvRenderer.showLines(True)
+        # self.opvRenderer.showDeformedTubes(False)
+        # self.opvRenderer.showTubes(True, transparent=False)
+        # self.opvRenderer.update()
+        # self.opvRenderer.selectLines(False)
+        # self.opvRenderer.selectTubes(False)
+        # self.opvRenderer.selectNodes(False)
+        # self.opvRenderer.selectEntities(True)
 
-        # if self.rendererEntity.getInUse():
-        #     return
-        # self.beforeChangePlot()
-        # self.rendererEntity.setInUse(True)
-        # self.SetInteractorStyle(self.rendererEntity.getStyle())
-        # self.GetRenderWindow().AddRenderer(self.rendererEntity.getRenderer())
-        # self.rendererEntity.resetCamera()
-        # self.afterChangePlot()
+        # self._updateAxes()
+
+
+        if self.rendererEntity.getInUse():
+            return
+        self.beforeChangePlot()
+        self.rendererEntity.setInUse(True)
+        self.SetInteractorStyle(self.rendererEntity.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererEntity.getRenderer())
+        self.rendererEntity.resetCamera()
+        self.afterChangePlot()
 
     def changePlotToMesh(self):
         self.setRenderer(self.opvRenderer)
 
         self.opvRenderer.showNodes(True)
-        self.opvRenderer.showTubes(True, transparent=True)
         self.opvRenderer.showLines(True)
         self.opvRenderer.showDeformedTubes(False)
+        self.opvRenderer.showTubes(True, transparent=True)
         self.opvRenderer.update()
         self.opvRenderer.selectLines(True)
         self.opvRenderer.selectTubes(False)
         self.opvRenderer.selectNodes(True)
         self.opvRenderer.selectEntities(False)
 
+        self._updateAxes()
+        
         # if self.rendererMesh.getInUse():
         #     return
-
         # self.beforeChangePlot()
         # self.rendererMesh.setInUse(True)
         # self.rendererMesh.updateAllAxes()
@@ -215,9 +219,6 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.SetInteractorStyle(renderer.getStyle())
             self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
-    def changePlotToPressure(self):
-        pass
-
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
         # we call it so many times in so many different files that 
         # i will just continue my code from here and we organize all 
@@ -232,7 +233,7 @@ class OPVUi(QVTKRenderWindowInteractor):
             # please be more carefull when calling this function and select
             # at least one between pressure_field_plot or stress_field_plot
             # then remove this "True or" statement
-            self.opvAnalisysRenderer.showDeformation(frequency_indice, gain=1)
+            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
         else:
             raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
 
