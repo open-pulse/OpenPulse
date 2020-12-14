@@ -117,16 +117,18 @@ class TubeActor(vtkActorBase):
             polygon = vtk.vtkRegularPolygonSource()
             polygon.SetRadius(MINIMUM_RADIUS)
         else:
-            label, parameters, *args = element.cross_section.additional_section_info
-            if label == "Pipe section":
-                polygon = vtk.vtkRegularPolygonSource()
-                polygon.SetNumberOfSides(NUMBER_OF_SIDES)
-                polygon.SetRadius(element.cross_section.external_diameter / 2)
-            else:
-                polygon = self.createSectionPolygon(element)
+            # label, parameters, *args = element.cross_section.additional_section_info
+            # if label == "Pipe section":
+            #     polygon = vtk.vtkRegularPolygonSource()
+            #     polygon.SetNumberOfSides(NUMBER_OF_SIDES)
+            #     polygon.SetRadius(element.cross_section.external_diameter / 2)
+            # else:
+            polygon = self.createSectionPolygon(element)
         
         size = self.project.get_element_size()
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
+        extruderFilter.SetExtrusionTypeToVectorExtrusion()
+        extruderFilter.SetVector(1,0,0)
         extruderFilter.SetScaleFactor(size)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
@@ -138,11 +140,11 @@ class TubeActor(vtkActorBase):
         polyData = vtk.vtkPolyData()
         triangleFilter = vtk.vtkTriangleFilter() # this prevents bugs on extruder
 
-        Xs, Ys = self.project.get_mesh().get_cross_section_points(element.index)
-        polygon.GetPointIds().SetNumberOfIds(len(Xs))
+        Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
+        polygon.GetPointIds().SetNumberOfIds(len(Ys))
         
-        for i, (x, y) in enumerate(zip(Xs, Ys)):
-            points.InsertNextPoint(x, y, 0)
+        for i, (y, z) in enumerate(zip(Ys, Zs)):
+            points.InsertNextPoint(0, y, z)
             polygon.GetPointIds().SetId(i,i)
         edges.InsertNextCell(polygon)
 

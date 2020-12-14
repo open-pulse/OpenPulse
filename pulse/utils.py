@@ -190,9 +190,8 @@ def directional_vectors_xyz_rotation(directional_vectors):
     # it's still a little bit weird
     # for some reason the rotations are made in the z,x,y order
     # so, to get the euler we need to do it backwards
-    
-    u,v,w = directional_vectors
-    matrix = np.concatenate((v,w,u)).reshape(3,3)
+
+    matrix = np.array(directional_vectors)
     r = Rotation.from_matrix(matrix)
     y,x,z = r.as_euler('yxz', degrees=True)
     return x,y,z
