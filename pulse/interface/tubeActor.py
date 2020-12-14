@@ -109,16 +109,8 @@ class TubeActor(vtkActorBase):
         self._colors = c
 
     def createTubeSection(self, element):
-        NUMBER_OF_SIDES = 20
-        MINIMUM_RADIUS = 0.01
         extruderFilter = vtk.vtkLinearExtrusionFilter()
-
-        if not element.cross_section:
-            polygon = vtk.vtkRegularPolygonSource()
-            polygon.SetRadius(MINIMUM_RADIUS)
-        else:
-            polygon = self.createSectionPolygon(element)
-        
+        polygon = self.createSectionPolygon(element)
         size = self.project.get_element_size()
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
         extruderFilter.SetExtrusionTypeToVectorExtrusion()
