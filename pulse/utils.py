@@ -186,15 +186,13 @@ def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
 
 def directional_vectors_xyz_rotation(directional_vectors):
     # we can perform much better doing it by hand
-    
     # it's still a little bit weird
     # for some reason the rotations are made in the z,x,y order
     # so, to get the euler we need to do it backwards
-
     matrix = np.array(directional_vectors)
     r = Rotation.from_matrix(matrix)
-    y,x,z = r.as_euler('yxz', degrees=True)
-    return x,y,z
+    z, x, y = r.as_euler('zxy', degrees=True)
+    return -x, -y, -z
 
 def error( msg, title = " ERROR "):
     msg_box = QMessageBox()
