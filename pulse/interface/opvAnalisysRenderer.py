@@ -139,8 +139,6 @@ class opvAnalisysRenderer(vtkRendererBase):
     def _sliderCallback(self, slider, b):
         sliderValue = slider.GetRepresentation().GetValue()
         sliderValue = round(sliderValue, 2)
-        if sliderValue == 0: 
-            sliderValue = 0.1
         slider.GetRepresentation().SetValue(sliderValue)
         self.showStressField(self._lastFrequency, sliderValue)
 
