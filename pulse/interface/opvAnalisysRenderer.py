@@ -66,7 +66,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self._lastFrequency = frequency
 
-        _, _, r_def, _ = get_structural_response(mesh, solution, frequency, gain)
+        _, _, r_def, _ = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, r_def, stress_field_plot=True)
