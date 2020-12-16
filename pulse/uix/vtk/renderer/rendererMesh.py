@@ -343,8 +343,8 @@ class RendererMesh(vtkRendererBase):
         start = element.first_node.coordinates
         size = element.length
  
-        _, directional_vectors = element.get_local_coordinate_system_info()
-        u, v, w = directional_vectors
+        # _, directional_vectors = element.get_local_coordinate_system_info()
+        u, v, w = element.directional_vectors
         
         matrix = vtk.vtkMatrix4x4()
         matrix.Identity()

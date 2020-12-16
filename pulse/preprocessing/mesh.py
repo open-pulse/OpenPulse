@@ -1296,19 +1296,21 @@ class Mesh:
             delta_data[index, :] = element.last_node.deformed_coordinates - element.first_node.deformed_coordinates 
             # element.deformed_center_element_coordinates = (element.last_node.deformed_coordinates + element.first_node.deformed_coordinates)/2 
         mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
-        output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        # output_data = inverse_matrix_3x3xN(mat_rotation_data)
         for index, element in enumerate(self.structural_elements.values()):
-            element.deformed_directional_vectors = output_data[index,:,:]
+            # element.deformed_directional_vectors = output_data[index,:,:]
+            element.deformed_directional_vectors = mat_rotation_data[index,:,:]
  
     def process_all_rotation_matrices(self):
         delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
         mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
-        output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        # output_data = inverse_matrix_3x3xN(mat_rotation_data)
         for index, element in enumerate(self.structural_elements.values()):
             element.sub_rotation_matrix = mat_rotation_data[index, :, :]
-            element.directional_vectors = output_data[index, :, :]
+            # element.directional_vectors = output_data[index, :, :]
+            element.directional_vectors = mat_rotation_data[index, :, :]
              
     # def process_all_rotation_matrices(self):
     #     for element in self.structural_elements.values():
