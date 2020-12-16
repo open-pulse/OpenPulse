@@ -4,7 +4,7 @@ from time import time
 from scipy.spatial.transform import Rotation
 
 from pulse.interface.vtkActorBase import vtkActorBase
-from pulse.utils import directional_vectors_xyz_rotation
+# from pulse.utils import directional_vectors_xyz_rotation
 
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project):
@@ -48,13 +48,11 @@ class TubeActor(vtkActorBase):
 
         cache = dict()
         counter = 0
+
         for element in self.elements.values():
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
-
-            uvw = element.directional_vectors
-            rotations_xyz = directional_vectors_xyz_rotation(uvw)
-            rotations.InsertNextTuple(rotations_xyz)
+            rotations.InsertNextTuple(element.undeformed_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
             
             if element.cross_section not in cache:
@@ -63,7 +61,7 @@ class TubeActor(vtkActorBase):
                 self._mapper.SetSourceData(counter, source)
                 counter += 1
             sources.InsertNextTuple1(cache[element.cross_section])
-            
+
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)

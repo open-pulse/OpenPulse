@@ -44,6 +44,9 @@ class StructuralElement:
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
 
+        self.undeformed_rotation_xyz = None
+        self.deformed_rotation_xyz = None
+
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)

@@ -51,7 +51,7 @@ def m_to_mm(m):
 def mm_to_m(mm):
     return float(mm) / 1000
 
-def inverse_matrix_3x3xN(A):
+def inverse_matrix_Nx3x3(A):
     
     b = 1/( A[:,0,0]*A[:,1,1]*A[:,2,2] + A[:,0,1]*A[:,1,2]*A[:,2,0] +
             A[:,0,2]*A[:,1,0]*A[:,2,1] - A[:,0,2]*A[:,1,1]*A[:,2,0] -
@@ -148,7 +148,7 @@ def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     return np.array([a,b,c])/L
 
 
-def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
+def _rotation_matrix_Nx3x3(delta_x, delta_y, delta_z, gamma=0):
     """ Make the rotation from the element coordinate system to the global doordinate system."""
     # Rotation Matrix
 
@@ -184,15 +184,16 @@ def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
 
     return data_rot.T.reshape(-1,3,3)
 
-def directional_vectors_xyz_rotation(directional_vectors):
-    # we can perform much better doing it by hand
-    # it's still a little bit weird
-    # for some reason the rotations are made in the z,x,y order
-    # so, to get the euler we need to do it backwards
-    matrix = np.array(directional_vectors)
-    r = Rotation.from_matrix(matrix)
-    z, x, y = r.as_euler('zxy', degrees=True)
-    return -x, -y, -z
+# def directional_vectors_xyz_rotation(directional_vectors):
+#     # we can perform much better doing it by hand
+#     # it's still a little bit weird
+#     # for some reason the rotations are made in the z,x,y order
+#     # so, to get the euler we need to do it backwards
+#     matrix = np.array(directional_vectors)
+#     r = Rotation.from_matrix(matrix)
+#     z, x, y = r.as_euler('zxy', degrees=True)
+#     # x, y, z = r.as_euler('XYZ', degrees=True)
+#     return -x, -y, -z
 
 def error( msg, title = " ERROR "):
     msg_box = QMessageBox()

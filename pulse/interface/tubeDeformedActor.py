@@ -5,7 +5,7 @@ from scipy.spatial.transform import Rotation
 
 from pulse.interface.tubeActor import TubeActor
 from pulse.uix.vtk.colorTable import ColorTable
-from pulse.utils import directional_vectors_xyz_rotation
+# from pulse.utils import directional_vectors_xyz_rotation
 
 
 class TubeDeformedActor(TubeActor):
@@ -23,13 +23,11 @@ class TubeDeformedActor(TubeActor):
 
         cache = dict()
         counter = 0
+        
         for element in self.elements.values():
             x,y,z = element.first_node.deformed_coordinates
             points.InsertNextPoint(x,y,z)
-
-            uvw = element.deformed_directional_vectors # main difference is here
-            rotations_xyz = directional_vectors_xyz_rotation(uvw)
-            rotations.InsertNextTuple(rotations_xyz)
+            rotations.InsertNextTuple(element.deformed_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
 
             if element.cross_section not in cache:
@@ -38,7 +36,7 @@ class TubeDeformedActor(TubeActor):
                 self._mapper.SetSourceData(counter, source)
                 counter += 1
             sources.InsertNextTuple1(cache[element.cross_section])
-        
+     
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)
