@@ -1076,8 +1076,14 @@ class Mesh:
         dict_sections = dict(zip(labels, np.arange(7)))
 
         element = self.structural_elements[element_ID]
-        section_label, section_parameters, *args = element.cross_section.additional_section_info
-        section_type = dict_sections[section_label]
+        
+        try:
+            section_label, section_parameters, *args = element.cross_section.additional_section_info
+            section_type = dict_sections[section_label]
+        except:
+            # i just want this working
+            section_type = -1
+
 
         if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
             # return 0, 0, 0, 0
