@@ -216,6 +216,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def updateRendererMesh(self):
         self.rendererMesh.plotNodes()
+        self.rendererMesh.plotElasticLinks()
 
     def transformPoints(self, points_id):
         self.updateRendererMesh()

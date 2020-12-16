@@ -204,6 +204,7 @@ class InputUi:
 
     def add_elastic_nodal_links(self):
         ElasticNodalLinksInput(self.project, self.opv)
+        self.opv.updateRendererMesh()
         return
 
     def set_acoustic_element_type(self):
