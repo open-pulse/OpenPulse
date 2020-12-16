@@ -109,7 +109,7 @@ class FluidInput(QDialog):
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
         if self.entities_id != []:
-            self.write_ids(self.entities_id)
+            self.write_entities(self.entities_id)
             self.radioButton_entity.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
@@ -291,7 +291,7 @@ class FluidInput(QDialog):
                 pass
             self.lines_typed = list(map(int, tokens))
             
-            if self.lineEdit_selected_ID.text()=="":
+            if self.lineEdit_selected_ID.text() == "":
                 title = "Error: empty Line ID input"
                 message = "Inform a valid Line ID before to confirm the input."
                 self.info_text = [title, message, window_title1]
@@ -306,8 +306,7 @@ class FluidInput(QDialog):
             for line in self.lines_typed:
                 entity = self.dict_tag_to_entity[line]
                 if entity.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                    self.flag_all_inputs = True
-                    pass
+                    self.flag_all_fluid_inputs = True
         except Exception:
             title = "Error: invalid Line ID"
             message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
@@ -316,16 +315,16 @@ class FluidInput(QDialog):
         return False
 
     def check_element_type_of_entities(self):
-        self.flag_all_inputs = False
+        self.flag_all_fluid_inputs = False
         if self.flagEntity:
             if self.check_input_lines():
                 PrintMessageInput(self.info_text)
                 return True
         elif self.flagAll:
-            entity_0 = self.project.mesh.all_lines[0]
-            if self.dict_tag_to_entity[entity_0].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                self.flag_all_inputs = True
-                return False
+            for line in self.project.mesh.all_lines:
+                if self.dict_tag_to_entity[line].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                    self.flag_all_fluid_inputs = True
+                    return False
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -494,6 +493,7 @@ class FluidInput(QDialog):
             thermal_conductivity = None
             specific_heat_Cp = None
             dynamic_viscosity = None
+            list_empty_inputs = []
 
             name = self.clicked_item.text(0)
             identifier = int(self.clicked_item.text(1))
@@ -501,36 +501,37 @@ class FluidInput(QDialog):
             fluid_density = float(self.clicked_item.text(3))
             speed_of_sound = float(self.clicked_item.text(4))
             # impedance = float(self.clicked_item.text(5)) # internal calculation
-            message = "Please, update the fluid properties or select another fluid in the list before trying to attribute a fluid to the entities."
+            
+            title = "Empty entries in fluid properties"
+            message = "Please, it is necessary update the fluid properties or select another fluid in the list " 
+            message += "before trying to attribute a fluid to the entities."
+            message += "\n\nEmpty entries:\n"
             
             if self.clicked_item.text(6) != "":
                 isentropic_exponent = float(self.clicked_item.text(6))
-            elif self.flag_all_inputs:
-                
-                title = "Empty entry to the isentropic exponent"
-                PrintMessageInput([title, message, window_title1])
-                return
-
+            elif self.flag_all_fluid_inputs:
+                list_empty_inputs.append("isentropic exponent")    
+ 
             if self.clicked_item.text(7) != "":
                 thermal_conductivity = float(self.clicked_item.text(7))
-            elif self.flag_all_inputs:
-                title = "Empty entry to the thermal conductivity"
-                PrintMessageInput([title, message, window_title1])
-                return
+            elif self.flag_all_fluid_inputs:
+                list_empty_inputs.append("thermal conductivity")
 
             if self.clicked_item.text(8) != "":
                 specific_heat_Cp = float(self.clicked_item.text(8))
-            elif self.flag_all_inputs:
-                title = "Empty entry to the specific heat Cp"
-                PrintMessageInput([title, message, window_title1])
-                return
+            elif self.flag_all_fluid_inputs:
+                list_empty_inputs.append("specific heat Cp")
 
             if self.clicked_item.text(9) != "":
                 dynamic_viscosity = float(self.clicked_item.text(9))
-            elif self.flag_all_inputs:
-                title = "Empty entry to the dynamic viscosity"
-                PrintMessageInput([title, message, window_title1])
-                return                
+            elif self.flag_all_fluid_inputs:
+                list_empty_inputs.append("dynamic viscosity")    
+
+            if list_empty_inputs != []:                
+                for label in list_empty_inputs:
+                    message += "\n{}".format(label)  
+                PrintMessageInput([title, message, window_title1]) 
+                return                   
             
             self.fluid = Fluid( name, 
                                 fluid_density, 
@@ -637,7 +638,8 @@ class FluidInput(QDialog):
     
     def all_fluid_properties_message(self):
         title = "WARNING - EMPTY ENTRIES IN FLUID INPUTS"
-        message = "You should input all fluid properties if you are going to use the following acoustic element types: wide-duct, LRF fluid equivalent and LRF full." 
+        message = "You should input all fluid properties if you are going to use the following acoustic element types: "
+        message += "wide-duct, LRF fluid equivalent and LRF full." 
         message += "\n\nEmpty entries:\n"
         for label in self.list_empty_inputs:
             message += "\n{}".format(label)

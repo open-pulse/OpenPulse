@@ -28,6 +28,7 @@ class RendererMesh(vtkRendererBase):
         self.elementsBounds = dict() # bounding coordinates
         self.axes = dict()
         self.elementAxe = []
+        self.actorNodesList = []
 
         self.selectionNodesActor = None
         self.selectionNodesActorAcoustic = None
@@ -170,7 +171,13 @@ class RendererMesh(vtkRendererBase):
             bounds = (x0,x1,y0,y1,z0,z1)
             self.elementsBounds[key] = bounds
 
+    def removeActorNodes(self):
+        for i in self.actorNodesList:
+            self._renderer.RemoveActor(i)
+        self.actorNodesList = []
+
     def plotNodes(self):
+        self.removeActorNodes()
         nodes = list(self.project.get_nodes().values())
         volume_velocity = self.project.mesh.nodes_with_volume_velocity #Vermelha
         acoustic_pressure = self.project.mesh.nodes_with_acoustic_pressure #Branca
@@ -201,6 +208,7 @@ class RendererMesh(vtkRendererBase):
         actor.GetProperty().SetColor(1,1,0)
         actor.GetProperty().BackfaceCullingOff()
         actor.GetProperty().ShadingOff()
+        self.actorNodesList.append(actor)
         self._renderer.AddActor(actor)
 
         cube_source = vtk.vtkCubeSource()
@@ -212,18 +220,22 @@ class RendererMesh(vtkRendererBase):
         sphere_source.SetRadius(3)
         actor = self.createActorNodes(volume_velocity,sphere_source)
         actor.GetProperty().SetColor(1,0.2,0.2)
+        self.actorNodesList.append(actor)
         self._renderer.AddActor(actor)
 
         actor = self.createActorNodes(acoustic_pressure,sphere_source)
         actor.GetProperty().SetColor(1,1,1)
+        self.actorNodesList.append(actor)
         self._renderer.AddActor(actor)
 
         actor = self.createActorNodes(specific_impedance,cube_source)
         actor.GetProperty().SetColor(1,0.07,0.57)
+        self.actorNodesList.append(actor)
         self._renderer.AddActor(actor)
 
         actor = self.createActorNodes(radiation_impedance,cube_source)
         actor.GetProperty().SetColor(0,1,0)
+        self.actorNodesList.append(actor)
         self._renderer.AddActor(actor)
 
     
@@ -366,8 +378,8 @@ class RendererMesh(vtkRendererBase):
         start = element.first_node.coordinates
         size = element.length
  
-        _, directional_vectors = element.get_local_coordinate_system_info()
-        u, v, w = directional_vectors
+        # _, directional_vectors = element.get_local_coordinate_system_info()
+        u, v, w = element.directional_vectors
         
         matrix = vtk.vtkMatrix4x4()
         matrix.Identity()

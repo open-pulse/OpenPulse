@@ -321,6 +321,7 @@ class MenuItems(QTreeWidget):
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
 
         elif item.text(0) == self.name_child_setAcousticElementType:
+            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_acoustic_element_type()
 
         elif item.text(0) == self.name_child_set_fluid: 

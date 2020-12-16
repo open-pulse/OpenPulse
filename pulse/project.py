@@ -240,16 +240,19 @@ class Project:
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[5]]
-            section_info = ['Pipe section', [vals[0], vals[1], vals[2], vals[3], vals[7]]]
+            section_info = ['Pipe section', [vals[0], vals[1], vals[2], vals[3], vals[6]]]
 
             if el_type in ['pipe_1', 'pipe_2']:
-                cross_section = CrossSection(vals[0], vals[1], vals[2], vals[3], 
-                                            poisson_ratio=vals[4], 
-                                            element_type=el_type, 
-                                            insulation_thickness=vals[6], 
-                                            insulation_density=vals[7],
-                                            additional_section_info=section_info)
-                self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
+                cross_section = CrossSection(   vals[0], vals[1], vals[2], vals[3], 
+                                                poisson_ratio=vals[4], 
+                                                element_type=el_type, 
+                                                insulation_thickness=vals[6], 
+                                                insulation_density=vals[7],
+                                                additional_section_info=section_info)
+                if self.analysis_ID in [3,4]:
+                    self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=False)  
+                else:
+                    self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
 
     def get_dict_multiple_cross_sections(self):
 

@@ -553,6 +553,7 @@ class InputUi:
         cross_section_message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
         material_message = "You should to set a Material to all elements\n before trying to run any Analysis!"
         fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!"
+        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF \nfluid equivalent and LRF full acoustic element types."
         structural_message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
         acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
           
@@ -568,11 +569,15 @@ class InputUi:
         elif self.analysis_ID == 4:
             self.project.mesh.check_material_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
+            self.project.mesh.check_fluid_inputs_in_all_elements()
             if self.project.mesh.check_set_material:
                 error(material_message, title = title)
                 return True
             elif self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_all_fluid_inputs:
+                error(all_fluid_inputs_message, title = title)
                 return True
             elif self.project.mesh.check_set_crossSection:
                 error(cross_section_message, title = title)
@@ -595,9 +600,13 @@ class InputUi:
         elif self.analysis_ID == 3:
             self.project.mesh.check_material_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
+            self.project.mesh.check_fluid_inputs_in_all_elements()
             self.project.mesh.check_nodes_attributes(acoustic=True)
             if self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_all_fluid_inputs:
+                error(all_fluid_inputs_message, title = title)
                 return True
             elif self.project.mesh.check_set_material:
                 error(material_message, title = title)
@@ -613,12 +622,16 @@ class InputUi:
         elif self.analysis_ID == 5 or self.analysis_ID == 6:
             self.project.mesh.check_material_and_cross_section_in_all_elements()
             self.project.mesh.check_fluid_and_cross_section_in_all_elements()
+            self.project.mesh.check_fluid_inputs_in_all_elements()
             self.project.mesh.check_nodes_attributes(coupled=True)
             if self.project.mesh.check_set_material:
                 error(material_message, title = title)
                 return True
             elif self.project.mesh.check_set_fluid:
                 error(fluid_message, title = title)
+                return True
+            elif self.project.mesh.check_all_fluid_inputs:
+                error(all_fluid_inputs_message, title = title)
                 return True
             elif self.project.mesh.check_set_crossSection:
                 error(cross_section_message, title = title)

@@ -389,8 +389,10 @@ class CrossSectionInput(QDialog):
             
             section_info = ["Pipe section", [outerDiameter, thickness, offset_y, offset_z, insulation_thickness]]
 
-            self.cross_section = CrossSection(outerDiameter, thickness, offset_y, offset_z, 
-                                            insulation_density=insulation_density, insulation_thickness=insulation_thickness, additional_section_info=section_info)
+            self.cross_section = CrossSection(  outerDiameter, thickness, offset_y, offset_z, 
+                                                insulation_density=insulation_density, 
+                                                insulation_thickness=insulation_thickness, 
+                                                additional_section_info=section_info)
 
         self.complete = True
         self.close()

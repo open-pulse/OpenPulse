@@ -286,6 +286,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.plotNodes()
 
     def transformPoints(self, points_id):
+        self.updateRendererMesh()
         self.rendererMesh.transformPoints(points_id)
         
     def savePNG(self, path):

@@ -314,8 +314,9 @@ class ProjectFile:
                         else:
                             list_section_parameters = None
                             shear_coefficient = float(shear_coefficient)
-                        cross = CrossSection(external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
-                                        additional_section_info=[section_type, list_section_parameters], shear_coefficient=_shear_coefficient[0])
+                        cross = CrossSection(   external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
+                                                additional_section_info=[section_type, list_section_parameters], 
+                                                shear_coefficient=_shear_coefficient[0])
                         
                         self.dict_cross[entity] = cross
                         
@@ -345,8 +346,10 @@ class ProjectFile:
                         insulation_thickness = float(insulation_thickness)
                         insulation_density = float(insulation_density)
                         section_info = ["Pipe section", [diam_ext, thickness, offset_y, offset_z, insulation_thickness]]
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, 
-                                            insulation_thickness=insulation_thickness, insulation_density=insulation_density, additional_section_info=section_info)
+                        cross = CrossSection(   diam_ext, thickness, offset_y, offset_z, 
+                                                insulation_thickness=insulation_thickness, 
+                                                insulation_density=insulation_density, 
+                                                additional_section_info=section_info)
                         self.dict_cross[entity] = cross
                     except Exception as er:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
@@ -386,24 +389,38 @@ class ProjectFile:
                 if fluid_id.isnumeric():
                     fluid_id = int(fluid_id)
                     for fluid in fluid_list.sections():
+                        keys = list(fluid_list[fluid].keys())
                         if int(fluid_list[fluid]['identifier']) == fluid_id:
-                            name = str(fluid_list[fluid]['name'])
-                            identifier = str(fluid_list[fluid]['identifier'])
-                            fluid_density =  str(fluid_list[fluid]['fluid density'])
-                            speed_of_sound =  str(fluid_list[fluid]['speed of sound'])
-                            isentropic_exponent =  str(fluid_list[fluid]['isentropic exponent'])
-                            thermal_conductivity =  str(fluid_list[fluid]['thermal conductivity'])
-                            specific_heat_Cp =  str(fluid_list[fluid]['specific heat Cp'])
-                            dynamic_viscosity =  str(fluid_list[fluid]['dynamic viscosity'])
-                            # acoustic_impedance =  str(fluid_list[fluid]['impedance'])
-                            color =  str(fluid_list[fluid]['color'])
+                            name = fluid_list[fluid]['name']
+                            identifier = fluid_list[fluid]['identifier']
+                            fluid_density =  fluid_list[fluid]['fluid density']
+                            speed_of_sound =  fluid_list[fluid]['speed of sound']
+                            
+                            isentropic_exponent = None
+                            if 'isentropic exponent' in keys:
+                                isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
+                              
+                            thermal_conductivity = None
+                            if 'thermal conductivity' in keys:
+                                thermal_conductivity =  float(fluid_list[fluid]['thermal conductivity'])
+
+                            specific_heat_Cp = None
+                            if 'specific heat cp' in keys:
+                                specific_heat_Cp =  float(fluid_list[fluid]['specific heat cp'])
+                            
+                            dynamic_viscosity = None
+                            if 'dynamic viscosity' in keys:
+                                dynamic_viscosity =  float(fluid_list[fluid]['dynamic viscosity'])
+                              
+                            # acoustic_impedance =  fluid_list[fluid]['impedance']
+                            color =  fluid_list[fluid]['color']
                             temp_fluid = Fluid(name,
                                                float(fluid_density),
                                                float(speed_of_sound),
-                                               isentropic_exponent = float(isentropic_exponent),
-                                               thermal_conductivity = float(thermal_conductivity),
-                                               specific_heat_Cp = float(specific_heat_Cp),
-                                               dynamic_viscosity = float(dynamic_viscosity),
+                                               isentropic_exponent = isentropic_exponent,
+                                               thermal_conductivity = thermal_conductivity,
+                                               specific_heat_Cp = specific_heat_Cp,
+                                               dynamic_viscosity = dynamic_viscosity,
                                                color=color, identifier=int(identifier))
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
@@ -979,10 +996,12 @@ class ProjectFile:
             remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
 
     def _single_acoustic_excitation_bc(self, node_id, label):
-        if label[0] == 'acoustic pressure':
+        # if label[0] == 'acoustic pressure':
+        if 'acoustic pressure' in label[0]:
             key_strings = ['volume velocity']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        elif label[0] == 'volume velocity':
+        # elif label[0] == 'volume velocity':
+        elif 'volume velocity' in  label[0]:
             key_strings = ['acoustic pressure']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
 

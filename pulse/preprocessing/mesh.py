@@ -828,12 +828,14 @@ class Mesh:
     def set_acoustic_pressure_bc_by_node(self, nodes, value):
         for node in slicer(self.nodes, nodes):
             node.acoustic_pressure = value
-            node.volume_velocity = None
             if not node in self.nodes_with_acoustic_pressure:
                 self.nodes_with_acoustic_pressure.append(node)
             if value is None:
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
+            node.volume_velocity = None
+            if node in self.nodes_with_volume_velocity:
+                self.nodes_with_volume_velocity.remove(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values):
         try:
@@ -850,7 +852,6 @@ class Mesh:
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
                         PrintMessageInput([title, message, window_title1])
                         return True  
-                node.acoustic_pressure = None
                 if not node in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.append(node)
                 if values is None:
@@ -858,6 +859,10 @@ class Mesh:
                         self.nodes_with_volume_velocity.remove(node)
                 elif isinstance(values, np.ndarray):
                     self.volume_velocity_table_index += 1 
+                node.acoustic_pressure = None
+                if node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.remove(node)
+
         except Exception as error:
             title = "ERROR WHILE SET VOLUME VELOCITY"
             message = str(error)
@@ -1039,6 +1044,15 @@ class Mesh:
                     self.check_set_crossSection = True
                     return
 
+    def check_fluid_inputs_in_all_elements(self):
+        self.check_all_fluid_inputs = False
+        for element in self.acoustic_elements.values():
+            if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
+                            element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
+                if None in _list:
+                    self.check_all_fluid_inputs = True
+                    return
     
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         self.is_there_loads = False
