@@ -1274,7 +1274,9 @@ class Mesh:
         element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
         element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
 
-        key = "{}-{}".format(node1.external_index, node2.external_index)
+        min_node_ID = min(node1.external_index, node2.external_index)
+        max_node_ID = max(node1.external_index, node2.external_index)
+        key = "{}-{}".format(min_node_ID, max_node_ID)
         
         if _stiffness:
             self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]

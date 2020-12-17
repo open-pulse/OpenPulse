@@ -243,17 +243,24 @@ class ElasticNodalLinksInput(QDialog):
         
         if self.check_nodeID(self.lineEdit_first_node_ID):
             return True
-        self.nodeID_1 = self.nodeID
+        temp_nodeID_1 = self.nodeID
         
         if self.check_nodeID(self.lineEdit_last_node_ID):
             return True
-        self.nodeID_2 = self.nodeID
+        temp_nodeID_2 = self.nodeID
 
-        if self.nodeID_1 == self.nodeID_2:
+        if temp_nodeID_1 == temp_nodeID_2:
             title = "ERROR IN NODES SELECTION"
-            message = "The nodes selected must differ. Try to choose another pair of nodes."
+            message = "The selected nodes must differ. Try to choose another pair of nodes."
             PrintMessageInput([title, message, window_title1])
             return True
+
+        if temp_nodeID_2 > temp_nodeID_1:
+            self.nodeID_1 = temp_nodeID_1
+            self.nodeID_2 = temp_nodeID_2
+        else:
+            self.nodeID_2 = temp_nodeID_1
+            self.nodeID_1 = temp_nodeID_2
 
         return False
         
@@ -353,6 +360,11 @@ class ElasticNodalLinksInput(QDialog):
             self.parameters_K = list_K
         if list_C.count(None) != 6:
             self.parameters_C = list_C
+        
+        if list_K.count(None) == 6 and list_C.count(None) == 6:
+            title = 'EMPTY INPUTS FOR STIFFNESS AND DAMPING'
+            message = 'Please insert at least a stiffness or damping value before confirming the attribution.'
+            PrintMessageInput([title, message, window_title1])
 
     def single_input_confirm(self):
         if self.check_all_inputs():
@@ -523,6 +535,9 @@ class ElasticNodalLinksInput(QDialog):
             self.basenames = [self.basename_Kx, self.basename_Ky, self.basename_Kz, self.basename_Krx, self.basename_Kry, self.basename_Krz]
             self.stiffness_parameters = stiffness_parameters
             self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.stiffness_parameters, True, table_name=self.basenames)
+            return False
+        else:
+            return True
 
     def check_table_for_elastic_link_damping(self):
 
@@ -577,18 +592,23 @@ class ElasticNodalLinksInput(QDialog):
             self.basenames = [self.basename_Cx, self.basename_Cy, self.basename_Cz, self.basename_Crx, self.basename_Cry, self.basename_Crz]
             self.damping_parameters = damping_parameters
             self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.damping_parameters, True, table_name=self.basenames)
-        return False
+            return False
+        else:
+            return True
   
     def table_input_confirm(self):
 
         if self.check_all_nodes():
             return True
 
-        if self.check_table_for_elastic_link_stiffness():
+        if self.check_table_for_elastic_link_stiffness() and self.check_table_for_elastic_link_damping():
+            title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
+            message = 'Please, define at least a table of values to stiffness or damping before confirming the attribution.'
+            PrintMessageInput([title, message, window_title1])
             return
 
-        if self.check_table_for_elastic_link_damping():
-            return
+        # if self.check_table_for_elastic_link_damping():
+        #     return
 
         if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
             title = "ERROR"

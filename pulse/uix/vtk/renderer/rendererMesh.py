@@ -508,8 +508,8 @@ class RendererMesh(vtkRendererBase):
             try:
                 node = self.project.get_node(ID)
                 self.plotAxes(node, ID)
-            except Exception as e:
-                print(e)
+            except Exception as err:
+                print(err)
 
     def plotElasticLinks(self):
         elastic_links_stiffness = self.project.mesh.dict_nodes_with_elastic_link_stiffness
@@ -522,8 +522,9 @@ class RendererMesh(vtkRendererBase):
                 nodeA = self.project.get_node(k[0])
                 nodeB = self.project.get_node(k[1])
                 self.plotElastic(nodeA, nodeB, key)
-                print(f"Key {key} - Stiff")
-            except Exception as e:
+                # print(f"Key {key} - Stiff")
+            except Exception as err:
+                print(err)
                 continue
         
         for key, _ in elastic_links_damping.items():
@@ -533,8 +534,9 @@ class RendererMesh(vtkRendererBase):
                 nodeA = self.project.get_node(k[0])
                 nodeB = self.project.get_node(k[1])
                 self.plotElastic(nodeA, nodeB, key)
-                print(f"Key {key} - Damping")
-            except Exception as e:
+                # print(f"Key {key} - Damping")
+            except Exception as err:
+                print(err)
                 continue
 
     def plotElastic(self, nodeA, nodeB, key):

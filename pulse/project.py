@@ -506,9 +506,11 @@ class Project:
         self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_elastic_nodal_link_stiffness(self, nodeID_1, nodeID_2, parameters, imported_table, table_name=""):
-        self.mesh.add_elastic_nodal_link(nodeID_1, nodeID_2, parameters, _stiffness=True)
+        min_node_ID = min(nodeID_1, nodeID_2)
+        max_node_ID = max(nodeID_1, nodeID_2)
+        self.mesh.add_elastic_nodal_link(min_node_ID, max_node_ID, parameters, _stiffness=True)
         labels = ["connecting stiffness", "connecting torsional stiffness"]
-        section_string = ["{}-{}".format(min(nodeID_1, nodeID_2), max(nodeID_1, nodeID_2))]
+        section_string = ["{}-{}".format(min_node_ID, max_node_ID)]
         if imported_table:
             values = table_name
         else:
@@ -516,9 +518,11 @@ class Project:
         self.file.add_structural_bc_in_file(section_string, values, labels)
 
     def add_elastic_nodal_link_damping(self, nodeID_1, nodeID_2, parameters, imported_table, table_name=""):
-        self.mesh.add_elastic_nodal_link(nodeID_1, nodeID_2, parameters, _damping=True)
+        min_node_ID = min(nodeID_1, nodeID_2)
+        max_node_ID = max(nodeID_1, nodeID_2)
+        self.mesh.add_elastic_nodal_link(min_node_ID, max_node_ID, parameters, _damping=True)
         labels = ["connecting damping", "connecting torsional damping"]
-        section_string = ["{}-{}".format(min(nodeID_1, nodeID_2), max(nodeID_1, nodeID_2))]
+        section_string = ["{}-{}".format(min_node_ID, max_node_ID)]
         if imported_table:
             values = table_name
         else:
