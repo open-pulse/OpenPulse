@@ -31,31 +31,31 @@ class RendererPostProcessing(vtkRendererBase):
         for actor in self._renderer.GetActors():
             self._renderer.RemoveActor(actor)
 
-    def getColorTable(self, r_def=None):
+    def getColorTable(self, u_def=None):
         if self.stress_field_plot:
             return ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
         elif self.pressure_field_plot:
-            return ColorTable(self.project, r_def, pressure_field_plot=True)
+            return ColorTable(self.project, u_def, pressure_field_plot=True)
         else:
-            return ColorTable(self.project, r_def)
+            return ColorTable(self.project, u_def)
 
     def plot(self, pressure_field_plot=False, stress_field_plot=False,  real_part = True):
         self.reset()
         self.stress_field_plot = stress_field_plot
         self.pressure_field_plot = pressure_field_plot
         if self.pressure_field_plot:
-            _, connect, coord, r_def = get_acoustic_response( self.project.get_mesh(), 
+            _, connect, coord, u_def = get_acoustic_response( self.project.get_mesh(), 
                                                               self.project.get_acoustic_solution(), 
                                                               self.frequencyIndice,
                                                               real_part = real_part)
         else:
-            connect, coord, r_def, self.valueFactor = get_structural_response(  self.project.get_mesh(), 
+            connect, coord, u_def, self.valueFactor = get_structural_response(  self.project.get_mesh(), 
                                                                                 self.project.get_structural_solution(), 
                                                                                 self.frequencyIndice, 
                                                                                 gain=self.sliderFactor)            
 
         # self.valueFactor
-        colorTable = self.getColorTable(r_def=r_def)
+        colorTable = self.getColorTable(u_def=u_def)
         self.createColorBarActor(colorTable)
 
         # for entity in self.project.get_entities():

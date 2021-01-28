@@ -26,9 +26,9 @@ def get_acoustic_response(mesh, solution, column, real_part = True):
     pressure[:,0] = np.arange( 0, rows, 1 )
     pressure[:,1] = data[column]
     
-    r_def = data[column]
+    u_def = data[column]
 
     coord = mesh.nodal_coordinates_matrix
     connect = mesh.connectivity_matrix
         
-    return pressure, connect, coord, r_def
+    return pressure, connect, coord, u_def

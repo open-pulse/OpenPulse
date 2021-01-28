@@ -103,7 +103,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def _sliderCallback(self, slider, b):
         sliderValue = slider.GetRepresentation().GetValue()
         # truncNumber = float("{:.1f}".format(sliderValue))
-        truncNumber = round(sliderValue, 2)
+        truncNumber = round(sliderValue, 1)
+
         if truncNumber != self.sliderScale:
             self.sliderScale = truncNumber
             self.slider2d.SetValue(truncNumber)

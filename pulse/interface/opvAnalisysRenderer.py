@@ -66,10 +66,10 @@ class opvAnalisysRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self._lastFrequency = frequency
 
-        _, _, r_def, _ = get_structural_response(mesh, solution, frequency, gain=gain)
+        _, _, u_def, _ = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
 
-        colorTable = ColorTable(self.project, r_def, stress_field_plot=True)
+        colorTable = ColorTable(self.project, u_def, stress_field_plot=True)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
@@ -88,10 +88,10 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._lastFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
 
-        *args, r_def = get_acoustic_response(mesh, solution, frequency, real_part)
+        *args, u_def = get_acoustic_response(mesh, solution, frequency, real_part)
         self.opvPressureTubes.build()
 
-        colorTable = ColorTable(self.project, r_def, pressure_field_plot=True)
+        colorTable = ColorTable(self.project, u_def, pressure_field_plot=True)
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
@@ -108,8 +108,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider = vtk.vtkSliderWidget()
         
         sld = vtk.vtkSliderRepresentation2D()
-        sld.SetMinimumValue(-1)
-        sld.SetMaximumValue(1)
+        sld.SetMinimumValue(-2)
+        sld.SetMaximumValue(2)
         sld.SetValue(1)
 
         sld.GetSelectedProperty().SetColor(1, 0, 0)
@@ -138,7 +138,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
     def _sliderCallback(self, slider, b):
         sliderValue = slider.GetRepresentation().GetValue()
-        sliderValue = round(sliderValue, 2)
+        sliderValue = round(sliderValue, 1)
         slider.GetRepresentation().SetValue(sliderValue)
         self.showStressField(self._lastFrequency, sliderValue)
 

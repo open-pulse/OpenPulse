@@ -7,7 +7,6 @@ from pulse.interface.tubeActor import TubeActor
 from pulse.uix.vtk.colorTable import ColorTable
 # from pulse.utils import directional_vectors_xyz_rotation
 
-
 class TubeDeformedActor(TubeActor):
     def __init__(self, elements, project):
         super().__init__(elements, project)
