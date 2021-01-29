@@ -2,7 +2,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import error, remove_bc_from_file
+from pulse.utils import remove_bc_from_file
 import configparser
 from collections import defaultdict
 import os
@@ -273,9 +273,9 @@ class ProjectFile:
                         insulation_density = float(insulation_density)
                         cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
                         self.dict_cross[entity] = [cross, get_list_elements]
-                    except Exception as er:
+                    except Exception as err:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(er)
+                        message = str(err)
                         PrintMessageInput([title, message, window_title])
 
             else:
@@ -320,9 +320,9 @@ class ProjectFile:
                         
                         self.dict_cross[entity] = cross
                         
-                    except Exception as er:
+                    except Exception as err:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(er)
+                        message = str(err)
                         PrintMessageInput([title, message, window_title])
                 
                 if 'outer diameter' in entityFile[entity].keys():
@@ -351,9 +351,9 @@ class ProjectFile:
                                                 insulation_density=insulation_density, 
                                                 additional_section_info=section_info)
                         self.dict_cross[entity] = cross
-                    except Exception as er:
+                    except Exception as err:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(er)
+                        message = str(err)
                         PrintMessageInput([title, message, window_title])
                     
             if 'material id' in entityFile[entity].keys():
@@ -434,9 +434,9 @@ class ProjectFile:
                 _list_parameters = self._get_list_of_values_from_string(list_parameters, are_values_int=False)
                 try:
                     self.dict_stress_stiffening[int(entity)] = _list_parameters
-                except Exception as er:
+                except Exception as err:
                     window_title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE"
-                    message = str(er)
+                    message = str(err)
                     PrintMessageInput([title, message, window_title])
 
         for section in list(element_file.sections()):
@@ -450,9 +450,9 @@ class ProjectFile:
                         get_list_elements = self._get_list_of_values_from_string(list_elements)
                     if length_correction_type in [0,1,2] and get_list_elements != []:
                         self.dict_length_correction[section] = [get_list_elements, length_correction_type]
-            except Exception as er:  
+            except Exception as err:  
                 window_title = "ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION FROM FILE"
-                message = str(er)
+                message = str(err)
                 PrintMessageInput([title, message, window_title])
 
             try:
@@ -461,9 +461,9 @@ class ProjectFile:
                         _list_elements = element_file[section]['list of elements']
                         get_list_elements = self._get_list_of_values_from_string(_list_elements)
                         self.dict_capped_end[section] = get_list_elements
-            except Exception as er:  
+            except Exception as err:  
                 window_title = "ERROR WHILE LOADING CAPPED END FROM FILE"
-                message = str(er)
+                message = str(err)
                 PrintMessageInput([title, message, window_title])
 
             try:
@@ -475,9 +475,9 @@ class ProjectFile:
                         _list_elements = element_file[section]['list of elements']
                         get_list_elements = self._get_list_of_values_from_string(_list_elements)
                     self.dict_stress_stiffening[section] = [get_list_elements, get_list_parameters]
-            except Exception as er: 
+            except Exception as err: 
                 window_title = "ERROR WHILE LOADING STRESS STIFFENING FROM FILE" 
-                message = str(er)
+                message = str(err)
                 PrintMessageInput([title, message, window_title])
 
             try:
@@ -492,9 +492,9 @@ class ProjectFile:
                         _dofs_mask = element_file[section]['rotation dofs mask']
                         get_dofs_mask = self._get_list_bool_from_string(_dofs_mask)
                     self.dict_B2XP_rotation_decoupling[section] = [get_list_elements, get_list_nodes, get_dofs_mask]
-            except Exception as er: 
+            except Exception as err: 
                 window_title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
-                message = str(er)
+                message = str(err)
                 PrintMessageInput([title, message, window_title])
                 
 
@@ -768,7 +768,8 @@ class ProjectFile:
                 labels = [["Ux","Uy","Uz"],["Rx","Ry","Rz"]]
                 prescribed_dofs = self._get_structural_bc_from_string(displacement_strings, rotation_strings, labels)
                 if prescribed_dofs is not None:
-                    self.dict_prescribed_dofs[node_id] = prescribed_dofs
+                    if sum([1 if value is None else 0 for value in prescribed_dofs]) != 6:
+                        self.dict_prescribed_dofs[node_id] = prescribed_dofs
                                
             if "forces" in keys and "moments" in keys:
                 forces_strings = node_structural_list[str(node)]['forces'] 
@@ -776,7 +777,8 @@ class ProjectFile:
                 labels = [["Fx","Fy","Fz"],["Mx","My","Mz"]]
                 nodal_loads = self._get_structural_bc_from_string(forces_strings, moments_strings, labels)
                 if nodal_loads is not None:
-                    self.dict_nodal_loads[node_id] = nodal_loads
+                    if sum([1 if value is None else 0 for value in nodal_loads]) != 6:
+                        self.dict_nodal_loads[node_id] = nodal_loads
             
             if "masses" in keys and "moments of inertia" in keys:
                 masses = node_structural_list[str(node)]['masses']
@@ -784,7 +786,8 @@ class ProjectFile:
                 labels = [["m_x","m_y","m_z"],["Jx","Jy","Jz"]]
                 lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia, labels, _complex=False)
                 if lumped_inertia is not None:
-                    self.dict_lumped_inertia[node_id] = lumped_inertia
+                    if sum([1 if value is None else 0 for value in lumped_inertia]) != 6:
+                        self.dict_lumped_inertia[node_id] = lumped_inertia
 
             if "spring stiffness" in keys and "torsional spring stiffness" in keys:
                 spring_stiffness = node_structural_list[str(node)]['spring stiffness']
@@ -792,7 +795,8 @@ class ProjectFile:
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
                 lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels, _complex=False)
                 if lumped_stiffness is not None:
-                    self.dict_lumped_stiffness[node_id] = lumped_stiffness
+                    if sum([1 if value is None else 0 for value in lumped_stiffness]) != 6:
+                        self.dict_lumped_stiffness[node_id] = lumped_stiffness
 
             if "damping coefficients" in keys and "torsional damping coefficients":
                 damping_coefficients = node_structural_list[str(node)]['damping coefficients']
@@ -800,23 +804,26 @@ class ProjectFile:
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
                 lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels, _complex=False)
                 if lumped_damping is not None:
-                    self.dict_lumped_damping[node_id] = lumped_damping
+                    if sum([1 if value is None else 0 for value in lumped_damping]) != 6:
+                        self.dict_lumped_damping[node_id] = lumped_damping
 
-            if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
+            if "connecting stiffness" and "connecting torsional stiffness" in keys:
                 connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
                 connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
                 connecting_stiffness = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels, _complex=False)
-                if connecting_stiffness.count(None) != 6:
-                    self.dict_elastic_link_stiffness[node_id] = connecting_stiffness
+                if connecting_stiffness is not None:
+                    if sum([1 if value is None else 0 for value in connecting_stiffness]) != 6:
+                        self.dict_elastic_link_stiffness[node_id] = connecting_stiffness
         
-            if "connecting damping" in keys and "connecting torsional damping" in keys:
+            if "connecting damping" and "connecting torsional damping" in keys:
                 connecting_damping = node_structural_list[str(node)]['connecting damping']
                 connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
                 connecting_damping = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels, _complex=False)
-                if connecting_damping.count(None) != 6:
-                    self.dict_elastic_link_damping[node_id] = connecting_damping
+                if connecting_damping is not None:
+                    if sum([1 if value is None else 0 for value in connecting_damping]) != 6:
+                        self.dict_elastic_link_damping[node_id] = connecting_damping
 
         return self.dict_prescribed_dofs, self.dict_nodal_loads, self.dict_lumped_inertia, self.dict_lumped_stiffness, self.dict_lumped_damping, self.dict_elastic_link_stiffness, self.dict_elastic_link_damping
 
@@ -918,8 +925,9 @@ class ProjectFile:
                         self.f_step = self.frequencies[1] - self.frequencies[0]
                         self.temp_table_name = value[0]
                     except Exception:
+                        title = "ERROR WHILE LOADING '{}' TABLE OF ACOUSTIC MODEL".format(label)
                         message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label) 
-                        error(message, title = "LOADING TABLE ERROR")             
+                        PrintMessageInput([title, message, window_title])       
         return output
 
     def _get_structural_bc_from_string(self, first, last, labels, _complex=True):
@@ -946,16 +954,18 @@ class ProjectFile:
                         output[i] = self.structural_tables_load(first[i], labels[0][i])
                         output[i+3] = self.structural_tables_load(last[i], labels[1][i])
                     except Exception as err:
-                        error(str(err), title = "ERROR")
-        # print("Output: ", output)
+                        title = "ERROR WHILE LOADING STRUCTURAL MODEL INFO"
+                        message = str(err)
+                        PrintMessageInput([title, message, window_title])
+                        return None
         return output
 
     def structural_tables_load(self, table_name, label):
         output = None
         try:
+
             if table_name == "None":
                 return output
-
             load_path_table = ""
             path = os.path.dirname(self.project_file_path)
             if "/" in path:
@@ -983,8 +993,11 @@ class ProjectFile:
                 output = output/((2*pi*self.frequencies)**2)
 
         except Exception: 
+
+            title = "ERROR WHILE LOADING '{}' TABLE OF STRUCTURAL MODEL".format(label)
             message = "The loaded {} table has invalid data structure, \ntherefore, it will be ignored in analysis.".format(label)  
-            error(message, title="LOADING TABLE ERROR")     
+            PrintMessageInput([title, message, window_title]) 
+
         return output
     
     def _single_structural_excitation_bc(self, node_id, labels):
@@ -996,11 +1009,9 @@ class ProjectFile:
             remove_bc_from_file(node_id, self._node_structural_path, key_strings, None)
 
     def _single_acoustic_excitation_bc(self, node_id, label):
-        # if label[0] == 'acoustic pressure':
         if 'acoustic pressure' in label[0]:
             key_strings = ['volume velocity']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)
-        # elif label[0] == 'volume velocity':
         elif 'volume velocity' in  label[0]:
             key_strings = ['acoustic pressure']
             remove_bc_from_file(node_id, self._node_acoustic_path, key_strings, None)

@@ -7,11 +7,14 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.projectFile import ProjectFile
-from pulse.utils import error
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+
 import numpy as np
 import configparser
 from collections import defaultdict
 import os
+
+window_title = "ERROR"
 
 class Project:
     def __init__(self):
@@ -292,41 +295,48 @@ class Project:
             damper, 
             elastic_link_stiffness, 
             elastic_link_damping    ] = self.file.get_dict_of_structural_bc_from_file()
+
+        title = "ERROR WHILE LOADING STRUCTURAL DATA"
         
         for key, dofs in prescribed_dofs.items():
             if isinstance(dofs, list):
                 try:
                     self.load_prescribed_dofs_bc_by_node(key, dofs)
                 except Exception:
-                    error("There is some error while loading prescribed dofs data.")
+                    message = "There is some error while loading prescribed dofs data." 
+                    PrintMessageInput([title, message, window_title])
 
         for key, loads in external_loads.items():
             if isinstance(loads, list):
                 try:
                     self.load_structural_loads_by_node(key, loads)
                 except Exception:
-                    error("There is some error while loading nodal loads data.")
+                    message = "There is some error while loading nodal loads data." 
+                    PrintMessageInput([title, message, window_title])
 
         for key, masses in mass.items():
             if isinstance(masses, list):
                 try:
                     self.load_mass_by_node(key, masses)
                 except Exception:
-                    error("There is some error while loading lumped masses/moments of inertia data.")
+                    message = "There is some error while loading lumped masses/moments of inertia data."
+                    PrintMessageInput([title, message, window_title])
                 
         for key, stiffness in spring.items():
             if isinstance(stiffness, list):
                 try:
                     self.load_spring_by_node(key, stiffness)
                 except Exception:
-                    error("There is some error while loading lumped stiffness data.")    
+                    message = "There is some error while loading lumped stiffness data." 
+                    PrintMessageInput([title, message, window_title])  
 
         for key, dampings in damper.items():
             if isinstance(dampings, list):
                 try:
                     self.load_damper_by_node(key, dampings)
                 except Exception:
-                    error("There is some error while loading lumped damping data.")   
+                    message = "There is some error while loading lumped damping data." 
+                    PrintMessageInput([title, message, window_title]) 
 
         for key, stiffness_data in elastic_link_stiffness.items():
             if isinstance(stiffness_data, list):
@@ -335,7 +345,8 @@ class Project:
                 try:
                     self.load_elastic_nodal_link_stiffness(nodes, stiffness_data)
                 except Exception:
-                    error("There is some error while loading elastic nodal link stiffness data.")   
+                    message = "There is some error while loading elastic nodal link stiffness data." 
+                    PrintMessageInput([title, message, window_title]) 
 
         for key, damping_data in elastic_link_damping.items():
             if isinstance(damping_data, list):
@@ -344,7 +355,8 @@ class Project:
                 try:
                     self.load_elastic_nodal_link_damping(nodes, damping_data)
                 except Exception:
-                    error("There is some error while loading elastic nodal link damping data.")  
+                    message = "There is some error while loading elastic nodal link damping data." 
+                    PrintMessageInput([title, message, window_title]) 
 
     def load_acoustic_bc_file(self):
         pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.get_dict_of_acoustic_bc_from_file()
