@@ -27,6 +27,7 @@ class RendererMesh(vtkRendererBase):
         self.nodesBounds = dict() # (x,y,z) coordinates
         self.elementsBounds = dict() # bounding coordinates
         self.axes = dict()
+        self.elasticLinks = dict()
         self.elementAxe = []
         self.actorNodesList = []
 
@@ -530,18 +531,53 @@ class RendererMesh(vtkRendererBase):
     def updateAllAxes(self):
         for ID, node in self.project.get_nodes().items():
             self.plotAxes(node, ID)
+        self.plotElasticLinks()
 
     def getSize(self):
         return self.project.get_element_size()*0.7
 
     def transformPoints(self, points_id):
         self._style.clear()
+        self.plotElasticLinks()
         for ID in points_id:
             try:
                 node = self.project.get_node(ID)
                 self.plotAxes(node, ID)
-            except Exception as e:
-                print(e)
+            except Exception as err:
+                print(err)
+
+    def plotElasticLinks(self):
+        elastic_links_stiffness = self.project.mesh.dict_nodes_with_elastic_link_stiffness
+        elastic_links_damping = self.project.mesh.dict_nodes_with_elastic_link_damping
+        self.removeElasticLinks()
+        for key, _ in elastic_links_stiffness.items():
+            try:
+                self.elasticLinks[key] = []
+                k = [int(k) for k in key.split('-')]
+                nodeA = self.project.get_node(k[0])
+                nodeB = self.project.get_node(k[1])
+                self.plotElastic(nodeA, nodeB, key)
+                # print(f"Key {key} - Stiff")
+            except Exception as err:
+                print(err)
+                continue
+        
+        for key, _ in elastic_links_damping.items():
+            try:
+                self.elasticLinks[key] = []
+                k = [int(k) for k in key.split('-')]
+                nodeA = self.project.get_node(k[0])
+                nodeB = self.project.get_node(k[1])
+                self.plotElastic(nodeA, nodeB, key)
+                # print(f"Key {key} - Damping")
+            except Exception as err:
+                print(err)
+                continue
+
+    def plotElastic(self, nodeA, nodeB, key):
+        i =  self.symbols.getElasticLink(nodeA, nodeB)
+        self.elasticLinks[key].append(i)
+        self._renderer.AddActor(i)
     
     def plotAxes(self, node, key_id):
         self.removeAxes(key_id)
@@ -583,6 +619,12 @@ class RendererMesh(vtkRendererBase):
         for i in self.symbols.getArrowMomento(node):
             self.axes[key_id].append(i)
             self._renderer.AddActor(i)
+
+    def removeElasticLinks(self):
+        for key, item in self.elasticLinks.items():
+            for i in item:
+                self._renderer.RemoveActor(i)
+        self.elasticLinks = dict()
 
     def removeAxes(self, key):
         if self.axes.get(key) is not None:

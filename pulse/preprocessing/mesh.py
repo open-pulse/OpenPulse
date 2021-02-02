@@ -13,7 +13,7 @@ from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEM
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _rotation_matrix_3x3, _rotation_matrix_Nx3x3
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_3x3xN, _rotation_matrix_3x3, _rotation_matrix_3x3xN
 
 window_title1 = "ERROR"
 
@@ -1282,7 +1282,9 @@ class Mesh:
         element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
         element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
 
-        key = "{}-{}".format(node1.external_index, node2.external_index)
+        min_node_ID = min(node1.external_index, node2.external_index)
+        max_node_ID = max(node1.external_index, node2.external_index)
+        key = "{}-{}".format(min_node_ID, max_node_ID)
         
         if _stiffness:
             self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
@@ -1306,8 +1308,8 @@ class Mesh:
     #         # delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
     #         rotations_results[index, :] = (element.last_node.rotations_xyz + element.first_node.rotations_xyz)/2
 
-    #     # mat_rotation_data = _rotation_matrix_Nx3x3(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
-    #     # output_data = inverse_matrix_Nx3x3(mat_rotation_data)
+    #     # mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
+    #     # output_data = inverse_matrix_3x3xN(mat_rotation_data)
     #     # # r = Rotation.from_matrix(output_data)
     #     # r = Rotation.from_matrix(mat_rotation_data)
     #     # rotations_zxy = -r.as_euler('zxy', degrees=True)
@@ -1339,8 +1341,8 @@ class Mesh:
 
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
-        mat_rotation_data = _rotation_matrix_Nx3x3(delta_data[:,0], delta_data[:,1], delta_data[:,2])
-        output_data = inverse_matrix_Nx3x3(mat_rotation_data)
+        mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
+        output_data = inverse_matrix_3x3xN(mat_rotation_data)
         # r = Rotation.from_matrix(output_data)
         r = Rotation.from_matrix(mat_rotation_data)
         self.rotations_zxy = -r.as_euler('zxy', degrees=True)

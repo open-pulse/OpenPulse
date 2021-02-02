@@ -19,7 +19,7 @@ window_title2 = "WARNING MESSAGE"
 class ElasticNodalLinksInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/nodalLinksInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/elasticNodalLinksInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -199,6 +199,12 @@ class ElasticNodalLinksInput(QDialog):
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_selected_node_ID.setText(text)
+        if len(list_node_ids) == 2:
+            self.lineEdit_first_node_ID.setText(str(list_node_ids[-2]))
+            self.lineEdit_last_node_ID.setText(str(list_node_ids[-1]))
+        elif len(list_node_ids) == 1:
+            self.lineEdit_first_node_ID.setText(str(list_node_ids[-1]))
+            self.lineEdit_last_node_ID.setText("")
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())
@@ -243,17 +249,24 @@ class ElasticNodalLinksInput(QDialog):
         
         if self.check_nodeID(self.lineEdit_first_node_ID):
             return True
-        self.nodeID_1 = self.nodeID
+        temp_nodeID_1 = self.nodeID
         
         if self.check_nodeID(self.lineEdit_last_node_ID):
             return True
-        self.nodeID_2 = self.nodeID
+        temp_nodeID_2 = self.nodeID
 
-        if self.nodeID_1 == self.nodeID_2:
+        if temp_nodeID_1 == temp_nodeID_2:
             title = "ERROR IN NODES SELECTION"
-            message = "The nodes selected must differ. Try to choose another pair of nodes."
+            message = "The selected nodes must differ. Try to choose another pair of nodes."
             PrintMessageInput([title, message, window_title1])
             return True
+
+        if temp_nodeID_2 > temp_nodeID_1:
+            self.nodeID_1 = temp_nodeID_1
+            self.nodeID_2 = temp_nodeID_2
+        else:
+            self.nodeID_2 = temp_nodeID_1
+            self.nodeID_1 = temp_nodeID_2
 
         return False
         
@@ -353,6 +366,11 @@ class ElasticNodalLinksInput(QDialog):
             self.parameters_K = list_K
         if list_C.count(None) != 6:
             self.parameters_C = list_C
+        
+        if list_K.count(None) == 6 and list_C.count(None) == 6:
+            title = 'EMPTY INPUTS FOR STIFFNESS AND DAMPING'
+            message = 'Please insert at least a stiffness or damping value before confirming the attribution.'
+            PrintMessageInput([title, message, window_title1])
 
     def single_input_confirm(self):
         if self.check_all_inputs():
@@ -362,6 +380,7 @@ class ElasticNodalLinksInput(QDialog):
         if self.parameters_C is not None:
             self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.parameters_C, False)
         if (self.parameters_K or self.parameters_C) is not None:
+            self.opv.updateRendererMesh()
             self.close()
 
     def load_table(self, lineEdit, text, header, direct_load=False):
@@ -523,6 +542,9 @@ class ElasticNodalLinksInput(QDialog):
             self.basenames = [self.basename_Kx, self.basename_Ky, self.basename_Kz, self.basename_Krx, self.basename_Kry, self.basename_Krz]
             self.stiffness_parameters = stiffness_parameters
             self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.stiffness_parameters, True, table_name=self.basenames)
+            return False
+        else:
+            return True
 
     def check_table_for_elastic_link_damping(self):
 
@@ -577,17 +599,19 @@ class ElasticNodalLinksInput(QDialog):
             self.basenames = [self.basename_Cx, self.basename_Cy, self.basename_Cz, self.basename_Crx, self.basename_Cry, self.basename_Crz]
             self.damping_parameters = damping_parameters
             self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.damping_parameters, True, table_name=self.basenames)
-        return False
+            return False
+        else:
+            return True
   
     def table_input_confirm(self):
 
         if self.check_all_nodes():
             return True
 
-        if self.check_table_for_elastic_link_stiffness():
-            return
-
-        if self.check_table_for_elastic_link_damping():
+        if self.check_table_for_elastic_link_stiffness() and self.check_table_for_elastic_link_damping():
+            title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
+            message = 'Please, define at least a table of values to the stiffness or damping before confirming the attribution.'
+            PrintMessageInput([title, message, window_title1])
             return
 
         if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
@@ -595,7 +619,8 @@ class ElasticNodalLinksInput(QDialog):
             message = "You must to add at least one external element before confirm the input!"
             PrintMessageInput([title, message, window_title1])
             return
-
+        
+        self.opv.updateRendererMesh()
         self.close()
 
     def text_label(self, mask, load_labels):
@@ -629,6 +654,7 @@ class ElasticNodalLinksInput(QDialog):
         self.treeWidget_nodal_links_stiffness.clear()
         stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz']) 
         self.skip_treeWidget_row(self.treeWidget_nodal_links_stiffness)
+        self.pushButton_remove_link_stiffness.setDisabled(False)
 
         for key in self.mesh.dict_nodes_with_elastic_link_stiffness.keys():
             node_ids = [int(node) for node in key.split("-")]
@@ -638,11 +664,15 @@ class ElasticNodalLinksInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
 
+        if len(self.mesh.dict_nodes_with_elastic_link_stiffness) == 0:
+            self.pushButton_remove_link_stiffness.setDisabled(True)
+
     def load_elastic_links_damping_info(self):
 
         self.treeWidget_nodal_links_damping.clear()
         damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
         self.skip_treeWidget_row(self.treeWidget_nodal_links_damping)
+        self.pushButton_remove_link_damping.setDisabled(False)
 
         for key in self.mesh.dict_nodes_with_elastic_link_damping.keys():
             node_ids = [int(node) for node in key.split("-")]
@@ -652,6 +682,9 @@ class ElasticNodalLinksInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_damping.addTopLevelItem(new)
 
+        if len(self.mesh.dict_nodes_with_elastic_link_damping) == 0:
+            self.pushButton_remove_link_damping.setDisabled(True)
+
     def on_click_item(self, item):
         self.lineEdit_node_ID_info.setText(item.text(0))
 
@@ -659,9 +692,7 @@ class ElasticNodalLinksInput(QDialog):
         try:
             selected_link = self.lineEdit_node_ID_info.text()
             if selected_link != "":        
-                read = GetInformationOfGroup(self.project, selected_link, "Lines")
-                # if read.lines_removed:
-                #     self.load_lines_info()
+                GetInformationOfGroup(self.project, selected_link, "Lines")
             else:
                 title = "UNSELECTED ELASTIC LINK"
                 message = "Please, select an elastic link in the list to get the information."
@@ -724,30 +755,52 @@ class ElasticNodalLinksInput(QDialog):
             key = self.lineEdit_node_ID_info.text()
         else:
             key = self.ext_key
-        node_IDs = [int(nodeID) for nodeID in key.split("-")]
         if key == "":
+            title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
+            message = "Please, select a stiffness elastic link in the list before confirm the link removal."
+            PrintMessageInput([title, message, window_title2])
             return
-        self.project.mesh.dict_nodes_with_elastic_link_stiffness.pop(key)
-        for node_ID in node_IDs:
-            self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
-        self.remove_elastic_link_stiffness_from_file(key)
-        self.load_elastic_links_stiffness_info()
-        self.lineEdit_node_ID_info.setText("")
+
+        node_IDs = [int(nodeID) for nodeID in key.split("-")]
+
+        if key in self.project.mesh.dict_nodes_with_elastic_link_stiffness.keys():
+            self.project.mesh.dict_nodes_with_elastic_link_stiffness.pop(key)
+            for node_ID in node_IDs:
+                self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
+            self.remove_elastic_link_stiffness_from_file(key)
+            self.load_elastic_links_stiffness_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_node_ID_info.setText("")
+        else:
+            title = "REMOVAL OF ELASTIC NODAL LINKS - STIFFNESS"
+            message = "The selected elastic link is invalid thus cannot be removed."
+            PrintMessageInput([title, message, window_title1])
 
     def remove_selected_link_damping(self):
         if self.ext_key is None:
             key = self.lineEdit_node_ID_info.text()
         else:
             key = self.ext_key
-        node_IDs = [int(nodeID) for nodeID in key.split("-")]
         if key == "":
+            title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
+            message = "Please, select a damping elastic link in the list before confirm the link removal."
+            PrintMessageInput([title, message, window_title2])
             return
-        self.project.mesh.dict_nodes_with_elastic_link_damping.pop(key)
-        for node_ID in node_IDs:
-            self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
-        self.remove_elastic_link_damping_from_file(key)
-        self.load_elastic_links_damping_info()
-        self.lineEdit_node_ID_info.setText("")
+
+        node_IDs = [int(nodeID) for nodeID in key.split("-")]
+
+        if key in self.project.mesh.dict_nodes_with_elastic_link_damping.keys():
+            self.project.mesh.dict_nodes_with_elastic_link_damping.pop(key)
+            for node_ID in node_IDs:
+                self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
+            self.remove_elastic_link_damping_from_file(key)
+            self.load_elastic_links_damping_info()
+            self.opv.updateRendererMesh()
+            self.lineEdit_node_ID_info.setText("")
+        else:
+            title = "REMOVAL OF ELASTIC NODAL LINKS - DAMPING"
+            message = "The selected elastic link are invalid thus cannot be removed."
+            PrintMessageInput([title, message, window_title2])
 
     def reset_all(self):
         if self.double_confirm_action():
@@ -762,14 +815,14 @@ class ElasticNodalLinksInput(QDialog):
             self.remove_selected_link_damping()
         title = "RESET OF ELASTIC NODAL LINKS"
         message = "All elastic nodal links have been removed from the model."
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title1])
         self.ext_key = None
 
     def double_confirm_action(self):
         confirm_act = QMessageBox.question(
             self,
             "QUIT",
-            "Are you sure you want to remove all compressor excitations?",
+            "Are you sure you want to remove all elastic links attributed to the structural model?",
             QMessageBox.No | QMessageBox.Yes)
         
         if confirm_act == QMessageBox.Yes:

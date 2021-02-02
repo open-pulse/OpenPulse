@@ -59,7 +59,7 @@
     <enum>QFrame::Box</enum>
    </property>
    <property name="text">
-    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Add nodal links:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Add elastic nodal links:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
    <property name="textFormat">
     <enum>Qt::AutoText</enum>
@@ -4026,6 +4026,57 @@ color: rgb(0, 0, 0);</string>
    </widget>
   </widget>
  </widget>
+ <tabstops>
+  <tabstop>tabWidget</tabstop>
+  <tabstop>tabWidget_inputs</tabstop>
+  <tabstop>tabWidget_single_values</tabstop>
+  <tabstop>lineEdit_Kx</tabstop>
+  <tabstop>lineEdit_Ky</tabstop>
+  <tabstop>lineEdit_Kz</tabstop>
+  <tabstop>lineEdit_Krx</tabstop>
+  <tabstop>lineEdit_Kry</tabstop>
+  <tabstop>lineEdit_Krz</tabstop>
+  <tabstop>lineEdit_Cx</tabstop>
+  <tabstop>lineEdit_Cy</tabstop>
+  <tabstop>lineEdit_Cz</tabstop>
+  <tabstop>lineEdit_Crx</tabstop>
+  <tabstop>lineEdit_Cry</tabstop>
+  <tabstop>lineEdit_Crz</tabstop>
+  <tabstop>tabWidget_table_values</tabstop>
+  <tabstop>toolButton_load_Kx_table</tabstop>
+  <tabstop>toolButton_load_Ky_table</tabstop>
+  <tabstop>toolButton_load_Kz_table</tabstop>
+  <tabstop>toolButton_load_Krx_table</tabstop>
+  <tabstop>toolButton_load_Kry_table</tabstop>
+  <tabstop>toolButton_load_Krz_table</tabstop>
+  <tabstop>lineEdit_path_table_Kx</tabstop>
+  <tabstop>lineEdit_path_table_Ky</tabstop>
+  <tabstop>lineEdit_path_table_Kz</tabstop>
+  <tabstop>lineEdit_path_table_Krx</tabstop>
+  <tabstop>lineEdit_path_table_Kry</tabstop>
+  <tabstop>lineEdit_path_table_Krz</tabstop>
+  <tabstop>toolButton_load_Cx_table</tabstop>
+  <tabstop>toolButton_load_Cy_table</tabstop>
+  <tabstop>toolButton_load_Cz_table</tabstop>
+  <tabstop>toolButton_load_Crx_table</tabstop>
+  <tabstop>toolButton_load_Cry_table</tabstop>
+  <tabstop>toolButton_load_Crz_table</tabstop>
+  <tabstop>lineEdit_path_table_Cx</tabstop>
+  <tabstop>lineEdit_path_table_Cy</tabstop>
+  <tabstop>lineEdit_path_table_Cz</tabstop>
+  <tabstop>lineEdit_path_table_Crx</tabstop>
+  <tabstop>lineEdit_path_table_Cry</tabstop>
+  <tabstop>lineEdit_path_table_Crz</tabstop>
+  <tabstop>pushButton_table_input_confirm</tabstop>
+  <tabstop>pushButton_remove_link_stiffness</tabstop>
+  <tabstop>pushButton_remove_link_damping</tabstop>
+  <tabstop>pushButton_close</tabstop>
+  <tabstop>pushButton_reset_all</tabstop>
+  <tabstop>pushButton_single_input_confirm</tabstop>
+  <tabstop>treeWidget_nodal_links_damping</tabstop>
+  <tabstop>treeWidget_nodal_links_stiffness</tabstop>
+  <tabstop>pushButton_see_details_selected_link</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>

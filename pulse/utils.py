@@ -8,7 +8,31 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 
+
 def split_sequence(sequence, size):
+    ''' 
+    This function breaks a sequence in equal sized blocks of choosen size.
+
+    Parameters
+    ----------
+    sequence: list like object
+              Any iterable object.
+
+    size: int
+          Size of the desired chunks.
+
+    Returns
+    -------
+    out: list
+         list with small chuncks with desired size.
+
+    Examples
+    --------
+        >>> colors  = [255,0,0,0,255,0,0,0,255] # a list with colors concatenated.
+        >>> split_sequence(colors, 3)
+        [[255,0,0], [0,255,0], [0,0,255]]
+    '''
+
     subsequences = []
     for start in range(0, len(sequence), size):
         end = start + size
@@ -17,6 +41,36 @@ def split_sequence(sequence, size):
     return subsequences
 
 def slicer(iterable, argument):
+    ''' 
+    A function to deal better with elements. 
+
+    Parameters
+    ----------
+    iterable: Iterable sequence.
+
+    argument: str, int, iterable
+              argument can be 'all', the index, or a sequence of indexes
+    
+    Yields
+    ------
+    out: Value according to the argument.
+
+    Examples
+    --------
+    >>> sequence = ['a', 'b', 'c', 'd']
+    >>> for i in slicer(sequence, [1,3,2]):
+            print(i)
+    'b'
+    'd'
+    'c'
+    >>> for i in slicer(sequence, 'all'):
+        print(i)
+    'a'
+    'b'
+    'c'
+    'd'
+    '''
+
     if isinstance(argument, str) and argument == 'all':
         if isinstance(iterable, dict):
             for i in iterable.values():
@@ -36,6 +90,27 @@ def slicer(iterable, argument):
         raise AttributeError('Argument not supported')
 
 def timer(function):
+    ''' 
+    A decorator to time functions.
+
+    Parameters
+    ----------
+    function: Any function.
+
+    Returns
+    -------
+    function: A function that does the same as input, but prints the time spent.
+
+    Examples
+    --------
+    >>> @timer
+    >>> def timeConsumingFunction(x):
+    ...     doSomethingHeavy()
+    ...
+    >>> timeConsumingFunction(5)
+    Time to finish timeConsumingFunction: 35.5235 [s]
+    '''
+
     @wraps(function)
     def wrapper(*args, **kwargs):
         start_time = time()
@@ -46,12 +121,53 @@ def timer(function):
     return wrapper
     
 def m_to_mm(m):
+    ''' 
+    Converts meter to millimeter.
+
+    Parameters
+    ----------
+    m: int, float
+        Value in meters
+
+    Returns
+    -------
+    out: float
+        Value in millimeters
+    '''
     return float(m) * 1000
 
 def mm_to_m(mm):
+    ''' 
+    Converts meter to millimeter.
+
+    Parameters
+    ----------
+    mm: int, float
+        Value in millimeters
+
+    Returns
+    -------
+    out: float
+        Value in meters
+
+    '''
     return float(mm) / 1000
 
-def inverse_matrix_Nx3x3(A):
+def inverse_matrix_3x3xN(A):
+    ''' 
+    Given a 3x3xN matrix, compute its inverse faster than 
+    numpy's default function.
+
+    Parameters
+    ----------
+    A: numpy.ndarray
+        Matrix of shape (3,3,N)
+    
+    Returns
+    -------
+    out: numpy.ndarray
+        inverse matrix
+    '''
     
     b = 1/( A[:,0,0]*A[:,1,1]*A[:,2,2] + A[:,0,1]*A[:,1,2]*A[:,2,0] +
             A[:,0,2]*A[:,1,0]*A[:,2,1] - A[:,0,2]*A[:,1,1]*A[:,2,0] -
@@ -75,6 +191,21 @@ def inverse_matrix_Nx3x3(A):
     return invA
 
 def inverse_matrix_3x3(A):
+    '''    
+    Given a 3x3 matrix, compute its inverse faster than
+    numpy's default function.
+
+    Parameters
+    ----------
+    A: numpy.ndarray
+        Matrix of shape (3,3,N)
+    
+    Returns
+    -------
+    out: numpy.ndarray
+        inverse matrix
+
+    '''
     
     b = 1/( A[0,0]*A[1,1]*A[2,2] + A[0,1]*A[1,2]*A[2,0] +
             A[0,2]*A[1,0]*A[2,1] - A[0,2]*A[1,1]*A[2,0] -
@@ -148,7 +279,7 @@ def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     return np.array([a,b,c])/L
 
 
-def _rotation_matrix_Nx3x3(delta_x, delta_y, delta_z, gamma=0):
+def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
     """ Make the rotation from the element coordinate system to the global doordinate system."""
     # Rotation Matrix
 
@@ -196,6 +327,18 @@ def _rotation_matrix_Nx3x3(delta_x, delta_y, delta_z, gamma=0):
 #     return -x, -y, -z
 
 def error( msg, title = " ERROR "):
+    '''
+    PyQt5 error message.
+
+    Parameters
+    ----------
+    msg: str
+        text to be displayed.
+
+    title: str
+        window title.
+    '''
+
     msg_box = QMessageBox()
     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
     # msg_box.setWindowModality(Qt.WindowModal)
@@ -205,6 +348,18 @@ def error( msg, title = " ERROR "):
     msg_box.exec_()
 
 def info_messages(msg, title = " INFORMATION "):
+    '''
+    PyQt5 info message.
+
+    Parameters
+    ----------
+    msg: str
+        text to be displayed.
+
+    title: str
+        window title.
+    '''
+
     msg_box = QMessageBox()
     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
     # msg_box.setWindowModality(Qt.WindowModal)
@@ -214,7 +369,6 @@ def info_messages(msg, title = " INFORMATION "):
     msg_box.exec_()
 
 def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
-
     try:
 
         bc_removed = False
@@ -251,6 +405,32 @@ def getColorRGB(color):
     return list(map(int, tokens))
 
 def sparse_is_equal(a, b):
+    '''
+    Function to check if two scipy.sparse matrices are equal. 
+    
+    Notes
+    -----
+    Because of implementation reasons, the right way to do this is checking 
+    the differences, not the similarities.
+
+    Parameters
+    ----------
+    a: scipy.sparse
+        A sparce matrix.
+
+    b: scipy.sparse
+        Another sparce matrix.
+
+    Returns
+    -------
+    out: True if the matrices are equal, else False.
+    
+    Raises
+    ------
+    Type Error
+        If matrices are not sparse.
+    '''
+
     if not (issparse(a) and issparse(b)):
         raise TypeError('a and b should be sparse matrices')
 

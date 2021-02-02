@@ -164,16 +164,6 @@ class InputUi:
         read = AcousticElementTypeInput(self.project, self.opv)
         if not read.complete:
             return
-        # if read.flagAll:
-        #     for entity in self.project.mesh.dict_entities.values():
-        #         if entity.fluid is None:
-        #             self.set_fluid()
-        #             return
-        # elif read.flagEntity:
-        #     for entity_id in self.lines_typed:
-        #         entity = self.project.mesh.dict_entities[entity_id]
-        #         if entity.fluid is None:
-        #             self.set_fluid()
         self.set_fluid()
 
     def set_fluid(self):

@@ -7,6 +7,17 @@ class vtkSymbols:
     def __init__(self, project):
         self.project = project
 
+    def getElasticLink(self, nodeA, nodeB):
+        source = vtk.vtkLineSource()
+        source.SetPoint1(nodeA.x, nodeA.y, nodeA.z)
+        source.SetPoint2(nodeB.x, nodeB.y, nodeB.z)
+        mapper = vtk.vtkPolyDataMapper()
+        mapper.SetInputConnection(source.GetOutputPort())
+        actor = vtk.vtkActor()
+        actor.SetMapper(mapper)
+        actor.GetProperty().SetColor(0,1,1)
+        return actor
+
     def arrow(self, start, end):
         arrowSource = vtk.vtkArrowSource()
         startPoint = start
