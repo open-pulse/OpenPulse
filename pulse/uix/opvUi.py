@@ -203,16 +203,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._updateAxes()
         
-        # if self.rendererMesh.getInUse():
-        #     return
-        # self.beforeChangePlot()
-        # self.rendererMesh.setInUse(True)
-        # self.rendererMesh.updateAllAxes()
-        # self.SetInteractorStyle(self.rendererMesh.getStyle())
-        # self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
-        # self.rendererMesh.resetCamera()
-        # self.afterChangePlot()
-
     def setRenderer(self, renderer):
         if not renderer.getInUse():
             self.beforeChangePlot()

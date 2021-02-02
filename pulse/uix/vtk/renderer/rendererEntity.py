@@ -24,12 +24,12 @@ class RendererEntity(vtkRendererBase):
             entity = self.project.get_entity(listActorsIDs[0])
             
             structural_element_type = 'undefined'
-            # material_name = 'undefined'
+            material_name = 'undefined'
             diam_ext, thickness = 'undefined', 'undefined'
             offset_y, offset_z = 'undefined', 'undefined'
             
-            # if entity.material is not None:
-            #     material_name = entity.material.name
+            if entity.material is not None:
+                material_name = entity.material.name
 
             if entity.structural_element_type is not None:
                 structural_element_type = entity.structural_element_type
@@ -106,7 +106,7 @@ class RendererEntity(vtkRendererBase):
                         additional_section_info = entity.getCrossSection().additional_section_info
 
                         text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
-                        text += 'Material:  {}\n'.format(entity.material.name)
+                        text += 'Material:  {}\n'.format(material_name)
 
                         if additional_section_info is not None:
                             text += 'Structural element type:  {} ({})\n'.format(structural_element_type, additional_section_info[0].capitalize())

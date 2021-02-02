@@ -154,16 +154,44 @@ class opvRenderer(vtkRendererBase):
 
     # info text
     def updateInfoText(self, obj, event):
-        text = self.getPointsInfoText()
+        text = ''
+
+        if True: # if selection enabled
+            text += self.getElementsInfoText() + '\n'
+        
+        if True: # if selection enabled
+            text += self.getPointsInfoText() + '\n'
+        
+        if True: # if selection enabled
+            text += self.getEntityInfoText()  + '\n'
+            
         self.createInfoText(text)
         self.update()
 
     def getPointsInfoText(self):
+        listSelected = self.getListPickedPoints()
+        size = len(listSelected)
+
+        if size == 1:
+            node = self.project.get_node(listSelected[0])
+            text = str(node)
+        elif size > 1:
+            text = f'{size} POINTS IN SELECTION: \n'     
+            text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
+            text += ''.join(str(i)+' ' for i in listSelected[10:20]) + '\n'  
+            text += ''.join(str(i)+' ' for i in listSelected[20:30]) + '\n'  
+            text += '...' if size>30 else '.'
+        else:
+            text = ''
+        return text
+    
+    def getElementsInfoText(self, *args, **kwargs):
         listSelected = self.getListPickedElements()
         size = len(listSelected)
 
         if size == 1:
-            text = str(listSelected)
+            element = self.project.get_structural_element(listSelected[0])
+            text = str(element)
         elif size > 1:
             text = f'{size} ELEMENTS IN SELECTION: \n'     
             text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
@@ -174,12 +202,8 @@ class opvRenderer(vtkRendererBase):
             text = ''
         return text
     
-    # functions to be removed but currently break the execution
-    def getElementsInfoText(self, *args, **kwargs):
-        pass
-    
     def getEntityInfoText(self, *args, **kwargs):
-        pass 
+        return ''
 
     def getPlotRadius(self, *args, **kwargs):
         return 
