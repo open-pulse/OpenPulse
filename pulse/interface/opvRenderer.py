@@ -160,7 +160,7 @@ class opvRenderer(vtkRendererBase):
             text += self.getElementsInfoText() + '\n'
         
         if True: # if selection enabled
-            text += self.getPointsInfoText() + '\n'
+            text += self.getNodesInfoText() + '\n'
         
         if True: # if selection enabled
             text += self.getEntityInfoText()  + '\n'
@@ -168,7 +168,7 @@ class opvRenderer(vtkRendererBase):
         self.createInfoText(text)
         self.update()
 
-    def getPointsInfoText(self):
+    def getNodesInfoText(self):
         listSelected = self.getListPickedPoints()
         size = len(listSelected)
 
@@ -176,11 +176,11 @@ class opvRenderer(vtkRendererBase):
             node = self.project.get_node(listSelected[0])
             text = str(node)
         elif size > 1:
-            text = f'{size} POINTS IN SELECTION: \n'     
+            text = f'{size} NODES IN SELECTION: \n'     
             text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
             text += ''.join(str(i)+' ' for i in listSelected[10:20]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[20:30]) + '\n'  
-            text += '...' if size>30 else '.'
+            text += ''.join(str(i)+' ' for i in listSelected[20:30])  
+            text += '...\n' if size>30 else '\r'
         else:
             text = ''
         return text
@@ -196,8 +196,8 @@ class opvRenderer(vtkRendererBase):
             text = f'{size} ELEMENTS IN SELECTION: \n'     
             text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
             text += ''.join(str(i)+' ' for i in listSelected[10:20]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[20:30]) + '\n'  
-            text += '...' if size>30 else '.'
+            text += ''.join(str(i)+' ' for i in listSelected[20:30]) 
+            text += '...\n' if size>30 else '\r'
         else:
             text = ''
         return text

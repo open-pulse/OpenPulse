@@ -408,12 +408,12 @@ class RendererMesh(vtkRendererBase):
         self.opv.updateDialogs()
 
     def updateInfoText(self):
-        pointsText = self.getPointsInfoText()
+        pointsText = self.getNodesInfoText()
         elementsText = self.getElementsInfoText()
         text = (pointsText + '\n\n' + elementsText) if pointsText else (elementsText)
         self.createInfoText(text)
     
-    def getPointsInfoText(self):
+    def getNodesInfoText(self):
         listSelected = self.getListPickedPoints()
         text = ''
         if len(listSelected) == 1:
