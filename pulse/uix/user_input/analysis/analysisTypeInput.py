@@ -15,7 +15,7 @@ from pulse.uix.user_input.analysis.acousticModalAnalysisInput import AcousticMod
 class AnalysisTypeInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/analysisTypeInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Analysis/analysisTypeInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

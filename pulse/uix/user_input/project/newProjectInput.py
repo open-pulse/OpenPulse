@@ -13,7 +13,7 @@ from pulse.default_libraries import default_material_library, default_fluid_libr
 class NewProjectInput(QDialog):
     def __init__(self, project, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/newProjectInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Project/newProjectInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'add.png')

@@ -14,8 +14,7 @@ import configparser
 class RunAnalysisInput(QDialog):
     def __init__(self, solve, analysis_ID, analysis_type, frequencies, modes, damping, project, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/runAnalysisInput.ui', self)
-        # uic.loadUi('pulse/uix/user_input/ui/runAnalysisInput2QW.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Analysis/runAnalysisInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
