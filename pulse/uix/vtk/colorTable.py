@@ -30,15 +30,14 @@ class ColorTable(vtk.vtkLookupTable):
         return np.linalg.norm(cord1 - cord2)
 
     def get_color_by_id(self, key):
-
         if self.is_empty():
             return [255,255,255]
                 
-        if self.stress_field_plot and self.structural_elements[key+1].element_type in ['beam_1']:
-            return [255,255,255]
+        # if self.stress_field_plot and self.structural_elements[key+1].element_type in ['beam_1']:
+        #     return [255,255,255]
         
-        if self.pressure_field_plot and key in self.beam_node_ids: 
-            return [255,255,255]
+        # if self.pressure_field_plot and key in self.beam_node_ids: 
+        #     return [255,255,255]
         
         color_temp = [0,0,0]
         self.GetColor(self.valueVector[key], color_temp)

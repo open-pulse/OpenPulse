@@ -3,6 +3,7 @@ from random import choice
 from collections import defaultdict
 import gmsh 
 import numpy as np
+from scipy.spatial.transform import Rotation
 from time import time
 
 from pulse.preprocessing.entity import Entity
@@ -1089,52 +1090,57 @@ class Mesh:
         dict_sections = dict(zip(labels, np.arange(7)))
 
         element = self.structural_elements[element_ID]
-        section_label, section_parameters, *args = element.cross_section.additional_section_info
-        section_type = dict_sections[section_label]
+        
+        try:
+            section_label, section_parameters, *args = element.cross_section.additional_section_info
+            section_type = dict_sections[section_label]
+        except:
+            # i just want this working
+            section_type = -1
 
-        # if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
-        #     return 0, 0, 0, 0
-            # N = element.cross_section.division_number
-            # d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
-            # Yc, Zc = offset_y, offset_z
 
-            # d_theta = np.pi/N
-            # theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-            # d_in = d_out - 2*thickness
+        if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
+            # return 0, 0, 0, 0
+            N = element.cross_section.division_number
+            d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
+            Yc, Zc = offset_y, offset_z
 
-            # Yp_out = (d_out/2)*np.cos(theta)
-            # Zp_out = (d_out/2)*np.sin(theta)
-            # Yp_in = (d_in/2)*np.cos(-theta)
-            # Zp_in = (d_in/2)*np.sin(-theta)
+            d_theta = np.pi/N
+            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
+            d_in = d_out - 2*thickness
 
-            # Yp_list = [list(Yp_out), list(Yp_in),[0]]
-            # Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
+            Yp_out = (d_out/2)*np.cos(theta)
+            Zp_out = (d_out/2)*np.sin(theta)
+            Yp_in = (d_in/2)*np.cos(-theta)
+            Zp_in = (d_in/2)*np.sin(-theta)
 
-            # Yp_right = [value for _list in Yp_list for value in _list]
-            # Zp_right = [value for _list in Zp_list for value in _list]
-            # Yp_left = -np.flip(Yp_right)
-            # Zp_left = np.flip(Zp_right)
+            Yp_list = [list(Yp_out), list(Yp_in),[0]]
+            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
 
-            # Yp = np.array([Yp_right, Yp_left]).flatten() + Yc
-            # Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
+            Yp_right = [value for _list in Yp_list for value in _list]
+            Zp_right = [value for _list in Zp_list for value in _list]
+            Yp_left = -np.flip(Yp_right)
+            Zp_left = np.flip(Zp_right)
 
-            # if insulation_thickness != float(0):
+            Ys = np.array([Yp_right, Yp_left]).flatten() + Yc
+            Zs = np.array([Zp_right, Zp_left]).flatten() + Zc
 
-            #     Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
-            #     Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
-            #     Yp_in_ins = (d_out/2)*np.cos(-theta)
-            #     Zp_in_ins = (d_out/2)*np.sin(-theta)
+            if insulation_thickness != float(0):
+                Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
+                Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
+                Yp_in_ins = (d_out/2)*np.cos(-theta)
+                Zp_in_ins = (d_out/2)*np.sin(-theta)
 
-            #     Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
-            #     Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
+                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
+                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
 
-            #     Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-            #     Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
-            #     Yp_left_ins = -np.flip(Yp_right_ins)
-            #     Zp_left_ins = np.flip(Zp_right_ins)
+                Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
+                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
+                Yp_left_ins = -np.flip(Yp_right_ins)
+                Zp_left_ins = np.flip(Zp_right_ins)
 
-            #     Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
-            #     Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
+                Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
+                Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
 
         if section_type == 1: # Rectangular section
 
@@ -1197,6 +1203,11 @@ class Mesh:
 
             Ys = list(np.array(Yp)-Yc)
             Zs = list(np.array(Zp)-Zc)
+        
+        else:
+            # A very small triangle to prevent bugs
+            Ys = [0, 1e-10, 0]
+            Zs = [0, 0, 1e-10]
 
         # elif section_type == 6: # Beam: Generic section
     
@@ -1207,9 +1218,6 @@ class Mesh:
 
             # return 0, 0, 0, 0
 
-        # dict_lines_to_points = {}
-        # list_indexes = list(np.arange(len(Yp)))
-        # list_indexes.append(0)
         
         # for k in range(len(Yp)):
         #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
@@ -1292,28 +1300,54 @@ class Mesh:
             node1.there_are_elastic_nodal_link_damping = True
             node2.there_are_elastic_nodal_link_damping = True
 
-    def process_inverse_of_all_deformed_elements(self):
-        delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
-        for index, element in enumerate(self.structural_elements.values()):
-            delta_data[index, :] = element.last_node.deformed_coordinates - element.first_node.deformed_coordinates 
-            # element.deformed_center_element_coordinates = (element.last_node.deformed_coordinates + element.first_node.deformed_coordinates)/2 
-        mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
-        # output_data = inverse_matrix_3x3xN(mat_rotation_data)
-        for index, element in enumerate(self.structural_elements.values()):
-            # element.deformed_directional_vectors = output_data[index,:,:]
-            element.deformed_directional_vectors = mat_rotation_data[index,:,:]
+    # def process_inverse_of_all_deformed_elements(self):
+    #     # delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
+    #     rotations_results = np.zeros((len(self.structural_elements), 3), dtype=float)
+    #     for index, element in enumerate(self.structural_elements.values()):
+    #         # delta_data[index, :] = element.last_node.deformed_coordinates - element.first_node.deformed_coordinates 
+    #         # delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
+    #         rotations_results[index, :] = (element.last_node.rotations_xyz + element.first_node.rotations_xyz)/2
+
+    #     # mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])    
+    #     # output_data = inverse_matrix_3x3xN(mat_rotation_data)
+    #     # # r = Rotation.from_matrix(output_data)
+    #     # r = Rotation.from_matrix(mat_rotation_data)
+    #     # rotations_zxy = -r.as_euler('zxy', degrees=True)
+
+    #     rotations_results = rotations_results*(180/np.pi)
+
+    #     for index, element in enumerate(self.structural_elements.values()):
+    #         # element.deformed_directional_vectors = output_data[index,:,:]
+    #         element.deformed_rotation_xyz = [   self.rotations_zxy[index,1] + rotations_results[index,0], 
+    #                                             self.rotations_zxy[index,2] + rotations_results[index,1],
+    #                                             self.rotations_zxy[index,0] + rotations_results[index,2]   ]
  
+    def process_element_cross_sections_orientation_to_plot(self):
+
+        rotations_results = np.zeros((len(self.structural_elements), 3), dtype=float)
+
+        for index, element in enumerate(self.structural_elements.values()):
+            rotations_results[index, :] = (element.last_node.deformed_rotations_xyz + element.first_node.deformed_rotations_xyz)/2
+        rotations_results = rotations_results*(180/np.pi)
+
+        for index, element in enumerate(self.structural_elements.values()):
+            element.deformed_rotation_xyz = [   self.rotations_zxy[index,1] + rotations_results[index,0], 
+                                                self.rotations_zxy[index,2] + rotations_results[index,1],
+                                                self.rotations_zxy[index,0] + rotations_results[index,2]   ]
+
     def process_all_rotation_matrices(self):
+
         delta_data = np.zeros((len(self.structural_elements), 3), dtype=float)
+
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
         mat_rotation_data = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
-        # output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        output_data = inverse_matrix_3x3xN(mat_rotation_data)
+        # r = Rotation.from_matrix(output_data)
+        r = Rotation.from_matrix(mat_rotation_data)
+        self.rotations_zxy = -r.as_euler('zxy', degrees=True)
+        
         for index, element in enumerate(self.structural_elements.values()):
             element.sub_rotation_matrix = mat_rotation_data[index, :, :]
-            # element.directional_vectors = output_data[index, :, :]
-            element.directional_vectors = mat_rotation_data[index, :, :]
-             
-    # def process_all_rotation_matrices(self):
-    #     for element in self.structural_elements.values():
-    #         element.sub_rotation_matrix = _rotation_matrix_3x3(element.delta_x, element.delta_y, element.delta_z)
+            element.directional_vectors = output_data[index, :, :]
+            element.undeformed_rotation_xyz = [self.rotations_zxy[index,1], self.rotations_zxy[index,2], self.rotations_zxy[index,0]]

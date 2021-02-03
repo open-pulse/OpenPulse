@@ -6,6 +6,14 @@ from pulse.uix.vtk.actor.actorElement import ActorElement
 from pulse.uix.vtk.actor.actorArrow import ActorArrow
 from pulse.uix.vtk.vtkSymbols import vtkSymbols
 
+from pulse.interface.tubeActor import TubeActor
+from pulse.interface.nodesActor import NodesActor
+from pulse.interface.linesActor import LinesActor
+
+
+
+from time import time 
+
 import vtk
 import numpy as np 
 
@@ -119,6 +127,29 @@ class RendererMesh(vtkRendererBase):
         self.plotElements()
         self.plotTubes()
     
+    def plotTeste(self):
+        start_time = time()
+
+        elements = self.project.get_elements().values()
+        tube = TubeActor(elements, self.project)
+        tube.build()
+        tube.getActor().GetProperty().SetOpacity(0.05)
+        self._renderer.AddActor(tube.getActor())
+
+        lines = LinesActor(elements, self.project)
+        lines.build()
+        lines.getActor().GetProperty().SetColor((0.8, 0.2, 1))
+        self._renderer.AddActor(lines.getActor())
+
+        nodes = self.project.get_nodes().values()
+        nodesActor = NodesActor(nodes, self.project)
+        nodesActor.build()
+        nodesActor.getActor().GetProperty().SetColor((1, 1, 0.2))
+        self._renderer.AddActor(nodesActor.getActor())
+
+        end_time = time()
+        print('time to plot', end_time - start_time)
+    
     def saveNodesBounds(self):
         self.nodesBounds.clear()
         for key, node in self.project.get_nodes().items():
@@ -221,6 +252,10 @@ class RendererMesh(vtkRendererBase):
 
         actor.GetProperty().SetColor(0.7,0.7,0.8)
         actor.GetProperty().SetOpacity(0.06)
+
+        actor.GetProperty().SetOpacity(0.06)
+        actor.GetProperty().VertexVisibilityOn()
+        actor.GetProperty().SetLineWidth(2)
 
         actor.GetProperty().BackfaceCullingOff()
         actor.GetProperty().ShadingOff()

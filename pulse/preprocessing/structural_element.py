@@ -44,6 +44,9 @@ class StructuralElement:
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
 
+        self.undeformed_rotation_xyz = None
+        self.deformed_rotation_xyz = None
+
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
@@ -670,3 +673,12 @@ class StructuralElement:
             shear_coefficient = self.cross_section.shear_coefficient
 
         return shear_coefficient
+
+    def __str__(self):
+        text = ''
+        text += f'Element ID: {self.index} \n'
+        text += f'First Node ID: {self.first_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
+        text += f'Last Node ID: {self.last_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
+        text += f'Material: {self.material} \n'
+        text += f'Strutural element type: {self.element_type} \n'
+        return text

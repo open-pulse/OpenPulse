@@ -6,6 +6,26 @@ from math import sqrt
 from time import time
 
 def constrain(number, floor, ceil):
+    '''
+    Constrains a number between a given interval.
+
+    Parameters
+    ----------
+    number: int, float  
+        number to be constrained.
+
+    float: int, float
+        inferior limit.
+    
+    ceil: int, float
+        superior limit.
+
+    Returns
+    -------
+    out: int, float
+        constrained number.    
+    '''
+
     if number < floor:
         return floor
     elif number > ceil:
@@ -14,6 +34,24 @@ def constrain(number, floor, ceil):
         return number
 
 def distance(p0, p1):
+    '''
+    Computes the distance between 2 3-dimensional points
+
+    Parameters
+    ----------
+    p0: iterable of numbers
+        sequence of 3 numerical values representing a position.
+    
+    p1: iterable of numbers
+        sequence of 3 numerical values representing a position.
+
+    Returns
+    -------
+    out: float 
+        distance between these points.
+
+    '''
+
     x0,y0,z0 = p0
     x1,y1,z1 = p1
     dx = x0-x1
@@ -22,6 +60,20 @@ def distance(p0, p1):
     return sqrt(dx*dx + dy*dy + dz*dz)
 
 def getVertsFromBounds(bounds):
+    '''
+    Get the verices from a sequence of bounds.
+
+    Parameters
+    ----------
+    bounds: iterable of numbers
+        sequence of 6 numerical values representing the min and max bound
+        for each of x,y,z coordinates. 
+    
+    Returns 
+    -------
+    verts: list of tuples representing the position of each vertice
+    '''
+
     x0,x1,y0,y1,z0,z1 = bounds
     verts = []
     verts.append((x0,y0,z0))
@@ -35,6 +87,24 @@ def getVertsFromBounds(bounds):
     verts.append((x1,y1,z1))
 
 def distanceBoundsToPoint(point, bounds):
+    '''
+    Calculate the minimal distance between a point and a set of bounds. 
+
+    Parameters
+    ----------
+    point: iterable of numbers
+        sequence of 3 numerical values representing a position.
+
+    bounds: iterable of numbers
+        sequence of 6 numerical values representing the min and max bound
+        for each of x,y,z coordinates. 
+
+    Returns
+    -------
+    minDist: float
+
+    '''
+
     verts = getVertsFromBounds(bounds)
     minDist = None
     for vertice in verts:
@@ -42,7 +112,20 @@ def distanceBoundsToPoint(point, bounds):
             minDist = distance(vertice, point)
     return minDist
 
+
 class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
+    '''
+    Class that heritage(?) from vtkInteractorStyleTrackballCamera.
+    This handles how the user controls the camera, mouse clicks, and stuff like that
+    in the renderer.
+
+    Parameters
+    ----------
+    rendererMesh: rendererMesh class
+
+    '''
+
+
     def __init__(self, rendererMesh):
         self.__rendererMesh = rendererMesh
 
@@ -91,10 +174,14 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.selectActors()
 
     def rightButtonPressEvent(self, obj, event):
-        self.StartRotate()
+        if self.__altKeyClicked:
+            self.StartDolly()
+        else:
+            self.StartRotate()
     
     def rightButtonReleaseEvent(self, obj, event):
         self.EndRotate()
+        self.EndDolly()
 
     def mouseMoveEvent(self, obj, event):  
         self.OnMouseMove()

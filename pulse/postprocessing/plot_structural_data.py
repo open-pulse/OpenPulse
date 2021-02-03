@@ -21,23 +21,14 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
 
-    # these commented lines will be removed soon
-    # cols = int(1 + (DOF_PER_NODE_STRUCTURAL/2)*data.shape[1])
-    
-    # Uxyz = np.zeros((rows, cols))
-    # Rxyz = np.zeros((rows, cols))
-    # Uxyz[:,0] = np.arange( 0, rows, 1 )
-    # Rxyz[:,0] = np.arange( 0, rows, 1 )
-    # for j in range( data.shape[1] ):
-    #     Uxyz[:, 1+3*j], Uxyz[:, 2+3*j], Uxyz[:, 3+3*j] = data[ind+0, j], data[ind+1, j], data[ind+2, j]
-    #     Rxyz[:, 1+3*j], Rxyz[:, 2+3*j], Rxyz[:, 3+3*j] = data[ind+3, j], data[ind+4, j], data[ind+5, j]
-    # u_x, u_y, u_z = Uxyz[:,1+3*(column)], Uxyz[:,2+3*(column)], Uxyz[:,3+3*(column)]
-
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
-    r_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
+    rot_xyz = np.array([data[ind+3, column], data[ind+4, column], data[ind+5, column]]).T
+    rot_xyz = rot_xyz.copy()
+
+    u_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     
     if Normalize:
-        r_max = max(r_def)
+        r_max = max(u_def)
         if r_max==0:
             r_max=1
     else:
@@ -62,7 +53,9 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     for node in nodes.values():
         global_index = node.global_index 
         node.deformed_coordinates = coord_def[global_index, 1:]
-    mesh.process_inverse_of_all_deformed_elements()
+        node.deformed_rotations_xyz = rot_xyz[global_index, :]*factor
+    
+    mesh.process_element_cross_sections_orientation_to_plot()
     # dt = time() - t0
     # print(dt)
 
@@ -74,7 +67,7 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     # dt = time() - t0
     # print(dt)
     
-    return connect, coord_def, r_def, factor
+    return connect, coord_def, u_def, factor
 
 def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imaginary=False):
     #reactions: dictionary with all reactions and global dofs are the keys of dictionary

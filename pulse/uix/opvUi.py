@@ -12,6 +12,8 @@ from pulse.uix.vtk.renderer.rendererElement import RendererElement
 from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
 from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
 from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
+from pulse.interface.opvRenderer import opvRenderer
+from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -25,6 +27,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererElement = RendererElement(self.project, self)
         self.rendererMesh = RendererMesh(self.project, self)
         self.rendererAnalysis = RendererPostProcessing(self.project, self)
+
+        self.opvRenderer = opvRenderer(self.project, self)
+        self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
 
         self.slider2d = vtk.vtkSliderRepresentation2D()
         self.sliderScale = 1
@@ -93,13 +98,16 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.sliderW.SetAnimationModeToOff()
         self.sliderW.SetNumberOfAnimationSteps(10)
         self.sliderW.SetEnabled(True)
-        self.sliderW.AddObserver(vtk.vtkCommand.InteractionEvent,self._sliderCallback)
+        self.sliderW.AddObserver(vtk.vtkCommand.InteractionEvent, self._sliderCallback)
 
     def _sliderCallback(self, slider, b):
         sliderValue = slider.GetRepresentation().GetValue()
-        truncNumber = float("{:.1f}".format(sliderValue))
+        # truncNumber = float("{:.1f}".format(sliderValue))
+        truncNumber = round(sliderValue, 1)
+
         if truncNumber != self.sliderScale:
             self.sliderScale = truncNumber
+            self.slider2d.SetValue(truncNumber)
             self.needResetCamera = False
             self.changeAndPlotAnalysis(self.currentFrequencyIndice, stress_field_plot=self.rendererAnalysis.stress_field_plot)
 
@@ -136,10 +144,13 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.rendererMesh.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererAnalysis.getRenderer())
 
+        self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
+
     def clearRendereresUse(self):
         self.rendererEntity.setInUse(False)
         self.rendererMesh.setInUse(False)
         self.rendererAnalysis.setInUse(False)
+        self.opvRenderer.setInUse(False)
 
     def beforeChangePlot(self):
         self.copyCamera()
@@ -147,12 +158,27 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.clearRendereresUse()
 
     def afterChangePlot(self):
-        self.applyCamera()
+        # self.applyCamera()
         self._updateAxes()
         self._updateSlider()
         self.update()
 
     def changePlotToEntities(self):
+        # self.setRenderer(self.opvRenderer)
+
+        # self.opvRenderer.showNodes(False)
+        # self.opvRenderer.showLines(True)
+        # self.opvRenderer.showDeformedTubes(False)
+        # self.opvRenderer.showTubes(True, transparent=False)
+        # self.opvRenderer.update()
+        # self.opvRenderer.selectLines(False)
+        # self.opvRenderer.selectTubes(False)
+        # self.opvRenderer.selectNodes(False)
+        # self.opvRenderer.selectEntities(True)
+
+        # self._updateAxes()
+
+
         if self.rendererEntity.getInUse():
             return
         self.beforeChangePlot()
@@ -163,37 +189,70 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.afterChangePlot()
 
     def changePlotToMesh(self):
-        if self.rendererMesh.getInUse():
-            return
-        self.beforeChangePlot()
-        self.rendererMesh.setInUse(True)
-        self.rendererMesh.updateAllAxes()
-        self.SetInteractorStyle(self.rendererMesh.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
-        self.rendererMesh.resetCamera()
-        self.afterChangePlot()
+        self.setRenderer(self.opvRenderer)
 
-    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True):
-        self.beforeChangePlot()
-        self.changeFrequency(frequency_indice)
-        self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
-        if self.project.analysis_ID in [4]:
-            self.rendererAnalysis.setColorScalling(real_part)
-        self.rendererAnalysis.setSliderFactor(self.sliderScale)
-        self.rendererAnalysis.setInUse(True)
-        # self.rendererAnalysis.setStress(plot_stress_field)
-        self.SetInteractorStyle(self.rendererAnalysis.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
-        self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
-        if self.needResetCamera:
-            self.rendererAnalysis.resetCamera()
-        self.afterChangePlot()
+        self.opvRenderer.showNodes(True)
+        self.opvRenderer.showLines(True)
+        self.opvRenderer.showDeformedTubes(False)
+        self.opvRenderer.showTubes(True, transparent=True)
+        self.opvRenderer.update()
+        self.opvRenderer.selectLines(True)
+        self.opvRenderer.selectTubes(False)
+        self.opvRenderer.selectNodes(True)
+        self.opvRenderer.selectEntities(False)
+
+        self._updateAxes()
+        
+    def setRenderer(self, renderer):
+        if not renderer.getInUse():
+            self.beforeChangePlot()
+            renderer.setInUse(True)
+            self.SetInteractorStyle(renderer.getStyle())
+            self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+
+    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
+        # we call it so many times in so many different files that 
+        # i will just continue my code from here and we organize all 
+        # these in the future. Im sorry
+        
+        self.setRenderer(self.opvAnalisysRenderer)
+        self.opvAnalisysRenderer.updateHud()
+
+        if pressure_field_plot:
+            self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
+        elif True or stress_field_plot:
+            # please be more carefull when calling this function and select
+            # at least one between pressure_field_plot or stress_field_plot
+            # then remove this "True or" statement
+            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
+        else:
+            raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
+
+        
+        # # TODO: delete this 
+        # self.beforeChangePlot()
+        # self.changeFrequency(frequency_indice)
+        # self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        # if self.project.analysis_ID in [4]:
+        #     self.rendererAnalysis.setColorScalling(real_part)
+        # self.rendererAnalysis.setSliderFactor(self.sliderScale)        
+        # self.rendererAnalysis.setInUse(True)
+        # # self.rendererAnalysis.setStress(plot_stress_field)
+        # self.SetInteractorStyle(self.rendererAnalysis.getStyle())
+        # self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
+        # self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
+        # if self.needResetCamera:
+        #     self.rendererAnalysis.resetCamera()
+        # self.afterChangePlot()
 
     def plotEntities(self, plotRadius = False):
         self.rendererEntity.setPlotRadius(plotRadius)
         self.rendererEntity.plot()
 
     def plotMesh(self):
+        self.opvRenderer.plot()
+        self.opvAnalisysRenderer.plot()
+
         self.rendererMesh.plot()
 
     def getListPickedEntities(self):
