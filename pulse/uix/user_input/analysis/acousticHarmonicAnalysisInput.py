@@ -9,7 +9,7 @@ import configparser
 class AcousticHarmonicAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/acousticHarmonicAnalysisInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Analysis/Acoustic/acousticHarmonicAnalysisInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

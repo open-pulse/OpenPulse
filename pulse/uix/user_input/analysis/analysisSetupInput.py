@@ -15,9 +15,11 @@ class AnalysisSetupInput(QDialog):
         self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1,6]:
-            uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_ModeSuperpositionMethod.ui', self)
-        elif self.analysis_ID in [0,3,5]:
-            uic.loadUi('pulse/uix/user_input/ui/analysisSetupInput_DirectMethod.ui', self)
+            uic.loadUi('pulse/uix/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisModeSuperpositionMethod.ui', self)
+        elif self.analysis_ID in [0,5]:
+            uic.loadUi('pulse/uix/user_input/ui/Analysis/Structural/analysisSetupInput_HarmonicAnalysisDirectMethod.ui', self)
+        elif self.analysis_ID in [3]:
+            uic.loadUi('pulse/uix/user_input/ui/Analysis/Acoustic/analysisSetupInput_HarmonicAnalysisDirectMethod.ui', self)
         else:
             return
 
@@ -137,35 +139,37 @@ class AnalysisSetupInput(QDialog):
                 except Exception:
                     error("Value error (freq df)")
                     return
-                
+
         alpha_v = beta_v = alpha_h = beta_h = 0
-        if self.lineEdit_av.text() != "":
-            try:
-                alpha_v = float(self.lineEdit_av.text())
-            except Exception:
-                error("Value error (alpha_v)")
-                return
+        
+        if self.analysis_ID in [0, 1, 2, 5, 6]:         
+            if self.lineEdit_av.text() != "":
+                try:
+                    alpha_v = float(self.lineEdit_av.text())
+                except Exception:
+                    error("Value error (alpha_v)")
+                    return
 
-        if self.lineEdit_bv.text() != "":
-            try:
-                beta_v = float(self.lineEdit_bv.text())
-            except Exception:
-                error("Value error (beta_v)")
-                return
+            if self.lineEdit_bv.text() != "":
+                try:
+                    beta_v = float(self.lineEdit_bv.text())
+                except Exception:
+                    error("Value error (beta_v)")
+                    return
 
-        if self.lineEdit_ah.text() != "":
-            try:
-                alpha_h = float(self.lineEdit_ah.text())
-            except Exception:
-                error("Value error (alpha_h)")
-                return
+            if self.lineEdit_ah.text() != "":
+                try:
+                    alpha_h = float(self.lineEdit_ah.text())
+                except Exception:
+                    error("Value error (alpha_h)")
+                    return
 
-        if self.lineEdit_bh.text() != "":
-            try:
-                beta_h = float(self.lineEdit_bh.text())
-            except Exception:
-                error("Value error (beta_h)")
-                return
+            if self.lineEdit_bh.text() != "":
+                try:
+                    beta_h = float(self.lineEdit_bh.text())
+                except Exception:
+                    error("Value error (beta_h)")
+                    return
 
         self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
 

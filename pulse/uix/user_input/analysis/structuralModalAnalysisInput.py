@@ -15,7 +15,7 @@ window_title2 = "WARNING MESSAGE"
 class StructuralModalAnalysisInput(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/structuralModalAnalysisInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Analysis/Structural/structuralModalAnalysisInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
