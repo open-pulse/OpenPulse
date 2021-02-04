@@ -189,19 +189,30 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.afterChangePlot()
 
     def changePlotToMesh(self):
-        self.setRenderer(self.opvRenderer)
+        # self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(True)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showDeformedTubes(False)
-        self.opvRenderer.showTubes(True, transparent=True)
-        self.opvRenderer.update()
-        self.opvRenderer.selectLines(True)
-        self.opvRenderer.selectTubes(False)
-        self.opvRenderer.selectNodes(True)
-        self.opvRenderer.selectEntities(False)
+        # self.opvRenderer.showNodes(True)
+        # self.opvRenderer.showLines(True)
+        # self.opvRenderer.showDeformedTubes(False)
+        # self.opvRenderer.showTubes(True, transparent=True)
+        # self.opvRenderer.update()
+        # self.opvRenderer.selectLines(True)
+        # self.opvRenderer.selectTubes(False)
+        # self.opvRenderer.selectNodes(True)
+        # self.opvRenderer.selectEntities(False)
 
-        self._updateAxes()
+        # self._updateAxes()
+
+        if self.rendererMesh.getInUse():
+            return
+        self.beforeChangePlot()
+        self.rendererMesh.setInUse(True)
+        self.SetInteractorStyle(self.rendererMesh.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
+        self.rendererMesh.resetCamera()
+        self.afterChangePlot()
+
+
         
     def setRenderer(self, renderer):
         if not renderer.getInUse():
