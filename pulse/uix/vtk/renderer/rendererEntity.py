@@ -216,28 +216,50 @@ class RendererEntity(vtkRendererBase):
         return actor
 
     def createSectionPolygon(self, element):
-        Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
+        # inner and outer are a list of sequential coordinates
+        # they need to be clockwise ordered
+
+        inner = [(0, 0.01, 0.01), (0, 0, 0.03), (0, 0.03, 0.03)]
+        outer = [(0, 0, 0), (0, 0, 0.05), (0, 0.05, 0.05), (0, 0.05, 0)]
+
+        # we should get this info like this
+        # outer, inner = self.project.get_mesh().get_cross_section_points(element.index)
+        
+        # to be honest like this should be much better
+        # outer, inner = element.get_cross_section_points()
+
+        # definitions
         points = vtk.vtkPoints()
-        edges = vtk.vtkCellArray()
-        data = vtk.vtkPolyData()
-        poly = vtk.vtkPolygon()
-        source = vtk.vtkTriangleFilter()
+        outerData = vtk.vtkPolyData()        
+        innerPolygon = vtk.vtkPolygon()
+        innerCell = vtk.vtkCellArray()
+        innerData = vtk.vtkPolyData()
+        delaunay = vtk.vtkDelaunay2D()
 
-        for x, y in zip(Ys, Zs):
-            points.InsertNextPoint(x, y, 0)    
-        
-        n = len(Ys)
-        poly.GetPointIds().SetNumberOfIds(n)
+        # create points 
+        for x,y,z in inner:
+            points.InsertNextPoint(y,z,x)
 
-        for i in range(n):
-            poly.GetPointIds().SetId(i,i)
-        edges.InsertNextCell(poly)
-        
-        data.SetPoints(points)
-        data.SetPolys(edges)
-        source.AddInputData(data)
+        for x,y,z in outer:
+            points.InsertNextPoint(y,z,x)
 
-        return source
+        # create external polygon
+        outerData.SetPoints(points)
+        delaunay.SetInputData(outerData)
+
+        if len(inner) >= 3:
+            # create a hole
+            for i in range(len(inner)):
+                innerPolygon.GetPointIds().InsertNextId(i)
+
+            innerCell.InsertNextCell(innerPolygon)
+            innerData.SetPoints(points)
+            innerData.SetPolys(innerCell) 
+            delaunay.SetSourceData(innerData)
+
+        delaunay.Update()
+        return delaunay
+
 
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates
