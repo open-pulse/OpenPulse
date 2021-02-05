@@ -1098,131 +1098,111 @@ class Mesh:
             # i just want this working
             section_type = -1
 
+        inner_points = []
 
         if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
-            # return 0, 0, 0, 0
-            N = element.cross_section.division_number
+
+            # N = element.cross_section.division_number
+            N = 10
             d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
             Yc, Zc = offset_y, offset_z
 
-            d_theta = np.pi/N
-            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
+            d_theta = 2*np.pi/N
+            theta = -np.arange(0, 2*np.pi, d_theta)
             d_in = d_out - 2*thickness
 
-            Yp_out = (d_out/2)*np.cos(theta)
-            Zp_out = (d_out/2)*np.sin(theta)
-            Yp_in = (d_in/2)*np.cos(-theta)
-            Zp_in = (d_in/2)*np.sin(-theta)
-
-            Yp_list = [list(Yp_out), list(Yp_in),[0]]
-            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-            Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
-
-            Ys = np.array([Yp_right, Yp_left]).flatten() + Yc
-            Zs = np.array([Zp_right, Zp_left]).flatten() + Zc
+            Y_out = (d_out/2)*np.cos(theta) - Yc
+            Z_out = (d_out/2)*np.sin(theta) - Zc
+            Y_in = (d_in/2)*np.cos(theta) - Yc
+            Z_in = (d_in/2)*np.sin(theta) - Zc
 
             if insulation_thickness != float(0):
-                Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
-                Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
-                Yp_in_ins = (d_out/2)*np.cos(-theta)
-                Zp_in_ins = (d_out/2)*np.sin(-theta)
+                Y_out = ((d_out + 2*insulation_thickness)/2)*np.cos(theta) - Yc
+                Z_out = ((d_out + 2*insulation_thickness)/2)*np.sin(theta) - Zc
 
-                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
-                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
+            outer_points = list(zip(Y_out, Z_out))
+            # inner_points = []
+            inner_points = list(zip(Y_in, Z_in))
 
-                Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
-                Yp_left_ins = -np.flip(Yp_right_ins)
-                Zp_left_ins = np.flip(Zp_right_ins)
+        elif section_type == 1: # Rectangular section
 
-                Ys = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Zc
-                Zs = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Yc
+            b, h, b_in, h_in, Yc, Zc = section_parameters           
+            Y_out = [(b/2), (b/2), -(b/2), -(b/2)]
+            Z_out = [(h/2), -(h/2), -(h/2), (h/2)]
 
-        if section_type == 1: # Rectangular section
+            outer_points = list(zip(Y_out, Z_out))
 
-            b, h, b_in, h_in, Yc, Zc = section_parameters
-            if b_in == 0:
-                Ys = [(b/2), (b/2), -(b/2), -(b/2)]
-                Zs = [-(h/2), (h/2), (h/2), -(h/2)]
-            else:
-                Ys = [(b/2), (b/2), -(b/2), -(b/2), (b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
-                Zs = [-(h/2), (h/2), (h/2), -(h/2), -(h_in/2), (h_in/2), (h_in/2), -(h_in/2)]
-
+            if b_in != 0:
+                Y_in = [(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
+                Z_in = [(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]
+                inner_points = list(zip(Y_in, Z_in))
+                # inner_points = []
+            
         elif section_type == 2: # Circular section
             
-            N = 60# element.cross_section.division_number
+            N = 10# element.cross_section.division_number
             d_out, d_in, Yc, Zc = section_parameters
             
             d_theta = np.pi/N
-            theta = np.arange(0, (2*np.pi)+d_theta, d_theta)
+            theta = -np.arange(0, 2*np.pi+d_theta, d_theta)
 
-            Yp_out = (d_out/2)*np.cos(theta)
-            Zp_out = (d_out/2)*np.sin(theta)
-            Yp_in = (d_in/2)*np.cos(-theta)
-            Zp_in = (d_in/2)*np.sin(-theta)
-
-            Yp_list = [list(Yp_out), list(Yp_in), [0]]
-            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left = np.flip(Zp_right)
-
-            Ys = np.array([Yp_right, Yp_left]).flatten()
-            Zs = np.array([Zp_right, Zp_left]).flatten()
-
+            Y_out = (d_out/2)*np.cos(theta)
+            Z_out = (d_out/2)*np.sin(theta)
+            outer_points = list(zip(Y_out, Z_out))
+                        
+            if d_in != 0.:
+                Y_in = (d_in/2)*np.cos(theta)
+                Z_in = (d_in/2)*np.sin(theta)
+                inner_points = list(zip(Y_in, Z_in))
+            
         elif section_type == 3: # Beam: C-section
 
             h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
-            Yp = [0, w3, w3, w2, w2, w1, w1, 0]
-            Zp = [-(h/2), -(h/2), -((h-t3)/2), -((h-t3)/2), ((h-t1)/2), ((h-t1)/2), (h/2), (h/2)]
+            Y_out = [0, w3, w3, w2, w2, w1, w1, 0]
+            Z_out = [-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
 
-            Ys = list(np.array(Yp)-Yc)
-            Zs = list(np.array(Zp)-Zc)
+            # Y_out = [0, w1, w1, w2, w2, w3, w3, 0]
+            # Z_out = [(h/2), (h/2), ((h/2)-t1), ((h/2)-t1), -((h/2)-t3), -((h/2)-t3), -(h/2), -(h/2)]
+
+            Ys = np.array(Y_out) - Yc
+            Zs = np.array(Z_out) - Zc
+            outer_points = list(zip(Ys, Zs))
 
         elif section_type == 4: # Beam: I-section
 
             h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
-            Yp = [(w3/2), (w3/2), (w2/2), (w2/2), (w1/2), (w1/2), -(w1/2), -(w1/2), -(w2/2), -(w2/2), -((w3/2)), -((w3/2))]
-            Zp = [-(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2), (h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2)]
 
-            Ys = list(np.array(Yp)-Yc)
-            Zs = list(np.array(Zp)-Zc)
-
+            Y_out = [(w1/2), (w1/2), (w2/2), (w2/2), (w3/2), (w3/2), -(w3/2), -(w3/2), -(w2/2), -(w2/2), -(w1/2), -(w1/2)]
+            Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2), -(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2)]
+        
+            Ys = np.array(Y_out) - Yc
+            Zs = np.array(Z_out) - Zc
+            outer_points = list(zip(Ys, Zs))
+    
         elif section_type == 5: # Beam: T-section
 
             h, w1, w2, t1, t2, _, Yc, Zc = section_parameters
-            Yp = [(w2/2), (w2/2), (w1/2), (w1/2), -(w1/2), -(w1/2), -(w2/2), -(w2/2)]
-            Zp = [-(t2/2), (t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1, (t2/2), (t2/2), -(t2/2)]
+            Y_out = [(w1/2), (w1/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(w1/2), -(w1/2)]
+            Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
 
-            Ys = list(np.array(Yp)-Yc)
-            Zs = list(np.array(Zp)-Zc)
+            Ys = np.array(Y_out) - Yc
+            Zs = np.array(Z_out) - Zc
+            outer_points = list(zip(Ys, Zs))
         
         else:
             # A very small triangle to prevent bugs
-            Ys = [0, 1e-10, 0]
-            Zs = [0, 0, 1e-10]
+            Y_out = [0, 1e-10, 0]
+            Z_out = [0, 0, 1e-10]
+            outer_points = list(zip(Y_out, Z_out))
 
         # elif section_type == 6: # Beam: Generic section
-    
             # message = "The GENERIC BEAM SECTION cannot be ploted."
             # title = "Error while graphing cross-section"
             # info_text = [title, message]
             # PrintMessageInput(info_text)
-
             # return 0, 0, 0, 0
 
-        
-        # for k in range(len(Yp)):
-        #     dict_lines_to_points[k+1] = [list_indexes[k], list_indexes[k+1]] 
-
-        return Ys, Zs#, Yc, Zc, dict_lines_to_points
+        return outer_points, inner_points
 
     def add_compressor_excitation(self, parameters):
                 
