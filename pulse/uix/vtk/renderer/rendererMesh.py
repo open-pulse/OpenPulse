@@ -332,13 +332,6 @@ class RendererMesh(vtkRendererBase):
         for element in elements:
             cross_section = element.cross_section
             if cross_section:
-                # label, parameters, *args = cross_section.additional_section_info
-                # if label == "Pipe section":
-                #     polygon = vtk.vtkRegularPolygonSource()
-                #     polygon.SetRadius(cross_section.external_diameter / 2)
-                #     polygon.SetNumberOfSides(10)
-                # else:
-                #     polygon = self.createSectionPolygon(element)
                 polygon = self.createSectionPolygon(element)    
             else: # not cross section
                 polygon = vtk.vtkRegularPolygonSource()
@@ -354,22 +347,9 @@ class RendererMesh(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        # inner and outer are a list of sequential coordinates
-        # they need to be clockwise ordered
-
-        # inner_points = [(0.015, 0.015), (0.015, -0.015), (-0.015, -0.015), (-0.015, 0.015)]
-        # outer_points = [(0.025, 0.025), (0.025, -0.025), (-0.025, -0.025), (-0.025, 0.025)]
-        # number_inner_points = 4
-
-        # we should get this info like this
-        outer_points, inner_points = self.project.get_mesh().get_cross_section_points(element.index)
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
-        # print(number_inner_points)
-
-        # TODO:
-        # to be honest like this should be much better
-        # outer, inner = element.get_cross_section_points()
 
         # definitions
         points = vtk.vtkPoints()
@@ -384,7 +364,7 @@ class RendererMesh(vtkRendererBase):
         data = vtk.vtkPolyData()
         source = vtk.vtkTriangleFilter()
 
-        # create points - check the axis alignments - older version (0, y, z)
+        #TODO: create points - check the axis alignments - older version (0, y, z)
         for y, z in inner_points:
             points.InsertNextPoint(y, z, 0)
 

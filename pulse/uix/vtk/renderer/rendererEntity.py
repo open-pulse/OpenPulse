@@ -196,16 +196,7 @@ class RendererEntity(vtkRendererBase):
         for element in elements:
             cross_section = element.cross_section
             if cross_section and self.plotRadius:
-                # label, parameters, *args = cross_section.additional_section_info
                 polygon = self.createSectionPolygon(element)
-
-                # if label == "Pipe section":
-                #     polygon = vtk.vtkRegularPolygonSource()
-                #     polygon.SetRadius(cross_section.external_diameter / 2)
-                #     polygon.SetNumberOfSides(20)
-                # else:
-                #     polygon = self.createSectionPolygon(element)
-                
             else:
                 polygon = vtk.vtkRegularPolygonSource()
                 polygon.SetRadius(self.project.get_element_size()/2)
@@ -220,22 +211,9 @@ class RendererEntity(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        # inner and outer are a list of sequential coordinates
-        # they need to be clockwise ordered
-
-        # inner_points = [(0.015, 0.015), (0.015, -0.015), (-0.015, -0.015), (-0.015, 0.015)]
-        # outer_points = [(0.025, 0.025), (0.025, -0.025), (-0.025, -0.025), (-0.025, 0.025)]
-        # number_inner_points = 4
-
-        # we should get this info like this
-        outer_points, inner_points = self.project.get_mesh().get_cross_section_points(element.index)
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
-        # print(number_inner_points)
-
-        # TODO:
-        # to be honest like this should be much better
-        # outer, inner = element.get_cross_section_points()
 
         # definitions
         points = vtk.vtkPoints()
@@ -262,6 +240,7 @@ class RendererEntity(vtkRendererBase):
         delaunay.SetInputData(outerData)
 
         if number_inner_points >= 3:
+
             # remove inner area for holed sections
             for i in range(number_inner_points):
                 innerPolygon.GetPointIds().InsertNextId(i)
@@ -286,37 +265,11 @@ class RendererEntity(vtkRendererBase):
             source.AddInputData(data)
 
             return source
-        
-
-    # def createSectionPolygon(self, element):
-    #     Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
-    #     points = vtk.vtkPoints()
-    #     edges = vtk.vtkCellArray()
-    #     data = vtk.vtkPolyData()
-    #     poly = vtk.vtkPolygon()
-    #     source = vtk.vtkTriangleFilter()
-
-    #     for x, y in zip(Ys, Zs):
-    #         points.InsertNextPoint(x, y, 0)    
-        
-    #     n = len(Ys)
-    #     poly.GetPointIds().SetNumberOfIds(n)
-
-    #     for i in range(n):
-    #         poly.GetPointIds().SetId(i,i)
-    #     edges.InsertNextCell(poly)
-        
-    #     data.SetPoints(points)
-    #     data.SetPolys(edges)
-    #     source.AddInputData(data)
-
-    #     return source
-
+    
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates
         size = element.length
- 
-        # _, directional_vectors = element.get_local_coordinate_system_info()
+
         u, v, w = element.directional_vectors
         
         matrix = vtk.vtkMatrix4x4()

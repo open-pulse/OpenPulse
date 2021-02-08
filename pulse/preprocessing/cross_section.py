@@ -409,6 +409,122 @@ if select == 1:
             """Cross section second polar moment of area [m**4]."""
             return self.second_moment_area_y + self.second_moment_area_z
 
+        def get_cross_section_points(self):
+
+            labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
+            dict_sections = dict(zip(labels, np.arange(7)))
+            
+            try:
+                section_label, section_parameters = self.additional_section_info
+                section_type = dict_sections[section_label]
+            except:
+                # i just want this working
+                section_type = -1
+
+            inner_points = []
+
+            if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
+
+                # N = element.cross_section.division_number
+                N = 10 # temporary number of divisions for pipe sections
+                d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
+                Yc, Zc = offset_y, offset_z
+
+                d_theta = 2*np.pi/N
+                theta = -np.arange(0, 2*np.pi, d_theta)
+                d_in = d_out - 2*thickness
+                
+                sine = np.sin(theta)
+                cossine = np.cos(theta)
+
+                Y_out = (d_out/2)*cossine - Yc
+                Z_out = (d_out/2)*sine - Zc
+                Y_in = (d_in/2)*cossine - Yc
+                Z_in = (d_in/2)*sine - Zc
+
+                if insulation_thickness != float(0):
+                    Y_out = ((d_out + 2*insulation_thickness)/2)*cossine - Yc
+                    Z_out = ((d_out + 2*insulation_thickness)/2)*sine - Zc
+
+                outer_points = list(zip(Y_out, Z_out))
+                # inner_points = []
+                inner_points = list(zip(Y_in, Z_in))
+
+            elif section_type == 1: # Rectangular section
+
+                b, h, b_in, h_in, Yc, Zc = section_parameters           
+                Y_out = [(b/2), (b/2), -(b/2), -(b/2)]
+                Z_out = [(h/2), -(h/2), -(h/2), (h/2)]
+
+                outer_points = list(zip(Y_out, Z_out))
+
+                if b_in != 0:
+                    Y_in = [(b_in/2), (b_in/2), -(b_in/2),  -(b_in/2)]
+                    Z_in = [(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]
+                    inner_points = list(zip(Y_in, Z_in))
+                    # inner_points = []
+                
+            elif section_type == 2: # Circular section
+                
+                N = 10# element.cross_section.division_number
+                d_out, d_in, Yc, Zc = section_parameters
+                
+                d_theta = np.pi/N
+                theta = -np.arange(0, 2*np.pi+d_theta, d_theta)
+
+                sine = np.sin(theta)
+                cossine = np.cos(theta)
+
+                Y_out = (d_out/2)*cossine
+                Z_out = (d_out/2)*sine
+                outer_points = list(zip(Y_out, Z_out))
+                            
+                if d_in != 0.:
+                    Y_in = (d_in/2)*cossine
+                    Z_in = (d_in/2)*sine
+                    inner_points = list(zip(Y_in, Z_in))
+                
+            elif section_type == 3: # Beam: C-section
+
+                h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
+                Y_out = [0, w3, w3, w2, w2, w1, w1, 0]
+                Z_out = [-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
+
+                Ys = np.array(Y_out) - Yc
+                Zs = np.array(Z_out) - Zc
+                outer_points = list(zip(Ys, Zs))
+
+            elif section_type == 4: # Beam: I-section
+
+                h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
+                Y_out = [(w1/2), (w1/2), (w2/2), (w2/2), (w3/2), (w3/2), -(w3/2), -(w3/2), -(w2/2), -(w2/2), -(w1/2), -(w1/2)]
+                Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2), -(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2)]
+            
+                Ys = np.array(Y_out) - Yc
+                Zs = np.array(Z_out) - Zc
+                outer_points = list(zip(Ys, Zs))
+        
+            elif section_type == 5: # Beam: T-section
+
+                h, w1, w2, t1, t2, _, Yc, Zc = section_parameters
+                Y_out = [(w1/2), (w1/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(w1/2), -(w1/2)]
+                Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
+
+                Ys = np.array(Y_out) - Yc
+                Zs = np.array(Z_out) - Zc
+                outer_points = list(zip(Ys, Zs))
+            
+            else:
+
+                # A very small triangle to prevent bugs
+                Y_out = [0, 1e-10, 0]
+                Z_out = [0, 0, 1e-10]
+                outer_points = list(zip(Y_out, Z_out))
+
+            # TODO: section_type == 6: creates an equivalent beam section
+            return outer_points, inner_points
+
+
 # if __name__ == "__main__":
 
 #     external_diameter = 0.05
