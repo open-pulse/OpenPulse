@@ -506,7 +506,7 @@ class CrossSectionInput(QDialog):
 class CrossSectionBeamInput(QDialog):
     def __init__(self, section_type, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('pulse/uix/user_input/ui/crossSectionBeamInput.ui', self)
+        uic.loadUi('pulse/uix/user_input/ui/Model/Setup/Structural/crossSectionBeamInput.ui', self)
 
         icons_path = 'pulse\\data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
