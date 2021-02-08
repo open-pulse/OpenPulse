@@ -186,8 +186,6 @@ class RendererEntity(vtkRendererBase):
     def getPlotRadius(self):
         return self.plotRadius
 
-
-    # apaga por favor tá todo mundo pedindo pra apagar...
     def createActorTubes(self, elements):
         source = vtk.vtkAppendPolyData()
         mapper = vtk.vtkPolyDataMapper()
@@ -196,16 +194,7 @@ class RendererEntity(vtkRendererBase):
         for element in elements:
             cross_section = element.cross_section
             if cross_section and self.plotRadius:
-                # label, parameters, *args = cross_section.additional_section_info
                 polygon = self.createSectionPolygon(element)
-
-                # if label == "Pipe section":
-                #     polygon = vtk.vtkRegularPolygonSource()
-                #     polygon.SetRadius(cross_section.external_diameter / 2)
-                #     polygon.SetNumberOfSides(20)
-                # else:
-                #     polygon = self.createSectionPolygon(element)
-                
             else:
                 polygon = vtk.vtkRegularPolygonSource()
                 polygon.SetRadius(self.project.get_element_size()/2)
@@ -275,10 +264,8 @@ class RendererEntity(vtkRendererBase):
             return delaunay
 
         else:
-            
-            outerPolygon.GetPointIds().SetNumberOfIds(number_outer_points)
             for i in range(number_outer_points):
-                outerPolygon.GetPointIds().SetId(i,i)
+                outerPolygon.GetPointIds().InsertNextId(i)
             edges.InsertNextCell(outerPolygon)
             
             data.SetPoints(points)
@@ -288,35 +275,10 @@ class RendererEntity(vtkRendererBase):
             return source
         
 
-    # def createSectionPolygon(self, element):
-    #     Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
-    #     points = vtk.vtkPoints()
-    #     edges = vtk.vtkCellArray()
-    #     data = vtk.vtkPolyData()
-    #     poly = vtk.vtkPolygon()
-    #     source = vtk.vtkTriangleFilter()
-
-    #     for x, y in zip(Ys, Zs):
-    #         points.InsertNextPoint(x, y, 0)    
-        
-    #     n = len(Ys)
-    #     poly.GetPointIds().SetNumberOfIds(n)
-
-    #     for i in range(n):
-    #         poly.GetPointIds().SetId(i,i)
-    #     edges.InsertNextCell(poly)
-        
-    #     data.SetPoints(points)
-    #     data.SetPolys(edges)
-    #     source.AddInputData(data)
-
-    #     return source
-
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates
         size = element.length
  
-        # _, directional_vectors = element.get_local_coordinate_system_info()
         u, v, w = element.directional_vectors
         
         matrix = vtk.vtkMatrix4x4()

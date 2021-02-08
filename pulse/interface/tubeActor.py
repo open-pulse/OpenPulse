@@ -4,7 +4,6 @@ from time import time
 from scipy.spatial.transform import Rotation
 
 from pulse.interface.vtkActorBase import vtkActorBase
-# from pulse.utils import directional_vectors_xyz_rotation
 
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project):
@@ -52,7 +51,15 @@ class TubeActor(vtkActorBase):
         for element in self.elements.values():
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
-            rotations.InsertNextTuple(element.undeformed_rotation_xyz)
+            rxyz = element.undeformed_rotation_xyz
+
+            # We make perfured polygons to make tubes using vtkDelaunay2D.
+            # Unfortunately it only works on the xy plane, but we need it in
+            # yz coordinates. So we do it in xy, then rotate by 90 degrees, as 
+            # recommended on vtk documentation.
+
+            rxyz[1] += 90
+            rotations.InsertNextTuple(rxyz)
             self._colors.InsertNextTuple((255,255,255))
             
             if element.cross_section not in cache:
@@ -112,53 +119,15 @@ class TubeActor(vtkActorBase):
         size = self.project.get_element_size()
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
         extruderFilter.SetExtrusionTypeToVectorExtrusion()
-        extruderFilter.SetVector(1,0,0)
+        extruderFilter.SetVector(0,0,1)
         extruderFilter.SetScaleFactor(size)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
 
-    # def createSectionPolygon(self, element):
-    #     points = vtk.vtkPoints()
-    #     edges = vtk.vtkCellArray()
-    #     polygon = vtk.vtkPolygon()
-    #     polyData = vtk.vtkPolyData()
-    #     triangleFilter = vtk.vtkTriangleFilter() # this prevents bugs on extruder
-
-    #     # Ys, Zs = self.project.get_mesh().get_cross_section_points(element.index)
-    #     # polygon.GetPointIds().SetNumberOfIds(len(Ys))
-
-    #     outer_points, inner_points, number_points = self.project.get_mesh().get_cross_section_points(element.index)
-    #     polygon.GetPointIds().SetNumberOfIds(int(number_points/2))
-        
-    #     # for i, (y, z) in enumerate(zip(Ys, Zs)):
-    #     for i, (y, z) in enumerate(outer_points):
-    #         points.InsertNextPoint(0, y, z)
-    #         polygon.GetPointIds().SetId(i,i)
-    #     edges.InsertNextCell(polygon)
-
-    #     polyData.SetPoints(points)
-    #     polyData.SetPolys(edges)
-    #     triangleFilter.AddInputData(polyData)
-    #     return triangleFilter
-
     def createSectionPolygon(self, element):
-
-        # inner and outer are a list of sequential coordinates
-        # they need to be clockwise ordered
-
-        # inner_points = [(0.015, 0.015), (0.015, -0.015), (-0.015, -0.015), (-0.015, 0.015)]
-        # outer_points = [(0.025, 0.025), (0.025, -0.025), (-0.025, -0.025), (-0.025, 0.025)]
-        # number_inner_points = 4
-
-        # we should get this info like this
         outer_points, inner_points = self.project.get_mesh().get_cross_section_points(element.index)
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
-        # print(number_inner_points)
-
-        # TODO:
-        # to be honest like this should be much better
-        # outer, inner = element.get_cross_section_points()
 
         # definitions
         points = vtk.vtkPoints()
@@ -172,7 +141,9 @@ class TubeActor(vtkActorBase):
         edges = vtk.vtkCellArray()
         source = vtk.vtkTriangleFilter()
 
-        # create points - check the axis alignments - older version (0, y, z)
+        # create points
+        # it is yzx instead xyz to work arround a
+        # limitation on vtkDelaunay2D method.
         for y, z in inner_points:
             points.InsertNextPoint(y, z, 0)
 
@@ -185,6 +156,7 @@ class TubeActor(vtkActorBase):
 
         if number_inner_points >= 3:
             # remove inner area for holed sections
+
             for i in range(number_inner_points):
                 innerPolygon.GetPointIds().InsertNextId(i)
 
@@ -197,13 +169,12 @@ class TubeActor(vtkActorBase):
             return delaunay
 
         else:
-            
-            outerPolygon.GetPointIds().SetNumberOfIds(number_outer_points)
+            # prevent bugs on outer section 
+
             for i in range(number_outer_points):
-                outerPolygon.GetPointIds().SetId(i,i)
+                outerPolygon.GetPointIds().InsertNextId(i)
             edges.InsertNextCell(outerPolygon)
             
             outerData.SetPolys(edges)
             source.AddInputData(outerData)
-
             return source
