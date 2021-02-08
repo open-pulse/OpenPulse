@@ -125,7 +125,7 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
-        outer_points, inner_points = self.project.get_mesh().get_cross_section_points(element.index)
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
 

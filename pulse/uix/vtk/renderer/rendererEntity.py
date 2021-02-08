@@ -209,22 +209,9 @@ class RendererEntity(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        # inner and outer are a list of sequential coordinates
-        # they need to be clockwise ordered
-
-        # inner_points = [(0.015, 0.015), (0.015, -0.015), (-0.015, -0.015), (-0.015, 0.015)]
-        # outer_points = [(0.025, 0.025), (0.025, -0.025), (-0.025, -0.025), (-0.025, 0.025)]
-        # number_inner_points = 4
-
-        # we should get this info like this
-        outer_points, inner_points = self.project.get_mesh().get_cross_section_points(element.index)
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
-        # print(number_inner_points)
-
-        # TODO:
-        # to be honest like this should be much better
-        # outer, inner = element.get_cross_section_points()
 
         # definitions
         points = vtk.vtkPoints()
