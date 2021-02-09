@@ -238,6 +238,7 @@ class RendererEntity(vtkRendererBase):
         delaunay.SetInputData(outerData)
 
         if number_inner_points >= 3:
+
             # remove inner area for holed sections
             for i in range(number_inner_points):
                 innerPolygon.GetPointIds().InsertNextId(i)
@@ -260,12 +261,11 @@ class RendererEntity(vtkRendererBase):
             source.AddInputData(data)
 
             return source
-        
-
+    
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates
         size = element.length
- 
+
         u, v, w = element.directional_vectors
         
         matrix = vtk.vtkMatrix4x4()

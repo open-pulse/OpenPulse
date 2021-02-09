@@ -51,15 +51,15 @@ class TubeActor(vtkActorBase):
         for element in self.elements.values():
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
-            rxyz = element.undeformed_rotation_xyz
+            section_rotation_xyz = element.undeformed_rotation_xyz
 
             # We make perfured polygons to make tubes using vtkDelaunay2D.
             # Unfortunately it only works on the xy plane, but we need it in
             # yz coordinates. So we do it in xy, then rotate by 90 degrees, as 
             # recommended on vtk documentation.
 
-            rxyz[1] += 90
-            rotations.InsertNextTuple(rxyz)
+            section_rotation_xyz[1] += 90
+            rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
             
             if element.cross_section not in cache:
@@ -125,10 +125,12 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
+
+        # we should get this info like this
         outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
-
+        
         # definitions
         points = vtk.vtkPoints()
         outerData = vtk.vtkPolyData()    
@@ -144,6 +146,7 @@ class TubeActor(vtkActorBase):
         # create points
         # it is yzx instead xyz to work arround a
         # limitation on vtkDelaunay2D method.
+        
         for y, z in inner_points:
             points.InsertNextPoint(y, z, 0)
 
@@ -155,6 +158,7 @@ class TubeActor(vtkActorBase):
         delaunay.SetInputData(outerData)
 
         if number_inner_points >= 3:
+
             # remove inner area for holed sections
 
             for i in range(number_inner_points):
@@ -169,8 +173,8 @@ class TubeActor(vtkActorBase):
             return delaunay
 
         else:
-            # prevent bugs on outer section 
-
+            
+            # prevents bugs on the outer section
             for i in range(number_outer_points):
                 outerPolygon.GetPointIds().InsertNextId(i)
             edges.InsertNextCell(outerPolygon)

@@ -413,7 +413,7 @@ if select == 1:
 
             labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
             dict_sections = dict(zip(labels, np.arange(7)))
-
+            
             try:
                 section_label, section_parameters = self.additional_section_info
                 section_type = dict_sections[section_label]
@@ -433,7 +433,7 @@ if select == 1:
                 d_theta = 2*np.pi/N
                 theta = -np.arange(0, 2*np.pi, d_theta)
                 d_in = d_out - 2*thickness
-
+                
                 sine = np.sin(theta)
                 cossine = np.cos(theta)
 
@@ -463,12 +463,12 @@ if select == 1:
                     Z_in = [(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]
                     inner_points = list(zip(Y_in, Z_in))
                     # inner_points = []
-
+                
             elif section_type == 2: # Circular section
-
+                
                 N = 10# element.cross_section.division_number
                 d_out, d_in, Yc, Zc = section_parameters
-
+                
                 d_theta = np.pi/N
                 theta = -np.arange(0, 2*np.pi+d_theta, d_theta)
 
@@ -478,12 +478,12 @@ if select == 1:
                 Y_out = (d_out/2)*cossine
                 Z_out = (d_out/2)*sine
                 outer_points = list(zip(Y_out, Z_out))
-
+                            
                 if d_in != 0.:
                     Y_in = (d_in/2)*cossine
                     Z_in = (d_in/2)*sine
                     inner_points = list(zip(Y_in, Z_in))
-
+                
             elif section_type == 3: # Beam: C-section
 
                 h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
@@ -499,11 +499,11 @@ if select == 1:
                 h, w1, w2, w3, t1, t2, t3, _, Yc, Zc = section_parameters
                 Y_out = [(w1/2), (w1/2), (w2/2), (w2/2), (w3/2), (w3/2), -(w3/2), -(w3/2), -(w2/2), -(w2/2), -(w1/2), -(w1/2)]
                 Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t3, -(h/2)+t3, -(h/2), -(h/2), -(h/2)+t3, -(h/2)+t3, (h/2)-t1, (h/2)-t1, (h/2)]
-
+            
                 Ys = np.array(Y_out) - Yc
                 Zs = np.array(Z_out) - Zc
                 outer_points = list(zip(Ys, Zs))
-
+        
             elif section_type == 5: # Beam: T-section
 
                 h, w1, w2, t1, t2, _, Yc, Zc = section_parameters
@@ -513,7 +513,7 @@ if select == 1:
                 Ys = np.array(Y_out) - Yc
                 Zs = np.array(Z_out) - Zc
                 outer_points = list(zip(Ys, Zs))
-
+            
             else:
 
                 # A very small triangle to prevent bugs

@@ -364,7 +364,7 @@ class RendererMesh(vtkRendererBase):
         data = vtk.vtkPolyData()
         source = vtk.vtkTriangleFilter()
 
-        # create points - check the axis alignments - older version (0, y, z)
+        #TODO: create points - check the axis alignments - older version (0, y, z)
         for y, z in inner_points:
             points.InsertNextPoint(y, z, 0)
 

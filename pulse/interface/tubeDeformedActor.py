@@ -25,15 +25,15 @@ class TubeDeformedActor(TubeActor):
         for element in self.elements.values():
             x,y,z = element.first_node.deformed_coordinates
             points.InsertNextPoint(x,y,z)
-            rxyz = element.deformed_rotation_xyz
+            section_rotation_xyz = element.deformed_rotation_xyz
 
             # We make perfured polygons to make tubes using vtkDelaunay2D.
             # Unfortunately it only works on the xy plane, but we need it in
             # yz coordinates. So we do it in xy, then rotate by 90 degrees, as 
             # recommended on vtk documentation.
 
-            rxyz[1] += 90
-            rotations.InsertNextTuple(rxyz)
+            section_rotation_xyz[1] += 90
+            rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
 
             if element.cross_section not in cache:
