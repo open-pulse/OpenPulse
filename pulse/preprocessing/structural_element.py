@@ -46,6 +46,7 @@ class StructuralElement:
 
         self.undeformed_rotation_xyz = None
         self.deformed_rotation_xyz = None
+        self.deformed_length = None
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.material = kwargs.get('material', None)
@@ -77,8 +78,6 @@ class StructuralElement:
         self.stress = None
         self.internal_load = None
 
-        # self.element_rotation_matrix = self._element_rotation_matrix()
-        # self.transpose_rotation_matrix = self.element_rotation_matrix.T
 
     @property
     def length(self):
@@ -91,6 +90,9 @@ class StructuralElement:
         global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.global_dof
         return global_dof
 
+    def deformed_element_length(self, delta):
+        self.deformed_length = (delta[0]**2 + delta[1]**2 + delta[2]**2)**(1/2)
+        
     def global_matrix_indexes(self):
         ''' Returns two matrixes size 12 by 12, filled with rows indexes and column indexes. It may be usefull to construct the global matrix.'''
         rows = self.global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
@@ -151,30 +153,6 @@ class StructuralElement:
         # self.directional_vectors = [u, v, w]
 
         return self.center_element_coordinates, self.directional_vectors 
-
-    # def get_deformed_local_coordinate_system_info(self):
-
-    #     ''' Important note: you must solve a structural analysis and call the plot function before calling this fuction. 
-    #         The deformed coordinates attribute of the node is updated whenever the get_structural_response function is acessed. 
-    #         The calculation performance is in accordance with the expectations.  
-    #     '''
-
-    #     # if self.last_node.deformed_coordinates is not None and self.first_node.deformed_coordinates is not None:
-    #     #     delta_x, delta_y, delta_z = self.last_node.deformed_coordinates - self.first_node.deformed_coordinates
-    #     #     self.R_def = _rotation_matrix(delta_x, delta_y, delta_z)
-    #     #     self.deformed_center_element_coordinates = (self.last_node.deformed_coordinates + self.first_node.deformed_coordinates)/2
-    #     # else:
-    #     #     return -1, -1 
-
-    #     # invR = np.linalg.inv(self.R_def)
-    #     # u = invR@np.array([1,0,0])
-    #     # v = invR@np.array([0,1,0])
-    #     # w = invR@np.array([0,0,1])
-    #     # invR = inverse_matrix_3x3(self.R_def)
-    #     # u, v , w = invR.T
-    #     # deformed_directional_vectors = [u, v, w]
-
-    #     return self.deformed_center_element_coordinates, self.deformed_directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""
