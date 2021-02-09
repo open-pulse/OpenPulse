@@ -239,6 +239,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         else:
             raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
 
+        self._updateAxes()
         
         # # TODO: delete this 
         # self.beforeChangePlot()
