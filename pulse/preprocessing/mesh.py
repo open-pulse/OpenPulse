@@ -1187,10 +1187,7 @@ class Mesh:
         rotations_results = np.zeros((len(self.structural_elements), 3), dtype=float)
 
         for index, element in enumerate(self.structural_elements.values()):
-            rotations_results[index, :] = (element.last_node.deformed_rotations_xyz + element.first_node.deformed_rotations_xyz)/2
-        rotations_results = rotations_results*(180/np.pi)
-
-        for index, element in enumerate(self.structural_elements.values()):
+            rotations_results[index, :] = (element.last_node.deformed_rotations_xyz + element.first_node.deformed_rotations_xyz)*(90/np.pi)
             element.deformed_rotation_xyz = [   self.rotations_zxy[index,1] + rotations_results[index,0], 
                                                 self.rotations_zxy[index,2] + rotations_results[index,1],
                                                 self.rotations_zxy[index,0] + rotations_results[index,2]   ]
