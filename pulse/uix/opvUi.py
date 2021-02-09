@@ -151,6 +151,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.setInUse(False)
         self.rendererAnalysis.setInUse(False)
         self.opvRenderer.setInUse(False)
+        print(self.rendererAnalysis.getInUse())
 
     def beforeChangePlot(self):
         self.copyCamera()
@@ -178,13 +179,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         # self._updateAxes()
 
-
-        if self.rendererEntity.getInUse():
-            return
-        self.beforeChangePlot()
-        self.rendererEntity.setInUse(True)
-        self.SetInteractorStyle(self.rendererEntity.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererEntity.getRenderer())
+        self.setRenderer(self.rendererEntity)
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
 
@@ -203,29 +198,24 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         # self._updateAxes()
 
-        if self.rendererMesh.getInUse():
-            return
-        self.beforeChangePlot()
-        self.rendererMesh.setInUse(True)
-        self.SetInteractorStyle(self.rendererMesh.getStyle())
-        self.GetRenderWindow().AddRenderer(self.rendererMesh.getRenderer())
+        self.setRenderer(self.rendererMesh)
         self.rendererMesh.resetCamera()
         self.afterChangePlot()
 
 
         
     def setRenderer(self, renderer):
-        if not renderer.getInUse():
-            self.beforeChangePlot()
-            renderer.setInUse(True)
-            self.SetInteractorStyle(renderer.getStyle())
-            self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+        # if not renderer.getInUse(): 
+        self.beforeChangePlot()
+        renderer.setInUse(True)
+        self.SetInteractorStyle(renderer.getStyle())
+        self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
         # we call it so many times in so many different files that 
         # i will just continue my code from here and we organize all 
         # these in the future. Im sorry
-        
+
         self.setRenderer(self.opvAnalisysRenderer)
         self.opvAnalisysRenderer.updateHud()
 
@@ -239,6 +229,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         else:
             raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
 
+        self.afterChangePlot()
         self._updateAxes()
         
         # # TODO: delete this 
