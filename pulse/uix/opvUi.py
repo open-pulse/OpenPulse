@@ -151,7 +151,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.rendererMesh.setInUse(False)
         self.rendererAnalysis.setInUse(False)
         self.opvRenderer.setInUse(False)
-        print(self.rendererAnalysis.getInUse())
 
     def beforeChangePlot(self):
         self.copyCamera()

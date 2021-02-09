@@ -123,6 +123,7 @@ class RendererMesh(vtkRendererBase):
         self.reset()
         self.saveNodesBounds()
         self.saveElementsBounds()
+        self.updateAllAxes()
         self.plotNodes()
         self.plotElements()
         self.plotTubes()
