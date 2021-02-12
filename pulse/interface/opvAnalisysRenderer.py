@@ -133,8 +133,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider = vtk.vtkSliderWidget()
         
         sld = vtk.vtkSliderRepresentation2D()
-        sld.SetMinimumValue(-2)
-        sld.SetMaximumValue(2)
+        sld.SetMinimumValue(-1)
+        sld.SetMaximumValue(1)
         sld.SetValue(1)
 
         sld.GetSelectedProperty().SetColor(1, 0, 0)
