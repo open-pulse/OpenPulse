@@ -19,6 +19,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opv = opv
         self.setUsePicker(False)
 
+        self._magnificationFactor = 1
         self._lastFrequency = 0
         self.colorbar = None 
         self.scaleBar = None
@@ -66,7 +67,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         solution = self.project.get_structural_solution()
         self._lastFrequency = frequency
 
-        _, _, u_def, _ = get_structural_response(mesh, solution, frequency, gain=gain)
+        _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, u_def, stress_field_plot=True)
@@ -192,7 +193,7 @@ class opvAnalisysRenderer(vtkRendererBase):
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._lastFrequency])
             text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
-            text += "\nMagnification factor {:.2f}x\n".format(magnif)
+            text += "\nMagnification factor {:.2f}x\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
         self.createInfoText(text)
 
