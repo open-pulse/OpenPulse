@@ -53,12 +53,6 @@ class TubeActor(vtkActorBase):
             points.InsertNextPoint(x,y,z)
             section_rotation_xyz = element.undeformed_rotation_xyz
 
-            # We make perfured polygons to make tubes using vtkDelaunay2D.
-            # Unfortunately it only works on the xy plane, but we need it in
-            # yz coordinates. So we do it in xy, then rotate by 90 degrees, as 
-            # recommended on vtk documentation.
-
-            section_rotation_xyz[1] += 90
             rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
             
@@ -119,7 +113,7 @@ class TubeActor(vtkActorBase):
         size = self.project.get_element_size()
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
         extruderFilter.SetExtrusionTypeToVectorExtrusion()
-        extruderFilter.SetVector(0,0,1)
+        extruderFilter.SetVector(1,0,0)
         extruderFilter.SetScaleFactor(size)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
@@ -143,20 +137,19 @@ class TubeActor(vtkActorBase):
         edges = vtk.vtkCellArray()
         source = vtk.vtkTriangleFilter()
 
-        # create points
-        # it is yzx instead xyz to work arround a
-        # limitation on vtkDelaunay2D method.
-        
+        # create points       
         for y, z in inner_points:
-            points.InsertNextPoint(y, z, 0)
+            points.InsertNextPoint(0, y, z)
 
         for y, z in outer_points:
-            points.InsertNextPoint(y, z, 0)
+            points.InsertNextPoint(0, y, z)
 
         # create external polygon
         outerData.SetPoints(points)
+        delaunay.SetProjectionPlaneMode(2)
         delaunay.SetInputData(outerData)
 
+        #TODO: clean-up the structure below
         if number_inner_points >= 3:
 
             # remove inner area for holed sections
