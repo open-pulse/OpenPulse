@@ -220,13 +220,13 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         if pressure_field_plot:
             self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
-        elif True or stress_field_plot:
+        elif stress_field_plot:
             # please be more carefull when calling this function and select
             # at least one between pressure_field_plot or stress_field_plot
             # then remove this "True or" statement
             self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
         else:
-            raise ValueError("Neither pressure_field_plot nor stress_field_plot were selected")
+            self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
 
         self.afterChangePlot()
         self._updateAxes()

@@ -33,7 +33,7 @@ class ColorTable(vtk.vtkLookupTable):
         if self.is_empty():
             return [255,255,255]
 
-        if key in self.beam_ids: 
+        if self.stress_field_plot and key in self.beam_ids: 
             return [255,255,255]
         
         color_temp = [0,0,0]
@@ -42,5 +42,4 @@ class ColorTable(vtk.vtkLookupTable):
         for i in range(3):
             color_temp[i] = int(color_temp[i]*255)
         
-        #color_temp[0], color_temp[2] = color_temp[2], color_temp[0]
         return color_temp

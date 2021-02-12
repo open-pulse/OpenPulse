@@ -20,7 +20,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.setUsePicker(False)
 
         self._magnificationFactor = 1
-        self._lastFrequency = 0
+        self._currentFrequency = 0
+        self._currentPlot = None
         self.colorbar = None 
         self.scaleBar = None
 
@@ -61,11 +62,12 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createColorBar()
         self._createScaleBar()
 
-
     def showStressField(self, frequency, gain=1):
+        
         mesh = self.project.get_mesh()
         solution = self.project.get_structural_solution()
-        self._lastFrequency = frequency
+        self._currentPlot = self.showStressField
+        self._currentFrequency = frequency
 
         _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
@@ -83,10 +85,32 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opv.update()
         self.update()
 
-    def showPressureField(self, frequency, real_part):
+    def showDisplacement(self, frequency, gain=1):
+        mesh = self.project.get_mesh()
+        solution = self.project.get_structural_solution()
+        self._currentPlot = self.showDisplacement
+        self._currentFrequency = frequency
+
+        _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
+        self.opvDeformedTubes.build()
+
+        colorTable = ColorTable(self.project, u_def, stress_field_plot=False)
+        self.opvDeformedTubes.setColorTable(colorTable)
+        self.colorbar.SetLookupTable(colorTable)
+        
+        self.slider.SetEnabled(True)
+        self.opvDeformedTubes.getActor().SetVisibility(True)
+        self.opvPressureTubes.getActor().SetVisibility(False)
+
+        self.updateInfoText()
+        self._renderer.ResetCameraClippingRange()
+        self.opv.update()
+        self.update()
+
+    def showPressureField(self, frequency, real_part=True):
         mesh = self.project.get_mesh()
         solution = self.project.get_acoustic_solution()
-        self._lastFrequency = frequency
+        self._currentFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
 
         *args, u_def = get_acoustic_response(mesh, solution, frequency, real_part)
@@ -138,10 +162,15 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _sliderCallback(self, slider, b):
+        if self._currentPlot is None:
+            return 
+        
         sliderValue = slider.GetRepresentation().GetValue()
         sliderValue = round(sliderValue, 1)
         slider.GetRepresentation().SetValue(sliderValue)
-        self.showStressField(self._lastFrequency, sliderValue)
+        
+        # call the last plot function related to the slider
+        self._currentPlot(self._currentFrequency, sliderValue)
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()
@@ -176,27 +205,26 @@ class opvAnalisysRenderer(vtkRendererBase):
 
     # info text
     def updateInfoText(self, *args, **kwargs):
-        mode = self._lastFrequency + 14
+        mode = self._currentFrequency + 14
         magnif = abs(self.slider.GetRepresentation().GetValue())
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
-            text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._lastFrequency])
+            text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
         elif self.project.analysis_ID == 2:
             frequencies = self.project.get_structural_natural_frequencies()
             text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._lastFrequency])
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
         elif self.project.analysis_ID == 4:
             frequencies = self.project.get_acoustic_natural_frequencies()
             text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._lastFrequency])
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
             text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor {:.2f}x\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
         self.createInfoText(text)
-
 
     # functions to be removed but currently break the execution
     def getElementsInfoText(self, *args, **kwargs):
