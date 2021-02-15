@@ -44,7 +44,7 @@ class StructuralElement:
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
 
-        self.undeformed_rotation_xyz = None
+        self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
         self.deformed_length = None
 
@@ -67,8 +67,12 @@ class StructuralElement:
         self._rot = None
 
         self.sub_rotation_matrix = None
-        self.directional_vectors = None
-        self.deformed_directional_vectors = None
+        self.sub_inverse_rotation_matrix = None
+        self.section_directional_vectors = None
+        self.mean_rotation_results = None
+        self.rotation_matrix_results_at_local_coordinate_system = None
+
+        self.results_at_global_coordinate_system = None
 
         self.internal_pressure = kwargs.get('internal_pressure', 0)
         self.external_pressure = kwargs.get('external_pressure', 0)
@@ -90,6 +94,45 @@ class StructuralElement:
         global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.global_dof
         return global_dof
 
+    # @property
+    # def local_dof(self):
+    #     return np.arange(DOF_PER_ELEMENT, dtype=int)
+
+    def element_results_gcs(self):
+        values = np.zeros(DOF_PER_ELEMENT, dtype=float)
+        values[:DOF_PER_NODE_STRUCTURAL] = self.first_node.nodal_solution_gcs
+        values[DOF_PER_NODE_STRUCTURAL:] = self.last_node.nodal_solution_gcs
+        return values
+
+    def element_results_lcs(self):
+        return self.element_rotation_matrix@self.element_results_gcs()
+
+    def mean_rotations_at_global_coordinate_system(self):
+        results_gcs = self.element_results_gcs()
+        theta_x = (results_gcs[3] + results_gcs[-3])/2
+        tehta_y = (results_gcs[4] + results_gcs[-2])/2
+        tehta_z = (results_gcs[5] + results_gcs[-1])/2
+        rotations = np.array([theta_x, tehta_y, tehta_z], dtype=float)
+        return rotations
+
+    def mean_rotations_at_local_coordinate_system(self):
+        results_lcs = self.element_results_lcs()
+        theta_x = (results_lcs[3] + results_lcs[-3])/2
+        tehta_y = (results_lcs[4] + results_lcs[-2])/2
+        tehta_z = (results_lcs[5] + results_lcs[-1])/2
+        rotations = np.array([theta_x, tehta_y, tehta_z], dtype=float)
+        return rotations
+
+    def section_normal_vectors_at_lcs(self):
+        theta_x, theta_y, theta_z = self.mean_rotations_at_local_coordinate_system()
+        L_ = np.sqrt(1-(np.sin(theta_y)**2))
+        L = 1
+        dx = L_*np.cos(theta_z)
+        dy = L_*np.sin(theta_z)
+        dz = -L*np.sin(theta_y)
+        uvw = np.array([dx, dy*np.cos(theta_x) - dz*np.sin(theta_x), dy*np.sin(theta_x) + dz*np.cos(theta_x)], dtype=float)   
+        return uvw
+
     def deformed_element_length(self, delta):
         self.deformed_length = (delta[0]**2 + delta[1]**2 + delta[2]**2)**(1/2)
         
@@ -101,9 +144,8 @@ class StructuralElement:
 
     def matrices_gcs(self):
         """ Element striffness and mass matrix in the global coordinate system."""
-        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()###############
+        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
-        # Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
             stiffness = Rt @ self.stiffness_matrix_pipes() @ R
             mass = Rt @ self.mass_matrix_pipes() @ R
@@ -135,13 +177,16 @@ class StructuralElement:
         return Rt @ self.force_vector()
 
     def _element_rotation_matrix(self):
-
         R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         # self.sub_rotation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_rotation_matrix
-
         return R
     
+    def _inverse_element_rotation_matrix(self):
+        R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_inverse_rotation_matrix
+        return R
+
     def get_local_coordinate_system_info(self):
 
         # invR = np.linalg.inv(self.sub_rotation_matrix)
@@ -150,9 +195,9 @@ class StructuralElement:
         # w = invR@np.array([0,0,1])
         # invR = inverse_matrix_3x3(self.sub_rotation_matrix)
         # u ,v, w = invR.T
-        # self.directional_vectors = [u, v, w]
+        # self.section_directional_vectors = [u, v, w]
 
-        return self.center_element_coordinates, self.directional_vectors 
+        return self.center_element_coordinates, self.section_directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """ Element striffness matrix in the element coordinate system."""

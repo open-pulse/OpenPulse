@@ -429,8 +429,7 @@ class RendererMesh(vtkRendererBase):
         start = element.first_node.coordinates
         size = element.length
  
-        # _, directional_vectors = element.get_local_coordinate_system_info()
-        u, v, w = element.directional_vectors
+        u, v, w = element.section_directional_vectors
         
         matrix = vtk.vtkMatrix4x4()
         matrix.Identity()
@@ -535,10 +534,14 @@ class RendererMesh(vtkRendererBase):
 
             firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.first_node.x, structural_element.first_node.y, structural_element.first_node.z)
             lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.last_node.x, structural_element.last_node.y, structural_element.last_node.z)
+            
+            rotations = structural_element.section_rotation_xyz_undeformed
+            str_rotations = '{:.3f}, {:.3f}, {:.3f}'.format(rotations[0], rotations[1], rotations[2])
 
             text += f'Element ID: {listSelected[0]} \n'
             text += f'First Node ID: {structural_element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
-            text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n\n'
+            text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n'
+            text += f'Rotations xyz: ({str_rotations})[deg]\n\n'
             text += f'Material: {material} \n'
             text += f'Strutural element type: {structural_element_type} \n'
             
