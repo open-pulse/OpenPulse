@@ -22,9 +22,6 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
 
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
-    rot_xyz = np.array([data[ind+3, column], data[ind+4, column], data[ind+5, column]]).T
-    rot_xyz = rot_xyz.copy()
-
     u_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     
     if Normalize:
@@ -48,13 +45,19 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
     coord_def[:,2] = coord[:,2] + u_y*factor
     coord_def[:,3] = coord[:,3] + u_z*factor
 
+    nodal_solution_gcs = np.array([data[ind+0, column], data[ind+1, column], data[ind+2, column], data[ind+3, column], data[ind+4, column], data[ind+5, column]]).T
+    nodal_solution_gcs = nodal_solution_gcs.copy()*factor
+
     # t0 = time()
     nodes = mesh.nodes
     for node in nodes.values():
+        
         global_index = node.global_index 
-        node.deformed_coordinates = coord_def[global_index, 1:]
-        node.deformed_rotations_xyz = rot_xyz[global_index, :]*factor
-    
+        node.deformed_coordinates = coord_def[global_index, 1:]        
+        node.nodal_solution_gcs = nodal_solution_gcs[global_index, :]
+        node.deformed_displacements_xyz_gcs =  nodal_solution_gcs[global_index, [0,1,2]]
+        node.deformed_rotations_xyz_gcs =  nodal_solution_gcs[global_index, [3,4,5]]
+
     mesh.process_element_cross_sections_orientation_to_plot()
     # dt = time() - t0
     # print(dt)
@@ -72,7 +75,6 @@ def get_structural_response(mesh, solution, column, scf=0.2, gain=None, Normaliz
 def get_reactions(mesh, reactions, node, dof, absolute=False, real=False, imaginary=False):
     #reactions: dictionary with all reactions and global dofs are the keys of dictionary
     key = mesh.nodes[node].global_index * DOF_PER_NODE_STRUCTURAL + dof
-    # print("Node ID: {} - key: {}".format(node,key))
     if absolute:
         results = np.abs(reactions[key])
     elif real:

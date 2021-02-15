@@ -266,7 +266,7 @@ class RendererEntity(vtkRendererBase):
         start = element.first_node.coordinates
         size = element.length
 
-        u, v, w = element.directional_vectors
+        u, v, w = element.section_directional_vectors
         
         matrix = vtk.vtkMatrix4x4()
         matrix.Identity()

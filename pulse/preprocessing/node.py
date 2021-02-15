@@ -54,12 +54,11 @@ class Node:
 
         self.global_index = kwargs.get('global_index', None)
         self.external_index = kwargs.get('external_index', None)
+        
         self.deformed_coordinates = None
-        self.deformed_rotations_xyz = None
-
-        # self.displacement_dofs = kwargs.get('displacement_dofs', [])
-        # self.rotation_dofs = kwargs.get('rotation_dofs', [])
-        # self.coupled_dofs = kwargs.get('coupled_dofs', None)
+        self.deformed_rotations_xyz_gcs = None
+        self.deformed_displacements_xyz_gcs = None
+        self.nodal_solution_gcs = None
 
     @property
     def coordinates(self):

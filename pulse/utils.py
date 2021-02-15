@@ -161,7 +161,7 @@ def inverse_matrix_3x3xN(A):
     Parameters
     ----------
     A: numpy.ndarray
-        Matrix of shape (3,3,N)
+        Matrix of shape (N,3,3)
     
     Returns
     -------
@@ -185,8 +185,8 @@ def inverse_matrix_3x3xN(A):
     b32 = -( A[:,0,0]*A[:,2,1] - A[:,0,1]*A[:,2,0] )
     b33 =    A[:,0,0]*A[:,1,1] - A[:,0,1]*A[:,1,0]
 
-    invA = (b*np.array([[b11,b12,b13],[b21,b22,b23],[b31,b32,b33]])).T
-    # invA = (b*np.array([[b11,b21,b31],[b12,b22,b32],[b13,b23,b33]])).T
+    data = (b*np.array([[b11,b12,b13],[b21,b22,b23],[b31,b32,b33]]))
+    invA = np.transpose(data, axes=[2,0,1])
     
     return invA
 
@@ -198,7 +198,7 @@ def inverse_matrix_3x3(A):
     Parameters
     ----------
     A: numpy.ndarray
-        Matrix of shape (3,3,N)
+        Matrix of shape (3,3)
     
     Returns
     -------
@@ -228,103 +228,206 @@ def inverse_matrix_3x3(A):
     return invA
 
 def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
-    """ Make the rotation from the element coordinate system to the global doordinate system."""
-    # Rotation Matrix
+    '''    
+    This method returns the rotation matrix of an element 
+    based on its spatial position. 
+    
+    Parameters
+    ----------
+    delta_x: int, float
+        value in meters
+    
+    delta_y: int, float
+        value in meters
+
+    delta_z: int, float
+        value in meters
+
+    Returns
+    -------
+    out: numpy.ndarray(3,3)
+        rotation matrix
+
+    '''
 
     L_ = np.sqrt(delta_x**2 + delta_y**2)
     L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
 
-    cos_gamma = np.cos(gamma)
-    sin_gamma = np.sin(gamma)
-
+    cossine_epsilon = L_ / L
+    sine_epsilon = - delta_z / L
+    
     if L_ > 0.0001*L:
-        sine = delta_y/L_
-        cossine = delta_x/L_
+        sine_delta = delta_y/L_
+        cossine_delta = delta_x/L_
     else:
-        sine = 0
-        cossine = 1
-        
-    # perform a double check and remove these lines if it is not necessary
-    # C = np.zeros((3,3), dtype=float)
-    # if L_ != 0.:
-    #     C[0,:] = [  cossine * L_ / L, sine * L_ / L, delta_z / L  ]
+        sine_delta = 0
+        cossine_delta = 1
+    
+    cossine_gamma = np.cos(gamma)
+    sine_gamma = np.sin(gamma)
 
-    #     C[1,:] = [  -cossine * delta_z * sin_gamma / L - sine * cos_gamma,
-    #                 -sine * delta_z * sin_gamma / L + cossine * cos_gamma,
-    #                 L_ * sin_gamma / L  ] 
+    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
+    rotation_matrix = np.array([    [   cossine_delta * cossine_epsilon, 
+                                       sine_delta * cossine_epsilon, 
+                                        -sine_epsilon   ], 
+                                    [   cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+                                        sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+                                        cossine_epsilon * sine_gamma    ],
+                                    [   cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+                                        sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+                                        cossine_epsilon * cossine_gamma ]    ]) 
 
-    #     C[2,:] = [  -cossine * delta_z * cos_gamma / L + sine * sin_gamma,
-    #                 -sine * delta_z * cos_gamma / L - cossine * sin_gamma,
-    #                 L_ * cos_gamma / L  ] 
-    # else:
-    #     # C[0,0], C[0,1], C[1,2], C[2,2] = 0., 0., 0., 0. 
-    #     C[0,2] = delta_z/np.abs(delta_z)
-    #     #
-    #     C[1,0] = -(delta_z/np.abs(delta_z))*sin_gamma
-    #     C[1,1] = cos_gamma
-    #     #
-    #     C[2,0] = -(delta_z/np.abs(delta_z))*cos_gamma
-    #     C[2,1] = -sin_gamma
-
-    a = [   cossine * L_, sine * L_, delta_z   ]
-
-    b = [   -cossine * delta_z * sin_gamma - sine * cos_gamma * L,
-            -sine * delta_z * sin_gamma + cossine * cos_gamma * L,
-            L_ * sin_gamma   ] 
-
-    c = [   -cossine * delta_z * cos_gamma + sine * sin_gamma * L,
-            -sine * delta_z * cos_gamma - cossine * sin_gamma * L,
-            L_ * cos_gamma   ] 
-
-    return np.array([a,b,c])/L
+    return rotation_matrix
 
 
 def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
-    """ Make the rotation from the element coordinate system to the global doordinate system."""
-    # Rotation Matrix
+    '''    
+    This method returns the rotation matrices to a set of N elements 
+    based on their spatial positions. 
+    
+    Parameters
+    ----------
+    delta_x: numpy.ndarray
+        values in meters
+    
+    delta_y: numpy.ndarray
+        values in meters
+
+    delta_z: numpy.ndarray
+        values in meters
+
+    Returns
+    -------
+    out: numpy.ndarray(N,3,3)
+        rotation matrix
+
+    '''
 
     number_elements = len(delta_x)
     L_ = np.sqrt(delta_x**2 + delta_y**2)
     L  = np.sqrt(delta_x**2 + delta_y**2 + delta_z**2)
     
-    cos_gamma = np.cos(gamma)
-    sin_gamma = np.sin(gamma)
+    cossine_gamma = np.cos(gamma)
+    sine_gamma = np.sin(gamma)
 
-    data_rot = np.zeros((number_elements,3,3), dtype=float)
-    sine = np.zeros(number_elements, dtype=float)
-    cossine = np.zeros(number_elements, dtype=float)
+    sine_delta = np.zeros(number_elements, dtype=float)
+    cossine_delta = np.zeros(number_elements, dtype=float)
 
     for i in range(number_elements):
 
         if L_[i] > 0.0001*L[i]:
-            sine[i] = delta_y[i]/L_[i]
-            cossine[i] = delta_x[i]/L_[i]
+            sine_delta[i] = delta_y[i]/L_[i]
+            cossine_delta[i] = delta_x[i]/L_[i]
         else:
-            sine[i] = 0
-            cossine[i] = 1
+            sine_delta[i] = 0
+            cossine_delta[i] = 1
 
-    data_rot = np.array([   cossine * L_ / L, 
-                            sine * L_ / L, 
-                            delta_z / L, 
-                            -cossine * delta_z * sin_gamma / L - sine * cos_gamma,
-                            -sine * delta_z * sin_gamma / L + cossine * cos_gamma,
-                            L_ * sin_gamma / L,
-                            -cossine * delta_z * cos_gamma / L + sine * sin_gamma,
-                            -sine * delta_z * cos_gamma / L - cossine * sin_gamma,
-                            L_ * cos_gamma / L   ])
+    cossine_epsilon = L_ / L
+    sine_epsilon = - delta_z / L
+    
+    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
+    data_rot = np.array([   cossine_delta * cossine_epsilon, 
+                            sine_delta * cossine_epsilon, 
+                            -sine_epsilon, 
+                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+                            cossine_epsilon * sine_gamma,
+                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+                            cossine_epsilon * cossine_gamma   ])
 
     return data_rot.T.reshape(-1,3,3)
 
-# def directional_vectors_xyz_rotation(directional_vectors):
-#     # we can perform much better doing it by hand
-#     # it's still a little bit weird
-#     # for some reason the rotations are made in the z,x,y order
-#     # so, to get the euler we need to do it backwards
-#     matrix = np.array(directional_vectors)
-#     r = Rotation.from_matrix(matrix)
-#     z, x, y = r.as_euler('zxy', degrees=True)
-#     # x, y, z = r.as_euler('XYZ', degrees=True)
-#     return -x, -y, -z
+def _rotation_matrix_3x3_by_angles(gamma, epsilon, delta):
+    '''    
+    This method returns the rotation matrix of an element based on 
+    the angles of rotations gamma, epsilon and delta. 
+    
+    Parameters
+    ----------
+    gamma: int, float
+        values in radians
+    
+    epsilon: int, float
+        values in radians
+
+    delta: int, float
+        values in radians
+
+    Returns
+    -------
+    out: numpy.ndarray(3,3)
+        rotation matrix
+
+    '''
+
+    sine_delta = np.sin(delta)
+    cossine_delta = np.cos(delta)
+
+    sine_epsilon = np.sin(epsilon)
+    cossine_epsilon = np.cos(epsilon)
+
+    sine_gamma = np.sin(gamma)
+    cossine_gamma = np.cos(gamma)
+
+    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
+    data_rot = np.array([   cossine_delta * cossine_epsilon, 
+                            sine_delta * cossine_epsilon, 
+                            -sine_epsilon, 
+                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+                            cossine_epsilon * sine_gamma,
+                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+                            cossine_epsilon * cossine_gamma   ])
+
+    return data_rot.reshape(3,3)
+
+def _rotation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
+    '''    
+    This method returns the rotation matrices to a set of N elements 
+    based on the angles of rotations gamma, epsilon and delta. 
+    
+    Parameters
+    ----------
+    gamma: numpy.ndarray
+        values in radians
+    
+    epsilon: numpy.ndarray
+        values in radians
+
+    delta: numpy.ndarray
+        values in radians
+
+    Returns
+    -------
+    out: numpy.ndarray(N,3,3)
+        rotation matrix
+
+    '''
+
+    sine_delta = np.sin(delta)
+    cossine_delta = np.cos(delta)
+
+    sine_epsilon = np.sin(epsilon)
+    cossine_epsilon = np.cos(epsilon)
+
+    sine_gamma = np.sin(gamma)
+    cossine_gamma = np.cos(gamma)
+
+    # Matrices product order - Rx@Ry@Rz (@Palazzolo, A. Vibration theory and applications with finite element and active vibration control. pg 677)
+    data_rot = np.array([   cossine_delta * cossine_epsilon, 
+                            sine_delta * cossine_epsilon, 
+                            -sine_epsilon, 
+                            cossine_delta * sine_epsilon * sine_gamma - sine_delta * cossine_gamma,
+                            sine_delta * sine_epsilon * sine_gamma + cossine_delta * cossine_gamma,
+                            cossine_epsilon * sine_gamma,
+                            cossine_delta * sine_epsilon * cossine_gamma + sine_delta * sine_gamma,
+                            sine_delta * sine_epsilon * cossine_gamma - cossine_delta * sine_gamma,
+                            cossine_epsilon * cossine_gamma   ])
+
+    return data_rot.T.reshape(-1,3,3)
+
 
 def error( msg, title = " ERROR "):
     '''
