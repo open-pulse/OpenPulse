@@ -253,6 +253,7 @@ class Mesh:
                     stack.appendleft(neighbour)
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self._get_principal_diagonal_structure_parallelepiped()
         # t0 = time()
         self.process_all_rotation_matrices()
         # print("Time to process: ", time()-t0)
@@ -287,6 +288,7 @@ class Mesh:
 
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self._get_principal_diagonal_structure_parallelepiped()
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
         self.process_all_rotation_matrices()
@@ -308,7 +310,7 @@ class Mesh:
                 nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
         self.nodal_coordinates_matrix = nodal_coordinates
         return
-
+    
     def get_connectivity_matrix(self, reordering=True):
         # process the connectivity matrix for all elements
         # if reordering=True  -> [index, first_node(internal), last_node(internal)] 
@@ -326,6 +328,13 @@ class Mesh:
                 connectivity[index,:] = index+1, first, last
         self.connectivity_matrix = connectivity.astype(int) 
         return 
+
+    def _get_principal_diagonal_structure_parallelepiped(self):
+        nodal_coordinates = self.nodal_coordinates_matrix.copy()
+        x_min, y_min, z_min = np.min(nodal_coordinates[:,1:], axis=0)
+        x_max, y_max, z_max = np.max(nodal_coordinates[:,1:], axis=0)
+        self.structure_principal_diagonal = np.sqrt((x_max-x_min)**2 + (y_max-y_min)**2 + (z_max-z_min)**2)
+        # print('The base length is: {}[m]'.format(round(self.structure_principal_diagonal,6)))
 
     def get_global_structural_indexes(self):
         # Process the I and J indexes vector for assembly process

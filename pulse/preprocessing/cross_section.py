@@ -426,7 +426,7 @@ if select == 1:
             if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
 
                 # N = element.cross_section.division_number
-                N = 8 # temporary number of divisions for pipe sections
+                N = 32 # temporary number of divisions for pipe sections
                 d_out, thickness, offset_y, offset_z, insulation_thickness = section_parameters
                 Yc, Zc = offset_y, offset_z
 

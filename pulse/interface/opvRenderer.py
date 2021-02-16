@@ -136,7 +136,7 @@ class opvRenderer(vtkRendererBase):
         selectedEntities = []
         
         nodesColor = (255, 255, 63)
-        linesColor = (10, 10, 10)
+        linesColor = (255, 255, 0)#(10, 10, 10)
         tubesColor = (255, 255, 255)
         selectionColor = (255, 0, 0)
 

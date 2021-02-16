@@ -3,19 +3,20 @@ import math
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorSpring(vtkActorBase):
-    def __init__(self, node, radius, xyz=1, u_def=[]):
+    def __init__(self, node, radius, base_length, xyz=1, u_def=[]):
         super().__init__()
         self.nV = 256
-        self.nCyc = 10
+        self.nCyc = 8
         self.rT1 = 0.1
         self.rT2 = 0.5
         self.rS = 0.8
-        self.h = 12
+        self.h = 10
         self.nTv = 8
 
-        self.radius = radius
-
         self.node = node
+        self.radius = radius
+        self.base_length = base_length 
+
         self.xyz = xyz
         if u_def == []:
             self.x = node.x
@@ -76,10 +77,11 @@ class ActorSpring(vtkActorBase):
         self.normalizedColor = color
 
     def setShiftValue(self, value):
-        self.shiftValue = value + 0.05
+        self.shiftValue = value
 
     def transform(self):
-        self._actor.SetScale(self.radius,self.radius,self.radius)
+        scale = self.base_length/20
+        self._actor.SetScale(scale, scale, scale)
         transform = vtk.vtkTransform()
         self.translate(transform)
         self.rotate(transform)

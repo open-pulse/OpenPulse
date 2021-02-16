@@ -3,10 +3,12 @@ import math
 from pulse.uix.vtk.vtkActorBase import vtkActorBase
 
 class ActorArrow(vtkActorBase):
-    def __init__(self, node, radius, xyz=1, u_def=[]):
+    def __init__(self, node, radius, base_length, xyz=1, u_def=[]):
         super().__init__()
         self.node = node
         self.radius = radius
+        self.base_length = base_length      
+
         self.xyz = xyz
         if u_def == []:
             self.x = node.x
@@ -16,6 +18,7 @@ class ActorArrow(vtkActorBase):
             self.x = u_def[0]
             self.y = u_def[1]
             self.z = u_def[2] 
+
         self.arrowSource = vtk.vtkArrowSource()
         self.arrowSource.SetTipLength(0.2)
         self.arrowSource.SetShaftRadius(0.015)
@@ -40,7 +43,8 @@ class ActorArrow(vtkActorBase):
         self.arrowSource.SetTipRadius(0)
 
     def transform(self):
-        self._actor.SetScale(self.radius*12, self.radius*12, self.radius*12)
+        scale = self.base_length/2
+        self._actor.SetScale(scale, scale, scale)
         transform = vtk.vtkTransform()
         self.translate(transform)
         self.rotate(transform)
@@ -49,16 +53,16 @@ class ActorArrow(vtkActorBase):
     def translate(self, transform):
         
         if self.xyz == -1:
-            transform.Translate(self.x +self.shiftValue, self.y, self.z)
+            transform.Translate(self.x + self.shiftValue, self.y, self.z)
         elif self.xyz == -2:
-            transform.Translate(self.x, self.y +self.shiftValue, self.z)
+            transform.Translate(self.x, self.y + self.shiftValue, self.z)
         elif self.xyz == -3:
             transform.Translate(self.x, self.y, self.z + self.shiftValue)
 
         if self.xyz == 1:
-            transform.Translate(self.x -self.shiftValue, self.y, self.z)
+            transform.Translate(self.x - self.shiftValue, self.y, self.z)
         elif self.xyz == 2:
-            transform.Translate(self.x, self.y -self.shiftValue, self.z)
+            transform.Translate(self.x, self.y - self.shiftValue, self.z)
         elif self.xyz == 3:
             transform.Translate(self.x, self.y, self.z - self.shiftValue)
 

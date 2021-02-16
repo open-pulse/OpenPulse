@@ -12,6 +12,7 @@ class RendererEntity(vtkRendererBase):
         self.opv = opv
         self.actors = {}
         self.plotRadius = False
+        self.defaultRadius = None
 
     def updateInfoText(self):
         listActorsIDs = self.getListPickedEntities()
@@ -196,8 +197,14 @@ class RendererEntity(vtkRendererBase):
             if cross_section and self.plotRadius:
                 polygon = self.createSectionPolygon(element)
             else:
+                if self.defaultRadius is None:
+                    base_length = self.project.mesh.structure_principal_diagonal
+                    if element.length/10 > base_length/1000:
+                        self.defaultRadius = element.length/10
+                    else:
+                        self.defaultRadius = base_length/1000
                 polygon = vtk.vtkRegularPolygonSource()
-                polygon.SetRadius(self.project.get_element_size()/2)
+                polygon.SetRadius(self.defaultRadius)
                 polygon.SetNumberOfSides(20)
 
             tube = self.generalSectionTube(element, polygon.GetOutputPort())

@@ -5,7 +5,7 @@ class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
         self._renderer = vtk.vtkRenderer()
-        self._renderer.SetBackground(0.2,0.2,0.2)
+        self._renderer.SetBackground(0,0,0)
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
         self._textActor = vtk.vtkTextActor()

@@ -22,7 +22,7 @@ class RendererMesh(vtkRendererBase):
         super().__init__(vtkMeshClicker(self))
         self.project = project
         self.opv = opv 
-        self.symbols = vtkSymbols(self.project)
+        self.symbols = vtkSymbols(self.project)     
         
         self.nodesBounds = dict() # (x,y,z) coordinates
         self.elementsBounds = dict() # bounding coordinates
@@ -35,7 +35,8 @@ class RendererMesh(vtkRendererBase):
         self.selectionNodesActorAcoustic = None
         self.selectionElementsActor = None
         self.selectionTubeActor = None
-
+        self.defaultRadius = None
+        
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
     
     def highlight(self, obj, event):
@@ -329,15 +330,18 @@ class RendererMesh(vtkRendererBase):
         source = vtk.vtkAppendPolyData()
         mapper = vtk.vtkPolyDataMapper()
         actor = vtk.vtkActor()
+        # _first = True
 
         for element in elements:
             cross_section = element.cross_section
             if cross_section:
                 polygon = self.createSectionPolygon(element)    
             else: # not cross section
+                if self.defaultRadius is None:
+                    self.defaultRadius = element.length/20
                 polygon = vtk.vtkRegularPolygonSource()
-                polygon.SetRadius(0.01)
-                polygon.SetNumberOfSides(10)
+                polygon.SetRadius(self.defaultRadius)
+                polygon.SetNumberOfSides(20)
             
             tube = self.generalSectionTube(element, polygon.GetOutputPort())
             source.AddInputData(tube.GetOutput())
