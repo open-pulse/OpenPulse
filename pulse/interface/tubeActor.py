@@ -121,7 +121,12 @@ class TubeActor(vtkActorBase):
     def createSectionPolygon(self, element):
 
         # we should get this info like this
-        outer_points, inner_points = element.cross_section.get_cross_section_points()
+        if element.cross_section is None:
+            outer_points = [(0,0), (0,1e-6), (1e-6,0)]
+            inner_points = []
+        else:
+            outer_points, inner_points = element.cross_section.get_cross_section_points()
+
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
         
