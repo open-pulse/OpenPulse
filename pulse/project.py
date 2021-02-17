@@ -340,8 +340,7 @@ class Project:
 
         for key, stiffness_data in elastic_link_stiffness.items():
             if isinstance(stiffness_data, list):
-                nodes_str = key.split("-")
-                nodes = [int(node) for node in nodes_str]
+                nodes = [int(node) for node in key.split("-")]
                 try:
                     self.load_elastic_nodal_link_stiffness(nodes, stiffness_data)
                 except Exception:
@@ -350,8 +349,7 @@ class Project:
 
         for key, damping_data in elastic_link_damping.items():
             if isinstance(damping_data, list):
-                nodes_str = key.split("-")
-                nodes = [int(node) for node in nodes_str]
+                nodes = [int(node) for node in key.split("-")]
                 try:
                     self.load_elastic_nodal_link_damping(nodes, damping_data)
                 except Exception:

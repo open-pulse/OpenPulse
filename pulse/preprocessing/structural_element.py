@@ -66,7 +66,7 @@ class StructuralElement:
         self._Bts = None
         self._rot = None
 
-        self.sub_rotation_matrix = None
+        self.sub_transformation_matrix = None
         self.sub_inverse_rotation_matrix = None
         self.section_directional_vectors = None
         self.mean_rotation_results = None
@@ -178,8 +178,8 @@ class StructuralElement:
 
     def _element_rotation_matrix(self):
         R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-        # self.sub_rotation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
-        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_rotation_matrix
+        # self.sub_transformation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
+        R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_transformation_matrix
         return R
     
     def _inverse_element_rotation_matrix(self):
@@ -189,11 +189,11 @@ class StructuralElement:
 
     def get_local_coordinate_system_info(self):
 
-        # invR = np.linalg.inv(self.sub_rotation_matrix)
+        # invR = np.linalg.inv(self.sub_transformation_matrix)
         # u = invR@np.array([1,0,0])
         # v = invR@np.array([0,1,0])
         # w = invR@np.array([0,0,1])
-        # invR = inverse_matrix_3x3(self.sub_rotation_matrix)
+        # invR = inverse_matrix_3x3(self.sub_transformation_matrix)
         # u ,v, w = invR.T
         # self.section_directional_vectors = [u, v, w]
 

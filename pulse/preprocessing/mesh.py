@@ -13,7 +13,7 @@ from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEM
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_3x3xN, _rotation_matrix_3x3, _rotation_matrix_3x3xN, _rotation_matrix_Nx3x3_by_angles
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _transformation_matrix_3x3, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
 
 window_title1 = "ERROR"
 
@@ -1138,14 +1138,14 @@ class Mesh:
         if True in check_tables:
             node1.loaded_table_for_elastic_link_stiffness = True
             node2.loaded_table_for_elastic_link_damping = True
-            value_labels = ["Table"]*check_tables.count(True)
+            value_labels = ["Table"]*len(check_tables)#.count(True)
         else:
-            value_labels = np.array(parameters)[mask]
+            value_labels = parameters#np.array(parameters)#[mask]
             node1.loaded_table_for_elastic_link_stiffness = False
             node2.loaded_table_for_elastic_link_stiffness = False
             node1.loaded_table_for_elastic_link_damping = False
             node2.loaded_table_for_elastic_link_damping = False
-            
+
         indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
         indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
         out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
@@ -1173,45 +1173,30 @@ class Mesh:
     def process_element_cross_sections_orientation_to_plot(self):
         rotation_data = np.zeros((self.number_structural_elements, 3), dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
-            rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()
+            rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()   
         
-            # element.deformed_rotation_xyz = element.section_rotation_xyz_undeformed
-            # data = -element.mean_rotations_at_local_coordinate_system()#*180/np.pi
-            # r2 = Rotation.from_euler('zxy', [data[2], data[0], data[1]])
-            # # ang = r2.as_euler('xyz', degrees=True)
-            # mat2 = r2.as_matrix()
-            # mat3 = mat2@self.mat_rotation_data[index,:,:]
-            # r3 = Rotation.from_matrix(mat3)
-            # ang = -r3.as_euler('zxy', degrees=True)
-            # element.deformed_rotation_xyz = [ang[1], ang[2], ang[0]]        
-        
-        rotation_results_matrices = _rotation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
-        matrix_resultant = rotation_results_matrices@self.rotation_matrices 
+        rotation_results_matrices = _transformation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
+        matrix_resultant = rotation_results_matrices@self.transformation_matrices 
         r = Rotation.from_matrix(matrix_resultant)
         angles = -r.as_euler('zxy', degrees=True)
         
         for index, element in enumerate(self.structural_elements.values()):
             element.deformed_rotation_xyz = [angles[index,1], angles[index,2], angles[index,0]]
-            # element.rotation_matrix_results_at_local_coordinate_system = rotation_results_matrices[index, :, :]
 
             
     def process_all_rotation_matrices(self):
-
         delta_data = np.zeros((self.number_structural_elements, 3), dtype=float)
-
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
 
-        self.rotation_matrices = _rotation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
-        # output_data = inverse_matrix_3x3xN(self.rotation_matrices)
-  
-        r = Rotation.from_matrix(self.rotation_matrices)
+        self.transformation_matrices = _transformation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
+        # output_data = inverse_matrix_Nx3x3(self.transformation_matrices)
+        r = Rotation.from_matrix(self.transformation_matrices)
         rotations = -r.as_euler('zxy', degrees=True)
-
         rotations_xyz = np.array([rotations[:,1], rotations[:,2], rotations[:,0]]).T
         self.section_rotations_xyz = rotations_xyz.copy()
         
         for index, element in enumerate(self.structural_elements.values()):
-            element.sub_rotation_matrix = self.rotation_matrices[index, :, :]
-            element.section_directional_vectors = self.rotation_matrices[index, :, :]
+            element.sub_transformation_matrix = self.transformation_matrices[index, :, :]
+            element.section_directional_vectors = self.transformation_matrices[index, :, :]
             element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]

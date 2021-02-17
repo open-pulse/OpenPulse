@@ -153,7 +153,7 @@ def mm_to_m(mm):
     '''
     return float(mm) / 1000
 
-def inverse_matrix_3x3xN(A):
+def inverse_matrix_Nx3x3(A):
     ''' 
     Given a 3x3xN matrix, compute its inverse faster than 
     numpy's default function.
@@ -227,7 +227,7 @@ def inverse_matrix_3x3(A):
     
     return invA
 
-def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
+def _transformation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     '''    
     This method returns the rotation matrix of an element 
     based on its spatial position. 
@@ -280,7 +280,7 @@ def _rotation_matrix_3x3(delta_x, delta_y, delta_z, gamma=0):
     return rotation_matrix
 
 
-def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
+def _transformation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
     '''    
     This method returns the rotation matrices to a set of N elements 
     based on their spatial positions. 
@@ -338,7 +338,7 @@ def _rotation_matrix_3x3xN(delta_x, delta_y, delta_z, gamma=0):
 
     return data_rot.T.reshape(-1,3,3)
 
-def _rotation_matrix_3x3_by_angles(gamma, epsilon, delta):
+def _transformation_matrix_3x3_by_angles(gamma, epsilon, delta):
     '''    
     This method returns the rotation matrix of an element based on 
     the angles of rotations gamma, epsilon and delta. 
@@ -383,7 +383,7 @@ def _rotation_matrix_3x3_by_angles(gamma, epsilon, delta):
 
     return data_rot.reshape(3,3)
 
-def _rotation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
+def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
     '''    
     This method returns the rotation matrices to a set of N elements 
     based on the angles of rotations gamma, epsilon and delta. 

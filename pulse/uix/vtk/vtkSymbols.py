@@ -267,7 +267,11 @@ class vtkSymbols:
     def getArrowMomento(self, node, shift=0.01):
         a = self.getReal(node.get_prescribed_loads())
         base_length = self.project.mesh.structure_principal_diagonal/10
-        shift = base_length/10
+        element_length = self.project.get_element_size()
+        if base_length/20 < element_length/2:
+            shift = base_length/20
+        else:
+            shift = element_length/2
         v = [1,2,3]
         for i in range(3,6):
             try:

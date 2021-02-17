@@ -474,8 +474,82 @@ class RendererMesh(vtkRendererBase):
             node = self.project.get_node(listSelected[0])
             nodeId = listSelected[0]
             nodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(node.x, node.y, node.z)
-            nodeBC = node.getStructuralBondaryCondition()
-            text = f'Node Id: {nodeId} \nPosition: ({nodePosition}) [m]\nDisplacement: {nodeBC[:3]} [m]\nRotation: {nodeBC[3:]} [rad]'
+            text = f'NODE ID: {nodeId} \n   Position: ({nodePosition}) [m]\n'
+
+            if node in self.project.mesh.nodes_with_prescribed_dofs:
+                values = node.prescribed_dofs
+                labels = np.array(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'])
+                unit_labels = ['m', 'rad']
+                text += self.structuralNodalInfo(values, labels, 'PRESCRIBED DOFs', unit_labels, node.loaded_table_for_prescribed_dofs)
+
+            if node in self.project.mesh.nodes_with_nodal_loads:
+                values = node.nodal_loads
+                labels = np.array(['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'])
+                unit_labels = ['N', 'N.m']
+                text += self.structuralNodalInfo(values, labels, 'NODAL LOADS', unit_labels, node.loaded_table_for_nodal_loads)
+
+            if node in self.project.mesh.nodes_connected_to_springs:
+                values = node.lumped_stiffness
+                labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
+                unit_labels = ['N/m', 'N.m/rad']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED STIFFNESS', unit_labels, node.loaded_table_for_lumped_stiffness)
+
+            if node in self.project.mesh.nodes_connected_to_dampers:
+                values = node.lumped_dampings
+                labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
+                unit_labels = ['N.s/m', 'N.m.s/rad']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED DAMPINGS', unit_labels, node.loaded_table_for_lumped_dampings)
+
+            if node in self.project.mesh.nodes_with_masses:
+                values = node.lumped_masses
+                labels = np.array(['mx', 'my', 'mz', 'Jx', 'Jy', 'Jz'])
+                unit_labels = ['kg', 'N.m²']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED MASSES', unit_labels, node.loaded_table_for_lumped_masses)
+
+            if node.there_are_elastic_nodal_link_stiffness:
+                index = node.external_index
+                labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
+                unit_labels = ['N/m', 'N.m/rad']
+                for key, [_, values] in node.elastic_nodal_link_stiffness.items():
+                    linked_nodes = [int(node_id) for node_id in key.split('-')]
+                    if index in linked_nodes:            
+                        text += self.structuralNodalInfo(values, labels, f'STIFFNESS ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_stiffness)
+
+            if node.there_are_elastic_nodal_link_damping:
+                index = node.external_index
+                labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
+                unit_labels = ['N.s/m', 'N.m.s/rad']
+                for key, [_, values] in node.elastic_nodal_link_damping.items():
+                    linked_nodes = [int(node_id) for node_id in key.split('-')]
+                    if index in linked_nodes:            
+                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
+ 
+            if node in self.project.mesh.nodes_with_acoustic_pressure:
+                value = node.acoustic_pressure
+                label = 'P'
+                unit_label = '[Pa]'
+                text += self.acousticNodalInfo(value, label, 'ACOUSTIC PRESSURE', unit_label)
+   
+            if node in self.project.mesh.nodes_with_volume_velocity:
+                value = node.volume_velocity
+                label = 'Q'
+                unit_label = '[m³/s]'
+                text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+            
+            if node in self.project.mesh.nodes_with_specific_impedance:
+                value = node.specific_impedance
+                label = 'Zs'
+                unit_label = '[kg/m².s]'
+                text += self.acousticNodalInfo(value, label, 'SPECIFIC IMPEDANCE', unit_label)
+
+            if node in self.project.mesh.nodes_with_radiation_impedance:
+                Z_type = node.radiation_impedance_type
+                _dict = {0:'anechoic termination', 1:'unflanged pipe', 2:'flanged pipe'}
+                label = 'Type'
+                value = _dict[Z_type]
+                unit_label = ''
+                text += self.acousticNodalInfo(value, label, 'RADIATION IMPEDANCE', unit_label)
+
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} NODES IN SELECTION: \n'
             for i, ids in enumerate(listSelected):
@@ -485,6 +559,39 @@ class RendererMesh(vtkRendererBase):
                 text += f'{ids} '
                 if i ==10 or i==20:
                     text += '\n'
+        return text
+
+    def structuralNodalInfo(self, values, labels, bc_label, unit_labels, isThereTable):
+        mask = [True if value is not None else False for value in values]
+        indexes = np.arange(6)
+        masked_labels = labels[mask]
+        masked_indexes = indexes[mask]
+        text = f'\n{bc_label}: \n'
+
+        for index, label  in enumerate(masked_labels):
+            if isThereTable:
+                value = 'Table'
+                unit = ''
+            else:
+                value = values[masked_indexes[index]]
+                if masked_indexes[index] in [0,1,2]:
+                    unit = f'[{unit_labels[0]}]'
+                else:
+                    unit = f'[{unit_labels[1]}]'
+                text += f'  {label} = {value} {unit} \n'
+
+        return text
+
+    def acousticNodalInfo(self, value, label, bc_label, unit_label):
+        text = f'\n{bc_label}: \n'
+
+        if isinstance(value, np.ndarray):
+            value = 'Table'
+            unit = ''
+        else:
+            unit = f'{unit_label}'
+            text += f'  {label} = {value} {unit} \n'
+
         return text
 
     def getElementsInfoText(self):
