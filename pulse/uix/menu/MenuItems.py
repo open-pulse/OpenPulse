@@ -285,76 +285,76 @@ class MenuItems(QTreeWidget):
             self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item.text(0) == self.name_child_set_material:
-            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_material()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_crossSection:
             self.mainWindow.getInputWidget().set_cross_section()
             self.mainWindow.plot_entities_radius()
 
         elif item.text(0) == self.name_child_setPrescribedDofs:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setDOF()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setRotationDecoupling:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setRotationDecoupling()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setNodalLoads:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setNodalLoads()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_addMassSpringDamper:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().addMassSpringDamper()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setcappedEnd:
-            # self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().setcappedEnd()
+            # self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_stress_stiffening:
-            # self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+            # self.mainWindow.plot_entities()
         
         elif item.text(0) == self.name_child_add_elastic_nodal_links:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setAcousticElementType:
-            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_acoustic_element_type()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_fluid: 
-            self.mainWindow.plot_entities()
             self.mainWindow.getInputWidget().set_fluid()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_setAcousticPressure:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setAcousticPressure()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setVolumeVelocity: 
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setVolumeVelocity()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setSpecificImpedance:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().setSpecificImpedance()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_set_radiation_impedance:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().set_radiation_impedance()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_add_perforated_plate:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_perforated_plate()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_set_acoustic_element_length_correction:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_add_compressor_excitation:
-            self.mainWindow.plot_mesh()
             self.mainWindow.getInputWidget().add_compressor_excitation()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analysisTypeInput()
