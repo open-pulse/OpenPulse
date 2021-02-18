@@ -215,37 +215,35 @@ class OPVUi(QVTKRenderWindowInteractor):
         # i will just continue my code from here and we organize all 
         # these in the future. Im sorry
 
-        self.setRenderer(self.opvAnalisysRenderer)
-        self.opvAnalisysRenderer.updateHud()
+        # self.setRenderer(self.opvAnalisysRenderer)
+        # self.opvAnalisysRenderer.updateHud()
 
-        if pressure_field_plot:
-            self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
-        elif stress_field_plot:
-            # please be more carefull when calling this function and select
-            # at least one between pressure_field_plot or stress_field_plot
-            # then remove this "True or" statement
-            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
-        else:
-            self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
+        # if pressure_field_plot:
+        #     self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
+        # elif stress_field_plot:
+        #     self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
+        # else:
+        #     self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
 
-        self.afterChangePlot()
-        self._updateAxes()
-        
-        # # TODO: delete this 
-        # self.beforeChangePlot()
-        # self.changeFrequency(frequency_indice)
-        # self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
-        # if self.project.analysis_ID in [4]:
-        #     self.rendererAnalysis.setColorScalling(real_part)
-        # self.rendererAnalysis.setSliderFactor(self.sliderScale)        
-        # self.rendererAnalysis.setInUse(True)
-        # # self.rendererAnalysis.setStress(plot_stress_field)
-        # self.SetInteractorStyle(self.rendererAnalysis.getStyle())
-        # self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
-        # self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
-        # if self.needResetCamera:
-        #     self.rendererAnalysis.resetCamera()
         # self.afterChangePlot()
+        # self._updateAxes()
+        
+
+        # TODO: delete this 
+        self.beforeChangePlot()
+        self.changeFrequency(frequency_indice)
+        self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        if self.project.analysis_ID in [4]:
+            self.rendererAnalysis.setColorScalling(real_part)
+        self.rendererAnalysis.setSliderFactor(self.sliderScale)        
+        self.rendererAnalysis.setInUse(True)
+        # self.rendererAnalysis.setStress(plot_stress_field)
+        self.SetInteractorStyle(self.rendererAnalysis.getStyle())
+        self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
+        self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
+        if self.needResetCamera:
+            self.rendererAnalysis.resetCamera()
+        self.afterChangePlot()
 
     def plotEntities(self, plotRadius = False):
         self.rendererEntity.setPlotRadius(plotRadius)
