@@ -174,7 +174,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()
-        textProperty.SetFontSize(12)
+        textProperty.SetFontSize(14)
         textProperty.SetItalic(1)
         unit = self.project.get_unit(stress=False)
         text = "Unit: [{}]".format(unit)

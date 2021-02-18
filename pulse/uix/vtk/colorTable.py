@@ -11,7 +11,8 @@ class ColorTable(vtk.vtkLookupTable):
         self.pressure_field_plot = pressure_field_plot
 
         self.structural_elements = project.mesh.structural_elements
-        self.beam_ids = [element.first_node.global_index for element in self.project.mesh.get_beam_elements()]
+        # self.beam_ids = [element.first_node.global_index for element in self.project.mesh.get_beam_elements()]
+        self.beam_ids = self.project.mesh.get_beam_nodes_and_indexes()
 
         # self.matriz = matriz
         # self.normal = {}
@@ -33,7 +34,7 @@ class ColorTable(vtk.vtkLookupTable):
         if self.is_empty():
             return [255,255,255]
 
-        if self.stress_field_plot and key in self.beam_ids: 
+        if (self.stress_field_plot or self.pressure_field_plot) and key in self.beam_ids: 
             return [255,255,255]
         
         color_temp = [0,0,0]

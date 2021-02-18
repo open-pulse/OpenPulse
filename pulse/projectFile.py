@@ -849,10 +849,16 @@ class ProjectFile:
 
             for key in keys:
                 if "volume velocity" in key:
+                    additional_info = None
                     str_volume_velocity = node_acoustic_list[str(node)][key]
+                    if 'compressor_excitation' in str_volume_velocity:
+                        if 'suction' in str_volume_velocity:
+                            additional_info = 'suction'
+                        elif 'discharge' in str_volume_velocity:
+                            additional_info = 'discharge'
                     volume_velocity = self._get_acoustic_bc_from_string(str_volume_velocity, key)
                     if volume_velocity is not None:
-                        dict_volume_velocity[node_id].append(volume_velocity)
+                        dict_volume_velocity[node_id].append([volume_velocity, additional_info])
 
             if "specific impedance" in keys:
                 str_specific_impedance = node_acoustic_list[str(node)]['specific impedance']

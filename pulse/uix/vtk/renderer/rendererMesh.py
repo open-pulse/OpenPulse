@@ -534,7 +534,12 @@ class RendererMesh(vtkRendererBase):
                 value = node.volume_velocity
                 label = 'Q'
                 unit_label = '[m³/s]'
-                text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+                if node.compressor_connection_info is None:
+                    text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+                else:
+                    connection_type = f'  Connection type: {node.compressor_connection_info} \n'
+                    bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
+                    text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
             
             if node in self.project.mesh.nodes_with_specific_impedance:
                 value = node.specific_impedance
@@ -582,12 +587,12 @@ class RendererMesh(vtkRendererBase):
 
         return text
 
-    def acousticNodalInfo(self, value, label, bc_label, unit_label):
+    def acousticNodalInfo(self, value, label, bc_label, unit_label, aditional_info=None):
         text = f'\n{bc_label}: \n'
-
+        if aditional_info is not None:
+            text += aditional_info
         if isinstance(value, np.ndarray):
-            value = 'Table'
-            unit = ''
+            text += f'  {label} <--> Table of values \n'
         else:
             unit = f'{unit_label}'
             text += f'  {label} = {value} {unit} \n'

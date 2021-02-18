@@ -847,7 +847,7 @@ class Mesh:
             if node in self.nodes_with_volume_velocity:
                 self.nodes_with_volume_velocity.remove(node)
 
-    def set_volume_velocity_bc_by_node(self, nodes, values):
+    def set_volume_velocity_bc_by_node(self, nodes, values, additional_info=None):
         try:
             for node in slicer(self.nodes, nodes):
                 if node.volume_velocity is None or values is None:
@@ -861,7 +861,10 @@ class Mesh:
                         message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
                         PrintMessageInput([title, message, window_title1])
-                        return True  
+                        return True 
+                node.compressor_connection_info = None        
+                if additional_info is not None:
+                    node.compressor_connection_info = additional_info
                 if not node in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.append(node)
                 if values is None:

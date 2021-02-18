@@ -361,10 +361,10 @@ class Project:
         for key, ActPres in pressure.items():
             if ActPres is not None:
                 self.load_acoustic_pressure_bc_by_node(key, ActPres)
-        for key, VelVol in volume_velocity.items():
-            if VelVol is not None:
-                for data in VelVol:
-                    self.load_volume_velocity_bc_by_node(key, data)
+        for key, data in volume_velocity.items():
+            for VelVol, additional_info in data:
+                if VelVol is not None:
+                    self.load_volume_velocity_bc_by_node(key, VelVol, additional_info=additional_info)
         for key, SpecImp in specific_impedance.items():
             if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, SpecImp)
@@ -751,8 +751,8 @@ class Project:
         label = ["acoustic pressure"] 
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name="", table_index=None):
-        if self.mesh.set_volume_velocity_bc_by_node(node_id, values):
+    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name="", table_index=None, additional_info=None):
+        if self.mesh.set_volume_velocity_bc_by_node(node_id, values, additional_info=additional_info):
             return True
         if table_index is None:
             label = ["volume velocity"]
@@ -803,8 +803,8 @@ class Project:
     def load_acoustic_pressure_bc_by_node(self, node_id, bc):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, bc)
 
-    def load_volume_velocity_bc_by_node(self, node_id, value):
-        self.mesh.set_volume_velocity_bc_by_node(node_id, value)
+    def load_volume_velocity_bc_by_node(self, node_id, value, additional_info=None):
+        self.mesh.set_volume_velocity_bc_by_node(node_id, value, additional_info=additional_info)
 
     def load_specific_impedance_bc_by_node(self, node_id, value):
         self.mesh.set_specific_impedance_bc_by_node(node_id, value)

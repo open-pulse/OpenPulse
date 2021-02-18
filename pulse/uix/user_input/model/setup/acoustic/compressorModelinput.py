@@ -515,7 +515,13 @@ class CompressorModelInput(QDialog):
         if self.connection_at_suction_and_discharge or self.connection_at_suction:
             freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
             table_name = self.get_table_name('suction', self.suction_node_ID)
-            if self.project.set_volume_velocity_bc_by_node([self.suction_node_ID], in_flow_rate, True, table_name=table_name, table_index=self.size):
+            connection_type = 'suction'
+            if self.project.set_volume_velocity_bc_by_node( [self.suction_node_ID], 
+                                                            in_flow_rate, 
+                                                            True, 
+                                                            table_name=table_name, 
+                                                            table_index=self.size, 
+                                                            additional_info=connection_type):
                 return
             else:
                 self.save_table_values(freq, in_flow_rate, table_name)
@@ -523,7 +529,13 @@ class CompressorModelInput(QDialog):
         if self.connection_at_suction_and_discharge or self.connection_at_discharge:  
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
             table_name = self.get_table_name('discharge', self.discharge_node_ID)
-            if self.project.set_volume_velocity_bc_by_node([self.discharge_node_ID], out_flow_rate, True, table_name=table_name, table_index=self.size):
+            connection_type = 'discharge'
+            if self.project.set_volume_velocity_bc_by_node( [self.discharge_node_ID], 
+                                                            out_flow_rate, 
+                                                            True, 
+                                                            table_name=table_name, 
+                                                            table_index=self.size, 
+                                                            additional_info=connection_type):
                 return
             else:
                 self.save_table_values(freq, out_flow_rate, table_name)
