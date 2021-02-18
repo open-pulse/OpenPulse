@@ -297,6 +297,13 @@ class vtkSymbols:
             a.setShiftValue(shift)
             a.build()
             arrows.append(a.getActor())
+
+            b = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
+            b.setNormalizedColor([0,0,1])
+            b.setShiftValue(shift*8)
+            b.removeShaftRadius()
+            b.build()
+            arrows.append(b.getActor())
         return arrows
 
     def getReal(self, vector):
