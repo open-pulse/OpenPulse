@@ -8,6 +8,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
+from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 class opvRenderer(vtkRendererBase):
@@ -24,6 +25,8 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = None 
         self.opvLines = None
         self.opvTubes = None 
+        self.opvSymbols = None
+
         self.opvDeformedTubes = None
 
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
@@ -37,16 +40,19 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
+        self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project)
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
 
-        self.opvTubes.build()
         self.opvNodes.build()
+        self.opvSymbols.build()
         self.opvLines.build()
+        self.opvTubes.build()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvTubes)
         plt(self.opvNodes)
+        plt(self.opvSymbols)
         plt(self.opvLines)
+        plt(self.opvTubes)
         plt(self.opvDeformedTubes)
 
         self._renderer.ResetCameraClippingRange()
