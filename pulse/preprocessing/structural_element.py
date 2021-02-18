@@ -106,22 +106,30 @@ class StructuralElement:
 
     def element_results_lcs(self):
         return self.element_rotation_matrix@self.element_results_gcs()
+    
+    def mean_element_results(self):
+        results_gcs = self.element_results_gcs()
+        u_x = (results_gcs[0] + results_gcs[-6])/2
+        u_y = (results_gcs[1] + results_gcs[-5])/2
+        u_z = (results_gcs[2] + results_gcs[-4])/2       
+        theta_x = (results_gcs[3] + results_gcs[-3])/2
+        tehta_y = (results_gcs[4] + results_gcs[-2])/2
+        tehta_z = (results_gcs[5] + results_gcs[-1])/2
+        return np.array([u_x, u_y, u_z, theta_x, tehta_y, tehta_z], dtype=float)
 
     def mean_rotations_at_global_coordinate_system(self):
         results_gcs = self.element_results_gcs()
         theta_x = (results_gcs[3] + results_gcs[-3])/2
         tehta_y = (results_gcs[4] + results_gcs[-2])/2
         tehta_z = (results_gcs[5] + results_gcs[-1])/2
-        rotations = np.array([theta_x, tehta_y, tehta_z], dtype=float)
-        return rotations
+        return np.array([theta_x, tehta_y, tehta_z], dtype=float)
 
     def mean_rotations_at_local_coordinate_system(self):
         results_lcs = self.element_results_lcs()
         theta_x = (results_lcs[3] + results_lcs[-3])/2
         tehta_y = (results_lcs[4] + results_lcs[-2])/2
         tehta_z = (results_lcs[5] + results_lcs[-1])/2
-        rotations = np.array([theta_x, tehta_y, tehta_z], dtype=float)
-        return rotations
+        return np.array([theta_x, tehta_y, tehta_z], dtype=float)
 
     def section_normal_vectors_at_lcs(self):
         theta_x, theta_y, theta_z = self.mean_rotations_at_local_coordinate_system()

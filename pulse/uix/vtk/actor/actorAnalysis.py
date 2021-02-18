@@ -12,7 +12,7 @@ class ActorAnalysis(vtkActorBase):
         self.colorTable = color_table
         self.stress_field = stress_field
         self.pressure_field = pressure_field
-        self.elements = self.project.get_elements()
+        self.elements = self.project.get_structural_elements()
 
         self._nodes = vtk.vtkPoints()
         self._edges = vtk.vtkCellArray()

@@ -132,7 +132,7 @@ class RendererMesh(vtkRendererBase):
     def plotTeste(self):
         start_time = time()
 
-        elements = self.project.get_elements().values()
+        elements = self.project.get_structural_elements().values()
         tube = TubeActor(elements, self.project)
         tube.build()
         tube.getActor().GetProperty().SetOpacity(0.05)
@@ -160,7 +160,7 @@ class RendererMesh(vtkRendererBase):
     
     def saveElementsBounds(self):
         self.elementsBounds.clear()
-        for key, element in self.project.get_elements().items():
+        for key, element in self.project.get_structural_elements().items():
             firstNode = element.first_node.coordinates
             lastNode = element.last_node.coordinates
 
@@ -243,13 +243,13 @@ class RendererMesh(vtkRendererBase):
 
     
     def plotElements(self):
-        elements = self.project.get_elements().values()
+        elements = self.project.get_structural_elements().values()
         actor = self.createActorElements(elements)
         actor.GetProperty().SetLineWidth(2)
         self._renderer.AddActor(actor)
     
     def plotTubes(self):
-        elements = self.project.get_elements().values()
+        elements = self.project.get_structural_elements().values()
         actor = self.createActorTubes(elements)
 
         actor.GetProperty().SetColor(0.7,0.7,0.8)

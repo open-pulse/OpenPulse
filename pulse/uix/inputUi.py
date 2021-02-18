@@ -483,6 +483,7 @@ class InputUi:
     def plotStructuralModeShapes(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
+        self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID == 2:
             if solution is None:
@@ -497,6 +498,7 @@ class InputUi:
     def plotDisplacementField(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = False
+        self.project.plot_stress_field = False
         solution = self.project.get_structural_solution()
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
@@ -510,6 +512,7 @@ class InputUi:
 
     def plotAcousticModeShapes(self):
         self.project.plot_pressure_field = True
+        self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID == 4:
             if solution is None:
@@ -524,6 +527,7 @@ class InputUi:
     def plotAcousticPressureField(self):
         self.project.set_min_max_type_stresses("", "", "")
         self.project.plot_pressure_field = True
+        self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
         if self.analysis_ID in [3,5,6]:
             if solution is None:
@@ -558,7 +562,7 @@ class InputUi:
 
     def plotStressField(self):
         self.project.plot_pressure_field = False
-        
+        self.project.plot_stress_field = True
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:

@@ -35,9 +35,9 @@ class opvRenderer(vtkRendererBase):
         self.saveElementsBounds()
 
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
-        self.opvLines = LinesActor(self.project.get_elements(), self.project)
-        self.opvTubes = TubeActor(self.project.get_elements(), self.project)
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_elements(), self.project)
+        self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
+        self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
+        self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
 
         self.opvTubes.build()
         self.opvNodes.build()
@@ -103,7 +103,7 @@ class opvRenderer(vtkRendererBase):
 
     def saveElementsBounds(self):
         self.elementsBounds.clear()
-        for key, element in self.project.get_elements().items():
+        for key, element in self.project.get_structural_elements().items():
             firstNode = element.first_node.coordinates
             lastNode = element.last_node.coordinates
 

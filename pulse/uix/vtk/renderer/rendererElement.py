@@ -85,7 +85,7 @@ class RendererElement(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        for key, element in self.project.get_elements().items():
+        for key, element in self.project.get_structural_elements().items():
             plot = ActorElement(element, key)
             plot.build()
             self.actors[plot.getActor()] = key

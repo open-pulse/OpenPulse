@@ -101,7 +101,7 @@ class TubeActor(vtkActorBase):
         c.DeepCopy(self._colors)
         for key, element in self.elements.items():
             index = self._key_index[key]
-            color = self.colorTable.get_color_by_id(element.first_node.global_index)
+            color = self.colorTable.get_color(element)
             c.SetTuple(index, color)
 
         self._data.GetPointData().SetScalars(c)

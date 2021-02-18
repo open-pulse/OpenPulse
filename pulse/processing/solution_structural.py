@@ -323,7 +323,7 @@ class SolutionStructural:
             return dict_reactions_at_springs, dict_reactions_at_dampers
 
 
-    def stress_calculate(self, global_damping, pressure_external = 0, damping_flag = False):
+    def stress_calculate(self, global_damping, pressure_external = 0, damping_flag = False, _real_values=False):
         self.stress_field_dict = {}
         if damping_flag:
             _, betaH, _, betaV = global_damping
@@ -377,17 +377,21 @@ class SolutionStructural:
                     p = np.zeros((2, len(self.frequencies)))
                 pm = np.sum(p,axis=0)/2
                 hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
-
-                element.stress = np.c_[element.internal_load[0]/area,
+                   
+                stress_data = np.c_[    element.internal_load[0]/area,
                                         element.internal_load[2] * ro/Iy,
                                         element.internal_load[1] * ro/Iz,
                                         hoop_stress,
                                         element.internal_load[3] * ro/J,
                                         element.internal_load[4]/area,
-                                        element.internal_load[5]/area].T
+                                        element.internal_load[5]/area   ].T
+                
+                if _real_values:
+                    element.stress = np.real(stress_data)
+                else:
+                    element.stress = stress_data
 
             self.stress_field_dict[element.index] = element.stress
-            # print(element.stress.shape)
             
         return self.stress_field_dict
 
