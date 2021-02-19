@@ -256,12 +256,21 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
+            
             a = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
             a.removeShaftRadius()
             a.setNormalizedColor([0, 1, 1])
             a.setShiftValue(shift)
             a.build()
             arrows.append(a.getActor())
+
+            b = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
+            b.removeShaftRadius()
+            b.setNormalizedColor([0,1,1])
+            b.setShiftValue(6.5*shift)
+            b.build()
+            arrows.append(b.getActor())
+
         return arrows
 
     def getArrowMomento(self, node, shift=0.01):
@@ -297,6 +306,14 @@ class vtkSymbols:
             a.setShiftValue(shift)
             a.build()
             arrows.append(a.getActor())
+
+            b = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
+            b.setNormalizedColor([0,0,1])
+            b.setShiftValue(6.5*shift)
+            b.removeShaftRadius()
+            b.build()
+            arrows.append(b.getActor())
+
         return arrows
 
     def getReal(self, vector):

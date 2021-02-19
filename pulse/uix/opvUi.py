@@ -37,6 +37,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.currentFrequencyIndice = -1
         self.needResetCamera = True
 
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+
         self.inputObject = None
 
         #Set initial plot & config
@@ -177,7 +180,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(True)
 
         # self._updateAxes()
-
+        self.change_plot_to_entities = True
+        self.change_plot_to_mesh = False
         self.setRenderer(self.rendererEntity)
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
@@ -196,6 +200,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(False)
 
         # self._updateAxes()
+        self.change_plot_to_mesh = True
+        self.change_plot_to_entities = False
 
         self.setRenderer(self.rendererMesh)
         self.rendererMesh.resetCamera()
