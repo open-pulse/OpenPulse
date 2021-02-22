@@ -39,7 +39,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.reset()
 
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
-        self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project)
+        self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project)#, pressure_plot=True)
 
         self.opvPressureTubes.transparent = False
 
@@ -47,7 +47,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
-
+    
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()
