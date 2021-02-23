@@ -90,6 +90,6 @@ class ActorArrow(vtkActorBase):
         self._mapper.ScalarVisibilityOff()
 
     def actor(self):
+        self.transform()
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().SetColor(self.normalizedColor)
-        self.transform()

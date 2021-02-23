@@ -6,11 +6,13 @@ from scipy.spatial.transform import Rotation
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project):
+    def __init__(self, elements, project, **kwargs):
         super().__init__()
 
         self.elements = elements
         self.project = project
+        self.pressure_plot = kwargs.get('pressure_plot', False)
+        
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
         self.transparent = True
@@ -49,6 +51,9 @@ class TubeActor(vtkActorBase):
         counter = 0
 
         for element in self.elements.values():
+            # Do not plot beam elements in pressure plot if possible
+            # if self.pressure_plot and element.element_type in ['beam_1']:
+            #     continue
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
             section_rotation_xyz = element.section_rotation_xyz_undeformed
@@ -101,7 +106,7 @@ class TubeActor(vtkActorBase):
         c.DeepCopy(self._colors)
         for key, element in self.elements.items():
             index = self._key_index[key]
-            color = self.colorTable.get_color_by_id(element.first_node.global_index)
+            color = self.colorTable.get_color(element)
             c.SetTuple(index, color)
 
         self._data.GetPointData().SetScalars(c)
@@ -126,6 +131,9 @@ class TubeActor(vtkActorBase):
             inner_points = []
         else:
             outer_points, inner_points = element.cross_section.get_cross_section_points()
+            if self.pressure_plot and element.element_type not in ['beam_1']:
+                outer_points = inner_points.copy()
+                inner_points = []
 
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
@@ -151,11 +159,12 @@ class TubeActor(vtkActorBase):
 
         # create external polygon
         outerData.SetPoints(points)
-        delaunay.SetProjectionPlaneMode(2)
-        delaunay.SetInputData(outerData)
 
         #TODO: clean-up the structure below
         if number_inner_points >= 3:
+            
+            delaunay.SetProjectionPlaneMode(2)
+            delaunay.SetInputData(outerData)
 
             # remove inner area for holed sections
 

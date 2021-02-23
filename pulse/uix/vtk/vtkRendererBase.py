@@ -9,6 +9,7 @@ class vtkRendererBase(ABC):
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
         self._textActor = vtk.vtkTextActor()
+        self.textActorStress = vtk.vtkTextActor()
         self.actors = {}
         self._inUse = False
         self._usePicker = True

@@ -68,6 +68,7 @@ class Project:
         self.flag_set_material = False
         self.flag_set_crossSection = False
         self.plot_pressure_field = False
+        self.plot_stress_field = False
         self.is_file_loaded = False
 
         self.time_to_process_cross_sections = None
@@ -648,11 +649,14 @@ class Project:
     def get_nodes_bc(self):
         return self.mesh.nodes_with_prescribed_dofs
 
-    def get_elements(self):
+    def get_structural_elements(self):
         return self.mesh.structural_elements
     
     def get_structural_element(self, element_id):
         return self.mesh.structural_elements[element_id]
+
+    def get_acoustic_elements(self):
+        return self.mesh.acoustic_elements    
 
     def get_acoustic_element(self, element_id):
         return self.mesh.acoustic_elements[element_id]
@@ -797,9 +801,6 @@ class Project:
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.mesh.nodesAcousticBC
 
-    def get_acoustic_elements(self):
-        return self.mesh.acoustic_elements
-
     def load_acoustic_pressure_bc_by_node(self, node_id, bc):
         self.mesh.set_acoustic_pressure_bc_by_node(node_id, bc)
 
@@ -932,10 +933,10 @@ class Project:
     def get_structural_natural_frequencies(self):
         return self.natural_frequencies_structural
 
-    def get_unit(self, stress=False):
+    def get_unit(self):
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
-            if (analysis in [3,5,6] and self.plot_pressure_field) or stress:
+            if (analysis in [3,5,6] and self.plot_pressure_field) or self.plot_stress_field:
                 return "Pa"
             elif analysis in [5,6] and not self.plot_pressure_field:
                 return "m"            

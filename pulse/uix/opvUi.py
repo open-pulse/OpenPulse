@@ -37,6 +37,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.currentFrequencyIndice = -1
         self.needResetCamera = True
 
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+
         self.inputObject = None
 
         #Set initial plot & config
@@ -177,7 +180,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(True)
 
         # self._updateAxes()
-
+        self.change_plot_to_entities = True
+        self.change_plot_to_mesh = False
         self.setRenderer(self.rendererEntity)
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
@@ -196,6 +200,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(False)
 
         # self._updateAxes()
+        self.change_plot_to_mesh = True
+        self.change_plot_to_entities = False
 
         self.setRenderer(self.rendererMesh)
         self.rendererMesh.resetCamera()
@@ -221,9 +227,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         if pressure_field_plot:
             self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
         elif stress_field_plot:
-            # please be more carefull when calling this function and select
-            # at least one between pressure_field_plot or stress_field_plot
-            # then remove this "True or" statement
             self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
         else:
             self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)

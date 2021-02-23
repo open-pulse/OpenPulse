@@ -123,11 +123,17 @@ class PlotStressFieldInput(QDialog):
         self.stress_key = self.keys[self.mask][0]
 
         if self.stress_data == [] or self.update_damping:
-            self.stress_data = self.solve.stress_calculate(self.damping, pressure_external = 0, damping_flag = self.flag_damping_effect)
+            self.stress_data = self.solve.stress_calculate( self.damping, 
+                                                            pressure_external = 0, 
+                                                            damping_flag = self.flag_damping_effect, 
+                                                            _real_values = True )
             self.update_damping = False
-        self.stress_field = np.real([array[self.stress_key, self.selected_index] for array in self.stress_data.values()])
+            
+        self.stress_field = { key:array[self.stress_key, self.selected_index] for key, array in self.stress_data.items() }
         self.project.set_stresses_values_for_color_table(self.stress_field)
-        self.project.set_min_max_type_stresses(np.min(self.stress_field), np.max(self.stress_field), self.stress_label)
+        self.project.set_min_max_type_stresses( np.min(list(self.stress_field.values())), 
+                                                np.max(list(self.stress_field.values())), 
+                                                self.stress_label )
         self.opv.changeAndPlotAnalysis(self.selected_index, stress_field_plot=True)
 
     def load(self):
