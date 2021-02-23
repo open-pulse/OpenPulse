@@ -124,17 +124,29 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
+        if (element.cross_section is None):
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(3)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(1e-6)
+            return poly
 
-        # we should get this info like this
-        if element.cross_section is None:
-            outer_points = [(0,0), (0,1e-6), (1e-6,0)]
-            inner_points = []
-        else:
-            outer_points, inner_points = element.cross_section.get_cross_section_points()
-            if self.pressure_plot and element.element_type not in ['beam_1']:
-                outer_points = inner_points.copy()
-                inner_points = []
+        if self.pressure_plot and (element.element_type in ['beam_1']):
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(3)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(1e-6)
+            return poly
 
+        if self.pressure_plot and (element.element_type not in ['beam_1']):
+            r = element.cross_section.external_radius
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(20)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(r)
+            return poly
+
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
         
@@ -167,7 +179,6 @@ class TubeActor(vtkActorBase):
             delaunay.SetInputData(outerData)
 
             # remove inner area for holed sections
-
             for i in range(number_inner_points):
                 innerPolygon.GetPointIds().InsertNextId(i)
 
