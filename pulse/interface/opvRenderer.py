@@ -27,8 +27,6 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes = None 
         self.opvSymbols = None
 
-        self.opvDeformedTubes = None
-
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
     
@@ -41,7 +39,6 @@ class opvRenderer(vtkRendererBase):
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
         self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project)
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
 
         self.opvNodes.build()
         self.opvSymbols.build()
@@ -53,16 +50,13 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvSymbols)
         plt(self.opvLines)
         plt(self.opvTubes)
-        plt(self.opvDeformedTubes)
+        # plt(self.opvDeformedTubes)
 
         self._renderer.ResetCameraClippingRange()
         
     
     def plotDeformed(self):
-        try:
-            self.opvDeformedTubes.build()
-        except Exception as e:
-            print(e)
+        return 
 
     def showNodes(self, cond=True):
         self.opvNodes.getActor().SetVisibility(cond)
@@ -75,7 +69,7 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.getActor().SetVisibility(cond)
 
     def showDeformedTubes(self, cond=True):
-        self.opvDeformedTubes.getActor().SetVisibility(cond)
+        return
 
     # TODO: implement this
     def selectLines(self, cond):

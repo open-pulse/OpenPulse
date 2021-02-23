@@ -215,59 +215,36 @@ class RendererEntity(vtkRendererBase):
         return actor
 
     def createSectionPolygon(self, element):
+        if element.cross_section is None:
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetRadius(1)
+            return poly
+
+        if (element.element_type == 'pipe_1'):
+            r = element.cross_section.external_diameter
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(20)
+            poly.SetRadius(r)
+            return poly
 
         outer_points, inner_points = element.cross_section.get_cross_section_points()
-        number_inner_points = len(inner_points)
-        number_outer_points = len(outer_points)
-
-        # definitions
         points = vtk.vtkPoints()
-        outerData = vtk.vtkPolyData()    
-        innerPolygon = vtk.vtkPolygon()
-        innerCell = vtk.vtkCellArray()
-        innerData = vtk.vtkPolyData()
-        delaunay = vtk.vtkDelaunay2D()
-        
-        outerPolygon = vtk.vtkPolygon()
         edges = vtk.vtkCellArray()
         data = vtk.vtkPolyData()
+        poly = vtk.vtkPolygon()
         source = vtk.vtkTriangleFilter()
-
-        # create points - check the axis alignments - older version (0, y, z)
-        for y, z in inner_points:
-            points.InsertNextPoint(y, z, 0)
-
+        
         for y, z in outer_points:
             points.InsertNextPoint(y, z, 0)
 
-        # create external polygon
-        outerData.SetPoints(points)
-        delaunay.SetInputData(outerData)
+        for i in range(len(outer_points)):
+            poly.GetPointIds().InsertNextId(i)
 
-        if number_inner_points >= 3:
-
-            # remove inner area for holed sections
-            for i in range(number_inner_points):
-                innerPolygon.GetPointIds().InsertNextId(i)
-
-            innerCell.InsertNextCell(innerPolygon)
-            innerData.SetPoints(points)
-            innerData.SetPolys(innerCell) 
-            delaunay.SetSourceData(innerData)
-            delaunay.Update()
-
-            return delaunay
-
-        else:
-            for i in range(number_outer_points):
-                outerPolygon.GetPointIds().InsertNextId(i)
-            edges.InsertNextCell(outerPolygon)
-            
-            data.SetPoints(points)
-            data.SetPolys(edges)
-            source.AddInputData(data)
-
-            return source
+        edges.InsertNextCell(poly)
+        data.SetPoints(points)
+        data.SetPolys(edges)
+        source.AddInputData(data)
+        return source
     
     def generalSectionTube(self, element, section):
         start = element.first_node.coordinates
