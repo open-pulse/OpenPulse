@@ -709,7 +709,7 @@ class StructuralElement:
         text = ''
         text += f'Element ID: {self.index} \n'
         text += f'First Node ID: {self.first_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
-        text += f'Last Node ID: {self.last_node.external_index} -- Coordinates: ({self.last_node.coordinates}) [m]\n'
+        text += f'Last Node ID: {self.last_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
         text += f'Material: {self.material.name} \n'
         text += f'Strutural element type: {self.element_type} \n'
         return text

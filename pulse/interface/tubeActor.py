@@ -32,7 +32,7 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            self._actor.GetProperty().SetOpacity(0.2)
+            self._actor.GetProperty().SetOpacity(0.1)
             self._actor.GetProperty().SetLighting(False)
         else:
             self._actor.GetProperty().SetOpacity(1)
@@ -61,7 +61,7 @@ class TubeActor(vtkActorBase):
             rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
             
-            if True or element.cross_section not in cache:
+            if element.cross_section not in cache:
                 cache[element.cross_section] = counter
                 source = self.createTubeSection(element)
                 self._mapper.SetSourceData(counter, source)
@@ -122,112 +122,70 @@ class TubeActor(vtkActorBase):
         extruderFilter.SetScaleFactor(size)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
-        
+
     def createSectionPolygon(self, element):
-        # print(self.pressure_plot)
+
+        # we should get this info like this
         if element.cross_section is None:
-            poly = vtk.vtkRegularPolygonSource()
-            poly.SetNormal(1,0,0)
-            poly.SetRadius(1e-6)
-            return poly
+            outer_points = [(0,0), (0,1e-6), (1e-6,0)]
+            inner_points = []
+        else:
+            outer_points, inner_points = element.cross_section.get_cross_section_points()
+            if self.pressure_plot and element.element_type not in ['beam_1']:
+                outer_points = inner_points.copy()
+                inner_points = []
+
+        number_inner_points = len(inner_points)
+        number_outer_points = len(outer_points)
         
-        if (element.element_type == 'beam_1') and (self.pressure_plot):
-            poly = vtk.vtkRegularPolygonSource()
-            poly.SetNormal(1,0,0)
-            poly.SetRadius(1e-6)
-            return poly
-
-        if (element.element_type == 'pipe_1') and not (self.pressure_plot):
-            r = element.cross_section.external_diameter
-            poly = vtk.vtkRegularPolygonSource()
-            poly.SetNumberOfSides(20)
-            poly.SetNormal(1,0,0)
-            poly.SetRadius(r)
-            return poly
-
-        if (element.element_type == 'pipe_1') and (self.pressure_plot):
-            r = element.cross_section.internal_diameter
-            poly = vtk.vtkRegularPolygonSource()
-            poly.SetNumberOfSides(20)
-            poly.SetNormal(1,0,0)
-            poly.SetRadius(r)
-            return poly
-
-        outer_points, inner_points = element.cross_section.get_cross_section_points()
+        # definitions
         points = vtk.vtkPoints()
-        edges = vtk.vtkCellArray()
-        data = vtk.vtkPolyData()
-        poly = vtk.vtkPolygon()
-        source = vtk.vtkTriangleFilter()
+        outerData = vtk.vtkPolyData()    
+        innerPolygon = vtk.vtkPolygon()
+        innerCell = vtk.vtkCellArray()
+        innerData = vtk.vtkPolyData()
+        delaunay = vtk.vtkDelaunay2D()
         
+        outerPolygon = vtk.vtkPolygon()
+        edges = vtk.vtkCellArray()
+        source = vtk.vtkTriangleFilter()
+
+        # create points       
+        for y, z in inner_points:
+            points.InsertNextPoint(0, y, z)
 
         for y, z in outer_points:
             points.InsertNextPoint(0, y, z)
 
-        for i in range(len(outer_points)):
-            poly.GetPointIds().InsertNextId(i)
+        # create external polygon
+        outerData.SetPoints(points)
 
-        edges.InsertNextCell(poly)
-        data.SetPoints(points)
-        data.SetPolys(edges)
-        source.AddInputData(data)
-        return source
-
-
-
-        # outer_points, inner_points = element.cross_section.get_cross_section_points()
-
-        # number_inner_points = len(inner_points)
-        # number_outer_points = len(outer_points)
-        
-        # # definitions
-        # points = vtk.vtkPoints()
-        # outerData = vtk.vtkPolyData()    
-        # innerPolygon = vtk.vtkPolygon()
-        # innerCell = vtk.vtkCellArray()
-        # innerData = vtk.vtkPolyData()
-        # delaunay = vtk.vtkDelaunay2D()
-        
-        # outerPolygon = vtk.vtkPolygon()
-        # edges = vtk.vtkCellArray()
-        # source = vtk.vtkTriangleFilter()
-
-        # # create points       
-        # for y, z in inner_points:
-        #     points.InsertNextPoint(0, y, z)
-
-        # for y, z in outer_points:
-        #     points.InsertNextPoint(0, y, z)
-
-        # # create external polygon
-        # outerData.SetPoints(points)
-
-        # #TODO: clean-up the structure below
-        # if number_inner_points >= 3:
+        #TODO: clean-up the structure below
+        if number_inner_points >= 3:
             
-        #     delaunay.SetProjectionPlaneMode(2)
-        #     delaunay.SetInputData(outerData)
+            delaunay.SetProjectionPlaneMode(2)
+            delaunay.SetInputData(outerData)
 
-        #     # remove inner area for holed sections
+            # remove inner area for holed sections
 
-        #     for i in range(number_inner_points):
-        #         innerPolygon.GetPointIds().InsertNextId(i)
+            for i in range(number_inner_points):
+                innerPolygon.GetPointIds().InsertNextId(i)
 
-        #     innerCell.InsertNextCell(innerPolygon)
-        #     innerData.SetPoints(points)
-        #     innerData.SetPolys(innerCell) 
-        #     delaunay.SetSourceData(innerData)
-        #     delaunay.Update()
+            innerCell.InsertNextCell(innerPolygon)
+            innerData.SetPoints(points)
+            innerData.SetPolys(innerCell) 
+            delaunay.SetSourceData(innerData)
+            delaunay.Update()
 
-        #     return delaunay
+            return delaunay
 
-        # else:
+        else:
             
-        #     # prevents bugs on the outer section
-        #     for i in range(number_outer_points):
-        #         outerPolygon.GetPointIds().InsertNextId(i)
-        #     edges.InsertNextCell(outerPolygon)
+            # prevents bugs on the outer section
+            for i in range(number_outer_points):
+                outerPolygon.GetPointIds().InsertNextId(i)
+            edges.InsertNextCell(outerPolygon)
             
-        #     outerData.SetPolys(edges)
-        #     source.AddInputData(outerData)
-        #     return source
+            outerData.SetPolys(edges)
+            source.AddInputData(outerData)
+            return source
