@@ -33,7 +33,7 @@ class MenuItems(QTreeWidget):
         """Create some variables to define the name of the items in the menu"""
         self.name_top_structuralmodelSetup = "Structural Model Setup"
         self.name_child_setStructuralElementType = "Set Structural Element Type"
-        self.name_child_setRotationDecoupling = "Set Rotation Decoupling (B2PX)"
+        self.name_child_setRotationDecoupling = "Set Rotation Decoupling"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
         self.name_child_setPrescribedDofs = "Set Prescribed DOFs"

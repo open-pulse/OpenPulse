@@ -271,7 +271,9 @@ class ProjectFile:
                         offset_z = float(offset_z)
                         insulation_thickness = float(insulation_thickness)
                         insulation_density = float(insulation_density)
-                        cross = CrossSection(diam_ext, thickness, offset_y, offset_z, insulation_thickness=insulation_thickness, insulation_density=insulation_density)
+                        cross = CrossSection(   diam_ext, thickness, offset_y, offset_z, 
+                                                insulation_thickness=insulation_thickness, 
+                                                insulation_density=insulation_density   )
                         self.dict_cross[entity] = [cross, get_list_elements]
                     except Exception as err:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
@@ -314,9 +316,13 @@ class ProjectFile:
                         else:
                             list_section_parameters = None
                             shear_coefficient = float(shear_coefficient)
-                        cross = CrossSection(   external_diameter, 0, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
+                        cross = CrossSection(   external_diameter, 0, 0, 0, 
+                                                area=area, 
+                                                Iyy=Iyy, 
+                                                Izz=Izz, 
+                                                Iyz=Iyz, 
                                                 additional_section_info=[section_type, list_section_parameters], 
-                                                shear_coefficient=_shear_coefficient[0])
+                                                shear_coefficient=_shear_coefficient[0]   )
                         
                         self.dict_cross[entity] = cross
                         
@@ -349,7 +355,7 @@ class ProjectFile:
                         cross = CrossSection(   diam_ext, thickness, offset_y, offset_z, 
                                                 insulation_thickness=insulation_thickness, 
                                                 insulation_density=insulation_density, 
-                                                additional_section_info=section_info)
+                                                additional_section_info=section_info   )
                         self.dict_cross[entity] = cross
                     except Exception as err:
                         title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"

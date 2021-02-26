@@ -219,7 +219,6 @@ class Project:
             insulation_density = element.cross_section.insulation_density
 
             e_type  = element.element_type
-
             if e_type is None:
                 e_type = 'pipe_1'
                 self.acoustic_analysis = True
