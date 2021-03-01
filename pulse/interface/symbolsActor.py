@@ -1,5 +1,6 @@
 from collections import namedtuple
 import vtk
+from time import time
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
@@ -14,8 +15,10 @@ Symbol = namedtuple('Symbol', ['source', 'position', 'rotation', 'color'])
 class SymbolsActor(vtkActorBase):
     PRESCRIBED_POSITION_SYMBOL = loadSymbol('pulse/interface/symbols/prescribedPosition.obj')
     PRESCRIBED_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/prescribedRotation.obj')
-    # NODAL_LOAD_POSITION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadPosition.obj')
-    # NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadRotation.obj')
+    NODAL_LOAD_POSITION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadPosition.obj')
+    NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadRotation.obj')
+    DUMPER_SYMBOL = loadSymbol('pulse/interface/symbols/dumper.obj')
+    SPRING_SYMBOL = loadSymbol('pulse/interface/symbols/spring.obj')
 
     def __init__(self, nodes, project):
         super().__init__()
@@ -38,7 +41,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetInputData(self._data)
         self._mapper.SetSourceIndexArray('sources')
         self._mapper.SetOrientationArray('rotations')
-        self._mapper.SetScaleFactor(0.1)
+        self._mapper.SetScaleFactor(0.3)
         
         self._mapper.SourceIndexingOn()
         self._mapper.SetOrientationModeToRotation()
@@ -71,8 +74,10 @@ class SymbolsActor(vtkActorBase):
         # HERE YOU SET THE INDEXES OF THE SOURCES
         self._mapper.SetSourceData(0, self.PRESCRIBED_POSITION_SYMBOL)
         self._mapper.SetSourceData(1, self.PRESCRIBED_ROTATION_SYMBOL)
-        # self._mapper.SetSourceData(2, self.NODAL_LOAD_POSITION_SYMBOL)
-        # self._mapper.SetSourceData(3, self.NODAL_LOAD_ROTATION_SYMBOL)
+        self._mapper.SetSourceData(2, self.NODAL_LOAD_POSITION_SYMBOL)
+        self._mapper.SetSourceData(3, self.NODAL_LOAD_ROTATION_SYMBOL)
+        self._mapper.SetSourceData(4, self.DUMPER_SYMBOL)
+        self._mapper.SetSourceData(5, self.SPRING_SYMBOL)
 
     
     def _createSymbol(self, symbol):
@@ -86,72 +91,169 @@ class SymbolsActor(vtkActorBase):
         symbols = []
         symbols.extend(self._getPrescribedPositionSymbols(node))
         symbols.extend(self._getPrescribedRotationSymbols(node))
-        symbols.extend(self._getNodalLoadDisplacement(node))
+        symbols.extend(self._getNodalLoadPosition(node))
         symbols.extend(self._getNodalLoadRotation(node))
+        symbols.extend(self._getDumper(node))
+        symbols.extend(self._getSpring(node))
         return symbols
     
     def _getPrescribedPositionSymbols(self, node):
-        offset = 0.01
-        x,y,z = node.coordinates
-        mask = [(i != None) for i in node.getStructuralBondaryCondition()[:3]]
+        offset = 0
+        x,y,z = self._getCoords(node)
+        sor = 0
+        col = (0,255,0)
 
         symbols = []
+        mask = [(i != None) for i in node.getStructuralBondaryCondition()[:3]]
+
         if mask[0]:
-            s = Symbol(source=0, position=(x-offset, y, z), rotation=(0,0,90), color=(0,255,0))
-            symbols.append(s)
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            s = Symbol(source=0, position=(x, y+offset, z), rotation=(0,180,0), color=(0,255,0))
-            symbols.append(s)
+            pos = (x, y+offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
-            s = Symbol(source=0, position=(x, y, z-offset), rotation=(-90,0,0), color=(0,255,0))
-            symbols.append(s)
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
-
 
     def _getPrescribedRotationSymbols(self, node):
         offset = 0
-        x,y,z = node.coordinates
-        mask = [(i != None) for i in node.getStructuralBondaryCondition()[3:]]
+        x,y,z = self._getCoords(node)
+        sor = 1
+        col = (0,200,200)
 
         symbols = []
+        mask = [(i != None) for i in node.getStructuralBondaryCondition()[3:]]
+        
         if mask[0]:
-            s = Symbol(source=1, position=(x-offset, y, z), rotation=(0,0,90), color=(0,200,200))
-            symbols.append(s)
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            s = Symbol(source=1, position=(x, y+offset, z), rotation=(0,180,0), color=(0,200,200))
-            symbols.append(s)
+            pos = (x, y-offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
-            s = Symbol(source=1, position=(x, y, z-offset), rotation=(-90,0,0), color=(0,200,200))
-            symbols.append(s)
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
 
-    def _getNodalLoadDisplacement(self, node):
+    def _getNodalLoadPosition(self, node):
         offset = 0.01
-        x,y,z = node.coordinates
-        mask = node.get_prescribed_loads()[:3]
+        x,y,z = self._getCoords(node)
+        sor = 2
+        col = (255,0,0)
 
         symbols = []
+        mask = node.get_prescribed_loads()[:3]
+        
         if mask[0]:
-            s = Symbol(source=0, position=(x-offset, y, z), rotation=(0,0,90), color=(255,0,0))
-            symbols.append(s)
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            s = Symbol(source=0, position=(x, y+offset, z), rotation=(0,180,0), color=(255,0,0))
-            symbols.append(s)
+            pos = (x, y+offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
-            s = Symbol(source=0, position=(x, y, z-offset), rotation=(-90,0,0), color=(255,0,0))
-            symbols.append(s)
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
     
     def _getNodalLoadRotation(self, node):
-        mask = node.get_prescribed_loads()[3:]
-        return []
+        offset = 0.01
+        x,y,z = self._getCoords(node)
+        sor = 3
+        col = (0,0,255)
 
+        symbols = []
+        mask = node.get_prescribed_loads()[3:]
+        
+        if mask[0]:
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[1]:
+            pos = (x, y+offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[2]:
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        
+        return symbols
+    
+    def _getDumper(self, node):
+        offset = 0.01
+        x,y,z = self._getCoords(node)
+        sor = 4
+        col = (255,0,100)
+
+        symbols = []
+        mask = node.get_lumped_dampings()[:3]
+
+        if mask[0]:
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[1]:
+            pos = (x, y+offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[2]:
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        
+        return symbols
+    
+    def _getSpring(self, node):
+        offset = 0.01
+        x,y,z = self._getCoords(node)
+        sor = 5
+        col = (242,121,0)
+
+        symbols = []
+        mask = node.get_lumped_stiffness()[:3]
+
+        if mask[0]:
+            pos = (x-offset, y, z)
+            rot = (0,0,90)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[1]:
+            pos = (x, y+offset, z)
+            rot = (0,0,180)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+
+        if mask[2]:
+            pos = (x, y, z-offset)
+            rot = (-90,0,0)
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        
+        return symbols
+    
+    def _getCoords(self, node):
+        # it may look a little dumb, but will make it easy
+        # to switch between standard and deformed coordinates
+        return node.coordinates
