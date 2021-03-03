@@ -30,3 +30,6 @@ class vtkActorBase(ABC):
 
     def getActor(self):
         return self._actor
+    
+    def setVisibility(self, cond):
+        self._actor.SetVisibility(cond)
