@@ -147,7 +147,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.rendererMesh.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererAnalysis.getRenderer())
 
-        self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
+        # i have no idea why, but if this line is not disabled, symbolsActor breaks
+        # self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.rendererEntity.setInUse(False)

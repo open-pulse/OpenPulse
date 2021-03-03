@@ -32,7 +32,7 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            self._actor.GetProperty().SetOpacity(0.1)
+            self._actor.GetProperty().SetOpacity(0.2)
             self._actor.GetProperty().SetLighting(False)
         else:
             self._actor.GetProperty().SetOpacity(1)
@@ -51,9 +51,6 @@ class TubeActor(vtkActorBase):
         counter = 0
 
         for element in self.elements.values():
-            # Do not plot beam elements in pressure plot if possible
-            # if self.pressure_plot and element.element_type in ['beam_1']:
-            #     continue
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
             section_rotation_xyz = element.section_rotation_xyz_undeformed
