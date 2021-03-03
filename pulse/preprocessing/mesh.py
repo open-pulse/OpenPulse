@@ -26,7 +26,7 @@ class Mesh:
         self.structural_elements = {}
         self.acoustic_elements = {}
         self.neighbours = {}
-        self.dict_entities = {}
+        self.dict_tag_to_entity = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
@@ -161,7 +161,7 @@ class Mesh:
                 
             self.all_lines.append(tag)
             self.entities.append(newEntity)
-            self.dict_entities[tag] = newEntity
+            self.dict_tag_to_entity[tag] = newEntity
 
         gmsh.model.mesh.removeDuplicateNodes()
 
@@ -281,7 +281,7 @@ class Mesh:
             newEntity.insertEdge(edges)
             
         self.entities.append(newEntity)
-        self.dict_entities[1] = newEntity
+        self.dict_tag_to_entity[1] = newEntity
         #Ordering global indexes
         for index, node in enumerate(self.nodes.values()):
             node.global_index = index
@@ -362,11 +362,11 @@ class Mesh:
             dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
         return dict_structural_to_acoustic_elements 
 
-    def get_dict_of_entities(self):
-        dict_tag_entity={}
-        for entity in self.entities:
-            dict_tag_entity[entity.tag] = entity
-        return dict_tag_entity
+    # def get_dict_of_entities(self):
+    #     dict_tag_entity={}
+    #     for entity in self.entities:
+    #         dict_tag_entity[entity.tag] = entity
+    #     return dict_tag_entity
 
     def _reset_global_indexes(self):
         for node in self.nodes.values():

@@ -239,6 +239,8 @@ class SpecificImpedanceInput(QDialog):
     def load_nodes_info(self):
         for node in self.project.mesh.nodes_with_specific_impedance:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.specific_impedance))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)            
             self.treeWidget_specific_impedance.addTopLevelItem(new)
 
     def on_click_item(self, item):

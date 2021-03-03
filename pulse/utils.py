@@ -485,12 +485,11 @@ def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
                 keys = list(config[entry_id].keys())
 
                 for key_to_remove in keys_to_remove:
-                    for key in keys:
-                        if key_to_remove in key:
-                            bc_removed = True
-                            config.remove_option(section=entry_id, option=key)
-                            if list(config[entry_id].keys())==[]:
-                                config.remove_section(entry_id)
+                    if key_to_remove in keys:
+                        bc_removed = True
+                        config.remove_option(section=entry_id, option=key_to_remove)
+                        if list(config[entry_id].keys())==[]:
+                            config.remove_section(section=entry_id)
            
             if bc_removed:
                 with open(path, 'w') as config_file:

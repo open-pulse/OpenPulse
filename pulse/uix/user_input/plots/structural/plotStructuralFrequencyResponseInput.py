@@ -129,6 +129,16 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
+        self.radioButton_NoneDiff = self.findChild(QRadioButton, 'radioButton_NoneDiff')
+        self.radioButton_SingleDiff = self.findChild(QRadioButton, 'radioButton_SingleDiff')
+        self.radioButton_DoubleDiff = self.findChild(QRadioButton, 'radioButton_DoubleDiff')
+        self.radioButton_NoneDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
+        self.radioButton_SingleDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
+        self.radioButton_DoubleDiff.clicked.connect(self.radioButtonEvent_modify_spectrum)
+        self.NoneDiff = self.radioButton_NoneDiff.isChecked()
+        self.SingleDiff = self.radioButton_SingleDiff.isChecked()
+        self.DoubleDiff = self.radioButton_DoubleDiff.isChecked()
+
         self.tabWidget_plot_results = self.findChild(QTabWidget, "tabWidget_plot_results")
         self.tab_plot = self.tabWidget_plot_results.findChild(QWidget, "tab_plot")
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
@@ -173,6 +183,11 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def radioButtonEvent_save_data(self):
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
+
+    def radioButtonEvent_modify_spectrum(self):
+        self.NoneDiff = self.radioButton_NoneDiff.isChecked()
+        self.SingleDiff = self.radioButton_SingleDiff.isChecked()
+        self.DoubleDiff = self.radioButton_DoubleDiff.isChecked()
 
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
@@ -233,35 +248,51 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return True
 
+        if self.SingleDiff:
+            _unit_label = "m/s"
+        elif self.DoubleDiff:
+            _unit_label = "m/s²"
+        else:
+            _unit_label = "m"    
+
         if self.radioButton_ux.isChecked():
             self.localDof = 0
             self.localdof_label = "Ux"
-            self.unit_label = "m"
+            self.unit_label = _unit_label
+
 
         if self.radioButton_uy.isChecked():
             self.localDof = 1
             self.localdof_label = "Uy"
-            self.unit_label = "m"
+            self.unit_label = _unit_label
 
         if self.radioButton_uz.isChecked():
             self.localDof = 2
             self.localdof_label = "Uz"
-            self.unit_label = "m"
+            self.unit_label = _unit_label
  
+        if self.SingleDiff:
+            _unit_label = "rad/s"
+        elif self.DoubleDiff:
+            _unit_label = "rad/s²"
+        else:
+            _unit_label = "rad"
+
         if self.radioButton_rx.isChecked():
             self.localDof = 3
             self.localdof_label = "Rx"
-            self.unit_label = "rad"
+            self.unit_label = _unit_label
+
 
         if self.radioButton_ry.isChecked():
             self.localDof = 4
             self.localdof_label = "Ry"
-            self.unit_label = "rad"
+            self.unit_label = _unit_label
 
         if self.radioButton_rz.isChecked():
             self.localDof = 5
             self.localdof_label = "Rz"
-            self.unit_label = "rad"
+            self.unit_label = _unit_label
         
         if not export:
             self.plot()
@@ -287,12 +318,12 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+        response = self.get_response()
+
         if self.save_Absolute:
-            response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(self.unit_label, self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}]").format(self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
@@ -301,19 +332,33 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         message = "The results have been exported."
         PrintMessageInput([title, message, window_title2])
 
+    def get_response(self):
+        response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
+        if self.SingleDiff:
+            output_data = response*(1j*2*np.pi)*self.frequencies
+        elif self.DoubleDiff:
+            output_data = response*((1j*2*np.pi*self.frequencies)**2)
+        else:
+            output_data = response
+        return output_data
+
     def plot(self):
 
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
-        response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
+        response = self.get_response()
 
         if self.plotAbs:
+            response = np.abs(response)
             ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+            ax.set_yscale('log', nonposy='clip')
         elif self.plotReal:
+            response = np.real(response)
             ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
         elif self.plotImag:
+            response = np.imag(response)
             ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
 
         #cursor = Cursor(ax)
@@ -324,10 +369,12 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         if self.imported_data is None:
                 
             if any(value<=0 for value in response):
-                first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            else:    
+                if any(value<=0 for value in response[1:]):
+                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+                else:
+                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
+            else: 
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-                # second_plot, = plt.semilogy(data[:,0], np.abs(data[:,1]+1j*data[:,2]), color=[0,0,1], linewidth=1)
             _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
 
         else:
@@ -343,8 +390,12 @@ class PlotStructuralFrequencyResponseInput(QDialog):
                 imported_Yvalues = data[:,2]
 
             if any(value<=0 for value in response) or any(value<=0 for value in imported_Yvalues):
-                first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
-                second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+                if any(value<=0 for value in response[1:]) or any(value<=0 for value in imported_Yvalues[1:]):
+                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
+                    second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+                else:
+                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
+                    second_plot, = plt.semilogy(imported_Xvalues[1:], imported_Yvalues[1:], color=[0,0,1], linewidth=1, linestyle="--")
             else:    
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")

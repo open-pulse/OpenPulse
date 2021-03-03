@@ -30,7 +30,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
@@ -392,7 +392,7 @@ class CrossSectionInput(QDialog):
             self.cross_section = CrossSection(  outerDiameter, thickness, offset_y, offset_z, 
                                                 insulation_density=insulation_density, 
                                                 insulation_thickness=insulation_thickness, 
-                                                additional_section_info=section_info)
+                                                additional_section_info=section_info  )
 
         self.complete = True
         self.close()

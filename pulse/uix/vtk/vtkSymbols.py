@@ -122,10 +122,10 @@ class vtkSymbols:
         a = self.getReal(node.get_lumped_dampings())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
-        if base_length/10 < element_length*1.5:
-            shift = base_length/10
+        if base_length/20 < element_length*1.5:
+            shift = base_length/20
         else:
-            shift = element_length*1.5
+            shift = element_length/2
         v = [1,2,3]
         for i in range(0,3):
             try:

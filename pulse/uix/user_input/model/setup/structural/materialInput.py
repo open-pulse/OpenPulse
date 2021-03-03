@@ -27,11 +27,11 @@ class MaterialInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         
-        self.entities_id = self.opv.getListPickedEntities()
+        self.lines_ids = self.opv.getListPickedEntities()
         self.clicked_item = None
         self.material = None
         self.flagAll = False
-        self.flagEntity = False
+        self.flagSelectedLines = False
 
         self.no_material_selected_to_edit = True
         self.no_material_selected_to_remove = True
@@ -80,15 +80,15 @@ class MaterialInput(QDialog):
         self.lineEdit_color_edit = self.findChild(QLineEdit, 'lineEdit_color_edit')
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
-        self.radioButton_entity.toggled.connect(self.radioButtonEvent)
+        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
-        if self.entities_id != []:
-            self.write_ids(self.entities_id)
-            self.radioButton_entity.setChecked(True)
+        if self.lines_ids != []:
+            self.write_ids(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
@@ -110,7 +110,7 @@ class MaterialInput(QDialog):
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
 
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
+        self.flagSelectedLines = self.radioButton_selected_lines.isChecked()
 
         self.loadList()
         self.exec_()
@@ -444,11 +444,11 @@ class MaterialInput(QDialog):
     
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
-        if self.flagEntity:
+        self.flagSelectedLines = self.radioButton_selected_lines.isChecked()
+        if self.flagSelectedLines:
             self.lineEdit_selected_ID.setEnabled(True)
-            if self.entities_id != []:
-                self.write_ids(self.entities_id)
+            if self.lines_ids != []:
+                self.write_ids(self.lines_ids)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
@@ -456,10 +456,10 @@ class MaterialInput(QDialog):
             self.lineEdit_selected_ID.setEnabled(False)
 
     def update(self):
-        self.entities_id = self.opv.getListPickedEntities()
-        if self.entities_id != []:
-            self.write_ids(self.entities_id)
-            self.radioButton_entity.setChecked(True)
+        self.lines_ids = self.opv.getListPickedEntities()
+        if self.lines_ids != []:
+            self.write_ids(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")

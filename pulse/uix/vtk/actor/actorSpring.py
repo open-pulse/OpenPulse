@@ -10,7 +10,7 @@ class ActorSpring(vtkActorBase):
         self.rT1 = 0.1
         self.rT2 = 0.5
         self.rS = 0.8
-        self.h = 10
+        self.h = 8.7
         self.nTv = 8
 
         self.node = node

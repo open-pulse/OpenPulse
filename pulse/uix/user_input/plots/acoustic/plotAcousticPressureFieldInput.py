@@ -63,6 +63,7 @@ class PlotAcousticPressureFieldInput(QDialog):
     def load(self):
         for frequency in self.frequencies:
             new = QTreeWidgetItem([str(frequency)])
+            new.setTextAlignment(0, Qt.AlignCenter)
             self.treeWidget.addTopLevelItem(new)
 
     def on_click_item(self, item):

@@ -50,7 +50,7 @@ class SnaptoCursor(object):
 
 
 class PlotStressFrequencyResponseInput(QDialog):
-    def __init__(self, project, solve, list_elements_ids, analysisMethod, *args, **kwargs):
+    def __init__(self, opv, project, solve, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/Plots/Results/Structural/plotStressFrequencyResponseInput.ui', self)
 
@@ -59,6 +59,11 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.setWindowIcon(self.icon)
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.project = project
         self.solve = solve        
@@ -77,7 +82,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.stress_data = []
         self.unit_label = "Pa"
 
-        self.writeElements(list_elements_ids)
+        self.writeElements(self.opv.getListPickedElements())
 
         self.lineEdit_elementID = self.findChild(QLineEdit, 'lineEdit_elementID')
 
@@ -163,6 +168,9 @@ class PlotStressFrequencyResponseInput(QDialog):
     def _update_damping_effect(self):
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
         self.update_damping = True
+    
+    def update(self):
+        self.writeElements(self.opv.getListPickedElements())
 
     def reset_imported_data(self):
         self.imported_data = None

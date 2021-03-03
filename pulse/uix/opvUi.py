@@ -233,6 +233,9 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.afterChangePlot()
         self._updateAxes()
+
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
         
         # # TODO: delete this 
         # self.beforeChangePlot()

@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Set capped end</string>
+   <string>Set: capped end</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
@@ -55,7 +55,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -242,6 +242,9 @@
       <italic>true</italic>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(170, 255, 255);</string>
     </property>
     <property name="text">
      <string>Reset All</string>
@@ -432,10 +435,10 @@
      <widget class="QTreeWidget" name="treeWidget_cappedEnd_elements">
       <property name="geometry">
        <rect>
-        <x>11</x>
+        <x>12</x>
         <y>42</y>
         <width>352</width>
-        <height>145</height>
+        <height>120</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -482,8 +485,8 @@
      <widget class="QPushButton" name="pushButton_remove_elem">
       <property name="geometry">
        <rect>
-        <x>192</x>
-        <y>154</y>
+        <x>196</x>
+        <y>130</y>
         <width>75</width>
         <height>30</height>
        </rect>
@@ -550,8 +553,8 @@
      <widget class="QPushButton" name="pushButton_get_information_elem">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>154</y>
+        <x>272</x>
+        <y>130</y>
         <width>90</width>
         <height>30</height>
        </rect>
@@ -584,10 +587,10 @@
      <widget class="QTreeWidget" name="treeWidget_cappedEnd_lines">
       <property name="geometry">
        <rect>
-        <x>11</x>
-        <y>192</y>
+        <x>12</x>
+        <y>166</y>
         <width>352</width>
-        <height>93</height>
+        <height>120</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -628,8 +631,8 @@
      <widget class="QPushButton" name="pushButton_get_information_line">
       <property name="geometry">
        <rect>
-        <x>270</x>
-        <y>252</y>
+        <x>272</x>
+        <y>254</y>
         <width>90</width>
         <height>30</height>
        </rect>
@@ -662,8 +665,8 @@
      <widget class="QPushButton" name="pushButton_remove_line">
       <property name="geometry">
        <rect>
-        <x>192</x>
-        <y>252</y>
+        <x>196</x>
+        <y>254</y>
         <width>75</width>
         <height>30</height>
        </rect>
@@ -702,9 +705,9 @@
     <property name="geometry">
      <rect>
       <x>132</x>
-      <y>12</y>
+      <y>10</y>
       <width>240</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -733,7 +736,7 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 0);</string>
+color: rgb(0, 0, 255);</string>
     </property>
     <property name="text">
      <string/>
@@ -749,9 +752,9 @@ color: rgb(0, 0, 0);</string>
     <property name="geometry">
      <rect>
       <x>22</x>
-      <y>12</y>
+      <y>10</y>
       <width>110</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="palette">

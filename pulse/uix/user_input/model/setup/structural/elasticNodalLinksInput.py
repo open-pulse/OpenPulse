@@ -134,8 +134,8 @@ class ElasticNodalLinksInput(QDialog):
         self.flag_stiffness_parameters = False
         self.flag_damping_parameters = False
                 
-        self.pushButton_single_input_confirm = self.findChild(QPushButton, 'pushButton_single_input_confirm')
-        self.pushButton_single_input_confirm.clicked.connect(self.single_input_confirm)
+        self.pushButton_constant_input_confirm = self.findChild(QPushButton, 'pushButton_constant_input_confirm')
+        self.pushButton_constant_input_confirm.clicked.connect(self.constant_input_confirm)
 
         self.pushButton_table_input_confirm = self.findChild(QPushButton, 'pushButton_table_input_confirm')
         self.pushButton_table_input_confirm.clicked.connect(self.table_input_confirm)
@@ -181,7 +181,7 @@ class ElasticNodalLinksInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_inputs.currentIndex() == 0:
-                self.single_input_confirm()
+                self.constant_input_confirm()
             elif self.tabWidget_inputs.currentIndex() == 1: 
                 self.table_input_confirm() 
         if event.key() == Qt.Key_Escape:
@@ -372,7 +372,7 @@ class ElasticNodalLinksInput(QDialog):
             message = 'Please insert at least a stiffness or damping value before confirming the attribution.'
             PrintMessageInput([title, message, window_title1])
 
-    def single_input_confirm(self):
+    def constant_input_confirm(self):
         if self.check_all_inputs():
             return
         if self.parameters_K is not None:

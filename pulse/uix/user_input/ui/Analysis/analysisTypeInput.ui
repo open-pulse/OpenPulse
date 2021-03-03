@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Select Analysis Type </string>
+   <string>Select analysis type </string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -282,7 +282,7 @@
      </font>
     </property>
     <property name="text">
-     <string>SELECT THE ANALYSIS OF INTEREST</string>
+     <string>SELECT THE ANALYSIS TYPE</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>

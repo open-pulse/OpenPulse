@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Harmonic Analysis: method selection</string>
+   <string>Harmonic analysis: method selection</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -89,7 +89,7 @@
      </font>
     </property>
     <property name="text">
-     <string>SELECT THE METHOD OF INTEREST</string>
+     <string>SELECT THE ANALYSIS METHOD</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -127,9 +127,21 @@
      <rect>
       <x>128</x>
       <y>74</y>
-      <width>200</width>
+      <width>190</width>
       <height>30</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>190</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>190</width>
+      <height>30</height>
+     </size>
     </property>
     <property name="font">
      <font>
@@ -139,6 +151,9 @@
       <italic>true</italic>
       <bold>true</bold>
      </font>
+    </property>
+    <property name="toolTip">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="insertPolicy">
      <enum>QComboBox::NoInsert</enum>
@@ -178,7 +193,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>14</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
