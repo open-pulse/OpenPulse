@@ -7,6 +7,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
+from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 
@@ -32,6 +33,8 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self.opvDeformedTubes = None
         self.opvPressureTubes = None
+        self.opvSymbols = None
+
         self.slider = None
         self._createSlider()
 
@@ -40,6 +43,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
         self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
+        self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project, deformed=True)
 
         self.opvPressureTubes.transparent = False
 
@@ -47,6 +51,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
+        plt(self.opvSymbols)
     
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -70,6 +75,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
+        self.opvSymbols.build()
 
         colorTable = ColorTable(self.project, u_def)
         self.opvDeformedTubes.setColorTable(colorTable)

@@ -20,11 +20,12 @@ class SymbolsActor(vtkActorBase):
     DUMPER_SYMBOL = loadSymbol('pulse/interface/symbols/dumper.obj')
     SPRING_SYMBOL = loadSymbol('pulse/interface/symbols/spring.obj')
 
-    def __init__(self, nodes, project):
+    def __init__(self, nodes, project, deformed=False):
         super().__init__()
         
         self.project = project
         self.nodes = nodes
+        self.deformed = deformed
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
@@ -52,6 +53,7 @@ class SymbolsActor(vtkActorBase):
     
     def actor(self):
         self._actor.SetMapper(self._mapper)
+        self._actor.GetProperty().BackfaceCullingOff()
 
     def _createArrays(self):
         self._sources = vtk.vtkIntArray()
@@ -63,7 +65,6 @@ class SymbolsActor(vtkActorBase):
         self._rotations.SetName('rotations')
         self._rotations.SetNumberOfComponents(3)
         self._colors.SetNumberOfComponents(3)
-        # self._colors.SetNumberOfTuples(len(self.nodes))
 
         self._data.SetPoints(self._positions)
         self._data.GetPointData().AddArray(self._rotations)
@@ -254,6 +255,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getCoords(self, node):
-        # it may look a little dumb, but will make it easy
-        # to switch between standard and deformed coordinates
-        return node.coordinates
+        if self.deformed:
+            return node.deformed_coordinates
+        else:
+            return node.coordinates
