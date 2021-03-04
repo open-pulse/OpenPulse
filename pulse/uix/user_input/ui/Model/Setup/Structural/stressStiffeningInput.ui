@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: Stress Stiffening</string>
+   <string> Set: stress stiffening</string>
   </property>
   <property name="whatsThis">
    <string/>

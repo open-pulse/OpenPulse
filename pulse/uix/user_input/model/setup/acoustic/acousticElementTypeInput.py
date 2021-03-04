@@ -26,7 +26,7 @@ class AcousticElementTypeInput(QDialog):
 
         self.project = project
         self.lines_id = self.opv.getListPickedEntities()
-        self.dict_entities = project.mesh.get_dict_of_entities()
+        self.dict_entities = project.mesh.dict_tag_to_entity#get_dict_of_entities()
         self.comboBox_index = 0
         self.element_type = 'dampingless'
         self.complete = False
@@ -52,11 +52,11 @@ class AcousticElementTypeInput(QDialog):
         # index: 4 - LRF full
         
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_entity')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selection')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
         self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_selected_lines.isChecked()
+        self.flagSelection = self.radioButton_selected_lines.isChecked()
 
         self.treeWidget_element_type = self.findChild(QTreeWidget, 'treeWidget_element_type')
         self.treeWidget_element_type.setColumnWidth(0, 150)
@@ -113,9 +113,9 @@ class AcousticElementTypeInput(QDialog):
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_selected_lines.isChecked()
+        self.flagSelection = self.radioButton_selected_lines.isChecked()
         self.lines_id  = self.opv.getListPickedEntities()
-        if self.flagEntity:
+        if self.flagSelection:
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
@@ -218,18 +218,18 @@ class AcousticElementTypeInput(QDialog):
         else:
             hysteretic_damping = None
 
-        if self.flagEntity:
+        if self.flagSelection:
             if len(self.lines_id) == 0:
                 title = "Empty line ID selection"
                 message = "Please, select the line(s) of model to continue."
                 PrintMessageInput([title, message, window_title1])
                 return
             for line in self.lines_id:
-                self.project.set_acoustic_element_type_by_entity(line, self.element_type, hysteretic_damping=hysteretic_damping)
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
             print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_id))
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
-                self.project.set_acoustic_element_type_by_entity(line, self.element_type, hysteretic_damping=hysteretic_damping)
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
             # self.project.set_acoustic_element_type_to_all(self.element_type, hysteretic_damping=hysteretic_damping)
             print("[Set Acoustic Element Type] - defined in all the entities")
         self.complete = True
@@ -274,18 +274,18 @@ class GetInformationOfGroup(QDialog):
         uic.loadUi('pulse/uix/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
-        self.dict_entities = project.mesh.dict_entities
+        self.dict_entities = project.mesh.dict_tag_to_entity
         self.key = key
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
         header = self.treeWidget_group_info.headerItem()
-        header.setText(0, "LINE")
-        header.setText(1, "ELEMENT TYPE")
+        header.setText(0, "Line")
+        header.setText(1, "Element type")
         header.setTextAlignment(0, Qt.AlignCenter)
         header.setTextAlignment(1, Qt.AlignCenter)
         
         if self.key == 'hysteretic':
-            header.setText(2, "HYSTERETIC DAMPING")
+            header.setText(2, "Hysteretic damping")
             header.setTextAlignment(2, Qt.AlignCenter)
             self.treeWidget_group_info.setColumnWidth(0, 90)
             self.treeWidget_group_info.setColumnWidth(1, 130)

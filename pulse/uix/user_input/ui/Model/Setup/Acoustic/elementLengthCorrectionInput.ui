@@ -47,21 +47,21 @@
     <property name="geometry">
      <rect>
       <x>14</x>
-      <y>4</y>
+      <y>6</y>
       <width>371</width>
-      <height>32</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>0</width>
-      <height>32</height>
+      <height>30</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>16777215</width>
-      <height>32</height>
+      <height>30</height>
      </size>
     </property>
     <property name="font">
@@ -142,28 +142,28 @@
      <widget class="QPushButton" name="pushButton_confirm">
       <property name="geometry">
        <rect>
-        <x>96</x>
+        <x>116</x>
         <y>182</y>
-        <width>171</width>
-        <height>32</height>
+        <width>150</width>
+        <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>32</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
-        <height>32</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -314,7 +314,7 @@
       <property name="geometry">
        <rect>
         <x>152</x>
-        <y>194</y>
+        <y>198</y>
         <width>80</width>
         <height>29</height>
        </rect>
@@ -334,7 +334,7 @@
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>11</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -348,7 +348,7 @@
       <property name="geometry">
        <rect>
         <x>22</x>
-        <y>38</y>
+        <y>42</y>
         <width>341</width>
         <height>150</height>
        </rect>
@@ -373,61 +373,66 @@
         <bold>true</bold>
        </font>
       </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
       <column>
        <property name="text">
         <string>Group</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
       <column>
        <property name="text">
         <string>Type</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Elements</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
-     </widget>
-     <widget class="QLabel" name="label_30">
-      <property name="geometry">
-       <rect>
-        <x>4</x>
-        <y>6</y>
-        <width>373</width>
-        <height>27</height>
-       </rect>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <property name="text">
-       <string>Select a group to remove the length correction:</string>
-      </property>
-      <property name="textFormat">
-       <enum>Qt::AutoText</enum>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignCenter</set>
-      </property>
      </widget>
      <widget class="QPushButton" name="pushButton_get_information">
       <property name="geometry">
        <rect>
         <x>268</x>
-        <y>150</y>
+        <y>154</y>
         <width>90</width>
         <height>32</height>
        </rect>
@@ -457,6 +462,49 @@
        <string>See details</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_21">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>6</y>
+        <width>360</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>360</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>360</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string>Select a group to remove the length correction:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
     </widget>
    </widget>
    <widget class="QLabel" name="label_selection">
@@ -467,6 +515,18 @@
       <width>113</width>
       <height>26</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>16777215</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>0</width>
+      <height>30</height>
+     </size>
     </property>
     <property name="font">
      <font>
@@ -488,9 +548,9 @@
     <property name="geometry">
      <rect>
       <x>130</x>
-      <y>10</y>
+      <y>8</y>
       <width>170</width>
-      <height>26</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -510,12 +570,15 @@
       <family>Arial</family>
       <pointsize>11</pointsize>
       <weight>75</weight>
-      <italic>false</italic>
+      <italic>true</italic>
       <bold>true</bold>
      </font>
     </property>
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">color: rgb(0, 0, 255);</string>
     </property>
     <property name="text">
      <string/>
@@ -527,22 +590,22 @@
    <widget class="QPushButton" name="pushButton_reset_confirm">
     <property name="geometry">
      <rect>
-      <x>310</x>
-      <y>10</y>
+      <x>308</x>
+      <y>8</y>
       <width>80</width>
-      <height>26</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>80</width>
-      <height>26</height>
+      <height>30</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>80</width>
-      <height>26</height>
+      <height>30</height>
      </size>
     </property>
     <property name="font">

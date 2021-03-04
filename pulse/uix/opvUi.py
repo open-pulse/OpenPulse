@@ -105,7 +105,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._updateAxes()
 
-
     def setRenderer(self, renderer):
         # if renderer.getInUse(): 
         #     return

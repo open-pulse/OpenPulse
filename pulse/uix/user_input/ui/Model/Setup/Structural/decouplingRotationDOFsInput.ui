@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: DOFs coupling</string>
+   <string> Set: DOFs decoupling</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -89,7 +89,7 @@
      </font>
     </property>
     <property name="text">
-     <string>DOFs Decoupling Setup</string>
+     <string>DOFs decoupling setup</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -142,8 +142,8 @@
      <widget class="QFrame" name="frame_2">
       <property name="geometry">
        <rect>
-        <x>12</x>
-        <y>6</y>
+        <x>14</x>
+        <y>8</y>
         <width>379</width>
         <height>217</height>
        </rect>
@@ -925,8 +925,8 @@
      <widget class="QFrame" name="frame_4">
       <property name="geometry">
        <rect>
-        <x>12</x>
-        <y>230</y>
+        <x>14</x>
+        <y>232</y>
         <width>379</width>
         <height>169</height>
        </rect>
@@ -1129,7 +1129,7 @@
      <widget class="QPushButton" name="pushButton_get_information_group">
       <property name="geometry">
        <rect>
-        <x>320</x>
+        <x>322</x>
         <y>368</y>
         <width>75</width>
         <height>30</height>
@@ -1163,7 +1163,7 @@
      <widget class="QPushButton" name="pushButton_remove_group">
       <property name="geometry">
        <rect>
-        <x>240</x>
+        <x>244</x>
         <y>368</y>
         <width>75</width>
         <height>30</height>
@@ -1237,15 +1237,51 @@
        <property name="text">
         <string>Decoupled DOFs</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Elements</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Nodes</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
      </widget>

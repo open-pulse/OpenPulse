@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Nodal links</string>
+   <string>Set: nodal links</string>
   </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
@@ -390,6 +390,9 @@
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -429,6 +432,9 @@
        </property>
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
        </property>
        <property name="text">
         <string/>
@@ -871,9 +877,9 @@ background-color: rgb(255, 255, 255);</string>
       <property name="currentIndex">
        <number>0</number>
       </property>
-      <widget class="QWidget" name="tab_single_values">
+      <widget class="QWidget" name="tab_constant_values">
        <attribute name="title">
-        <string>Single values</string>
+        <string>Constant values</string>
        </attribute>
        <widget class="QTabWidget" name="tabWidget_single_values">
         <property name="geometry">
@@ -954,13 +960,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_91">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1019,13 +1025,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_15">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1050,13 +1056,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_84">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1081,13 +1087,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_90">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1112,13 +1118,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_87">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1165,6 +1171,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -1199,6 +1208,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -1232,6 +1244,9 @@ background-color: rgb(255, 255, 255);</string>
                <italic>true</italic>
                <bold>true</bold>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1276,13 +1291,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_14">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1403,6 +1418,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -1471,6 +1489,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -1501,6 +1522,9 @@ background-color: rgb(255, 255, 255);</string>
                <italic>true</italic>
                <bold>true</bold>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
              </property>
              <property name="text">
               <string/>
@@ -1580,13 +1604,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_93">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1645,13 +1669,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_88">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -1698,6 +1722,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -1732,6 +1759,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -1765,6 +1795,9 @@ background-color: rgb(255, 255, 255);</string>
                <italic>true</italic>
                <bold>true</bold>
               </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -1905,6 +1938,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -1973,6 +2009,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
              </property>
@@ -2004,6 +2043,9 @@ background-color: rgb(255, 255, 255);</string>
                <bold>true</bold>
               </font>
              </property>
+             <property name="styleSheet">
+              <string notr="true">color: rgb(255, 0, 0);</string>
+             </property>
              <property name="text">
               <string/>
              </property>
@@ -2016,13 +2058,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_18">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2047,13 +2089,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_20">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2078,13 +2120,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_21">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2109,13 +2151,13 @@ background-color: rgb(255, 255, 255);</string>
             <widget class="QLabel" name="label_110">
              <property name="minimumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>0</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>80</width>
+               <width>90</width>
                <height>16777215</height>
               </size>
              </property>
@@ -2140,7 +2182,7 @@ background-color: rgb(255, 255, 255);</string>
          </widget>
         </widget>
        </widget>
-       <widget class="QPushButton" name="pushButton_single_input_confirm">
+       <widget class="QPushButton" name="pushButton_constant_input_confirm">
         <property name="geometry">
          <rect>
           <x>114</x>
@@ -2644,7 +2686,7 @@ background-color: rgb(255, 255, 255);</string>
               </size>
              </property>
              <property name="text">
-              <string>Seach</string>
+              <string>Search</string>
              </property>
              <property name="autoRaise">
               <bool>false</bool>
@@ -3285,7 +3327,7 @@ background-color: rgb(255, 255, 255);</string>
               </size>
              </property>
              <property name="text">
-              <string>Seach</string>
+              <string>Search</string>
              </property>
              <property name="autoRaise">
               <bool>false</bool>
@@ -3590,6 +3632,15 @@ background-color: rgb(255, 255, 255);</string>
        <property name="text">
         <string>Linked nodes</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="textAlignment">
         <set>AlignCenter</set>
        </property>
@@ -3597,6 +3648,15 @@ background-color: rgb(255, 255, 255);</string>
       <column>
        <property name="text">
         <string>Active Parameters</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="textAlignment">
         <set>AlignCenter</set>
@@ -3938,6 +3998,15 @@ color: rgb(0, 0, 0);</string>
        <property name="text">
         <string>Linked nodes</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="textAlignment">
         <set>AlignCenter</set>
        </property>
@@ -3945,6 +4014,15 @@ color: rgb(0, 0, 0);</string>
       <column>
        <property name="text">
         <string>Active parameters</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
        </property>
        <property name="textAlignment">
         <set>AlignCenter</set>
@@ -4072,7 +4150,7 @@ color: rgb(0, 0, 0);</string>
   <tabstop>pushButton_remove_link_damping</tabstop>
   <tabstop>pushButton_close</tabstop>
   <tabstop>pushButton_reset_all</tabstop>
-  <tabstop>pushButton_single_input_confirm</tabstop>
+  <tabstop>pushButton_constant_input_confirm</tabstop>
   <tabstop>treeWidget_nodal_links_damping</tabstop>
   <tabstop>treeWidget_nodal_links_stiffness</tabstop>
   <tabstop>pushButton_see_details_selected_link</tabstop>

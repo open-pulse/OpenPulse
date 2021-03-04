@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>684</height>
+    <height>669</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>665</height>
+    <height>669</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>700</height>
+    <height>669</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -75,7 +75,7 @@
     <property name="geometry">
      <rect>
       <x>44</x>
-      <y>48</y>
+      <y>52</y>
       <width>310</width>
       <height>415</height>
      </rect>
@@ -105,10 +105,34 @@
      <property name="text">
       <string>Mode</string>
      </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
+     </property>
     </column>
     <column>
      <property name="text">
-      <string notr="true">Natural Frequency</string>
+      <string notr="true">Natural frequency</string>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="textAlignment">
+      <set>AlignCenter</set>
      </property>
     </column>
    </widget>
@@ -121,7 +145,7 @@
       <x>168</x>
       <y>12</y>
       <width>150</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
@@ -135,7 +159,7 @@
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 0);</string>
+color: rgb(0, 0, 255);</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -147,7 +171,7 @@ color: rgb(0, 0, 0);</string>
       <x>64</x>
       <y>12</y>
       <width>100</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
@@ -208,9 +232,9 @@ color: rgb(0, 0, 0);</string>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>false</italic>
+      <italic>true</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -231,7 +255,7 @@ color: rgb(0, 0, 0);</string>
      <x>0</x>
      <y>518</y>
      <width>400</width>
-     <height>166</height>
+     <height>151</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -243,8 +267,8 @@ color: rgb(0, 0, 0);</string>
    <widget class="QWidget" name="horizontalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>88</x>
-      <y>58</y>
+      <x>82</x>
+      <y>62</y>
       <width>237</width>
       <height>29</height>
      </rect>
@@ -374,36 +398,35 @@ color: rgb(0, 0, 0);</string>
    <widget class="QPushButton" name="pushButton">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>98</y>
-      <width>280</width>
-      <height>55</height>
+      <x>74</x>
+      <y>102</y>
+      <width>252</width>
+      <height>32</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>280</width>
+      <width>252</width>
       <height>32</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>280</width>
+      <width>252</width>
       <height>55</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>14</pointsize>
+      <pointsize>12</pointsize>
       <weight>75</weight>
       <italic>true</italic>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Plot the mode shape of 
-selected natural frequency</string>
+     <string>Plot the mode shape</string>
     </property>
    </widget>
   </widget>

@@ -35,7 +35,7 @@ class DecouplingRotationDOFsInput(QDialog):
         self.structural_elements = self.project.mesh.structural_elements
         self.nodes = self.project.mesh.nodes
 
-        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
         self.node_id = self.opv.getListPickedPoints()

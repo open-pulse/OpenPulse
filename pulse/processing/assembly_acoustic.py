@@ -163,7 +163,7 @@ class AssemblyAcoustic:
                 for element in elements:
                     if element.first_node.global_index == position or element.last_node.global_index == position:
                         area_fluid = element.cross_section.area_fluid
- 
+
                 ind_Klump.append(position)
                 if data_Klump == []:
                     data_Klump = node.admittance(area_fluid, self.frequencies)

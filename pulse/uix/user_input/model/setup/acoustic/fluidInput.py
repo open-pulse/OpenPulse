@@ -34,13 +34,13 @@ class FluidInput(QDialog):
 
         self.project = project
         self.fluid_path = project.get_fluid_list_path()
-        self.entities_id = opv.getListPickedEntities()
-        # self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
-        self.dict_tag_to_entity = self.project.mesh.dict_entities
+        self.lines_ids = opv.getListPickedEntities()
+
+        self.dict_tag_to_line = self.project.mesh.dict_tag_to_entity
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
-        self.flagEntity = False
+        self.flagSelection = False
 
         self.adding = False
         self.editing = False
@@ -102,15 +102,15 @@ class FluidInput(QDialog):
         self.create_lists_of_lineEdit()
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
-        self.radioButton_entity = self.findChild(QRadioButton, 'radioButton_entity')
+        self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
-        self.radioButton_entity.toggled.connect(self.radioButtonEvent)
+        self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
-        if self.entities_id != []:
-            self.write_entities(self.entities_id)
-            self.radioButton_entity.setChecked(True)
+        if self.lines_ids != []:
+            self.write_lines(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
@@ -135,7 +135,7 @@ class FluidInput(QDialog):
         # self.tabWidget_fluid.currentChanged.connect(self.tab_event_update)
         
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
+        self.flagSelection = self.radioButton_selected_lines.isChecked()
 
         self.loadList()
         self.exec_()
@@ -146,17 +146,17 @@ class FluidInput(QDialog):
     #     self.reset_remove_texts()
 
     def update(self):
-        self.entities_id = self.opv.getListPickedEntities()
-        if self.entities_id != []:
-            self.write_entities(self.entities_id)
-            self.radioButton_entity.setChecked(True)
+        self.lines_ids = self.opv.getListPickedEntities()
+        if self.lines_ids != []:
+            self.write_lines(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(False)
 
-    def write_entities(self, list_node_ids):
+    def write_lines(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
@@ -304,25 +304,25 @@ class FluidInput(QDialog):
             
         try:
             for line in self.lines_typed:
-                entity = self.dict_tag_to_entity[line]
-                if entity.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                _line = self.dict_tag_to_line[line]
+                if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
         except Exception:
             title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
+            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_line))
             self.info_text = [title, message, window_title1]
             return True
         return False
 
-    def check_element_type_of_entities(self):
+    def check_element_type_of_lines(self):
         self.flag_all_fluid_inputs = False
-        if self.flagEntity:
+        if self.flagSelection:
             if self.check_input_lines():
                 PrintMessageInput(self.info_text)
                 return True
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
-                if self.dict_tag_to_entity[line].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                if self.dict_tag_to_line[line].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
                     return False
 
@@ -482,11 +482,11 @@ class FluidInput(QDialog):
 
         if self.clicked_item is None:
             title = "Empty fluid selection"
-            message = "Select a fluid in the list before trying to attribute a fluid to the entities."
+            message = "Select a fluid in the list before trying to attribute a fluid to the lines."
             PrintMessageInput([title, message, window_title1])
             return
         
-        self.check_element_type_of_entities()
+        self.check_element_type_of_lines()
         
         try:
             isentropic_exponent = None
@@ -504,7 +504,7 @@ class FluidInput(QDialog):
             
             title = "Empty entries in fluid properties"
             message = "Please, it is necessary update the fluid properties or select another fluid in the list " 
-            message += "before trying to attribute a fluid to the entities."
+            message += "before trying to attribute a fluid to the lines."
             message += "\n\nEmpty entries:\n"
             
             if self.clicked_item.text(6) != "":
@@ -543,23 +543,23 @@ class FluidInput(QDialog):
                                 specific_heat_Cp = specific_heat_Cp,
                                 dynamic_viscosity = dynamic_viscosity )
 
-            if self.flagEntity:
+            if self.flagSelection:
 
-                if len(self.entities_id) == 0:
+                if len(self.lines_ids) == 0:
                     return
-                for entity in self.entities_id:
-                    self.project.set_fluid_by_entity(entity, self.fluid)
+                for line in self.lines_ids:
+                    self.project.set_fluid_by_line(line, self.fluid)
                     
-                print("[Set Fluid] - {} defined in the entities {}".format(self.fluid.name, self.entities_id))
-                self.opv.changeColorEntities(self.entities_id, self.fluid.getNormalizedColorRGB())
+                print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_ids))
+                self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
             
             elif self.flagAll:
 
-                self.project.set_fluid_to_all_entities(self.fluid)
-                entities = self.project.mesh.all_lines
+                self.project.set_fluid_to_all_lines(self.fluid)
+                lines = self.project.mesh.all_lines
 
-                print("[Set Fluid] - {} defined in all entities".format(self.fluid.name))
-                self.opv.changeColorEntities(entities, self.fluid.getNormalizedColorRGB())
+                print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
+                self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
 
             self.close()
 
@@ -676,12 +676,12 @@ class FluidInput(QDialog):
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
-        self.flagEntity = self.radioButton_entity.isChecked()
-        if self.flagEntity:
+        self.flagSelection = self.radioButton_selected_lines.isChecked()
+        if self.flagSelection:
             self.lineEdit_selected_ID.setEnabled(True)
-            self.entities_id = self.opv.getListPickedEntities()
-            if self.entities_id != []:
-                self.write_entities(self.entities_id)
+            self.lines_ids = self.opv.getListPickedEntities()
+            if self.lines_ids != []:
+                self.write_lines(self.lines_ids)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
@@ -733,9 +733,9 @@ class FluidInput(QDialog):
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
-                for tag, entity in self.dict_tag_to_entity.items():
-                    if entity.fluid.name == self.lineEdit_name_remove.text():
-                        self.project.set_fluid_by_entity(tag, None)
+                for tag, line in self.dict_tag_to_line.items():
+                    if line.fluid.name == self.lineEdit_name_remove.text():
+                        self.project.set_fluid_by_line(tag, None)
 
                 self.treeWidget_fluids.clear()
                 self.clicked_item = None

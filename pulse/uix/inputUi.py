@@ -116,14 +116,14 @@ class InputUi:
         if mat.material is None:
             return
 
-        if mat.flagEntity:
+        if mat.flagSelectedLines:
             # entities_id = self.opv.getListPickedEntities()
-            if len(mat.entities_id) == 0:
+            if len(mat.lines_ids) == 0:
                 return
-            for entity in mat.entities_id:
-                self.project.set_material_by_entity(entity, mat.material)
-            print("[Set Material] - {} defined in the entities {}".format(mat.material.name, mat.entities_id))
-            self.opv.changeColorEntities(mat.entities_id, mat.material.getNormalizedColorRGB())
+            for line in mat.lines_ids:
+                self.project.set_material_by_line(line, mat.material)
+            print("[Set Material] - {} defined in the entities {}".format(mat.material.name, mat.lines_ids))
+            self.opv.changeColorEntities(mat.lines_ids, mat.material.getNormalizedColorRGB())
         else:
             self.project.set_material(mat.material)
             entities = []
@@ -136,11 +136,11 @@ class InputUi:
         read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
 
         if not read.complete:
-            return
+            return False
 
         if read.flagEntity:
             if len(read.lines_typed) == 0:
-                return
+                return False
             for line in read.lines_typed:
                 self.project.set_cross_section_by_entity(line, read.cross_section)
                 self.project.set_structural_element_type_by_entity(line, read.element_type)
@@ -148,7 +148,7 @@ class InputUi:
 
         elif read.flagElements:
             if len(read.elements_typed) == 0:
-                return
+                return False
             else:
                 self.project.set_cross_section_by_elements(read.elements_typed, read.cross_section)
                 if len(read.elements_typed) > 20:
@@ -161,6 +161,7 @@ class InputUi:
             
         self.opv.updateEntityRadius()
         self.opv.plotMesh()
+        return True
     
     def plot_cross_section(self):
         PlotCrossSectionInput(self.project, self.opv)
@@ -182,7 +183,7 @@ class InputUi:
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
     
     def addMassSpringDamper(self):
-        read = MassSpringDamperInput(self.project, self.opv, self.opv.transformPoints)
+        read = MassSpringDamperInput(self.project, self.opv)
         if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
             return
         if read.lumped_masses is not None:
@@ -191,7 +192,7 @@ class InputUi:
             print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
         if read.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
-        self.opv.transformPoints(read.nodes_typed)
+        # self.opv.transformPoints(read.nodes_typed)
 
     def setcappedEnd(self):
         read = CappedEndInput(self.project, self.opv)
@@ -571,19 +572,18 @@ class InputUi:
 
     def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
-        element_id = self.opv.getListPickedElements()
        
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressFrequencyResponseInput(self.project, self.solve, element_id, self.analysis_method_label)
+            PlotStressFrequencyResponseInput(self.opv, self.project, self.solve, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
 
         if self.analysis_ID in [0,1,5,6]:
             reactions = [self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers]
-            PlotReactionsInput(self.project.get_mesh(), self.analysis_method_label, self.frequencies, reactions)
+            PlotReactionsInput(self.opv, self.project.get_mesh(), self.analysis_method_label, self.frequencies, reactions)
             return
 
     def _check_is_there_a_problem(self):

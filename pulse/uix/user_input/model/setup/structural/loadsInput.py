@@ -91,17 +91,17 @@ class LoadsInput(QDialog):
         self.basename_Mz = None
 
         self.tabWidget_nodal_loads = self.findChild(QTabWidget, "tabWidget_nodal_loads")
-        self.tab_single_values = self.tabWidget_nodal_loads.findChild(QWidget, "tab_single_values")
+        self.tab_constant_values = self.tabWidget_nodal_loads.findChild(QWidget, "tab_constant_values")
         self.tab_table = self.tabWidget_nodal_loads.findChild(QWidget, "tab_table")
 
         self.treeWidget_nodal_loads = self.findChild(QTreeWidget, 'treeWidget_nodal_loads')
-        self.treeWidget_nodal_loads.setColumnWidth(1, 20)
-        self.treeWidget_nodal_loads.setColumnWidth(2, 80)
+        self.treeWidget_nodal_loads.setColumnWidth(0, 80)
+        # self.treeWidget_nodal_loads.setColumnWidth(1, 60)
         self.treeWidget_nodal_loads.itemClicked.connect(self.on_click_item)
         self.treeWidget_nodal_loads.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
-        self.pushButton_single_value_confirm.clicked.connect(self.check_single_values)
+        self.pushButton_constant_value_confirm = self.findChild(QPushButton, 'pushButton_constant_value_confirm')
+        self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
 
         self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
@@ -119,7 +119,7 @@ class LoadsInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_nodal_loads.currentIndex()==0:
-                self.check_single_values()
+                self.check_constant_values()
             elif self.tabWidget_nodal_loads.currentIndex()==1:
                 self.check_table_values()
         elif event.key() == Qt.Key_Escape:
@@ -184,7 +184,7 @@ class LoadsInput(QDialog):
         else:
             return real_F + 1j*imag_F
 
-    def check_single_values(self):
+    def check_constant_values(self):
 
         self.check_input_nodes()
 
@@ -358,6 +358,8 @@ class LoadsInput(QDialog):
         for node in self.project.mesh.nodes_with_nodal_loads:
             nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)            
             self.treeWidget_nodal_loads.addTopLevelItem(new)
 
     def on_click_item(self, item):

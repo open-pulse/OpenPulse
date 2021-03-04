@@ -239,6 +239,8 @@ class VolumeVelocityInput(QDialog):
     def load_nodes_info(self):
         for node in self.project.mesh.nodes_with_volume_velocity:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_volume_velocity.addTopLevelItem(new)
 
     def on_click_item(self, item):

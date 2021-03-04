@@ -173,6 +173,8 @@ class RadiationImpedanceInput(QDialog):
             elif node.radiation_impedance_type == 2:
                 text = "Flanged"
             new = QTreeWidgetItem([str(node.external_index), text])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
     
     def update(self):

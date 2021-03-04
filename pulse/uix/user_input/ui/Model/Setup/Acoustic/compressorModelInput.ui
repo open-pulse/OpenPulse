@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Reciprocating Compressor Excitation</string>
+   <string>Reciprocating compressor excitation</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>true</bool>
@@ -562,8 +562,11 @@
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
+       </property>
        <property name="text">
-        <string>1097</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -602,8 +605,11 @@
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
+       </property>
        <property name="text">
-        <string>10</string>
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -816,7 +822,7 @@
          <enum>Qt::ClickFocus</enum>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 0);
+         <string notr="true">color: rgb(255, 0, 0);
 background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="alignment">
@@ -3961,27 +3967,27 @@ at suction</string>
       <property name="geometry">
        <rect>
         <x>70</x>
-        <y>414</y>
+        <y>428</y>
         <width>150</width>
-        <height>35</height>
+        <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>35</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
-        <height>35</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -4015,10 +4021,10 @@ at suction</string>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>10</pointsize>
-        <weight>75</weight>
+        <pointsize>11</pointsize>
+        <weight>50</weight>
         <italic>true</italic>
-        <bold>true</bold>
+        <bold>false</bold>
        </font>
       </property>
       <property name="frameShape">
@@ -4034,10 +4040,34 @@ at suction</string>
        <property name="text">
         <string>Node</string>
        </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
       </column>
       <column>
        <property name="text">
         <string>Table name</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
        </property>
       </column>
      </widget>
@@ -4468,27 +4498,27 @@ color: rgb(0, 0, 0);</string>
       <property name="geometry">
        <rect>
         <x>270</x>
-        <y>414</y>
+        <y>428</y>
         <width>150</width>
-        <height>35</height>
+        <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>0</width>
-        <height>35</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>16777215</width>
-        <height>35</height>
+        <width>150</width>
+        <height>30</height>
        </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>14</pointsize>
+        <pointsize>12</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>

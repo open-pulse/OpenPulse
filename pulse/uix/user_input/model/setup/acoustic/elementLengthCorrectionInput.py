@@ -53,6 +53,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.treeWidget_length_correction_groups = self.findChild(QTreeWidget, 'treeWidget_length_correction_groups')
         self.treeWidget_length_correction_groups.setColumnWidth(0, 100)
         self.treeWidget_length_correction_groups.setColumnWidth(1, 80)
+        self.treeWidget_length_correction_groups.setColumnWidth(2, 90)        
         self.treeWidget_length_correction_groups.itemClicked.connect(self.on_click_item)
         self.treeWidget_length_correction_groups.itemDoubleClicked.connect(self.on_doubleclick_item)
 
@@ -212,6 +213,9 @@ class AcousticElementLengthCorrectionInput(QDialog):
             text = self.dict_correction_types[value[0]]
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text, str(value[1])])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            new.setTextAlignment(2, Qt.AlignCenter)
             self.treeWidget_length_correction_groups.addTopLevelItem(new)            
 
     def on_click_item(self, item):
@@ -298,8 +302,8 @@ class GetInformationOfGroup(QDialog):
         self.dict_keys_labels = dict_keys_labels
 
         self.treeWidget_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        self.treeWidget_group_info.setColumnWidth(1, 20)
-        self.treeWidget_group_info.setColumnWidth(2, 140)
+        self.treeWidget_group_info.setColumnWidth(0, 140)
+        # self.treeWidget_group_info.setColumnWidth(2, 140)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
@@ -315,6 +319,8 @@ class GetInformationOfGroup(QDialog):
         for element in self.list_of_elements:
             text = self.dict_keys_labels[self.type]
             new = QTreeWidgetItem([str(element), text])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_group_info.addTopLevelItem(new)
     
     def force_to_close(self):
