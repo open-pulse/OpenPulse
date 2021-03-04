@@ -12,7 +12,7 @@ import configparser
 from shutil import copyfile
 
 class MassSpringDamperInput(QDialog):
-    def __init__(self, project, opv, transform_points, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/Model/Setup/Structural/addMassSpringDamperInput.ui', self)
 
@@ -26,7 +26,7 @@ class MassSpringDamperInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
-        self.transform_points = transform_points
+        self.transform_points = self.opv.transformPoints
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 
@@ -181,7 +181,7 @@ class MassSpringDamperInput(QDialog):
         self.checkBox_remove_damper = self.findChild(QCheckBox, 'checkBox_remove_damper')
 
         self.tabWidget_external_elements = self.findChild(QTabWidget, "tabWidget_external_elements")
-        self.tab_single_values = self.tabWidget_external_elements.findChild(QWidget, "tab_single_values")
+        self.tab_constant_values = self.tabWidget_external_elements.findChild(QWidget, "tab_constant_values")
         self.tab_table_values = self.tabWidget_external_elements.findChild(QWidget, "tab_table_values")
 
         self.tabWidget_remove = self.findChild(QTabWidget, "tabWidget_remove")
@@ -191,25 +191,25 @@ class MassSpringDamperInput(QDialog):
         self.tab_damper_remove = self.tabWidget_remove.findChild(QWidget, "tab_damper_remove")
 
         self.treeWidget_springs = self.findChild(QTreeWidget, 'treeWidget_springs')
-        self.treeWidget_springs.setColumnWidth(1, 20)
-        self.treeWidget_springs.setColumnWidth(2, 80)
+        self.treeWidget_springs.setColumnWidth(0, 70)
+        # self.treeWidget_springs.setColumnWidth(1, 80)
         self.treeWidget_springs.itemClicked.connect(self.on_click_item)
         self.treeWidget_springs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.treeWidget_dampers = self.findChild(QTreeWidget, 'treeWidget_dampers')
-        self.treeWidget_dampers.setColumnWidth(1, 20)
-        self.treeWidget_dampers.setColumnWidth(2, 80)
+        self.treeWidget_dampers.setColumnWidth(0, 70)
+        # self.treeWidget_dampers.setColumnWidth(1, 80)
         self.treeWidget_dampers.itemClicked.connect(self.on_click_item)
         self.treeWidget_dampers.itemDoubleClicked.connect(self.on_doubleclick_item)
 
         self.treeWidget_masses = self.findChild(QTreeWidget, 'treeWidget_masses')
-        self.treeWidget_masses.setColumnWidth(1, 20)
-        self.treeWidget_masses.setColumnWidth(2, 80)
+        self.treeWidget_masses.setColumnWidth(0, 70)
+        # self.treeWidget_masses.setColumnWidth(1, 80)
         self.treeWidget_masses.itemClicked.connect(self.on_click_item)
         self.treeWidget_masses.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
-        self.pushButton_single_value_confirm.clicked.connect(self.check_all_single_values_inputs)
+        self.pushButton_constant_value_confirm = self.findChild(QPushButton, 'pushButton_constant_value_confirm')
+        self.pushButton_constant_value_confirm.clicked.connect(self.check_all_constant_values_inputs)
 
         self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
         self.pushButton_table_values_confirm.clicked.connect(self.check_all_table_values_inputs)
@@ -233,7 +233,7 @@ class MassSpringDamperInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_external_elements.currentIndex()==0:
-                self.check_all_single_values_inputs()
+                self.check_all_constant_values_inputs()
             elif self.tabWidget_external_elements.currentIndex()==1:
                 self.check_all_table_values_inputs()
         elif event.key() == Qt.Key_Escape:
@@ -289,7 +289,7 @@ class MassSpringDamperInput(QDialog):
         else:
             return value
 
-    def check_single_values_lumped_masses(self):
+    def check_constant_values_lumped_masses(self):
 
         if self.check_input_nodes():
             self.stop = True
@@ -321,7 +321,7 @@ class MassSpringDamperInput(QDialog):
             self.lumped_masses = lumped_masses
             self.project.add_lumped_masses_by_node(self.nodes_typed, self.lumped_masses, False)
         
-    def check_single_values_lumped_stiffness(self):
+    def check_constant_values_lumped_stiffness(self):
 
         if self.check_input_nodes():
             self.stop = True
@@ -353,7 +353,7 @@ class MassSpringDamperInput(QDialog):
             self.lumped_stiffness = lumped_stiffness
             self.project.add_lumped_stiffness_by_node(self.nodes_typed, self.lumped_stiffness, False)
  
-    def check_single_values_lumped_dampings(self):
+    def check_constant_values_lumped_dampings(self):
 
         if self.check_input_nodes():
             self.stop = True
@@ -385,24 +385,24 @@ class MassSpringDamperInput(QDialog):
             self.lumped_dampings = lumped_dampings
             self.project.add_lumped_dampings_by_node(self.nodes_typed, self.lumped_dampings, False)
 
-    def check_all_single_values_inputs(self):
+    def check_all_constant_values_inputs(self):
 
-        self.check_single_values_lumped_masses()
+        self.check_constant_values_lumped_masses()
         if self.stop:
             return
 
-        self.check_single_values_lumped_stiffness()
+        self.check_constant_values_lumped_stiffness()
         if self.stop:
             return
 
-        self.check_single_values_lumped_dampings()
+        self.check_constant_values_lumped_dampings()
         if self.stop:
             return
 
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
             error("You must to add at least one external element before confirm the input!", title = " ERROR ")
             return
-
+        self.transform_points(self.nodes_typed)
         self.close()
 
     def load_table(self, lineEdit, text, header, direct_load=False):
@@ -708,7 +708,7 @@ class MassSpringDamperInput(QDialog):
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
             error("You must to add at least one external element before confirm the input!", title = " ERROR ")
             return
-
+        self.transform_points(self.nodes_typed)
         self.close()      
 
     def check_remove_bc_from_node(self):
@@ -742,6 +742,7 @@ class MassSpringDamperInput(QDialog):
             self.treeWidget_dampers.clear()
 
         self.load_nodes_info()
+        self.transform_points(self.nodes_typed)
 
         # self.close()
 
@@ -770,18 +771,24 @@ class MassSpringDamperInput(QDialog):
         for node in self.project.mesh.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask, load_labels))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_springs.addTopLevelItem(new)
 
         load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
         for node in self.project.mesh.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask, load_labels))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_dampers.addTopLevelItem(new)
 
         load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
         for node in self.project.mesh.nodes_with_masses:
             lumped_masses_mask = [False if bc is None else True for bc in node.lumped_masses]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_masses_mask, load_labels))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_masses.addTopLevelItem(new)
 
     def on_click_item(self, item):

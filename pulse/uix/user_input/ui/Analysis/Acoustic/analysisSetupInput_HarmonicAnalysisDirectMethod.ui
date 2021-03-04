@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Analysis setup</string>
+   <string>Harmonic analysis setup</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -50,7 +50,7 @@
      <x>0</x>
      <y>0</y>
      <width>430</width>
-     <height>59</height>
+     <height>61</height>
     </rect>
    </property>
    <property name="frameShape">
@@ -74,7 +74,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -102,7 +102,7 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -123,10 +123,22 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>98</y>
+     <y>100</y>
      <width>430</width>
-     <height>241</height>
+     <height>239</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>430</width>
+     <height>239</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>430</width>
+     <height>239</height>
+    </size>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -186,6 +198,11 @@
            <height>28</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
+         </property>
          <property name="text">
           <string>Freq min:</string>
          </property>
@@ -208,6 +225,11 @@
            <height>28</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
+         </property>
          <property name="text">
           <string>Freq max:</string>
          </property>
@@ -229,6 +251,11 @@
            <width>16777215</width>
            <height>28</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
          </property>
          <property name="text">
           <string>df:</string>
@@ -276,6 +303,9 @@
            <bold>true</bold>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 255);</string>
+         </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
@@ -304,6 +334,9 @@
            <bold>true</bold>
           </font>
          </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 255);</string>
+         </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
@@ -331,6 +364,9 @@
            <italic>true</italic>
            <bold>true</bold>
           </font>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: rgb(0, 0, 255);</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -366,6 +402,11 @@
            <height>28</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
+         </property>
          <property name="text">
           <string>[Hz]</string>
          </property>
@@ -388,6 +429,11 @@
            <height>28</height>
           </size>
          </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
+         </property>
          <property name="text">
           <string>[Hz]</string>
          </property>
@@ -409,6 +455,11 @@
            <width>16777215</width>
            <height>28</height>
           </size>
+         </property>
+         <property name="font">
+          <font>
+           <italic>false</italic>
+          </font>
          </property>
          <property name="text">
           <string>[Hz]</string>
@@ -474,7 +525,7 @@
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>58</y>
+     <y>60</y>
      <width>430</width>
      <height>41</height>
     </rect>

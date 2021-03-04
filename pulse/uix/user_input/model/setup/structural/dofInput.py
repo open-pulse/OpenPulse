@@ -115,17 +115,17 @@ class DOFInput(QDialog):
         self.angular_acc  = self.radioButton_angular_acc.isChecked()
 
         self.tabWidget_prescribed_dofs = self.findChild(QTabWidget, "tabWidget_prescribed_dofs")
-        self.tab_single_values = self.tabWidget_prescribed_dofs.findChild(QWidget, "tab_single_values")
+        self.tab_constant_values = self.tabWidget_prescribed_dofs.findChild(QWidget, "tab_constant_values")
         self.tab_table = self.tabWidget_prescribed_dofs.findChild(QWidget, "tab_table_values")
 
         self.treeWidget_prescribed_dofs = self.findChild(QTreeWidget, 'treeWidget_prescribed_dofs')
-        self.treeWidget_prescribed_dofs.setColumnWidth(1, 20)
-        self.treeWidget_prescribed_dofs.setColumnWidth(2, 80)
+        self.treeWidget_prescribed_dofs.setColumnWidth(0, 80)
+        # self.treeWidget_prescribed_dofs.setColumnWidth(1, 60)
         self.treeWidget_prescribed_dofs.itemClicked.connect(self.on_click_item)
         self.treeWidget_prescribed_dofs.itemDoubleClicked.connect(self.on_doubleclick_item)
 
-        self.pushButton_single_value_confirm = self.findChild(QPushButton, 'pushButton_single_value_confirm')
-        self.pushButton_single_value_confirm.clicked.connect(self.check_single_values)
+        self.pushButton_constant_value_confirm = self.findChild(QPushButton, 'pushButton_constant_value_confirm')
+        self.pushButton_constant_value_confirm.clicked.connect(self.check_constant_values)
 
         self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
@@ -146,7 +146,7 @@ class DOFInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_prescribed_dofs.currentIndex()==0:
-                self.check_single_values()
+                self.check_constant_values()
             elif self.tabWidget_prescribed_dofs.currentIndex()==1:
                 self.check_table_values()
         elif event.key() == Qt.Key_Escape:
@@ -242,7 +242,7 @@ class DOFInput(QDialog):
 
         return output
 
-    def check_single_values(self):
+    def check_constant_values(self):
 
         if self.check_input_nodes():
             return
@@ -433,6 +433,8 @@ class DOFInput(QDialog):
         for node in self.project.mesh.nodes_with_prescribed_dofs:
             constrained_dofs_mask = [False if bc is None else True for bc in node.prescribed_dofs]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_prescribed_dofs.addTopLevelItem(new)
 
     def on_click_item(self, item):

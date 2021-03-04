@@ -8,6 +8,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
+from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 class opvRenderer(vtkRendererBase):
@@ -24,7 +25,7 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = None 
         self.opvLines = None
         self.opvTubes = None 
-        self.opvDeformedTubes = None
+        self.opvSymbols = None
 
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
@@ -35,41 +36,35 @@ class opvRenderer(vtkRendererBase):
         self.saveElementsBounds()
 
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
-        self.opvLines = LinesActor(self.project.get_elements(), self.project)
-        self.opvTubes = TubeActor(self.project.get_elements(), self.project)
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_elements(), self.project)
+        self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
+        self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
+        self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project)
 
-        self.opvTubes.build()
         self.opvNodes.build()
+        self.opvSymbols.build()
         self.opvLines.build()
+        self.opvTubes.build()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
-        plt(self.opvTubes)
         plt(self.opvNodes)
+        plt(self.opvSymbols)
         plt(self.opvLines)
-        plt(self.opvDeformedTubes)
+        plt(self.opvTubes)
 
         self._renderer.ResetCameraClippingRange()
-        
-    
-    def plotDeformed(self):
-        try:
-            self.opvDeformedTubes.build()
-        except Exception as e:
-            print(e)
 
     def showNodes(self, cond=True):
-        self.opvNodes.getActor().SetVisibility(cond)
+        self.opvNodes.setVisibility(cond)
 
     def showTubes(self, cond=True, transparent=True):
-        self.opvTubes.getActor().SetVisibility(cond)
+        self.opvTubes.setVisibility(cond)
         self.opvTubes.transparent = transparent
     
     def showLines(self, cond=True):
-        self.opvLines.getActor().SetVisibility(cond)
-
-    def showDeformedTubes(self, cond=True):
-        self.opvDeformedTubes.getActor().SetVisibility(cond)
+        self.opvLines.setVisibility(cond)
+    
+    def showSymbols(self, cond=True):
+        self.opvSymbols.setVisibility(cond)
 
     # TODO: implement this
     def selectLines(self, cond):
@@ -103,7 +98,7 @@ class opvRenderer(vtkRendererBase):
 
     def saveElementsBounds(self):
         self.elementsBounds.clear()
-        for key, element in self.project.get_elements().items():
+        for key, element in self.project.get_structural_elements().items():
             firstNode = element.first_node.coordinates
             lastNode = element.last_node.coordinates
 

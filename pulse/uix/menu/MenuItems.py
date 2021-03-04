@@ -6,7 +6,7 @@ class MenuItems(QTreeWidget):
     """Menu Items
 
     This class is responsible for creating, configuring and building the items
-    in the items menu, located on the right side of the interface.
+    in the items menu, located on the left side of the interface.
 
     """
     def __init__(self, main_window):
@@ -33,7 +33,7 @@ class MenuItems(QTreeWidget):
         """Create some variables to define the name of the items in the menu"""
         self.name_top_structuralmodelSetup = "Structural Model Setup"
         self.name_child_setStructuralElementType = "Set Structural Element Type"
-        self.name_child_setRotationDecoupling = "Set Rotation Decoupling (B2PX)"
+        self.name_child_setRotationDecoupling = "Set Rotation Decoupling"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
         self.name_child_setPrescribedDofs = "Set Prescribed DOFs"
@@ -276,84 +276,95 @@ class MenuItems(QTreeWidget):
         self.addTopLevelItem(self.item_child_plotAcousticFrequencyResponse)
         self.addTopLevelItem(self.item_child_plot_TL_NR)
 
-        
+    def update_plot_mesh(self):
+        if not self.mainWindow.opv_widget.change_plot_to_mesh:
+            self.mainWindow.plot_mesh()
+
+    def update_plot_entities(self):
+        if not self.mainWindow.opv_widget.change_plot_to_entities:
+            self.mainWindow.plot_entities()        
+
     def on_click_item(self, item, column):
         """This event is raised every time an item is clicked on the menu."""
         self.mainWindow.getInputWidget().beforeInput()
 
         if item.text(0) == self.name_child_setStructuralElementType:
+            self.update_plot_entities()
             self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item.text(0) == self.name_child_set_material:
-            self.mainWindow.plot_entities()
+            self.update_plot_entities()
             self.mainWindow.getInputWidget().set_material()
 
         elif item.text(0) == self.name_child_set_crossSection:
-            self.mainWindow.getInputWidget().set_cross_section()
-            self.mainWindow.plot_entities_radius()
+            self.update_plot_entities()
+            if self.mainWindow.getInputWidget().set_cross_section():
+                self.mainWindow.plot_entities_radius()
 
         elif item.text(0) == self.name_child_setPrescribedDofs:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().setDOF()
 
         elif item.text(0) == self.name_child_setRotationDecoupling:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
+            
             self.mainWindow.getInputWidget().setRotationDecoupling()
 
         elif item.text(0) == self.name_child_setNodalLoads:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
+            
             self.mainWindow.getInputWidget().setNodalLoads()
 
         elif item.text(0) == self.name_child_addMassSpringDamper:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().addMassSpringDamper()
 
         elif item.text(0) == self.name_child_setcappedEnd:
-            # self.mainWindow.plot_entities()
+            # self.update_plot_entities()
             self.mainWindow.getInputWidget().setcappedEnd()
 
         elif item.text(0) == self.name_child_set_stress_stiffening:
-            # self.mainWindow.plot_entities()
+            # self.update_plot_entities()
             self.mainWindow.getInputWidget().set_stress_stress_stiffening()
         
         elif item.text(0) == self.name_child_add_elastic_nodal_links:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
 
         elif item.text(0) == self.name_child_setAcousticElementType:
-            self.mainWindow.plot_entities()
+            self.update_plot_entities()
             self.mainWindow.getInputWidget().set_acoustic_element_type()
 
         elif item.text(0) == self.name_child_set_fluid: 
-            self.mainWindow.plot_entities()
+            self.update_plot_entities()
             self.mainWindow.getInputWidget().set_fluid()
 
         elif item.text(0) == self.name_child_setAcousticPressure:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()      
             self.mainWindow.getInputWidget().setAcousticPressure()
 
         elif item.text(0) == self.name_child_setVolumeVelocity: 
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()  
             self.mainWindow.getInputWidget().setVolumeVelocity()
 
         elif item.text(0) == self.name_child_setSpecificImpedance:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh() 
             self.mainWindow.getInputWidget().setSpecificImpedance()
 
         elif item.text(0) == self.name_child_set_radiation_impedance:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().set_radiation_impedance()
 
         elif item.text(0) == self.name_child_add_perforated_plate:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_perforated_plate()
 
         elif item.text(0) == self.name_child_set_acoustic_element_length_correction:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
 
         elif item.text(0) == self.name_child_add_compressor_excitation:
-            self.mainWindow.plot_mesh()
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_compressor_excitation()
 
         elif item.text(0) == self.name_child_selectAnalysisType:
@@ -377,15 +388,18 @@ class MenuItems(QTreeWidget):
             self.mainWindow.getInputWidget().plotDisplacementField()
 
         elif item.text(0) == self.name_child_plotStructuralFrequencyResponse:
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().plotStructuralFrequencyResponse()
 
         elif item.text(0) == self.name_child_plotReactionsFrequencyResponse:
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().plotReactionsFrequencyResponse()
 
         elif item.text(0) == self.name_child_plotStressField:
             self.mainWindow.getInputWidget().plotStressField()
 
         elif item.text(0) == self.name_child_plotStressFrequencyResponse:
+            self.update_plot_mesh()  
             self.mainWindow.getInputWidget().plotStressFrequencyResponse()
 
         elif item.text(0) == self.name_child_plotAcousticModeShapes:
@@ -395,9 +409,11 @@ class MenuItems(QTreeWidget):
             self.mainWindow.getInputWidget().plotAcousticPressureField()
          
         elif item.text(0) == self.name_child_plotAcousticFrequencyResponse:
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().plotAcousticFrequencyResponse()
 
         elif item.text(0) == self.name_child_plot_TL_NR:
+            self.update_plot_mesh()
             self.mainWindow.getInputWidget().plot_TL_NR()
 
 

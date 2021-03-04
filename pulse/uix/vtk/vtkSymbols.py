@@ -82,7 +82,7 @@ class vtkSymbols:
         arrows.append(z)
         return arrows
 
-    def getSpring(self, node, shift=0.01, u_def=[]):
+    def getSpring(self, node, u_def=[]):
         a = self.getReal(node.get_lumped_stiffness())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
@@ -118,14 +118,14 @@ class vtkSymbols:
             arrows.append(b.getActor())
         return arrows
 
-    def getDamper(self, node, shift=0.01, u_def=[]):
+    def getDamper(self, node, u_def=[]):
         a = self.getReal(node.get_lumped_dampings())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
-        if base_length/10 < element_length*1.5:
-            shift = base_length/10
+        if base_length/20 < element_length*1.5:
+            shift = base_length/20
         else:
-            shift = element_length*1.5
+            shift = element_length/2
         v = [1,2,3]
         for i in range(0,3):
             try:
@@ -156,7 +156,7 @@ class vtkSymbols:
 
         return arrows
 
-    def getArrowBC(self, node, shift=0.01, u_def=[]):
+    def getArrowBC(self, node, u_def=[]):
         a = self.getReal(node.getStructuralBondaryCondition())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
@@ -192,7 +192,7 @@ class vtkSymbols:
             arrows.append(a.getActor())
         return arrows
 
-    def getArrowForce(self, node, shift=0.01):
+    def getArrowForce(self, node):
         a = self.getReal(node.get_prescribed_loads())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
@@ -227,14 +227,16 @@ class vtkSymbols:
             arrows.append(a.getActor())
         return arrows
 
-    def getArrowRotation(self, node, shift=0.01):
+    def getArrowRotation(self, node):
         a = self.getReal(node.getStructuralBondaryCondition())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
-            shift = base_length/20
+            shift1 = base_length/20
+            shift2 = 2.7*shift1
         else:
-            shift = element_length/2
+            shift1 = element_length/2
+            shift2 = 6.5*shift1
         v = [1,2,3]
         for i in range(3,6):
             try:
@@ -256,22 +258,33 @@ class vtkSymbols:
         for i in range(3):
             if v[i] == 0:
                 continue
+            
             a = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
             a.removeShaftRadius()
             a.setNormalizedColor([0, 1, 1])
-            a.setShiftValue(shift)
+            a.setShiftValue(shift1)
             a.build()
             arrows.append(a.getActor())
+
+            b = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
+            b.removeShaftRadius()
+            b.setNormalizedColor([0,1,1])
+            b.setShiftValue(shift2)
+            b.build()
+            arrows.append(b.getActor())
+
         return arrows
 
-    def getArrowMomento(self, node, shift=0.01):
+    def getArrowMomento(self, node):
         a = self.getReal(node.get_prescribed_loads())
         base_length = self.project.mesh.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
-            shift = base_length/20
+            shift1 = base_length/20
+            shift2 = 2.7*shift1
         else:
-            shift = element_length/2
+            shift1 = element_length/2
+            shift2 = 6.5*shift1
         v = [1,2,3]
         for i in range(3,6):
             try:
@@ -294,9 +307,17 @@ class vtkSymbols:
                 continue
             a = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
             a.setNormalizedColor([0,0,1])
-            a.setShiftValue(shift)
+            a.setShiftValue(shift1)
             a.build()
             arrows.append(a.getActor())
+
+            b = ActorArrow(node, self.project.get_element_size(), base_length, xyz=v[i])
+            b.setNormalizedColor([0,0,1])
+            b.setShiftValue(shift2)
+            b.removeShaftRadius()
+            b.build()
+            arrows.append(b.getActor())
+
         return arrows
 
     def getReal(self, vector):

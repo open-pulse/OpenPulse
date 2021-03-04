@@ -124,6 +124,10 @@ class Plot_TL_NR_Input(QDialog):
         self.pushButton = self.findChild(QPushButton, 'pushButton')
         self.pushButton.clicked.connect(self.check)
 
+        self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
+        self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
+
+        self.writeNodes(self.opv.getListPickedPoints())
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -131,6 +135,32 @@ class Plot_TL_NR_Input(QDialog):
             self.check()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def writeNodes(self, list_node_ids):
+        text = ""
+        self.text_inputNodeID = ""
+        self.text_outputNodeID = ""
+        for node in list_node_ids:
+            text += "{}, ".format(node)
+        if len(list_node_ids) == 2:
+            self.text_inputNodeID = str(list_node_ids[-2])
+            self.text_outputNodeID = str(list_node_ids[-1])
+        elif len(list_node_ids) == 1:
+            self.text_inputNodeID = str(list_node_ids[-1])
+            self.text_outputNodeID = ""
+        self.lineEdit_inputNodeID.setText(self.text_inputNodeID )
+        self.lineEdit_outputNodeID.setText(self.text_outputNodeID)
+
+    def flip_nodes(self):
+        temp_text_output = self.text_outputNodeID
+        temp_text_input = self.text_inputNodeID
+        self.text_inputNodeID = temp_text_output
+        self.text_outputNodeID = temp_text_input
+        self.lineEdit_inputNodeID.setText(self.text_inputNodeID )
+        self.lineEdit_outputNodeID.setText(self.text_outputNodeID)   
+
+    def update(self):
+        self.writeNodes(self.opv.getListPickedPoints())
 
     def update_cursor(self):
         self.cursor = self.checkBox_cursor.isChecked()

@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set: Material</string>
+   <string>Set: material</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -1323,14 +1323,26 @@
    <property name="lineWidth">
     <number>1</number>
    </property>
-   <widget class="QRadioButton" name="radioButton_entity">
+   <widget class="QRadioButton" name="radioButton_selected_lines">
     <property name="geometry">
      <rect>
-      <x>660</x>
+      <x>648</x>
       <y>12</y>
-      <width>103</width>
-      <height>23</height>
+      <width>135</width>
+      <height>25</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>135</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>135</width>
+      <height>25</height>
+     </size>
     </property>
     <property name="font">
      <font>
@@ -1343,7 +1355,7 @@
      </font>
     </property>
     <property name="text">
-     <string>The Entity</string>
+     <string>Selected lines</string>
     </property>
     <property name="checked">
      <bool>false</bool>
@@ -1352,11 +1364,23 @@
    <widget class="QRadioButton" name="radioButton_all">
     <property name="geometry">
      <rect>
-      <x>576</x>
+      <x>530</x>
       <y>12</y>
-      <width>59</width>
-      <height>23</height>
+      <width>110</width>
+      <height>25</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>110</width>
+      <height>25</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>110</width>
+      <height>25</height>
+     </size>
     </property>
     <property name="font">
      <font>
@@ -1369,7 +1393,7 @@
      </font>
     </property>
     <property name="text">
-     <string>All</string>
+     <string>All lines</string>
     </property>
     <property name="checked">
      <bool>true</bool>
@@ -1403,23 +1427,26 @@
     </property>
    </widget>
    <widget class="QLineEdit" name="lineEdit_selected_ID">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>230</x>
       <y>10</y>
-      <width>200</width>
+      <width>240</width>
       <height>26</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>200</width>
+      <width>240</width>
       <height>26</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>200</width>
+      <width>240</width>
       <height>26</height>
      </size>
     </property>
@@ -1434,6 +1461,10 @@
     </property>
     <property name="focusPolicy">
      <enum>Qt::ClickFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
     </property>
     <property name="text">
      <string/>
@@ -1479,19 +1510,19 @@
       <x>4</x>
       <y>12</y>
       <width>792</width>
-      <height>220</height>
+      <height>222</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>790</width>
-      <height>220</height>
+      <height>222</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>792</width>
-      <height>220</height>
+      <height>222</height>
      </size>
     </property>
     <property name="font">
@@ -1560,8 +1591,8 @@
     <property name="geometry">
      <rect>
       <x>222</x>
-      <y>242</y>
-      <width>355</width>
+      <y>244</y>
+      <width>356</width>
       <height>39</height>
      </rect>
     </property>
@@ -1620,7 +1651,7 @@ selection-background-color: rgb(62, 255, 62);</string>
   <tabstop>lineEdit_color_remove</tabstop>
   <tabstop>lineEdit_thermal_expansion_coefficient_remove</tabstop>
   <tabstop>pushButton_confirm_material_removal</tabstop>
-  <tabstop>radioButton_entity</tabstop>
+  <tabstop>radioButton_selected_lines</tabstop>
   <tabstop>radioButton_all</tabstop>
   <tabstop>treeWidget</tabstop>
   <tabstop>pushButton_reset_library</tabstop>

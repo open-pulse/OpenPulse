@@ -45,7 +45,7 @@ class AcousticPressureInput(QDialog):
         self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.tabWidget_acoustic_pressure = self.findChild(QTabWidget, "tabWidget_acoustic_pressure")
-        self.tab_single_values = self.tabWidget_acoustic_pressure.findChild(QWidget, "tab_single_values")
+        self.tab_constant_values = self.tabWidget_acoustic_pressure.findChild(QWidget, "tab_constant_values")
         self.tab_table_values = self.tabWidget_acoustic_pressure.findChild(QWidget, "tab_table_values")
 
         self.treeWidget_acoustic_pressure = self.findChild(QTreeWidget, 'treeWidget_acoustic_pressure')
@@ -57,8 +57,8 @@ class AcousticPressureInput(QDialog):
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
         self.toolButton_load_table.clicked.connect(self.load_acoustic_pressure_table)
 
-        self.pushButton_single_values_confirm = self.findChild(QPushButton, 'pushButton_single_values_confirm')
-        self.pushButton_single_values_confirm.clicked.connect(self.check_single_values)
+        self.pushButton_constant_values_confirm = self.findChild(QPushButton, 'pushButton_constant_values_confirm')
+        self.pushButton_constant_values_confirm.clicked.connect(self.check_constant_values)
 
         self.pushButton_table_values_confirm = self.findChild(QPushButton, 'pushButton_table_values_confirm')
         self.pushButton_table_values_confirm.clicked.connect(self.check_table_values)
@@ -77,7 +77,7 @@ class AcousticPressureInput(QDialog):
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
             if self.tabWidget_acoustic_pressure.currentIndex()==0:
-                self.check_single_values()
+                self.check_constant_values()
             if self.tabWidget_acoustic_pressure.currentIndex()==1:
                 self.check_table_values()
         elif event.key() == Qt.Key_Delete:
@@ -149,7 +149,7 @@ class AcousticPressureInput(QDialog):
         else:
             return real_F + 1j*imag_F
 
-    def check_single_values(self):
+    def check_constant_values(self):
 
         self.check_input_nodes()
         acoustic_pressure = self.check_complex_entries(self.lineEdit_acoustic_pressure_real, self.lineEdit_acoustic_pressure_imag)
@@ -243,6 +243,8 @@ class AcousticPressureInput(QDialog):
     def load_nodes_info(self):
         for node in self.project.mesh.nodes_with_acoustic_pressure:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.acoustic_pressure))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_acoustic_pressure.addTopLevelItem(new)
 
     def on_click_item(self, item):

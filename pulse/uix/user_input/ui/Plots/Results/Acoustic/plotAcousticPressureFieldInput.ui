@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>287</width>
-    <height>361</height>
+    <width>300</width>
+    <height>370</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,21 +21,21 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>287</width>
-    <height>361</height>
+    <width>300</width>
+    <height>370</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>287</width>
-    <height>361</height>
+    <width>300</width>
+    <height>370</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Plot Acoustic Pressure Field</string>
+   <string>Plot acoustic pressure field</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -63,7 +63,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>287</width>
+      <width>300</width>
       <height>41</height>
      </rect>
     </property>
@@ -79,11 +79,23 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>6</x>
-       <y>10</y>
-       <width>275</width>
-       <height>23</height>
+       <x>14</x>
+       <y>6</y>
+       <width>273</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="font">
       <font>
@@ -110,9 +122,21 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>287</width>
-      <height>321</height>
+      <width>300</width>
+      <height>330</height>
      </rect>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>300</width>
+      <height>330</height>
+     </size>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>300</width>
+      <height>330</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -123,8 +147,8 @@
     <widget class="QTreeWidget" name="treeWidget">
      <property name="geometry">
       <rect>
-       <x>46</x>
-       <y>70</y>
+       <x>54</x>
+       <y>78</y>
        <width>193</width>
        <height>207</height>
       </rect>
@@ -138,20 +162,41 @@
        <bold>true</bold>
       </font>
      </property>
+     <property name="indentation">
+      <number>0</number>
+     </property>
      <column>
       <property name="text">
        <string notr="true">Frequency</string>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="textAlignment">
+       <set>AlignCenter</set>
       </property>
      </column>
     </widget>
     <widget class="QPushButton" name="pushButton">
      <property name="geometry">
       <rect>
-       <x>26</x>
-       <y>284</y>
-       <width>231</width>
-       <height>29</height>
+       <x>34</x>
+       <y>292</y>
+       <width>232</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="font">
       <font>
@@ -163,17 +208,29 @@
       </font>
      </property>
      <property name="text">
-      <string>Plot Acoustic Pressure Field</string>
+      <string>Plot acoustic pressure field</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_3">
      <property name="geometry">
       <rect>
-       <x>46</x>
-       <y>38</y>
+       <x>54</x>
+       <y>42</y>
        <width>194</width>
-       <height>27</height>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="font">
       <font>
@@ -199,10 +256,10 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>36</x>
+       <x>46</x>
        <y>10</y>
        <width>95</width>
-       <height>21</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -223,20 +280,23 @@
     <widget class="QLineEdit" name="lineEdit">
      <property name="geometry">
       <rect>
-       <x>134</x>
+       <x>142</x>
        <y>10</y>
        <width>99</width>
-       <height>20</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>10</pointsize>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
       </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">color: rgb(0, 0, 255);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

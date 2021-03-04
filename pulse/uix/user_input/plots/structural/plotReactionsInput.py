@@ -52,7 +52,7 @@ class SnaptoCursor(object):
 
 
 class PlotReactionsInput(QDialog):
-    def __init__(self, mesh, analysisMethod, frequencies, reactions, *args, **kwargs):
+    def __init__(self, opv, mesh, analysisMethod, frequencies, reactions, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui', self)
 
@@ -61,6 +61,11 @@ class PlotReactionsInput(QDialog):
         self.setWindowIcon(self.icon)
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
+
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.mesh = mesh
         
@@ -249,11 +254,15 @@ class PlotReactionsInput(QDialog):
         for node in self.mesh.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
         for node in self.mesh.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask))])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
 
         for node in self.mesh.nodes_with_constrained_dofs:
@@ -267,6 +276,8 @@ class PlotReactionsInput(QDialog):
             # constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
             if constrained_dofs_mask.count(False) != 6:         
                 new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
+                new.setTextAlignment(0, Qt.AlignCenter)
+                new.setTextAlignment(1, Qt.AlignCenter)
                 self.treeWidget_reactions_at_constrained_dofs.addTopLevelItem(new)
 
     def disable_non_existing_reactions(self, node_id):

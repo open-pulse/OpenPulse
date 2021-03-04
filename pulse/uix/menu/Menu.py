@@ -33,7 +33,7 @@ class Menu(QSplitter):
         self.data_widget.addTab(nodes_widget, 'Nodes')
 
     def list_of_connections(self):
-        edges_widget = EdgesWidget(self.main_window.project.get_elements())
+        edges_widget = EdgesWidget(self.main_window.project.get_structural_elements())
         self.data_widget.addTab(edges_widget, 'Edges')
 
     def plot_config(self):

@@ -7,6 +7,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
+from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 
@@ -32,14 +33,17 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self.opvDeformedTubes = None
         self.opvPressureTubes = None
+        self.opvSymbols = None
+
         self.slider = None
         self._createSlider()
 
     def plot(self):
         self.reset()
 
-        self.opvDeformedTubes = TubeDeformedActor(self.project.get_elements(), self.project)
-        self.opvPressureTubes = TubeActor(self.project.get_elements(), self.project)
+        self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
+        self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
+        self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project, deformed=True)
 
         self.opvPressureTubes.transparent = False
 
@@ -47,7 +51,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
-
+        plt(self.opvSymbols)
+    
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()
@@ -62,29 +67,6 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createColorBar()
         self._createScaleBar()
 
-    def showStressField(self, frequency, gain=1):
-        
-        mesh = self.project.get_mesh()
-        solution = self.project.get_structural_solution()
-        self._currentPlot = self.showStressField
-        self._currentFrequency = frequency
-
-        _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
-        self.opvDeformedTubes.build()
-
-        colorTable = ColorTable(self.project, u_def, stress_field_plot=True)
-        self.opvDeformedTubes.setColorTable(colorTable)
-        self.colorbar.SetLookupTable(colorTable)
-        
-        self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
-
-        self.updateInfoText()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
-
     def showDisplacement(self, frequency, gain=1):
         mesh = self.project.get_mesh()
         solution = self.project.get_structural_solution()
@@ -93,8 +75,9 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
+        self.opvSymbols.build()
 
-        colorTable = ColorTable(self.project, u_def, stress_field_plot=False)
+        colorTable = ColorTable(self.project, u_def)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
@@ -103,6 +86,31 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(False)
 
         self.updateInfoText()
+        self.update_min_max_stresses_text()
+        self._renderer.ResetCameraClippingRange()
+        self.opv.update()
+        self.update()
+
+    def showStressField(self, frequency, gain=1):
+        
+        mesh = self.project.get_mesh()
+        solution = self.project.get_structural_solution()
+        self._currentPlot = self.showStressField
+        self._currentFrequency = frequency
+
+        _, _, _, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
+        self.opvDeformedTubes.build()
+
+        colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
+        self.opvDeformedTubes.setColorTable(colorTable)
+        self.colorbar.SetLookupTable(colorTable)
+        
+        self.slider.SetEnabled(True)
+        self.opvDeformedTubes.getActor().SetVisibility(True)
+        self.opvPressureTubes.getActor().SetVisibility(False)
+
+        self.updateInfoText()
+        self.update_min_max_stresses_text()
         self._renderer.ResetCameraClippingRange()
         self.opv.update()
         self.update()
@@ -113,10 +121,10 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._currentFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
 
-        *args, u_def = get_acoustic_response(mesh, solution, frequency, real_part)
+        *args, pressure_field_data = get_acoustic_response(mesh, solution, frequency, real_part)
         self.opvPressureTubes.build()
 
-        colorTable = ColorTable(self.project, u_def, pressure_field_plot=True)
+        colorTable = ColorTable(self.project, pressure_field_data, pressure_field_plot=True)
         self.opvPressureTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
         
@@ -125,6 +133,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(True)
 
         self.updateInfoText()
+        self.update_min_max_stresses_text()
         self._renderer.ResetCameraClippingRange()
         self.opv.update()
         self.update()
@@ -176,7 +185,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         textProperty = vtk.vtkTextProperty()
         textProperty.SetFontSize(14)
         textProperty.SetItalic(1)
-        unit = self.project.get_unit(stress=False)
+        unit = self.project.get_unit()
         text = "Unit: [{}]".format(unit)
 
         self._renderer.RemoveActor(self.colorbar)
@@ -225,6 +234,27 @@ class opvAnalisysRenderer(vtkRendererBase):
             text += "\nMagnification factor {:.2f}x\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
         self.createInfoText(text)
+
+    def update_min_max_stresses_text(self):
+                
+        min_stress = self.project.min_stress
+        max_stress = self.project.max_stress
+        stress_label = self.project.stress_label
+
+        text = ""
+        if self.project.min_stress != "" and self.project.max_stress != "":
+            text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
+            text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
+
+        self.textActorStress.SetInput(text)
+        textProperty = vtk.vtkTextProperty()
+        textProperty.SetFontSize(17)
+        textProperty.SetBold(1)
+        textProperty.SetItalic(1)
+        self.textActorStress.SetTextProperty(textProperty)
+        _, height = self._renderer.GetSize()
+        self.textActorStress.SetDisplayPosition(600, height-75)
+        self._renderer.AddActor2D(self.textActorStress)
 
     # functions to be removed but currently break the execution
     def getElementsInfoText(self, *args, **kwargs):

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>353</width>
+    <width>380</width>
     <height>439</height>
    </rect>
   </property>
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>353</width>
+    <width>380</width>
     <height>439</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>353</width>
-    <height>800</height>
+    <width>380</width>
+    <height>439</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -49,7 +49,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>357</width>
+     <width>391</width>
      <height>445</height>
     </rect>
    </property>
@@ -63,7 +63,7 @@
      <rect>
       <x>0</x>
       <y>0</y>
-      <width>353</width>
+      <width>380</width>
       <height>41</height>
      </rect>
     </property>
@@ -79,18 +79,18 @@
     <widget class="QLabel" name="label">
      <property name="geometry">
       <rect>
-       <x>52</x>
-       <y>12</y>
-       <width>247</width>
-       <height>16</height>
+       <x>50</x>
+       <y>6</y>
+       <width>280</width>
+       <height>30</height>
       </rect>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>12</pointsize>
+       <pointsize>14</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -110,9 +110,21 @@
      <rect>
       <x>0</x>
       <y>40</y>
-      <width>353</width>
+      <width>380</width>
       <height>399</height>
      </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>380</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>380</width>
+      <height>16777215</height>
+     </size>
     </property>
     <property name="frameShape">
      <enum>QFrame::Box</enum>
@@ -123,16 +135,28 @@
     <widget class="QPushButton" name="pushButton_plot">
      <property name="geometry">
       <rect>
-       <x>42</x>
+       <x>50</x>
        <y>360</y>
-       <width>261</width>
-       <height>29</height>
+       <width>280</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>11</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
@@ -145,18 +169,30 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>34</x>
-       <y>14</y>
-       <width>133</width>
-       <height>19</height>
+       <x>50</x>
+       <y>8</y>
+       <width>170</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>170</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>170</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>10</pointsize>
+       <pointsize>12</pointsize>
        <weight>75</weight>
-       <italic>true</italic>
+       <italic>false</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -173,10 +209,10 @@
      </property>
      <property name="geometry">
       <rect>
-       <x>172</x>
-       <y>12</y>
+       <x>220</x>
+       <y>8</y>
        <width>79</width>
-       <height>22</height>
+       <height>30</height>
       </rect>
      </property>
      <property name="palette">
@@ -187,7 +223,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -214,7 +250,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -223,7 +259,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -252,7 +288,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -279,7 +315,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -288,7 +324,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -317,7 +353,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -344,7 +380,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -353,7 +389,7 @@
           <color alpha="255">
            <red>0</red>
            <green>0</green>
-           <blue>0</blue>
+           <blue>255</blue>
           </color>
          </brush>
         </colorrole>
@@ -381,14 +417,15 @@
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>10</pointsize>
+       <pointsize>11</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">background-color: rgb(255, 255, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -399,9 +436,21 @@
       <rect>
        <x>12</x>
        <y>46</y>
-       <width>143</width>
-       <height>27</height>
+       <width>153</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -415,18 +464,30 @@
      <widget class="QLabel" name="label_5">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>4</y>
-        <width>131</width>
-        <height>19</height>
+        <x>4</x>
+        <y>0</y>
+        <width>145</width>
+        <height>30</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>145</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>145</width>
+        <height>30</height>
+       </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>10</pointsize>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -444,45 +505,60 @@
     <widget class="QTreeWidget" name="treeWidget_list_frequencies">
      <property name="geometry">
       <rect>
-       <x>12</x>
-       <y>78</y>
-       <width>143</width>
+       <x>18</x>
+       <y>82</y>
+       <width>140</width>
        <height>260</height>
       </rect>
      </property>
      <property name="minimumSize">
       <size>
-       <width>143</width>
+       <width>140</width>
        <height>260</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>143</width>
+       <width>140</width>
        <height>260</height>
       </size>
      </property>
      <property name="font">
       <font>
        <family>Arial</family>
-       <pointsize>9</pointsize>
+       <pointsize>10</pointsize>
        <weight>75</weight>
        <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>
+     <property name="indentation">
+      <number>0</number>
+     </property>
      <column>
       <property name="text">
        <string notr="true">Frequency</string>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="textAlignment">
+       <set>AlignCenter</set>
       </property>
      </column>
     </widget>
     <widget class="QFrame" name="frame_7">
      <property name="geometry">
       <rect>
-       <x>168</x>
-       <y>78</y>
-       <width>169</width>
+       <x>178</x>
+       <y>80</y>
+       <width>190</width>
        <height>221</height>
       </rect>
      </property>
@@ -495,9 +571,9 @@
      <widget class="QWidget" name="verticalLayoutWidget">
       <property name="geometry">
        <rect>
-        <x>14</x>
-        <y>4</y>
-        <width>153</width>
+        <x>12</x>
+        <y>6</y>
+        <width>172</width>
         <height>212</height>
        </rect>
       </property>
@@ -509,20 +585,20 @@
         <widget class="QRadioButton" name="radioButton_normal_axial">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -540,20 +616,20 @@
         <widget class="QRadioButton" name="radioButton_normal_bending_y">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -568,20 +644,20 @@
         <widget class="QRadioButton" name="radioButton_normal_bending_z">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -596,20 +672,20 @@
         <widget class="QRadioButton" name="radioButton_hoop">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -624,20 +700,20 @@
         <widget class="QRadioButton" name="radioButton_torsional_shear">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -652,20 +728,20 @@
         <widget class="QRadioButton" name="radioButton_transv_shear_xy">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -680,20 +756,20 @@
         <widget class="QRadioButton" name="radioButton_transv_shear_xz">
          <property name="minimumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>145</width>
+           <width>170</width>
            <height>18</height>
           </size>
          </property>
          <property name="font">
           <font>
            <family>Arial</family>
-           <pointsize>10</pointsize>
+           <pointsize>11</pointsize>
            <weight>75</weight>
            <italic>true</italic>
            <bold>true</bold>
@@ -710,9 +786,9 @@
     <widget class="QFrame" name="frame_6">
      <property name="geometry">
       <rect>
-       <x>168</x>
-       <y>302</y>
-       <width>169</width>
+       <x>178</x>
+       <y>306</y>
+       <width>190</width>
        <height>35</height>
       </rect>
      </property>
@@ -725,16 +801,28 @@
      <widget class="QCheckBox" name="checkBox_damping_effect">
       <property name="geometry">
        <rect>
-        <x>22</x>
-        <y>8</y>
-        <width>123</width>
-        <height>20</height>
+        <x>30</x>
+        <y>4</y>
+        <width>135</width>
+        <height>30</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>135</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>135</width>
+        <height>30</height>
+       </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>10</pointsize>
+        <pointsize>11</pointsize>
         <weight>75</weight>
         <italic>true</italic>
         <bold>true</bold>
@@ -751,11 +839,23 @@
     <widget class="QFrame" name="frame_3">
      <property name="geometry">
       <rect>
-       <x>164</x>
+       <x>178</x>
        <y>46</y>
-       <width>179</width>
-       <height>27</height>
+       <width>190</width>
+       <height>30</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>30</height>
+      </size>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -770,17 +870,29 @@
       <property name="geometry">
        <rect>
         <x>2</x>
-        <y>4</y>
-        <width>173</width>
-        <height>19</height>
+        <y>0</y>
+        <width>185</width>
+        <height>30</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>185</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>185</width>
+        <height>30</height>
+       </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>10</pointsize>
+        <pointsize>11</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -800,7 +912,7 @@
       <rect>
        <x>-1</x>
        <y>342</y>
-       <width>353</width>
+       <width>382</width>
        <height>17</height>
       </rect>
      </property>

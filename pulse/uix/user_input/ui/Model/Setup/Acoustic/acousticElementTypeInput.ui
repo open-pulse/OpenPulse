@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: Acoustic Element Type</string>
+   <string> Set: acoustic element type</string>
   </property>
   <property name="whatsThis">
    <string/>
@@ -188,7 +188,7 @@
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: rgb(255, 255, 255);
-color: rgb(0, 0, 0);</string>
+color: rgb(0, 0, 255);</string>
       </property>
       <property name="text">
        <string/>
@@ -378,65 +378,28 @@ color: rgb(0, 0, 0);</string>
        <attribute name="title">
         <string>Damping</string>
        </attribute>
-       <widget class="QLabel" name="label_18">
-        <property name="geometry">
-         <rect>
-          <x>238</x>
-          <y>70</y>
-          <width>70</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>70</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>70</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>11</pointsize>
-          <weight>75</weight>
-          <italic>true</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>[unit]</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_109">
         <property name="enabled">
          <bool>true</bool>
         </property>
         <property name="geometry">
          <rect>
-          <x>38</x>
-          <y>70</y>
-          <width>90</width>
-          <height>26</height>
+          <x>14</x>
+          <y>68</y>
+          <width>170</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>90</width>
-          <height>26</height>
+          <width>170</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>90</width>
-          <height>26</height>
+          <width>170</width>
+          <height>30</height>
          </size>
         </property>
         <property name="font">
@@ -452,7 +415,7 @@ color: rgb(0, 0, 0);</string>
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;hysteretic&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;hysteretic coefficient&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -464,7 +427,7 @@ color: rgb(0, 0, 0);</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>132</x>
+          <x>186</x>
           <y>70</y>
           <width>100</width>
           <height>26</height>
@@ -501,9 +464,9 @@ color: rgb(0, 0, 0);</string>
        <widget class="QLabel" name="label_5">
         <property name="geometry">
          <rect>
-          <x>26</x>
+          <x>36</x>
           <y>18</y>
-          <width>295</width>
+          <width>269</width>
           <height>32</height>
          </rect>
         </property>
@@ -527,6 +490,49 @@ color: rgb(0, 0, 0);</string>
         </property>
         <property name="text">
          <string>Insert a value to the damping:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_110">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>288</x>
+          <y>68</y>
+          <width>40</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>40</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>12</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;[ - ]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -608,13 +614,14 @@ color: rgb(0, 0, 0);</string>
       </property>
       <column>
        <property name="text">
-        <string>ELEMENT TYPE</string>
+        <string>Element type</string>
        </property>
        <property name="font">
         <font>
          <family>Arial</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
+         <italic>true</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -624,13 +631,14 @@ color: rgb(0, 0, 0);</string>
       </column>
       <column>
        <property name="text">
-        <string>LINES</string>
+        <string>Lines</string>
        </property>
        <property name="font">
         <font>
          <family>Arial</family>
          <pointsize>10</pointsize>
          <weight>75</weight>
+         <italic>true</italic>
          <bold>true</bold>
         </font>
        </property>
@@ -766,7 +774,7 @@ color: rgb(0, 0, 0);</string>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>18</x>
+      <x>8</x>
       <y>14</y>
       <width>250</width>
       <height>30</height>
@@ -777,7 +785,7 @@ color: rgb(0, 0, 0);</string>
       <family>Arial</family>
       <pointsize>14</pointsize>
       <weight>75</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
@@ -794,10 +802,10 @@ color: rgb(0, 0, 0);</string>
    <widget class="QWidget" name="verticalLayoutWidget_2">
     <property name="geometry">
      <rect>
-      <x>284</x>
-      <y>2</y>
-      <width>112</width>
-      <height>53</height>
+      <x>266</x>
+      <y>0</y>
+      <width>130</width>
+      <height>58</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -808,14 +816,14 @@ color: rgb(0, 0, 0);</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>110</width>
-         <height>21</height>
+         <width>128</width>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>25</height>
+         <width>128</width>
+         <height>24</height>
         </size>
        </property>
        <property name="font">
@@ -832,7 +840,7 @@ color: rgb(0, 0, 0);</string>
         <enum>Qt::ClickFocus</enum>
        </property>
        <property name="text">
-        <string>All</string>
+        <string>All lines</string>
        </property>
        <property name="checked">
         <bool>true</bool>
@@ -840,17 +848,17 @@ color: rgb(0, 0, 0);</string>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="radioButton_entity">
+      <widget class="QRadioButton" name="radioButton_selection">
        <property name="minimumSize">
         <size>
-         <width>110</width>
-         <height>21</height>
+         <width>128</width>
+         <height>24</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>100</width>
-         <height>25</height>
+         <width>128</width>
+         <height>24</height>
         </size>
        </property>
        <property name="font">
@@ -867,7 +875,7 @@ color: rgb(0, 0, 0);</string>
         <enum>Qt::ClickFocus</enum>
        </property>
        <property name="text">
-        <string>The Entity</string>
+        <string>Selected lines</string>
        </property>
        <property name="checked">
         <bool>false</bool>

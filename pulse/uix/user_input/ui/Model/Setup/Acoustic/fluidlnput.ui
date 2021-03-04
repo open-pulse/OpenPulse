@@ -35,7 +35,7 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string>Set: Fluid</string>
+   <string>Set: fluid</string>
   </property>
   <property name="windowIcon">
    <iconset>
@@ -130,7 +130,7 @@
        </font>
       </property>
       <property name="text">
-       <string>[200,125,250]</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -167,7 +167,7 @@
        </font>
       </property>
       <property name="text">
-       <string>6</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -302,7 +302,7 @@
        </font>
       </property>
       <property name="text">
-       <string>10</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -339,7 +339,7 @@
        </font>
       </property>
       <property name="text">
-       <string>teste</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -429,7 +429,7 @@
        </font>
       </property>
       <property name="text">
-       <string>300</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -3276,14 +3276,26 @@ selection-background-color: rgb(62, 255, 62);</string>
     <property name="lineWidth">
      <number>1</number>
     </property>
-    <widget class="QRadioButton" name="radioButton_entity">
+    <widget class="QRadioButton" name="radioButton_selected_lines">
      <property name="geometry">
       <rect>
-       <x>660</x>
+       <x>648</x>
        <y>12</y>
-       <width>103</width>
-       <height>23</height>
+       <width>135</width>
+       <height>25</height>
       </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>135</width>
+       <height>25</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>135</width>
+       <height>25</height>
+      </size>
      </property>
      <property name="font">
       <font>
@@ -3296,7 +3308,7 @@ selection-background-color: rgb(62, 255, 62);</string>
       </font>
      </property>
      <property name="text">
-      <string>The Entity</string>
+      <string>Selected lines</string>
      </property>
      <property name="checked">
       <bool>false</bool>
@@ -3305,10 +3317,10 @@ selection-background-color: rgb(62, 255, 62);</string>
     <widget class="QRadioButton" name="radioButton_all">
      <property name="geometry">
       <rect>
-       <x>576</x>
+       <x>540</x>
        <y>12</y>
-       <width>59</width>
-       <height>23</height>
+       <width>95</width>
+       <height>25</height>
       </rect>
      </property>
      <property name="font">
@@ -3322,7 +3334,7 @@ selection-background-color: rgb(62, 255, 62);</string>
       </font>
      </property>
      <property name="text">
-      <string>All</string>
+      <string>All lines</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -3392,7 +3404,8 @@ selection-background-color: rgb(62, 255, 62);</string>
       <enum>Qt::ClickFocus</enum>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 0);</string>
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
      </property>
      <property name="text">
       <string/>
@@ -3442,7 +3455,7 @@ selection-background-color: rgb(62, 255, 62);</string>
   <tabstop>lineEdit_dynamic_viscosity_remove</tabstop>
   <tabstop>pushButton_confirm_fluid_removal</tabstop>
   <tabstop>radioButton_all</tabstop>
-  <tabstop>radioButton_entity</tabstop>
+  <tabstop>radioButton_selected_lines</tabstop>
   <tabstop>treeWidget_fluids</tabstop>
   <tabstop>pushButton_confirm</tabstop>
   <tabstop>pushButton_reset_library</tabstop>

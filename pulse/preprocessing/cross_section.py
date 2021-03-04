@@ -413,7 +413,7 @@ if select == 1:
 
             labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
             dict_sections = dict(zip(labels, np.arange(7)))
-            
+
             try:
                 section_label, section_parameters = self.additional_section_info
                 section_type = dict_sections[section_label]

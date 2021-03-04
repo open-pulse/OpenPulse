@@ -30,7 +30,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
@@ -392,7 +392,7 @@ class CrossSectionInput(QDialog):
             self.cross_section = CrossSection(  outerDiameter, thickness, offset_y, offset_z, 
                                                 insulation_density=insulation_density, 
                                                 insulation_thickness=insulation_thickness, 
-                                                additional_section_info=section_info)
+                                                additional_section_info=section_info  )
 
         self.complete = True
         self.close()
@@ -449,8 +449,13 @@ class CrossSectionInput(QDialog):
                 self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
                 self.thickness = 0
                 section_info = ["Generic section", None]
-                self.cross_section = CrossSection(self.external_diameter, self.thickness, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, 
-                                                additional_section_info=section_info, shear_coefficient=shear_coefficient)
+                self.cross_section = CrossSection(  self.external_diameter, self.thickness, 0, 0, 
+                                                    area=area, 
+                                                    Iyy=Iyy, 
+                                                    Izz=Izz, 
+                                                    Iyz=Iyz, 
+                                                    additional_section_info=section_info, 
+                                                    shear_coefficient=shear_coefficient)
 
         self.complete = True
         self.close()
@@ -817,14 +822,19 @@ class CrossSectionBeamInput(QDialog):
             self.parameters.append(Yc)
             self.parameters.append(Zc)
 
-        self.external_diameter = 2*np.abs(np.sqrt(area/np.pi)) # TODO: update cross-section plot in the interface @Jose / @Andre
+        self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
         self.thickness = 0
         self.Yc = Yc
         self.Zc = Zc
 
         if not plot:
-            section_info = [self.section_label, self.parameters, None]
-            self.cross_section = CrossSection(self.external_diameter, self.thickness, 0, 0, area=area, Iyy=Iyy, Izz=Izz, Iyz=Iyz, additional_section_info=section_info)
+            section_info = [self.section_label, self.parameters]
+            self.cross_section = CrossSection(  self.external_diameter, self.thickness, 0, 0, 
+                                                area=area, 
+                                                Iyy=Iyy, 
+                                                Izz=Izz, 
+                                                Iyz=Iyz, 
+                                                additional_section_info=section_info)
             self.complete = True
             plt.close()
             self.close()

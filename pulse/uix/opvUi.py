@@ -37,6 +37,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.currentFrequencyIndice = -1
         self.needResetCamera = True
 
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+
         self.inputObject = None
 
         #Set initial plot & config
@@ -144,7 +147,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.GetRenderWindow().RemoveRenderer(self.rendererMesh.getRenderer())
         self.GetRenderWindow().RemoveRenderer(self.rendererAnalysis.getRenderer())
 
-        self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
+        # i have no idea why, but if this line is not disabled, symbolsActor breaks
+        # self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.rendererEntity.setInUse(False)
@@ -177,7 +181,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(True)
 
         # self._updateAxes()
-
+        self.change_plot_to_entities = True
+        self.change_plot_to_mesh = False
         self.setRenderer(self.rendererEntity)
         self.rendererEntity.resetCamera()
         self.afterChangePlot()
@@ -196,6 +201,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         # self.opvRenderer.selectEntities(False)
 
         # self._updateAxes()
+        self.change_plot_to_mesh = True
+        self.change_plot_to_entities = False
 
         self.setRenderer(self.rendererMesh)
         self.rendererMesh.resetCamera()
@@ -215,16 +222,36 @@ class OPVUi(QVTKRenderWindowInteractor):
         # i will just continue my code from here and we organize all 
         # these in the future. Im sorry
 
-        # self.setRenderer(self.opvAnalisysRenderer)
-        # self.opvAnalisysRenderer.updateHud()
+        self.setRenderer(self.opvAnalisysRenderer)
+        self.opvAnalisysRenderer.updateHud()
 
-        # if pressure_field_plot:
-        #     self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
-        # elif stress_field_plot:
-        #     self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
-        # else:
-        #     self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
+        if pressure_field_plot:
+            self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
+        elif stress_field_plot:
+            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
+        else:
+            self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
 
+        self.afterChangePlot()
+        self._updateAxes()
+
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+        
+        # # TODO: delete this 
+        # self.beforeChangePlot()
+        # self.changeFrequency(frequency_indice)
+        # self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        # if self.project.analysis_ID in [4]:
+        #     self.rendererAnalysis.setColorScalling(real_part)
+        # self.rendererAnalysis.setSliderFactor(self.sliderScale)        
+        # self.rendererAnalysis.setInUse(True)
+        # # self.rendererAnalysis.setStress(plot_stress_field)
+        # self.SetInteractorStyle(self.rendererAnalysis.getStyle())
+        # self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
+        # self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
+        # if self.needResetCamera:
+        #     self.rendererAnalysis.resetCamera()
         # self.afterChangePlot()
         # self._updateAxes()
         

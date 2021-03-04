@@ -1,6 +1,7 @@
 import sys
 import os
 import platform
+import vtk
 from PyQt5 import Qt, QtCore, QtWidgets
 
 from pulse.uix.mainWindow import MainWindow
@@ -23,6 +24,11 @@ def init():
         Todo:
             Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
     """
+    
+    # disables vtk terrible error threatment
+    # you may want to enable them while debugging something
+    vtk.vtkObject.GlobalWarningDisplayOff() 
+
     if platform.system() == "Windows":
         sys.argv.append("--platform")
         sys.argv.append("windows:dpiawareness=0")

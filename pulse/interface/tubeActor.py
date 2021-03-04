@@ -6,11 +6,13 @@ from scipy.spatial.transform import Rotation
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project):
+    def __init__(self, elements, project, **kwargs):
         super().__init__()
 
         self.elements = elements
         self.project = project
+        self.pressure_plot = kwargs.get('pressure_plot', False)
+        
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
         self.transparent = True
@@ -30,7 +32,7 @@ class TubeActor(vtkActorBase):
     @transparent.setter
     def transparent(self, value):
         if value:
-            self._actor.GetProperty().SetOpacity(0.1)
+            self._actor.GetProperty().SetOpacity(0.2)
             self._actor.GetProperty().SetLighting(False)
         else:
             self._actor.GetProperty().SetOpacity(1)
@@ -101,7 +103,7 @@ class TubeActor(vtkActorBase):
         c.DeepCopy(self._colors)
         for key, element in self.elements.items():
             index = self._key_index[key]
-            color = self.colorTable.get_color_by_id(element.first_node.global_index)
+            color = self.colorTable.get_color(element)
             c.SetTuple(index, color)
 
         self._data.GetPointData().SetScalars(c)
@@ -119,14 +121,29 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
+        if (element.cross_section is None):
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(3)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(1e-6)
+            return poly
 
-        # we should get this info like this
-        if element.cross_section is None:
-            outer_points = [(0,0), (0,1e-6), (1e-6,0)]
-            inner_points = []
-        else:
-            outer_points, inner_points = element.cross_section.get_cross_section_points()
+        if self.pressure_plot and (element.element_type in ['beam_1']):
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(3)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(1e-6)
+            return poly
 
+        if self.pressure_plot and (element.element_type not in ['beam_1']):
+            r = element.cross_section.external_radius
+            poly = vtk.vtkRegularPolygonSource()
+            poly.SetNumberOfSides(20)
+            poly.SetNormal(1,0,0)
+            poly.SetRadius(r)
+            return poly
+
+        outer_points, inner_points = element.cross_section.get_cross_section_points()
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
         
@@ -151,14 +168,14 @@ class TubeActor(vtkActorBase):
 
         # create external polygon
         outerData.SetPoints(points)
-        delaunay.SetProjectionPlaneMode(2)
-        delaunay.SetInputData(outerData)
 
         #TODO: clean-up the structure below
         if number_inner_points >= 3:
+            
+            delaunay.SetProjectionPlaneMode(2)
+            delaunay.SetInputData(outerData)
 
             # remove inner area for holed sections
-
             for i in range(number_inner_points):
                 innerPolygon.GetPointIds().InsertNextId(i)
 
