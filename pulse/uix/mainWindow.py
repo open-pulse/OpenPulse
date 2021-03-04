@@ -439,21 +439,22 @@ class MainWindow(QMainWindow):
         if path != "":
             self.getOPVWidget().savePNG(path)
 
+
+
     def plot_entities(self):
-        self.opv_widget.plotEntities()
         self.opv_widget.changePlotToEntities()
 
     def plot_entities_radius(self):
-        self.opv_widget.plotEntities(True)
-        self.opv_widget.changePlotToEntities()
+        self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
 
     def draw(self):
-        self.opv_widget.plotEntities()
-        self.opv_widget.plotMesh()
-        self.plot_entities()
+        self.opv_widget.updatePlots()
+        self.plot_entities_radius()
+
+
 
     def closeEvent(self, event):
         close = QMessageBox.question(

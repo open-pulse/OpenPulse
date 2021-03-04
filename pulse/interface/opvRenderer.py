@@ -20,8 +20,12 @@ class opvRenderer(vtkRendererBase):
 
         self.nodesBounds = dict()
         self.elementsBounds = dict()
-        self.entitiesBounds = dict()
+        self.lineToElements = dict()
 
+        self._selectionToNodes = False
+        self._selectionToElements = False
+        self._selectionToEntities = False
+    
         self.opvNodes = None 
         self.opvLines = None
         self.opvTubes = None 
@@ -34,6 +38,7 @@ class opvRenderer(vtkRendererBase):
         self.reset()
         self.saveNodesBounds()
         self.saveElementsBounds()
+        self.saveLineToElements()
 
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
@@ -51,6 +56,8 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvLines)
         plt(self.opvTubes)
 
+        self.updateColors()
+
         self._renderer.ResetCameraClippingRange()
 
     def showNodes(self, cond=True):
@@ -64,20 +71,19 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.setVisibility(cond)
     
     def showSymbols(self, cond=True):
+        self.opvSymbols.build()
         self.opvSymbols.setVisibility(cond)
 
-    # TODO: implement this
-    def selectLines(self, cond):
-        pass 
-
-    def selectTubes(self, cond):
-        pass
-
     def selectNodes(self, cond):
-        pass
+        self._selectionToNodes = cond
+
+    def selectElements(self, cond):
+        self._selectionToElements = cond 
+        self._selectionToEntities = self._selectionToEntities and not cond
 
     def selectEntities(self, cond):
-        pass
+        self._selectionToEntities = cond 
+        self._selectionToElements = self._selectionToElements and not cond
 
 
     def reset(self):
@@ -111,6 +117,10 @@ class opvRenderer(vtkRendererBase):
 
             bounds = (x0,x1,y0,y1,z0,z1)
             self.elementsBounds[key] = bounds
+
+    def saveLineToElements(self):
+        mesh = self.project.get_mesh()
+        self.lineToElements = mesh.line_to_elements
     
     def getListPickedPoints(self):
         return self._style.getListPickedPoints()
@@ -119,7 +129,21 @@ class opvRenderer(vtkRendererBase):
         return self._style.getListPickedElements()
 
     def getListPickedEntities(self):
-        return []
+        return self._style.getListPickedEntities()
+
+    def updateColors(self):
+        visual = [self.opvNodes, self.opvLines, self.opvTubes]
+        if any([v is None for v in visual]):
+            return
+        
+        nodesColor = (255, 255, 63)
+        linesColor = (255, 255, 0)
+        tubesColor = (255, 255, 255)
+
+        self.opvNodes.setColor(nodesColor)
+        self.opvLines.setColor(linesColor)
+        self.opvTubes.setColor(tubesColor)
+
     
     def highlight(self, obj, event):
         visual = [self.opvNodes, self.opvLines, self.opvTubes]
@@ -128,77 +152,26 @@ class opvRenderer(vtkRendererBase):
 
         selectedNodes = self.getListPickedPoints()
         selectedElements = self.getListPickedElements()
-        selectedEntities = []
+        selectedEntities = self.getListPickedEntities()
         
-        nodesColor = (255, 255, 63)
-        linesColor = (255, 255, 0)#(10, 10, 10)
-        tubesColor = (255, 255, 255)
+        self.updateColors()  # clear colors
         selectionColor = (255, 0, 0)
 
-        # clear colors
-        self.opvNodes.setColor(nodesColor)
-        self.opvLines.setColor(linesColor)
-        self.opvTubes.setColor(tubesColor)
-
-        if selectedNodes:
+        if selectedNodes and self._selectionToNodes:
             self.opvNodes.setColor(selectionColor, keys=selectedNodes)
 
-        if selectedElements:
+        if selectedElements and self._selectionToElements:
             self.opvLines.setColor(selectionColor, keys=selectedElements)
             self.opvTubes.setColor(selectionColor, keys=selectedElements)
 
-    # info text
-    def updateInfoText(self, obj, event):
-        text = ''
+        if selectedEntities and self._selectionToEntities:
+            elementsFromEntities = set()
+            for i in selectedEntities:
+                elements = self.lineToElements[i]
+                elementsFromEntities = elementsFromEntities.union(elements)
 
-        if True: # if selection enabled
-            text += self.getElementsInfoText() + '\n'
-        
-        if True: # if selection enabled
-            text += self.getNodesInfoText() + '\n'
-        
-        if True: # if selection enabled
-            text += self.getEntityInfoText()  + '\n'
-            
-        self.createInfoText(text)
-        self.update()
-
-    def getNodesInfoText(self):
-        listSelected = self.getListPickedPoints()
-        size = len(listSelected)
-
-        if size == 1:
-            node = self.project.get_node(listSelected[0])
-            text = str(node)
-        elif size > 1:
-            text = f'{size} NODES IN SELECTION: \n'     
-            text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[10:20]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[20:30])  
-            text += '...\n' if size>30 else '\r'
-        else:
-            text = ''
-        return text
-    
-    def getElementsInfoText(self, *args, **kwargs):
-        listSelected = self.getListPickedElements()
-        size = len(listSelected)
-
-        if size == 1:
-            element = self.project.get_structural_element(listSelected[0])
-            text = str(element)
-        elif size > 1:
-            text = f'{size} ELEMENTS IN SELECTION: \n'     
-            text += ''.join(str(i)+' ' for i in listSelected[0:10]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[10:20]) + '\n'  
-            text += ''.join(str(i)+' ' for i in listSelected[20:30]) 
-            text += '...\n' if size>30 else '\r'
-        else:
-            text = ''
-        return text
-    
-    def getEntityInfoText(self, *args, **kwargs):
-        return ''
+            self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
+            self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
 
     def getPlotRadius(self, *args, **kwargs):
         return 
@@ -206,5 +179,382 @@ class opvRenderer(vtkRendererBase):
     def changeColorEntities(self, *args, **kwargs):
         return 
 
-    def setPlotRadius(self, plt):
+    def setPlotRadius(self, *args, **kwargs):
         pass
+
+    # LA ABERRACIÓN
+    def updateInfoText(self, obj, event):
+        text = ''
+        if self._selectionToNodes: # if selection enabled
+            text += self.getNodesInfoText() + '\n'
+
+        if self._selectionToElements: # if selection enabled
+            text += self.getElementsInfoText() + '\n'
+        
+        if self._selectionToEntities: # if selection enabled
+            text += self.getEntityInfoText()  + '\n'
+            
+        self.createInfoText(text)
+        self.update()
+
+    def getNodesInfoText(self):
+        listSelected = self.getListPickedPoints()
+        text = ''
+        if len(listSelected) == 1:
+            node = self.project.get_node(listSelected[0])
+            nodeId = listSelected[0]
+            nodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(node.x, node.y, node.z)
+            text = f'NODE ID: {nodeId} \n   Position: ({nodePosition}) [m]\n'
+
+            if node in self.project.mesh.nodes_with_prescribed_dofs:
+                values = node.prescribed_dofs
+                labels = np.array(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'])
+                unit_labels = ['m', 'rad']
+                text += self.structuralNodalInfo(values, labels, 'PRESCRIBED DOFs', unit_labels, node.loaded_table_for_prescribed_dofs)
+
+            if node in self.project.mesh.nodes_with_nodal_loads:
+                values = node.nodal_loads
+                labels = np.array(['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'])
+                unit_labels = ['N', 'N.m']
+                text += self.structuralNodalInfo(values, labels, 'NODAL LOADS', unit_labels, node.loaded_table_for_nodal_loads)
+
+            if node in self.project.mesh.nodes_connected_to_springs:
+                values = node.lumped_stiffness
+                labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
+                unit_labels = ['N/m', 'N.m/rad']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED STIFFNESS', unit_labels, node.loaded_table_for_lumped_stiffness)
+
+            if node in self.project.mesh.nodes_connected_to_dampers:
+                values = node.lumped_dampings
+                labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
+                unit_labels = ['N.s/m', 'N.m.s/rad']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED DAMPINGS', unit_labels, node.loaded_table_for_lumped_dampings)
+
+            if node in self.project.mesh.nodes_with_masses:
+                values = node.lumped_masses
+                labels = np.array(['mx', 'my', 'mz', 'Jx', 'Jy', 'Jz'])
+                unit_labels = ['kg', 'N.m²']
+                text += self.structuralNodalInfo(values, labels, 'LUMPED MASSES', unit_labels, node.loaded_table_for_lumped_masses)
+
+            if node.there_are_elastic_nodal_link_stiffness:
+                index = node.external_index
+                labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
+                unit_labels = ['N/m', 'N.m/rad']
+                for key, [_, values] in node.elastic_nodal_link_stiffness.items():
+                    linked_nodes = [int(node_id) for node_id in key.split('-')]
+                    if index in linked_nodes:            
+                        text += self.structuralNodalInfo(values, labels, f'STIFFNESS ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_stiffness)
+
+            if node.there_are_elastic_nodal_link_damping:
+                index = node.external_index
+                labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
+                unit_labels = ['N.s/m', 'N.m.s/rad']
+                for key, [_, values] in node.elastic_nodal_link_damping.items():
+                    linked_nodes = [int(node_id) for node_id in key.split('-')]
+                    if index in linked_nodes:            
+                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
+ 
+            if node in self.project.mesh.nodes_with_acoustic_pressure:
+                value = node.acoustic_pressure
+                label = 'P'
+                unit_label = '[Pa]'
+                text += self.acousticNodalInfo(value, label, 'ACOUSTIC PRESSURE', unit_label)
+   
+            if node in self.project.mesh.nodes_with_volume_velocity:
+                value = node.volume_velocity
+                label = 'Q'
+                unit_label = '[m³/s]'
+                if node.compressor_connection_info is None:
+                    text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+                else:
+                    connection_type = f'  Connection type: {node.compressor_connection_info} \n'
+                    bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
+                    text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
+            
+            if node in self.project.mesh.nodes_with_specific_impedance:
+                value = node.specific_impedance
+                label = 'Zs'
+                unit_label = '[kg/m².s]'
+                text += self.acousticNodalInfo(value, label, 'SPECIFIC IMPEDANCE', unit_label)
+
+            if node in self.project.mesh.nodes_with_radiation_impedance:
+                Z_type = node.radiation_impedance_type
+                _dict = {0:'anechoic termination', 1:'unflanged pipe', 2:'flanged pipe'}
+                label = 'Type'
+                value = _dict[Z_type]
+                unit_label = ''
+                text += self.acousticNodalInfo(value, label, 'RADIATION IMPEDANCE', unit_label)
+
+        elif len(listSelected) > 1:
+            text += f'{len(listSelected)} NODES IN SELECTION: \n'
+            for i, ids in enumerate(listSelected):
+                if i == 30:
+                    text += '...'
+                    break
+                text += f'{ids} '
+                if i ==10 or i==20:
+                    text += '\n'
+        return text
+
+    def structuralNodalInfo(self, values, labels, bc_label, unit_labels, isThereTable):
+        mask = [True if value is not None else False for value in values]
+        indexes = np.arange(6)
+        masked_labels = labels[mask]
+        masked_indexes = indexes[mask]
+        text = f'\n{bc_label}: \n'
+
+        for index, label  in enumerate(masked_labels):
+            if isThereTable:
+                value = 'Table'
+                unit = ''
+            else:
+                value = values[masked_indexes[index]]
+                if masked_indexes[index] in [0,1,2]:
+                    unit = f'[{unit_labels[0]}]'
+                else:
+                    unit = f'[{unit_labels[1]}]'
+                text += f'  {label} = {value} {unit} \n'
+
+        return text
+
+    def acousticNodalInfo(self, value, label, bc_label, unit_label, aditional_info=None):
+        text = f'\n{bc_label}: \n'
+        if aditional_info is not None:
+            text += aditional_info
+        if isinstance(value, np.ndarray):
+            text += f'  {label} <--> Table of values \n'
+        else:
+            unit = f'{unit_label}'
+            text += f'  {label} = {value} {unit} \n'
+
+        return text
+
+    def getElementsInfoText(self):
+        listSelected = self.getListPickedElements()
+        text = ''
+        if len(listSelected) == 1:
+            structural_element = self.project.get_structural_element(listSelected[0])
+            acoustic_element = self.project.get_acoustic_element(listSelected[0])
+            
+            if structural_element.cross_section is None: 
+                external_diameter = 'undefined'
+                thickness = 'undefined'
+                offset_y = 'undefined'
+                offset_z = 'undefined'
+                insulation_thickness = 'undefined'
+                insulation_density = 'undefined'
+            else:
+                external_diameter = structural_element.cross_section.external_diameter
+                thickness = structural_element.cross_section.thickness
+                offset_y = structural_element.cross_section.offset_y
+                offset_z = structural_element.cross_section.offset_z
+                insulation_thickness = structural_element.cross_section.insulation_thickness
+                insulation_density = structural_element.cross_section.insulation_density
+            
+            if structural_element.material is None:
+                material = 'undefined'
+            else:
+                material = structural_element.material.name.upper()
+
+            if structural_element.fluid is None:
+                fluid = 'undefined'
+            else:
+                fluid = structural_element.fluid.name.upper()
+
+            if structural_element.element_type is None:
+                structural_element_type = 'undefined'
+            elif 'BEAM' in structural_element.element_type.upper():
+
+                area = structural_element.cross_section.area
+                Iyy = structural_element.cross_section.second_moment_area_y
+                Izz = structural_element.cross_section.second_moment_area_z
+                Iyz = structural_element.cross_section.second_moment_area_yz
+                additional_section_info = structural_element.cross_section.additional_section_info
+
+                if additional_section_info is None:
+                    structural_element_type = "{} (-)".format(structural_element.element_type)
+                else:
+                    structural_element_type = "{} ({})".format(structural_element.element_type, additional_section_info[0].capitalize())
+
+            else:
+                structural_element_type = structural_element.element_type
+
+            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.first_node.x, structural_element.first_node.y, structural_element.first_node.z)
+            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.last_node.x, structural_element.last_node.y, structural_element.last_node.z)
+            
+            rotations = structural_element.section_rotation_xyz_undeformed
+            str_rotations = '{:.3f}, {:.3f}, {:.3f}'.format(rotations[0], rotations[1], rotations[2])
+
+            text += f'Element ID: {listSelected[0]} \n'
+            text += f'First Node ID: {structural_element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
+            text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n'
+            text += f'Rotations xyz: ({str_rotations})[deg]\n\n'
+            text += f'Material: {material} \n'
+            text += f'Strutural element type: {structural_element_type} \n'
+            
+            if "PIPE" in structural_element_type:        
+                text += f'Diameter: {external_diameter} [m]\n'
+                text += f'Thickness: {thickness} [m]\n'
+                if offset_y != 0 or offset_z != 0:
+                    text += f'Offset y: {offset_y} [m]\n'
+                    text += f'Offset z: {offset_z} [m]\n'
+                if insulation_thickness != 0 or insulation_density != 0:
+                    text += f'Insulation thickness: {insulation_thickness} [m]\n'
+                    text += f'Insulation density: {insulation_density} [kg/m³]\n'
+
+            elif "BEAM" in structural_element_type:
+                text += 'Area:  {} [m²]\n'.format(area)
+                text += 'Iyy:  {} [m^4]\n'.format(Iyy)
+                text += 'Izz:  {} [m^4]\n'.format(Izz)
+                text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+            
+            if structural_element.fluid is not None:
+                text += f'\nFluid: {fluid} \n'
+            if acoustic_element.element_type is not None:
+                text += f'Acoustic element type: {acoustic_element.element_type} \n'
+            if acoustic_element.hysteretic_damping is not None:
+                text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+
+        elif len(listSelected) > 1:
+            text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'
+            for i, ids in enumerate(listSelected):
+                if i == 30:
+                    text += '...'
+                    break
+                text += f'{ids} '
+                if i ==10 or i==20:
+                    text += '\n'
+        return text
+
+    def getEntityInfoText(self):
+        listActorsIDs = self.getListPickedEntities()
+        text = ''
+        if len(listActorsIDs) == 0: 
+            text = ''
+
+        elif len(listActorsIDs) == 1:
+
+            entity = self.project.get_entity(listActorsIDs[0])
+            
+            structural_element_type = 'undefined'
+            material_name = 'undefined'
+            diam_ext, thickness = 'undefined', 'undefined'
+            offset_y, offset_z = 'undefined', 'undefined'
+            
+            if entity.material is not None:
+                material_name = entity.material.name
+
+            if entity.structural_element_type is not None:
+                structural_element_type = entity.structural_element_type
+
+            if entity.tag in (self.project.lines_multiples_cross_sections or self.project.file.lines_multiples_cross_sections):
+
+                if len(self.project.lines_multiples_cross_sections) != 0:
+                    number_cross_sections = self.project.lines_multiples_cross_sections.count(entity.tag)
+                    # print(self.project.lines_multiples_cross_sections)
+
+                if len(self.project.file.lines_multiples_cross_sections) != 0:
+                    number_cross_sections = self.project.file.lines_multiples_cross_sections.count(entity.tag)
+                    # print(self.project.file.lines_multiples_cross_sections)
+
+                if entity.structural_element_type not in [None, 'beam_1']:
+                
+                    diam_ext, thickness = 'multiples', 'multiples'
+                    offset_y, offset_z = 'multiples', 'multiples'
+                    insulation_thickness, insulation_density = 'multiples', 'multiples'
+
+                    text = 'Line ID  {} ({} cross-sections)\n\n'.format(listActorsIDs[0], number_cross_sections)              
+                    text += 'Material:  {}\n'.format(entity.material.name)
+                    text += f'Structural element type:  {structural_element_type}\n'
+                    text += f'External diameter: {diam_ext} [m]\n'
+                    text += f'Thickness: {thickness} [m]\n'
+                    if offset_y != 0 or offset_z != 0:
+                        text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
+                    if insulation_thickness != 0 or insulation_density != 0: 
+                        text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                    
+                    if entity.fluid is not None:
+                        text += f'\nFluid: {entity.fluid}' 
+
+                    if entity.acoustic_element_type is not None:
+                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+                    if entity.hysteretic_damping is not None:
+                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
+
+            else:
+
+                text = ''
+                text += f'Line ID  {listActorsIDs[0]}\n\n'
+
+                if entity.structural_element_type is not None:
+                    text += f'Structural element type:  {structural_element_type}\n'
+                
+                if entity.material is not None:
+                    text += f'Material:  {entity.material.name}\n'
+
+                if entity.cross_section is not None:
+                    if entity.structural_element_type not in [None, 'beam_1']:
+                        
+                        diam_ext = entity.cross_section.external_diameter
+                        thickness = entity.cross_section.thickness
+                        offset_y = entity.cross_section.offset_y
+                        offset_z = entity.cross_section.offset_z
+                        insulation_thickness = entity.cross_section.insulation_thickness
+                        insulation_density = entity.cross_section.insulation_density
+                                            
+                        text += f'External Diameter:  {diam_ext} [m]\n'
+                        text += f'Thickness:  {thickness} [m]\n'
+                        if offset_y != 0 or offset_z != 0:
+                            text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
+                        if insulation_thickness != 0 or insulation_density != 0: 
+                            text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                           
+                    if entity.structural_element_type in ['beam_1']:
+
+                        # text = ''
+                        area = entity.cross_section.area
+                        Iyy = entity.cross_section.second_moment_area_y
+                        Izz = entity.cross_section.second_moment_area_z
+                        Iyz = entity.cross_section.second_moment_area_yz
+                        additional_section_info = entity.getCrossSection().additional_section_info
+
+                        text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
+                        text += 'Material:  {}\n'.format(material_name)
+
+                        if additional_section_info is not None:
+                            text += 'Structural element type:  {} ({})\n'.format(structural_element_type, additional_section_info[0].capitalize())
+                        else:
+                            text += 'Structural element type:  {} (-)\n'.format(structural_element_type)
+
+                        text += 'Area:  {} [m²]\n'.format(area)
+                        text += 'Iyy:  {} [m^4]\n'.format(Iyy)
+                        text += 'Izz:  {} [m^4]\n'.format(Izz)
+                        text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+
+                if entity.fluid is not None:
+                    text += f'\nFluid: {entity.fluid.name}' 
+
+                if entity.acoustic_element_type is not None:
+                    text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+
+                if entity.hysteretic_damping is not None:
+                    text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+
+        else:
+
+            text = '{} lines in selection:\n\n'.format(len(listActorsIDs))
+            i = 0
+            for ids in listActorsIDs:
+                if i == 30:
+                    text += '...'
+
+                    break
+                elif i == 19: 
+                    text += '{}\n'.format(ids)
+                elif i == 9:
+                    text += '{}\n'.format(ids)
+                else:
+                    text += '{}  '.format(ids)
+                i+=1
+                
+        return text

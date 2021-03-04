@@ -132,6 +132,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.__pixelData = vtk.vtkUnsignedCharArray()  
         self.__selectedPoints = set()
         self.__selectedElements = set()
+        self.__selectedEntities = set()
         self.__selectionColor = (255, 0, 0, 255)
         
         self.clickPosition = (0,0)
@@ -248,6 +249,7 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         pickedPoints = self.pickPoints(x0,y0,x1,y1)
         pickedElements = self.pickElements(x0,y0,x1,y1)
+        pickedEntities = self.pickEntities(pickedElements)
 
         # give preference to points selection
         if len(pickedPoints) == 1 and len(pickedElements) == 1:
@@ -257,13 +259,16 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         if controlPressed or shiftPressed:
             self.__selectedPoints |= pickedPoints
             self.__selectedElements |= pickedElements      
+            self.__selectedEntities |= pickedEntities
         elif altPressed:
             self.__selectedPoints -= pickedPoints
             self.__selectedElements -= pickedElements  
+            self.__selectedEntities -= pickedEntities
         else:
             self.__selectedPoints = pickedPoints
             self.__selectedElements = pickedElements
-        
+            self.__selectedEntities = pickedEntities  
+
         self.InvokeEvent('SelectionChangedEvent')
 
     # 
@@ -317,9 +322,20 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         return pickedElements
 
+    def pickEntities(self, pickedElements):
+        entities = set()
+        for index, line in self.__rendererMesh.lineToElements.items():
+            for element in pickedElements:
+                if element in line:
+                    entities.add(index)
+                    break
+        return entities
+        
+
     def clear(self):
         self.__selectedPoints.clear()
         self.__selectedElements.clear()
+        self.__selectedEntities.clear()
         self.InvokeEvent('SelectionChangedEvent')
         
     def getListPickedPoints(self):
@@ -327,3 +343,6 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     
     def getListPickedElements(self):
         return list(self.__selectedElements)
+    
+    def getListPickedEntities(self):
+        return list(self.__selectedEntities)

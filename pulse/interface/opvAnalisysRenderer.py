@@ -29,7 +29,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         # just ignore it 
         self.nodesBounds = dict()
         self.elementsBounds = dict()
-        self.entitiesBounds = dict()
+        self.lineToElements = dict()
 
         self.opvDeformedTubes = None
         self.opvPressureTubes = None
