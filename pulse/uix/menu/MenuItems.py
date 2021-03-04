@@ -295,6 +295,7 @@ class MenuItems(QTreeWidget):
         elif item.text(0) == self.name_child_set_material:
             self.update_plot_entities()
             self.mainWindow.getInputWidget().set_material()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_crossSection:
             self.update_plot_entities()
@@ -304,68 +305,84 @@ class MenuItems(QTreeWidget):
         elif item.text(0) == self.name_child_setPrescribedDofs:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().setDOF()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setRotationDecoupling:
             self.update_plot_mesh()
             
             self.mainWindow.getInputWidget().setRotationDecoupling()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setNodalLoads:
             self.update_plot_mesh()
             
             self.mainWindow.getInputWidget().setNodalLoads()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_addMassSpringDamper:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().addMassSpringDamper()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setcappedEnd:
             # self.update_plot_entities()
             self.mainWindow.getInputWidget().setcappedEnd()
+            # self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_stress_stiffening:
             # self.update_plot_entities()
             self.mainWindow.getInputWidget().set_stress_stress_stiffening()
+            # self.mainWindow.plot_entities()
         
         elif item.text(0) == self.name_child_add_elastic_nodal_links:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_elastic_nodal_links()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setAcousticElementType:
             self.update_plot_entities()
             self.mainWindow.getInputWidget().set_acoustic_element_type()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_set_fluid: 
             self.update_plot_entities()
             self.mainWindow.getInputWidget().set_fluid()
+            self.mainWindow.plot_entities()
 
         elif item.text(0) == self.name_child_setAcousticPressure:
             self.update_plot_mesh()      
             self.mainWindow.getInputWidget().setAcousticPressure()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setVolumeVelocity: 
             self.update_plot_mesh()  
             self.mainWindow.getInputWidget().setVolumeVelocity()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_setSpecificImpedance:
             self.update_plot_mesh() 
             self.mainWindow.getInputWidget().setSpecificImpedance()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_set_radiation_impedance:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().set_radiation_impedance()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_add_perforated_plate:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_perforated_plate()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_set_acoustic_element_length_correction:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().set_acoustic_element_length_correction()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_add_compressor_excitation:
             self.update_plot_mesh()
             self.mainWindow.getInputWidget().add_compressor_excitation()
+            self.mainWindow.plot_mesh()
 
         elif item.text(0) == self.name_child_selectAnalysisType:
             self.mainWindow.getInputWidget().analysisTypeInput()
