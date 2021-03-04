@@ -6,6 +6,20 @@ from pulse.processing.assembly_structural import AssemblyStructural
 from pulse.utils import error
 
 class SolutionStructural:
+    """ This class creates a Structural Solution object from input data.
+
+    Parameters
+    ----------
+    mesh : Mesh object
+        Structural finite element mesh.
+
+    frequencies : array
+        Frequencies of analysis.
+
+    acoustic_solution : array, optional
+        Solution of the acoustic FETM model. This solution is need to solve the coupled problem.
+        Default is None.
+    """
 
     def __init__(self, mesh, frequencies, **kwargs):
 
@@ -33,6 +47,22 @@ class SolutionStructural:
         self.solution = None
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
+        """
+        This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.
+
+        Parameters
+        ----------
+        solution : array
+            Solution data from the direct method, modal superposition or modal shapes from modal analysis.
+
+        modal_analysis : boll, optional
+            True if the modal analysis was evaluated.
+
+        Returns
+        ----------
+        array
+            Solution of all the degrees of freedom.
+        """
         rows = solution.shape[0] + len(self.prescribed_indexes)
         cols = solution.shape[1]
         full_solution = np.zeros((rows, cols), dtype=complex)
@@ -45,6 +75,19 @@ class SolutionStructural:
 
 
     def get_combined_loads(self, global_damping):
+        """
+        This method adds the effects of prescribed displacement and rotation into global loads vector.
+
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
+
+        Returns
+        ----------
+        array
+            Force and moment global loads. Each column corresponds to a frequency of analysis.
+        """
         # t0 = time()
         alphaV, betaV, alphaH, betaH = global_damping
 
@@ -96,6 +139,40 @@ class SolutionStructural:
 
 
     def modal_analysis(self, K=[], M=[], modes=20, which='LM', sigma=0.01, harmonic_analysis=False):
+        """
+        This method evaluates the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
+
+        Parameters
+        ----------
+        modes : int, optional
+            Number of acoustic modes to be evaluated.
+            Default is 20.
+
+        which : str, ['LM' | 'SM' | 'LR' | 'SR' | 'LI' | 'SI'], optional
+            Which `k` eigenvectors and eigenvalues to find:
+                'LM' : largest magnitude
+                'SM' : smallest magnitude
+                'LR' : largest real part
+                'SR' : smallest real part
+                'LI' : largest imaginary part
+                'SI' : smallest imaginary part
+            Default is 'LM'.
+
+        sigma : float, optional
+            Find eigenvalues near sigma in (rad/s)^2 using shift-invert mode. 
+
+        harmonic_analysis : boll, optional
+            True when the modal analysis is used to perform mode superposition. False otherwise.
+            Default is False.
+
+        Returns
+        ----------
+        natural_frequencies : array
+            Natural frequencies.
+
+        modal_shapes : array
+            Modal shapes
+        """
 
         if K==[] and M==[]:
             if self.assembly.no_table:
@@ -131,13 +208,18 @@ class SolutionStructural:
 
 
     def direct_method(self, global_damping):
+        """
+        This method evaluates the harmonic analysis through direct method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
 
-        """ 
-            Perform an harmonic analysis through direct method and returns the response of
-            all nodes due the external or internal equivalent load. It has been implemented two
-            different damping models: Viscous Proportional and Hysteretic Proportional
-            Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
-            Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
+
+        Returns
+        ----------
+        array
+            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
 
         alphaV, betaV, alphaH, betaH = global_damping
@@ -170,13 +252,26 @@ class SolutionStructural:
 
 
     def mode_superposition(self, modes, global_damping, F_loaded=None, fastest=True):
-        
-        """ 
-            Perform an harmonic analysis through superposition method and returns the response of
-            all nodes due the external or internal equivalent load. It has been implemented two
-            different damping models: Viscous Proportional and Hysteretic Proportional
-            Entries for Viscous Proportional Model Damping: (alpha_v, beta_v)
-            Entries for Hyteretic Proportional Model Damping: (alpha_h, beta_h)
+        """
+        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.
+
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
+
+        F_loaded : ,optional.
+            
+            Default None.
+
+        fastest : boll, optional.
+            True if 3D matrix solution procedure must be used. False otherwise.
+            Default True.
+
+        Returns
+        ----------
+        array
+            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
         alphaV, betaV, alphaH, betaH = global_damping
 
@@ -240,9 +335,19 @@ class SolutionStructural:
 
 
     def get_reactions_at_fixed_nodes(self, global_damping_values=(0,0,0,0)):
+        """
+        This method evaluates reaction forces and moments at fixed nodes.
 
-        ''' This method returns reaction forces/moments at fixed points.
-            load_reactions = [lines=frequencies; columns=reactions_at_node]'''
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
+
+        Returns
+        ----------
+        array
+            Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
+        """
 
         alphaH, betaH, alphaV, betaV = global_damping_values
         load_reactions = {}
@@ -274,6 +379,14 @@ class SolutionStructural:
 
 
     def get_reactions_at_springs_and_dampers(self):
+        """
+        This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
+
+        Returns
+        ----------
+        array
+            Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a spring and damper.
+        """
 
         dict_reactions_at_springs = {}
         dict_reactions_at_dampers = {}
@@ -324,6 +437,34 @@ class SolutionStructural:
 
 
     def stress_calculate(self, global_damping, pressure_external = 0, damping_flag = False):
+        """
+        This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
+
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
+
+        pressure_external : float, optional
+            Static pressure difference between atmosphere and the fluid in the pipeline.
+            Default is 0.
+            
+        damping_flag : boll, optional.
+            True if the damping must be considered when evaluating the stresses. False otherwise.
+            Default is False
+
+        Returns
+        ----------
+        array
+            Stresses. Each column corresponds to a element. The rows corresponds to the:
+                Normal axial stress
+                Normal bending-y stress 
+                Normal bending-z stress 
+                Hoop stress
+                Torsional shear
+                Transversal-xy shear
+                Transversal-xz shear
+        """
         self.stress_field_dict = {}
         if damping_flag:
             _, betaH, _, betaV = global_damping

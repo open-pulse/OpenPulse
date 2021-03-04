@@ -10,7 +10,28 @@ ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
 decoupling_matrix = np.ones((DOF_PER_ELEMENT,DOF_PER_ELEMENT), dtype=int)
 zeros_3x3 = np.zeros((3,3), dtype=float)
 
-def gauss_quadracture(integration_points):
+def gauss_quadrature(integration_points):
+    """
+    This method returns the Gauss quadrature data.  
+
+    Parameters
+    -------
+    integration_points : int
+        Number of integration points.
+
+    Returns
+    -------
+    points : array
+        Integration points in the normalized domain [-1,1].
+
+    weigths : array
+        Weigths of the respective integration points in the sum approximation.
+
+    Raises
+    ------
+    TypeError
+        Only 1, 2, and 3 integration points are supported.
+    """
     if integration_points == 1:
         points = [0]
         weigths = [2]
@@ -25,28 +46,79 @@ def gauss_quadracture(integration_points):
     return points, weigths
 
 def shape_function(ksi):
+    """ This function returns the one dimensional linear shape function and its derivative.
+
+    Parameters
+    ----------
+    float in [-1,1]
+        Dimensionless coordinate.
+
+    Returns
+    -------
+    phi : array
+        One dimensional linear shape function.
+
+    derivative_phi : array
+        Shape function derivative.
+    """
     phi = np.array([(1 - ksi)/2, (1 + ksi)/2])
     derivative_phi = np.array([-0.5, 0.5])
     return phi, derivative_phi
 
+def symmetrize(a):
+    """ This function receives matrix and makes it symmetric.
+
+    Parameters
+    ----------
+    array
+        Matrix.
+
+    Returns
+    -------
+    array
+        Symmetric matrix.    
+    """
+    return a + a.T - np.diag(a.diagonal())
 class StructuralElement:
+    """A structural element.
+    This class creates a structural element from input data.
+
+    Parameters
+    ----------
+    first_node : Node object
+        Fist node of element.
+
+    last_node : Node object
+        Last node of element.
+
+    index : int
+        Element index.
+
+    element_type : str, ['pipe_1', 'pipe_2', 'beam_1'], optional
+        Element type
+        Default is 'pipe_1'.
+
+    material : Material object, optional
+        Element structural material.
+        Default is 'None'.
+
+    fluid : Fluid object, optional
+        Element acoustic fluid.
+        Default is 'None'.
+
+    cross_section : CrossSection object, optional
+        Element cross section.
+        Default is 'None'.
+
+    loaded_forces : array, optional
+        Structural forces and moments on the nodes.
+        Default is zeros(12).
+    """
     def __init__(self, first_node, last_node, index, **kwargs):
 
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
-
-        self.delta_x = self.last_node.x - self.first_node.x
-        self.delta_y = self.last_node.y - self.first_node.y
-        self.delta_z = self.last_node.z - self.first_node.z
-
-        self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
-                                            (self.last_node.y + self.first_node.y)/2,
-                                            (self.last_node.z + self.first_node.z)/2 ]
-
-        self.section_rotation_xyz_undeformed = None
-        self.deformed_rotation_xyz = None
-        self.deformed_length = None
 
         self.element_type = kwargs.get('element_type', 'pipe_1')
         self.material = kwargs.get('material', None)
@@ -59,6 +131,18 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
+
+        self.section_rotation_xyz_undeformed = None
+        self.deformed_rotation_xyz = None
+        self.deformed_length = None
+
+        self.delta_x = self.last_node.x - self.first_node.x
+        self.delta_y = self.last_node.y - self.first_node.y
+        self.delta_z = self.last_node.z - self.first_node.z
+
+        self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
+                                            (self.last_node.y + self.first_node.y)/2,
+                                            (self.last_node.z + self.first_node.z)/2 ]
 
         self._Dab = None
         self._Bab = None
@@ -85,10 +169,26 @@ class StructuralElement:
 
     @property
     def length(self):
+        """
+        This method returns the element length.
+
+        Returns
+        -------
+        float
+            Element length.
+        """
         return distance(self.first_node, self.last_node) 
 
     @property
     def global_dof(self):
+        """
+        This method returns the element global degrees of freedom. The 3D Timoshenko beam theory implemented takes into account the three node's translations and the three node's rotations.
+
+        Returns
+        -------
+        list
+            Element global degrees of freedom.
+        """
         global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
         global_dof[:DOF_PER_NODE_STRUCTURAL] = self.first_node.global_dof
         global_dof[DOF_PER_NODE_STRUCTURAL:] = self.last_node.global_dof
@@ -137,13 +237,39 @@ class StructuralElement:
         self.deformed_length = (delta[0]**2 + delta[1]**2 + delta[2]**2)**(1/2)
         
     def global_matrix_indexes(self):
-        ''' Returns two matrixes size 12 by 12, filled with rows indexes and column indexes. It may be usefull to construct the global matrix.'''
+        """
+        This method returns the indexes of the rows and columns that place the element matrices into the global matrices according to the element global degrees of freedom.
+
+        Returns
+        -------
+        rows : array
+            Indexes of the rows. It's a matrix with dimension 12 by 12 constant through the rows.
+            
+        cols : array
+            Indexes of the columns. It's a matrix with dimension 12 by 12 constant through the columns.
+        """
         rows = self.global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
         cols = rows.T
         return rows, cols
 
     def matrices_gcs(self):
-        """ Element striffness and mass matrix in the global coordinate system."""
+        """
+        This method returns the element stiffness and mass matrices according to the 3D Timoshenko beam theory in the global coordinate system.
+
+        Returns
+        -------
+        stiffness : array
+            Element stiffness matrix in the global coordinate system.
+            
+        mass : array
+            Element mass matrix in the global coordinate system.
+
+        See also
+        --------
+        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
+        
+        mass_matrix_gcs : Element mass matrix in the global coordinate system.
+        """
         self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
         Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
         if self.element_type in ['pipe_1','pipe_2']:
@@ -155,7 +281,24 @@ class StructuralElement:
         return stiffness, mass
 
     def stiffness_matrix_gcs(self):
-        """ Element striffness matrix in the global coordinate system."""
+        """
+        This method returns the element stiffness matrix according to the 3D Timoshenko beam theory in the global coordinate system.
+
+        Returns
+        -------
+        stiffness : array
+            Element stiffness matrix in the global coordinate system.
+
+        See also
+        --------
+        matrices_gcs : Element stiffness and mass matrices in the global coordinate system.
+        
+        mass_matrix_gcs : Element mass matrix in the global coordinate system.
+
+        stiffness_matrix_pipes : Pipe element stiffness matrix in the local coordinate system.
+
+        stiffness_matrix_beam : Beam element stiffness matrix in the local coordinate system.
+        """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
@@ -164,7 +307,20 @@ class StructuralElement:
             return Rt @ self.stiffness_matrix_beam() @ R
 
     def mass_matrix_gcs(self):
-        """ Element mass matrix in the global coordinate system."""
+        """
+        This method returns the element mass matrix according to the 3D Timoshenko beam theory in the global coordinate system.
+
+        Returns
+        -------
+        mass : array
+            Element mass matrix in the global coordinate system.
+
+        See also
+        --------
+        matrices_gcs : Element stiffness and mass matrices in the global coordinate system.
+
+        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
+        """
         R = self.element_rotation_matrix
         Rt = self.transpose_rotation_matrix
         if self.element_type in ['pipe_1','pipe_2']:
@@ -173,10 +329,26 @@ class StructuralElement:
             return Rt @ self.mass_matrix_beam() @ R
     
     def force_vector_gcs(self):
+        """
+        This method returns the element force vector in the global coordinate system.
+
+        Returns
+        -------
+        array
+            Force vector in the global coordinate system.
+        """
         Rt = self.transpose_rotation_matrix
         return Rt @ self.force_vector()
 
     def _element_rotation_matrix(self):
+        """
+        This method returns the transformation matrix that perform a rotation from the element's local coordinate system to the global coordinate system.
+
+        Returns
+        -------
+        array
+            Rotation matrix
+        """
         R = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         # self.sub_transformation_matrix = _rotation_matrix(self.delta_x, self.delta_y, self.delta_z)
         R[0:3, 0:3] = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = self.sub_transformation_matrix
@@ -188,6 +360,17 @@ class StructuralElement:
         return R
 
     def get_local_coordinate_system_info(self):
+        """
+        This method returns the coordinates of the element center and its local coordinate system.
+
+        Returns
+        -------
+        center_element_coordinates: array
+            Coordinates of element center.
+
+        directional_vectors: array
+            Element local coordinate system.
+        """
 
         # invR = np.linalg.inv(self.sub_transformation_matrix)
         # u = invR@np.array([1,0,0])
@@ -200,7 +383,18 @@ class StructuralElement:
         return self.center_element_coordinates, self.section_directional_vectors 
 
     def stiffness_matrix_pipes(self):
-        """ Element striffness matrix in the element coordinate system."""
+        """
+        This method returns the pipe element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+
+        Returns
+        -------
+        stiffness : array
+            Pipe element stiffness matrix in the local coordinate system.
+
+        See also
+        --------
+        stiffness_matrix_beam : Beam element stiffness matrix in the local coordinate system.
+        """
         L = self.length
 
         E = self.material.young_modulus
@@ -251,9 +445,9 @@ class StructuralElement:
                         [-Qz,-Iyz, Iz]])
         self._Dab = Dab
 
-        ## Numerical integration by Gauss Quadracture
+        ## Numerical integration by Gauss quadrature
         integrations_points = 1
-        points, weigths = gauss_quadracture( integrations_points )
+        points, weigths = gauss_quadrature( integrations_points )
 
         Kabe = 0
         Ktse = 0
@@ -290,7 +484,18 @@ class StructuralElement:
         return principal_axis.T @ Ke @ principal_axis
 
     def mass_matrix_pipes(self):
-        """ Element mass matrix in the element coordinate system."""
+        """
+        This method returns the pipe element mass matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is optimized for pipe cross section data.
+
+        Returns
+        -------
+        mass : array
+            Pipe element mass matrix in the local coordinate system.
+
+        See also
+        --------
+        mass_matrix_beam : Beam element mass matrix in the local coordinate system.
+        """
         L   = self.length
         rho = self.material.density
 
@@ -340,9 +545,9 @@ class StructuralElement:
         Ggm = rho*( Ggm + Ggm.T )
         Ggm[0:3,0:3] = Ggm[0:3,0:3] + Gfl + Gis
 
-        # Numerical integration by Gauss Quadracture
+        # Numerical integration by Gauss quadrature
         integrations_points = 2
-        points, weigths = gauss_quadracture( integrations_points )
+        points, weigths = gauss_quadrature( integrations_points )
 
         Me = 0
         N = np.zeros((DOF_PER_NODE_STRUCTURAL, 2 * DOF_PER_NODE_STRUCTURAL))
@@ -357,10 +562,23 @@ class StructuralElement:
         return principal_axis.T @ Me @ principal_axis
     
     def force_vector(self):
-        ## Numerical integration by Gauss Quadracture
+        """
+        This method returns the element load vector in the local coordinate system. The loads are forces and moments according to the degree of freedom.
+
+        Returns
+        -------
+        force : array
+            Load in the local coordinate system.
+
+        Raises
+        ------
+        TypeError
+            Only pipe_1 and pipe_2 element types are allowed.
+        """
+        ## Numerical integration by Gauss quadrature
         L = self.length
         integrations_points = 2
-        points, weigths = gauss_quadracture(integrations_points)
+        points, weigths = gauss_quadrature(integrations_points)
 
         #Determinant of Jacobian (linear 1D trasform)
         det_jacobian = L / 2
@@ -378,12 +596,27 @@ class StructuralElement:
         elif self.element_type == 'pipe_2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
-            print('Only pipe_1 and pipe_2 element types are allowed.')
-            pass
+            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
         return principal_axis.T @ Fe
 
     def force_vector_acoustic_gcs(self, frequencies, pressure_avg, pressure_external):
+        """
+        This method returns the element load vector due to the internal acoustic pressure field in the global coordinate system. The loads are forces and moments according to the degree of freedom. 
+
+        Parameters
+        ----------
+        frequencies : array
+            Frequencies of analysis in Hertz.
+        
+        pressure_avg : array
+            The average between the pressure at the first node and last node of the element. 
+
+        Returns
+        -------
+        force : array
+            Load vector in the global coordinate system.
+        """
         
         A = self.cross_section.area
         Do = self.cross_section.external_diameter
@@ -417,6 +650,14 @@ class StructuralElement:
         return F_p
 
     def stress_stiffening(self):
+        """
+        This method returns description
+
+        Returns
+        -------
+        S : array
+            Load vector in the global coordinate system.
+        """
 
         S = zeros_3x3.copy()
         
@@ -448,13 +689,19 @@ class StructuralElement:
 
         return S
 
-    ##
-    def symmetrize(self, a):
-        """ Take a matrix a and symmetrize it."""
-        return a + a.T - np.diag(a.diagonal())
-
     def stiffness_matrix_beam(self):
-        """ Element striffness matrix in the element coordinate system."""
+        """
+        This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.
+
+        Returns
+        -------
+        stiffness : array
+            Beam element stiffness matrix in the local coordinate system.
+
+        See also
+        --------
+        stiffness_matrix_pipes : Pipe element stiffness matrix in the local coordinate system.
+        """
 
         # Element length
         L   = self.length
@@ -525,12 +772,23 @@ class StructuralElement:
         # else:
         #     Ke = self.symmetrize(me)*decoupling_matrix
 
-        Ke = self.symmetrize(ke)*self.decoupling_matrix
+        Ke = symmetrize(ke)*self.decoupling_matrix
 
         return Ke
 
     def mass_matrix_beam(self):
-        """ Element mass matrix in the element coordinate system."""
+        """
+        This method returns the beam element mass matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.
+
+        Returns
+        -------
+        mass : array
+            Beam element mass matrix in the local coordinate system.
+
+        See also
+        --------
+        mass_matrix_pipes : Pipe element mass matrix in the local coordinate system.
+        """
 
         # Element length
         L   = self.length
@@ -627,11 +885,27 @@ class StructuralElement:
         me[11, 5] =  gamma_12 * (A * a_12u_6 / 420 + I_3 * a_12t_4 / 30)
         me[10, 4] =  gamma_13 * (A * a_13u_6 / 420 + I_2 * a_13t_4 / 30)
         
-        Me = self.symmetrize(me)*self.decoupling_matrix
+        Me = symmetrize(me)*self.decoupling_matrix
 
         return Me
 
     def get_shear_coefficient(self, section_info, poisson):
+        """
+        This method returns the shear coefficient according to the beam cross section. This coefficient is traditionally introduced in the Timoshenko beam theory.
+
+        Parameters
+        -------
+        section_info : 
+            Beam cross section data.
+
+        poisson : float
+            Material Poisson's ratio.
+
+        Returns
+        -------
+        shear_coefficient : float
+            shear coefficient
+        """
 
         section_label = section_info[0]
         parameters = section_info[1]
