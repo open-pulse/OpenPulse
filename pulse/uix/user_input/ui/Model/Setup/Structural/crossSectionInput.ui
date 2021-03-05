@@ -330,6 +330,15 @@
         <layout class="QVBoxLayout" name="verticalLayout_7">
          <item>
           <widget class="QLineEdit" name="lineEdit_outerDiameter">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="styleSheet">
             <string notr="true">color: rgb(255, 0, 0);</string>
            </property>
@@ -343,6 +352,15 @@
          </item>
          <item>
           <widget class="QLineEdit" name="lineEdit_thickness">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -356,6 +374,15 @@
          </item>
          <item>
           <widget class="QLineEdit" name="lineEdit_offset_y">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -369,6 +396,15 @@
          </item>
          <item>
           <widget class="QLineEdit" name="lineEdit_offset_z">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -1163,6 +1199,15 @@
              <height>20</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -1187,6 +1232,15 @@
              <width>16777215</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
            </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
@@ -1213,6 +1267,15 @@
              <height>20</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -1238,6 +1301,15 @@
              <height>20</height>
             </size>
            </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
+           </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>
            </property>
@@ -1262,6 +1334,15 @@
              <width>16777215</width>
              <height>20</height>
             </size>
+           </property>
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <pointsize>11</pointsize>
+             <weight>75</weight>
+             <italic>true</italic>
+             <bold>true</bold>
+            </font>
            </property>
            <property name="focusPolicy">
             <enum>Qt::StrongFocus</enum>

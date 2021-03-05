@@ -719,6 +719,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -752,6 +753,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -782,6 +784,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -812,6 +815,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -842,6 +846,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -872,6 +877,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -902,6 +908,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -967,6 +974,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -997,6 +1005,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1027,6 +1036,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1057,6 +1067,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1087,6 +1098,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1117,6 +1129,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1147,6 +1160,7 @@
             <property name="font">
              <font>
               <family>Arial</family>
+              <pointsize>11</pointsize>
               <weight>75</weight>
               <italic>true</italic>
               <bold>true</bold>
@@ -1210,7 +1224,7 @@
         </font>
        </property>
        <property name="currentIndex">
-        <number>1</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="tab_4">
         <attribute name="title">
@@ -1389,7 +1403,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1448,7 +1462,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1516,7 +1530,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1545,7 +1559,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1712,7 +1726,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -1741,7 +1755,7 @@
             </property>
             <property name="font">
              <font>
-              <pointsize>8</pointsize>
+              <pointsize>9</pointsize>
               <weight>50</weight>
               <bold>false</bold>
              </font>
@@ -2472,7 +2486,7 @@ prescribed values:</string>
        <family>Arial</family>
        <pointsize>11</pointsize>
        <weight>75</weight>
-       <italic>false</italic>
+       <italic>true</italic>
        <bold>true</bold>
       </font>
      </property>
@@ -2579,7 +2593,7 @@ prescribed values:</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
