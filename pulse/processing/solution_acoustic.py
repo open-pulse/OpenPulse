@@ -5,6 +5,16 @@ from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
 class SolutionAcoustic:
+    """ This class creates a Acoustic Solution object from input data.
+
+    Parameters
+    ----------
+    mesh : Mesh object
+        Acoustic finite element mesh.
+
+    frequencies : array
+        Frequencies of analysis.
+    """
 
     def __init__(self, mesh, frequencies):
 
@@ -22,11 +32,30 @@ class SolutionAcoustic:
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
 
     def get_global_matrices(self):
+        """
+        This method updates the acoustic global matrices.
+        """
         self.K, self.Kr = self.assembly.get_global_matrices()
         self.K_lump, self.Kr_lump = self.assembly.get_lumped_matrices()
         self.Kadd_lump = [ self.K[i] + self.K_lump[i] for i in range(len(self.frequencies))]
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis = False):
+        """
+        This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.
+
+        Parameters
+        ----------
+        solution : array
+            Solution data from the direct method, modal superposition or modal shapes from modal analysis.
+
+        modal_analysis : boll, optional
+            True if the modal analysis was evaluated.
+
+        Returns
+        ----------
+        array
+            Solution of all the degrees of freedom.
+        """
 
         rows = self.all_dofs
         cols = solution.shape[1]
@@ -42,6 +71,14 @@ class SolutionAcoustic:
         return full_solution
 
     def get_combined_volume_velocity(self):
+        """
+        This method adds the effects of prescribed acoustic pressure into volume velocity global vector.
+
+        Returns
+        ----------
+        array
+            Volume velocity. Each column corresponds to a frequency of analysis.
+        """
 
         volume_velocity = self.assembly.get_global_volume_velocity()
                 
@@ -73,8 +110,13 @@ class SolutionAcoustic:
         return volume_velocity_combined
 
     def direct_method(self):
+        """
+        This method evaluate the FETM acoustic solution through direct method.
 
-        """ 
+        Returns
+        ----------
+        array
+            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
         self.get_global_matrices()
         volume_velocity = self.get_combined_volume_velocity()
@@ -91,6 +133,37 @@ class SolutionAcoustic:
         return solution
 
     def modal_analysis(self, modes=20, which='LM', sigma=0.01):
+        """
+        This method evaluate the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
+
+        Parameters
+        ----------
+        modes : int, optional
+            Number of acoustic modes to be evaluated.
+            Default is 20.
+
+        which : str, ['LM' | 'SM' | 'LR' | 'SR' | 'LI' | 'SI'], optional
+            Which `k` eigenvectors and eigenvalues to find:
+                'LM' : largest magnitude
+                'SM' : smallest magnitude
+                'LR' : largest real part
+                'SR' : smallest real part
+                'LI' : largest imaginary part
+                'SI' : smallest imaginary part
+            Default is 'LM'.
+
+        sigma : float, optional
+            Find eigenvalues near sigma (in (rad/s)^2) using shift-invert mode. 
+            Default is 0.01.
+
+        Returns
+        ----------
+        natural_frequencies : array
+            Natural frequencies.
+
+        modal_shapes : array
+            Modal shapes
+        """
 
         K, M = self.assembly.get_global_matrices_modal()
         

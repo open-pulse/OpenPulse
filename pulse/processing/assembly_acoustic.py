@@ -9,6 +9,25 @@ from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 def length_correction_expansion(smaller_diameter, larger_diameter):
+    """ This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.
+
+    Parameters
+    ----------
+    smaller_diameter: float
+        Smaller diameter between the two elements diameters.
+
+    larger_diameter: float
+        Larger diameter between the two elements diameters.
+
+    Returns
+    -------
+    float
+        Length correction due to expansion.
+
+    See also
+    --------
+    length_correction_branch : Length correction due to sidebranch in the acoustic domain.
+    """
     xi = smaller_diameter / larger_diameter
     if xi <= 0.5:
         factor = 8 / (3 * pi) * (1 - 1.238 * xi)
@@ -17,6 +36,25 @@ def length_correction_expansion(smaller_diameter, larger_diameter):
     return smaller_diameter * factor / 2
 
 def length_correction_branch(branch_diameter, principal_diameter):
+    """ This function returns the acoustic length correction due to sidebranch in the acoustic domain. This discontinuity is characterized by three elements, two with the same diameters in line, and the other with different diameter connected to these two.
+
+    Parameters
+    ----------
+    smaller_diameter: float
+        Smaller diameter between the two elements diameters.
+
+    larger_diameter: float
+        Larger diameter between the two elements diameters.
+
+    Returns
+    -------
+    float
+        Length correction due to side branch.
+
+    See also
+    --------
+    length_correction_expansion : Length correction due to expansion in the acoustic domain.
+    """
     xi = branch_diameter / principal_diameter
     if xi <= 0.4:
         factor = 0.8216 - 0.0644 * xi - 0.694 * xi**2
@@ -24,10 +62,17 @@ def length_correction_branch(branch_diameter, principal_diameter):
         factor = 0.9326 - 0.6196 * xi
     return branch_diameter * factor / 2
 
-def cos_vectors(u,v):
-    return np.dot(u,v) / (norm(u)*norm(v))
-
 class AssemblyAcoustic:
+    """ This class creates a acoustic assembly object from input data.
+
+    Parameters
+    ----------
+    mesh : Mesh object
+        Acoustic finite element mesh.
+
+    frequencies : array
+        Frequencies of analysis.
+    """
     def __init__(self, mesh, frequencies):
         self.mesh = mesh
         self.frequencies = frequencies
@@ -40,6 +85,20 @@ class AssemblyAcoustic:
         self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
 
     def get_prescribed_indexes(self):
+        """
+        This method returns all the indexes of the acoustic degrees of freedom with prescribed pressure boundary condition.
+
+        Returns
+        ----------
+        array
+            Indexes of the acoustic degrees with prescribed pressure boundary conditions.
+
+        See also
+        --------
+        get_prescribed_values : Values of the prescribed pressure boundary condition.
+
+        get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
+        """
         global_prescribed = []
         for node in self.mesh.nodes.values():
             starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
@@ -48,6 +107,20 @@ class AssemblyAcoustic:
         return global_prescribed
 
     def get_prescribed_values(self):
+        """
+        This method returns all the values of the prescribed pressure boundary condition.
+
+        Returns
+        ----------
+        array
+            Values of the prescribed pressure boundary condition.
+
+        See also
+        --------
+        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.
+
+        get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
+        """
         global_prescribed = []
         for node in self.mesh.nodes.values():
             if node.acoustic_pressure is not None:
@@ -55,11 +128,39 @@ class AssemblyAcoustic:
         return global_prescribed
 
     def get_unprescribed_indexes(self):
+        """
+        This method returns all the indexes of the free acoustic degrees of freedom.
+
+        Returns
+        ----------
+        array
+            Indexes of the free acoustic degrees of freedom.
+
+        See also
+        --------
+        get_prescribed_values : Values of the prescribed pressure boundary condition.
+
+        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.
+        """
         all_indexes = np.arange(self.total_dof)
         unprescribed_indexes = np.delete(all_indexes, self.prescribed_indexes)
         return unprescribed_indexes
 
     def get_pipe_and_unprescribed_indexes(self):
+        """
+        This method returns all the indexes of the free acoustic degrees of freedom.
+
+        Returns
+        ----------
+        array
+            Indexes of the free acoustic degrees of freedom.
+
+        See also
+        --------
+        get_prescribed_values : Values of the prescribed pressure boundary condition.
+
+        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.
+        """
         all_indexes = np.arange(self.total_dof)
         indexes_to_remove = self.prescribed_indexes.copy()
         for dof in list(self.beam_gdofs):
@@ -69,6 +170,19 @@ class AssemblyAcoustic:
         return unprescribed_pipe_indexes
 
     def get_length_corretion(self, element):
+        """
+        This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.
+
+        Parameters
+        ----------
+        element: Acoustic element object
+            Acoustic element.
+
+        Returns
+        ----------
+        float
+            Length correction.
+        """
         length_correction = 0
         if element.acoustic_length_correction is not None:
             first = element.first_node.global_index
@@ -109,8 +223,17 @@ class AssemblyAcoustic:
         return length_correction
 
     def get_global_matrices(self):
+        """
+        This method perform the assembly process of the acoustic FETM matrices.
 
-        ones = np.ones(len(self.frequencies), dtype='float64')
+        Returns
+        ----------
+        K : list
+            List of admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr : list
+            List of admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        """
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.acoustic_elements)
@@ -125,7 +248,7 @@ class AssemblyAcoustic:
             end = start + ENTRIES_PER_ELEMENT
 
             length_correction = self.get_length_corretion(element)
-            data_k[:, start:end] = element.matrix(self.frequencies, ones, length_correction = length_correction)
+            data_k[:, start:end] = element.matrix(self.frequencies, length_correction = length_correction)
             
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
 
@@ -135,6 +258,17 @@ class AssemblyAcoustic:
         return K, Kr
             
     def get_lumped_matrices(self):
+        """
+        This method perform the assembly process of the acoustic FETM lumped matrices.
+
+        Returns
+        ----------
+        K_lump : list
+            List of lumped admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr_lump : list
+            List of lumped admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+        """
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         
@@ -181,6 +315,17 @@ class AssemblyAcoustic:
         return K_lump, Kr_lump  
 
     def get_global_matrices_modal(self):
+        """
+        This method perform the assembly process of the acoustic FEM matrices.
+
+        Returns
+        ----------
+        K : sparse csr_matrix
+            Acoustic stiffness matrix.
+
+        M : sparse csr_matrix
+            Acoustic inertia matrix.
+        """
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         number_elements = len(self.mesh.acoustic_elements)
@@ -204,6 +349,14 @@ class AssemblyAcoustic:
         return K, M
 
     def get_global_volume_velocity(self):
+        """
+        This method perform the assembly process of the acoustic load, volume velocity.
+
+        Returns
+        ----------
+        volume_velocity : array
+            Volume velocity load.
+        """
 
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)

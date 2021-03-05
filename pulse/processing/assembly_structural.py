@@ -7,6 +7,20 @@ from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
 class AssemblyStructural:
+    """ This class creates a structural assembly object from input data.
+
+    Parameters
+    ----------
+    mesh : Mesh object
+        Acoustic finite element mesh.
+
+    frequencies : array
+        Frequencies of analysis.
+
+    acoustic_solution : array, optional
+        Solution of the acoustic FETM model. This solution is need to solve the coupled problem.
+        Default is None.
+    """
     def __init__(self, mesh, frequencies, **kwargs):
         self.mesh = mesh
         self.frequencies = frequencies
@@ -14,6 +28,20 @@ class AssemblyStructural:
         self.no_table = True
 
     def get_prescribed_indexes(self):
+        """
+        This method returns all the indexes of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.
+
+        Returns
+        ----------
+        array
+            Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+
+        See also
+        --------
+        get_prescribed_values : Vaslues of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+
+        get_unprescribed_indexes : Indexes of the structural free degrees of freedom.
+        """
         global_prescribed = []
         for node in self.mesh.nodes.values():
             if node.there_are_prescribed_dofs:
@@ -23,6 +51,20 @@ class AssemblyStructural:
         return global_prescribed
 
     def get_prescribed_values(self):
+        """
+        This method returns all the values of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.
+
+        Returns
+        ----------
+        array
+            Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+
+        See also
+        --------
+        get_prescribed_indexes : Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+
+        get_unprescribed_indexes : Indexes of the structural free degrees of freedom.
+        """
     
         global_prescribed = []
         list_prescribed_dofs = []
@@ -49,6 +91,20 @@ class AssemblyStructural:
         return global_prescribed, array_prescribed_values
 
     def get_unprescribed_indexes(self):
+        """
+        This method returns all the indexes of the structural free degrees of freedom.
+
+        Returns
+        ----------
+        array
+            Indexes of the structural free degrees of freedom.
+
+        See also
+        --------
+        get_prescribed_indexes : Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+
+        get_prescribed_values : Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
+        """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         all_indexes = np.arange(total_dof)
         prescribed_indexes = self.get_prescribed_indexes()
@@ -56,6 +112,23 @@ class AssemblyStructural:
         return unprescribed_indexes
 
     def get_global_matrices(self):
+        """
+        This method perform the assembly process of the structural FEM matrices.
+
+        Returns
+        ----------
+        K : list
+            List of stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.
+            
+        M : list
+            List of mass matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.
+
+        Kr : list
+            List of stiffness matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
+
+        Mr : list
+            List of mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
+        """
  
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         number_elements = len(self.mesh.structural_elements)
@@ -66,9 +139,6 @@ class AssemblyStructural:
 
         for index, element in enumerate(self.mesh.structural_elements.values()):
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs() 
-
-        # np.savetxt('Me.csv', mat_Me[0,:,:], delimiter=",")
-        # np.savetxt('Ke.csv', mat_Ke[0,:,:], delimiter=",")
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -84,6 +154,32 @@ class AssemblyStructural:
         return K, M, Kr, Mr
         
     def get_lumped_matrices(self):
+        """
+        This method perform the assembly process of the structural FEM lumped matrices.
+
+        Returns
+        ----------
+        K_lump : list
+            List of lumped stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+            
+        M_lump : list
+            List of mass matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+            
+        C_lump : list
+            List of lumped damping matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Kr_lump  : list
+            List of lumped stiffness matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Mr_lump  : list
+            List of lumped mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        Cr_lump  : list
+            List of lumped damping matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
+
+        flag_Clump  : boll
+            This flag returns True if the damping matrices are non zero, and False otherwise.
+        """
 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         
@@ -179,6 +275,24 @@ class AssemblyStructural:
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
     def get_global_loads(self, pressure_external = 0, loads_matrix3D=False):
+        """
+        This method perform the assembly process of the structural FEM force and moment loads.
+
+        Parameters
+        ----------
+        pressure_external : float, optional
+            Static pressure difference between atmosphere and the fluid in the pipeline.
+            Default is 0.
+
+        loads_matrix3D : boll, optional
+            
+            Default is False.
+
+        Returns
+        ----------
+        array
+            Loads vectors. Each column corresponds to a frequency of analysis.
+        """
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
         cols = len(self.frequencies)
@@ -223,6 +337,24 @@ class AssemblyStructural:
         return loads
     
     def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):
+        """
+        This method perform the assembly process of the structural FEM force and moment loads.
+
+        Parameters
+        ----------
+        pressure_external : float, optional
+            Static pressure difference between atmosphere and the fluid in the pipeline.
+            Default is 0.
+
+        loads_matrix3D : boll, optional
+            
+            Default is False.
+
+        Returns
+        ----------
+        array
+            Loads vectors. Each column corresponds to a frequency of analysis.
+        """
        
         if there_are_table:
             list_arrays = [np.zeros_like(self.frequencies) if bc is None else bc for bc in boundary_condition]
