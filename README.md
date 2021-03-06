@@ -53,10 +53,6 @@ python pulse.py
 - [Presentation](https://www.youtube.com/watch?v=iarKDAei6fg&t).
 - [Full Paper](https://github.com/open-pulse/OpenPulse/blob/master/doc/ISMA_2020_PRE.pdf).
 
-## ASA Meeting 2020 - The 179th Meeting of the Acoustical Society of America
-
-- [Effect of flow on the acoustic length correction factor of a Helmholtz resonator neck at high Strouhal number: a symmetric three-dimensional parametric study](https://asa.scitation.org/doi/10.1121/1.5147459). 
-
 ## Next events
 
 - The 27th International Congress on Sound and Vibration. July 11-15, 2021. [ICSV27](https://www.icsv27.org/).
