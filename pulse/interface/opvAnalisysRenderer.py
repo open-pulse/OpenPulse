@@ -75,7 +75,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
-        self.opvSymbols.build()
+        # self.opvSymbols.build()
 
         colorTable = ColorTable(self.project, u_def)
         self.opvDeformedTubes.setColorTable(colorTable)
