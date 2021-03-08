@@ -13,6 +13,21 @@ if select == 1:
     Nint_points = 4
 
     def gauss_quadrature2D():
+        """
+        This method returns the Gauss quadrature data for 2D integration and two integration points.  
+
+        Returns
+        -------
+        points : array
+            Integration points in the normalized domain [-1,1]x[-1,1].
+
+        weigths : array
+            Weigths of the respective integration points in the sum approximation.
+
+        See also
+        --------
+        get_all_shape_functions : Shape function and its derivative for all the integration points.
+        """
         c = 1/sqrt(3)
         points=np.zeros((rows, cols))
         points[0,0]=-c
@@ -28,12 +43,28 @@ if select == 1:
         return points, weight
 
     def shape_function(ksi,eta):
-        """
-        - Quadratic shape functions and its derivatives
-        for calculation of section properties.
-        - Q9 element.
-        """
+        """ This function returns the two dimensional quadratic shape function and its derivative (9-node quadrilateral element) for one point in the dimensionless coordinate system (ksi,eta).
 
+        Parameters
+        ----------
+        ksi : float in [-1,1]
+            Dimensionless x coordinate.
+
+        eta : float in [-1,1]
+            Dimensionless y coordinate.
+
+        Returns
+        -------
+        phi : array
+            One dimensional linear shape function.
+
+        dphi : array
+            Shape function derivative.
+
+        See also
+        --------
+        get_all_shape_functions : Shape function and its derivative for all the integration points.
+        """
         # Shape functions
         phi = np.zeros(9, dtype='float64') 
         phi[0] = (ksi**2 - ksi) * (eta**2 - eta) / 4
@@ -71,6 +102,22 @@ if select == 1:
         return phi, dphi
 
     def get_all_shape_functions():
+        """ This function returns the two dimensional quadratic shape function and its derivative (9-node quadrilateral element) for all Gauss quadrature 2D integration points in the dimensionless coordinate system (ksi,eta).
+
+        Returns
+        -------
+        phi : array
+            One dimensional linear shape function.
+
+        dphi : array
+            Shape function derivative.
+
+        See also
+        --------
+        shape_function : Shape function and its derivative for one point.
+
+        gauss_quadrature2D : Gauss quadrature data for 2D integration and two integration points.
+        """
         points, _ = gauss_quadrature2D()
         mat_phi = np.zeros((rows, 9), dtype='float64')
         mat_dphi = np.zeros((rows, 2, 9), dtype='float64')
@@ -79,6 +126,66 @@ if select == 1:
         return  mat_phi, mat_dphi
 
     class CrossSection:
+        """This class creates a tube Cross Section object from input data.
+
+        Parameters
+        ----------
+        external_diameter : float
+            Tube external diameter.
+
+        thickness : float
+            Tube wall thickness.
+
+        offset_y : float
+            y coordinate of the tube eccentricity offset.
+
+        offset_z : float
+            z coordinate of the tube eccentricity offset.
+
+        poisson_ratio : float, optional
+            Poisson's ration of the material attributed to the tube.
+            Default is 0.
+
+        element_type : ['pipe_1','pipe_2','beam_1'], optional
+            Element type of the structural elements attributed to the tube.
+            Default is 'pipe_1'.
+
+        division_number : [8, 16, 32, 64, 128], optional
+            Cross section division number. This number is directly associated with the number of elements used in the process of approximating the cross section shear properties.
+            Default is 64.
+
+        insulation_thickness : float, optional
+            Tube insolation thickness.
+            Default is 0.
+
+        insulation_density : float, optional
+            Tube insolation density.
+            Default is 0.
+
+        additional_section_info : , optional
+            Cross section additional infos.
+            Default is None.
+
+        area : float, optional
+            Cross section area. Only attributed if the cross section is not tubular.
+            Default is 0.
+
+        Iyy : float, optional
+            Cross section second moment of area with respect to the y direction. Only attributed if the cross section is not tubular.
+            Default is 0.
+
+        Izz : float, optional
+            Cross section second moment of area with respect to the z direction. Only attributed if the cross section is not tubular.
+            Default is 0.
+
+        Iyz : float, optional
+            Cross section second moment of area with respect to the yz plane. Only attributed if the cross section is not tubular.
+            Default is 0.
+
+        shear_coefficient : float, optional
+            Cross section shear coefficient. Only attributed if the cross section is not tubular.
+            Default is 1.
+        """
         def __init__(self, external_diameter, thickness, offset_y, offset_z, poisson_ratio=0, element_type='pipe_1', division_number = 64, **kwargs):
             self.external_diameter = external_diameter
             self.thickness = thickness
@@ -123,25 +230,85 @@ if select == 1:
 
         @property
         def area_fluid(self):
+            """
+            This method returns the tube internal cross section area, which corresponds to the acoustic area.
+
+            Returns
+            -------
+            float
+                internal area.
+            """
             return (self.internal_diameter**2) * pi / 4
 
         @property
         def area_insulation(self):
+            """
+            This method returns the insulation cross section area.
+
+            Returns
+            -------
+            float
+                insulation cross section area.
+            """
             return (((self.external_diameter+2*self.insulation_thickness)**2)-(self.external_diameter**2)) * pi / 4
 
         def getExternalDiameter(self):
+            """
+            This method returns the tube cross section external diameter.
+
+            Returns
+            -------
+            float
+                external diameter.
+            """
             return self.external_diameter
         
         def getExternalRadius(self):
+            """
+            This method returns the tube cross section external radius.
+
+            Returns
+            -------
+            float
+                external radius.
+            """
             return self.external_radius
 
         def getThickness(self):
+            """
+            This method returns the tube cross section thickness.
+
+            Returns
+            -------
+            float
+                thickness.
+            """
             return self.thickness
 
         def getInternalDiameter(self):
+            """
+            This method returns the tube cross section internal diameter.
+
+            Returns
+            -------
+            float
+                internal diameter.
+            """
             return self.internal_diameter
 
         def mesh_connectivity(self):
+            """
+            This method returns the tube cross mesh connectivity formed by 9-node quadrilateral elements.
+
+            Returns
+            -------
+            array
+                Tube cross mesh connectivity.
+
+            See also
+            --------
+            mesh_coordinate : Tube cross mesh nodal coordinates.
+            """
             connectivity = np.zeros([self.division_number, 9], dtype = int)
             ind = 6*np.arange(self.division_number)
             connectivity[:-1,:] = np.array([8,2,0,6,5,1,3,7,4]) + ind[:-1].reshape(-1,1)
@@ -151,6 +318,18 @@ if select == 1:
             return connectivity
         
         def mesh_coordinate(self):
+            """
+            This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+
+            Returns
+            -------
+            array
+                Tube cross mesh nodal coordinates.
+
+            See also
+            --------
+            mesh_connectivity : Tube cross mesh connectivity.
+            """
             # coordinates of points on the face
             r_o = self.external_diameter / 2
             r_i = self.internal_diameter / 2
@@ -178,6 +357,32 @@ if select == 1:
             return coordinate
         
         def preprocessing(self, el_type = None):
+            """
+            This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+
+            Parameters
+            -------
+            el_type : ['pipe_1','pipe_2','beam_1'], optional
+                Element type of the structural elements attributed to the tube.
+                Default is None.
+
+            Returns
+            -------
+            jac : array
+                Jacobian matrix of each integration point. It's a 3D matrix such that jac[p,:] is the Jacobian matrix of the p-th integration point (in-line 2x2 matrix).
+
+            inv_jac : array
+                Inverse of the Jacobian matrix of each element. It's a 3D matrix such that inv_jac[p,:] is the inverse of the Jacobian matrix of the p-th integration point (in-line 2x2 matrix).
+
+            dA : array
+                Area differential of each integration point.
+
+            y : array
+                y-coordinate in the global coordinate system of each integration point.
+
+            z : array
+                z-coordinate in the global coordinate system of each integration point.
+            """
             
             N = self.division_number*Nint_points
             _, weight = gauss_quadrature2D()
@@ -212,6 +417,15 @@ if select == 1:
             return jac, inv_jac, detjac*weight, y, z
                 
         def area_properties(self, el_type):
+            """
+            This method updates the tube cross area properties: area, first moment of area relative to y, first moment of area relative to z, second moment of area relative to y, second moment of area relative to z, second moment of area relative to yz, second moment of area relative to yz, second polar moment of area, and (y,z) centroid coordinate.
+
+            Parameters
+            -------
+            el_type : ['pipe_1','pipe_2','beam_1']
+                Element type of the structural elements attributed to the tube.
+                Default is None.
+            """
             self.jac, self.inv_jac, self.dA, self.y, self.z = self.preprocessing(el_type = el_type)
 
             A = np.sum(self.dA)
@@ -231,6 +445,9 @@ if select == 1:
             self.z_centroid = Qy/A
 
         def assembly_indexes(self):
+            """
+            This method updates the assembly process rows and columns indexing.
+            """
             rows, cols = self.division_number, 9
             cols_dofs = self.connectivity.reshape(-1,1)
             cols_dofs = cols_dofs.reshape(rows, cols)
@@ -240,7 +457,19 @@ if select == 1:
             self.cols_ind = J.reshape(-1)
                                 
         def shear_properties(self, poisson_ratio = 0, el_type = 'pipe_1'):
-            
+            """
+            This method updates the tube cross shear properties: shear coefficients and (y,z) shear centroid coordinate.
+
+            Parameters
+            -------
+            poisson_ratio : float, optional
+                Poisson's ration of the material attributed to the tube.
+                Default is 0.
+
+            el_type : ['pipe_1','pipe_2','beam_1'], optional
+                Element type of the structural elements attributed to the tube.
+                Default is None.
+            """
             self.area_properties(el_type)
             self.assembly_indexes()
 
@@ -352,6 +581,15 @@ if select == 1:
             self.z_shear = (psi_y.T @ FT)/ccg
 
         def offset_rotation(self, el_type = 'pipe_1'):
+            """
+            This method updates the tube cross section rotation due to the shear effects and eccentricity offset.
+
+            Parameters
+            -------
+            el_type : ['pipe_1','pipe_2','beam_1'], optional
+                Element type of the structural elements attributed to the tube.
+                Default is None.
+            """
             if el_type == 'pipe_2':
                 self.principal_axis = np.eye(12)
             else:
@@ -397,6 +635,9 @@ if select == 1:
                     self.principal_axis = T
         
         def update_properties(self):
+            """
+            This method updates all the tube cross section properties.
+            """
             # self.area_properties(None)
             if self.element_type == 'pipe_1':
                 self.shear_properties(poisson_ratio = 0, el_type = None)

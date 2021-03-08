@@ -109,11 +109,44 @@ class OPVUi(QVTKRenderWindowInteractor):
         # if renderer.getInUse(): 
         #     return
         
+<<<<<<< HEAD
         self.clearRendereres()
         self.clearRendereresUse()
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+=======
+        # # TODO: delete this 
+        # self.beforeChangePlot()
+        # self.changeFrequency(frequency_indice)
+        # self.rendererAnalysis.setFrequencyIndice(self.currentFrequencyIndice)
+        # if self.project.analysis_ID in [4]:
+        #     self.rendererAnalysis.setColorScalling(real_part)
+        # self.rendererAnalysis.setSliderFactor(self.sliderScale)        
+        # self.rendererAnalysis.setInUse(True)
+        # # self.rendererAnalysis.setStress(plot_stress_field)
+        # self.SetInteractorStyle(self.rendererAnalysis.getStyle())
+        # self.GetRenderWindow().AddRenderer(self.rendererAnalysis.getRenderer())
+        # self.rendererAnalysis.plot(pressure_field_plot=pressure_field_plot, stress_field_plot=stress_field_plot, real_part = real_part)
+        # if self.needResetCamera:
+        #     self.rendererAnalysis.resetCamera()
+        # self.afterChangePlot()
+        # self._updateAxes()
+        
+
+    def plotEntities(self, plotRadius = False):
+        self.rendererEntity.setPlotRadius(plotRadius)
+        self.rendererEntity.plot()
+
+    def plotMesh(self):
+        self.opvRenderer.plot()
+        self.opvAnalisysRenderer.plot()
+
+        self.rendererMesh.plot()
+
+    def getListPickedEntities(self):
+        return self.rendererEntity.getListPickedEntities()
+>>>>>>> master
 
     def updateDialogs(self):
         pass

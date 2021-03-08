@@ -23,3 +23,6 @@ You can try it out now by running the tutorial on binder.
 .. toctree::
    :maxdepth: 2
    :caption: Code Documentation
+
+   api/preprocessing
+   api/processing

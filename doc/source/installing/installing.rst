@@ -1,5 +1,5 @@
 Prerequisites
-================
+-------------
 
     **Python 3.7.7:** https://www.python.org/downloads/release/python-377/
 
@@ -15,7 +15,7 @@ Prerequisites
     - h5py
 
 Installing
-================
+----------
 
 **Install OpenPulse**
 

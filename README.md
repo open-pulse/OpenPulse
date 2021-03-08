@@ -1,6 +1,6 @@
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*v0.4*
+*Alpha Version* (March 8th 2021)
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to import the geometry of the pipe system (lines in IGES), insert materials properties, set sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -36,6 +36,7 @@ python pulse.py
     h5py
     
 ## Documentation
+- You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html)
 
 - Theory Reference for [1D Acoustics using FETM](https://open-pulse.github.io/OpenPulse/doc/Acoustics.pdf), [Structural Vibration of Timoshenko Beams using FEM](https://open-pulse.github.io/OpenPulse/doc/Theory_Structural.pdf), [Weak Fluid-Structure-Coupling FETM-FEM (in Portuguese)](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_D___Weak_Coupling.pdf), [Solution Types (empty)](https://), [Matrix Assembly Technique using Python](https://open-pulse.github.io/OpenPulse/doc/Assembly.pdf) and [Stress Stiffening (Prestress)](https://github.com/open-pulse/OpenPulse/blob/master/doc/OpenPulse___Report_E___Prestress.pdf).
 
@@ -59,7 +60,6 @@ python pulse.py
 ## Next events
 
 - The 27th International Congress on Sound and Vibration. July 11-15, 2021. [ICSV27](https://www.icsv27.org/).
-- The 50th International Congress and Exposition on Noise Control Engineering. August 1-4, 2021. [INTERNOISE2021](https://internoise2021.org/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
