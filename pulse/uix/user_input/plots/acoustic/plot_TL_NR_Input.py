@@ -86,7 +86,7 @@ class Plot_TL_NR_Input(QDialog):
         self.output_node = None
         self.imported_data = None
         self.elements = self.mesh.acoustic_elements
-        self.dict_elements_diameter = self.mesh.neighbour_elements_diameter()
+        self.dict_elements_diameter = self.mesh.neighbor_elements_diameter()
     
         self.lineEdit_inputNodeID = self.findChild(QLineEdit, 'lineEdit_inputNodeID')   
         self.lineEdit_outputNodeID = self.findChild(QLineEdit, 'lineEdit_outputNodeID')
