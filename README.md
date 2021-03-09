@@ -60,6 +60,7 @@ python pulse.py
 ## Next events
 
 - The 27th International Congress on Sound and Vibration. July 11-15, 2021. [ICSV27](https://www.icsv27.org/).
+- The 12th Congresso Iberoamericano de Acústica. August 29 -September 01, 2021. [FIA2020/1](https://fia2020.com.br/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
