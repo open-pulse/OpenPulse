@@ -20,6 +20,8 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.parent = parent
         self.project = project
+
+        self.inputObject = None
     
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
@@ -42,6 +44,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalisysRenderer.plot()
     
     def changePlotToEntities(self):
+
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = True
+
         self.setRenderer(self.opvRenderer)
 
         self.opvRenderer.showNodes(False)
@@ -58,6 +64,10 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     
     def changePlotToEntitiesWithCrossSection(self):
+
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = True
+
         self.setRenderer(self.opvRenderer)
 
         self.opvRenderer.showNodes(False)
@@ -74,6 +84,10 @@ class OPVUi(QVTKRenderWindowInteractor):
 
 
     def changePlotToMesh(self):
+
+        self.change_plot_to_mesh = True
+        self.change_plot_to_entities = False
+
         self.setRenderer(self.opvRenderer)
 
         self.opvRenderer.showNodes(True)
@@ -105,6 +119,9 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._updateAxes()
 
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+
     def setRenderer(self, renderer):
         # if renderer.getInUse(): 
         #     return
@@ -115,8 +132,20 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
+    # def updateDialogs(self):
+    #     pass
+
     def updateDialogs(self):
-        pass
+        if self.inputObject is None:
+            return
+
+        try:
+            self.inputObject.update()
+        except Exception:
+            print("Update function error")
+
+    def setInputObject(self, obj):
+        self.inputObject = obj
 
     def _createAxes(self):
         axesActor = vtk.vtkAxesActor()
@@ -130,9 +159,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.axes.EnabledOff()
         self._createAxes()
 
-    def setInputObject(self, obj):
-        self.inputObject = obj
-
     def getListPickedPoints(self):
         return self.opvRenderer.getListPickedPoints()
 
@@ -141,7 +167,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def getListPickedEntities(self):
         return self.opvRenderer.getListPickedEntities()
-
 
     def transformPoints(self, *args, **kwargs):
         self.updatePlots()
