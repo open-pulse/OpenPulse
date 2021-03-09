@@ -9,6 +9,10 @@ import numpy as np
 
 from pulse.project import Project
 from pulse.default_libraries import default_material_library, default_fluid_library
+from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+
+window_title1 = "ERROR MESSAGE"
+window_title2 = "WARNING MESSAGE"
 
 class NewProjectInput(QDialog):
     def __init__(self, project, config, *args, **kwargs):
@@ -72,12 +76,16 @@ class NewProjectInput(QDialog):
 
     def createProjectFolder(self):
         if self.line_project_name.text() == "":
-            self.error("Insert the Project Name!")
+            title = 'Empty project name'
+            message = "Please, inform a valid project name to continue."
+            PrintMessageInput([title, message, window_title1])
             self.stop = True
             return
         
         if self.lineEdit_project_folder.text() == "":
-            self.error("Select the Project Folder!")
+            title = 'None project folder selected'
+            message = "Please, select a folder where the project data are going to be stored."
+            PrintMessageInput([title, message, window_title1])
             self.stop = True
             return
 
@@ -100,28 +108,44 @@ class NewProjectInput(QDialog):
             return
 
         if self.line_project_name.text() in os.listdir(self.project_directory):
-            self.error("This Project Already Exists!")
+            title = 'Error in project name'
+            message = "This project name already exists, you should use a different project name to continue."
+            PrintMessageInput([title, message, window_title1])
             return
 
         if self.currentTab == 0: #.iges
             if self.line_import_geometry.text() == "":
-                self.error("Error: Import Geometry!")
+                title = 'Empty geometry at selection'
+                message = "Please, select a valid *.iges format geometry to continue."
+                PrintMessageInput([title, message, window_title1])
                 return
             if self.line_element_size.text() == "":
-                self.error("Error: Element Size!")
+                title = 'Empty element size'
+                message = "Please, inform a valid input to the element size."
+                PrintMessageInput([title, message, window_title1])
                 return
             else:
                 try:
                     float(self.line_element_size.text())
                 except Exception:
-                    self.error("Error: Element size isn't a float")
+                    title = 'Invalid element size'
+                    message = "Please, inform a valid input to the element size."
+                    PrintMessageInput([title, message, window_title1])
                     return
         
         if self.currentTab == 1: #.dat
-            if (self.line_import_conn.text() == "" or self.line_import_cord.text() == ""):
-                self.error("Error: Import conn or cord files")
+            if self.line_import_cord.text() == "":
+                title = 'None nodal coordinates matrix file selected'
+                message = "Please, select a valid nodal coordinates matrix file to continue."
+                PrintMessageInput([title, message, window_title1])
                 return
-        
+
+            if self.line_import_conn.text() == "" :
+                title = 'None connectivity matrix file selected'
+                message = "Please, select a valid connectivity matrix file to continue."
+                PrintMessageInput([title, message, window_title1])
+                return
+   
         if self.createProject():
             self.create = True
             self.close()
@@ -140,13 +164,6 @@ class NewProjectInput(QDialog):
     def import_conn(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
         self.line_import_conn.setText(str(self.path))
-
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
 
     def createProject(self):
 
