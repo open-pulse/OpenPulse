@@ -7,5 +7,5 @@ src/
 test.py
 .vscode/
 .pytest_cache/
-.mtl/
 .config
+*.mtl
