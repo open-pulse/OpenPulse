@@ -1,11 +1,11 @@
 __pycache__/
 Projects/
-.vscode/
-.pytest_cache/
-test.py
-src/
+doc/build/
 target/
 docs/
+src/
+test.py
+.vscode/
+.pytest_cache/
+.mtl/
 .config
-
-doc/build/
