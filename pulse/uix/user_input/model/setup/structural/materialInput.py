@@ -99,6 +99,9 @@ class MaterialInput(QDialog):
 
         self.pushButton_confirm_add_material = self.findChild(QPushButton, 'pushButton_confirm_add_material')
         self.pushButton_confirm_add_material.clicked.connect(self.check_add_material)
+
+        self.pushButton_reset_entries_add_material = self.findChild(QPushButton, 'pushButton_reset_entries_add_material')
+        self.pushButton_reset_entries_add_material.clicked.connect(self.reset_add_texts)
         
         self.pushButton_confirm_material_edition = self.findChild(QPushButton, 'pushButton_confirm_material_edition')
         self.pushButton_confirm_material_edition.clicked.connect(self.check_edit_material)
@@ -126,6 +129,17 @@ class MaterialInput(QDialog):
         for _id in list_ids:
             text += "{}, ".format(_id)
         self.lineEdit_selected_ID.setText(text)
+
+    def update(self):
+        self.lines_ids = self.opv.getListPickedEntities()
+        if self.lines_ids != []:
+            self.write_ids(self.lines_ids)
+            self.radioButton_selected_lines.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(True)
+        else:
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setEnabled(False)
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_material.currentIndex()
@@ -387,16 +401,26 @@ class MaterialInput(QDialog):
      
             self.loadList()
             self.editing = False
-            self.lineEdit_name_edit.setText("")
-            self.lineEdit_id_edit.setText("")
-            self.lineEdit_density_edit.setText("")
-            self.lineEdit_youngModulus_edit.setText("")
-            self.lineEdit_poisson_edit.setText("")
-            self.lineEdit_thermal_expansion_coefficient_edit.setText("")
-            self.lineEdit_color_edit.setText("")
+            self.reset_edit_texts()
             self.same_material_name = False
             self.no_material_selected_to_edit = True
 
+        return False
+
+    def selected_material_to_add(self):      
+        try:
+            self.lineEdit_name.setText(self.clicked_item.text(0))
+            self.lineEdit_id.setText(self.clicked_item.text(1))
+            self.lineEdit_density.setText(self.clicked_item.text(2))
+            self.lineEdit_youngModulus.setText(self.clicked_item.text(3))
+            self.lineEdit_poisson.setText(self.clicked_item.text(4))
+            self.lineEdit_thermal_expansion_coefficient.setText(self.clicked_item.text(5))
+            self.lineEdit_color.setText(self.clicked_item.text(6))    
+        except Exception as e:
+            self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
+            self.message = str(e)
+            PrintMessageInput([self.title, self.message, window_title])
+            return True
         return False
 
     def selected_material_to_edit(self):
@@ -433,7 +457,9 @@ class MaterialInput(QDialog):
 
     def on_click_item(self, item):
         self.clicked_item = item
-        if self.currentTab_ == 1:
+        if self.currentTab_ == 0:       
+            self.selected_material_to_add() 
+        elif self.currentTab_ == 1:
             self.selected_material_to_edit()
         elif self.currentTab_ == 2:
             self.selected_material_to_remove()
@@ -453,17 +479,6 @@ class MaterialInput(QDialog):
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
             self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setEnabled(False)
-
-    def update(self):
-        self.lines_ids = self.opv.getListPickedEntities()
-        if self.lines_ids != []:
-            self.write_ids(self.lines_ids)
-            self.radioButton_selected_lines.setChecked(True)
-            self.lineEdit_selected_ID.setEnabled(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(False)
 
     def selected_material_to_remove(self):
@@ -602,3 +617,33 @@ class MaterialInput(QDialog):
         self.default_material_library()
         self.treeWidget.clear()
         self.loadList()
+        self.reset_add_texts()
+        self.reset_edit_texts() 
+        self.reset_remove_texts() 
+
+    def reset_add_texts(self):
+        self.lineEdit_name.setText("")
+        self.lineEdit_id.setText("")
+        self.lineEdit_density.setText("")
+        self.lineEdit_youngModulus.setText("")
+        self.lineEdit_poisson.setText("")
+        self.lineEdit_thermal_expansion_coefficient.setText("")
+        self.lineEdit_color.setText("")
+    
+    def reset_edit_texts(self):
+        self.lineEdit_name_edit.setText("")
+        self.lineEdit_id_edit.setText("")
+        self.lineEdit_density_edit.setText("")
+        self.lineEdit_youngModulus_edit.setText("")
+        self.lineEdit_poisson_edit.setText("")
+        self.lineEdit_thermal_expansion_coefficient_edit.setText("")
+        self.lineEdit_color_edit.setText("")
+
+    def reset_remove_texts(self):
+        self.lineEdit_name_remove.setText("")
+        self.lineEdit_id_remove.setText("")
+        self.lineEdit_density_remove.setText("")
+        self.lineEdit_youngModulus_remove.setText("")
+        self.lineEdit_poisson_remove.setText("")
+        self.lineEdit_thermal_expansion_coefficient_remove.setText("")
+        self.lineEdit_color_remove.setText("")

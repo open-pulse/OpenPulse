@@ -122,6 +122,9 @@ class FluidInput(QDialog):
         self.pushButton_confirm_add_fluid = self.findChild(QPushButton, 'pushButton_confirm_add_fluid')
         self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
 
+        self.pushButton_reset_entries_add_fluid = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid')
+        self.pushButton_reset_entries_add_fluid.clicked.connect(self.reset_add_texts)
+
         self.pushButton_confirm_fluid_edition = self.findChild(QPushButton, 'pushButton_confirm_fluid_edition')
         self.pushButton_confirm_fluid_edition.clicked.connect(self.check_edit_fluid)
 

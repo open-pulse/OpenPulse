@@ -105,6 +105,7 @@ class InputUi:
         if read.complete:           
             if read.update_cross_section:
                 self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
+            self.set_material()
 
     def setRotationDecoupling(self):
         read = DecouplingRotationDOFsInput(self.project, self.opv)  
