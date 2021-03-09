@@ -137,7 +137,7 @@ class opvRenderer(vtkRendererBase):
             return
         
         nodesColor = (255, 255, 63)
-        linesColor = (255, 255, 0)
+        linesColor = (255, 255, 255)
         tubesColor = (255, 255, 255)
 
         self.opvNodes.setColor(nodesColor)
