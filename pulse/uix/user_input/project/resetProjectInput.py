@@ -39,7 +39,6 @@ class ResetProjectInput(QDialog):
     
     def confirm_reset(self):
         self.project.reset_project()
-        self.opv.plotEntities()
         self.opv.changePlotToEntities()
         PrintMessageInput([title, message, window_title])
         self.close()

@@ -123,14 +123,14 @@ class InputUi:
             for line in mat.lines_ids:
                 self.project.set_material_by_line(line, mat.material)
             print("[Set Material] - {} defined in the entities {}".format(mat.material.name, mat.lines_ids))
-            self.opv.changeColorEntities(mat.lines_ids, mat.material.getNormalizedColorRGB())
+            # self.opv.changeColorEntities(mat.lines_ids, mat.material.getNormalizedColorRGB())
         else:
             self.project.set_material(mat.material)
             entities = []
             for entity in self.project.entities:#get_entities():
                 entities.append(entity.get_tag())
             print("[Set Material] - {} defined in all entities".format(mat.material.name))
-            self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
+            # self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
             
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
         read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
@@ -160,7 +160,7 @@ class InputUi:
             print("[Set Cross-section] - defined at all lines")
             
         self.opv.updateEntityRadius()
-        self.opv.plotMesh()
+        self.opv.changePlotToMesh()
         return True
     
     def plot_cross_section(self):

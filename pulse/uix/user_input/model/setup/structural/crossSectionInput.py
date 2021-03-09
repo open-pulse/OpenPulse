@@ -494,6 +494,8 @@ class CrossSectionInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
+        # print(self.lines_id)
+
         if self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.write_ids(self.lines_id)

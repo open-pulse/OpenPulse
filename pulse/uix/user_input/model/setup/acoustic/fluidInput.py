@@ -551,7 +551,7 @@ class FluidInput(QDialog):
                     self.project.set_fluid_by_line(line, self.fluid)
                     
                 print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_ids))
-                self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
+                # self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
             
             elif self.flagAll:
 
@@ -559,7 +559,7 @@ class FluidInput(QDialog):
                 lines = self.project.mesh.all_lines
 
                 print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
-                self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
+                # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
 
             self.close()
 

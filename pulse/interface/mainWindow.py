@@ -380,11 +380,11 @@ class MainWindow(QMainWindow):
     
     # Graphic 
     def plotEntityFunc(self):
-        self.opvUi.plotEntities(False)
+        # self.opvUi.plotEntities(False)
         self.opvUi.changePlotToEntities()
 
     def plotSectionsFunc(self):
-        self.opvUi.plotEntities(True)
+        # self.opvUi.plotEntities(True)
         self.opvUi.changePlotToEntities()
     
     def plotMeshFunc(self):
@@ -405,7 +405,7 @@ class MainWindow(QMainWindow):
 
     def draw(self):
         self.opvUi.plotEntities()
-        self.opvUi.plotMesh()
+        self.opvUi.changePlotToMesh()
         self.plotEntityFunc()
 
     def closeEvent(self, event):
