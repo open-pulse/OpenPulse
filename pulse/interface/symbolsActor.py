@@ -26,7 +26,7 @@ class SymbolsActor(vtkActorBase):
     SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/specificImpedance.obj')
     RADIATION_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/radiationImpedance.obj')
     LUMPED_MASS_SYMBOL = loadSymbol('pulse/interface/symbols/lumpedMass.obj')
-    COMPRESSOR_SYMBOL = loadSymbol('pulse/interface/symbols/_compressor.obj')
+    COMPRESSOR_SYMBOL = loadSymbol('pulse/interface/symbols/compressor.obj')
     
 
     def __init__(self, nodes, project, deformed=False):
