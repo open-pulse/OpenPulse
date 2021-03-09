@@ -148,3 +148,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def updateEntityRadius(self, *args, **kwargs):
         self.updatePlots()
+
+    def updateRendererMesh(self, *args, **kwargs):
+        self.updatePlots()

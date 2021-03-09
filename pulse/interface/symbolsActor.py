@@ -1,6 +1,8 @@
-from collections import namedtuple
 import vtk
+import numpy as np 
 from time import time
+from collections import namedtuple
+from itertools import chain
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
@@ -19,6 +21,13 @@ class SymbolsActor(vtkActorBase):
     NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadRotation.obj')
     DUMPER_SYMBOL = loadSymbol('pulse/interface/symbols/dumper.obj')
     SPRING_SYMBOL = loadSymbol('pulse/interface/symbols/spring.obj')
+    VOLUME_VELOCITY_SYMBOL = loadSymbol('pulse/interface/symbols/volumeVelocity.obj')
+    ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('pulse/interface/symbols/acousticPressure.obj')
+    SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/specificImpedance.obj')
+    RADIATION_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/radiationImpedance.obj')
+    LUMPED_MASS_SYMBOL = loadSymbol('pulse/interface/symbols/lumpedMass.obj')
+    COMPRESSOR_SYMBOL = loadSymbol('pulse/interface/symbols/_compressor.obj')
+    
 
     def __init__(self, nodes, project, deformed=False):
         super().__init__()
@@ -33,6 +42,8 @@ class SymbolsActor(vtkActorBase):
     def source(self):
         self._createArrays()
         self._loadSources()
+
+        self._createNodalLinks()
         
         for node in self.nodes.values():
             for symbol in self._getAllSymbols(node):
@@ -53,6 +64,7 @@ class SymbolsActor(vtkActorBase):
     
     def actor(self):
         self._actor.SetMapper(self._mapper)
+        self._actor.GetProperty().SetOpacity(0.9)
         self._actor.GetProperty().BackfaceCullingOff()
 
     def _createArrays(self):
@@ -73,13 +85,18 @@ class SymbolsActor(vtkActorBase):
 
     def _loadSources(self):
         # HERE YOU SET THE INDEXES OF THE SOURCES
-        self._mapper.SetSourceData(0, self.PRESCRIBED_POSITION_SYMBOL)
-        self._mapper.SetSourceData(1, self.PRESCRIBED_ROTATION_SYMBOL)
-        self._mapper.SetSourceData(2, self.NODAL_LOAD_POSITION_SYMBOL)
-        self._mapper.SetSourceData(3, self.NODAL_LOAD_ROTATION_SYMBOL)
-        self._mapper.SetSourceData(4, self.DUMPER_SYMBOL)
-        self._mapper.SetSourceData(5, self.SPRING_SYMBOL)
-
+        self._mapper.SetSourceData(1, self.PRESCRIBED_POSITION_SYMBOL)
+        self._mapper.SetSourceData(2, self.PRESCRIBED_ROTATION_SYMBOL)
+        self._mapper.SetSourceData(3, self.NODAL_LOAD_POSITION_SYMBOL)
+        self._mapper.SetSourceData(4, self.NODAL_LOAD_ROTATION_SYMBOL)
+        self._mapper.SetSourceData(5, self.DUMPER_SYMBOL)
+        self._mapper.SetSourceData(6, self.SPRING_SYMBOL)
+        self._mapper.SetSourceData(7, self.VOLUME_VELOCITY_SYMBOL)
+        self._mapper.SetSourceData(8, self.ACOUSTIC_PRESSURE_SYMBOL)
+        self._mapper.SetSourceData(9, self.SPECIFIC_IMPEDANCE_SYMBOL)
+        self._mapper.SetSourceData(10, self.RADIATION_IMPEDANCE_SYMBOL)
+        self._mapper.SetSourceData(11, self.LUMPED_MASS_SYMBOL)
+        self._mapper.SetSourceData(12, self.COMPRESSOR_SYMBOL)
     
     def _createSymbol(self, symbol):
         self._sources.InsertNextTuple1(symbol.source)
@@ -96,12 +113,52 @@ class SymbolsActor(vtkActorBase):
         symbols.extend(self._getNodalLoadRotation(node))
         symbols.extend(self._getDumper(node))
         symbols.extend(self._getSpring(node))
+        symbols.extend(self._getVolumeVelocity(node))
+        symbols.extend(self._getAcousticPressure(node))
+        symbols.extend(self._getSpecificImpedance(node))
+        symbols.extend(self._getRadiationImpedance(node))
+        symbols.extend(self._getLumpedMass(node))
+        symbols.extend(self._getCompressor(node))
         return symbols
+    
+    def _createNodalLinks(self):
+        # this is a gambiarra, i need to think a better way to do it  
+
+        linkedNodes = set()
+        linkedSymbols = vtk.vtkAppendPolyData()
+
+        # extract from string values that shoud be avaliable
+        # create a set without useless repetitions 
+        for node in self.nodes.values():
+            stif = tuple(node.elastic_nodal_link_stiffness.keys())
+            damp = tuple(node.elastic_nodal_link_damping.keys())
+            if stif:
+                nodes = sorted(int(i) for i in stif[0].split('-'))
+            elif damp:
+                nodes = sorted(int(i) for i in damp[0].split('-'))
+            else:
+                continue 
+            linkedNodes.add(tuple(nodes))
+
+        for a, b in linkedNodes:
+            # divide the value of the coordinates by the scale factor
+            source = vtk.vtkLineSource()
+            source.SetPoint1(self.nodes[a].coordinates / 0.3) 
+            source.SetPoint2(self.nodes[b].coordinates / 0.3)
+            source.Update()
+            linkedSymbols.AddInputData(source.GetOutput())
+        
+        linkedSymbols.Update()
+        self._mapper.SetSourceData(0, linkedSymbols.GetOutput())
+        self._sources.InsertNextTuple1(0)
+        self._positions.InsertNextPoint(0,0,0)
+        self._rotations.InsertNextTuple3(0,0,0)
+        self._colors.InsertNextTuple3(0,255,0)
     
     def _getPrescribedPositionSymbols(self, node):
         offset = 0
         x,y,z = self._getCoords(node)
-        sor = 0
+        sor = 1
         col = (0,255,0)
 
         symbols = []
@@ -127,7 +184,7 @@ class SymbolsActor(vtkActorBase):
     def _getPrescribedRotationSymbols(self, node):
         offset = 0
         x,y,z = self._getCoords(node)
-        sor = 1
+        sor = 2
         col = (0,200,200)
 
         symbols = []
@@ -153,7 +210,7 @@ class SymbolsActor(vtkActorBase):
     def _getNodalLoadPosition(self, node):
         offset = 0.01
         x,y,z = self._getCoords(node)
-        sor = 2
+        sor = 3
         col = (255,0,0)
 
         symbols = []
@@ -179,7 +236,7 @@ class SymbolsActor(vtkActorBase):
     def _getNodalLoadRotation(self, node):
         offset = 0.01
         x,y,z = self._getCoords(node)
-        sor = 3
+        sor = 4
         col = (0,0,255)
 
         symbols = []
@@ -205,7 +262,7 @@ class SymbolsActor(vtkActorBase):
     def _getDumper(self, node):
         offset = 0.01
         x,y,z = self._getCoords(node)
-        sor = 4
+        sor = 5
         col = (255,0,100)
 
         symbols = []
@@ -231,7 +288,7 @@ class SymbolsActor(vtkActorBase):
     def _getSpring(self, node):
         offset = 0.01
         x,y,z = self._getCoords(node)
-        sor = 5
+        sor = 6
         col = (242,121,0)
 
         symbols = []
@@ -253,6 +310,74 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
+
+    def _getVolumeVelocity(self, node):
+        sor = 7
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (255,0,0)
+        symbols = []
+
+        if (node.volume_velocity is not None) and (node.compressor_connection_info is None):
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+
+    def _getAcousticPressure(self, node):
+        sor = 8
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (255,255,255)
+        symbols = []
+
+        if node.acoustic_pressure:
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+
+    def _getSpecificImpedance(self, node):
+        sor = 9
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (100,255,100)
+        symbols = []
+
+        if node.specific_impedance:
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+    
+    def _getRadiationImpedance(self, node):
+        sor = 10
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (224,0,75)
+        symbols = []
+
+        if node.radiation_impedance_type:
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+
+    def _getLumpedMass(self, node):
+        sor = 11
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (70,90,120)
+        symbols = []
+
+        if any(node.lumped_masses):
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+    
+    def _getCompressor(self, node):
+        sor = 12
+        pos = node.coordinates
+        rot = (0,0,0)
+        col = (80,80,80)
+        symbols = []
+
+        if (node.volume_velocity is not None) and (node.compressor_connection_info is not None):
+            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        return symbols
+
+
     
     def _getCoords(self, node):
         if self.deformed:
