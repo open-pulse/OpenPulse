@@ -111,7 +111,7 @@ class SymbolsActor(vtkActorBase):
         symbols.extend(self._getPrescribedRotationSymbols(node))
         symbols.extend(self._getNodalLoadPosition(node))
         symbols.extend(self._getNodalLoadRotation(node))
-        symbols.extend(self._getDumper(node))
+        symbols.extend(self._getDamper(node))
         symbols.extend(self._getSpring(node))
         symbols.extend(self._getVolumeVelocity(node))
         symbols.extend(self._getAcousticPressure(node))
@@ -122,7 +122,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _createNodalLinks(self):
-        # this is a gambiarra, i need to think a better way to do it  
+        # temporary structure to plot elastic links 
 
         linkedNodes = set()
         linkedSymbols = vtk.vtkAppendPolyData()
@@ -153,7 +153,7 @@ class SymbolsActor(vtkActorBase):
         self._sources.InsertNextTuple1(0)
         self._positions.InsertNextPoint(0,0,0)
         self._rotations.InsertNextTuple3(0,0,0)
-        self._colors.InsertNextTuple3(0,255,0)
+        self._colors.InsertNextTuple3(16,222,129)
     
     def _getPrescribedPositionSymbols(self, node):
         offset = 0
@@ -259,7 +259,7 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
     
-    def _getDumper(self, node):
+    def _getDamper(self, node):
         offset = 0.01
         x,y,z = self._getCoords(node)
         sor = 5
@@ -315,7 +315,7 @@ class SymbolsActor(vtkActorBase):
         sor = 7
         pos = node.coordinates
         rot = (0,0,0)
-        col = (255,0,0)
+        col = (255,10,10)
         symbols = []
 
         if (node.volume_velocity is not None) and (node.compressor_connection_info is None):
@@ -359,7 +359,7 @@ class SymbolsActor(vtkActorBase):
         sor = 11
         pos = node.coordinates
         rot = (0,0,0)
-        col = (70,90,120)
+        col = (7,156,231)
         symbols = []
 
         if any(node.lumped_masses):
@@ -370,14 +370,12 @@ class SymbolsActor(vtkActorBase):
         sor = 12
         pos = node.coordinates
         rot = (0,0,0)
-        col = (80,80,80)
+        col = (255,10,10)
         symbols = []
 
         if (node.volume_velocity is not None) and (node.compressor_connection_info is not None):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
-
-
     
     def _getCoords(self, node):
         if self.deformed:
