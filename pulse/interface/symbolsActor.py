@@ -351,7 +351,7 @@ class SymbolsActor(vtkActorBase):
         col = (224,0,75)
         symbols = []
 
-        if node.radiation_impedance_type:
+        if node.radiation_impedance_type in [0,1,2]:
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
 
