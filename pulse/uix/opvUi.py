@@ -71,7 +71,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.setRenderer(self.opvRenderer)
 
         self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(False)
+        self.opvRenderer.showLines(True)
         self.opvRenderer.showSymbols(False)
         self.opvRenderer.showTubes(True, transparent=False)
         self.opvRenderer.update()
