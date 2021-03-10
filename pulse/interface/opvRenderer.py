@@ -303,6 +303,7 @@ class opvRenderer(vtkRendererBase):
                 text += f'{ids} '
                 if i ==10 or i==20:
                     text += '\n'
+            text += '\n'
         return text
 
     def structuralNodalInfo(self, values, labels, bc_label, unit_labels, isThereTable):
