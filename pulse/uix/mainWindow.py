@@ -135,9 +135,9 @@ class MainWindow(QMainWindow):
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
-        self.setcappedEnd_action = QAction('&Set capped End', self)        
+        self.setcappedEnd_action = QAction('&Set Capped End', self)        
         self.setcappedEnd_action.setShortcut('Alt+7')
-        self.setcappedEnd_action.setStatusTip('Set capped End')
+        self.setcappedEnd_action.setStatusTip('Set Capped End')
         self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
 
         self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
@@ -181,9 +181,9 @@ class MainWindow(QMainWindow):
         self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
         self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
-        self.add_perforated_plate_action = QAction('&Add perforated plate', self)        
+        self.add_perforated_plate_action = QAction('&Add Perforated Plate', self)        
         self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
-        self.add_perforated_plate_action.setStatusTip('Add perforated plate')
+        self.add_perforated_plate_action.setStatusTip('Add Perforated Plate')
         self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
 
         self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        

@@ -33,6 +33,7 @@ class StructuralElementTypeInput(QDialog):
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
+        self.list_lines_to_update_cross_section = None
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_selected_ID.setDisabled(True)
@@ -162,20 +163,40 @@ class StructuralElementTypeInput(QDialog):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
         self.update_cross_section = False
-        final_etype = self.element_type
+        self.list_lines_to_update_cross_section = []
 
-        for tag in self.lines_id:
+        final_etype = self.element_type
+        if self.lines_id == []:
+            tags = list(self.dict_entities.keys())
+        else:
+            tags = self.lines_id
+
+        for tag in tags:
             initial_etype = self.dict_entities[tag].structural_element_type
+            
             if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
                 self.update_cross_section = True
                 self.pipe_to_beam = True
-                return
+                self.list_lines_to_update_cross_section.append(tag)
+
             elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
                 self.update_cross_section = True
                 self.beam_to_pipe = True
-                return
-            else:
-                self.update_cross_section = False
+                self.list_lines_to_update_cross_section.append(tag)
+
+        if self.update_cross_section:
+            self.update_modified_cross_sections(tags)
+
+    def update_modified_cross_sections(self, tags):
+
+        final_etype = self.element_type
+
+        for tag in tags:
+            initial_etype = self.dict_entities[tag].structural_element_type
+            if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+                self.project.set_cross_section_by_entity(tag, None)
+            elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+                self.project.set_cross_section_by_entity(tag, None)
 
     def get_list_typed_entries(self):
         if self.lineEdit_selected_group.text() == "":

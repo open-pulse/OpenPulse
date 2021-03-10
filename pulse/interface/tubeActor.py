@@ -137,6 +137,8 @@ class TubeActor(vtkActorBase):
 
         if self.pressure_plot and (element.element_type not in ['beam_1']):
             r = element.cross_section.external_radius
+            # future correction - try to solve vtk's limitation of plot small structures
+            # r = element.cross_section.internal_diameter/2
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(20)
             poly.SetNormal(1,0,0)

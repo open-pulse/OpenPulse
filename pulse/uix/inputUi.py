@@ -104,13 +104,10 @@ class InputUi:
         read = StructuralElementTypeInput(self.project, self.opv)
         if read.complete:           
             if read.update_cross_section:
-                self.set_cross_section(pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe)
+                self.set_cross_section( pipe_to_beam=read.pipe_to_beam, 
+                                        beam_to_pipe=read.beam_to_pipe, 
+                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section )
             self.set_material()
-
-    def setRotationDecoupling(self):
-        read = DecouplingRotationDOFsInput(self.project, self.opv)  
-        if read.complete:
-            print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
     def set_material(self):
         mat = MaterialInput(self.opv, self.project.get_material_list_path())
@@ -133,8 +130,12 @@ class InputUi:
             print("[Set Material] - {} defined in all entities".format(mat.material.name))
             # self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
             
-    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False):
-        read = CrossSectionInput(self.project, self.opv, pipe_to_beam=pipe_to_beam, beam_to_pipe=beam_to_pipe)
+    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=None):
+        read = CrossSectionInput(   self.project, 
+                                    self.opv, 
+                                    pipe_to_beam = pipe_to_beam, 
+                                    beam_to_pipe = beam_to_pipe, 
+                                    lines_to_update_cross_section = lines_to_update_cross_section)
 
         if not read.complete:
             return False
@@ -174,6 +175,11 @@ class InputUi:
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)     
         print("[Set Prescribed DOF] - defined at node(s) {}".format(read.nodes_typed))
+
+    def setRotationDecoupling(self):
+        read = DecouplingRotationDOFsInput(self.project, self.opv)  
+        if read.complete:
+            print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
     def setNodalLoads(self):
         read = LoadsInput(self.project, self.opv)

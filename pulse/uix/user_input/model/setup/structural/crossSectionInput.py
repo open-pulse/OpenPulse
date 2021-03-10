@@ -15,7 +15,18 @@ import matplotlib.pyplot as plt
 window_title = "ERROR MESSAGE"
 
 class CrossSectionInput(QDialog):
-    def __init__(self, project, opv, external_diameter=0, thickness=0, offset_y=0, offset_z=0, pipe_to_beam=False, beam_to_pipe=False, *args, **kwargs):
+    def __init__(   self, 
+                    project, 
+                    opv, 
+                    external_diameter = 0, 
+                    thickness = 0, 
+                    offset_y = 0, 
+                    offset_z = 0,
+                    pipe_to_beam = False,
+                    beam_to_pipe = False,
+                    lines_to_update_cross_section = None, 
+                    *args, 
+                    **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/Model/Setup/Structural/crossSectionInput.ui', self)
 
@@ -41,6 +52,7 @@ class CrossSectionInput(QDialog):
 
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
+        self.lines_to_update_cross_section = lines_to_update_cross_section
 
         self.section_key = None
         self.parameters = None
@@ -131,20 +143,6 @@ class CrossSectionInput(QDialog):
         # self.comboBox_beam.currentIndexChanged.connect(self.selectionChange)
         self.index = self.comboBox_beam.currentIndex()
         
-        if self.lines_id != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        elif self.elements_id != []:
-            self.lineEdit_id_labels.setText("Elements IDs:")
-            self.write_ids(self.elements_id)
-            self.radioButton_selected_elements.setChecked(True)
-        else:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setEnabled(False)
-            self.radioButton_all_lines.setChecked(True)      
-
         if self.external_diameter!=0 and self.thickness!=0:
             self.lineEdit_outerDiameter.setText(str(self.external_diameter))
             self.lineEdit_thickness.setText(str(self.thickness))
@@ -159,6 +157,27 @@ class CrossSectionInput(QDialog):
             self.tabWidget_general.setCurrentWidget(self.tab_pipe)
             self.tabWidget_general.setTabEnabled(1, False)
         
+        if self.lines_id != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.radioButton_selected_lines.setChecked(True)
+            self.write_ids(self.lines_id)
+            
+        elif self.elements_id != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.radioButton_selected_elements.setChecked(True)
+            self.write_ids(self.elements_id)
+                    
+        elif self.lines_to_update_cross_section is not None:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.radioButton_selected_lines.setChecked(True)
+            self.write_ids(self.lines_to_update_cross_section)
+            
+        else:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.radioButton_all_lines.setChecked(True)  
+            self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setEnabled(False)
+                
         self.exec_()
 
     def keyPressEvent(self, event):

@@ -513,29 +513,12 @@ class ProjectFile:
             if section_sub in section:
                 config.remove_section(section)
     
-        if cross_section.thickness == 0:
-            if str(entity_id) in list(config.sections()):
-                
-                config.remove_option(section=str(entity_id), option='outer diameter')
-                config.remove_option(section=str(entity_id), option='thickness')
-                config.remove_option(section=str(entity_id), option='offset [e_y, e_z]')
-                config.remove_option(section=str(entity_id), option='insulation thickness')
-                config.remove_option(section=str(entity_id), option='insulation density')
-                config.remove_option(section=str(entity_id), option='section parameters'),
-                config.remove_option(section=str(entity_id), option='shear coefficient')
-
-                config[str(entity_id)]['area'] = str(cross_section.area)
-                config[str(entity_id)]['second moment of area y'] = str(cross_section.second_moment_area_y)
-                config[str(entity_id)]['second moment of area z'] = str(cross_section.second_moment_area_z)
-                config[str(entity_id)]['second moment of area yz'] = str(cross_section.second_moment_area_yz)
-                config[str(entity_id)]['beam section type'] = cross_section.additional_section_info[0]
-                
-                if not "Generic" in cross_section.additional_section_info[0]:
-                    config[str(entity_id)]['section parameters'] = str(cross_section.additional_section_info[1])
-                else:
-                    config[str(entity_id)]['shear coefficient'] = str(cross_section.shear_coefficient)
-              
-        else:
+        if str(entity_id) in list(config.sections()):
+            config.remove_option(section=str(entity_id), option='outer diameter')
+            config.remove_option(section=str(entity_id), option='thickness')
+            config.remove_option(section=str(entity_id), option='offset [e_y, e_z]')
+            config.remove_option(section=str(entity_id), option='insulation thickness')
+            config.remove_option(section=str(entity_id), option='insulation density')  
 
             config.remove_option(section=str(entity_id), option='area')
             config.remove_option(section=str(entity_id), option='second moment of area y')
@@ -543,16 +526,32 @@ class ProjectFile:
             config.remove_option(section=str(entity_id), option='second moment of area yz')
             config.remove_option(section=str(entity_id), option='beam section type')
             config.remove_option(section=str(entity_id), option='section parameters')
-            config.remove_option(section=str(entity_id), option='shear coefficient')
+            config.remove_option(section=str(entity_id), option='shear coefficient')   
 
-            if str(entity_id) in list(config.sections()):
+        if cross_section is not None:
+            if cross_section.thickness == 0:
+                if str(entity_id) in list(config.sections()):
+                    
+                    config[str(entity_id)]['area'] = str(cross_section.area)
+                    config[str(entity_id)]['second moment of area y'] = str(cross_section.second_moment_area_y)
+                    config[str(entity_id)]['second moment of area z'] = str(cross_section.second_moment_area_z)
+                    config[str(entity_id)]['second moment of area yz'] = str(cross_section.second_moment_area_yz)
+                    config[str(entity_id)]['beam section type'] = cross_section.additional_section_info[0]
+                    
+                    if not "Generic" in cross_section.additional_section_info[0]:
+                        config[str(entity_id)]['section parameters'] = str(cross_section.additional_section_info[1])
+                    else:
+                        config[str(entity_id)]['shear coefficient'] = str(cross_section.shear_coefficient)
+                
+            else:
+                if str(entity_id) in list(config.sections()):
 
-                config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
-                config[str(entity_id)]['thickness'] = str(cross_section.thickness)
-                config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
-                config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
-                config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
- 
+                    config[str(entity_id)]['outer diameter'] = str(cross_section.external_diameter)
+                    config[str(entity_id)]['thickness'] = str(cross_section.thickness)
+                    config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
+                    config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
+                    config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
+    
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
