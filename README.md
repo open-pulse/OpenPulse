@@ -1,6 +1,6 @@
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*Alpha Version* (March 9th 2021)
+*Alpha Version* (March 12th 2021)
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/system3.jpeg?raw=true)
 
