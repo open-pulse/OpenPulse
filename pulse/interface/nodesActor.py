@@ -41,7 +41,7 @@ class NodesActor(vtkActorBase):
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().RenderPointsAsSpheresOn()
-        self._actor.GetProperty().SetPointSize(10)
+        self._actor.GetProperty().SetPointSize(6)
         self._actor.GetProperty().LightingOff()
 
     def setColor(self, color, keys=None):
