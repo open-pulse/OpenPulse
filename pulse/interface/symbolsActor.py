@@ -36,6 +36,8 @@ class SymbolsActor(vtkActorBase):
         self.nodes = nodes
         self.deformed = deformed
 
+        self.scaleFactor = 0.3
+
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
     
@@ -53,7 +55,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetInputData(self._data)
         self._mapper.SetSourceIndexArray('sources')
         self._mapper.SetOrientationArray('rotations')
-        self._mapper.SetScaleFactor(0.3)
+        self._mapper.SetScaleFactor(self.scaleFactor)
         
         self._mapper.SourceIndexingOn()
         self._mapper.SetOrientationModeToRotation()
@@ -143,8 +145,8 @@ class SymbolsActor(vtkActorBase):
         for a, b in linkedNodes:
             # divide the value of the coordinates by the scale factor
             source = vtk.vtkLineSource()
-            source.SetPoint1(self.nodes[a].coordinates / 0.3) 
-            source.SetPoint2(self.nodes[b].coordinates / 0.3)
+            source.SetPoint1(self.nodes[a].coordinates / self.scaleFactor) 
+            source.SetPoint2(self.nodes[b].coordinates / self.scaleFactor)
             source.Update()
             linkedSymbols.AddInputData(source.GetOutput())
         
@@ -329,7 +331,7 @@ class SymbolsActor(vtkActorBase):
         col = (255,255,255)
         symbols = []
 
-        if node.acoustic_pressure:
+        if node.acoustic_pressure is not None:
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
 
@@ -340,7 +342,7 @@ class SymbolsActor(vtkActorBase):
         col = (100,255,100)
         symbols = []
 
-        if node.specific_impedance:
+        if node.specific_impedance is not None:
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
     
@@ -351,7 +353,7 @@ class SymbolsActor(vtkActorBase):
         col = (224,0,75)
         symbols = []
 
-        if node.radiation_impedance_type:
+        if node.radiation_impedance_type is not None:
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
 
