@@ -123,7 +123,7 @@ class opvRenderer(vtkRendererBase):
         self.lineToElements = mesh.line_to_elements
     
     def getListPickedPoints(self):
-        if self._selectionToPoints:
+        if self._selectionToNodes:
             return self._style.getListPickedPoints()
         else:
             return []
