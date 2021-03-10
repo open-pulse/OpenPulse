@@ -123,13 +123,22 @@ class opvRenderer(vtkRendererBase):
         self.lineToElements = mesh.line_to_elements
     
     def getListPickedPoints(self):
-        return self._style.getListPickedPoints()
+        if self._selectionToPoints:
+            return self._style.getListPickedPoints()
+        else:
+            return []
 
     def getListPickedElements(self):
-        return self._style.getListPickedElements()
+        if self._selectionToElements:
+            return self._style.getListPickedElements()
+        else:
+            return []
 
     def getListPickedEntities(self):
-        return self._style.getListPickedEntities()
+        if self._selectionToEntities:
+            return self._style.getListPickedEntities()
+        else:
+            return []
 
     def updateColors(self):
         visual = [self.opvNodes, self.opvLines, self.opvTubes]
