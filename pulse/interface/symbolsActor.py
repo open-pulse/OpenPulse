@@ -328,7 +328,7 @@ class SymbolsActor(vtkActorBase):
         sor = 8
         pos = node.coordinates
         rot = (0,0,0)
-        col = (255,255,255)
+        col = (150,0,210) #violet
         symbols = []
 
         if node.acoustic_pressure is not None:
