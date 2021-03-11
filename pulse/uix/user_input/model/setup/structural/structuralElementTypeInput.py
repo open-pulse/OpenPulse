@@ -186,7 +186,10 @@ class StructuralElementTypeInput(QDialog):
 
         if self.update_cross_section:
             self.update_modified_cross_sections(tags)
-
+            title = "Change in element type detected"
+            message = f"The element type previously defined to {self.list_lines_to_update_cross_section} line(s) has been modified, therefore, it is necessary to update the cross-section(s) of this(ese) line(s) to continue."
+            PrintMessageInput([title, message, window_title2])
+            
     def update_modified_cross_sections(self, tags):
 
         final_etype = self.element_type

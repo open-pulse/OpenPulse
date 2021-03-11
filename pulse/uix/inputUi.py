@@ -103,11 +103,12 @@ class InputUi:
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
         if read.complete:           
-            if read.update_cross_section:
-                self.set_cross_section( pipe_to_beam=read.pipe_to_beam, 
+            if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
                                         beam_to_pipe=read.beam_to_pipe, 
-                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section )
-            self.set_material()
+                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
+                self.set_material()
+            self.opv.updateEntityRadius()
+            self.opv.changePlotToEntitiesWithCrossSection()
 
     def set_material(self):
         mat = MaterialInput(self.opv, self.project.get_material_list_path())

@@ -20,6 +20,10 @@ class LogTimes(QDialog):
         self.setWindowIcon(self.icon)
         
         self.project = project
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.label_title = self.findChild(QLabel, 'label_title')
         self.run()
         # self.show()
