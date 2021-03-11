@@ -194,13 +194,13 @@ class opvRenderer(vtkRendererBase):
     # LA ABERRACIÓN
     def updateInfoText(self, obj, event):
         text = ''
-        if self._selectionToNodes:
+        if self._selectionToNodes and self.getListPickedPoints():
             text += self.getNodesInfoText() + '\n'
 
-        if self._selectionToElements:
+        if self._selectionToElements and self.getListPickedElements():
             text += self.getElementsInfoText() + '\n'
         
-        if self._selectionToEntities:
+        if self._selectionToEntities and self.getListPickedEntities():
             text += self.getEntityInfoText()  + '\n'
             
         self.createInfoText(text)
