@@ -35,16 +35,16 @@ class SymbolsActor(vtkActorBase):
         self.project = project
         self.nodes = nodes
         self.deformed = deformed
-
         self.scaleFactor = 0.3
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
     
     def source(self):
+        self.scaleFactor = self.project.mesh.structure_principal_diagonal / 10
+        
         self._createArrays()
         self._loadSources()
-
         self._createNodalLinks()
         
         for node in self.nodes.values():
