@@ -1,3 +1,4 @@
+import vtk
 import numpy as np 
 from time import time
 
@@ -30,9 +31,11 @@ class opvRenderer(vtkRendererBase):
         self.opvLines = None
         self.opvTubes = None 
         self.opvSymbols = None
+        self.elementAxes = None 
 
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
+        self._style.AddObserver('SelectionChangedEvent', self.showElementAxes)
     
     def plot(self):
         self.reset()
@@ -181,6 +184,41 @@ class opvRenderer(vtkRendererBase):
 
             self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
             self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
+
+    def showElementAxes(self, obj, event):
+        self._renderer.RemoveActor(self.elementAxes)
+        self.update()
+
+        ids = self.getListPickedElements()
+
+        if not self._selectionToElements:
+            return 
+        
+        if len(ids) != 1:
+            return 
+
+        element = self.project.get_structural_elements()[ids[0]]
+        xyz = element.first_node.coordinates
+        r_xyz = element.section_rotation_xyz_undeformed
+        size = [element.length] * 3
+
+        transform = vtk.vtkTransform()
+        transform.Translate(xyz)
+        transform.RotateX(r_xyz[0])
+        transform.RotateY(r_xyz[1])
+        transform.RotateZ(r_xyz[2])
+        transform.Scale(size)
+
+        self.elementAxes = vtk.vtkAxesActor()
+        self.elementAxes.AxisLabelsOff()
+        self.elementAxes.SetUserTransform(transform)
+        self.elementAxes.SetShaftTypeToCylinder()
+
+
+        print(dir(self.elementAxes))
+
+        self._renderer.AddActor(self.elementAxes)
+        self.update()
 
     def getPlotRadius(self, *args, **kwargs):
         return 
