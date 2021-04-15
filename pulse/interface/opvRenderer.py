@@ -200,7 +200,7 @@ class opvRenderer(vtkRendererBase):
         element = self.project.get_structural_elements()[ids[0]]
         xyz = element.first_node.coordinates
         r_xyz = element.section_rotation_xyz_undeformed
-        size = [element.length] * 3
+        size = [1.5 * element.length] * 3 # [a] * 3 = [a, a, a]
 
         transform = vtk.vtkTransform()
         transform.Translate(xyz)
