@@ -172,7 +172,7 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            pos = (x, y+offset, z)
+            pos = (x, y-offset, z)
             rot = (0,0,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
@@ -224,7 +224,7 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            pos = (x, y+offset, z)
+            pos = (x, y-offset, z)
             rot = (0,0,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
@@ -250,7 +250,7 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            pos = (x, y+offset, z)
+            pos = (x, y-offset, z)
             rot = (0,0,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
@@ -276,7 +276,7 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            pos = (x, y+offset, z)
+            pos = (x, y-offset, z)
             rot = (0,0,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
@@ -302,7 +302,7 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
-            pos = (x, y+offset, z)
+            pos = (x, y-offset, z)
             rot = (0,0,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
