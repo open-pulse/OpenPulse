@@ -5,6 +5,12 @@ from scipy.spatial.transform import Rotation
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
+# At some stage of VTK creation of the Actor (and I can't properly say where),
+# the library destroy small structures. This factor is a random number, found 
+# empirically that strechs a lot the structure, and shrink it again when
+# everything is done. 
+GAMB_FACTOR = 666
+
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project, **kwargs):
         super().__init__()
@@ -58,12 +64,13 @@ class TubeActor(vtkActorBase):
             rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
             
-            if element.cross_section not in cache:
-                cache[element.cross_section] = counter
+            key = (element.cross_section, round(element.length, 4))
+            if key not in cache:
+                cache[key] = counter
                 source = self.createTubeSection(element)
                 self._mapper.SetSourceData(counter, source)
                 counter += 1
-            sources.InsertNextTuple1(cache[element.cross_section])
+            sources.InsertNextTuple1(cache[key])
 
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
@@ -75,6 +82,7 @@ class TubeActor(vtkActorBase):
         self._mapper.SourceIndexingOn()
         self._mapper.SetSourceIndexArray('sources')
         self._mapper.SetOrientationArray('rotations')
+        self._mapper.SetScaleFactor(1 / GAMB_FACTOR)
         self._mapper.SetOrientationModeToRotation()
         self._mapper.Update()
 
@@ -112,11 +120,11 @@ class TubeActor(vtkActorBase):
     def createTubeSection(self, element):
         extruderFilter = vtk.vtkLinearExtrusionFilter()
         polygon = self.createSectionPolygon(element)
-        size = self.project.get_element_size()
+        size = element.length
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
         extruderFilter.SetExtrusionTypeToVectorExtrusion()
         extruderFilter.SetVector(1,0,0)
-        extruderFilter.SetScaleFactor(size)
+        extruderFilter.SetScaleFactor(size * GAMB_FACTOR)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
 
@@ -136,9 +144,7 @@ class TubeActor(vtkActorBase):
             return poly
 
         if self.pressure_plot and (element.element_type not in ['beam_1']):
-            r = element.cross_section.external_radius
-            # future correction - try to solve vtk's limitation of plot small structures
-            # r = element.cross_section.internal_diameter/2
+            r = element.cross_section.internal_diameter/2 * GAMB_FACTOR
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(20)
             poly.SetNormal(1,0,0)
@@ -163,9 +169,13 @@ class TubeActor(vtkActorBase):
 
         # create points       
         for y, z in inner_points:
+            y *= GAMB_FACTOR
+            z *= GAMB_FACTOR
             points.InsertNextPoint(0, y, z)
 
         for y, z in outer_points:
+            y *= GAMB_FACTOR
+            z *= GAMB_FACTOR
             points.InsertNextPoint(0, y, z)
 
         # create external polygon
