@@ -158,7 +158,7 @@ class SymbolsActor(vtkActorBase):
         self._colors.InsertNextTuple3(16,222,129)
     
     def _getPrescribedPositionSymbols(self, node):
-        offset = 0
+        offset = 0 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 1
         col = (0,255,0)
@@ -184,7 +184,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
 
     def _getPrescribedRotationSymbols(self, node):
-        offset = 0
+        offset = 0 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 2
         col = (0,200,200)
@@ -210,7 +210,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
 
     def _getNodalLoadPosition(self, node):
-        offset = 0.01
+        offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 3
         col = (255,0,0)
@@ -236,7 +236,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getNodalLoadRotation(self, node):
-        offset = 0.01
+        offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 4
         col = (0,0,255)
@@ -262,7 +262,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getDamper(self, node):
-        offset = 0.01
+        offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 5
         col = (255,0,100)
@@ -288,7 +288,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getSpring(self, node):
-        offset = 0.01
+        offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         sor = 6
         col = (242,121,0)
