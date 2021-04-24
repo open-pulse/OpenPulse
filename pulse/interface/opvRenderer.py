@@ -214,9 +214,6 @@ class opvRenderer(vtkRendererBase):
         self.elementAxes.SetUserTransform(transform)
         self.elementAxes.SetShaftTypeToCylinder()
 
-
-        print(dir(self.elementAxes))
-
         self._renderer.AddActor(self.elementAxes)
         self.update()
 
