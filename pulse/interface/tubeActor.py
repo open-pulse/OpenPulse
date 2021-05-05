@@ -9,7 +9,7 @@ from pulse.interface.vtkActorBase import vtkActorBase
 # the library destroy small structures. This factor is a random number, found 
 # empirically that strechs a lot the structure, and shrink it again when
 # everything is done. 
-GAMB_FACTOR = 666
+GAMB_FACTOR = 42
 
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project, **kwargs):
