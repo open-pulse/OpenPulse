@@ -67,10 +67,12 @@ class SolutionStructural:
         cols = solution.shape[1]
         full_solution = np.zeros((rows, cols), dtype=complex)
         full_solution[self.unprescribed_indexes, :] = solution
-        if modal_analysis:
-            full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
-        else:
-            full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
+
+        if len(self.prescribed_indexes) > 0:
+            if modal_analysis:
+                full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
+            else:
+                full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
         return full_solution
 
 
