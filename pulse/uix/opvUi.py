@@ -176,3 +176,11 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def updateRendererMesh(self, *args, **kwargs):
         self.updatePlots()
+
+    def savePNG(self, path):
+        imageFilter = vtk.vtkWindowToImageFilter()
+        imageFilter.SetInput(self.GetRenderWindow())
+        writer = vtk.vtkPNGWriter()
+        writer.SetFileName(path)
+        writer.SetInputConnection(imageFilter.GetOutputPort())
+        writer.Write()
