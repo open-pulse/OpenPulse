@@ -87,7 +87,7 @@ def flanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex)
         Flanged termination impedance. The array has the same length as kappa_complex parameter.
     """
     kr = kappa_complex * pipe_radius
-    return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*kr)/ kr  ) +0j
+    return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*np.real(kr))/ kr  ) +0j
 
 def j2j0(z):
     """
