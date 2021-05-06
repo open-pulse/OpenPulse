@@ -167,7 +167,7 @@ class CrossSectionInput(QDialog):
             self.radioButton_selected_elements.setChecked(True)
             self.write_ids(self.elements_id)
                     
-        elif self.lines_to_update_cross_section is not None:
+        elif self.lines_to_update_cross_section != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.radioButton_selected_lines.setChecked(True)
             self.write_ids(self.lines_to_update_cross_section)
