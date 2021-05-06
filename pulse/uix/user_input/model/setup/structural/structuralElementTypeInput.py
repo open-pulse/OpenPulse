@@ -33,7 +33,7 @@ class StructuralElementTypeInput(QDialog):
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        self.list_lines_to_update_cross_section = None
+        self.list_lines_to_update_cross_section = []
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_selected_ID.setDisabled(True)
@@ -163,14 +163,13 @@ class StructuralElementTypeInput(QDialog):
         self.pipe_to_beam = False
         self.beam_to_pipe = False
         self.update_cross_section = False
-        self.list_lines_to_update_cross_section = []
-
+        
         final_etype = self.element_type
         if self.lines_id == []:
             tags = list(self.dict_entities.keys())
         else:
             tags = self.lines_id
-
+            
         for tag in tags:
             initial_etype = self.dict_entities[tag].structural_element_type
             

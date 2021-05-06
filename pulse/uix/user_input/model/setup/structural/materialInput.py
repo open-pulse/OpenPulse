@@ -13,7 +13,7 @@ from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
 window_title = "ERROR"
 
 class MaterialInput(QDialog):
-    def __init__(self, opv, material_path, *args, **kwargs):
+    def __init__(self, opv, material_path, lines_to_change_material, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.materialPath = material_path
         uic.loadUi('pulse/uix/user_input/ui/Model/Setup/Structural/materialInput.ui', self)
@@ -27,6 +27,7 @@ class MaterialInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         
+        self.lines_to_change_material = lines_to_change_material
         self.lines_ids = self.opv.getListPickedEntities()
         self.clicked_item = None
         self.material = None
@@ -86,9 +87,13 @@ class MaterialInput(QDialog):
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
+        if self.lines_to_change_material is not None:
+            self.lines_ids = self.lines_to_change_material
+
         if self.lines_ids != []:
             self.write_ids(self.lines_ids)
             self.radioButton_selected_lines.setChecked(True)
+
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
