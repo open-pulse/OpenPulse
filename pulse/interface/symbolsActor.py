@@ -44,8 +44,8 @@ class SymbolsActor(vtkActorBase):
         self.scaleFactor = self.project.mesh.structure_principal_diagonal / 10
         
         self._createArrays()
-        self._loadSources()
         self._createNodalLinks()
+        self._loadSources()
         
         for node in self.nodes.values():
             for symbol in self._getAllSymbols(node):
@@ -150,7 +150,12 @@ class SymbolsActor(vtkActorBase):
             source.Update()
             linkedSymbols.AddInputData(source.GetOutput())
         
+        s = vtk.vtkSphereSource()
+        s.SetRadius(0)
+
+        linkedSymbols.AddInputData(s.GetOutput())
         linkedSymbols.Update()
+
         self._mapper.SetSourceData(0, linkedSymbols.GetOutput())
         self._sources.InsertNextTuple1(0)
         self._positions.InsertNextPoint(0,0,0)
