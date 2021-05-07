@@ -694,8 +694,11 @@ if select == 1:
             elif section_type == 1: # Rectangular section
 
                 b, h, b_in, h_in, Yc, Zc = section_parameters           
-                Y_out = [(b/2), (b/2), -(b/2), -(b/2)]
-                Z_out = [(h/2), -(h/2), -(h/2), (h/2)]
+                Y_out = [(b/2), (b/2), -(b/2), -(b/2), (b/2)]
+                Z_out = [(h/2), -(h/2), -(h/2), (h/2), (h/2)]
+
+                Y_out = [(b/2), (b/2),  (b/2),      0, -(b/2), -(b/2), -(b/2),     0]
+                Z_out = [(h/2),     0, -(h/2), -(h/2), -(h/2),      0,  (h/2), (h/2)]
 
                 outer_points = list(zip(Y_out, Z_out))
 
