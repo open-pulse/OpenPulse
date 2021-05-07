@@ -714,7 +714,7 @@ if select == 1:
                 d_out, d_in, Yc, Zc = section_parameters
                 
                 d_theta = np.pi/N
-                theta = -np.arange(0, 2*np.pi+d_theta, d_theta)
+                theta = -np.arange(0, 2*np.pi, d_theta)
 
                 sine = np.sin(theta)
                 cossine = np.cos(theta)
