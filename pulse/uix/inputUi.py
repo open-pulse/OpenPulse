@@ -106,14 +106,14 @@ class InputUi:
             if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
                                         beam_to_pipe=read.beam_to_pipe, 
                                         lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
-                self.set_material(lines_to_change_material=read.list_lines_to_update_cross_section)
+                self.set_material(lines_to_change_material = read.list_lines_to_update_cross_section)
             self.opv.updateEntityRadius()
             self.opv.changePlotToEntitiesWithCrossSection()
 
-    def set_material(self, lines_to_change_material=None):
+    def set_material(self, lines_to_change_material=[]):
         mat = MaterialInput(    self.opv, 
                                 self.project.get_material_list_path(), 
-                                lines_to_change_material=lines_to_change_material)
+                                lines_to_change_material = lines_to_change_material)
                                 
         if mat.material is None:
             return
@@ -134,7 +134,7 @@ class InputUi:
             print("[Set Material] - {} defined in all entities".format(mat.material.name))
             # self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
             
-    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=None):
+    def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = CrossSectionInput(   self.project, 
                                     self.opv, 
                                     pipe_to_beam = pipe_to_beam, 
