@@ -1,7 +1,7 @@
 from collections import deque
 from random import choice
 from collections import defaultdict
-import gmsh 
+from libs.gmsh import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
