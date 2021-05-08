@@ -1,7 +1,7 @@
+./libs/vtk-9.0.1-cp37-cp37m-win_amd64.whl
 scipy
 matplotlib
 numpy
 PyQt5
-vtk
 gmsh-sdk
 h5py
