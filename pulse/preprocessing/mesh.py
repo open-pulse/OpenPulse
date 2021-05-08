@@ -1520,7 +1520,8 @@ class Mesh:
                 if len(elements_node_last) > 2:
                     list_gdofs.remove(gdofs_node_last) 
 
-        beam_gdofs = np.array(list_gdofs).flatten()
+        # beam_gdofs = np.array(list_gdofs).flatten()
+        beam_gdofs = list_gdofs
         return beam_gdofs
 
     def get_pipe_elements_global_dofs(self):
@@ -1535,7 +1536,7 @@ class Mesh:
         self.beam_gdofs = self.get_beam_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        pipe_gdofs = np.delete(all_indexes, self.beam_gdofs)
+        pipe_gdofs = np.delete(all_indexes, list(self.beam_gdofs))
         return pipe_gdofs
 
     def get_beam_nodes_and_indexes(self):

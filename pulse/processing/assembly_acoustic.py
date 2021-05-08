@@ -165,7 +165,7 @@ class AssemblyAcoustic:
         indexes_to_remove = self.prescribed_indexes.copy()
         for dof in list(self.beam_gdofs):
             indexes_to_remove.append(dof)
-        indexes_to_remove = np.sort(indexes_to_remove)
+        indexes_to_remove = list(np.sort(indexes_to_remove))
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
         return unprescribed_pipe_indexes
 
