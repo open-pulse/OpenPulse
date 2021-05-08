@@ -1,7 +1,7 @@
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
-from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import remove_bc_from_file
 import configparser
 from collections import defaultdict

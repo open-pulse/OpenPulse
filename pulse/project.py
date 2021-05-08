@@ -7,7 +7,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.projectFile import ProjectFile
-from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
 import configparser

@@ -31,7 +31,7 @@ class MainWindow(QMainWindow):
         self.loadRecentProject()
 
     def _loadIcons(self):
-        icons_path = 'pulse\\data\\icons\\'
+        icons_path = 'data\\icons\\'
         self.pulse_icon = QIcon(icons_path + 'pulse.png')
         self.new_icon = QIcon(icons_path + 'add.png')
         self.open_icon = QIcon(icons_path + 'upload.png')
