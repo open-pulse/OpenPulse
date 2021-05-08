@@ -24,7 +24,7 @@ class CrossSectionInput(QDialog):
                     offset_z = 0,
                     pipe_to_beam = False,
                     beam_to_pipe = False,
-                    lines_to_update_cross_section = None, 
+                    lines_to_update_cross_section = [], 
                     *args, 
                     **kwargs):
         super().__init__(*args, **kwargs)

@@ -13,7 +13,12 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 window_title = "ERROR"
 
 class MaterialInput(QDialog):
-    def __init__(self, opv, material_path, lines_to_change_material, *args, **kwargs):
+    def __init__(   self, 
+                    opv, 
+                    material_path, 
+                    lines_to_change_material=[], 
+                    *args, 
+                    **kwargs):
         super().__init__(*args, **kwargs)
         self.materialPath = material_path
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/materialInput.ui', self)
@@ -87,7 +92,7 @@ class MaterialInput(QDialog):
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
-        if self.lines_to_change_material is not None:
+        if self.lines_to_change_material != []:
             self.lines_ids = self.lines_to_change_material
 
         if self.lines_ids != []:
