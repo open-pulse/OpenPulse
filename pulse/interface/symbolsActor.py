@@ -162,6 +162,14 @@ class SymbolsActor(vtkActorBase):
         self._rotations.InsertNextTuple3(0,0,0)
         self._colors.InsertNextTuple3(16,222,129)
     
+    def is_value_negative(self, value):
+        if isinstance(value, np.ndarray):
+            return False
+        elif np.real(value)>=0:
+            return False
+        else:
+            return True
+
     def _getPrescribedPositionSymbols(self, node):
         offset = 0 * self.scaleFactor
         x,y,z = self._getCoords(node)
@@ -169,21 +177,31 @@ class SymbolsActor(vtkActorBase):
         col = (0,255,0)
 
         symbols = []
-        mask = [(i != None) for i in node.getStructuralBondaryCondition()[:3]]
+        mask = [(i is not None) for i in node.getStructuralBondaryCondition()[:3]]
+        values = list(node.getStructuralBondaryCondition()[:3])
 
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
+            if self.is_value_negative(values[0]):
+                pos = (x-offset, y, z)
+                rot = (0,0,-90)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (180,90,0)
+            if self.is_value_negative(values[1]):
+                pos = (x, y+offset, z)
+                rot = (180,90,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
+            if self.is_value_negative(values[2]):
+                pos = (x, y, z+offset)
+                rot = (90,0,0)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
@@ -195,21 +213,31 @@ class SymbolsActor(vtkActorBase):
         col = (0,200,200)
 
         symbols = []
-        mask = [(i != None) for i in node.getStructuralBondaryCondition()[3:]]
+        mask = [(i is not None) for i in node.getStructuralBondaryCondition()[3:]]
+        values = list(node.getStructuralBondaryCondition()[3:])
         
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
+            if self.is_value_negative(values[0]):
+                pos = (x+offset, y, z)
+                rot = (0,0,-90)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (180,90,0)
+            if self.is_value_negative(values[1]):
+                pos = (x, y+offset, z)
+                rot = (180,90,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
+            if self.is_value_negative(values[2]):
+                pos = (x, y, z+offset)
+                rot = (90,0,0)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
@@ -221,21 +249,31 @@ class SymbolsActor(vtkActorBase):
         col = (255,0,0)
 
         symbols = []
-        mask = node.get_prescribed_loads()[:3]
+        mask = [(i is not None) for i in node.get_prescribed_loads()[:3]]
+        values = list(node.get_prescribed_loads()[:3])
         
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
+            if self.is_value_negative(values[0]):
+                pos = (x+offset, y, z)
+                rot = (0,0,-90)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (180,90,0)
+            if self.is_value_negative(values[1]):
+                pos = (x, y+offset, z)
+                rot = (180,90,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
+            if self.is_value_negative(values[2]):
+                pos = (x, y, z+offset)
+                rot = (90,90,0)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
@@ -247,21 +285,31 @@ class SymbolsActor(vtkActorBase):
         col = (0,0,255)
 
         symbols = []
-        mask = node.get_prescribed_loads()[3:]
+        values = list(node.get_prescribed_loads()[:3])
+        mask = [(i is not None) for i in node.get_prescribed_loads()[3:]]
         
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
+            if self.is_value_negative(values[0]):
+                pos = (x+offset, y, z)
+                rot = (0,0,-90)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (180,90,0)
+            if self.is_value_negative(values[1]):
+                pos = (x, y+offset, z)
+                rot = (180,90,180)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
+            if self.is_value_negative(values[2]):
+                pos = (x, y, z+offset)
+                rot = (90,0,0)
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         
         return symbols
@@ -273,7 +321,8 @@ class SymbolsActor(vtkActorBase):
         col = (255,0,100)
 
         symbols = []
-        mask = node.get_lumped_dampings()[:3]
+        # mask = node.get_lumped_dampings()[:3]
+        mask = [(i is not None) for i in node.get_lumped_dampings()[:3]]
 
         if mask[0]:
             pos = (x-offset, y, z)
@@ -299,7 +348,8 @@ class SymbolsActor(vtkActorBase):
         col = (242,121,0)
 
         symbols = []
-        mask = node.get_lumped_stiffness()[:3]
+        # mask = node.get_lumped_stiffness()[:3]
+        mask = [(i is not None) for i in node.get_lumped_stiffness()[:3]]
 
         if mask[0]:
             pos = (x-offset, y, z)
