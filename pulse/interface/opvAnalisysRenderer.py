@@ -214,7 +214,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
     # info text
     def updateInfoText(self, *args, **kwargs):
-        mode = self._currentFrequency + 14
+        mode = self._currentFrequency + 1
         magnif = abs(self.slider.GetRepresentation().GetValue())
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
