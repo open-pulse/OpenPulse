@@ -57,6 +57,7 @@ class CrossSectionInput(QDialog):
         self.section_key = None
         self.parameters = None
         self.section_info = None
+        self.section_data = None
         self.complete = False
         self.flagAll = False
         self.flagEntity = False
@@ -143,11 +144,11 @@ class CrossSectionInput(QDialog):
         # self.comboBox_beam.currentIndexChanged.connect(self.selectionChange)
         self.index = self.comboBox_beam.currentIndex()
         
-        if self.external_diameter!=0 and self.thickness!=0:
-            self.lineEdit_outerDiameter.setText(str(self.external_diameter))
-            self.lineEdit_thickness.setText(str(self.thickness))
-            self.lineEdit_offset_y.setText(str(self.offset_y))
-            self.lineEdit_offset_z.setText(str(self.offset_z))
+        # if self.external_diameter!=0 and self.thickness!=0:
+        #     self.lineEdit_outerDiameter.setText(str(self.external_diameter))
+        #     self.lineEdit_thickness.setText(str(self.thickness))
+        #     self.lineEdit_offset_y.setText(str(self.offset_y))
+        #     self.lineEdit_offset_z.setText(str(self.offset_z))
                
         if self.pipe_to_beam:
             self.tabWidget_general.setCurrentWidget(self.tab_beam)
@@ -177,8 +178,56 @@ class CrossSectionInput(QDialog):
             self.radioButton_all_lines.setChecked(True)  
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
-                
+
+        self.cross_section_input_texts()       
         self.exec_()
+
+    def cross_section_input_texts(self):
+        if len(self.lines_id) > 0:   
+            line = self.lines_id[0]
+            # for line in self.lines_id:
+            entity = self.dict_tag_to_entity[line]
+            if entity.cross_section is not None:
+                cross = entity.cross_section
+                self.section_data = None
+
+                if entity.structural_element_type in ['pipe_1', 'pipe_2']:
+                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+                    self.radioButton_rectangular_section.setChecked(False)
+                    self.external_diameter = cross.external_diameter
+                    self.thickness = cross.thickness
+                    self.lineEdit_outerDiameter.setText(str(self.external_diameter))
+                    self.lineEdit_thickness.setText(str(self.thickness))
+                    
+                    if cross.offset_y != 0:
+                        self.lineEdit_outerDiameter.setText(str(self.offset_y))
+                    if cross.offset_z != 0:
+                        self.lineEdit_outerDiameter.setText(str(self.offset_z))
+                
+                elif entity.structural_element_type in ['beam_1']:
+                    self.reset_pipe_input_texts()
+                    self.section_data = cross.additional_section_info
+                    section_type = self.section_data[0]
+                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
+                    
+                    if section_type == 'Rectangular section':
+                        self.radioButton_rectangular_section.setChecked(True)
+                    if section_type == 'Circular section':
+                        self.radioButton_circular_section.setChecked(True)
+                    if section_type == 'C-section':
+                        self.radioButton_C_section.setChecked(True)                        
+                    if section_type == 'I-section':
+                        self.radioButton_I_section.setChecked(True)
+                    if section_type == 'T-section':
+                        self.radioButton_T_section.setChecked(True)
+
+                    # self.check_beam()
+
+    def reset_pipe_input_texts(self):
+        self.lineEdit_outerDiameter.setText('')
+        self.lineEdit_thickness.setText('')
+        self.lineEdit_outerDiameter.setText('')
+        self.lineEdit_outerDiameter.setText('')
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -439,7 +488,7 @@ class CrossSectionInput(QDialog):
 
             if self.currentTab_beam == 0:
 
-                read = CrossSectionBeamInput(self.section_key)
+                read = CrossSectionBeamInput(self.section_key, section_data=self.section_data)
                 if not read.complete:
                     return
                 self.cross_section = read.cross_section
@@ -512,8 +561,8 @@ class CrossSectionInput(QDialog):
 
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
-
-        # print(self.lines_id)
+        # print('passei update')
+        self.cross_section_input_texts()
 
         if self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
@@ -530,7 +579,7 @@ class CrossSectionInput(QDialog):
 
 
 class CrossSectionBeamInput(QDialog):
-    def __init__(self, section_type, *args, **kwargs):
+    def __init__(self, section_type, section_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('pulse/uix/user_input/ui/Model/Setup/Structural/crossSectionBeamInput.ui', self)
 
@@ -543,6 +592,7 @@ class CrossSectionBeamInput(QDialog):
 
         # self.parameters = parameters
         self.section_type = section_type
+        self.section_data = section_data
         self.complete = False
         self.stop = False
         # self._get_dict_key_section()
@@ -591,7 +641,56 @@ class CrossSectionBeamInput(QDialog):
         self.tab_C_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_C_section")
         self.tab_I_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_I_section")
         self.tab_T_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_T_section")
-        
+
+        if self.section_data is not None:
+            section_type, section_entries = self.section_data
+            if section_type == 'Rectangular section':
+                # print('Rectangular section')
+                [base, height, base_in, height_in, _, _] = section_entries
+                self.lineEdit_base_rectangular_section.setText(str(base))
+                self.lineEdit_height_rectangular_section.setText(str(height))
+                if base_in != 0 and height_in != 0:
+                    self.lineEdit_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
+            elif section_type == 'Circular section':
+                # print('Circular section')
+                [outer_diameter_beam, inner_diameter_beam, _, _] = section_entries
+                self.lineEdit_outer_diameter_circular_section.setText(str(outer_diameter_beam))
+                if inner_diameter_beam != 0:
+                    self.lineEdit_inner_diameter_circular_section.setText(str(inner_diameter_beam))
+            elif section_type == 'C-section':
+                # print('C-section')
+                [h, w1, w2, w3, t1, t2, t3, r, _ ,_ ] = section_entries
+                self.lineEdit_height_C_section.setText(str(h))
+                self.lineEdit_w1_C_section.setText(str(w1))
+                self.lineEdit_w2_C_section.setText(str(w2))
+                self.lineEdit_w3_C_section.setText(str(w3))
+                self.lineEdit_t1_C_section.setText(str(t1))   
+                self.lineEdit_t3_C_section.setText(str(t3))
+                if r != 0:
+                    self.lineEdit_radius_C_section.setText(str(r))                
+            elif section_type == 'I-section':
+                # print('I-section')
+                [h, w1, w2, w3, t1, _, t3, r, _, _] = section_entries
+                self.lineEdit_height_I_section.setText(str(h))
+                self.lineEdit_w1_I_section.setText(str(w1))
+                self.lineEdit_w2_I_section.setText(str(w2))
+                self.lineEdit_w3_I_section.setText(str(w3))
+                self.lineEdit_t1_I_section.setText(str(t1))   
+                self.lineEdit_t3_I_section.setText(str(t3))
+                if r != 0:
+                    self.lineEdit_radius_I_section.setText(str(r))
+            elif section_type == 'T-section':
+                # print('T-section')
+                [h, w1, w2, t1, t2, r, _ ,_ ] = section_entries
+                self.lineEdit_height_T_section.setText(str(h))
+                self.lineEdit_w1_T_section.setText(str(w1))
+                self.lineEdit_w2_T_section.setText(str(w2))
+                self.lineEdit_t1_T_section.setText(str(t1))   
+                if r != 0:
+                    self.lineEdit_radius_I_section.setText(str(r))
+            else:
+                pass
+
         self.update_tabs()
         self.exec_()
 
