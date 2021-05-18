@@ -75,6 +75,7 @@ class InputUi:
         self.specific_impedance_frequencies = None
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
+        self.project.none_project_action = False
         self.setup_analysis_complete = False
         self.flag_imported_table = False
 
@@ -87,18 +88,29 @@ class InputUi:
 
     def new_project(self, config):
         new_project_input = NewProjectInput(self.project, config)
-        return new_project_input.create
+        return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
         load_project = LoadProjectInput(self.project, config, path)
-        return load_project.complete
+        return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
         getStarted = GetStartedInput(self.project, config, self)
-        return getStarted.draw
+        return self.initial_project_action(getStarted.draw)          
     
+    def initial_project_action(self, obj):
+        if obj:
+            self.project.none_project_action = False
+            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
+            return True
+        else:
+            self.project.none_project_action = True
+            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
+            return False                 
+
     def reset_project(self):
-        ResetProjectInput(self.project, self.opv)
+        if not self.project.none_project_action:
+            ResetProjectInput(self.project, self.opv)
 
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
@@ -192,7 +204,7 @@ class InputUi:
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
-    
+        
     def addMassSpringDamper(self):
         read = MassSpringDamperInput(self.project, self.opv)
         if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
@@ -283,12 +295,12 @@ class InputUi:
         return
         
     def _load_frequencies_from_table(self, obj):
-            self.project.file.f_min = obj.f_min
-            self.project.file.f_max = obj.f_max
-            self.project.file.f_step = obj.f_step
-            self.project.file.frequencies = obj.frequencies
-            self.project.file.temp_table_name = obj.imported_table_name  
-            return obj.frequencies 
+        self.project.file.f_min = obj.f_min
+        self.project.file.f_max = obj.f_max
+        self.project.file.f_step = obj.f_step
+        self.project.file.frequencies = obj.frequencies
+        self.project.file.temp_table_name = obj.imported_table_name  
+        return obj.frequencies 
     
     def check_acoustic_bc_tables(self):
 
@@ -330,11 +342,11 @@ class InputUi:
         self.analysis_ID = read.analysis_ID
         self.analysis_type_label = read.analysis_type_label
         self.analysis_method_label = read.analysis_method_label
- 
+
         if self.analysis_ID is None:
             self.project.analysis_ID = None
             return
- 
+
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         self.project.set_acoustic_solution(None)
@@ -349,9 +361,9 @@ class InputUi:
         else:
             self.setup_analysis_complete = False
             self.analysisSetup()
-    
-    def analysisSetup(self):
         
+    def analysisSetup(self):
+
         if self.project.analysis_ID in [None, 2, 4]:
             return
         if self.project.file._project_name == "":
@@ -364,7 +376,7 @@ class InputUi:
         else:
             self.project.load_frequencies_from_table()
             self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
-  
+
         self.global_damping = self.project.global_damping    
         read = AnalysisSetupInput(self.project, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
 
@@ -396,7 +408,7 @@ class InputUi:
         if read.flag_run:
             self.runAnalysis()
         return True
-      
+    
     def runAnalysis(self):
 
         t0 = time()
@@ -410,7 +422,7 @@ class InputUi:
         if self.flag_imported_table:
             if self.analysisSetup():
                 return
-       
+    
         if self._check_is_there_a_problem():
             return
         self.project.time_to_checking_entries = time()-t0
@@ -491,21 +503,21 @@ class InputUi:
         self.project.time_to_postprocess = (time() - t0) - self.project.time_to_solve_model
         
         LogTimes(self.project)
- 
+
     def plotStructuralModeShapes(self):
-        self.project.set_min_max_type_stresses("", "", "")
-        self.project.plot_pressure_field = False
-        self.project.plot_stress_field = False
-        solution = self.project.get_structural_solution()
-        if self.analysis_ID == 2:
-            if solution is None:
+            self.project.set_min_max_type_stresses("", "", "")
+            self.project.plot_pressure_field = False
+            self.project.plot_stress_field = False
+            solution = self.project.get_structural_solution()
+            if self.analysis_ID == 2:
+                if solution is None:
+                    return
+                plot = PlotStructuralModeShapeInput(self.opv, self.project.natural_frequencies_structural)
+                if plot.mode_index is None:
+                    return
+                self.opv.changeAndPlotAnalysis(plot.mode_index)
+            else:
                 return
-            plot = PlotStructuralModeShapeInput(self.opv, self.project.natural_frequencies_structural)
-            if plot.mode_index is None:
-                return
-            self.opv.changeAndPlotAnalysis(plot.mode_index)
-        else:
-            return
 
     def plotDisplacementField(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -697,3 +709,10 @@ class InputUi:
 
     def acoustic_model_info(self):
         AcousticModelInfoInput(self.project)
+
+    def empty_project_action_message(self):
+        title = 'EMPTY PROJECT'
+        message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
+        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' buttons to continue."
+        window_title = 'ERROR'
+        PrintMessageInput([title, message, window_title])

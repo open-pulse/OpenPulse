@@ -15,12 +15,17 @@ from os.path import expanduser, basename, exists, dirname
 from pathlib import Path
 import numpy as np
 
+from pulse.uix.menu import *
+# from pulse.uix.menu.widgets import *
+
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
         QMainWindow.__init__(self, parent)
 
         self.config = Config()
         self.project = Project()
+        self.menuWidget = Menu(self)
+
         self._loadIcons()
         self._config()
         self._createBasicLayout()

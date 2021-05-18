@@ -43,6 +43,7 @@ class Project:
         self.plot_pressure_field = False
         self.is_file_loaded = False
         self.setup_analysis_complete = False
+        self.none_project_action = False
 
         self.time_to_checking_entries = None 
         self.time_to_process_cross_sections = None
