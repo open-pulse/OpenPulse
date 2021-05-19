@@ -680,11 +680,17 @@ class Project:
 
     def _set_fluid_to_selected_entity(self, line_id, fluid):
         entity = self.mesh.dict_tag_to_entity[line_id]
-        entity.fluid = fluid
+        if entity.structural_element_type not in ['beam_1']:
+            entity.fluid = fluid
+        else:
+            entity.fluid = None
 
     def _set_fluid_to_all_entities(self, fluid):
         for entity in self.entities:
-            entity.fluid = fluid
+            if entity.structural_element_type not in ['beam_1']:
+                entity.fluid = fluid
+            else:
+                entity.fluid = None
 
     def _set_cross_section_to_selected_entity(self, entity_id, cross):
         entity = self.mesh.dict_tag_to_entity[entity_id]

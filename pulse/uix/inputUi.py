@@ -102,10 +102,12 @@ class InputUi:
         if obj:
             self.project.none_project_action = False
             self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
+            self.parent.set_enable_menuBar(True)
             return True
         else:
             self.project.none_project_action = True
             self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
+            self.parent.set_enable_menuBar(False)
             return False                 
 
     def reset_project(self):

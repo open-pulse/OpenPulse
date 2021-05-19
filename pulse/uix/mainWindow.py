@@ -383,6 +383,18 @@ class MainWindow(QMainWindow):
         self._loadResultsViewerMenu()
         self._loadHelpMenu()
 
+    def set_enable_menuBar(self, _bool):
+        #
+        self.graphicMenu.setEnabled(_bool)
+        self.structuralModelSetupMenu.setEnabled(_bool)
+        self.acousticModelSetupMenu.setEnabled(_bool)
+        self.modelInfoMenu.setEnabled(_bool)
+        self.analysisMenu.setEnabled(_bool)
+        self.resultsViewerMenu.setEnabled(_bool)
+        #
+        self.saveAsPng_action.setEnabled(_bool) 
+        self.reset_action.setEnabled(_bool) 
+
     def _createToolBar(self):
         self.toolbar = QToolBar("Enable Toolbar")
         self.toolbar.setIconSize(QSize(26,26))
@@ -443,8 +455,6 @@ class MainWindow(QMainWindow):
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.getOPVWidget().savePNG(path)
-
-
 
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()

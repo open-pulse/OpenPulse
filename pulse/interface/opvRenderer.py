@@ -437,7 +437,7 @@ class opvRenderer(vtkRendererBase):
             text += f'Material: {material} \n'
             text += f'Strutural element type: {structural_element_type} \n'
             
-            if "PIPE" in structural_element_type:        
+            if "pipe_" in structural_element_type:        
                 text += f'Diameter: {external_diameter} [m]\n'
                 text += f'Thickness: {thickness} [m]\n'
                 if offset_y != 0 or offset_z != 0:
@@ -447,18 +447,20 @@ class opvRenderer(vtkRendererBase):
                     text += f'Insulation thickness: {insulation_thickness} [m]\n'
                     text += f'Insulation density: {insulation_density} [kg/m³]\n'
 
-            elif "BEAM" in structural_element_type:
+            elif "beam_1" in structural_element_type:
                 text += 'Area:  {} [m²]\n'.format(area)
                 text += 'Iyy:  {} [m^4]\n'.format(Iyy)
                 text += 'Izz:  {} [m^4]\n'.format(Izz)
                 text += 'Iyz:  {} [m^4]\n'.format(Iyz)
             
-            if structural_element.fluid is not None:
-                text += f'\nFluid: {fluid} \n'
-            if acoustic_element.element_type is not None:
-                text += f'Acoustic element type: {acoustic_element.element_type} \n'
-            if acoustic_element.hysteretic_damping is not None:
-                text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+            if structural_element.element_type not in ['beam_1']:
+
+                if acoustic_element.fluid is not None:
+                    text += f'\nFluid: {fluid} \n'                                
+                if acoustic_element.element_type is not None:
+                    text += f'Acoustic element type: {acoustic_element.element_type} \n'
+                if acoustic_element.hysteretic_damping is not None:
+                    text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
 
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'
@@ -518,13 +520,14 @@ class opvRenderer(vtkRendererBase):
                     if insulation_thickness != 0 or insulation_density != 0: 
                         text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
                     
-                    if entity.fluid is not None:
-                        text += f'\nFluid: {entity.fluid}' 
+                    if entity.structural_element_type not in ['beam_1']:
+                        if entity.fluid is not None:
+                            text += f'\nFluid: {entity.fluid}' 
 
-                    if entity.acoustic_element_type is not None:
-                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
-                    if entity.hysteretic_damping is not None:
-                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
+                        if entity.acoustic_element_type is not None:
+                            text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+                        if entity.hysteretic_damping is not None:
+                            text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
 
             else:
 
@@ -575,15 +578,16 @@ class opvRenderer(vtkRendererBase):
                         text += 'Iyy:  {} [m^4]\n'.format(Iyy)
                         text += 'Izz:  {} [m^4]\n'.format(Izz)
                         text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+                if entity.structural_element_type not in ['beam_1']:
+                        
+                    if entity.fluid is not None:
+                        text += f'\nFluid: {entity.fluid.name}' 
 
-                if entity.fluid is not None:
-                    text += f'\nFluid: {entity.fluid.name}' 
+                    if entity.acoustic_element_type is not None:
+                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
-                if entity.acoustic_element_type is not None:
-                    text += f'\nAcoustic element type: {entity.acoustic_element_type}'
-
-                if entity.hysteretic_damping is not None:
-                    text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+                    if entity.hysteretic_damping is not None:
+                        text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
 
         else:
 

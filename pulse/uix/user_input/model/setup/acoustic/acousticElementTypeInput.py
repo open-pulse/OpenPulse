@@ -28,7 +28,7 @@ class AcousticElementTypeInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
         self.dict_entities = project.mesh.dict_tag_to_entity#get_dict_of_entities()
         self.comboBox_index = 0
-        self.element_type = 'dampingless'
+        self.element_type = 'undamped'
         self.complete = False
         self.update_cross_section = False
         self.pipe_to_beam = False
@@ -45,7 +45,7 @@ class AcousticElementTypeInput(QDialog):
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
         self.comboBox_index = self.comboBox.currentIndex()
 
-        # index: 0 - Dampingless
+        # index: 0 - Undamped
         # index: 1 - Hysteretic
         # index: 2 - Wide-duct
         # index: 3 - LRF fluid equivalent
@@ -166,7 +166,7 @@ class AcousticElementTypeInput(QDialog):
         self.comboBox_index = self.comboBox.currentIndex()
         self.tabWidget_element_type.setTabEnabled(1, False)
         if self.comboBox_index == 0:
-            self.element_type = 'dampingless'
+            self.element_type = 'undamped'
         elif self.comboBox_index == 1:
             self.element_type = 'hysteretic'
             self.tabWidget_element_type.setTabEnabled(1, True)

@@ -590,7 +590,7 @@ class Mesh:
         elements : list
             Acoustic elements indexes.
             
-        element_type : str, ['dampingless', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
         hysteretic_damping : float, optional
@@ -690,7 +690,7 @@ class Mesh:
         line : list
             Entities tag.
             
-        element_type : str, ['dampingless', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
         hysteretic_damping : float, optional
@@ -1289,9 +1289,16 @@ class Mesh:
             Fluid data.
         """
         for element in slicer(self.acoustic_elements, elements):
-            element.fluid = fluid
+            if 'beam_1' not in self.structural_elements[element.index].element_type:
+                element.fluid = fluid
+            else:
+                element.fluid = None
+
         for element in slicer(self.structural_elements, elements):
-            element.fluid = fluid
+            if element.element_type not in ['beam_1']:
+                element.fluid = fluid
+            else:
+                element.fluid = None
     
     def set_fluid_by_line(self, lines, fluid):
         """
@@ -1675,8 +1682,9 @@ class Mesh:
         self.check_set_crossSection = False
         for element in self.acoustic_elements.values():
             if element.fluid is None:
-                self.check_set_fluid = True
-                return
+                if 'pipe_' in self.structural_elements[element.index].element_type:
+                    self.check_set_fluid = True
+                    return
             if element.cross_section is None:
                 self.check_set_crossSection = True
                 return

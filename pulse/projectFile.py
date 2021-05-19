@@ -239,7 +239,7 @@ class ProjectFile:
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None]
                     self.element_type_is_acoustic = True
                 else:
-                    self.dict_acoustic_element_type[int(entity)] = 'dampingless'
+                    self.dict_acoustic_element_type[int(entity)] = 'undamped'
 
             diam_ext = ""
             thickness = ""

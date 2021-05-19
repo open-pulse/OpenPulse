@@ -330,7 +330,7 @@ color: rgb(0, 0, 255);</string>
          <string notr="true"/>
         </property>
         <property name="currentText">
-         <string>  Dampingless</string>
+         <string>  Undamped</string>
         </property>
         <property name="currentIndex">
          <number>0</number>
@@ -349,7 +349,7 @@ color: rgb(0, 0, 255);</string>
         </property>
         <item>
          <property name="text">
-          <string>  Dampingless</string>
+          <string>  Undamped</string>
          </property>
         </item>
         <item>
