@@ -435,7 +435,7 @@ class opvRenderer(vtkRendererBase):
             text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n'
             text += f'Rotations xyz: ({str_rotations})[deg]\n\n'
             text += f'Material: {material} \n'
-            text += f'Strutural element type: {structural_element_type} \n'
+            text += f'Strutural element type: {structural_element_type} \n\n'
             
             if "pipe_" in structural_element_type:        
                 text += f'Diameter: {external_diameter} [m]\n'
@@ -533,15 +533,30 @@ class opvRenderer(vtkRendererBase):
 
                 text = ''
                 text += f'Line ID  {listActorsIDs[0]}\n\n'
-
-                if entity.structural_element_type is not None:
-                    text += f'Structural element type:  {structural_element_type}\n'
                 
                 if entity.material is not None:
                     text += f'Material:  {entity.material.name}\n'
 
                 if entity.cross_section is not None:
-                    if entity.structural_element_type not in [None, 'beam_1']:
+                    if entity.structural_element_type in ['beam_1']:
+
+                        area = entity.cross_section.area
+                        Iyy = entity.cross_section.second_moment_area_y
+                        Izz = entity.cross_section.second_moment_area_z
+                        Iyz = entity.cross_section.second_moment_area_yz
+                        additional_section_info = entity.getCrossSection().additional_section_info
+
+                        if additional_section_info is not None:
+                            text += 'Structural element type:  {} ({})\n\n'.format(structural_element_type, additional_section_info[0].capitalize())
+
+                        text += 'Area:  {} [m²]\n'.format(area)
+                        text += 'Iyy:  {} [m^4]\n'.format(Iyy)
+                        text += 'Izz:  {} [m^4]\n'.format(Izz)
+                        text += 'Iyz:  {} [m^4]\n'.format(Iyz)
+
+                    if entity.structural_element_type in ['pipe_1', 'pipe_2']:
+
+                        text += f'Structural element type:  {structural_element_type}\n\n'
                         
                         diam_ext = entity.cross_section.external_diameter
                         thickness = entity.cross_section.thickness
@@ -556,38 +571,15 @@ class opvRenderer(vtkRendererBase):
                             text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                         if insulation_thickness != 0 or insulation_density != 0: 
                             text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
-                           
-                    if entity.structural_element_type in ['beam_1']:
+                                                   
+                        if entity.fluid is not None:
+                            text += f'\nFluid: {entity.fluid.name}' 
 
-                        # text = ''
-                        area = entity.cross_section.area
-                        Iyy = entity.cross_section.second_moment_area_y
-                        Izz = entity.cross_section.second_moment_area_z
-                        Iyz = entity.cross_section.second_moment_area_yz
-                        additional_section_info = entity.getCrossSection().additional_section_info
+                        if entity.acoustic_element_type is not None:
+                            text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
-                        text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
-                        text += 'Material:  {}\n'.format(material_name)
-
-                        if additional_section_info is not None:
-                            text += 'Structural element type:  {} ({})\n'.format(structural_element_type, additional_section_info[0].capitalize())
-                        else:
-                            text += 'Structural element type:  {} (-)\n'.format(structural_element_type)
-
-                        text += 'Area:  {} [m²]\n'.format(area)
-                        text += 'Iyy:  {} [m^4]\n'.format(Iyy)
-                        text += 'Izz:  {} [m^4]\n'.format(Izz)
-                        text += 'Iyz:  {} [m^4]\n'.format(Iyz)
-                if entity.structural_element_type not in ['beam_1']:
-                        
-                    if entity.fluid is not None:
-                        text += f'\nFluid: {entity.fluid.name}' 
-
-                    if entity.acoustic_element_type is not None:
-                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
-
-                    if entity.hysteretic_damping is not None:
-                        text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+                        if entity.hysteretic_damping is not None:
+                            text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
 
         else:
 
