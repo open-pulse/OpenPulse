@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap
 from PyQt5.QtCore import Qt
-from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 class MenuItems(QTreeWidget):
     """Menu Items
