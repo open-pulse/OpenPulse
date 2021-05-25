@@ -1,7 +1,7 @@
 from collections import deque
 from random import choice
 from collections import defaultdict
-import gmsh 
+from libs.gmsh import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
@@ -11,7 +11,7 @@ from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.preprocessing.compressor_model import CompressorModel
-from pulse.uix.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _transformation_matrix_3x3, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
 

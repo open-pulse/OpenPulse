@@ -15,18 +15,18 @@ def loadSymbol(path):
 Symbol = namedtuple('Symbol', ['source', 'position', 'rotation', 'color'])
 
 class SymbolsActor(vtkActorBase):
-    PRESCRIBED_POSITION_SYMBOL = loadSymbol('pulse/interface/symbols/prescribedPosition.obj')
-    PRESCRIBED_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/prescribedRotation.obj')
-    NODAL_LOAD_POSITION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadPosition.obj')
-    NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('pulse/interface/symbols/nodalLoadRotation.obj')
-    DUMPER_SYMBOL = loadSymbol('pulse/interface/symbols/dumper.obj')
-    SPRING_SYMBOL = loadSymbol('pulse/interface/symbols/spring.obj')
-    VOLUME_VELOCITY_SYMBOL = loadSymbol('pulse/interface/symbols/volumeVelocity.obj')
-    ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('pulse/interface/symbols/acousticPressure.obj')
-    SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/specificImpedance.obj')
-    RADIATION_IMPEDANCE_SYMBOL = loadSymbol('pulse/interface/symbols/radiationImpedance.obj')
-    LUMPED_MASS_SYMBOL = loadSymbol('pulse/interface/symbols/lumpedMass.obj')
-    COMPRESSOR_SYMBOL = loadSymbol('pulse/interface/symbols/compressor.obj')
+    PRESCRIBED_POSITION_SYMBOL = loadSymbol('data/symbols/prescribedPosition.obj')
+    PRESCRIBED_ROTATION_SYMBOL = loadSymbol('data/symbols/prescribedRotation.obj')
+    NODAL_LOAD_POSITION_SYMBOL = loadSymbol('data/symbols/nodalLoadPosition.obj')
+    NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('data/symbols/nodalLoadRotation.obj')
+    DUMPER_SYMBOL = loadSymbol('data/symbols/dumper.obj')
+    SPRING_SYMBOL = loadSymbol('data/symbols/spring.obj')
+    VOLUME_VELOCITY_SYMBOL = loadSymbol('data/symbols/volumeVelocity.obj')
+    ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('data/symbols/acousticPressure.obj')
+    SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/specificImpedance.obj')
+    RADIATION_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/radiationImpedance.obj')
+    LUMPED_MASS_SYMBOL = loadSymbol('data/symbols/lumpedMass.obj')
+    COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
     
 
     def __init__(self, nodes, project, deformed=False):

@@ -4,6 +4,8 @@ doc/build/
 target/
 docs/
 src/
+build/
+envpulse/
 test.py
 .vscode/
 .pytest_cache/

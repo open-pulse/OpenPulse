@@ -80,7 +80,7 @@ class MenuItems(QTreeWidget):
             Currently isn't used.
         """
         self.icon_child_set_material = QIcon()
-        self.icon_child_set_material.addPixmap(QPixmap("pulse/data/icons/pulse.png"), QIcon.Active, QIcon.On)
+        self.icon_child_set_material.addPixmap(QPixmap("data/icons/pulse.png"), QIcon.Active, QIcon.On)
 
     def _createFonts(self):
         """Create Font objects that configure the font of the items."""
