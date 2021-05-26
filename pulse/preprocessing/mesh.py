@@ -670,6 +670,10 @@ class Mesh:
             temp_dict = self.dict_structural_element_type_to_lines.copy()
             if element_type not in list(temp_dict.keys()):
                 self.dict_structural_element_type_to_lines[element_type].append(line)
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_structural_element_type_to_lines[key].remove(line)
             else:
                 for key, lines in temp_dict.items():
                     if key != element_type:
@@ -710,6 +714,10 @@ class Mesh:
             temp_dict = self.dict_acoustic_element_type_to_lines.copy()
             if element_type not in list(temp_dict.keys()):
                 self.dict_acoustic_element_type_to_lines[element_type].append(line)
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_acoustic_element_type_to_lines[key].remove(line)
             else:
                 for key, lines in temp_dict.items():
                     if key != element_type:
