@@ -4,3 +4,4 @@ matplotlib
 numpy
 PyQt5
 h5py
+cx_Freeze

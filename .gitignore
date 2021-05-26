@@ -1,13 +1,16 @@
 __pycache__/
+.pytest_cache/
+.vscode/
 Projects/
 doc/build/
 target/
 docs/
 src/
+*.mtl
+.config
+test.py
+
+# Installation related
+dist/
 build/
 envpulse/
-test.py
-.vscode/
-.pytest_cache/
-.config
-*.mtl

@@ -670,6 +670,10 @@ class Mesh:
             temp_dict = self.dict_structural_element_type_to_lines.copy()
             if element_type not in list(temp_dict.keys()):
                 self.dict_structural_element_type_to_lines[element_type].append(line)
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_structural_element_type_to_lines[key].remove(line)
             else:
                 for key, lines in temp_dict.items():
                     if key != element_type:
@@ -710,6 +714,10 @@ class Mesh:
             temp_dict = self.dict_acoustic_element_type_to_lines.copy()
             if element_type not in list(temp_dict.keys()):
                 self.dict_acoustic_element_type_to_lines[element_type].append(line)
+                for key, lines in temp_dict.items():
+                    if key != element_type:
+                        if line in lines:
+                            self.dict_acoustic_element_type_to_lines[key].remove(line)
             else:
                 for key, lines in temp_dict.items():
                     if key != element_type:
@@ -1700,11 +1708,12 @@ class Mesh:
         self.check_all_fluid_inputs = False
         for element in self.acoustic_elements.values():
             if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
-                            element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
-                if None in _list:
-                    self.check_all_fluid_inputs = True
-                    return
+                if 'pipe_' in self.structural_elements[element.index].element_type:
+                    _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
+                                element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
+                    if None in _list:
+                        self.check_all_fluid_inputs = True
+                        return
     
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
         """
