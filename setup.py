@@ -1,28 +1,57 @@
+import os, sys
 from cx_Freeze import setup, Executable
 
 
-build_options = dict(
+shortcut_table = [
+    (
+        "DesktopShortcut",        # Shortcut
+        "DesktopFolder",          # Directory_
+        "Open Pulse",             # Name
+        "TARGETDIR",              # Component_
+        "[TARGETDIR]OpenPulse.exe",# Target
+        None,                     # Arguments
+        None,                     # Description
+        None,                     # Hotkey
+        None,                     # Icon
+        None,                     # IconIndex
+        None,                     # ShowCmd
+        'TARGETDIR'               # WkDir
+     )
+]
+
+build_exe_options = dict(
     packages = ['vtkmodules', 'scipy'],
-    excludes = ['envpulse/', '.config'],
+
+    excludes = [
+        'envpulse/', 
+        '.config'
+    ],
+
     include_files = [
         'data',
         'libs'
     ]
 )
 
+build_msi_options = dict(
+    data = {'Shortcut':shortcut_table}
+)
+
 executable = [
     Executable(
         script = 'pulse.py',
-        base = None,
         target_name = 'OpenPulse',
-        icon = 'data/icons/pulse.png'
+        icon = 'data/icons/pulse.ico'
     )
 ]
 
 setup(
     name = 'OpenPulse',
-    version = '0.1.0',
-    description = 'descrição do programa',
-    options = dict(build_exe = build_options),
+    author = 'MOPT',
+    version = '0.1.1',
+    description = 'A software written in Python for numerical modelling of low-frequency \
+                   acoustically induced vibration in gas pipeline systems',
+    options = dict(build_exe = build_exe_options,
+                   bdist_msi = build_msi_options),
     executables = executable
 )
