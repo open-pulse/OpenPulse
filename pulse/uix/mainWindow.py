@@ -229,6 +229,11 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
         # Results Viewer
+        self.playPauseAnimaton_action = QAction('&Play/Pause Animation', self)
+        self.playPauseAnimaton_action.setShortcut('Space')
+        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalisysRenderer.tooglePlayPauseAnimation)
+
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
@@ -354,6 +359,7 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotSressField_action)
         self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
+        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
 
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
