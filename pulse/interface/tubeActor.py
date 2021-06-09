@@ -121,8 +121,10 @@ class TubeActor(vtkActorBase):
         # empirically that strechs a lot the structure, and shrink it again when
         # everything is done. 
 
-        sums = 0
-        items = 0
+        # it starts in 1 to prevent division by 0
+        # and the difference is negligible
+        sums = 1
+        items = 1
 
         for element in self.elements.values():
             try:
