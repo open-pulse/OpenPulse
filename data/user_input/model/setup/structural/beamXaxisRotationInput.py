@@ -260,17 +260,17 @@ class BeamXaxisRotationInput(QDialog):
             delta_angle = - self.project.mesh.dict_lines_to_rotation_angles[line]
             self.project.set_beam_xaxis_rotation_by_line(line, delta_angle)
         self.update_plots()
-        title = "Beam x-axis rotation angle removal"
+        title = "X-axis rotation angle removal"
         message = f"The x-axis rotation angle attributed to the lines {lines} has been removed from the current model setup.\n\n\n "
         message += "Press Close button to continue."
         PrintMessageInput([title, message, window_title2])
     
     def reset_all(self):
-        title = "REMOVE ALL X-AXIS ROTATIONS ATTRIBUTED TO THE MODEL"
+        title = "Remove all x-axis rotations attributed to the model"
         message = "Are you really sure you want to remove all x-axis rotations associated to beam elements?\n\n\n"
-        message += "Press Continue button to proceed with removal or Cancel to abort the current operation."
+        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message)
-        if read.doNotRun:
+        if read._doNotRun:
             return
         if read._continue:
             if len(self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines) > 0:
