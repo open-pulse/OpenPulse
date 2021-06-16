@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         self.entities_action_radius = QAction('&Entity with Cross-section', self)        
         self.entities_action_radius.setShortcut('Ctrl+2')
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
-        self.entities_action_radius.triggered.connect(self.plot_entities_radius)
+        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
 
         self.mesh_action = QAction('&Mesh', self)        
         self.mesh_action.setShortcut('Ctrl+3')
@@ -459,7 +459,7 @@ class MainWindow(QMainWindow):
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()
 
-    def plot_entities_radius(self):
+    def plot_entities_with_cross_section(self):
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
@@ -467,7 +467,7 @@ class MainWindow(QMainWindow):
 
     def draw(self):
         self.opv_widget.updatePlots()
-        self.plot_entities_radius()
+        self.plot_entities_with_cross_section()
 
 
 

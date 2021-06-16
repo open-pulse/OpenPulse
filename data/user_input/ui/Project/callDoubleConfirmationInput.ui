@@ -6,44 +6,44 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
-    <height>300</height>
+    <width>650</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>600</width>
-    <height>300</height>
+    <width>650</width>
+    <height>400</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>600</width>
-    <height>300</height>
+    <width>1000</width>
+    <height>800</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Project reset</string>
+   <string>Message</string>
   </property>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>52</y>
-     <width>600</width>
-     <height>248</height>
+     <y>56</y>
+     <width>650</width>
+     <height>348</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>600</width>
-     <height>248</height>
+     <width>650</width>
+     <height>348</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>600</width>
-     <height>248</height>
+     <width>650</width>
+     <height>348</height>
     </size>
    </property>
    <property name="frameShape">
@@ -52,31 +52,31 @@
    <property name="frameShadow">
     <enum>QFrame::Plain</enum>
    </property>
-   <widget class="QLabel" name="Label_message">
+   <widget class="QLabel" name="QLabel_message">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>12</y>
-      <width>580</width>
-      <height>180</height>
+      <y>14</y>
+      <width>630</width>
+      <height>270</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>580</width>
-      <height>180</height>
+      <width>630</width>
+      <height>270</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>580</width>
-      <height>180</height>
+      <width>630</width>
+      <height>270</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>13</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
@@ -89,7 +89,7 @@
      <enum>QFrame::Sunken</enum>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;Are you sure you want to reset the project data?&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Confirmation message...&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -101,8 +101,8 @@
    <widget class="QPushButton" name="pushButton_confirm">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>202</y>
+      <x>390</x>
+      <y>298</y>
       <width>100</width>
       <height>35</height>
      </rect>
@@ -129,8 +129,8 @@
    <widget class="QPushButton" name="pushButton_cancel">
     <property name="geometry">
      <rect>
-      <x>360</x>
-      <y>202</y>
+      <x>174</x>
+      <y>298</y>
       <width>100</width>
       <height>35</height>
      </rect>
@@ -160,19 +160,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
-     <height>53</height>
+     <width>650</width>
+     <height>57</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>600</width>
+     <width>650</width>
      <height>0</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>600</width>
+     <width>650</width>
      <height>16777215</height>
     </size>
    </property>
@@ -186,20 +186,20 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>8</y>
-      <width>580</width>
-      <height>38</height>
+      <y>10</y>
+      <width>630</width>
+      <height>37</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>580</width>
+      <width>630</width>
       <height>0</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>580</width>
+      <width>630</width>
       <height>16777215</height>
      </size>
     </property>
@@ -209,24 +209,24 @@
     <property name="frameShadow">
      <enum>QFrame::Raised</enum>
     </property>
-    <widget class="QLabel" name="Label_message_2">
+    <widget class="QLabel" name="QLabel_title">
      <property name="geometry">
       <rect>
-       <x>40</x>
+       <x>25</x>
        <y>4</y>
-       <width>500</width>
+       <width>580</width>
        <height>31</height>
       </rect>
      </property>
      <property name="minimumSize">
       <size>
-       <width>500</width>
+       <width>580</width>
        <height>10</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>500</width>
+       <width>580</width>
        <height>185</height>
       </size>
      </property>
@@ -246,7 +246,7 @@
       <enum>QFrame::Sunken</enum>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;PROJECT RESET&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:14pt;&quot;&gt;TITLE&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>

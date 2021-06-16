@@ -35,7 +35,7 @@ class CompressorModelInput(QDialog):
         self.nodes = self.project.mesh.nodes
         self.node_id = self.opv.getListPickedPoints()
 
-        self.project_folder_path = project.project_folder_path        
+        self.project_folder_path = project.file._project_path      
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False

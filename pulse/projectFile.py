@@ -41,6 +41,7 @@ class ProjectFile:
     def _reset(self):
         self._project_name = ""
         self._import_type = 0
+        self._element_size = 1e-8
         self._project_path = ""
         self._material_list_path = ""
         self._fluid_list_path = ""
@@ -52,10 +53,11 @@ class ProjectFile:
         self.element_type_is_structural = False
         self.lines_multiples_cross_sections = []
 
-    def new(self, project_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new(self, project_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
         self._project_name = project_name
         self._element_size = float(element_size)
+        self._geometry_tolerance = float(geometry_tolerance)
         self._import_type = int(import_type)
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
@@ -65,6 +67,19 @@ class ProjectFile:
         self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
         self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
+    
+    def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+        self._project_path = project_path
+        self._project_name = project_name
+        self._material_list_path = material_list_path
+        self._fluid_list_path = fluid_list_path
+        self._geometry_path = geometry_path
+        self._conn_path = conn_path
+        self._coord_path = coord_path
+        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
+        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
 
     def load(self, project_file_path):
         self.project_file_path = project_file_path
@@ -79,8 +94,11 @@ class ProjectFile:
         import_type = int(config['PROJECT']['Import type'])
 
         if import_type == 0:
-            element_size = config['PROJECT']['Element size']
             geometry_file = config['PROJECT']['Geometry file']
+            element_size = config['PROJECT']['Element size']
+            if 'geometry tolerance' in list(config['PROJECT'].keys()):
+                geometry_tolerance = config['PROJECT']['Geometry tolerance']
+                self._geometry_tolerance = float(geometry_tolerance)
             self._element_size = float(element_size)
             self._geometry_path = "{}\\{}".format(self._project_path, geometry_file)
 
@@ -170,9 +188,9 @@ class ProjectFile:
             config.write(config_file)
 
     def reset_project_setup(self):
-        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        path = "{}\\{}".format(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
-        config.read(temp_project_base_file_path)
+        config.read(path)
         sections = config.sections()
 
         if "Frequency setup" in sections:
@@ -181,7 +199,7 @@ class ProjectFile:
         if "Global damping setup" in sections:
             config.remove_section("Global damping setup")
         
-        with open(temp_project_base_file_path, 'w') as config_file:
+        with open(path, 'w') as config_file:
             config.write(config_file)
 
     def create_entity_file(self, entities):
@@ -208,6 +226,7 @@ class ProjectFile:
    
         self.dict_material = {}
         self.dict_cross = {}
+        self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
@@ -389,6 +408,10 @@ class ProjectFile:
                                                             identifier = int(identifier))
                             self.dict_material[int(entity)] = temp_material
             
+            if 'beam x-axis rotation' in entityFile[entity].keys():
+                beam_xaxis_rotation = entityFile[entity]['beam x-axis rotation']
+                self.dict_beam_xaxis_rotation[int(entity)] = float(beam_xaxis_rotation)
+
             if 'fluid id' in entityFile[entity].keys():    
                 fluid_id = entityFile[entity]['fluid id']
 
@@ -1040,13 +1063,7 @@ class ProjectFile:
             config = configparser.ConfigParser()
             config.read(self._node_structural_path)
             if str(node_id) in config.sections():
-                # if loaded_table:
-                #     table_name = values
-                #     config[str(node_id)][labels[0]]  = "[{},{},{}]".format(table_name[0], table_name[1], table_name[2])
-                #     config[str(node_id)][labels[1]] = "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])
-                #     if len(labels)==3:
-                #         config[str(node_id)][labels[2]]  = "{}".format(table_name[6])
-                # else:
+
                 config[str(node_id)][labels[0]]  = "[{},{},{}]".format(values[0], values[1], values[2])
                 config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
                 if len(labels)==3:
@@ -1054,15 +1071,7 @@ class ProjectFile:
                 self.write_bc_in_file(self._node_structural_path, config)
                 self._single_structural_excitation_bc([node_id], labels)
             else:
-                # if loaded_table:
-                #     if len(labels)==3:
-                #         config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
-                #                                     labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5]),
-                #                                     labels[2]: "{}".format(table_name[6])   }
-                #     else:
-                #         config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(table_name[0], table_name[1], table_name[2]),
-                #                                     labels[1]: "[{},{},{}]".format(table_name[3], table_name[4], table_name[5])   }
-                # else:
+
                 if len(labels)==3:
                     config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
                                                 labels[1]: "[{},{},{}]".format(values[3], values[4], values[5]),
@@ -1096,6 +1105,53 @@ class ProjectFile:
     def write_bc_in_file(self, path, config):
         with open(path, 'w') as config_file:
             config.write(config_file)
+
+    def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, remove_non_mapped_bcs=False):
+        config = configparser.ConfigParser()
+        config.read(self._node_acoustic_path)
+
+        for node_id in list(config.sections()):
+            try:
+                config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
+                config.remove_section(node_id)
+            except Exception as _error:
+                # print(f"An error has occured at section {node_id}")
+                config.remove_section(node_id)
+
+        self.write_bc_in_file(self._node_acoustic_path, config)
+
+    def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes):
+        config = configparser.ConfigParser()
+        config.read(self._node_structural_path)
+
+        for node_id in list(config.sections()):
+            try:
+                if "-" in node_id:
+                    [_node_id1, _node_id2]  = node_id.split("-")
+                    key_id1 = str(dict_old_to_new_indexes[_node_id1])
+                    key_id2 = str(dict_old_to_new_indexes[_node_id2])
+                    new_key = f"{key_id1}-{key_id2}"
+                    config[new_key] = config[node_id] 
+                else:
+                    config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
+                config.remove_section(node_id)
+            except Exception as _error:
+                # print(f"An error has occured at section {node_id}")
+                config.remove_section(node_id)
+
+        self.write_bc_in_file(self._node_structural_path, config)
+
+    def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
+        _line_id = str(line_id)
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        if _line_id in list(config.sections()):
+            if value == 0:
+                if "beam x-axis rotation" in list(config[_line_id].keys()):
+                    config.remove_option(section=str(_line_id), option="beam x-axis rotation")
+            else:                    
+                config[_line_id]["beam x-axis rotation"] = str(value)               
+            self.write_bc_in_file(self._entity_path, config)
 
     def get_import_type(self):
         return self._import_type

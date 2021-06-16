@@ -25,6 +25,7 @@ class OPVUi(QVTKRenderWindowInteractor):
     
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
@@ -47,6 +48,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
+        self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
@@ -66,7 +68,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changePlotToEntitiesWithCrossSection(self):
 
         self.change_plot_to_mesh = False
-        self.change_plot_to_entities = True
+        self.change_plot_to_entities_with_cross_section = True
+        self.change_plot_to_entities = False#True
 
         self.setRenderer(self.opvRenderer)
 
@@ -87,6 +90,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
@@ -121,6 +125,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
     def setRenderer(self, renderer):
         # if renderer.getInUse(): 

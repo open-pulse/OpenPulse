@@ -542,3 +542,10 @@ def sparse_is_equal(a, b):
 
     if issparse(diference):
         return diference.nnz == 0
+
+def get_new_path(path, name):
+    if "\\" in path:
+        new_path = '{}\\{}'.format(path, name)
+    elif "/" in path:
+        new_path = '{}/{}'.format(path, name)
+    return new_path

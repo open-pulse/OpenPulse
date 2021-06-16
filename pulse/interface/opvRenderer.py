@@ -204,9 +204,9 @@ class opvRenderer(vtkRendererBase):
 
         transform = vtk.vtkTransform()
         transform.Translate(xyz)
+        transform.RotateZ(r_xyz[2])
         transform.RotateX(r_xyz[0])
         transform.RotateY(r_xyz[1])
-        transform.RotateZ(r_xyz[2])
         transform.Scale(size)
 
         self.elementAxes = vtk.vtkAxesActor()

@@ -1,4 +1,5 @@
 from PyQt5.QtWidgets import QProgressBar, QLabel
+from pulse.utils import get_new_path
 from pulse.preprocessing.mesh import Mesh
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.processing.solution_acoustic import SolutionAcoustic
@@ -83,10 +84,10 @@ class Project:
         self.max_stress = ""
         self.stress_label = ""
 
-    def new_project(self, project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+    def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
         self.reset_info()
-        self.file.new(project_folder_path, project_name, element_size, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.new(project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
         self._project_name = project_name
         self.project_folder_path = project_folder_path
 
@@ -94,40 +95,52 @@ class Project:
         self.entities = self.mesh.dict_tag_to_entity.values()
         self.file.create_entity_file(self.mesh.all_lines)
 
+    def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
+        self.file.copy(project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self._project_name = project_name
+         
     def load_project(self, project_file_path):
-
+        self.initial_load_project_actions(project_file_path)
+        self.load_project_files()
+    
+    def initial_load_project_actions(self, project_file_path):
         self.reset_info()
         self.file.load(project_file_path)
         self._project_name = self.file._project_name
         self.project_folder_path = os.path.dirname(project_file_path)
-
         self.process_geometry_and_mesh()
         self.entities = self.mesh.dict_tag_to_entity.values()
+
+    def load_project_files(self):
         self.load_structural_bc_file()
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
-
         if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
-    
+
+    def update_node_ids_in_file_after_remesh(self, dict_old_to_new_extenal_indexes):
+        # print(f"Dictionary: \n {dict_old_to_new_extenal_indexes}")
+        self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_extenal_indexes)
+        self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_extenal_indexes)
+
     def reset_project(self):
         self.reset_info()
-        if os.path.exists(self.file._entity_path):
-            os.remove(self.file._entity_path)
-        if os.path.exists(self.file._element_info_path):
-            os.remove(self.file._element_info_path)
-        if os.path.exists(self.file._node_structural_path):
-            os.remove(self.file._node_structural_path)
-        if os.path.exists(self.file._node_acoustic_path):
-            os.remove(self.file._node_acoustic_path)
+        self.remove_all_unnecessary_files()
         self.file.reset_project_setup()
         self.process_geometry_and_mesh()
         self.file.create_entity_file(self.mesh.all_lines)
-        #TODO: set the render to entities
- 
-    def process_geometry_and_mesh(self):
 
+    def remove_all_unnecessary_files(self):
+        list_filenames = os.listdir(self.file._project_path).copy()
+        geometry_filename = os.path.basename(self.file._geometry_path)
+        for filename in list_filenames:
+            if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", geometry_filename]:
+                file_path = get_new_path(self.file._project_path, filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
+
+    def process_geometry_and_mesh(self):
         if self.file.get_import_type() == 0:
             self.mesh.generate(self.file.geometry_path, self.file.element_size)
         elif self.file.get_import_type() == 1:
@@ -145,6 +158,7 @@ class Project:
         dict_element_length_correction = self.file.dict_length_correction
         dict_materials = self.file.dict_material
         dict_cross_sections = self.file.dict_cross
+        dict_beam_xaxis_rotation = self.file.dict_beam_xaxis_rotation
         dict_fluids = self.file.dict_fluid
         dict_element_length_correction = self.file.dict_length_correction
         dict_capped_end = self.file.dict_capped_end
@@ -180,6 +194,12 @@ class Project:
                 self.lines_multiples_cross_sections.append(int(key.split("-")[0]))  
             else:
                 self.load_cross_section_by_entity(int(key), cross)
+
+        # Beam X-axis rotation to the entities
+        for key, angle in dict_beam_xaxis_rotation.items():
+            self.load_beam_xaxis_rotation_by_entity(key, angle)
+        if len(dict_beam_xaxis_rotation) > 0:
+            self.mesh.process_all_rotation_matrices() 
 
         # B2PX Rotation Decoupling
         for key, item in dict_B2PX_rotation_decoupling.items():
@@ -448,6 +468,12 @@ class Project:
         self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, hysteretic_damping=hysteretic_damping)
         self.file.modify_acoustic_element_type_in_file(entity_id, element_type, hysteretic_damping=hysteretic_damping)
 
+    def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
+        self.mesh.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
+        angle = self.mesh.dict_lines_to_rotation_angles[line_id]
+        self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
+        self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
+
     def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_prescribed_dofs_bc_by_node(node_id, values)
         labels = ["displacements", "rotations"]
@@ -602,6 +628,10 @@ class Project:
             self.mesh.set_cross_section_by_element('all', cross_section)
         self._set_cross_section_to_selected_entity(entity_id, cross_section)
 
+    def load_beam_xaxis_rotation_by_entity(self, line_id, angle):
+        self.mesh.set_beam_xaxis_rotation_by_line(line_id, angle)
+        self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
+
     def load_structural_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
             self.mesh.set_structural_element_type_by_line(entity_id, element_type)
@@ -718,6 +748,10 @@ class Project:
             entity.acoustic_element_type = element_type
             entity.hysteretic_damping = hysteretic_damping
 
+    def _set_beam_xaxis_rotation_to_selected_entity(self, line_id, angle):
+        entity = self.mesh.dict_tag_to_entity[line_id]
+        entity.beam_xaxis_rotation = angle
+
     def _set_stress_stiffening_to_selected_entity(self, entity_id, parameters):
         entity = self.mesh.dict_tag_to_entity[entity_id]
         entity.external_temperature = parameters[0]
@@ -753,29 +787,38 @@ class Project:
         for line in self.mesh.all_lines:
             self.file.add_fluid_in_file(line, fluid.identifier)
 
-    def set_acoustic_pressure_bc_by_node(self, node_id, values, imported_table, table_name=""):
-        self.mesh.set_acoustic_pressure_bc_by_node(node_id, values) 
-        label = ["acoustic pressure"] 
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
+    def set_acoustic_pressure_bc_by_node(self, node_ids, values, imported_table, table_name=""):
+        self.mesh.set_acoustic_pressure_bc_by_node(node_ids, values) 
+        label = ["acoustic pressure", "nodal coordinates"] 
+        for node_id in node_ids:
+            coord = self.mesh.nodes[node_id].coordinates
+            self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_id, values, imported_table, table_name="", table_index=None, additional_info=None):
-        if self.mesh.set_volume_velocity_bc_by_node(node_id, values, additional_info=additional_info):
+    def set_volume_velocity_bc_by_node(self, node_ids, values, imported_table, table_name="", table_index=None, additional_info=None):
+        if self.mesh.set_volume_velocity_bc_by_node(node_ids, values, additional_info=additional_info):
             return True
         if table_index is None:
-            label = ["volume velocity"]
+            label = ["volume velocity", "nodal coordinates"]
         else:
-            label = ["volume velocity - {}".format(table_index)]
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)
+            label = ["volume velocity - {}".format(table_index), "nodal coordinates"]
+        for node_id in node_ids:
+            coord = self.mesh.nodes[node_id].coordinates
+            print(coord)
+            self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label)
         return False    
     
     def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
         self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
-        label = ["specific impedance"] 
+        label = ["specific impedance", "nodal coordinates"] 
+        coord = self.mesh.nodes[node_id].coordinates
+        print(coord)
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_id, values, imported_table = None, table_name=""):
         self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
-        label = ["radiation impedance"] 
+        label = ["radiation impedance", "nodal coordinates"] 
+        coord = self.mesh.nodes[node_id].coordinates
+        print(coord)
         self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
     
     def set_element_length_correction_by_elements(self, elements, value, section):

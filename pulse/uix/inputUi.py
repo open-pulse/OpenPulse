@@ -3,10 +3,14 @@ from data.user_input.project.newProjectInput import NewProjectInput
 from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
+from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
+from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
+from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.materialInput import MaterialInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
+from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
 from data.user_input.model.setup.structural.dofInput import DOFInput
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
 from data.user_input.model.setup.structural.loadsInput import LoadsInput
@@ -114,6 +118,19 @@ class InputUi:
         if not self.project.none_project_action:
             ResetProjectInput(self.project, self.opv)
 
+    def set_project_attributes(self):
+        SetProjectAttributesInput(self.project)
+        self.parent.changeWindowTitle(self.project._project_name)
+
+    def set_geometry_file(self):
+        SetGeometryFileInput(self.project, self.opv)
+
+    def set_mesh_properties(self):
+        read = SetMeshPropertiesInput(self.project, self.opv)
+        # if read.not_run:
+        #     if read.mesh_updated:
+        #         return read.process_methods()
+
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
         if read.complete:           
@@ -185,6 +202,9 @@ class InputUi:
     
     def plot_cross_section(self):
         PlotCrossSectionInput(self.project, self.opv)
+
+    def set_beam_xaxis_rotation(self):
+        BeamXaxisRotationInput(self.project, self.opv)
 
     def setDOF(self):
         read = DOFInput(self.project, self.opv)

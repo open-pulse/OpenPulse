@@ -1,6 +1,7 @@
 from collections import deque
 from random import choice
 from collections import defaultdict
+import re
 from libs.gmsh import gmsh 
 import numpy as np
 from scipy.spatial.transform import Rotation
@@ -62,6 +63,10 @@ class Mesh:
 
         self.dict_structural_element_type_to_lines = defaultdict(list)
         self.dict_acoustic_element_type_to_lines = defaultdict(list)
+        self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
+
+        self.dict_coordinate_to_update_bc_after_remesh = {}
+        self.dict_old_to_new_extenal_indexes = {}
 
         self.dict_nodes_with_elastic_link_stiffness = {}
         self.dict_nodes_with_elastic_link_damping = {}
@@ -178,7 +183,7 @@ class Mesh:
         gmsh.initialize('', False)
         gmsh.open(path)
 
-    def _set_gmsh_options(self, element_size):
+    def _set_gmsh_options(self, element_size, tolerance=1e-8):
         """
         This method sets the mesher algorithm configuration.
 
@@ -195,7 +200,7 @@ class Mesh:
         gmsh.option.setNumber('Mesh.ElementOrder', 1)
         gmsh.option.setNumber('Mesh.Algorithm', 2)
         gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', 1e-08)
+        gmsh.option.setNumber('Geometry.Tolerance', tolerance)
 
     def _create_entities(self):
         """
@@ -238,7 +243,7 @@ class Mesh:
         self._create_nodes(node_indexes, coords, self.map_nodes)
         self._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
         self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements) 
-        
+
     def _create_nodes(self, indexes, coords, map_nodes):
         """
         This method generate the mesh nodes.
@@ -385,6 +390,7 @@ class Mesh:
         self._get_principal_diagonal_structure_parallelepiped()
         # t0 = time()
         self.process_all_rotation_matrices()
+        self.create_dict_lines_to_rotation_angles()
         # print("Time to process: ", time()-t0)
         # self._create_dict_gdofs_to_external_indexes()
 
@@ -405,6 +411,8 @@ class Mesh:
 
         coordinates = np.loadtxt(coordinates)
         connectivity = np.loadtxt(connectivity, dtype=int).reshape(-1,3)
+        self.number_structural_elements = connectivity.shape[0]
+        self.number_acoustic_elements = connectivity.shape[0]
 
         newEntity = Entity(1)
         map_indexes = dict(zip(coordinates[:,0], np.arange(1, len(coordinates[:,0])+1, 1)))
@@ -434,6 +442,7 @@ class Mesh:
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
         self.process_all_rotation_matrices()
+        self.create_dict_lines_to_rotation_angles()
         # self._create_dict_gdofs_to_external_indexes()
 
     def get_nodal_coordinates_matrix(self, reordering=True):
@@ -781,6 +790,7 @@ class Mesh:
         for node in slicer(self.nodes, nodes_id):
             node.nodal_loads = values
             node.prescribed_dofs = [None,None,None,None,None,None]
+            self.update_dict_coordinates_to_external_indexes(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -816,6 +826,7 @@ class Mesh:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
+            self.update_dict_coordinates_to_external_indexes(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -851,6 +862,7 @@ class Mesh:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
+            self.update_dict_coordinates_to_external_indexes(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -886,6 +898,7 @@ class Mesh:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
+            self.update_dict_coordinates_to_external_indexes(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -922,6 +935,7 @@ class Mesh:
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
             node.nodal_loads = [None,None,None,None,None,None]
+            self.update_dict_coordinates_to_external_indexes(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1380,6 +1394,8 @@ class Mesh:
             node.volume_velocity = None
             if node in self.nodes_with_volume_velocity:
                 self.nodes_with_volume_velocity.remove(node)
+            
+            self.update_dict_coordinates_to_external_indexes(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values, additional_info=None):
         """
@@ -1420,6 +1436,8 @@ class Mesh:
                 node.acoustic_pressure = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
+                
+                self.update_dict_coordinates_to_external_indexes(node)
 
         except Exception as error:
             title = "ERROR WHILE SET VOLUME VELOCITY"
@@ -1452,7 +1470,9 @@ class Mesh:
                     self.nodes_with_specific_impedance.remove(node)
             if node in self.nodes_with_radiation_impedance:
                 self.nodes_with_radiation_impedance.remove(node)
-                    
+            
+            self.update_dict_coordinates_to_external_indexes(node) 
+
     def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         """
         This method attributes acoustic lumped radiation impedance to a list of nodes according to the anechoic, flanged, and unflanged prescription.
@@ -1480,6 +1500,8 @@ class Mesh:
                     self.nodes_with_radiation_impedance.remove(node)
             if node in self.nodes_with_specific_impedance:
                 self.nodes_with_specific_impedance.remove(node)
+
+            self.update_dict_coordinates_to_external_indexes(node)
 
     def get_radius(self):
         """
@@ -1846,6 +1868,9 @@ class Mesh:
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
+        self.update_dict_coordinates_to_external_indexes(node1)
+        self.update_dict_coordinates_to_external_indexes(node2)
+
         pos_data = parameters
         neg_data = [-value if value is not None else None for value in parameters]
         mask = [False if value is None else True for value in parameters]
@@ -1909,10 +1934,15 @@ class Mesh:
         This method ???????
         """
         delta_data = np.zeros((self.number_structural_elements, 3), dtype=float)
+        xaxis_rotation_angle = np.zeros(self.number_structural_elements, dtype=float)
         for index, element in enumerate(self.structural_elements.values()):
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
+            xaxis_rotation_angle[index] = element.xaxis_beam_rotation 
 
-        self.transformation_matrices = _transformation_matrix_3x3xN(delta_data[:,0], delta_data[:,1], delta_data[:,2])
+        self.transformation_matrices = _transformation_matrix_3x3xN(delta_data[:,0], 
+                                                                    delta_data[:,1], 
+                                                                    delta_data[:,2], 
+                                                                    gamma = xaxis_rotation_angle)
         # output_data = inverse_matrix_Nx3x3(self.transformation_matrices)
         r = Rotation.from_matrix(self.transformation_matrices)
         rotations = -r.as_euler('zxy', degrees=True)
@@ -1923,3 +1953,85 @@ class Mesh:
             element.sub_transformation_matrix = self.transformation_matrices[index, :, :]
             element.section_directional_vectors = self.transformation_matrices[index, :, :]
             element.section_rotation_xyz_undeformed = self.section_rotations_xyz[index,:]
+
+    def set_beam_xaxis_rotation_by_line(self, line, delta_angle, gimball_deviation=1e-5):
+
+        self.dict_lines_to_rotation_angles[line] += delta_angle
+        angle = self.dict_lines_to_rotation_angles[line]
+        str_angle = str(angle)
+
+        if angle in [90, 270]:
+            angle -= gimball_deviation
+        elif angle in [-90, -270]:
+            angle += gimball_deviation
+        angle *= np.pi/180
+
+        for elements in slicer(self.line_to_elements, line):
+            self.set_beam_xaxis_rotation_by_elements(elements, angle)
+    
+        if str_angle != "":
+            temp_dict = self.dict_beam_xaxis_rotating_angle_to_lines.copy()
+            if str_angle not in list(temp_dict.keys()):
+                self.dict_beam_xaxis_rotating_angle_to_lines[str_angle].append(line)
+                for key, lines in temp_dict.items():
+                    if key != str_angle:
+                        if line in lines:
+                            self.dict_beam_xaxis_rotating_angle_to_lines[key].remove(line)
+                    if self.dict_beam_xaxis_rotating_angle_to_lines[key] == []:
+                        self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)                            
+            else:
+                for key, lines in temp_dict.items():
+                    if key != str_angle:
+                        if line in lines:
+                            self.dict_beam_xaxis_rotating_angle_to_lines[key].remove(line)
+                    else:
+                        if line not in lines:
+                            self.dict_beam_xaxis_rotating_angle_to_lines[key].append(line)
+                    if self.dict_beam_xaxis_rotating_angle_to_lines[key] == []:
+                        self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)
+
+        temp_dict = self.dict_beam_xaxis_rotating_angle_to_lines.copy()              
+        for key in ["0", "0.0"]:
+            if key in list(temp_dict.keys()):
+                self.dict_beam_xaxis_rotating_angle_to_lines.pop(key)
+        
+    def set_beam_xaxis_rotation_by_elements(self, elements, angle):
+        for element in slicer(self.structural_elements, elements):
+            element.xaxis_beam_rotation = angle
+
+    def create_dict_lines_to_rotation_angles(self):
+        self.dict_lines_to_rotation_angles = {}
+        for line in self.all_lines:
+            self.dict_lines_to_rotation_angles[line] = 0
+
+    def update_dict_coordinates_to_external_indexes(self, node):
+        # print(f"Node index: {node.external_index} - Coordinates: {node.coordinates}")
+        str_coord = str(node.coordinates)
+        self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
+
+    def update_node_ids_after_remesh(self, dict_chache, tolerance=1e-8):
+        self.get_nodal_coordinates_matrix(reordering=False)
+        coord_matrix = self.nodal_coordinates_matrix
+        list_coordinates = self.nodal_coordinates_matrix[:,1:].tolist()
+        new_external_indexes = self.nodal_coordinates_matrix[:,0]
+        self.dict_non_mapped_bcs = {}
+
+        for key, old_external_index in dict_chache.items():
+            list_key = key[1:-1].split(" ")
+            coord = [float(_key) for _key in list_key if _key != ""]
+            if coord in list_coordinates:
+                ind = list_coordinates.index(coord)
+                new_external_index = int(new_external_indexes[ind])
+                self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
+                # print(f"External index: {new_external_index}/{old_external_index} - Coordinates: {coord}")
+            else:
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
+                mask = diff < tolerance
+                try:
+                    new_external_index = int(coord_matrix[:,0][mask])
+                    self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
+                    # print(f"Coord not found: {coord} - {old_external_index}/{new_external_index} == {diff[mask]}")
+                except Exception as _err:
+                    self.dict_non_mapped_bcs[key] = old_external_index
+
+        return self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs

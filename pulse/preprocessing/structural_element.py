@@ -135,6 +135,7 @@ class StructuralElement:
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
         self.deformed_length = None
+        self.xaxis_beam_rotation = 0
 
         self.delta_x = self.last_node.x - self.first_node.x
         self.delta_y = self.last_node.y - self.first_node.y

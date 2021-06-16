@@ -32,18 +32,24 @@ class MenuItems(QTreeWidget):
 
     def _createNames(self):
         """Create some variables to define the name of the items in the menu"""
-        self.name_top_structuralmodelSetup = "Structural Model Setup"
-        self.name_child_setStructuralElementType = "Set Structural Element Type"
-        self.name_child_setRotationDecoupling = "Set Rotation Decoupling"
+        self.name_top_generalSettings = "General settings"
+        self.name_child_setProjectAttributes = "Set Project Attributes"
+        self.name_child_setGeometryFile = "Set Geometry File"
+        self.name_child_setMeshProperties = "Set Mesh Properties"
         self.name_child_set_material = "Set Material"
         self.name_child_set_crossSection = "Set Cross-Section"
+
+        self.name_top_structuralModelSetup = "Structural Model Setup"
+        self.name_child_setStructuralElementType = "Set Structural Element Type"
+        self.name_child_setBeamXaxisRotation = "Set Beam X-axis Rotation"
+        self.name_child_setRotationDecoupling = "Set Rotation Decoupling"
         self.name_child_setPrescribedDofs = "Set Prescribed DOFs"
         self.name_child_setNodalLoads = "Set Nodal Loads"
         self.name_child_addMassSpringDamper = "Add: Mass / Spring / Damper"
+        self.name_child_add_elastic_nodal_links = "Add Elastic Nodal Links"
         self.name_child_setcappedEnd = "Set Capped End"
         self.name_child_set_stress_stiffening = "Set Stress Stiffening"
-        self.name_child_add_elastic_nodal_links = "Add Elastic Nodal Links"
-
+        
         self.name_top_acousticmodelSetup = "Acoustic Model Setup"
         self.name_child_setAcousticElementType = "Set Acoustic Element Type"
         self.name_child_set_fluid = "Set Fluid"
@@ -120,18 +126,25 @@ class MenuItems(QTreeWidget):
 
     def _createItems(self):
         """Create all TreeWidgetItems."""
-        self.item_top_structuralmodelSetup = QTreeWidgetItem([self.name_top_structuralmodelSetup])
-        self.item_child_setStructuralElementType = QTreeWidgetItem([self.name_child_setStructuralElementType])
-        self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
+        self.item_top_generalSettings = QTreeWidgetItem([self.name_top_generalSettings])
+        self.item_child_setProjectAttributes = QTreeWidgetItem([self.name_child_setProjectAttributes])
+        self.item_child_setGeometryFile = QTreeWidgetItem([self.name_child_setGeometryFile])
+        self.item_child_setMeshProperties = QTreeWidgetItem([self.name_child_setMeshProperties])
+        #
         self.item_child_set_material = QTreeWidgetItem([self.name_child_set_material])
         self.item_child_set_crossSection = QTreeWidgetItem([self.name_child_set_crossSection])
+        #
+        self.item_top_structuralModelSetup = QTreeWidgetItem([self.name_top_structuralModelSetup])
+        self.item_child_setStructuralElementType = QTreeWidgetItem([self.name_child_setStructuralElementType])
+        self.item_child_setBeamXaxisRotation = QTreeWidgetItem([self.name_child_setBeamXaxisRotation])
+        self.item_child_setRotationDecoupling = QTreeWidgetItem([self.name_child_setRotationDecoupling])
         self.item_child_setPrescribedDofs = QTreeWidgetItem([self.name_child_setPrescribedDofs])
         self.item_child_setNodalLoads = QTreeWidgetItem([self.name_child_setNodalLoads])
         self.item_child_addMassSpringDamper = QTreeWidgetItem([self.name_child_addMassSpringDamper])
         self.item_child_setcappedEnd = QTreeWidgetItem([self.name_child_setcappedEnd])
         self.item_child_set_stress_stiffening = QTreeWidgetItem([self.name_child_set_stress_stiffening])
         self.item_child_add_elastic_nodal_links = QTreeWidgetItem([self.name_child_add_elastic_nodal_links])
-
+        #
         self.item_top_acousticmodelSetup = QTreeWidgetItem([self.name_top_acousticmodelSetup])
         self.item_child_setAcousticElementType = QTreeWidgetItem([self.name_child_setAcousticElementType])
         self.item_child_set_fluid = QTreeWidgetItem([self.name_child_set_fluid])
@@ -142,12 +155,12 @@ class MenuItems(QTreeWidget):
         self.item_child_add_perforated_plate = QTreeWidgetItem([self.name_child_add_perforated_plate])
         self.item_child_set_acoustic_element_length_correction = QTreeWidgetItem([self.name_child_set_acoustic_element_length_correction])
         self.item_child_add_compressor_excitation = QTreeWidgetItem([self.name_child_add_compressor_excitation])
-        
+        #
         self.item_top_analysis = QTreeWidgetItem([self.name_top_analysis])
         self.item_child_selectAnalysisType = QTreeWidgetItem([self.name_child_selectAnalysisType])
         self.item_child_analisysSetup = QTreeWidgetItem([self.name_child_analisysSetup])
         self.item_child_runAnalysis = QTreeWidgetItem([self.name_child_runAnalysis])
-
+        #
         self.item_top_resultsViewer_structural = QTreeWidgetItem([self.name_top_resultsViewer_structural])
         self.item_child_plotStructuralModeShapes = QTreeWidgetItem([self.name_child_plotStructuralModeShapes])
         self.item_child_plotDisplacementField = QTreeWidgetItem([self.name_child_plotDisplacementField])
@@ -155,7 +168,7 @@ class MenuItems(QTreeWidget):
         self.item_child_plotReactionsFrequencyResponse = QTreeWidgetItem([self.name_child_plotReactionsFrequencyResponse])
         self.item_child_plotStressField = QTreeWidgetItem([self.name_child_plotStressField])
         self.item_child_plotStressFrequencyResponse = QTreeWidgetItem([self.name_child_plotStressFrequencyResponse])
-
+        #
         self.item_top_resultsViewer_acoustic = QTreeWidgetItem([self.name_top_resultsViewer_acoustic])
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem([self.name_child_plotAcousticModeShapes])
         self.item_child_plotAcousticPressureField = QTreeWidgetItem([self.name_child_plotAcousticPressureField])
@@ -165,12 +178,17 @@ class MenuItems(QTreeWidget):
 
     def _configItems(self):
         """Configure all items."""
-        # Font setup - top items
+        # Font setup - top items   
 
-        self.item_top_structuralmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-        self.item_top_structuralmodelSetup.setFont(0, self.font_top)
-        self.item_top_structuralmodelSetup.setTextAlignment(0, Qt.AlignHCenter)
-        self.item_top_structuralmodelSetup.setBackground(0, self.brush_top)
+        self.item_top_generalSettings.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+        self.item_top_generalSettings.setFont(0, self.font_top)
+        self.item_top_generalSettings.setTextAlignment(0, Qt.AlignHCenter)
+        self.item_top_generalSettings.setBackground(0, self.brush_top)
+
+        self.item_top_structuralModelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+        self.item_top_structuralModelSetup.setFont(0, self.font_top)
+        self.item_top_structuralModelSetup.setTextAlignment(0, Qt.AlignHCenter)
+        self.item_top_structuralModelSetup.setBackground(0, self.brush_top)
 
         self.item_top_acousticmodelSetup.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
         self.item_top_acousticmodelSetup.setFont(0, self.font_top)
@@ -193,8 +211,12 @@ class MenuItems(QTreeWidget):
         self.item_top_resultsViewer_acoustic.setBackground(0, self.color_item_results_viewer)
 
         # Font setup - internal items
+        self.item_child_setProjectAttributes.setFont(0, self.font_internal)
+        self.item_child_setMeshProperties.setFont(0, self.font_internal)
+        self.item_child_setGeometryFile.setFont(0, self.font_internal)
 
         self.item_child_setStructuralElementType.setFont(0, self.font_internal)
+        self.item_child_setBeamXaxisRotation.setFont(0, self.font_internal)
         self.item_child_setRotationDecoupling.setFont(0, self.font_internal)
         self.item_child_set_material.setFont(0, self.font_internal)
         self.item_child_set_crossSection.setFont(0, self.font_internal)
@@ -236,18 +258,24 @@ class MenuItems(QTreeWidget):
 
     def _addItems(self):
         """Insert items on the TreeWidget."""
-        self.addTopLevelItem(self.item_top_structuralmodelSetup)
-        self.addTopLevelItem(self.item_child_setStructuralElementType)
+        self.addTopLevelItem(self.item_top_generalSettings)
+        self.addTopLevelItem(self.item_child_setProjectAttributes)
+        self.addTopLevelItem(self.item_child_setGeometryFile)
+        self.addTopLevelItem(self.item_child_setMeshProperties)
         self.addTopLevelItem(self.item_child_set_material)
         self.addTopLevelItem(self.item_child_set_crossSection)
+        #
+        self.addTopLevelItem(self.item_top_structuralModelSetup)
+        self.addTopLevelItem(self.item_child_setStructuralElementType)
+        self.addTopLevelItem(self.item_child_setBeamXaxisRotation)
         self.addTopLevelItem(self.item_child_setPrescribedDofs)
         self.addTopLevelItem(self.item_child_setRotationDecoupling)
         self.addTopLevelItem(self.item_child_setNodalLoads)
         self.addTopLevelItem(self.item_child_addMassSpringDamper)
-        self.addTopLevelItem(self.item_child_setcappedEnd)
-        self.addTopLevelItem(self.item_child_set_stress_stiffening)
         self.addTopLevelItem(self.item_child_add_elastic_nodal_links)
-
+        self.addTopLevelItem(self.item_child_set_stress_stiffening)
+        self.addTopLevelItem(self.item_child_setcappedEnd)
+        #
         self.addTopLevelItem(self.item_top_acousticmodelSetup)  
         self.addTopLevelItem(self.item_child_setAcousticElementType)    
         self.addTopLevelItem(self.item_child_set_fluid)             
@@ -258,12 +286,12 @@ class MenuItems(QTreeWidget):
         self.addTopLevelItem(self.item_child_add_perforated_plate) 
         self.addTopLevelItem(self.item_child_set_acoustic_element_length_correction) 
         self.addTopLevelItem(self.item_child_add_compressor_excitation) 
-
+        #
         self.addTopLevelItem(self.item_top_analysis)
         self.addTopLevelItem(self.item_child_selectAnalysisType)
         self.addTopLevelItem(self.item_child_analisysSetup)
         self.addTopLevelItem(self.item_child_runAnalysis)
-
+        #
         self.addTopLevelItem(self.item_top_resultsViewer_structural)
         self.addTopLevelItem(self.item_child_plotStructuralModeShapes)
         self.addTopLevelItem(self.item_child_plotDisplacementField)
@@ -283,7 +311,11 @@ class MenuItems(QTreeWidget):
 
     def update_plot_entities(self):
         if not self.mainWindow.opv_widget.change_plot_to_entities:
-            self.mainWindow.plot_entities()        
+            self.mainWindow.plot_entities()  
+
+    def update_plot_entities_with_cross_section(self):
+        if not self.mainWindow.opv_widget.change_plot_to_entities_with_cross_section:
+            self.mainWindow.plot_entities_with_cross_section()      
 
     def on_click_item(self, item, column):
         """This event is raised every time an item is clicked on the menu."""
@@ -292,10 +324,27 @@ class MenuItems(QTreeWidget):
         if self.project.none_project_action:           
             self.empty_project_action_message()
         
-        if item.text(0) == self.name_child_setStructuralElementType:
+        if item.text(0) == self.name_child_setProjectAttributes:
+            if not self.item_child_setProjectAttributes.isDisabled():
+                self.mainWindow.getInputWidget().set_project_attributes()
+
+        if item.text(0) == self.name_child_setGeometryFile:
+            if not self.item_child_setGeometryFile.isDisabled():
+                self.mainWindow.getInputWidget().set_geometry_file()
+
+        if item.text(0) == self.name_child_setMeshProperties:
+            if not self.item_child_setMeshProperties.isDisabled():
+                self.mainWindow.getInputWidget().set_mesh_properties()
+
+        elif item.text(0) == self.name_child_setStructuralElementType:
             if not self.item_child_setStructuralElementType.isDisabled():
                 self.update_plot_entities()
                 self.mainWindow.getInputWidget().setStructuralElementType()
+
+        elif item.text(0) == self.name_child_setBeamXaxisRotation:
+            if not self.item_child_setBeamXaxisRotation.isDisabled():
+                self.update_plot_entities_with_cross_section()
+                self.mainWindow.getInputWidget().set_beam_xaxis_rotation()
 
         elif item.text(0) == self.name_child_set_material:
             if not self.item_child_set_material.isDisabled():
@@ -307,7 +356,7 @@ class MenuItems(QTreeWidget):
             if not self.item_child_set_crossSection.isDisabled():
                 self.update_plot_entities()
                 if self.mainWindow.getInputWidget().set_cross_section():
-                    self.mainWindow.plot_entities_radius()
+                    self.mainWindow.plot_entities_with_cross_section()
 
         elif item.text(0) == self.name_child_setPrescribedDofs:
             if not self.item_child_setPrescribedDofs.isDisabled():
@@ -466,10 +515,15 @@ class MenuItems(QTreeWidget):
                 self.mainWindow.getInputWidget().plot_TL_NR()
 
     def modify_model_setup_items_access(self, bool_key):
-
+        #
+        self.item_child_setProjectAttributes.setDisabled(bool_key)
+        self.item_child_setGeometryFile.setDisabled(bool_key)
+        self.item_child_setMeshProperties.setDisabled(bool_key)
+        #
         self.item_child_setStructuralElementType.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
         self.item_child_setPrescribedDofs.setDisabled(bool_key)
         self.item_child_setRotationDecoupling.setDisabled(bool_key)
         self.item_child_setNodalLoads.setDisabled(bool_key)

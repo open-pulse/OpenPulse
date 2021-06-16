@@ -16,6 +16,7 @@ class Entity:
         self.material = None
         self.fluid = None
         self.cross_section = None
+        beam_xaxis_rotation = None
         self.acoustic_element_type = None
         self.hysteretic_damping = None
         self.structural_element_type = None
