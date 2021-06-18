@@ -64,6 +64,7 @@ class MenuItems(QTreeWidget):
         
         self._createIcons()
         self._configItemSizes()
+        self._createColorsBrush()
         self._configTree()
         self._createItems()
         self._addItems()
@@ -82,6 +83,23 @@ class MenuItems(QTreeWidget):
         """
         self.icon_child_set_material = QIcon()
         self.icon_child_set_material.addPixmap(QPixmap("data/icons/pulse.png"), QIcon.Active, QIcon.On)
+
+    def _createColorsBrush(self):
+        """Create Color objects that define the color of the text and/or background of the items."""
+        
+        self.QLinearGradient_model = QLinearGradient(0,0,400,0)
+        self.QLinearGradient_model.setColorAt(0, QColor(60, 60, 60, 150))
+        self.QLinearGradient_model.setColorAt(1, QColor(220, 220, 220, 150))
+
+        self.QLinearGradient_viewer = QLinearGradient(0,0,400,0)
+        self.QLinearGradient_viewer.setColorAt(0, QColor(102, 204, 255, 100))
+        self.QLinearGradient_viewer.setColorAt(1, QColor(240, 240, 240, 150))
+
+        self.brush_top = QBrush(self.QLinearGradient_model)
+        self.brush_top.setStyle(Qt.LinearGradientPattern)
+        
+        self.color_item_results_viewer = QBrush(self.QLinearGradient_viewer)
+        self.color_item_results_viewer.setStyle(Qt.LinearGradientPattern)
 
     def _configItemSizes(self):
         self.separator_size = QSize()
@@ -209,12 +227,12 @@ class MenuItems(QTreeWidget):
         """Configure all items."""   
 
         borderRole = Qt.UserRole + 1
-        borderPen = QPen(QColor(255,255,255))
+        borderPen = QPen(QColor(0,0,0))
         borderPen.setWidth(1)
 
-        textTopBrush = QBrush(QColor(255,255,255))
-        configTopBrush = QBrush(QColor(50,50,50))
-        plotTopBrush = QBrush(QColor(3,29,68))
+        textTopBrush = QBrush(QColor(0,0,0))
+        configTopBrush = self.brush_top
+        plotTopBrush = self.color_item_results_viewer
 
         topFont = QFont()
         topFont.setBold(True)
