@@ -31,7 +31,7 @@ def init():
 
     if platform.system() == "Windows":
         sys.argv.append("--platform")
-        sys.argv.append("windows:dpiawareness=0")
+        # sys.argv.append("windows:dpiawareness=0")
     app = Qt.QApplication(sys.argv)
     window = MainWindow()
     sys.exit(app.exec_())
