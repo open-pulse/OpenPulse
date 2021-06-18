@@ -259,7 +259,6 @@ class MenuItems(QTreeWidget):
             item.setTextAlignment(0, Qt.AlignHCenter)
             item.setForeground(0, textTopBrush)
             item.setBackground(0, plotTopBrush)
-            self.expandItem(item)
 
         delegate = BorderItemDelegate(self, borderRole)
         self.setItemDelegate(delegate)
