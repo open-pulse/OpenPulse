@@ -4,16 +4,18 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, *args, **kwargs):
+    def __init__(self, text_info, opv=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-
+        
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        if opv is not None:
+            opv.setInputObject(self)
 
         self.Label_title = self.findChild(QLabel, 'Label_title')
         self.Label_message = self.findChild(QLabel, 'Label_message')
@@ -33,7 +35,7 @@ class PrintMessageInput(QDialog):
         
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
-
+        
         self.exec_()
 
     def message_close(self):

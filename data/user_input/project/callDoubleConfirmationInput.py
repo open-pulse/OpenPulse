@@ -9,12 +9,17 @@ from PyQt5 import uic
 # import numpy as np
 
 class CallDoubleConfirmationInput(QDialog):
-    def __init__(self, title, message, *args, **kwargs):
+    def __init__(self, title, message, leftButton_label='Return', rightButton_label='Remove', *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Project/callDoubleConfirmationInput.ui', self)
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+
+        # self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        # self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        # self.setWindowFlag(Qt.WindowMinMaxButtonsHint, False)
+        # self.setWindowFlag(Qt.FramelessWindowHint, False)
 
         # self.QDialog = self#.findChild(QDialog, "Dialog")
         # print(self.QDialog)
@@ -22,6 +27,9 @@ class CallDoubleConfirmationInput(QDialog):
         # self.QDialog.setGeometry(100,100,1000,800)
         # self.getPx
         # self.resize(1000,600)
+
+        self.rightButton_label = rightButton_label
+        self.leftButton_label = leftButton_label
 
         self.QLabel_message = self.findChild(QLabel, 'QLabel_message')
         self.QLabel_title = self.findChild(QLabel, 'QLabel_title')
@@ -34,10 +42,12 @@ class CallDoubleConfirmationInput(QDialog):
         self.QLabel_title.setFont(self.font_title)
         self.QLabel_message.setFont(self.font_message)
 
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.confirm_action)
-        self.pushButton_cancel = self.findChild(QPushButton, 'pushButton_cancel')
-        self.pushButton_cancel.clicked.connect(self.force_to_close)
+        self.pushButton_rightButton = self.findChild(QPushButton, 'pushButton_rightButton')
+        self.pushButton_rightButton.setText(self.rightButton_label)
+        self.pushButton_rightButton.clicked.connect(self.confirm_action)
+        self.pushButton_leftButton = self.findChild(QPushButton, 'pushButton_leftButton')
+        self.pushButton_leftButton.setText(self.leftButton_label)
+        self.pushButton_leftButton.clicked.connect(self.force_to_close)
         self._doNotRun = True
         self.exec_()
 

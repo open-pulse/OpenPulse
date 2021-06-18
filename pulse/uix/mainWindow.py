@@ -469,8 +469,6 @@ class MainWindow(QMainWindow):
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
 
-
-
     def closeEvent(self, event):
         close = QMessageBox.question(
             self,

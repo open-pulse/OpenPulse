@@ -15,7 +15,7 @@ window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
 class SetProjectAttributesInput(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Project/setProjectAttributesInput.ui', self)
 
@@ -23,11 +23,13 @@ class SetProjectAttributesInput(QDialog):
         self.icon = QIcon(icons_path + 'add.png')
         self.setWindowIcon(self.icon)
 
+        self.project = project
+        self.opv = opv
+
+        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        # self.config = config
         self.create = False
         self.stop = False
 

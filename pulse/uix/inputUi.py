@@ -119,7 +119,7 @@ class InputUi:
             ResetProjectInput(self.project, self.opv)
 
     def set_project_attributes(self):
-        SetProjectAttributesInput(self.project)
+        SetProjectAttributesInput(self.project, self.opv)
         self.parent.changeWindowTitle(self.project._project_name)
 
     def set_geometry_file(self):
@@ -127,9 +127,6 @@ class InputUi:
 
     def set_mesh_properties(self):
         read = SetMeshPropertiesInput(self.project, self.opv)
-        # if read.not_run:
-        #     if read.mesh_updated:
-        #         return read.process_methods()
 
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
