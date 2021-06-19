@@ -3,7 +3,6 @@ from PyQt5.QtGui import QBrush, QColor, QFont, QIcon, QPixmap, QPainter, QPen, Q
 from PyQt5.QtCore import Qt, QSize, QRect
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-
 class BorderItemDelegate(QStyledItemDelegate):
     def __init__(self, parent, borderRole):
         super(BorderItemDelegate, self).__init__(parent)
@@ -49,7 +48,6 @@ class BorderItemDelegate(QStyledItemDelegate):
             
             painter.restore() # Recovers previous status
 
-
 class MenuItems(QTreeWidget):
     """Menu Items
 
@@ -62,8 +60,8 @@ class MenuItems(QTreeWidget):
         self.mainWindow = main_window
         self.project = main_window.getProject()
         
-        self._createIcons()
-        self._configItemSizes()
+        # self._createIcons()
+        # self._configItemSizes()
         self._createFonts()
         self._createColorsBrush()
         self._configTree()
@@ -87,44 +85,46 @@ class MenuItems(QTreeWidget):
 
     def _createFonts(self):
         """Create Font objects that configure the font of the items."""
-        self.font_top = QFont()
-        self.font_top.setFamily("Segoe UI")
-        self.font_top.setPointSize(13)
-        self.font_top.setBold(True)
-        self.font_top.setItalic(False)
-        self.font_top.setWeight(75)
+        self.font_top_Items = QFont()
+        self.font_top_Items.setFamily("Segoe UI")
+        self.font_top_Items.setPointSize(13)
+        self.font_top_Items.setBold(True)
+        self.font_top_Items.setItalic(False)
+        self.font_top_Items.setWeight(75)
 
-        self.font_child = QFont()
-        self.font_child.setFamily("Segoe UI")
-        self.font_child.setPointSize(12)
-        #self.font_child.setBold(False)
-        #self.font_child.setItalic(True)
-        #self.font_child.setWeight(75)
+        self.font_child_Items = QFont()
+        self.font_child_Items.setFamily("Segoe UI")
+        self.font_child_Items.setPointSize(12)
+        #self.font_child_Items.setBold(False)
+        #self.font_child_Items.setItalic(True)
+        self.font_child_Items.setWeight(60)
 
     def _createColorsBrush(self):
         """Create Color objects that define the color of the text and/or background of the items."""
         
-        self.QLinearGradient_model = QLinearGradient(0,0,400,0)
-        self.QLinearGradient_model.setColorAt(0, QColor(60, 60, 60, 150))
-        self.QLinearGradient_model.setColorAt(1, QColor(220, 220, 220, 150))
+        self.QLinearGradient_upper = QLinearGradient(0,0,400,0)
+        self.QLinearGradient_upper.setColorAt(1, QColor(60, 60, 60, 150))
+        self.QLinearGradient_upper.setColorAt(0, QColor(220, 220, 220, 150))
 
-        self.QLinearGradient_viewer = QLinearGradient(0,0,400,0)
-        self.QLinearGradient_viewer.setColorAt(0, QColor(102, 204, 255, 100))
-        self.QLinearGradient_viewer.setColorAt(1, QColor(240, 240, 240, 150))
+        self.QLinearGradient_lower = QLinearGradient(0,0,400,0)
+        self.QLinearGradient_lower.setColorAt(1, QColor(102, 204, 255, 100))
+        self.QLinearGradient_lower.setColorAt(0, QColor(240, 240, 240, 150))
 
-        self.brush_top = QBrush(self.QLinearGradient_model)
-        self.brush_top.setStyle(Qt.LinearGradientPattern)
+        self.brush_upper_items = QBrush(self.QLinearGradient_upper)
+        self.brush_upper_items.setStyle(Qt.LinearGradientPattern)
         
-        self.color_item_results_viewer = QBrush(self.QLinearGradient_viewer)
-        self.color_item_results_viewer.setStyle(Qt.LinearGradientPattern)
+        self.brush_lower_items = QBrush(self.QLinearGradient_lower)
+        self.brush_lower_items.setStyle(Qt.LinearGradientPattern)
 
     def _configItemSizes(self):
-        self.separator_size = QSize()
-        self.separator_size.setHeight(2)
+        """Creates a control to the items height size."""
+        self.top_items_size = QSize()
+        self.top_items_size.setHeight(35)
+        self.child_items_size = QSize()
+        self.child_items_size.setHeight(20)
 
     def _configTree(self):
         """Define the initial configuration of the TreeWidget."""
-  
         self.setHeaderHidden(True)
         self.setTabKeyNavigation(True)
         self.setRootIsDecorated(True)
@@ -132,21 +132,28 @@ class MenuItems(QTreeWidget):
         # self.setFrameShadow(3)
         self.setLineWidth(2)
         # self.setStyleSheet("QTreeWidget{alternate-background-color: red; background: black;}")
-
-        # self.setAutoExpandDelay(0)
-        # self.setTreePosition(-1)
         # self.setIndentation(20)
         # self.setColumnWidth(0, 50)
         self.itemClicked.connect(self.on_click_item)
 
     def _createItems(self):
-        """Create all TreeWidgetItems."""
+        """Creates all TreeWidgetItems."""
+        self.list_top_items = []
+        self.list_child_items = []
         self.item_top_generalSettings = QTreeWidgetItem(['General Settings'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
         self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
         self.item_child_set_material = QTreeWidgetItem(['Set Material'])
         self.item_child_set_crossSection = QTreeWidgetItem(['Set Cross-Section'])
+        #
+        self.list_top_items.append(self.item_top_generalSettings)
+        self.list_child_items.append(self.item_child_setProjectAttributes)
+        self.list_child_items.append(self.item_child_setGeometryFile)
+        self.list_child_items.append(self.item_child_setGeometryFile)
+        self.list_child_items.append(self.item_child_setMeshProperties)
+        self.list_child_items.append(self.item_child_set_material)
+        self.list_child_items.append(self.item_child_set_crossSection)
         #
         self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Mode Setup'])
         self.item_child_setStructuralElementType = QTreeWidgetItem(['Set Structural Element Type'])
@@ -159,6 +166,17 @@ class MenuItems(QTreeWidget):
         self.item_child_setcappedEnd = QTreeWidgetItem(['Set Capped End'])
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
+        self.list_top_items.append(self.item_top_structuralModelSetup)
+        self.list_child_items.append(self.item_child_setStructuralElementType)
+        self.list_child_items.append(self.item_child_setBeamXaxisRotation)
+        self.list_child_items.append(self.item_child_setRotationDecoupling)
+        self.list_child_items.append(self.item_child_setPrescribedDofs)
+        self.list_child_items.append(self.item_child_setNodalLoads)
+        self.list_child_items.append(self.item_child_addMassSpringDamper)
+        self.list_child_items.append(self.item_child_add_elastic_nodal_links)
+        self.list_child_items.append(self.item_child_setcappedEnd)
+        self.list_child_items.append(self.item_child_set_stress_stiffening)
+        #
         self.item_top_acousticModelSetup = QTreeWidgetItem(['Acoustic Model Setup'])
         self.item_child_setAcousticElementType = QTreeWidgetItem(['Set Acoustic Element Type'])
         self.item_child_set_fluid = QTreeWidgetItem(['Set Fluid'])
@@ -170,10 +188,26 @@ class MenuItems(QTreeWidget):
         self.item_child_set_acoustic_element_length_correction = QTreeWidgetItem(['Set Element Length Correction'])
         self.item_child_add_compressor_excitation = QTreeWidgetItem(['Add Compressor Excitation'])
         #
+        self.list_top_items.append(self.item_top_acousticModelSetup)
+        self.list_child_items.append(self.item_child_setAcousticElementType)
+        self.list_child_items.append(self.item_child_set_fluid)
+        self.list_child_items.append(self.item_child_setAcousticPressure)
+        self.list_child_items.append(self.item_child_setVolumeVelocity)
+        self.list_child_items.append(self.item_child_setSpecificImpedance)
+        self.list_child_items.append(self.item_child_set_radiation_impedance)
+        self.list_child_items.append(self.item_child_add_perforated_plate)
+        self.list_child_items.append(self.item_child_set_acoustic_element_length_correction)
+        self.list_child_items.append(self.item_child_add_compressor_excitation)
+        #
         self.item_top_analysis = QTreeWidgetItem(['Analysis'])
         self.item_child_selectAnalysisType = QTreeWidgetItem(['Select Analysis Type'])
         self.item_child_analisysSetup = QTreeWidgetItem(['Analysis Setup'])
         self.item_child_runAnalysis = QTreeWidgetItem(['Run Analysis (F5)'])
+        #
+        self.list_top_items.append(self.item_top_analysis)
+        self.list_child_items.append(self.item_child_selectAnalysisType)
+        self.list_child_items.append(self.item_child_analisysSetup)
+        self.list_child_items.append(self.item_child_runAnalysis)
         #
         self.item_top_resultsViewer_structural = QTreeWidgetItem(['Results Viewer - Structural'])
         self.item_child_plotStructuralModeShapes = QTreeWidgetItem(['Plot Structural Mode Shapes'])
@@ -183,15 +217,29 @@ class MenuItems(QTreeWidget):
         self.item_child_plotStressField = QTreeWidgetItem(['Plot Stress Field'])
         self.item_child_plotStressFrequencyResponse = QTreeWidgetItem(['Plot Stress Frequency Response'])
         #
+        self.list_top_items.append(self.item_top_resultsViewer_structural)
+        self.list_child_items.append(self.item_child_plotStructuralModeShapes)
+        self.list_child_items.append(self.item_child_plotDisplacementField)
+        self.list_child_items.append(self.item_child_plotStructuralFrequencyResponse)
+        self.list_child_items.append(self.item_child_plotReactionsFrequencyResponse)
+        self.list_child_items.append(self.item_child_plotStressField)
+        self.list_child_items.append(self.item_child_plotStressFrequencyResponse)
+        #
         self.item_top_resultsViewer_acoustic = QTreeWidgetItem(['Results Viewer - Acoustic'])
         self.item_child_plotAcousticModeShapes = QTreeWidgetItem(['Plot Acoustic Mode Shapes'])
         self.item_child_plotAcousticPressureField = QTreeWidgetItem(['Plot Acoustic Pressure Field'])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem(['Plot Acoustic Frequency Response'])
         self.item_child_plot_TL_NR = QTreeWidgetItem(['Plot Transmission Loss or Attenuation'])
         #
-        self.item_top_separator = QTreeWidgetItem([""])
+        self.list_top_items.append(self.item_top_resultsViewer_acoustic)
+        self.list_child_items.append(self.item_child_plotAcousticModeShapes)
+        self.list_child_items.append(self.item_child_plotAcousticPressureField)
+        self.list_child_items.append(self.item_child_plotAcousticFrequencyResponse)
+        self.list_child_items.append(self.item_child_plot_TL_NR)
+        #
 
     def _addItems(self):
+        """Adds the Top Level Items and the Child Levels Items at the TreeWidget."""
         self.addTopLevelItem(self.item_top_generalSettings)
         self.item_top_generalSettings.addChild(self.item_child_setProjectAttributes)
         self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
@@ -248,76 +296,33 @@ class MenuItems(QTreeWidget):
         borderPen.setWidth(1)
 
         textTopBrush = QBrush(QColor(0,0,0))
-        configTopBrush = self.brush_top
-        plotTopBrush = self.color_item_results_viewer
-        topFont = self.font_top
+        configTopBrush = self.brush_upper_items
+        plotTopBrush = self.brush_lower_items
 
-        configTopItems = [self.item_top_generalSettings, self.item_top_structuralModelSetup, 
-                          self.item_top_acousticModelSetup, self.item_top_analysis]
+        configTopItems = [  self.item_top_generalSettings, 
+                            self.item_top_structuralModelSetup, 
+                            self.item_top_acousticModelSetup    ]
 
-        plotTopItems = [self.item_top_resultsViewer_structural, self.item_top_resultsViewer_acoustic]
+        for top_item in self.list_top_items:
+            top_item.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
+            top_item.setFont(0, self.font_top_Items)
+            top_item.setData(0, borderRole, borderPen)
+            top_item.setTextAlignment(0, Qt.AlignHCenter | Qt.AlignVCenter)
+            top_item.setForeground(0, textTopBrush)
+            # top_item.setSizeHint(0, self.top_items_size)
 
-        for item in configTopItems:
-            item.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-            item.setFont(0, topFont)
-            item.setData(0, borderRole, borderPen)
-            item.setTextAlignment(0, Qt.AlignHCenter)
-            item.setForeground(0, textTopBrush)
-            item.setBackground(0, configTopBrush)
-            self.expandItem(item)
-
-        for item in plotTopItems:
-            item.setFlags(Qt.ItemIsDragEnabled|Qt.ItemIsUserCheckable|Qt.ItemIsEnabled)
-            item.setFont(0, topFont)
-            item.setData(0, borderRole, borderPen)
-            item.setTextAlignment(0, Qt.AlignHCenter)
-            item.setForeground(0, textTopBrush)
-            item.setBackground(0, plotTopBrush)
+            if top_item in configTopItems: 
+                top_item.setBackground(0, configTopBrush)
+                self.expandItem(top_item)
+            else:
+                top_item.setBackground(0, plotTopBrush)
 
         delegate = BorderItemDelegate(self, borderRole)
         self.setItemDelegate(delegate)
 
-        self.item_child_setProjectAttributes.setFont(0, self.font_child)
-        self.item_child_setMeshProperties.setFont(0, self.font_child)
-        self.item_child_setGeometryFile.setFont(0, self.font_child)
-
-        self.item_child_setStructuralElementType.setFont(0, self.font_child)
-        self.item_child_setBeamXaxisRotation.setFont(0, self.font_child)
-        self.item_child_setRotationDecoupling.setFont(0, self.font_child)
-        self.item_child_set_material.setFont(0, self.font_child)
-        self.item_child_set_crossSection.setFont(0, self.font_child)
-        self.item_child_setPrescribedDofs.setFont(0, self.font_child)
-        self.item_child_setNodalLoads.setFont(0, self.font_child)
-        self.item_child_addMassSpringDamper.setFont(0, self.font_child)
-        self.item_child_setcappedEnd.setFont(0, self.font_child)
-        self.item_child_set_stress_stiffening.setFont(0, self.font_child)
-        self.item_child_add_elastic_nodal_links.setFont(0, self.font_child)
-
-        self.item_child_setAcousticElementType.setFont(0, self.font_child)
-        self.item_child_set_fluid.setFont(0, self.font_child)
-        self.item_child_setAcousticPressure.setFont(0, self.font_child)
-        self.item_child_setVolumeVelocity.setFont(0, self.font_child)
-        self.item_child_setSpecificImpedance.setFont(0, self.font_child)
-        self.item_child_set_radiation_impedance.setFont(0, self.font_child)
-        self.item_child_add_perforated_plate.setFont(0, self.font_child)
-        self.item_child_set_acoustic_element_length_correction.setFont(0, self.font_child)
-        self.item_child_add_compressor_excitation.setFont(0, self.font_child)
-
-        self.item_child_selectAnalysisType.setFont(0, self.font_child)
-        self.item_child_analisysSetup.setFont(0, self.font_child)
-        self.item_child_runAnalysis.setFont(0, self.font_child)
-
-        self.item_child_plotStructuralModeShapes.setFont(0, self.font_child)
-        self.item_child_plotDisplacementField.setFont(0, self.font_child)
-        self.item_child_plotStructuralFrequencyResponse.setFont(0, self.font_child)
-        self.item_child_plotReactionsFrequencyResponse.setFont(0, self.font_child)
-        self.item_child_plotStressField.setFont(0, self.font_child)
-        self.item_child_plotStressFrequencyResponse.setFont(0, self.font_child)
-
-        self.item_child_plotAcousticModeShapes.setFont(0, self.font_child)
-        self.item_child_plotAcousticPressureField.setFont(0, self.font_child)
-        self.item_child_plotAcousticFrequencyResponse.setFont(0, self.font_child)
-        self.item_child_plot_TL_NR.setFont(0, self.font_child)
+        for child_item in self.list_child_items:
+            child_item.setFont(0, self.font_child_Items)
+            # child_item.setSizeHint(0, self.top_items_size)
 
     def update_plot_mesh(self):
         if not self.mainWindow.opv_widget.change_plot_to_mesh:
@@ -333,15 +338,9 @@ class MenuItems(QTreeWidget):
 
     def update_childItems_visibility(self, item):
         toggle = lambda x: x.setExpanded(not x.isExpanded())
-
-        expandable = [self.item_top_generalSettings, self.item_top_structuralModelSetup,
-                      self.item_top_acousticModelSetup, self.item_top_resultsViewer_structural, 
-                      self.item_top_analysis, self.item_top_resultsViewer_acoustic]
-
-        if item in expandable:
+        if item in self.list_top_items:
             toggle(item)
             return True 
-
         return False
 
     def on_click_item(self, item, column):
@@ -358,11 +357,11 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setProjectAttributes.isDisabled():
                 self.mainWindow.getInputWidget().set_project_attributes()
 
-        if item == self.item_child_setGeometryFile:
+        elif item == self.item_child_setGeometryFile:
             if not self.item_child_setGeometryFile.isDisabled():
                 self.mainWindow.getInputWidget().set_geometry_file()
 
-        if item == self.item_child_setMeshProperties:
+        elif item == self.item_child_setMeshProperties:
             if not self.item_child_setMeshProperties.isDisabled():
                 self.mainWindow.getInputWidget().set_mesh_properties()
 
@@ -575,7 +574,7 @@ class MenuItems(QTreeWidget):
         self.item_child_selectAnalysisType.setDisabled(bool_key)
 
     def _updateItems(self):
-        """Enable and disable items on menu when some condictions are not satisfied."""
+        """Enables and disables the Child Items on the menu after the solution is done."""
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)
@@ -595,7 +594,7 @@ class MenuItems(QTreeWidget):
         else:
             self.item_child_analisysSetup.setDisabled(False)
         
-        if self.project.analysis_ID not in [None] and self.project.setup_analysis_complete:
+        if self.project.analysis_ID is not None and self.project.setup_analysis_complete:
             self.item_child_runAnalysis.setDisabled(False)
         
         if self.project.get_structural_solution() is not None or self.project.get_acoustic_solution() is not None:
@@ -607,6 +606,7 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotStressField.setDisabled(False)
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
             elif self.project.analysis_ID == 2:
+                self.expandItem(self.item_top_resultsViewer_structural)
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
             elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
@@ -623,6 +623,27 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
                 self.item_child_plotReactionsFrequencyResponse.setDisabled(False)  
+
+            self.update_TreeVisibility_after_solution()
+            
+    def update_TreeVisibility_after_solution(self):
+        """Expands and collapses the Top Level Items ont the menu after the solution is done."""
+        self.collapseItem(self.item_top_generalSettings)
+        if self.project.analysis_ID in [0,1,2]:
+            self.expandItem(self.item_top_resultsViewer_structural)
+            self.expandItem(self.item_top_structuralModelSetup)
+            self.collapseItem(self.item_top_resultsViewer_acoustic)
+            self.collapseItem(self.item_top_acousticModelSetup)
+        elif self.project.analysis_ID in [3,4]:
+            self.expandItem(self.item_top_resultsViewer_acoustic)
+            self.expandItem(self.item_top_acousticModelSetup)
+            self.collapseItem(self.item_top_resultsViewer_structural)
+            self.collapseItem(self.item_top_structuralModelSetup)
+        elif self.project.analysis_ID in [5,6]:
+            self.expandItem(self.item_top_resultsViewer_structural)
+            self.expandItem(self.item_top_resultsViewer_acoustic)
+            self.expandItem(self.item_top_structuralModelSetup)
+            self.expandItem(self.item_top_acousticModelSetup)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
