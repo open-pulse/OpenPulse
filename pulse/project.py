@@ -791,7 +791,6 @@ class Project:
         self.mesh.set_acoustic_pressure_bc_by_node(node_ids, values) 
         label = ["acoustic pressure", "nodal coordinates"] 
         for node_id in node_ids:
-            coord = self.mesh.nodes[node_id].coordinates
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label) 
     
     def set_volume_velocity_bc_by_node(self, node_ids, values, imported_table, table_name="", table_index=None, additional_info=None):
@@ -802,24 +801,20 @@ class Project:
         else:
             label = ["volume velocity - {}".format(table_index), "nodal coordinates"]
         for node_id in node_ids:
-            coord = self.mesh.nodes[node_id].coordinates
-            print(coord)
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label)
         return False    
     
-    def set_specific_impedance_bc_by_node(self, node_id, values, imported_table, table_name=""):
-        self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
-        label = ["specific impedance", "nodal coordinates"] 
-        coord = self.mesh.nodes[node_id].coordinates
-        print(coord)
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label)   
+    def set_specific_impedance_bc_by_node(self, node_ids, values, imported_table, table_name=""):
+        for node_id in node_ids: 
+            self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
+            label = ["specific impedance", "nodal coordinates"] 
+            self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label)   
 
-    def set_radiation_impedance_bc_by_node(self, node_id, values, imported_table = None, table_name=""):
-        self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
-        label = ["radiation impedance", "nodal coordinates"] 
-        coord = self.mesh.nodes[node_id].coordinates
-        print(coord)
-        self.file.add_acoustic_bc_in_file(node_id, values, imported_table, table_name, label) 
+    def set_radiation_impedance_bc_by_node(self, node_ids, values, imported_table = None, table_name=""):
+        for node_id in node_ids:    
+            self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
+            label = ["radiation impedance", "nodal coordinates"] 
+            self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label) 
     
     def set_element_length_correction_by_elements(self, elements, value, section):
         # label = ["acoustic element length correction"] 
