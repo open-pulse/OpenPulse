@@ -443,10 +443,10 @@ class Node:
         
         return admittance.reshape(-1,1)#([len(frequencies),1])
     
-    def __str__(self):
-        text = ''
-        text += f'Node Id: {self.external_index} \n'
-        text += f'Position: {self.coordinates} [m]\n'
-        text += f'Displacement: {self.prescribed_dofs[:3]} [m]\n'
-        text += f'Rotation: {self.prescribed_dofs[3:]} [rad]'
-        return text
+    # def __str__(self):
+    #     text = ''
+    #     text += f'Node Id: {self.external_index} \n'
+    #     text += f'Position: {self.coordinates} [m]\n'
+    #     text += f'Displacement: {self.prescribed_dofs[:3]} [m]\n'
+    #     text += f'Rotation: {self.prescribed_dofs[3:]} [rad]'
+    #     return text

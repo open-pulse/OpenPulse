@@ -134,14 +134,18 @@ class InputUi:
             if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
                                         beam_to_pipe=read.beam_to_pipe, 
                                         lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
-                self.set_material(lines_to_change_material = read.list_lines_to_update_cross_section)
+                if read.lines_id != []:
+                    _cache_selected_lines = read.lines_id
+                else:
+                    _cache_selected_lines = read.list_lines_to_update_cross_section
+                self.set_material(cache_selected_lines = _cache_selected_lines)
             self.opv.updateEntityRadius()
             self.opv.changePlotToEntitiesWithCrossSection()
 
-    def set_material(self, lines_to_change_material=[]):
+    def set_material(self, cache_selected_lines=[]):
         mat = MaterialInput(    self.opv, 
                                 self.project.get_material_list_path(), 
-                                lines_to_change_material = lines_to_change_material)
+                                cache_selected_lines = cache_selected_lines)
                                 
         if mat.material is None:
             return

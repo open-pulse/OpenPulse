@@ -179,10 +179,10 @@ class CrossSectionInput(QDialog):
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
 
-        self.cross_section_input_texts()       
+        self.update_QDialog_info()       
         self.exec_()
 
-    def cross_section_input_texts(self):
+    def update_QDialog_info(self):
         if len(self.lines_id) > 0:   
             line = self.lines_id[0]
             # for line in self.lines_id:
@@ -220,8 +220,11 @@ class CrossSectionInput(QDialog):
                         self.radioButton_I_section.setChecked(True)
                     if section_type == 'T-section':
                         self.radioButton_T_section.setChecked(True)
-
-                    # self.check_beam()
+            else:
+                if entity.structural_element_type in ['pipe_1', 'pipe_2']:
+                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+                elif entity.structural_element_type in ['beam_1']:
+                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
 
     def reset_pipe_input_texts(self):
         self.lineEdit_outerDiameter.setText('')
@@ -562,7 +565,7 @@ class CrossSectionInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
         # print('passei update')
-        self.cross_section_input_texts()
+        self.update_QDialog_info()
 
         if self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")

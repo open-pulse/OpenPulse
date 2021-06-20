@@ -16,7 +16,7 @@ class MaterialInput(QDialog):
     def __init__(   self, 
                     opv, 
                     material_path, 
-                    lines_to_change_material=[], 
+                    cache_selected_lines=[], 
                     *args, 
                     **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,7 +32,7 @@ class MaterialInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         
-        self.lines_to_change_material = lines_to_change_material
+        self.cache_selected_lines = cache_selected_lines
         self.lines_ids = self.opv.getListPickedEntities()
         self.clicked_item = None
         self.material = None
@@ -92,8 +92,8 @@ class MaterialInput(QDialog):
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
-        if self.lines_to_change_material != []:
-            self.lines_ids = self.lines_to_change_material
+        if self.cache_selected_lines != []:
+            self.lines_ids = self.cache_selected_lines
 
         if self.lines_ids != []:
             self.write_ids(self.lines_ids)

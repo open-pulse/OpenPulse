@@ -100,8 +100,11 @@ class Mesh:
         self._map_lines_to_elements()
         self._finalize_gmsh()
         self._load_neighbors()
+        # t0 = time()
         self._order_global_indexes()
-    
+        # dt = time()-t0
+        # print("Time to process the global matrices bandwidth reduction: ", dt)
+
     def neighbor_elements_diameter(self):
         """
         This method maps the elements external diameters that each node belongs to. The maping is done according to the node external index.
@@ -239,7 +242,7 @@ class Mesh:
 
         self.map_nodes = dict(zip(node_indexes, np.arange(1, len(node_indexes)+1, 1)))
         self.map_elements = dict(zip(element_indexes[0], np.arange(1, len(element_indexes[0])+1, 1)))
-        
+       
         self._create_nodes(node_indexes, coords, self.map_nodes)
         self._create_structural_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements)
         self._create_acoustic_elements(element_indexes[0], connectivity[0], self.map_nodes, self.map_elements) 
@@ -371,11 +374,15 @@ class Mesh:
         """
         stack = deque()
         index = 0
-        start_node = list(self.nodes.values())[0]
-        stack.appendleft(start_node)
+        list_nodes = list(self.nodes.values())
+        stack.appendleft(list_nodes[0])
         while stack:
+
             top = stack.pop()
-            
+
+            if top in list_nodes:
+                list_nodes.remove(top)
+
             if top.global_index is None:
                 top.global_index = index
                 index += 1
@@ -385,14 +392,22 @@ class Mesh:
             for neighbor in self.neighbors[top]:
                 if neighbor.global_index is None:
                     stack.appendleft(neighbor)
+            
+            if len(stack) == 0:
+                if len(list_nodes) > 0:
+                    stack.appendleft(list_nodes[0])
+                    # for node in list_nodes:
+                    #     if len(self.neighbors[node]) == 1:
+                    #         stack.appendleft(node)
+
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
         self._get_principal_diagonal_structure_parallelepiped()
         # t0 = time()
         self.process_all_rotation_matrices()
         self.create_dict_lines_to_rotation_angles()
-        # print("Time to process: ", time()-t0)
-        # self._create_dict_gdofs_to_external_indexes()
+        # dt = time() - t0
+        # print("Time to process all rotations matrices: ", dt)
 
     def load_mesh(self, coordinates, connectivity):
         """
