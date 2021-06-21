@@ -76,8 +76,10 @@ class AssemblyAcoustic:
     def __init__(self, mesh, frequencies):
         self.mesh = mesh
         self.frequencies = frequencies
-        self.pipe_gdofs = mesh.get_pipe_elements_global_dofs()
-        self.beam_gdofs = mesh.beam_gdofs
+        if mesh.beam_gdofs is None:
+            self.beam_gdofs, self.pipe_gdofs = mesh.get_beam_and_pipe_elements_global_dofs()
+        else:
+            self.beam_gdofs, self.pipe_gdofs = mesh.beam_gdofs, mesh.pipe_gdofs
         self.acoustic_elements = mesh.get_pipe_elements()
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(mesh.nodes)
         self.neighbor_diameters = mesh.neighbor_elements_diameter_global()

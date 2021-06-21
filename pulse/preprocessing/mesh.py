@@ -80,6 +80,8 @@ class Mesh:
         self.group_index = 0
         self.volume_velocity_table_index = 0
         self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        self.beam_gdofs = None
+        self.pipe_gdofs = None
 
     def generate(self, path, element_size):
         """
@@ -100,10 +102,8 @@ class Mesh:
         self._map_lines_to_elements()
         self._finalize_gmsh()
         self._load_neighbors()
-        # t0 = time()
         self._order_global_indexes()
-        # dt = time()-t0
-        # print("Time to process the global matrices bandwidth reduction: ", dt)
+
 
     def neighbor_elements_diameter(self):
         """
@@ -357,21 +357,21 @@ class Mesh:
         """
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
-        self.neighbors = {}
+        self.neighbors = defaultdict(list)
+        # self.nodes_with_multiples_neighbors = {}
         for element in self.structural_elements.values():
-            if element.first_node not in self.neighbors:
-                self.neighbors[element.first_node] = []
-
-            if element.last_node not in self.neighbors:
-                self.neighbors[element.last_node] = []
-
             self.neighbors[element.first_node].append(element.last_node)
             self.neighbors[element.last_node].append(element.first_node)
+            # if len(self.neighbors[element.first_node]) > 2:
+            #     self.nodes_with_multiples_neighbors[element.first_node] = self.neighbors[element.first_node]
+            # if len(self.neighbors[element.last_node]) > 2:
+            #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.
         """
+        # t0 = time()
         stack = deque()
         index = 0
         list_nodes = list(self.nodes.values())
@@ -396,10 +396,13 @@ class Mesh:
             if len(stack) == 0:
                 if len(list_nodes) > 0:
                     stack.appendleft(list_nodes[0])
+                    #TODO: uncomment to rebegin from start or end nodes
                     # for node in list_nodes:
                     #     if len(self.neighbors[node]) == 1:
                     #         stack.appendleft(node)
 
+        # dt = time()-t0
+        # print("Time to process the global matrices bandwidth reduction: ", dt)
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
         self._get_principal_diagonal_structure_parallelepiped()
@@ -471,8 +474,8 @@ class Mesh:
             True if the nodes numbering is according to the global indexing. False otherwise.
             Default is True.
         """
-        number_nodes = len(self.nodes)
-        nodal_coordinates = np.zeros((number_nodes, 4))
+        self.number_nodes = len(self.nodes)
+        nodal_coordinates = np.zeros((self.number_nodes, 4))
         if reordering:
             for external_index, node in self.nodes.items():
                 index = self.nodes[external_index].global_index
@@ -1542,7 +1545,7 @@ class Mesh:
                 self.radius[last] = radius
         return self.radius
 
-    def get_beam_elements_global_dofs(self):
+    def get_pipe_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. This method helps to exclude those degrees of freedom from acoustic analysis.
 
@@ -1551,32 +1554,22 @@ class Mesh:
         list
             Acoustic global degrees of freedom associated to beam element.
         """
-        list_gdofs = []  
+        list_pipe_gdofs = []  
         for element in self.structural_elements.values():
-            if element.element_type in ['beam_1']:
-                
+            if element.element_type in ['pipe_1', 'pipe_2']:
+
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 
-                if gdofs_node_first not in list_gdofs:
-                    list_gdofs.append(gdofs_node_first)
+                if gdofs_node_first not in list_pipe_gdofs:
+                    list_pipe_gdofs.append(gdofs_node_first)
                 
-                if gdofs_node_last not in list_gdofs:
-                    list_gdofs.append(gdofs_node_last)
-                
-                elements_node_first = self.neighboor_elements_of_node(element.first_node.external_index)
-                elements_node_last = self.neighboor_elements_of_node(element.last_node.external_index)
+                if gdofs_node_last not in list_pipe_gdofs:
+                    list_pipe_gdofs.append(gdofs_node_last)
 
-                if len(elements_node_first) > 2:
-                    list_gdofs.remove(gdofs_node_first)
-                if len(elements_node_last) > 2:
-                    list_gdofs.remove(gdofs_node_last) 
+        return list_pipe_gdofs
 
-        # beam_gdofs = np.array(list_gdofs).flatten()
-        beam_gdofs = list_gdofs
-        return beam_gdofs
-
-    def get_pipe_elements_global_dofs(self):
+    def get_beam_and_pipe_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements. This method helps to keep only those degrees of freedom in acoustic analysis.
 
@@ -1585,51 +1578,74 @@ class Mesh:
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
-        self.beam_gdofs = self.get_beam_elements_global_dofs()
+        self.pipe_gdofs = self.get_pipe_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        pipe_gdofs = np.delete(all_indexes, list(self.beam_gdofs))
-        return pipe_gdofs
+        self.beam_gdofs = np.delete(all_indexes, list(self.pipe_gdofs))
+        return self.beam_gdofs, self.pipe_gdofs
 
-    def get_beam_nodes_and_indexes(self):
-        """
-        This method returns the global indexes of the nodes associated to structural beam elements.
+    # def get_beam_nodes_and_indexes(self, list_beam_elements):
+    #     """
+    #     This method returns the global indexes of the nodes associated to structural beam elements.
 
-        Returns
-        ----------
-        list
-            Nodes global indexes associated to beam element.
-        """
-        list_beam_nodes = []
-        list_node_ids = []
-        for element in self.structural_elements.values():
-            if element.element_type in ['beam_1']:
-                
-                node_first = element.first_node
-                node_last = element.last_node
-                
-                if node_first not in list_beam_nodes:
-                    list_beam_nodes.append(node_first)
-                    list_node_ids.append(node_first.global_index)
-                
-                if node_last not in list_beam_nodes:
-                    list_beam_nodes.append(node_last)
-                    list_node_ids.append(node_last.global_index)
-                
-                elements_node_first = self.neighboor_elements_of_node(element.first_node.external_index)
-                elements_node_last = self.neighboor_elements_of_node(element.last_node.external_index)
-
-                if len(elements_node_first) > 2:
-                    list_beam_nodes.remove(node_first)
-                    list_node_ids.remove(node_first.global_index)
-
-                if len(elements_node_last) > 2:
-                    list_beam_nodes.remove(node_last) 
-                    list_node_ids.remove(node_last.global_index) 
-
-        # return list_beam_nodes, list_node_ids
-        return list_node_ids
+    #     Returns
+    #     ----------
+    #     list
+    #         Nodes global indexes associated to beam element.
+    #     """
+    #     list_beam_nodes = []
+    #     list_node_ids = []
+    #     # print(len(list_beam_elements))
+    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
+    #     # list(self.nodes_with_multiples_neighbors.keys())
         
+    #     # for element in self.structural_elements.values():
+    #     for element in list_beam_elements:
+    #         # if element.element_type in ['beam_1']:
+            
+    #         node_first = element.first_node
+    #         node_last = element.last_node
+            
+    #         if node_first not in list_beam_nodes:
+    #             list_beam_nodes.append(node_first)
+    #             list_node_ids.append(node_first.global_index)
+            
+    #         if node_last not in list_beam_nodes:
+    #             list_beam_nodes.append(node_last)
+    #             list_node_ids.append(node_last.global_index)
+                        
+    #         if node_first in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'First node: {node_first.external_index}')
+    #             list_beam_nodes.remove(node_first)
+    #             list_node_ids.remove(node_first.global_index)
+
+    #         if node_last in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'Last node: {node_last.external_index}')
+    #             list_beam_nodes.remove(node_last) 
+    #             list_node_ids.remove(node_last.global_index) 
+
+    #     print(len(list_node_ids))
+    #     return list_node_ids
+
+    # def get_nodes_connected_to_beam_and_pipe(self):
+    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
+    #     self.dict_node_to_multiple_element_types = defaultdict(list)
+    #     self.nodes_connected_to_beam_and_pipe = []
+    #     for element in self.structural_elements.values():#list_beam_elements:
+    #         first_node = element.first_node
+    #         last_node = element.last_node
+    #         if first_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
+    #         if last_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
+    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
+    #         if "beam_1" in element_types:
+    #             if ("pipe_1" or "pipe_2") in element_types:
+    #                 print(f"Node to remove: {node.external_index}")
+    #                 # print(element_types)
+    #                 self.nodes_connected_to_beam_and_pipe.append(node)
+    #     print(len(self.nodes_connected_to_beam_and_pipe))
+
     def _process_beam_nodes_and_indexes(self):
         """
         This method ?????.
@@ -1639,14 +1655,12 @@ class Mesh:
         boll
             ?????
         """
-        list_beam_elements = self.get_beam_elements()
-        if len(list_beam_elements) == self.number_structural_elements:
-            self.list_beam_node_ids = list(np.arange(len(self.nodes)))
+        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_pipe_elements_global_dofs()
+        if len(self.beam_gdofs) == self.number_nodes:
             return True
         else:
-            self.list_beam_node_ids = self.get_beam_nodes_and_indexes()
             return False
-
+    
     def get_pipe_elements(self):
         """
         This method returns the indexes of the structural pipe elements.
@@ -1663,20 +1677,35 @@ class Mesh:
                 list_elements.append(dict_structural_to_acoustic_elements[element])
         return list_elements   
     
+    # def get_beam_elements(self):
+    #     """
+    #     This method returns the a list of acoustic elements associated to structural beam elements.
+
+    #     Returns
+    #     ----------
+    #     list
+    #         Acoustic elements objects.
+    #     """
+    #     list_elements = []
+    #     dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
+    #     for element in self.structural_elements.values():
+    #         if element.element_type in ['beam_1']:
+    #             list_elements.append(dict_structural_to_acoustic_elements[element])
+    #     return list_elements
+
     def get_beam_elements(self):
         """
-        This method returns the indexes of the structural beam elements.
+        This method returns a list of structural beam elements objects.
 
         Returns
         ----------
         list
-            Beam elements indexes.
+            Beam elements objects.
         """
         list_elements = []
-        dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
             if element.element_type in ['beam_1']:
-                list_elements.append(dict_structural_to_acoustic_elements[element])
+                list_elements.append(element)
         return list_elements
 
     def check_material_all_elements(self):

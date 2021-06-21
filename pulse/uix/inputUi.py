@@ -449,12 +449,11 @@ class InputUi:
         if self._check_is_there_a_problem():
             return
         self.project.time_to_checking_entries = time()-t0
-
+        
         t0 = time()
         self.project.load_mapped_cross_section()
         self.project.time_to_process_cross_sections = time()-t0
         self.project.get_dict_multiple_cross_sections()
-        t0 = time()
 
         if self.analysis_ID in [0,1,3,5,6]:
             if self.frequencies is None:
@@ -490,6 +489,8 @@ class InputUi:
             modes = self.project.get_modes()
             damping = self.project.get_damping()
 
+        self.project.time_to_preprocess_model = time() - t0
+
         if self.analysis_ID == 2:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
             if solution.solution_structural is None:
@@ -503,7 +504,7 @@ class InputUi:
                 return
             self.project.set_acoustic_solution(solution.solution_acoustic)
             self.project.set_acoustic_natural_frequencies(solution.natural_frequencies_acoustic.tolist())
-
+        
         elif self.analysis_ID == 3:
             solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [], self.project)
             if solution.solution_acoustic is None:
@@ -523,7 +524,9 @@ class InputUi:
             self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
             self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
             self.project.set_structural_solution(solution.solution_structural)
-        self.project.time_to_postprocess = (time() - t0) - self.project.time_to_solve_model
+        
+        self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model + self.project.time_to_preprocess_model)
+        self.project.total_time = time() - t0
         
         LogTimes(self.project)
 

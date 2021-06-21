@@ -48,8 +48,10 @@ class Project:
 
         self.time_to_checking_entries = None 
         self.time_to_process_cross_sections = None
+        self.time_to_preprocess_model = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
+        self.total_time = None
         self.lines_with_cross_section_by_elements = []
 
     def reset_info(self):
@@ -73,9 +75,12 @@ class Project:
         self.plot_stress_field = False
         self.is_file_loaded = False
 
+        self.time_to_checking_entries = None
         self.time_to_process_cross_sections = None
+        self.time_to_preprocess_model = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
+        self.total_time = None
         self.lines_with_cross_section_by_elements = []
         self.lines_multiples_cross_sections = []
 
@@ -789,7 +794,7 @@ class Project:
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, values, imported_table, table_name=""):
         self.mesh.set_acoustic_pressure_bc_by_node(node_ids, values) 
-        label = ["acoustic pressure", "nodal coordinates"] 
+        label = ["acoustic pressure"] 
         for node_id in node_ids:
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label) 
     
@@ -797,9 +802,9 @@ class Project:
         if self.mesh.set_volume_velocity_bc_by_node(node_ids, values, additional_info=additional_info):
             return True
         if table_index is None:
-            label = ["volume velocity", "nodal coordinates"]
+            label = ["volume velocity"]
         else:
-            label = ["volume velocity - {}".format(table_index), "nodal coordinates"]
+            label = ["volume velocity - {}".format(table_index)]
         for node_id in node_ids:
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label)
         return False    
@@ -807,13 +812,13 @@ class Project:
     def set_specific_impedance_bc_by_node(self, node_ids, values, imported_table, table_name=""):
         for node_id in node_ids: 
             self.mesh.set_specific_impedance_bc_by_node(node_id, values) 
-            label = ["specific impedance", "nodal coordinates"] 
+            label = ["specific impedance"] 
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_ids, values, imported_table = None, table_name=""):
         for node_id in node_ids:    
             self.mesh.set_radiation_impedance_bc_by_node(node_id, values) 
-            label = ["radiation impedance", "nodal coordinates"] 
+            label = ["radiation impedance"] 
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, table_name, label) 
     
     def set_element_length_correction_by_elements(self, elements, value, section):
