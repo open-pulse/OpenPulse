@@ -101,9 +101,27 @@ class Mesh:
         self._create_entities()
         self._map_lines_to_elements()
         self._finalize_gmsh()
-        self._load_neighbors()
-        self._order_global_indexes()
 
+        # t0 = time()
+        self._load_neighbors()
+        # dt = time() - t0
+        # print(f"Time to process _load_neighbors: {dt}")
+
+        # t0 = time()
+        self._order_global_indexes()
+        # dt = time() - t0
+        # print(f"Time to process _order_global_indexes: {dt}")
+
+        self.get_nodal_coordinates_matrix()
+        self.get_connectivity_matrix()
+        self._get_principal_diagonal_structure_parallelepiped()
+        
+        # t0 = time()
+        self.process_all_rotation_matrices()
+        self.create_dict_lines_to_rotation_angles()
+        # dt = time() - t0
+        # print("Time to process all rotations matrices: ", dt)
+        
 
     def neighbor_elements_diameter(self):
         """
@@ -267,6 +285,7 @@ class Mesh:
             y = mm_to_m(coord[1])
             z = mm_to_m(coord[2])
             self.nodes[map_nodes[i]] = Node(x, y, z, external_index=int(map_nodes[i]))
+        self.number_nodes = len(self.nodes)
 
     def _create_structural_elements(self, indexes, connectivities, map_nodes, map_elements):
         """
@@ -372,45 +391,74 @@ class Mesh:
         This method updates the nodes global indexes numbering.
         """
         # t0 = time()
-        stack = deque()
         index = 0
+        stack = deque()
         list_nodes = list(self.nodes.values())
-        stack.appendleft(list_nodes[0])
-        while stack:
+        old_version = False
 
-            top = stack.pop()
+        if old_version:
 
-            if top in list_nodes:
-                list_nodes.remove(top)
+            stack.appendleft(list_nodes[0])
 
-            if top.global_index is None:
-                top.global_index = index
-                index += 1
-            else:
-                continue
+            while stack:
+
+                top = stack.pop()
+
+                if top in list_nodes:
+                    list_nodes.remove(top)
+
+                if top.global_index is None:
+                    # list_nodes.remove(top)
+                    top.global_index = index
+                    index += 1
+                else:
+                    continue
+                
+                for neighbor in self.neighbors[top]:
+                    if neighbor.global_index is None:
+                        stack.appendleft(neighbor)
+                
+                if len(stack) == 0:
+                    if len(list_nodes) > 0:
+                        stack.appendleft(list_nodes[0])
+                        
+                        #TODO: uncomment to rebegin from start or end nodes
+                        # for node in list_nodes:
+                        #     if len(self.neighbors[node]) == 1:
+                        #         stack.appendleft(node)
+        else:
+
+            stack.appendleft(list_nodes[0].external_index) 
+
+            while stack:
             
-            for neighbor in self.neighbors[top]:
-                if neighbor.global_index is None:
-                    stack.appendleft(neighbor)
-            
-            if len(stack) == 0:
-                if len(list_nodes) > 0:
-                    stack.appendleft(list_nodes[0])
-                    #TODO: uncomment to rebegin from start or end nodes
-                    # for node in list_nodes:
-                    #     if len(self.neighbors[node]) == 1:
-                    #         stack.appendleft(node)
+                top = self.nodes[stack.pop()]
+        
+                if top.global_index is None:
+                    top.global_index = index
+                    index += 1
+                else:
+                    continue
+                
+                for neighbor in self.neighbors[top]:
+                    if neighbor.global_index is None:
+                        if neighbor.external_index not in stack:
+                            stack.appendleft(neighbor.external_index)
+                        
+                if len(stack) == 0:
+                    if index < self.number_nodes-1:
+                        for node in list_nodes:
+                            if node.global_index is None:
+                                stack.appendleft(node.external_index)
+                                break
+                        
+                        #TODO: uncomment to rebegin from start or end nodes
+                        # for node in list_nodes:
+                        #     if len(self.neighbors[node]) == 1:
+                        #         stack.appendleft(node)   
 
         # dt = time()-t0
         # print("Time to process the global matrices bandwidth reduction: ", dt)
-        self.get_nodal_coordinates_matrix()
-        self.get_connectivity_matrix()
-        self._get_principal_diagonal_structure_parallelepiped()
-        # t0 = time()
-        self.process_all_rotation_matrices()
-        self.create_dict_lines_to_rotation_angles()
-        # dt = time() - t0
-        # print("Time to process all rotations matrices: ", dt)
 
     def load_mesh(self, coordinates, connectivity):
         """
@@ -439,6 +487,7 @@ class Mesh:
             self.nodes[int(map_indexes[i])] = Node(x, y, z, external_index = int(map_indexes[i]))
             node = int(map_indexes[i]), x, y, z
             newEntity.insertNode(node)
+        self.number_nodes = len(self.nodes)
 
         for i, nodes in enumerate(connectivity[:,1:]):
             first_node = self.nodes[map_indexes[nodes[0]]]
@@ -474,7 +523,7 @@ class Mesh:
             True if the nodes numbering is according to the global indexing. False otherwise.
             Default is True.
         """
-        self.number_nodes = len(self.nodes)
+        # self.number_nodes = len(self.nodes)
         nodal_coordinates = np.zeros((self.number_nodes, 4))
         if reordering:
             for external_index, node in self.nodes.items():

@@ -46,13 +46,21 @@ class Project:
         self.setup_analysis_complete = False
         self.none_project_action = False
 
+        self.time_to_load_or_create_project = None
         self.time_to_checking_entries = None 
         self.time_to_process_cross_sections = None
         self.time_to_preprocess_model = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
         self.total_time = None
+
         self.lines_with_cross_section_by_elements = []
+        self.lines_multiples_cross_sections = []
+
+        self.stresses_values_for_color_table = None
+        self.min_stress = ""
+        self.max_stress = ""
+        self.stress_label = ""
 
     def reset_info(self):
 
@@ -75,12 +83,14 @@ class Project:
         self.plot_stress_field = False
         self.is_file_loaded = False
 
+        self.time_to_load_or_create_project = None
         self.time_to_checking_entries = None
         self.time_to_process_cross_sections = None
         self.time_to_preprocess_model = None
         self.time_to_solve_model = None
         self.time_to_postprocess = None
         self.total_time = None
+
         self.lines_with_cross_section_by_elements = []
         self.lines_multiples_cross_sections = []
 

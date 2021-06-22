@@ -7,6 +7,7 @@ import os
 import configparser
 from shutil import copyfile
 import numpy as np
+from time import time
 
 from PyQt5 import uic
 
@@ -26,7 +27,9 @@ class LoadProjectInput(QDialog):
             self.complete_project_path = self.path
         
         if self.complete_project_path != "":
+            t0 = time()
             self.project.load_project(self.complete_project_path)
             self.config.writeRecentProject(self.project.get_project_name(), self.complete_project_path)
             self.complete = True
+            self.project.time_to_load_or_create_project = time() - t0
             self.close()

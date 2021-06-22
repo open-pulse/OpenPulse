@@ -5,7 +5,7 @@ from PyQt5 import uic
 import os
 import configparser
 from shutil import copyfile
-import numpy as np
+from time import time
 
 from pulse.project import Project
 from pulse.default_libraries import default_material_library, default_fluid_library
@@ -104,8 +104,10 @@ class NewProjectInput(QDialog):
         self.lineEdit_project_folder.setText(str(self.project_directory))        
 
     def accept_project(self):
+        t0 = time()
         self.createProjectFolder()
         if self.stop:
+            self.project.time_to_load_or_create_project = 0
             return
 
         if self.lineEdit_project_name.text() in os.listdir(self.project_directory):
@@ -163,6 +165,7 @@ class NewProjectInput(QDialog):
    
         if self.createProject():
             self.create = True
+            self.project.time_to_load_or_create_project = time() - t0
             self.close()
 
     def reject_project(self):

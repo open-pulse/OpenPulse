@@ -155,7 +155,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_set_material)
         self.list_child_items.append(self.item_child_set_crossSection)
         #
-        self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Mode Setup'])
+        self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Model Setup'])
         self.item_child_setStructuralElementType = QTreeWidgetItem(['Set Structural Element Type'])
         self.item_child_setBeamXaxisRotation = QTreeWidgetItem(['Set Beam X-axis Rotation'])
         self.item_child_setRotationDecoupling = QTreeWidgetItem(['Set Rotation Decoupling'])

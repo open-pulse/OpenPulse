@@ -51,6 +51,7 @@ class LogTimes(QDialog):
 
         text = "Solution finished!\n\n"
         # text += "Time to check all entries: {} [s]\n".format(round(self.project.time_to_checking_entries, 6))
+        text += "Time to load/create the project: {} [s]\n".format(round(self.project.time_to_load_or_create_project, 6))
         text += "Time to process cross-sections: {} [s]\n".format(round(self.project.time_to_process_cross_sections, 6))
         text += "Time elapsed in pre-processing: {} [s]\n".format(round(self.project.time_to_preprocess_model, 6))
         text += "Time to solve the model: {} [s]\n".format(round(self.project.time_to_solve_model, 6))
