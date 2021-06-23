@@ -29,7 +29,7 @@ class BeamXaxisRotationInput(QDialog):
 
         self.lines_id = self.opv.getListPickedEntities()
         self.typed_lines = []
-        self.dict_entities = project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        self.dict_entities = project.mesh.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
         self.complete = False

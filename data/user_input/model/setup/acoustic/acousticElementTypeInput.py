@@ -26,7 +26,7 @@ class AcousticElementTypeInput(QDialog):
 
         self.project = project
         self.lines_id = self.opv.getListPickedEntities()
-        self.dict_entities = project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        self.dict_entities = project.mesh.dict_tag_to_entity
         self.comboBox_index = 0
         self.element_type = 'undamped'
         self.complete = False

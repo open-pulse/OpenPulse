@@ -30,7 +30,7 @@ class PlotCrossSectionInput(QDialog):
         self.stop = False
         
         self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
         self._get_dict_key_section()

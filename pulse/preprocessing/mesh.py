@@ -615,19 +615,83 @@ class Mesh:
             dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
         return dict_structural_to_acoustic_elements 
 
-    # def get_dict_of_entities(self):
-    #     """
-    #     This method maps the entities according to their tag.
+    def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-5):
+        """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+            node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+            avoids the problem of element size deviations resultant in the mesh generation algorithm.
+        
+        Parameters
+        ----------
 
-    #     Returns
-    #     ----------
-    #     dict.
-    #         Dictionary that has as key the entities tags and values the entities.
-    #     """
-    #     dict_tag_entity={}
-    #     for entity in self.entities:
-    #         dict_tag_entity[entity.tag] = entity
-    #     return dict_tag_entity
+        Returns
+        ---------- 
+
+        """ 
+        half_length = (length/2) + tolerance
+        node_central = self.nodes[node_id]
+        list_nodes_ids = [node_id]
+        stack = deque()
+        stack.appendleft(node_id)
+
+        while stack:
+            nodes = self.neighbors[self.nodes[stack.pop()]]
+            if len(nodes) <= 2:
+                for node in nodes:
+                    if np.linalg.norm((node_central.coordinates - node.coordinates)) <= half_length:
+                        if node.external_index not in list_nodes_ids:
+                            list_nodes_ids.append(node.external_index)
+                            stack.appendleft(node.external_index)                    
+            else:
+                return None, None
+
+        list_elements_ids = []
+        for element in self.structural_elements.values():
+            if element.first_node.external_index in list_nodes_ids:
+                if element.last_node.external_index in list_nodes_ids:
+                    list_elements_ids.append(element.index)
+            if len(list_elements_ids) == len(list_nodes_ids) - 1:
+                break
+
+        return list_nodes_ids, list_elements_ids
+
+    def get_neighbor_nodes_and_elements_by_element(self, element_id, length, tolerance=1e-5):
+        """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
+            element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance 
+            avoids the problem of element size deviations resultant in the mesh generation algorithm.
+
+        Parameters
+        ---------- 
+
+        Returns
+        ---------- 
+                               
+        """         
+        node_id = self.structural_elements[element_id].first_node.external_index
+        last_node = self.structural_elements[element_id].last_node
+        
+        length_t = length + (self.structural_elements[element_id].length)
+        list_nodes_ids, list_elements_ids = self.get_neighbor_nodes_and_elements_by_node(node_id, length_t, tolerance=tolerance)
+
+        if list_nodes_ids is not None:
+                
+            for external_index in list_nodes_ids:
+                node = self.nodes[external_index]
+                if np.linalg.norm((last_node.coordinates - node.coordinates)) > ((length_t/2) + tolerance):
+                    list_nodes_ids.remove(node.external_index)
+
+            for index in list_elements_ids:
+                element = self.structural_elements[index]
+                if element.first_node.external_index not in list_nodes_ids:
+                    if element.index in list_elements_ids:
+                        list_elements_ids.remove(element.index)
+                        
+                if element.last_node.external_index not in list_nodes_ids:
+                    if element.index in list_elements_ids: 
+                        list_elements_ids.remove(element.index)
+                        
+            return list_nodes_ids, list_elements_ids
+        else:
+            return None, None
 
     def _reset_global_indexes(self):
         """

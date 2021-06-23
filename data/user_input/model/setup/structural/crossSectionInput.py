@@ -41,7 +41,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
