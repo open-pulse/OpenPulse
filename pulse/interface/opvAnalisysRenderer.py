@@ -1,4 +1,5 @@
 import vtk
+import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
@@ -26,6 +27,9 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.colorbar = None 
         self.scaleBar = None
 
+        self.playingAnimation = False
+        self.dx = 0.1
+
         # just ignore it 
         self.nodesBounds = dict()
         self.elementsBounds = dict()
@@ -37,6 +41,7 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self.slider = None
         self._createSlider()
+        self._createPlayer()
 
     def plot(self):
         self.reset()
@@ -92,7 +97,6 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showStressField(self, frequency, gain=1):
-        
         mesh = self.project.get_mesh()
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showStressField
@@ -170,9 +174,47 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.SetRepresentation(sld)
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
+    def _createPlayer(self):
+        self.opv.CreateRepeatingTimer(int(self.dx * 1000))
+        self.opv.AddObserver('TimerEvent', self._animationCallback)
+
+    def playAnimation(self):
+        self.playingAnimation = True
+
+    def pauseAnimation(self):
+        self.playingAnimation = False
+
+    def tooglePlayPauseAnimation(self):
+        self.playingAnimation = not self.playingAnimation
+
+    def _animationCallback(self, caller, event):
+        if self._currentPlot is None:
+            return 
+
+        if not self.playingAnimation:
+            return
+
+        sliderValue = self.slider.GetRepresentation().GetValue()
+
+        if sliderValue <= -1:
+            self.dx = -self.dx 
+            sliderValue = -1
+
+        elif sliderValue >= 1:
+            self.dx = -self.dx
+            sliderValue = 1
+
+        sliderValue += self.dx
+
+        self.slider.GetRepresentation().SetValue(sliderValue)
+        self._currentPlot(self._currentFrequency, sliderValue)
+        self.update()
+
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
             return 
+        
+        self.playingAnimation = False
         
         sliderValue = slider.GetRepresentation().GetValue()
         sliderValue = round(sliderValue, 1)
