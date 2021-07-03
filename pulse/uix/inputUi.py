@@ -433,7 +433,6 @@ class InputUi:
         return True
     
     def runAnalysis(self):
-
         t0 = time()
         if self.analysis_ID is None or not self.setup_analysis_complete:
             
@@ -449,7 +448,8 @@ class InputUi:
         if self._check_is_there_a_problem():
             return
         self.project.time_to_checking_entries = time()-t0
-        
+
+
         t0 = time()
         self.project.load_mapped_cross_section()
         self.project.time_to_process_cross_sections = time()-t0
@@ -467,68 +467,93 @@ class InputUi:
                 message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
                 info_text = [title, message, window_title2]
                 PrintMessageInput(info_text)
-                return
-
-        if self.analysis_ID == 2:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
-            solve = self.project.get_structural_solve()
-            modes = self.project.get_modes()
-        elif self.analysis_ID == 4:
-            solve = self.project.get_acoustic_solve()
-            modes = self.project.get_modes()
-        elif self.analysis_ID == 3:
-            solve = self.project.get_acoustic_solve()
-        elif self.analysis_ID in [5,6]:
-            self.project.mesh.enable_fluid_mass_adding_effect()
-            solve = self.project.get_acoustic_solve()
-            modes = self.project.get_modes()
-            damping = self.project.get_damping()
-        else:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
-            solve = self.project.get_structural_solve()
-            modes = self.project.get_modes()
-            damping = self.project.get_damping()
-
-        self.project.time_to_preprocess_model = time() - t0
-
-        if self.analysis_ID == 2:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
-            if solution.solution_structural is None:
-                return
-            self.project.set_structural_solution(solution.solution_structural)
-            self.project.set_structural_natural_frequencies(solution.natural_frequencies_structural.tolist())
-
-        elif self.analysis_ID == 4:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
-            if solution.solution_acoustic is None:
-                return
-            self.project.set_acoustic_solution(solution.solution_acoustic)
-            self.project.set_acoustic_natural_frequencies(solution.natural_frequencies_acoustic.tolist())
+                return 
         
-        elif self.analysis_ID == 3:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [], self.project)
-            if solution.solution_acoustic is None:
-                return
-            self.project.set_acoustic_solution(solution.solution_acoustic)
-        elif self.analysis_ID in [5,6]:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
-            self.solve = solution.solve
-            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
-            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
-            self.project.set_structural_solution(solution.solution_structural)
-        else:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
-            if solution.solution_structural is None:
-                return
-            self.solve = solution.solve
-            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
-            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
-            self.project.set_structural_solution(solution.solution_structural)
+        logWindow = LogTimes(self.project, self.analysis_ID, self.analysis_type_label)
+
+        # As coisas que eu copiei e colei no LogTimes sairam daqui.
+        # Apagar isso quando as coisas estiverem prontas por favor.
+
+
+        # t0 = time()
+        # self.project.load_mapped_cross_section()
+        # self.project.time_to_process_cross_sections = time()-t0
+        # self.project.get_dict_multiple_cross_sections()
+
+        # if self.analysis_ID in [0,1,3,5,6]:
+        #     if self.frequencies is None:
+        #         return
+        #     if len(self.frequencies) == 0:
+        #         return
+
+        # if self.project.mesh._process_beam_nodes_and_indexes():
+        #     if self.analysis_ID not in [0,1,2]:
+        #         title = "INCORRECT ANALYSIS TYPE"
+        #         message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
+        #         info_text = [title, message, window_title2]
+        #         PrintMessageInput(info_text)
+        #         return
         
-        self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model + self.project.time_to_preprocess_model)
-        self.project.total_time = time() - t0
+        # if self.analysis_ID == 2:
+        #     self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
+        #     solve = self.project.get_structural_solve()
+        #     modes = self.project.get_modes()
+        # elif self.analysis_ID == 4:
+        #     solve = self.project.get_acoustic_solve()
+        #     modes = self.project.get_modes()
+        # elif self.analysis_ID == 3:
+        #     solve = self.project.get_acoustic_solve()
+        # elif self.analysis_ID in [5,6]:
+        #     self.project.mesh.enable_fluid_mass_adding_effect()
+        #     solve = self.project.get_acoustic_solve()
+        #     modes = self.project.get_modes()
+        #     damping = self.project.get_damping()
+        # else:
+        #     self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
+        #     solve = self.project.get_structural_solve()
+        #     modes = self.project.get_modes()
+        #     damping = self.project.get_damping()
+
+        # self.project.time_to_preprocess_model = time() - t0
+
+        #################################
+
+        # if self.analysis_ID == 2:
+        #     solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
+        #     if solution.solution_structural is None:
+        #         return
+        #     self.project.set_structural_solution(solution.solution_structural)
+        #     self.project.set_structural_natural_frequencies(solution.natural_frequencies_structural.tolist())
+
+        # elif self.analysis_ID == 4:
+        #     solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
+        #     if solution.solution_acoustic is None:
+        #         return
+        #     self.project.set_acoustic_solution(solution.solution_acoustic)
+        #     self.project.set_acoustic_natural_frequencies(solution.natural_frequencies_acoustic.tolist())
         
-        LogTimes(self.project)
+        # elif self.analysis_ID == 3:
+        #     solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [], self.project)
+        #     if solution.solution_acoustic is None:
+        #         return
+        #     self.project.set_acoustic_solution(solution.solution_acoustic)
+        # elif self.analysis_ID in [5,6]:
+        #     solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
+        #     self.solve = solution.solve
+        #     self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
+        #     self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
+        #     self.project.set_structural_solution(solution.solution_structural)
+        # else:
+        #     solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
+        #     if solution.solution_structural is None:
+        #         return
+        #     self.solve = solution.solve
+        #     self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
+        #     self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
+        #     self.project.set_structural_solution(solution.solution_structural)
+        
+        # self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model + self.project.time_to_preprocess_model)
+        # self.project.total_time = time() - t0
 
     def plotStructuralModeShapes(self):
             self.project.set_min_max_type_stresses("", "", "")

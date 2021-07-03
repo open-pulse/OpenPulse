@@ -1,25 +1,15 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QWidget
 from pulse.utils import error
-from os.path import basename
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
-from PyQt5.Qt import QApplication
-from PyQt5 import uic
+
 from time import time, sleep
 import configparser
 
-# from pulse.processing.solution_structural import *
 
-class RunAnalysisInput(QDialog):
+# Essa classe deixou de ser uma janelinha do PyQt
+# Na verdade ela não precisa existir. Só mantive pra seguir
+# a orientação de resolver o problema fazendo o mínimo de 
+# mudanças possíveis.
+class RunAnalysisInput:
     def __init__(self, solve, analysis_ID, analysis_type, frequencies, modes, damping, project, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Analysis/runAnalysisInput.ui', self)
-
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
-
         self.project = project
         self.solve = solve
         self.analysis_ID = analysis_ID
@@ -31,14 +21,9 @@ class RunAnalysisInput(QDialog):
         self.solution_structural = None
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
-
-        self.label_title = self.findChild(QLabel, 'label_title')
-        self.show()
-        QApplication.processEvents()
         self.run()
 
     def run(self):
-        
         t0 = time()
 
         if self.analysis_ID == 0:
