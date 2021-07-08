@@ -26,6 +26,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.lines_id = self.opv.getListPickedEntities()
         self.project = project
+        self.mesh = project.mesh
         self.dict_entities = project.mesh.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
@@ -200,17 +201,6 @@ class StructuralElementTypeInput(QDialog):
             elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
                 self.project.set_cross_section_by_entity(tag, None)
 
-    def get_list_typed_entries(self):
-        if self.lineEdit_selected_group.text() == "":
-            return []
-        tokens = self.lineEdit_selected_group.text().strip().split(',')
-        try:
-            tokens.remove('')
-        except:     
-            pass
-        output = list(map(int, tokens))
-        return output
-
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
         if self.index == 0:
@@ -223,15 +213,16 @@ class StructuralElementTypeInput(QDialog):
     def button_clicked(self):
         self.check_element_type_changes()
         if self.flagEntity:
-            if len(self.lines_id) == 0:
+            lineEdit_lineID = self.lineEdit_selected_ID.text()
+            self.stop, self.typed_lines = self.mesh.check_input_LineID(lineEdit_lineID)
+            if self.stop:
                 return
-            for line in self.lines_id:
+            for line in self.typed_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
-            print("[Set Element Type] - defined in the entities {}".format(self.lines_id))
+            print("[Set Element Type] - defined in the entities {}".format(self.typed_lines))
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
-            # self.project.set_structural_element_type_to_all(self.element_type)
             print("[Set Element Type] - defined in all the entities")
         self.complete = True
         self.close()

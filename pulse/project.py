@@ -51,12 +51,13 @@ class Project:
         self.time_to_process_cross_sections = None
         self.time_to_preprocess_model = None
         self.time_to_solve_model = None
+        self.time_to_solve_acoustic_model = None
+        self.time_to_solve_structural_model = None
         self.time_to_postprocess = None
         self.total_time = None
 
+        self.number_sections_by_line = {}
         self.lines_with_cross_section_by_elements = []
-        self.lines_multiples_cross_sections = []
-
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -88,12 +89,13 @@ class Project:
         self.time_to_process_cross_sections = None
         self.time_to_preprocess_model = None
         self.time_to_solve_model = None
+        self.time_to_solve_acoustic_model = None
+        self.time_to_solve_structural_model = None
         self.time_to_postprocess = None
         self.total_time = None
 
+        self.number_sections_by_line = {}
         self.lines_with_cross_section_by_elements = []
-        self.lines_multiples_cross_sections = []
-
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -165,8 +167,8 @@ class Project:
         return Entity(tag)
 
     def load_entity_file(self):
-
-        self.lines_multiples_cross_sections = []
+        self.lines_with_cross_section_by_elements = []
+        self.number_sections_by_line = {}
         self.file.get_dict_of_entities_from_file()
         dict_structural_element_type = self.file.dict_structural_element_type
         dict_acoustic_element_types = self.file.dict_acoustic_element_type
@@ -206,7 +208,11 @@ class Project:
         for key, cross in dict_cross_sections.items():
             if "-" in key:
                 self.load_cross_section_by_element(cross[1], cross[0])
-                self.lines_multiples_cross_sections.append(int(key.split("-")[0]))  
+                prefix_key = int(key.split("-")[0])
+                if prefix_key in list(self.number_sections_by_line.keys()):
+                    self.number_sections_by_line[prefix_key] += 1
+                else:
+                    self.number_sections_by_line[prefix_key] = 1
             else:
                 self.load_cross_section_by_entity(int(key), cross)
 
@@ -247,25 +253,26 @@ class Project:
 
         for index, element in self.mesh.structural_elements.items():
 
-            ext_diam = element.cross_section.external_diameter
+            e_type  = element.element_type
+            if e_type == 'beam_1':
+                continue
+            elif e_type is None:
+                e_type = 'pipe_1'
+                self.acoustic_analysis = True
+            index_etype = dict_etype_index[e_type]
+
+            poisson = element.material.poisson_ratio
+            if poisson is None:
+                poisson = 0
+
+            outer_diameter = element.cross_section.outer_diameter
             thickness = element.cross_section.thickness
             offset_y = element.cross_section.offset_y
             offset_z = element.cross_section.offset_z
             insulation_thickness = element.cross_section.insulation_thickness
             insulation_density = element.cross_section.insulation_density
-
-            e_type  = element.element_type
-            if e_type is None:
-                e_type = 'pipe_1'
-                self.acoustic_analysis = True
-            
-            poisson = element.material.poisson_ratio
-            if poisson is None:
-                poisson = 0
-            
-            index_etype = dict_etype_index[e_type]
-
-            map_cross_section_to_elements[str([ ext_diam, 
+        
+            map_cross_section_to_elements[str([ outer_diameter, 
                                                 thickness, 
                                                 offset_y, 
                                                 offset_z, 
@@ -273,28 +280,37 @@ class Project:
                                                 index_etype, 
                                                 insulation_thickness, 
                                                 insulation_density ])].append(index)
+        # print(len(map_cross_section_to_elements))
             
         for key, elements in map_cross_section_to_elements.items():
 
             cross_strings = key[1:-1].split(',')
             vals = [float(value) for value in cross_strings]
             el_type = dict_index_etype[vals[5]]
-            section_info = ['Pipe section', [vals[0], vals[1], vals[2], vals[3], vals[6]]]
+
+            section_parameters = {  "outer_diameter" : vals[0],
+                                    "thickness" : vals[1], 
+                                    "offset_y" : vals[2], 
+                                    "offset_z" : vals[3], 
+                                    "insulation_thickness" : vals[6], 
+                                    "insulation_density" : vals[7] }
+
+            pipe_section_info = {   "section_type_label" : "Pipe section",
+                                    "section_parameters" : section_parameters }
 
             if el_type in ['pipe_1', 'pipe_2']:
-                cross_section = CrossSection(   vals[0], vals[1], vals[2], vals[3], 
-                                                poisson_ratio=vals[4], 
-                                                element_type=el_type, 
-                                                insulation_thickness=vals[6], 
-                                                insulation_density=vals[7],
-                                                additional_section_info=section_info)
+
+                cross_section = CrossSection(pipe_section_info=pipe_section_info)                                
+
                 if self.analysis_ID in [3,4]:
                     self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=False)  
                 else:
                     self.mesh.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
 
     def get_dict_multiple_cross_sections(self):
-
+        '''This methods updates the file information of multiples cross-sections
+        
+        '''
         if len(self.lines_with_cross_section_by_elements)==0:
             return
 
@@ -302,24 +318,34 @@ class Project:
             dict_multiple_cross_sections = defaultdict(list)
             list_elements = self.mesh.line_to_elements[line]
             elements = self.mesh.structural_elements
- 
-            for _id in list_elements:
+            count_sections = 0
 
-                ext_diam = elements[_id].cross_section.external_diameter
-                thickness = elements[_id].cross_section.thickness
-                offset_y = elements[_id].cross_section.offset_y
-                offset_z = elements[_id].cross_section.offset_z
-                insultation_thickness = elements[_id].cross_section.insulation_thickness
-                insultation_density = elements[_id].cross_section.insulation_density
-                
-                dict_multiple_cross_sections[str([ext_diam, thickness, offset_y, offset_z, insultation_thickness, insultation_density])].append(_id)
-            
-            _cross_section = elements[_id].cross_section
-            
+            for element_id in list_elements:
+
+                outer_diameter = elements[element_id].cross_section.outer_diameter
+                thickness = elements[element_id].cross_section.thickness
+                offset_y = elements[element_id].cross_section.offset_y
+                offset_z = elements[element_id].cross_section.offset_z
+                insultation_thickness = elements[element_id].cross_section.insulation_thickness
+                insultation_density = elements[element_id].cross_section.insulation_density
+                key_string = str([  outer_diameter, 
+                                    thickness, 
+                                    offset_y, 
+                                    offset_z, 
+                                    insultation_thickness, 
+                                    insultation_density])
+
+                if key_string not in list(dict_multiple_cross_sections.keys()):
+                    count_sections += 1
+                dict_multiple_cross_sections[key_string].append(element_id)
+    
             if len(dict_multiple_cross_sections) == 1:
-                if np.sort(list_elements).tolist() == np.sort(list(dict_multiple_cross_sections.values()))[0].tolist():
+                if count_sections == 1:
+                    _cross_section = elements[element_id].cross_section
                     self.set_cross_section_by_entity(line, _cross_section)
+                    self.number_sections_by_line.pop(line)
             else:
+                self.number_sections_by_line[line] = count_sections
                 self.file.add_multiple_cross_section_in_file(line, dict_multiple_cross_sections)     
 
     def load_structural_bc_file(self):
@@ -955,6 +981,9 @@ class Project:
     def get_damping(self):
         return self.global_damping
 
+    def set_structural_solve(self, structural_solve):
+        self.structural_solve = structural_solve
+
     def get_structural_solve(self):
         if self.analysis_ID in [5,6]:
             results = SolutionStructural(self.mesh, self.frequencies, acoustic_solution=self.solution_acoustic)
@@ -986,8 +1015,14 @@ class Project:
     def set_structural_natural_frequencies(self, value):
         self.natural_frequencies_structural  = value
 
+    def set_structural_reactions(self, value):
+        self.structural_reactions = value
+
     def get_structural_natural_frequencies(self):
         return self.natural_frequencies_structural
+
+    def get_structural_reactions(self):
+        return self.structural_reactions
 
     def get_unit(self):
         analysis = self.analysis_ID

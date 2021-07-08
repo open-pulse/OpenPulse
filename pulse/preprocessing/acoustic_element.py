@@ -251,7 +251,7 @@ class AcousticElement:
         ----------
         .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
+        factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
         return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
     def matrix(self, frequencies, length_correction=0):
@@ -328,7 +328,7 @@ class AcousticElement:
         c0 = self.speed_of_sound_corrected()
         rho_0 = self.fluid.density
         kappa_real = omega/c0
-        radius = self.cross_section.internal_diameter / 2
+        radius = self.cross_section.inner_diameter / 2
         if self.element_type == 'undamped':
             criterion = np.real(kappa_real[-1] * radius) > 3.83
             if criterion:
@@ -374,7 +374,7 @@ class AcousticElement:
             nu = self.fluid.kinematic_viscosity
             gamma = self.fluid.isentropic_exponent
             alpha = self.fluid.thermal_diffusivity
-            radius = self.cross_section.internal_diameter / 2
+            radius = self.cross_section.inner_diameter / 2
 
             aux = np.sqrt(omega)
             kappa_v = aux * np.sqrt(-1j / nu)
@@ -423,7 +423,7 @@ class AcousticElement:
         area = self.cross_section.area_fluid
         c = self.speed_of_sound_corrected()
         length = self.length + length_correction
-        radius = self.cross_section.internal_diameter / 2
+        radius = self.cross_section.inner_diameter / 2
         kappa_real = omega / c
 
         s = radius * np.sqrt(rho * omega / mu)
@@ -469,7 +469,7 @@ class AcousticElement:
         z : complex-array
             Complex impedance.
         """
-        radius = self.cross_section.internal_diameter / 2
+        radius = self.cross_section.inner_diameter / 2
         if self.first_node.radiation_impedance_type == 0:
             self.first_node.radiation_impedance = impedance_complex + 0j
         elif self.first_node.radiation_impedance_type == 1:

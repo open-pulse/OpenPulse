@@ -30,9 +30,9 @@ density = 7860  # Density[kg/m^3]
 material_1 = Material('Steel', density, young_modulus = young_modulus, poisson_ratio = poisson_ratio)
 
 ## Cross section definition:
-D_external = 0.05   # External diameter [m]
+outer_diameter = 0.05   # Outer diameter [m]
 thickness  = 0.008 # Thickness [m]
-cross_section_1 = TCS(D_external, thickness = thickness) 
+cross_section_1 = TCS(outer_diameter, thickness = thickness) 
 
 # m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)

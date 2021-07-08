@@ -16,7 +16,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _transformation_matrix_3x3, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
 
-window_title1 = "ERROR"
+window_title_1 = "ERROR"
 
 class Mesh:
     """A mesh class.
@@ -125,12 +125,12 @@ class Mesh:
 
     def neighbor_elements_diameter(self):
         """
-        This method maps the elements external diameters that each node belongs to. The maping is done according to the node external index.
+        This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.
 
         Returns
         ----------
         dict
-            External diameters at a certain node. Giving a node external index, returns a list of diameters.
+            Outer diameters at a certain node. Giving a node external index, returns a list of diameters.
         """
         neighbor_diameters = dict()
 
@@ -140,22 +140,22 @@ class Mesh:
             neighbor_diameters.setdefault(first, [])
             neighbor_diameters.setdefault(last, [])
 
-            external = element.cross_section.external_diameter
-            internal = element.cross_section.internal_diameter
+            outer_diameter = element.cross_section.outer_diameter
+            inner_diameter = element.cross_section.inner_diameter
 
-            neighbor_diameters[first].append((index, external, internal))
-            neighbor_diameters[last].append((index, external, internal))
+            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
 
         return neighbor_diameters
 
     def neighbor_elements_diameter_global(self):
         """
-        This method maps the elements internal diameters that each node belongs to. The maping is done according to the node global index.
+        This method maps the elements inner diameters that each node belongs to. The maping is done according to the node global index.
 
         Returns
         ----------
         Dict
-            Internal diameters at a certain node. Giving a node global index, returns a list of diameters.
+            Inner diameters at a certain node. Giving a node global index, returns a list of diameters.
         """
         neighbor_diameters = dict()
         for index, element in self.acoustic_elements.items():
@@ -163,10 +163,10 @@ class Mesh:
             last = element.last_node.global_index
             neighbor_diameters.setdefault(first, [])
             neighbor_diameters.setdefault(last, [])
-            external = element.cross_section.external_diameter
-            internal = element.cross_section.internal_diameter
-            neighbor_diameters[first].append((index, external, internal))
-            neighbor_diameters[last].append((index, external, internal))
+            outer_diameter = element.cross_section.outer_diameter
+            inner_diameter = element.cross_section.inner_diameter
+            neighbor_diameters[first].append((index, outer_diameter, inner_diameter))
+            neighbor_diameters[last].append((index, outer_diameter, inner_diameter))
         return neighbor_diameters    
     
     def neighboor_elements_of_node(self, node_ID):
@@ -1552,7 +1552,7 @@ class Mesh:
                         message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
                         message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
-                        PrintMessageInput([title, message, window_title1])
+                        PrintMessageInput([title, message, window_title_1])
                         return True 
                 node.compressor_connection_info = None        
                 if additional_info is not None:
@@ -1573,7 +1573,7 @@ class Mesh:
         except Exception as error:
             title = "ERROR WHILE SET VOLUME VELOCITY"
             message = str(error)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True  
 
     def set_specific_impedance_bc_by_node(self, nodes, values):
@@ -2192,3 +2192,129 @@ class Mesh:
                     self.dict_non_mapped_bcs[key] = old_external_index
 
         return self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs
+
+    def check_input_NodeID(self, lineEdit, single_ID=False):
+        try:
+
+            title = "Invalid entry to the Node ID"
+            message = ""
+            tokens = lineEdit.strip().split(',')
+
+            try:
+                tokens.remove('')
+            except:
+                pass
+
+            _size = len(self.nodes)
+
+            list_nodes_typed = list(map(int, tokens))
+
+            if len(list_nodes_typed) == 0:
+                    message = "An empty input field for the Node ID has been detected. \n\nPlease, enter a valid Node ID to proceed!"
+            
+            elif len(list_nodes_typed) >= 1: 
+                if single_ID and len(list_nodes_typed) > 1:
+                    message = "Multiple Node IDs"
+                else:
+                    try:
+                        for node_ID in list_nodes_typed:
+                            self.nodes[node_ID]
+                    except:
+                        message = "Dear user, you have typed an invalid entry at the Node ID input field.\n\n" 
+                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
+
+        except Exception as _error:
+            message = f"Wrong input for the Node ID's! \n\n{str(_error)}"
+
+        if message != "":
+            PrintMessageInput([title, message, window_title_1])               
+            return True, [] 
+
+        if single_ID:
+            return False, list_nodes_typed[0]
+        else:
+            return False, list_nodes_typed
+
+    def check_input_ElementID(self, lineEdit, single_ID=False):
+        try:
+
+            title = "Invalid entry to the Element ID"
+            message = ""
+            tokens = lineEdit.strip().split(',')
+
+            try:
+                tokens.remove('')
+            except:
+                pass
+
+            _size = len(self.structural_elements)
+
+            list_elements_typed = list(map(int, tokens))
+
+            if len(list_elements_typed) == 0:
+                    message = "An empty input field for the Element ID has been detected. \n\nPlease, enter a valid Element ID to proceed!"
+
+            elif len(list_elements_typed) >= 1: 
+                if single_ID and len(list_elements_typed)>1:
+                    message = "Multiple Element IDs"
+                else:
+                    try:
+                        for element_ID in list_elements_typed:
+                            self.structural_elements[element_ID]
+                    except:
+                        message = "Dear user, you have typed an invalid entry at the Element ID input field.\n\n" 
+                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
+
+        except Exception as _error:
+            message = f"Wrong input for the Element ID's! \n\n{str(_error)}"
+
+        if message != "":
+            PrintMessageInput([title, message, window_title_1])               
+            return True, [] 
+
+        if single_ID:
+            return False, list_elements_typed[0]
+        else:
+            return False, list_elements_typed
+
+    def check_input_LineID(self, lineEdit, single_ID=False):
+        try:
+
+            title = "Invalid entry to the Line ID"
+            message = ""
+            tokens = lineEdit.strip().split(',')
+
+            try:
+                tokens.remove('')
+            except:
+                pass
+
+            _size = len(self.dict_tag_to_entity)
+
+            list_lines_typed = list(map(int, tokens))
+
+            if len(list_lines_typed) == 0:
+                    message = "An empty input field for the Line ID has been detected. \n\nPlease, enter a valid Line ID to proceed!"
+
+            elif len(list_lines_typed) >= 1: 
+                if single_ID and len(list_lines_typed)>1:
+                    message = "Multiple Line IDs"
+                else:
+                    try:
+                        for line_ID in list_lines_typed:
+                            self.dict_tag_to_entity[line_ID]
+                    except:
+                        message = "Dear user, you have typed an invalid entry at the Line ID input field.\n\n" 
+                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
+
+        except Exception as _error:
+            message = f"Wrong input for the Line ID's! \n\n{str(_error)}"
+
+        if message != "":
+            PrintMessageInput([title, message, window_title_1])               
+            return True, [] 
+
+        if single_ID:
+            return False, list_lines_typed[0]
+        else:
+            return False, list_lines_typed

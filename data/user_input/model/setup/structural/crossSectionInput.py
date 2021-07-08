@@ -6,8 +6,9 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.utils import get_linear_distribution
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -18,10 +19,6 @@ class CrossSectionInput(QDialog):
     def __init__(   self, 
                     project, 
                     opv, 
-                    external_diameter = 0, 
-                    thickness = 0, 
-                    offset_y = 0, 
-                    offset_z = 0,
                     pipe_to_beam = False,
                     beam_to_pipe = False,
                     lines_to_update_cross_section = [], 
@@ -40,28 +37,26 @@ class CrossSectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
-        self.external_diameter = external_diameter
-        self.thickness = thickness
-        self.offset_y = offset_y
-        self.offset_z = offset_z
-
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
         self.lines_to_update_cross_section = lines_to_update_cross_section
 
-        self.section_key = None
-        self.parameters = None
+        self.section_type = None
+        self.section_parameters = None
         self.section_info = None
         self.section_data = None
         self.complete = False
+        self.stop = False
         self.flagAll = False
         self.flagEntity = False
         self.currentTab = 0
+        self.list_elements = []
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
@@ -71,18 +66,78 @@ class CrossSectionInput(QDialog):
         self.lineEdit_thickness = self.findChild(QLineEdit, 'lineEdit_thickness')
         self.lineEdit_offset_y = self.findChild(QLineEdit, 'lineEdit_offset_y')
         self.lineEdit_offset_z = self.findChild(QLineEdit, 'lineEdit_offset_z')
-        self.lineEdit_InsulationDensity = self.findChild(QLineEdit, 'lineEdit_InsulationDensity')
-        self.lineEdit_InsulationThickness = self.findChild(QLineEdit, 'lineEdit_InsulationThickness')    
+        self.lineEdit_insulation_density = self.findChild(QLineEdit, 'lineEdit_insulation_density')
+        self.lineEdit_insulation_thickness = self.findChild(QLineEdit, 'lineEdit_insulation_thickness')
+
+        self.lineEdit_outerDiameter_initial = self.findChild(QLineEdit, 'lineEdit_outerDiameter_initial')
+        self.lineEdit_thickness_initial = self.findChild(QLineEdit, 'lineEdit_thickness_initial')
+        self.lineEdit_offset_y_initial = self.findChild(QLineEdit, 'lineEdit_offset_y_initial')
+        self.lineEdit_offset_z_initial = self.findChild(QLineEdit, 'lineEdit_offset_z_initial')
+
+        self.lineEdit_outerDiameter_final = self.findChild(QLineEdit, 'lineEdit_outerDiameter_final')
+        self.lineEdit_thickness_final = self.findChild(QLineEdit, 'lineEdit_thickness_final')
+        self.lineEdit_offset_y_final = self.findChild(QLineEdit, 'lineEdit_offset_y_final')
+        self.lineEdit_offset_z_final = self.findChild(QLineEdit, 'lineEdit_offset_z_final')
+
+        self.lineEdit_base_rectangular_section = self.findChild(QLineEdit, 'lineEdit_base_rectangular_section')
+        self.lineEdit_height_rectangular_section = self.findChild(QLineEdit, 'lineEdit_height_rectangular_section')
+        self.lineEdit_thickness_rectangular_section = self.findChild(QLineEdit, 'lineEdit_thickness_rectangular_section')
+        self.lineEdit_offsety_rectangular_section = self.findChild(QLineEdit, 'lineEdit_offsety_rectangular_section')
+        self.lineEdit_offsetz_rectangular_section = self.findChild(QLineEdit, 'lineEdit_offsetz_rectangular_section')
+
+        self.lineEdit_outer_diameter_circular_section = self.findChild(QLineEdit, 'lineEdit_outer_diameter_circular_section')
+        self.lineEdit_thickness_circular_section = self.findChild(QLineEdit, 'lineEdit_thickness_circular_section')
+        self.lineEdit_offsety_circular_section = self.findChild(QLineEdit, 'lineEdit_offsety_circular_section')
+        self.lineEdit_offsetz_circular_section = self.findChild(QLineEdit, 'lineEdit_offsetz_circular_section')
+
+        self.lineEdit_height_C_section = self.findChild(QLineEdit, 'lineEdit_height_C_section')
+        self.lineEdit_w1_C_section = self.findChild(QLineEdit, 'lineEdit_w1_C_section')
+        self.lineEdit_t1_C_section = self.findChild(QLineEdit, 'lineEdit_t1_C_section')
+        self.lineEdit_w2_C_section = self.findChild(QLineEdit, 'lineEdit_w2_C_section')
+        self.lineEdit_t2_C_section = self.findChild(QLineEdit, 'lineEdit_t2_C_section')    
+        self.lineEdit_tw_C_section = self.findChild(QLineEdit, 'lineEdit_tw_C_section')         
+        self.lineEdit_offsety_C_section = self.findChild(QLineEdit, 'lineEdit_offsety_C_section')
+        self.lineEdit_offsetz_C_section = self.findChild(QLineEdit, 'lineEdit_offsetz_C_section')
+
+        self.lineEdit_height_I_section = self.findChild(QLineEdit, 'lineEdit_height_I_section')
+        self.lineEdit_w1_I_section = self.findChild(QLineEdit, 'lineEdit_w1_I_section')
+        self.lineEdit_t1_I_section = self.findChild(QLineEdit, 'lineEdit_t1_I_section')
+        self.lineEdit_w2_I_section = self.findChild(QLineEdit, 'lineEdit_w2_I_section')
+        self.lineEdit_t2_I_section = self.findChild(QLineEdit, 'lineEdit_t2_I_section')    
+        self.lineEdit_tw_I_section = self.findChild(QLineEdit, 'lineEdit_tw_I_section') 
+        self.lineEdit_offsety_I_section = self.findChild(QLineEdit, 'lineEdit_offsety_I_section')
+        self.lineEdit_offsetz_I_section = self.findChild(QLineEdit, 'lineEdit_offsetz_I_section')
+
+        self.lineEdit_height_T_section = self.findChild(QLineEdit, 'lineEdit_height_T_section')
+        self.lineEdit_w1_T_section = self.findChild(QLineEdit, 'lineEdit_w1_T_section')
+        self.lineEdit_t1_T_section = self.findChild(QLineEdit, 'lineEdit_t1_T_section')
+        self.lineEdit_tw_T_section = self.findChild(QLineEdit, 'lineEdit_tw_T_section')  
+        self.lineEdit_offsety_T_section = self.findChild(QLineEdit, 'lineEdit_offsety_T_section')
+        self.lineEdit_offsetz_T_section = self.findChild(QLineEdit, 'lineEdit_offsetz_T_section')
 
         self.lineEdit_area = self.findChild(QLineEdit, 'lineEdit_area')
         self.lineEdit_Iyy = self.findChild(QLineEdit, 'lineEdit_Iyy')
         self.lineEdit_Izz = self.findChild(QLineEdit, 'lineEdit_Izz')
         self.lineEdit_Iyz = self.findChild(QLineEdit, 'lineEdit_Iyz')
         self.lineEdit_shear_coefficient = self.findChild(QLineEdit, 'lineEdit_shear_coefficient')
-        self.lineEdit_base = self.findChild(QLineEdit, 'lineEdit_base')
-        self.lineEdit_height = self.findChild(QLineEdit, 'lineEdit_height')
-        self.lineEdit_outer_diameter_beam = self.findChild(QLineEdit, 'lineEdit_outer_diameter_beam')
-        self.lineEdit_inner_diameter_beam = self.findChild(QLineEdit, 'lineEdit_inner_diameter_beam')
+
+        self.lineEdit_element_id_initial = self.findChild(QLineEdit, 'lineEdit_element_id_initial')
+        self.lineEdit_element_id_final = self.findChild(QLineEdit, 'lineEdit_element_id_final')
+
+        self.lineEdit_outerDiameter_initial = self.findChild(QLineEdit, 'lineEdit_outerDiameter_initial')
+        self.lineEdit_thickness_initial = self.findChild(QLineEdit, 'lineEdit_thickness_initial')
+        self.lineEdit_offset_y_initial = self.findChild(QLineEdit, 'lineEdit_offset_y_initial')
+        self.lineEdit_offset_z_initial = self.findChild(QLineEdit, 'lineEdit_offset_z_initial')
+
+        self.lineEdit_outerDiameter_final = self.findChild(QLineEdit, 'lineEdit_outerDiameter_final')
+        self.lineEdit_thickness_final = self.findChild(QLineEdit, 'lineEdit_thickness_final')
+        self.lineEdit_offset_y_final = self.findChild(QLineEdit, 'lineEdit_offset_y_final')
+        self.lineEdit_offset_z_final = self.findChild(QLineEdit, 'lineEdit_offset_z_final')
+
+        self.lineEdit_insulation_thickness_variable_section = self.findChild(QLineEdit, 'lineEdit_insulation_thickness_variable_section')
+        self.lineEdit_insulation_density_variable_section = self.findChild(QLineEdit, 'lineEdit_insulation_density_variable_section')
+
+        self.create_lists_of_entries()
 
         self.radioButton_all_lines = self.findChild(QRadioButton, 'radioButton_all_lines')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
@@ -95,61 +150,52 @@ class CrossSectionInput(QDialog):
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.flagElements = self.radioButton_selected_elements.isChecked()
 
-        self.radioButton_rectangular_section = self.findChild(QRadioButton, 'radioButton_rectangular_section')
-        self.radioButton_circular_section = self.findChild(QRadioButton, 'radioButton_circular_section')
-        self.radioButton_C_section = self.findChild(QRadioButton, 'radioButton_C_section')
-        self.radioButton_I_section = self.findChild(QRadioButton, 'radioButton_I_section')
-        self.radioButton_T_section = self.findChild(QRadioButton, 'radioButton_T_section')
-        self.radioButton_rectangular_section.toggled.connect(self.radioButtonEvent_beam_section_type)
-        self.radioButton_circular_section.toggled.connect(self.radioButtonEvent_beam_section_type)
-        self.radioButton_C_section.toggled.connect(self.radioButtonEvent_beam_section_type)
-        self.radioButton_I_section.toggled.connect(self.radioButtonEvent_beam_section_type)
-        self.radioButton_T_section.toggled.connect(self.radioButtonEvent_beam_section_type)
-
-        self.rectangular_flag = self.radioButton_rectangular_section.isChecked()
-        self.circular_flag = self.radioButton_circular_section.isChecked()
-        self.C_section_flag = self.radioButton_C_section.isChecked()
-        self.I_section_flag = self.radioButton_I_section.isChecked()
-        self.T_section_flag = self.radioButton_T_section.isChecked()
-        self.beam_section_type()
-
         self.tabWidget_general = self.findChild(QTabWidget, 'tabWidget_general')
         self.tabWidget_general.currentChanged.connect(self.tabEvent_cross_section)
         self.currentTab_cross_section = self.tabWidget_general.currentIndex()
 
-        self.tabWidget_section_beam_info1 = self.findChild(QTabWidget, 'tabWidget_section_beam_info1')
-        self.tabWidget_section_beam_info1.currentChanged.connect(self.tabEvent_beam)
-        self.currentTab_beam = self.tabWidget_section_beam_info1.currentIndex()
+        self.tabWidget_pipe_section = self.findChild(QTabWidget, 'tabWidget_pipe_section')
+        self.tabWidget_pipe_section.currentChanged.connect(self.tabEvent_pipe)
+        self.currentTab_pipe = self.tabWidget_pipe_section.currentIndex()
+
+        self.tabWidget_beam_section = self.findChild(QTabWidget, 'tabWidget_beam_section')
+        self.tabWidget_beam_section.currentChanged.connect(self.tabEvent_beam)
+        self.currentTab_beam = self.tabWidget_beam_section.currentIndex()
         
         self.tab_pipe = self.tabWidget_general.findChild(QWidget, "tab_pipe")
         self.tab_beam = self.tabWidget_general.findChild(QWidget, "tab_beam")
-        
+
+        self.tab_straight_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_straight_pipe_section")
+        self.tab_variable_pipe_section = self.tabWidget_pipe_section.findChild(QWidget, "tab_variable_pipe_section")
+        self.tab_rectangular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_rectangular_section")
+        self.tab_circular_section = self.tabWidget_beam_section.findChild(QWidget, "tab_circular_section")
+        self.tab_C_section = self.tabWidget_beam_section.findChild(QWidget, "tab_C_section")
+        self.tab_I_section = self.tabWidget_beam_section.findChild(QWidget, "tab_I_section")
+        self.tab_T_section = self.tabWidget_beam_section.findChild(QWidget, "tab_T_section")
+        self.tab_generic_section = self.tabWidget_beam_section.findChild(QWidget, "tab_generic_section")
+
         self.pushButton_confirm_pipe = self.findChild(QPushButton, 'pushButton_confirm_pipe')
         self.pushButton_confirm_pipe.clicked.connect(self.confirm_pipe)
 
-        self.pushButton_confirm_pipe_2 = self.findChild(QPushButton, 'pushButton_confirm_pipe_2')
-        self.pushButton_confirm_pipe_2.clicked.connect(self.confirm_pipe)
+        self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')  
+        self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
 
-        self.pushButton_confirm_generic_section_beam = self.findChild(QPushButton, 'pushButton_confirm_generic_section_beam')
-        self.pushButton_confirm_generic_section_beam.clicked.connect(self.confirm_beam)
+        # self.pushButton_confirm_generic_section_beam = self.findChild(QPushButton, 'pushButton_confirm_generic_section_beam')
+        # self.pushButton_confirm_generic_section_beam.clicked.connect(self.confirm_beam)
 
-        self.pushButton_enter_section_parameters = self.findChild(QPushButton, 'pushButton_enter_section_parameters')
-        self.pushButton_enter_section_parameters.clicked.connect(self.confirm_beam)
+        self.pushButton_plot_pipe_cross_section = self.findChild(QPushButton, 'pushButton_plot_pipe_cross_section')  
+        self.pushButton_plot_pipe_cross_section.clicked.connect(self.plot_section)
+
+        self.pushButton_plot_beam_cross_section = self.findChild(QPushButton, 'pushButton_plot_beam_cross_section')  
+        self.pushButton_plot_beam_cross_section.clicked.connect(self.plot_section)
+
+        self.pushButton_flip_element_ids = self.findChild(QPushButton, 'pushButton_flip_element_ids')
+        self.pushButton_flip_element_ids.clicked.connect(self.flip_element_ids)
 
         self.comboBox_pipe = self.findChild(QComboBox, 'comboBox_pipe')
         # self.comboBox_pipe.currentIndexChanged.connect(self.selectionChange)
         self.index = self.comboBox_pipe.currentIndex()
-
-        self.comboBox_beam = self.findChild(QComboBox, 'comboBox_beam')
-        # self.comboBox_beam.currentIndexChanged.connect(self.selectionChange)
-        self.index = self.comboBox_beam.currentIndex()
-        
-        # if self.external_diameter!=0 and self.thickness!=0:
-        #     self.lineEdit_outerDiameter.setText(str(self.external_diameter))
-        #     self.lineEdit_thickness.setText(str(self.thickness))
-        #     self.lineEdit_offset_y.setText(str(self.offset_y))
-        #     self.lineEdit_offset_z.setText(str(self.offset_z))
-               
+                      
         if self.pipe_to_beam:
             self.tabWidget_general.setCurrentWidget(self.tab_beam)
             self.tabWidget_general.setTabEnabled(0, False)
@@ -178,59 +224,303 @@ class CrossSectionInput(QDialog):
             self.radioButton_all_lines.setChecked(True)  
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
-
+       
         self.update_QDialog_info()       
         self.exec_()
 
+    def create_lists_of_entries(self):
+        self.list_pipe_section_entries = [  self.lineEdit_outerDiameter,
+                                            self.lineEdit_thickness,
+                                            self.lineEdit_offset_y,
+                                            self.lineEdit_offset_z,
+                                            self.lineEdit_insulation_density,
+                                            self.lineEdit_insulation_thickness,
+                                            self.lineEdit_outerDiameter_initial,
+                                            self.lineEdit_thickness_initial,
+                                            self.lineEdit_offset_y_initial,
+                                            self.lineEdit_offset_z_initial,
+                                            self.lineEdit_outerDiameter_final,
+                                            self.lineEdit_thickness_final,
+                                            self.lineEdit_offset_y_final,
+                                            self.lineEdit_offset_z_final  ] 
+
+        self.list_beam_section_entries = [  self.lineEdit_base_rectangular_section,
+                                            self.lineEdit_height_rectangular_section,
+                                            self.lineEdit_thickness_rectangular_section,
+                                            self.lineEdit_offsety_rectangular_section,
+                                            self.lineEdit_offsetz_rectangular_section,
+                                            self.lineEdit_outer_diameter_circular_section,
+                                            self.lineEdit_thickness_circular_section,
+                                            self.lineEdit_offsety_circular_section,
+                                            self.lineEdit_offsetz_circular_section,
+                                            self.lineEdit_height_C_section,
+                                            self.lineEdit_w1_C_section,
+                                            self.lineEdit_t1_C_section,
+                                            self.lineEdit_w2_C_section,
+                                            self.lineEdit_t2_C_section,
+                                            self.lineEdit_tw_C_section,
+                                            self.lineEdit_offsety_C_section,
+                                            self.lineEdit_offsetz_C_section,
+                                            self.lineEdit_height_I_section,
+                                            self.lineEdit_w1_I_section,
+                                            self.lineEdit_t1_I_section,
+                                            self.lineEdit_w2_I_section,
+                                            self.lineEdit_t2_I_section,
+                                            self.lineEdit_tw_I_section,
+                                            self.lineEdit_offsety_I_section,
+                                            self.lineEdit_offsetz_I_section,
+                                            self.lineEdit_height_T_section,
+                                            self.lineEdit_w1_T_section,
+                                            self.lineEdit_t1_T_section,
+                                            self.lineEdit_tw_T_section,
+                                            self.lineEdit_offsety_T_section,
+                                            self.lineEdit_offsetz_T_section,
+                                            self.lineEdit_area,
+                                            self.lineEdit_Iyy,
+                                            self.lineEdit_Izz,
+                                            self.lineEdit_Iyz,
+                                            self.lineEdit_shear_coefficient  ]     
+
     def update_QDialog_info(self):
         if len(self.lines_id) > 0:   
-            line = self.lines_id[0]
-            # for line in self.lines_id:
-            entity = self.dict_tag_to_entity[line]
-            if entity.cross_section is not None:
-                cross = entity.cross_section
-                self.section_data = None
-
-                if entity.structural_element_type in ['pipe_1', 'pipe_2']:
-                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                    self.radioButton_rectangular_section.setChecked(False)
-                    self.external_diameter = cross.external_diameter
-                    self.thickness = cross.thickness
-                    self.lineEdit_outerDiameter.setText(str(self.external_diameter))
-                    self.lineEdit_thickness.setText(str(self.thickness))
+            self.reset_all_input_texts()
+            selection = self.dict_tag_to_entity[self.lines_id[0]]
+            element_type = selection.structural_element_type
+        elif len(self.elements_id) > 0:   
+            self.reset_all_input_texts()
+            selection = self.structural_elements[self.elements_id[0]]
+            element_type = selection.element_type
+        else:
+            return
+        
+        if selection.cross_section is not None:
+            cross = selection.cross_section
+            self.section_label = cross.section_info["section_type_label"]
+            self.section_parameters = cross.section_info["section_parameters"]
                     
-                    if cross.offset_y != 0:
-                        self.lineEdit_outerDiameter.setText(str(self.offset_y))
-                    if cross.offset_z != 0:
-                        self.lineEdit_outerDiameter.setText(str(self.offset_z))
-                
-                elif entity.structural_element_type in ['beam_1']:
-                    self.reset_pipe_input_texts()
-                    self.section_data = cross.additional_section_info
-                    section_type = self.section_data[0]
-                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
-                    
-                    if section_type == 'Rectangular section':
-                        self.radioButton_rectangular_section.setChecked(True)
-                    if section_type == 'Circular section':
-                        self.radioButton_circular_section.setChecked(True)
-                    if section_type == 'C-section':
-                        self.radioButton_C_section.setChecked(True)                        
-                    if section_type == 'I-section':
-                        self.radioButton_I_section.setChecked(True)
-                    if section_type == 'T-section':
-                        self.radioButton_T_section.setChecked(True)
-            else:
-                if entity.structural_element_type in ['pipe_1', 'pipe_2']:
-                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                elif entity.structural_element_type in ['beam_1']:
-                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
+            if element_type in ['pipe_1', 'pipe_2']:
+                self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+            
+            elif element_type in ['beam_1']:
+                self.tabWidget_general.setCurrentWidget(self.tab_beam)
 
-    def reset_pipe_input_texts(self):
-        self.lineEdit_outerDiameter.setText('')
-        self.lineEdit_thickness.setText('')
-        self.lineEdit_outerDiameter.setText('')
-        self.lineEdit_outerDiameter.setText('')
+            self.update_section_entries()
+
+        else:
+            if element_type in ['pipe_1', 'pipe_2']:
+                self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+            elif element_type in ['beam_1']:
+                self.tabWidget_general.setCurrentWidget(self.tab_beam)
+
+        self.update_tabs()
+
+    def check_variable_section_pipe(self):
+        
+        N = len(self.list_elements)
+
+        outerDiameter_initial = self.check_inputs(self.lineEdit_outerDiameter_initial, "'outer diameter (initial)'")
+        if self.stop:
+            return
+        outerDiameter_final = self.check_inputs(self.lineEdit_outerDiameter_final, "'outer diameter (final)'")
+        if self.stop:
+            return
+
+        thickness_initial = self.check_inputs(self.lineEdit_thickness_initial, "'thickness (initial)'")
+        if self.stop:
+            return
+        thickness_final = self.check_inputs(self.lineEdit_thickness_final, "'thickness (final)'")
+        if self.stop:
+            return
+
+        offset_y_initial = self.check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", zero_included=True)
+        if self.stop:
+            return
+        offset_y_final = self.check_inputs(self.lineEdit_offset_y_final, "'offset y (final)'", zero_included=True)
+        if self.stop:
+            return
+
+        offset_z_initial = self.check_inputs(self.lineEdit_offset_z_initial, "'offset z (initial)'", zero_included=True)
+        if self.stop:
+            return
+        offset_z_final = self.check_inputs(self.lineEdit_offset_z_final, "'offset z (final)'", zero_included=True)
+        if self.stop:
+            return
+        
+        insulation_thickness = self.check_inputs(   self.lineEdit_insulation_thickness_variable_section, 
+                                                    "'insulation thickness (variable pipe section)'",
+                                                    zero_included=True  )
+        if self.stop:
+            return
+        
+        insulation_density = self.check_inputs(   self.lineEdit_insulation_density_variable_section, 
+                                                    "'density thickness (variable pipe section)'",
+                                                    zero_included=True  )
+        if self.stop:
+            return    
+
+        list_outerDiameter = get_linear_distribution(outerDiameter_initial, outerDiameter_final, N)
+        list_thickness = get_linear_distribution(thickness_initial, thickness_final, N)
+        list_offset_y = get_linear_distribution(offset_y_initial, offset_y_final, N)
+        list_offset_z = get_linear_distribution(offset_z_initial, offset_z_final, N)
+
+        self.section_label = "Pipe section"
+
+        for index, element_id in enumerate(self.list_elements):
+  
+            section_parameters = {  "outer_diameter" : list_outerDiameter[index],
+                                    "thickness" : list_thickness[index], 
+                                    "offset_y" : list_offset_y[index], 
+                                    "offset_z" : list_offset_z[index], 
+                                    "insulation_thickness" : insulation_thickness, 
+                                    "insulation_density" : insulation_density }
+            
+            pipe_section_info = {   "section_type_label" : self.section_label ,
+                                    "section_parameters" : section_parameters }
+
+            self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
+            self.project.set_cross_section_by_elements([element_id], self.cross_section)
+        
+        self.remove_line_from_list(self.lines_typed[0])
+        self.project.get_dict_multiple_cross_sections()
+        
+        self.complete = True
+        plt.close()
+        self.close()
+
+    def update_section_entries(self):
+        
+        if self.section_label == 'Pipe section':
+
+            outer_diameter = self.section_parameters["outer_diameter"]
+            thickness = self.section_parameters["thickness"]
+            offset_y = self.section_parameters["offset_y"] 
+            offset_z = self.section_parameters["offset_z"]
+            insulation_thickness = self.section_parameters["insulation_thickness"]
+            insulation_density = self.section_parameters["insulation_density"]
+
+            self.section_type = 0
+            self.lineEdit_outerDiameter.setText(str(outer_diameter))
+            self.lineEdit_thickness.setText(str(thickness))
+            if offset_y != 0:
+                self.lineEdit_offset_y.setText(str(offset_y))
+            if offset_z != 0:
+                self.lineEdit_offset_z.setText(str(offset_z))
+            if insulation_density != 0:
+                self.lineEdit_insulation_density.setText(str(insulation_density))
+            if insulation_thickness != 0:
+                self.lineEdit_insulation_thickness.setText(str(insulation_thickness))
+
+        elif self.section_label == 'Rectangular section':
+            [base, height, base_in, height_in, offset_y, offset_z] = self.section_parameters
+            self.section_type = 1
+            self.lineEdit_base_rectangular_section.setText(str(base))
+            self.lineEdit_height_rectangular_section.setText(str(height))
+            self.lineEdit_offsety_rectangular_section.setText(str(offset_y))
+            self.lineEdit_offsetz_rectangular_section.setText(str(offset_z))
+            if base_in != 0 and height_in != 0:
+                self.lineEdit_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
+        
+        elif self.section_label == 'Circular section':
+            [outer_diameter_beam, thickness, offset_y, offset_z] = self.section_parameters
+            self.section_type = 2
+            self.lineEdit_outer_diameter_circular_section.setText(str(outer_diameter_beam))
+            self.lineEdit_offsety_circular_section.setText(str(offset_y))
+            self.lineEdit_offsetz_circular_section.setText(str(offset_z))
+            if thickness != 0:
+                self.lineEdit_thickness_circular_section.setText(str(thickness))
+        
+        elif self.section_label == 'C-section':
+            [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self.section_parameters
+            self.section_type = 3
+            self.lineEdit_height_C_section.setText(str(h))
+            self.lineEdit_w1_C_section.setText(str(w1))
+            self.lineEdit_tw_C_section.setText(str(tw))
+            self.lineEdit_w2_C_section.setText(str(w2))
+            self.lineEdit_t1_C_section.setText(str(t1))   
+            self.lineEdit_t2_C_section.setText(str(t2))
+            self.lineEdit_offsety_C_section.setText(str(offset_y))
+            self.lineEdit_offsetz_C_section.setText(str(offset_z))             
+        
+        elif self.section_label == 'I-section':
+            [h, w1, t1, w2, t2, tw, offset_y, offset_z] = self.section_parameters
+            self.section_type = 4
+            self.lineEdit_height_I_section.setText(str(h))
+            self.lineEdit_w1_I_section.setText(str(w1))
+            self.lineEdit_tw_I_section.setText(str(tw))
+            self.lineEdit_w2_I_section.setText(str(w2))
+            self.lineEdit_t1_I_section.setText(str(t1))   
+            self.lineEdit_t2_I_section.setText(str(t2))
+            self.lineEdit_offsety_I_section.setText(str(offset_y))
+            self.lineEdit_offsetz_I_section.setText(str(offset_z))
+        
+        elif self.section_label == 'T-section':
+            [h, w1, t1, tw, offset_y, offset_z] = self.section_parameters
+            self.section_type = 5
+            self.lineEdit_height_T_section.setText(str(h))
+            self.lineEdit_w1_T_section.setText(str(w1))
+            self.lineEdit_tw_T_section.setText(str(tw))
+            self.lineEdit_t1_T_section.setText(str(t1))
+            self.lineEdit_offsety_T_section.setText(str(offset_y))
+            self.lineEdit_offsetz_T_section.setText(str(offset_z))  
+
+    def update_tabs(self):
+        if self.currentTab_cross_section == 0:
+            if self.currentTab_pipe == 1:
+                return
+        beam_tabs = [   self.tab_rectangular_section, 
+                        self.tab_circular_section, 
+                        self.tab_C_section, 
+                        self.tab_I_section, 
+                        self.tab_T_section,
+                        self.tab_generic_section  ]
+       
+        if self.section_type == 0:
+            self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+            return
+
+        for i in range(6):
+            if i+1 == self.section_type:
+                # self.tabWidget_beam_section.setTabEnabled(i, True)
+                self.tabWidget_beam_section.setCurrentWidget(beam_tabs[i])
+            # else:
+                # self.tabWidget_beam_section.setTabEnabled(i, False)
+
+    def update(self):
+
+        self.lines_id = self.opv.getListPickedEntities()
+        self.elements_id = self.opv.getListPickedElements()
+        self.update_QDialog_info()
+
+        if self.lines_id != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.write_ids(self.lines_id)
+            self.radioButton_selected_lines.setChecked(True)
+            
+        elif self.elements_id != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.write_ids(self.elements_id)
+            self.radioButton_selected_elements.setChecked(True)
+            
+        else:
+            if self.currentTab_cross_section == 0:
+                if self.currentTab_pipe == 1:
+                    self.lineEdit_selected_ID.setText("")
+                    return
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.lineEdit_selected_ID.setText("All lines")
+            self.radioButton_all_lines.setChecked(True)
+
+    def reset_all_input_texts(self):
+        for lineEdit in self.list_pipe_section_entries:
+            lineEdit.setText("")
+        for lineEdit in self.list_beam_section_entries:
+            lineEdit.setText("")
+
+    def flip_element_ids(self):
+        temp_initial = self.lineEdit_element_id_initial.text()
+        temp_final = self.lineEdit_element_id_final.text()
+        self.lineEdit_element_id_initial.setText(temp_final)
+        self.lineEdit_element_id_final.setText(temp_initial)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -256,216 +546,130 @@ class CrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Lines IDs:")
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
-
+                    
         elif self.flagElements:
             self.lineEdit_id_labels.setText("Elements IDs:")
             if self.elements_id != []:
                 self.write_ids(self.elements_id)
-
-    def radioButtonEvent_beam_section_type(self):
-        self.rectangular_flag = self.radioButton_rectangular_section.isChecked()
-        self.circular_flag = self.radioButton_circular_section.isChecked()
-        self.C_section_flag = self.radioButton_C_section.isChecked()
-        self.I_section_flag = self.radioButton_I_section.isChecked()
-        self.T_section_flag = self.radioButton_T_section.isChecked()
-        self.beam_section_type()
-
-    def beam_section_type(self):
-        if self.rectangular_flag:
-            self.section_key = 0
-        elif self.circular_flag:
-            self.section_key = 1
-        elif self.C_section_flag:
-            self.section_key = 2
-        elif self.I_section_flag:
-            self.section_key = 3
-        elif self.T_section_flag:
-            self.section_key = 4
         
     def write_ids(self, list_ids):
         text = ""
         for _id in list_ids:
             text += "{}, ".format(_id)
         self.lineEdit_selected_ID.setText(text)
+        self.update_variable_section_info()
+    
+    def update_variable_section_info(self):
+        if self.currentTab_cross_section == 0:
+            if self.flagEntity:
+                if len(self.lines_id) == 1:
+                    line = self.lines_id[0]
+                    self.list_elements = self.project.mesh.line_to_elements[line]
+                    element_id_initial = self.list_elements[0]
+                    element_id_final = self.list_elements[-1]
+                    self.lineEdit_element_id_initial.setText(str(element_id_initial))
+                    self.lineEdit_element_id_final.setText(str(element_id_final))
 
     def tabEvent_cross_section(self):
         self.currentTab_cross_section = self.tabWidget_general.currentIndex()
+        if self.currentTab_cross_section == 0:
+            if self.currentTab_pipe == 1:
+                self.tabEvent_pipe()
+            for i in range(2):
+                self.tabWidget_pipe_section.setTabEnabled(i, True)
+        else:
+            self.set_disable_radioButtons(False)
+            for i in range(6):
+                self.tabWidget_beam_section.setTabEnabled(i, True)
 
     def tabEvent_beam(self):
-        self.currentTab_beam = self.tabWidget_section_beam_info1.currentIndex()
+        self.currentTab_beam = self.tabWidget_beam_section.currentIndex()
 
-    def check_input_elements(self):
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.elements_typed = list(map(int, tokens))
-            
-            if self.lineEdit_selected_ID.text()=="":
-                title = "Error: empty Element ID input"
-                message = "Inform a valid Element ID before \nto confirm the input."
-                self.info_text = [title, message, window_title]     
-                return True
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = "Wrong input for Node ID's."
-            self.info_text = [title, message, window_title]   
-            return True
+    def tabEvent_pipe(self):
+        self.currentTab_pipe = self.tabWidget_pipe_section.currentIndex()
+        if self.currentTab_pipe == 0:
+            self.pushButton_plot_pipe_cross_section.setDisabled(False)
+            self.set_disable_radioButtons(False)
+        if self.currentTab_pipe == 1:
+            self.pushButton_plot_pipe_cross_section.setDisabled(True)
+            self.radioButton_selected_lines.setChecked(True)
+            self.radioButton_selected_elements.setDisabled(True)
+            self.radioButton_all_lines.setDisabled(True)
 
-        try:
-            for element in self.elements_typed:
-                self.elementID = self.structural_elements[element].index
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = " The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message, window_title]
-            return True
-        return False
+    def set_disable_radioButtons(self, _bool):
+        self.radioButton_selected_lines.setDisabled(_bool)
+        self.radioButton_selected_elements.setDisabled(_bool)
+        self.radioButton_all_lines.setDisabled(_bool)
 
-    def check_input_lines(self):
+    def check_straight_pipe(self, plot=False):
+                    
+        outerDiameter = self.check_inputs(self.lineEdit_outerDiameter, "'outer diameter (Pipe section)'")
+        if self.stop:
+            return
+
+        thickness = self.check_inputs(self.lineEdit_thickness, "'thickness (Pipe section)'")
+        if self.stop:
+            return
         
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.lines_typed = list(map(int, tokens))
-            
-            if self.lineEdit_selected_ID.text()=="":
-                title = "Error: empty Line ID input"
-                message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message, window_title]
-                return True
-        except Exception:
-            title = "Error: invalid Line ID input"
-            message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title]
-            return True
-        try:
-            for line in self.lines_typed:
-                self.line = self.dict_tag_to_entity[line]
-        except Exception:
-            title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message, window_title]
-            return True
-        return False
+        offset_y = self.check_inputs(self.lineEdit_offset_y, "'offset y (Pipe section)'", zero_included=True)
+        if self.stop:
+            return
 
-    def check_pipe(self):
+        offset_z = self.check_inputs(self.lineEdit_offset_z, "'offset z (Pipe section)'", zero_included=True)
+        if self.stop:
+            return
+
+        insulation_density = self.check_inputs(self.lineEdit_insulation_density, "'insulation density'", zero_included=True)
+        if self.stop:
+            return
+
+        insulation_thickness = self.check_inputs(self.lineEdit_insulation_thickness, "'insulation thickness'", zero_included=True)
+        if self.stop:
+            return
         
-        if self.flagElements:
-            if self.check_input_elements():
-                PrintMessageInput(self.info_text) 
-                return
+        if thickness > (outerDiameter/2):
+            title = "INPUT CROSS-SECTION ERROR"
+            message = "The THICKNESS must be less or \nequals to the outer radius."
+            PrintMessageInput([title, message, window_title]) 
+            return
 
-        elif self.flagEntity:
-            if self.check_input_lines():
-                PrintMessageInput(self.info_text) 
-                return
-
-        if self.currentTab_cross_section == 0:
-            if self.lineEdit_outerDiameter.text() == "":
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "Insert some value (OUTER DIAMETER)."
-                PrintMessageInput([title, message, window_title]) 
-                return
-            elif self.lineEdit_thickness.text() == "":
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "Insert some value (THICKENSS)."
-                PrintMessageInput([title, message, window_title]) 
-                return
-
-            offset_y = float(0)
-            offset_z = float(0)
-            insulation_density = float(0)
-            insulation_thickness = float(0)
-
-            try:
-                outerDiameter = float(self.lineEdit_outerDiameter.text())
-            except Exception:
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "Wrong input to the OUTER DIAMETER."
-                PrintMessageInput([title, message, window_title]) 
-                return
-            try:
-                thickness = float(self.lineEdit_thickness.text())
-            except Exception:
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "Wrong input to the THICKENSS."
-                PrintMessageInput([title, message, window_title]) 
-                return
-
-            if self.lineEdit_offset_y.text() != "":
-                try:
-                    offset_y = float(self.lineEdit_offset_y.text())
-                except Exception:
-                    title = "INPUT CROSS-SECTION ERROR"
-                    message = "Wrong input to the OFFSET Y."
-                    PrintMessageInput([title, message, window_title]) 
-                    return
-
-            if self.lineEdit_offset_z.text() != "":
-                try:
-                    offset_z = float(self.lineEdit_offset_z.text())
-                except Exception:
-                    title = "INPUT CROSS-SECTION ERROR"
-                    message = "Wrong input to the OFFSET Z."
-                    PrintMessageInput([title, message, window_title]) 
-                    return
-           
-            if self.lineEdit_InsulationDensity.text() != "":
-                try:
-                    insulation_density = float(self.lineEdit_InsulationDensity.text())
-                except Exception:
-                    title = "INPUT CROSS-SECTION ERROR"
-                    message = "Wrong input to the INSULATION DENSITY."
-                    PrintMessageInput([title, message, window_title]) 
-                    return
-           
-            if self.lineEdit_InsulationThickness.text() != "":
-                try:
-                    insulation_thickness = float(self.lineEdit_InsulationThickness.text())
-                except Exception:
-                    title = "INPUT CROSS-SECTION ERROR"
-                    message = "Wrong input to the INSULATION THICKNESS."
-                    PrintMessageInput([title, message, window_title]) 
-                    return
-           
-            if thickness > (outerDiameter/2):
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "The THICKNESS must be less or \nequals to the OUTER RADIUS."
-                PrintMessageInput([title, message, window_title]) 
-                return
-
-            elif thickness == 0.0:
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "The THICKNESS must be greater than zero."
-                PrintMessageInput([title, message, window_title]) 
-                return
+        elif thickness == 0.0:
+            title = "INPUT CROSS-SECTION ERROR"
+            message = "The THICKNESS must be greater than zero."
+            PrintMessageInput([title, message, window_title]) 
+            return
+        
+        elif abs(offset_y) > 0.2*(outerDiameter/2):
+            title = "INPUT CROSS-SECTION ERROR"
+            message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
+            PrintMessageInput([title, message, window_title]) 
+            return
+        
+        elif abs(offset_z) > 0.2*(outerDiameter/2):
+            title = "INPUT CROSS-SECTION ERROR"
+            message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
+            PrintMessageInput([title, message, window_title]) 
+            return
             
-            elif abs(offset_y) > 0.2*(outerDiameter/2):
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "The OFFSET_Y must be less than 20{%} \nof the external radius."
-                PrintMessageInput([title, message, window_title]) 
-                return
-            
-            elif abs(offset_z) > 0.2*(outerDiameter/2):
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "The OFFSET_Z must be less than 20{%} \nof the external radius."
-                PrintMessageInput([title, message, window_title]) 
-                return
-            
-            section_info = ["Pipe section", [outerDiameter, thickness, offset_y, offset_z, insulation_thickness]]
+        self.section_label = "Pipe section"
 
-            self.cross_section = CrossSection(  outerDiameter, thickness, offset_y, offset_z, 
-                                                insulation_density=insulation_density, 
-                                                insulation_thickness=insulation_thickness, 
-                                                additional_section_info=section_info  )
+        self.section_parameters = { "outer_diameter" : outerDiameter,
+                                    "thickness" : thickness, 
+                                    "offset_y" : offset_y, 
+                                    "offset_z" : offset_z, 
+                                    "insulation_thickness" : insulation_thickness, 
+                                    "insulation_density" : insulation_density }
+        
+        self.pipe_section_info = {  "section_type_label" : self.section_label ,
+                                    "section_parameters" : self.section_parameters  }
 
+        if plot:
+            return
+        self.cross_section = CrossSection(pipe_section_info=self.pipe_section_info)
+        self.set_cross_sections()
+        # self.project.get_dict_multiple_cross_sections()
         self.complete = True
+        plt.close()
         self.close()
 
     def confirm_pipe(self):
@@ -475,694 +679,420 @@ class CrossSectionInput(QDialog):
             self.element_type = 'pipe_1'
         elif self.index == 1:
             self.element_type = 'pipe_2'
-        self.check_pipe()
+
+        if self.flagElements:
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            if self.stop:
+                return
+
+        elif self.flagEntity:
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            if self.stop:
+                return True 
+
+        if self.currentTab_pipe == 0:
+            self.check_straight_pipe()
+        elif self.currentTab_pipe == 1:
+            self.check_variable_section_pipe()
 
     def check_beam(self):
 
         if self.flagElements:
-            if self.check_input_elements():
-                return
+            return
+            # lineEdit = self.lineEdit_elementID.text()
+            # self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            # if self.stop:
+            #     return
         elif self.flagEntity:
-            if self.check_input_lines():
-                PrintMessageInput(self.info_text) 
-                return            
+            
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            if self.stop:
+                return True        
         
         if self.currentTab_cross_section == 1:
 
-            if self.currentTab_beam == 0:
-
-                read = CrossSectionBeamInput(self.section_key, section_data=self.section_data)
-                if not read.complete:
-                    return
-                self.cross_section = read.cross_section
-
-            elif self.currentTab_beam == 1:
+            if self.currentTab_beam == 6:
 
                 area = float(0)
                 Iyy = float(0)
                 Izz = float(0)
                 Iyz = float(0)
 
-                area = self.check_beam_inputs(self.lineEdit_area, 'AREA')
-                Iyy = self.check_beam_inputs(self.lineEdit_Iyy, 'Iyy')
-                Izz = self.check_beam_inputs(self.lineEdit_Izz, 'Izz')
-                Iyz = self.check_beam_inputs(self.lineEdit_Iyz, 'Iyz', only_positive_values=False)
-                shear_coefficient = self.check_beam_inputs(self.lineEdit_shear_coefficient, 'Shear Factor')
-
-                if None in [area, Iyy, Izz, Iyz, shear_coefficient]:
+                area = self.check_inputs(self.lineEdit_area, "'Area (Generic section)'")
+                if self.stop:
                     return
-                elif shear_coefficient > 1:
+
+                Iyy = self.check_inputs(self.lineEdit_Iyy, "'Iyy (Generic section)'")
+                if self.stop:
+                    return
+
+                Izz = self.check_inputs(self.lineEdit_Izz, "'Izz (Generic section)'")
+                if self.stop:
+                    return
+
+                Iyz = self.check_inputs(self.lineEdit_Iyz, "'Iyz (Generic section)'", only_positive=False, zero_included=True)
+                if self.stop:
+                    return
+
+                shear_coefficient = self.check_inputs(self.lineEdit_shear_coefficient, "'Shear Factor (Generic section)'")
+                if self.stop:
+                    return
+
+                if shear_coefficient > 1:
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "The SHEAR FACTOR must be less or equals to 1."
                     PrintMessageInput([title, message, window_title]) 
                     return
-                
-                self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
-                self.thickness = 0
-                section_info = ["Generic section", None]
-                self.cross_section = CrossSection(  self.external_diameter, self.thickness, 0, 0, 
-                                                    area=area, 
-                                                    Iyy=Iyy, 
-                                                    Izz=Izz, 
-                                                    Iyz=Iyz, 
-                                                    additional_section_info=section_info, 
-                                                    shear_coefficient=shear_coefficient)
+                else:  
 
+                    self.section_label = "Generic section"
+                    self.section_parameters = None
+                    _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
+
+                    self.section_properties = get_beam_section_properties(self.section_label, _section_properties)
+                
+            else:
+
+                if self.check_beam_inputs_common_sections():
+                    return
+            
+            self.beam_section_info = {  "section_type_label" : self.section_label,
+                                        "section_parameters" : self.section_parameters,
+                                        "section_properties" : self.section_properties  }
+       
+            self.cross_section = CrossSection(beam_section_info=self.beam_section_info)
+            self.set_cross_sections()
+       
         self.complete = True
+        plt.close()
         self.close()
 
-    def check_beam_inputs(self, lineEdit, label, only_positive_values=True):
+    def remove_line_from_list(self, line):
+        if line in list(self.project.number_sections_by_line.keys()):
+            self.project.number_sections_by_line.pop(line)
 
-        if lineEdit.text() != "":
-            try:
-                out = float(lineEdit.text())
-                if out <= 0 and only_positive_values:
-                    title = "INPUT CROSS-SECTION ERROR"
-                    message = "Insert a positive value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title]) 
-                    return None
-            except Exception:
-                title = "INPUT CROSS-SECTION ERROR"
-                message = "Wrong input to the {}.".format(label)
-                PrintMessageInput([title, message, window_title]) 
-                return None
+    def set_cross_sections(self):
+        if self.flagEntity:
+            for line in self.lines_typed:
+                self.remove_line_from_list(line)
+                self.project.set_cross_section_by_entity(line, self.cross_section)
+                self.project.set_structural_element_type_by_entity(line, self.element_type)
+            print("[Set Cross-section] - defined at lines {}".format(self.lines_typed))
+
+        elif self.flagElements:
+            self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
+            self.project.get_dict_multiple_cross_sections()
+            # self.project.mesh.set_structural_element_type_by_element(self.elements_typed, self.element_type)
+            if len(self.elements_typed) < 20:
+                print("[Set Cross-section] - defined at {} selected elements".format(len(self.elements_typed)))
+
         else:
-            title = "INPUT CROSS-SECTION ERROR"
-            message = "Insert some value to the {}.".format(label)
-            PrintMessageInput([title, message, window_title]) 
-            return None
-        return out
-
-    def confirm_beam(self):
-
-        self.index = self.comboBox_beam.currentIndex()
-        if self.index == 0:
-            self.element_type = 'beam_1'
-        self.check_beam()
-
-    def update(self):
-
-        self.lines_id = self.opv.getListPickedEntities()
-        self.elements_id = self.opv.getListPickedElements()
-        # print('passei update')
-        self.update_QDialog_info()
-
-        if self.lines_id != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        elif self.elements_id != []:
-            self.lineEdit_id_labels.setText("Elements IDs:")
-            self.write_ids(self.elements_id)
-            self.radioButton_selected_elements.setChecked(True)
-        else:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all_lines.setChecked(True)
-
-
-class CrossSectionBeamInput(QDialog):
-    def __init__(self, section_type, section_data=None, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Structural/crossSectionBeamInput.ui', self)
-
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
-
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
-        # self.parameters = parameters
-        self.section_type = section_type
-        self.section_data = section_data
-        self.complete = False
-        self.stop = False
-        # self._get_dict_key_section()
-        
-        self.lineEdit_base_rectangular_section = self.findChild(QLineEdit, 'lineEdit_base_rectangular_section')
-        self.lineEdit_height_rectangular_section = self.findChild(QLineEdit, 'lineEdit_height_rectangular_section')
-        self.lineEdit_thickness_rectangular_section = self.findChild(QLineEdit, 'lineEdit_thickness_rectangular_section')
-
-        self.lineEdit_outer_diameter_circular_section = self.findChild(QLineEdit, 'lineEdit_outer_diameter_circular_section')
-        self.lineEdit_inner_diameter_circular_section = self.findChild(QLineEdit, 'lineEdit_inner_diameter_circular_section')
-
-        self.lineEdit_height_C_section = self.findChild(QLineEdit, 'lineEdit_height_C_section')
-        self.lineEdit_radius_C_section = self.findChild(QLineEdit, 'lineEdit_radius_C_section')
-        self.lineEdit_w1_C_section = self.findChild(QLineEdit, 'lineEdit_w1_C_section')
-        self.lineEdit_w2_C_section = self.findChild(QLineEdit, 'lineEdit_w2_C_section')
-        self.lineEdit_w3_C_section = self.findChild(QLineEdit, 'lineEdit_w3_C_section')
-        self.lineEdit_t1_C_section = self.findChild(QLineEdit, 'lineEdit_t1_C_section')    
-        self.lineEdit_t3_C_section = self.findChild(QLineEdit, 'lineEdit_t3_C_section')         
-
-        self.lineEdit_height_I_section = self.findChild(QLineEdit, 'lineEdit_height_I_section')
-        self.lineEdit_radius_I_section = self.findChild(QLineEdit, 'lineEdit_radius_I_section')
-        self.lineEdit_w1_I_section = self.findChild(QLineEdit, 'lineEdit_w1_I_section')
-        self.lineEdit_w2_I_section = self.findChild(QLineEdit, 'lineEdit_w2_I_section')
-        self.lineEdit_w3_I_section = self.findChild(QLineEdit, 'lineEdit_w3_I_section')
-        self.lineEdit_t1_I_section = self.findChild(QLineEdit, 'lineEdit_t1_I_section')    
-        self.lineEdit_t3_I_section = self.findChild(QLineEdit, 'lineEdit_t3_I_section') 
-
-        self.lineEdit_height_T_section = self.findChild(QLineEdit, 'lineEdit_height_T_section')
-        self.lineEdit_radius_T_section = self.findChild(QLineEdit, 'lineEdit_radius_T_section')
-        self.lineEdit_w1_T_section = self.findChild(QLineEdit, 'lineEdit_w1_T_section')
-        self.lineEdit_w2_T_section = self.findChild(QLineEdit, 'lineEdit_w2_T_section')
-        self.lineEdit_t1_T_section = self.findChild(QLineEdit, 'lineEdit_t1_T_section')  
-
-        self.tabWidget_section_beam_info = self.findChild(QTabWidget, 'tabWidget_section_beam_info')
-        self.tabWidget_section_beam_info.currentChanged.connect(self.tabEvent_beam_type)
-        self.currentTab_beam_type = self.tabWidget_section_beam_info.currentIndex()
-
-        self.pushButton_confirm_beam = self.findChild(QPushButton, 'pushButton_confirm_beam')  
-        self.pushButton_confirm_beam.clicked.connect(self.confirm_beam)
-
-        self.pushButton_plot_cross_section = self.findChild(QPushButton, 'pushButton_plot_cross_section')  
-        self.pushButton_plot_cross_section.clicked.connect(self.plot_section)
-
-        self.tab_rectangular_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_rectangular_section")
-        self.tab_circular_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_circular_section")
-        self.tab_C_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_C_section")
-        self.tab_I_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_I_section")
-        self.tab_T_section = self.tabWidget_section_beam_info.findChild(QWidget, "tab_T_section")
-
-        if self.section_data is not None:
-            section_type, section_entries = self.section_data
-            if section_type == 'Rectangular section':
-                # print('Rectangular section')
-                [base, height, base_in, height_in, _, _] = section_entries
-                self.lineEdit_base_rectangular_section.setText(str(base))
-                self.lineEdit_height_rectangular_section.setText(str(height))
-                if base_in != 0 and height_in != 0:
-                    self.lineEdit_thickness_rectangular_section.setText(str(round((base-base_in)/2,4))) 
-            elif section_type == 'Circular section':
-                # print('Circular section')
-                [outer_diameter_beam, inner_diameter_beam, _, _] = section_entries
-                self.lineEdit_outer_diameter_circular_section.setText(str(outer_diameter_beam))
-                if inner_diameter_beam != 0:
-                    self.lineEdit_inner_diameter_circular_section.setText(str(inner_diameter_beam))
-            elif section_type == 'C-section':
-                # print('C-section')
-                [h, w1, w2, w3, t1, t2, t3, r, _ ,_ ] = section_entries
-                self.lineEdit_height_C_section.setText(str(h))
-                self.lineEdit_w1_C_section.setText(str(w1))
-                self.lineEdit_w2_C_section.setText(str(w2))
-                self.lineEdit_w3_C_section.setText(str(w3))
-                self.lineEdit_t1_C_section.setText(str(t1))   
-                self.lineEdit_t3_C_section.setText(str(t3))
-                if r != 0:
-                    self.lineEdit_radius_C_section.setText(str(r))                
-            elif section_type == 'I-section':
-                # print('I-section')
-                [h, w1, w2, w3, t1, _, t3, r, _, _] = section_entries
-                self.lineEdit_height_I_section.setText(str(h))
-                self.lineEdit_w1_I_section.setText(str(w1))
-                self.lineEdit_w2_I_section.setText(str(w2))
-                self.lineEdit_w3_I_section.setText(str(w3))
-                self.lineEdit_t1_I_section.setText(str(t1))   
-                self.lineEdit_t3_I_section.setText(str(t3))
-                if r != 0:
-                    self.lineEdit_radius_I_section.setText(str(r))
-            elif section_type == 'T-section':
-                # print('T-section')
-                [h, w1, w2, t1, t2, r, _ ,_ ] = section_entries
-                self.lineEdit_height_T_section.setText(str(h))
-                self.lineEdit_w1_T_section.setText(str(w1))
-                self.lineEdit_w2_T_section.setText(str(w2))
-                self.lineEdit_t1_T_section.setText(str(t1))   
-                if r != 0:
-                    self.lineEdit_radius_I_section.setText(str(r))
-            else:
-                pass
-
-        self.update_tabs()
-        self.exec_()
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_beam()
-        elif event.key() == Qt.Key_Escape:
-            self.close()
-
-    def update_tabs(self):
-
-        tabs = [self.tab_rectangular_section, self.tab_circular_section, self.tab_C_section, self.tab_I_section, self.tab_T_section]
-
-        for i in range(5):
-            if i == self.section_type:
-                self.tabWidget_section_beam_info.setTabEnabled(i, True)
-                self.tabWidget_section_beam_info.setCurrentWidget(tabs[i])
-            else:
-                self.tabWidget_section_beam_info.setTabEnabled(i, False)
-
-    def tabEvent_beam_type(self):
-        self.currentTab_beam_type = self.tabWidget_section_beam_info.currentIndex()
+            self.project.set_cross_section_to_all(self.cross_section)
+            self.project.set_structural_element_type_to_all(self.element_type)
+            print("[Set Cross-section] - defined at all lines") 
 
     def confirm_beam(self):
         self.element_type = 'beam_1'
         self.check_beam()
 
-    def check_beam(self, plot=False):
+    def check_beam_inputs_common_sections(self, plot=False):
 
-        if self.currentTab_beam_type == 0: # Rectangular section
+        if self.currentTab_beam == 0: # Rectangular section
 
             self.section_label = "Rectangular section"
 
-            base = self.check_beam_inputs(self.lineEdit_base_rectangular_section, 'BASE')
-            height = self.check_beam_inputs(self.lineEdit_height_rectangular_section, 'HEIGHT')
+            base = self.check_inputs(self.lineEdit_base_rectangular_section, 'Base (Rectangular section)')
+            if self.stop:
+                return True
             
-            if None in [base, height]:
-                self.stop = True
-                return
-
+            height = self.check_inputs(self.lineEdit_height_rectangular_section, 'Height (Rectangular section)')
+            if self.stop:
+                return True
+            
+            offset_y = self.check_inputs(self.lineEdit_offsety_rectangular_section, 'Offset y (Rectangular section)', zero_included=True)
+            if self.stop:
+                return True
+            
+            offset_z = self.check_inputs(self.lineEdit_offsetz_rectangular_section, 'Offset z (Rectangular section)', zero_included=True)
+            if self.stop:
+                return True
+   
             if self.lineEdit_thickness_rectangular_section.text() != "":
-                thickness = self.check_beam_inputs(self.lineEdit_thickness_rectangular_section, 'THICKNESS')
-                if thickness is None:
-                    self.stop = True
-                    return
+                
+                thickness = self.check_inputs(self.lineEdit_thickness_rectangular_section, 'Thickness (Rectangular section)')
+                if self.stop:
+                    return True
+
                 if thickness > np.min([(base/2), (height/2)]):
                     title = "INPUT CROSS-SECTION ERROR"
                     message = "Error in THICKNESS value input."
                     PrintMessageInput([title, message, window_title])
                     self.stop = True
-                    return             
+                    return True             
                 else:
                     base_in = base - 2*thickness
                     height_in = height - 2*thickness
             else:
                 base_in = 0
                 height_in = 0
-    
-            area = base*height - base_in*height_in
-            Iyy = ((height**3)*base/12) - ((height_in**3)*base_in/12)
-            Izz = ((base**3)*height/12) - (base_in**3)*height_in/12
-
-            Iyz = 0.
-            Yc, Zc = 0, 0
             
-            self.parameters = [base, height, base_in, height_in, Yc, Zc]
-            self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
+            self.section_parameters = [base, height, base_in, height_in, offset_y, offset_z]
 
-        elif self.currentTab_beam_type == 1: # Circular section
+        elif self.currentTab_beam == 1: # Circular section
 
             self.section_label = "Circular section"
 
-            outer_diameter_beam = self.check_beam_inputs(self.lineEdit_outer_diameter_circular_section, 'OUTER DIAMETER')
-            if self.lineEdit_inner_diameter_circular_section != "":
-                inner_diameter_beam = self.check_beam_inputs(self.lineEdit_inner_diameter_circular_section, 'INNER DIAMETER', check_radius=True)
+            outer_diameter_beam = self.check_inputs(self.lineEdit_outer_diameter_circular_section, 'Outer diameter (Circular section)')
+            if self.stop:
+                return True
+            
+            offset_y = self.check_inputs(self.lineEdit_offsety_circular_section, 'Offset y (Circular section)', zero_included=True)
+            if self.stop:
+                return True
+            
+            offset_z = self.check_inputs(self.lineEdit_offsetz_circular_section, 'Offset z (Circular section)', zero_included=True)
+            if self.stop:
+                return True
+
+            if self.lineEdit_thickness_circular_section != "":
+                thickness = self.check_inputs(self.lineEdit_thickness_circular_section, 'Thickness (Circular section)')
+                if self.stop:
+                    return
+                inner_diameter_beam = outer_diameter_beam - 2*thickness
             else:
                 inner_diameter_beam = float(0)
 
-            if outer_diameter_beam <= inner_diameter_beam:
+            if outer_diameter_beam < 2*thickness:
                 title = "INPUT CROSS-SECTION ERROR"
-                message = "The OUTER DIAMETER must be greater than INNER DIAMETER."
+                message = "The OUTER DIAMETER must be greater or equals to 2*THICKNESS."
                 PrintMessageInput([title, message, window_title])
                 self.stop = True
-                return
-            
-            area = np.pi*((outer_diameter_beam**2)-(inner_diameter_beam**2))/4
-            Iyy = np.pi*((outer_diameter_beam**4)-(inner_diameter_beam**4))/64
-            Izz = np.pi*((outer_diameter_beam**4)-(inner_diameter_beam**4))/64
-            Iyz = 0
-            Yc, Zc = 0, 0
+                return True
 
-            self.parameters = [outer_diameter_beam, inner_diameter_beam, Yc, Zc]
-            self.external_diameter = outer_diameter_beam
+            self.section_parameters = [outer_diameter_beam, thickness, offset_y, offset_z]
 
-        elif self.currentTab_beam_type == 2: # Beam: C-section
+        elif self.currentTab_beam == 2: # Beam: C-section
 
             self.section_label = "C-section"
 
-            height = self.check_beam_inputs(self.lineEdit_height_C_section, 'HEIGHT')
-            w1 = self.check_beam_inputs(self.lineEdit_w1_C_section, 'W1')
-            w2 = self.check_beam_inputs(self.lineEdit_w2_C_section, 'W2')
-            w3 = self.check_beam_inputs(self.lineEdit_w3_C_section, 'W3')
-            t1 = self.check_beam_inputs(self.lineEdit_t1_C_section, 't1')
-            t3 = self.check_beam_inputs(self.lineEdit_t3_C_section, 't3')
-            radius_C = self.check_beam_inputs(self.lineEdit_radius_C_section, 'RADIUS (C PROFILE)', check_radius=True)
+            h = self.check_inputs(self.lineEdit_height_C_section, 'Height (C-profile)')
+            if self.stop:
+                return True
+            
+            w1 = self.check_inputs(self.lineEdit_w1_C_section, 'w1 (C-profile)')
+            if self.stop:
+                return True
 
-            if None in [height, w1, w2, w3, t1, t3]:
-                self.stop = True
-                return
+            tw = self.check_inputs(self.lineEdit_tw_C_section, 'tw (C-profile)')
+            if self.stop:
+                return True
+            
+            w2 = self.check_inputs(self.lineEdit_w2_C_section, 'w2 (C-profile)')
+            if self.stop:
+                return True
 
-            if height < (t1 + t3):
+            t1 = self.check_inputs(self.lineEdit_t1_C_section, 't1 (C-profile)')
+            if self.stop:
+                return True
+
+            t2 = self.check_inputs(self.lineEdit_t2_C_section, 't2 (C-profile)')
+            if self.stop:
+                return True
+
+            offset_y = self.check_inputs(self.lineEdit_offsety_C_section, 'Offset y (C-profile)', zero_included=True)
+            if self.stop:
+                return True
+
+            offset_z = self.check_inputs(self.lineEdit_offsetz_C_section, 'Offset z (C-profile)', zero_included=True)            
+            if self.stop:
+                return True
+
+            if h < (t1 + t2):
                 title = "INPUT CROSS-SECTION ERROR"
-                message = "The HEIGHT must be greater than t1+t3 summation."
+                message = "The HEIGHT must be greater than t1+t2 summation."
                 PrintMessageInput([title, message, window_title])
                 self.stop = True
-                return
+                return True
 
-            h = height
-            t2 = h - t1 - t3
+            self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
 
-            if self.lineEdit_radius_C_section.text() != "":
-                if radius_C is None:
-                    self.stop = True
-                    return
-                else:
-                    r = radius_C
-            else:
-                r = float(0)
-
-            self.parameters = [h, w1, w2, w3, t1, t2, t3, r]
-
-            A_i = np.array([w1*t1, w2*t2, w3*t3, ((4-np.pi)/4)*r**2, ((4-np.pi)/4)*r**2])
-            A_t = np.sum(A_i)
-
-            y_ci = np.array([w1/2, w2/2, w3/2, (w2 + ((10-3*np.pi)/(3*(4-np.pi)))*r), (w2 + ((10-3*np.pi)/(3*(4-np.pi)))*r)])
-            z_ci = np.array([((t1+t2)/2), 0, -((t2+t3)/2), ((h/2) - t1 - ((10-3*np.pi)/(3*(4-np.pi)))*r), -((h/2) - t3 - ((10-3*np.pi)/(3*(4-np.pi)))*r)])
-            
-            I_yi = np.array([(w1*t1**3)/12, (w2*t2**3)/12, (w3*t3**3)/12, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4])
-            I_zi = np.array([(t1*w1**3)/12, (t2*w2**3)/12, (t3*w3**3)/12, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4])
-            I_yzi = np.array([0, 0, 0, ((28-9*np.pi)/(72*(4-np.pi)))*r**4, -((28-9*np.pi)/(72*(4-np.pi)))*r**4])
-
-        elif self.currentTab_beam_type == 3: # Beam: I-section
+        elif self.currentTab_beam == 3: # Beam: I-section
 
             self.section_label = "I-section"
 
-            height = self.check_beam_inputs(self.lineEdit_height_I_section, 'HEIGHT')
-            w1 = self.check_beam_inputs(self.lineEdit_w1_I_section, 'W1')
-            w2 = self.check_beam_inputs(self.lineEdit_w2_I_section, 'W2')
-            w3 = self.check_beam_inputs(self.lineEdit_w3_I_section, 'W3')
-            t1 = self.check_beam_inputs(self.lineEdit_t1_I_section, 't1')
-            t3 = self.check_beam_inputs(self.lineEdit_t3_I_section, 't3')
-            radius_I = self.check_beam_inputs(self.lineEdit_radius_I_section, 'RADIUS (I PROFILE)', check_radius=True)
+            h = self.check_inputs(self.lineEdit_height_I_section, 'Height (I-profile)')
+            if self.stop:
+                return True
 
-            if None in [height, w1, w2, w3, t1, t3]:
-                self.stop = True
-                return
+            w1 = self.check_inputs(self.lineEdit_w1_I_section, 'w1 (I-profile)')
+            if self.stop:
+                return True
 
-            if height < (t1 + t3):
+            tw = self.check_inputs(self.lineEdit_tw_I_section, 'tw (I-profile)')
+            if self.stop:
+                return True
+
+            w2 = self.check_inputs(self.lineEdit_w2_I_section, 'w2 (I-profile)')
+            if self.stop:
+                return True
+
+            t1 = self.check_inputs(self.lineEdit_t1_I_section, 't1 (I-profile)')
+            if self.stop:
+                return True
+
+            t2 = self.check_inputs(self.lineEdit_t2_I_section, 't2 (I-profile)')
+            if self.stop:
+                return True
+
+            offset_y = self.check_inputs(self.lineEdit_offsety_I_section, 'Offset y (I-profile)', zero_included=True)
+            if self.stop:
+                return True
+
+            offset_z = self.check_inputs(self.lineEdit_offsetz_I_section, 'Offset z (I-profile)', zero_included=True)
+            if self.stop:
+                return True
+
+            if h < (t1 + t2):
                 title = "INPUT CROSS-SECTION ERROR"
-                message = "The HEIGHT must be greater than t1+t3 summation."
+                message = "The HEIGHT must be greater than t1+t2 summation."
                 PrintMessageInput([title, message, window_title])
                 self.stop = True
-                return
+                return True
 
-            h = height
-            t2 = h - t1 - t3
-
-            if self.lineEdit_radius_I_section.text() != "":
-                if radius_I is None:
-                    self.stop = True
-                    return
-                else:
-                    r = radius_I
-            else:
-                r = float(0)
-        
-            self.parameters = [h, w1, w2, w3, t1, t2, t3, r]
-
-            A_i = np.array([w1*t1, w2*t2, w3*t3, ((4-np.pi)/4)*r**2, ((4-np.pi)/4)*r**2, ((4-np.pi)/4)*r**2, ((4-np.pi)/4)*r**2])
-            A_t = np.sum(A_i)
-
-            y_c47 = ((w2/2) + ((10-3*np.pi)/(3*(4-np.pi)))*r)
-            y_c56 = -((w2/2) + ((10-3*np.pi)/(3*(4-np.pi)))*r) 
-            z_c45 = ((h/2) - t1 - ((10-3*np.pi)/(3*(4-np.pi)))*r)
-            z_c67 = -((h/2) - t3 - ((10-3*np.pi)/(3*(4-np.pi)))*r)   
-
-            y_ci = np.array([0, 0, 0, y_c47, y_c56, y_c56, y_c47])
-            z_ci = np.array([((t1+t2)/2), 0, -((t2+t3)/2), z_c45, z_c45, z_c67, z_c67])
-
-            I_y4567 = (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4
-            I_z4567 = (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4
-            I_yz4567 = ((28-9*np.pi)/(72*(4-np.pi)))*r**4
-
-            I_yi = np.array([(w1*t1**3)/12, (w2*t2**3)/12, (w3*t3**3)/12, I_y4567, I_y4567, I_y4567, I_y4567])
-            I_zi = np.array([(t1*w1**3)/12, (t2*w2**3)/12, (t3*w3**3)/12, I_z4567, I_z4567, I_z4567, I_z4567])
-            I_yzi = np.array([0, 0, 0, I_yz4567, -I_yz4567, I_yz4567, -I_yz4567])
-
-        elif self.currentTab_beam_type == 4: # Beam: T-section
+            self.section_parameters = [h, w1, t1, w2, t2, tw, offset_y, offset_z]
+            
+        elif self.currentTab_beam == 4: # Beam: T-section
 
             self.section_label = "T-section"
 
-            height = self.check_beam_inputs(self.lineEdit_height_T_section, 'HEIGHT')
-            w1 = self.check_beam_inputs(self.lineEdit_w1_T_section, 'W1')
-            w2 = self.check_beam_inputs(self.lineEdit_w2_T_section, 'W2')
-            t1 = self.check_beam_inputs(self.lineEdit_t1_T_section, 't1')
-            radius_T = self.check_beam_inputs(self.lineEdit_radius_T_section, 'RADIUS (T PROFILE)', check_radius=True)
+            h = self.check_inputs(self.lineEdit_height_T_section, 'HEIGHT (T-profile)')
+            if self.stop:
+                return True
 
-            if self.lineEdit_radius_T_section.text() != "":
-                if radius_T is None:
-                    return
-                else:
-                    r = radius_T
-            else:
-                r = float(0)
+            w1 = self.check_inputs(self.lineEdit_w1_T_section, 'W1 (T-profile)')
+            if self.stop:
+                return True
 
-            if None in [height, w1, w2, t1]:
-                self.stop = True
-                return
+            tw = self.check_inputs(self.lineEdit_tw_T_section, 'tw (T-profile)')
+            if self.stop:
+                return True
 
-            if height < t1:
+            t1 = self.check_inputs(self.lineEdit_t1_T_section, 't1 (T-profile)')
+            if self.stop:
+                return True
+
+            offset_y = self.check_inputs(self.lineEdit_offsety_T_section, 'OFFSET Y (T-profile)', zero_included=True)
+            if self.stop:
+                return True
+
+            offset_z = self.check_inputs(self.lineEdit_offsetz_T_section, 'OFFSET Y (T-profile)', zero_included=True)
+            if self.stop:
+                return True
+
+            if h < t1:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The HEIGHT must be greater than t1."
                 PrintMessageInput([title, message, window_title])
                 self.stop = True
-                return
+                return True
 
-            h = height
-            t2 = h - t1        
+            self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
 
-            self.parameters = [h, w1, w2, t1, t2, r]
-
-            A_i = np.array([w1*t1, w2*t2, ((4-np.pi)/4)*r**2, ((4-np.pi)/4)*r**2])
-            A_t = np.sum(A_i)
-
-            y_ci = np.array([0, 0, ((w2/2) + ((10-3*np.pi)/(3*(4-np.pi)))*r), -((w2/2) + ((10-3*np.pi)/(3*(4-np.pi)))*r)])
-            z_ci = np.array([((t1+t2)/2), 0, ((t2/2) - ((10-3*np.pi)/(3*(4-np.pi)))*r), ((t2/2) - ((10-3*np.pi)/(3*(4-np.pi)))*r)])
-
-            I_yi = np.array([(w1*t1**3)/12, (w2*t2**3)/12, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4])
-            I_zi = np.array([(t1*w1**3)/12, (t2*w2**3)/12, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4, (((16-3*np.pi)/48)-(1/(9*(4-np.pi))))*r**4])
-            I_yzi = np.array([0, 0, ((28-9*np.pi)/(72*(4-np.pi)))*r**4, -((28-9*np.pi)/(72*(4-np.pi)))*r**4])  
-
-        if self.currentTab_beam_type in [2,3,4]:
-            area = A_t
-            Yc = (y_ci@A_i)/A_t
-            Zc = (z_ci@A_i)/A_t
-            Iyy = np.sum(I_yi + ((z_ci-Zc)**2)*A_i)
-            Izz = np.sum(I_zi + ((y_ci-Yc)**2)*A_i)
-            Iyz = np.sum(I_yzi + ((y_ci-Yc)*(z_ci-Zc))*A_i)
-            self.parameters.append(Yc)
-            self.parameters.append(Zc)
-
-        self.external_diameter = 2*np.abs(np.sqrt(area/np.pi))
-        self.thickness = 0
-        self.Yc = Yc
-        self.Zc = Zc
-
-        if not plot:
-            section_info = [self.section_label, self.parameters]
-            self.cross_section = CrossSection(  self.external_diameter, self.thickness, 0, 0, 
-                                                area=area, 
-                                                Iyy=Iyy, 
-                                                Izz=Izz, 
-                                                Iyz=Iyz, 
-                                                additional_section_info=section_info)
-            self.complete = True
-            plt.close()
-            self.close()
+        self.section_properties = get_beam_section_properties(self.section_label, self.section_parameters)
         
-    def check_beam_inputs(self, lineEdit, label, check_radius=False):
-
+        return False
+                
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
+        self.stop = False
         if lineEdit.text() != "":
             try:
                 out = float(lineEdit.text())
-                if check_radius:
-                    if out < 0:
-                        title = "INPUT CROSS-SECTION ERROR"
-                        message = "Insert a positive value to the {}.".format(label)
-                        PrintMessageInput([title, message, window_title])
-                        self.stop = True
-                        return None
-                    elif out == 0:
-                        return float(0)
-                else:
-                    if out <= 0:
-                        title = "INPUT CROSS-SECTION ERROR"
-                        message = "Insert a positive value to the {}.".format(label)
-                        PrintMessageInput([title, message, window_title])
-                        self.stop = True
-                        return None
-            except Exception:
+                if only_positive:
+                    if zero_included:
+                        if out < 0:
+                            title = "INPUT CROSS-SECTION ERROR"
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is allowed."
+                            PrintMessageInput([title, message, window_title])
+                            self.stop = True
+                            return None
+                    else:
+                        if out <= 0:
+                            title = "INPUT CROSS-SECTION ERROR"
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nZero value is not allowed."
+                            PrintMessageInput([title, message, window_title])
+                            self.stop = True
+                            return None
+            except Exception as _err:
                 title = "INPUT CROSS-SECTION ERROR"
-                message = "Wrong input for {}.".format(label)
+                message = f"Wrong input for {label}.\n\n"
+                message += str(_err)
                 PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return None
         else:
-            if check_radius:
+            if zero_included:
                 return float(0)
             else: 
                 title = "INPUT CROSS-SECTION ERROR"
-                message = "Insert some value for {}.".format(label)
+                message = f"Insert some value at the {label} input field."
                 PrintMessageInput([title, message, window_title])                   
                 self.stop = True
                 return None
         return out
-
-    def check_radius_values(self, lineEdit, value):
-        if lineEdit.text() != "":
-            if value is None:
-                self.stop = True
-                return None
-            else:
-                return value
-        else:
-            return 0
-
-    def get_points_to_plot_section(self):
-
-        if self.section_type == 0: # Rectangular section
-
-            b, h, b_in, h_in, _, _ = self.parameters
-            Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
-            Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 1: # Circular section
             
-            N = 60
-            d_out, d_in, _, _ = self.parameters
-            
-            d_theta = np.pi/N
-            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-
-            Yp_out = (d_out/2)*np.cos(theta)
-            Zp_out = (d_out/2)*np.sin(theta)
-            Yp_in = (d_in/2)*np.cos(-theta)
-            Zp_in = (d_in/2)*np.sin(-theta)
-
-            Yp_list = [list(Yp_out), list(Yp_in), [0]]
-            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 2: # Beam: C-section
-
-            h, w1, w2, w3, t1, t2, t3, r, _, _ = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w3, w3, w2+r]) 
-            Yp_list.append(list(np.flip(-y_r+w2)))
-            Yp_list.append([w2, w2])
-            Yp_list.append(list(w2-y_r))
-            Yp_list.append([w2+r, w1, w1, 0, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(h/2), -(h/2), -(t2/2), -(t2/2)]) 
-            Zp_list.append(list(np.flip((-z_r+r)-(t2/2))))
-            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Zp_list.append(list(z_r+(t2/2)-r))
-            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)])
-
-            Yp = [value for _list in Yp_list for value in _list]
-            Zp = [value for _list in Zp_list for value in _list]
-
-        elif self.section_type == 3: # Beam: I-section
-
-            h, w1, w2, w3, t1, t2, t3, r, _, _ = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w3/2, w3/2, (w2/2)+r]) 
-            Yp_list.append(list(np.flip(-y_r+(w2/2))))
-            Yp_list.append([w2/2, w2/2])
-            Yp_list.append(list((w2/2)-y_r))
-            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3)]) 
-            Zp_list.append(list(np.flip((-z_r+r)-((h/2)-t3))))
-            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Zp_list.append(list(z_r+(h/2)-t1-r))
-            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2)])
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 4: # Beam: T-section
-
-            h, w1, w2, t1, t2, r, _, _ = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w2/2, w2/2])
-            Yp_list.append(list((w2/2)-y_r))
-            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(t2/2), -(t2/2), (h/2)-t1-r])
-            Zp_list.append(list(z_r+(t2/2)-r))
-            Zp_list.append([(t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1])
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        return Yp, Zp
-        
-    def get_points_at_radius(self, r, N=20):
-
-        if self.section_type in [2,3,4]:
-
-            d_theta = (np.pi/2)/N
-            theta = np.arange(d_theta, (np.pi/2), d_theta)
-            y_r = -r + r*np.cos(theta)
-            z_r = r*np.sin(theta)
-
-            return y_r, z_r
-
     def plot_section(self):
 
         plt.close()
 
-        self.check_beam(plot=True)
+        if self.currentTab_cross_section == 0:
+            self.check_straight_pipe(plot=True) 
+        
+        elif self.currentTab_cross_section == 1:
+            self.check_beam_inputs_common_sections(plot=True)
+
         if self.stop:
             self.stop = False
             return
 
-        Yp, Zp = self.get_points_to_plot_section()
+        if self.section_label == "Pipe section":
+            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
+        else:
+            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
+
         _max = np.max(np.abs(np.array([Yp, Zp])))
 
         fig = plt.figure(figsize=[8,8])
         ax = fig.add_subplot(1,1,1)
 
         first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
-        second_plot = plt.scatter(self.Yc, self.Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
-
-        second_plot.set_label("y: %7.5e // z: %7.5e" % (self.Yc, self.Zc))
-        plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
+        second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
+        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
+        
+        if self.section_label == "Pipe section" and Yp_ins is not None:
+            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
+            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
+            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
+            fourth.set_label("Insulation material")
+            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
+        else:
+            second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
+            plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
 
         ax.set_title('CROSS-SECTION PLOT', fontsize = 18, fontweight = 'bold')
         ax.set_xlabel('y [m]', fontsize = 16, fontweight = 'bold')
         ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
         
         f = 1.25
-        if self.section_type == 2:
-            np.min(np.array([Yp]))
+        if self.section_type == 3:
             plt.xlim(-(1/2)*_max, (3/2)*_max)
-        elif self.section_type in [0, 1, 3, 4]:
+        else:
             plt.xlim(-_max*f, _max*f)
 
         plt.ylim(-_max*f, _max*f)

@@ -8,10 +8,10 @@ from PyQt5 import uic
 import configparser
 import numpy as np
 
-# from pulse.postprocessing.plot_structural_data import get_stress_data
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotStressFieldInput(QDialog):
-    def __init__(self, project, solve, opv, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFieldInput.ui', self)
 
@@ -25,7 +25,7 @@ class PlotStressFieldInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
-        self.solve = solve
+        self.solve = self.project.structural_solve
         self.mesh = self.project.mesh
         self.damping = project.get_damping()
         self.frequencies = project.frequencies
@@ -105,17 +105,24 @@ class PlotStressFieldInput(QDialog):
                     self.flag_torsional_shear, self.flag_transv_shear_xy, self.flag_transv_shear_xz]
         
     def check(self):
+        window_title = "WARNING"
         if self.lineEdit_selected_frequency.text() == "":
-            error("Select a frequency")
+            title = "Aditional action required"
+            message = "Select a frequency from the available list \n"
+            message += "of frequencies to continue."
+            PrintMessageInput([title, message, window_title])
             return
         else:
             frequency_selected = float(self.lineEdit_selected_frequency.text())
             if frequency_selected in self.frequencies:
                 self.selected_index = self.dict_frequency_to_index[frequency_selected]
-            else:
-                error("  You typed an invalid frequency!  ")
-                return
-            self.get_stress_data()
+                self.get_stress_data()
+            # else:
+            #     title = "Aditional action required"
+            #     message = "You have typed an invalid frequency. It's recommended "
+            #     message += "to select a frequency from the available list of frequencies."
+            #     PrintMessageInput([title, message, window_title])
+            #     return
 
     def get_stress_data(self):
 

@@ -28,6 +28,7 @@ class CappedEndInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
@@ -277,56 +278,6 @@ class CappedEndInput(QDialog):
         output = list(map(int, tokens))
         return output
 
-    def check_input_elements(self):
-        
-        try:
-            if self.lineEdit_selected_ID.text() == "":
-                title = "Error: empty Element ID input"
-                message = "Inform a valid Element ID before to confirm the input!"
-                self.info_text = [title, message, window_title1]
-                return True
-            self.elements_typed = np.sort(self.get_list_typed_entries()).tolist()
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = "Wrong input for Element ID's!"
-            self.info_text = [title, message, window_title1]
-            return True
-
-        try:
-            for _element_id in self.elements_typed:
-                self.elementID = self.structural_elements[_element_id].index
-        except:
-            title = "Error: invalid Element ID input"
-            message = "The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
-    def check_input_lines(self):
-        
-        try:
-            if self.lineEdit_selected_ID.text() == "":
-                title = "Error: empty Line ID input"
-                message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message, window_title1]
-                return True
-            self.lines_typed = self.get_list_typed_entries()
-        except Exception:
-            title = "Error: invalid Line ID input"
-            message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title1]
-            return True
-
-        try:
-            for line in self.lines_typed:
-                self.line = self.dict_tag_to_entity[line]
-        except Exception:
-            title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
     def check_capped_end(self):
 
         if self.flagAll:
@@ -334,8 +285,9 @@ class CappedEndInput(QDialog):
             print("Set capped end correction to all lines.")
 
         elif self.flagElements:
-            if self.check_input_elements():
-                PrintMessageInput(self.info_text)
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            if self.stop:
                 return
 
             size = len(self.project.mesh.group_elements_with_capped_end)
@@ -381,9 +333,11 @@ class CappedEndInput(QDialog):
                 print("Set capped end at elements: {}".format(self.elements_typed))
         
         elif self.flagEntity:
-            if self.check_input_lines():
-                PrintMessageInput(self.info_text)
-                return
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            if self.stop:
+                return True      
 
             self.set_capped_end_to_lines()
             self.replaced = False

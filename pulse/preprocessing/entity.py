@@ -16,11 +16,10 @@ class Entity:
         self.material = None
         self.fluid = None
         self.cross_section = None
-        beam_xaxis_rotation = None
+        self.beam_xaxis_rotation = None
         self.acoustic_element_type = None
         self.hysteretic_damping = None
         self.structural_element_type = None
-        self.additional_section_info = None
         self.capped_end = None
         self.length_correction = None
         self.internal_pressure = kwargs.get('internal_pressure', None)

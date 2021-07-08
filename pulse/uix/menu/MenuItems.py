@@ -383,7 +383,7 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_set_crossSection:
             if not self.item_child_set_crossSection.isDisabled():
-                self.update_plot_entities()
+                # self.update_plot_entities()
                 if self.mainWindow.getInputWidget().set_cross_section():
                     self.mainWindow.plot_entities_with_cross_section()
 

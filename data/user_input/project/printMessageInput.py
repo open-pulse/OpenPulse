@@ -44,7 +44,7 @@ class PrintMessageInput(QDialog):
     def create_font_title(self):
         self.font_title = QFont()
         self.font_title.setFamily("Arial")
-        self.font_title.setPointSize(14)
+        self.font_title.setPointSize(13)
         self.font_title.setBold(True)
         self.font_title.setItalic(False)
         self.font_title.setWeight(75) 

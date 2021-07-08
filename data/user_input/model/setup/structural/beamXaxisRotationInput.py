@@ -22,13 +22,14 @@ class BeamXaxisRotationInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.mesh = project.mesh
         self.opv = opv
         self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
         self.lines_id = self.opv.getListPickedEntities()
-        self.typed_lines = []
+        # self.typed_lines = []
         self.dict_entities = project.mesh.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
@@ -47,10 +48,6 @@ class BeamXaxisRotationInput(QDialog):
 
         self.lineEdit_beam_xaxis_rotation_angle = self.findChild(QLineEdit, "lineEdit_beam_xaxis_rotation_angle")
         self.lineEdit_beam_xaxis_rotation_angle.setDisabled(False)
-
-        # self.comboBox = self.findChild(QComboBox, 'comboBox')
-        # self.comboBox.currentIndexChanged.connect(self.selectionChange)
-        # self.index = self.comboBox.currentIndex()
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_entity')
@@ -177,35 +174,16 @@ class BeamXaxisRotationInput(QDialog):
         else:
             self.set_disable_tab_1_buttons(True)
 
-    def get_list_selected_lines(self):
-        try:
-            if self.lineEdit_selected_ID.text() == "":
-                return []
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.typed_lines = list(map(int, tokens))
-            for line_id in self.typed_lines:
-                self.project.mesh.dict_tag_to_entity[line_id]
-            return True
-        except Exception:
-            return False
-
     def confirm_input(self):
         if self.check_xaxis_rotation_angle():
             return    
         if self.flagEntity:
-            if self.get_list_selected_lines():
-                lines = self.typed_lines
-            else:
-                _size = len(self.project.mesh.dict_tag_to_entity)
-                title = "Invalid entry to the Line ID"
-                message = "Dear user, you have typed an invalid entry at the Line ID input field.\n" 
-                message += f"The input value(s) must be integer(s) number(s) greater than 1 and less than {_size}."
-                PrintMessageInput([title, message, window_title1])
+
+            lineEdit_lineID = self.lineEdit_selected_ID.text()
+            self.stop, lines = self.mesh.check_input_LineID(lineEdit_lineID)
+            if self.stop:
                 return
+ 
         elif self.flagAll:
             lines = self.project.mesh.all_lines
         for line in lines:

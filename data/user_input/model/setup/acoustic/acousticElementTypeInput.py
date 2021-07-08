@@ -25,6 +25,7 @@ class AcousticElementTypeInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.lines_id = self.opv.getListPickedEntities()
         self.dict_entities = project.mesh.dict_tag_to_entity
         self.comboBox_index = 0
@@ -151,17 +152,6 @@ class AcousticElementTypeInput(QDialog):
     #         else:
     #             self.update_cross_section = False
 
-    def get_list_typed_entries(self):
-        if self.lineEdit_selected_group.text() == "":
-            return []
-        tokens = self.lineEdit_selected_group.text().strip().split(',')
-        try:
-            tokens.remove('')
-        except:     
-            pass
-        output = list(map(int, tokens))
-        return output
-
     def selectionChange(self, index):
         self.comboBox_index = self.comboBox.currentIndex()
         self.tabWidget_element_type.setTabEnabled(1, False)
@@ -219,14 +209,15 @@ class AcousticElementTypeInput(QDialog):
             hysteretic_damping = None
 
         if self.flagSelection:
-            if len(self.lines_id) == 0:
-                title = "Empty line ID selection"
-                message = "Please, select the line(s) of model to continue."
-                PrintMessageInput([title, message, window_title1])
-                return
-            for line in self.lines_id:
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            if self.stop:
+                return True
+
+            for line in self.lines_typed:
                 self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
-            print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_id))
+            print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_typed))
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
                 self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)

@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.preprocessing.cross_section import CrossSection
+from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
@@ -27,6 +27,7 @@ class PlotCrossSectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.stop = False
         
         self.structural_elements = self.project.mesh.structural_elements
@@ -76,9 +77,14 @@ class PlotCrossSectionInput(QDialog):
         if self.flagEntity:
             self.lineEdit_id_labels.setText("Line ID:")
             self.write_ids(self.line_id)
+            if self.opv.change_plot_to_mesh:
+                self.opv.changePlotToEntitiesWithCrossSection()
+
         elif self.flagElements:
             self.lineEdit_id_labels.setText("Element ID:")
             self.write_ids(self.element_id)
+            if not self.opv.change_plot_to_mesh:
+                self.opv.changePlotToMesh()
 
     def write_ids(self, list_ids):
         text = ""
@@ -103,79 +109,6 @@ class PlotCrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Selected ID:")
             self.lineEdit_selected_ID.setText("")
 
-    def check_input_element(self):
-
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.element_typed = list(map(int, tokens))
-
-            if len(self.element_typed) > 1:
-                message = "Please, select only one element \nto plot its cross-section."
-                title = "Error: multiple elements in selection"
-                self.info_text = [title, message]
-                return True
-            
-            if self.lineEdit_selected_ID.text() == "":
-                message = "Inform a valid Element ID before \nto confirm the input."
-                title = "Error: empty Element ID input"
-                self.info_text = [title, message]
-                return True
-
-        except Exception:
-            message = "Wrong input for Element ID."
-            title = "Error in Element ID"
-            self.info_text = [title, message]
-            return True
-
-        try:
-            for element in self.element_typed:
-                self.element = self.structural_elements[element]
-        except Exception:
-            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
-            title = "Error: invalid Element ID input"
-            self.info_text = [title, message]
-            return True
-        return False
-
-    def check_input_line(self):
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.line_typed = list(map(int, tokens))
-
-            if len(self.line_typed) > 1:
-                message = "Please, select only one line \nto plot its cross-section."
-                title = "Error: multiple lines in selection"
-                self.info_text = [title, message]
-                return True
-            
-            if self.lineEdit_selected_ID.text()=="":
-                message = "Inform a valid Line ID before \nto confirm the input!."
-                title = "Error: empty Line ID input"
-                self.info_text = [title, message]
-                return True
-        except Exception:
-            message = "Wrong input for Line ID!"
-            title = "Error: invalid Line ID input"
-            self.info_text = [title, message]
-            return True
-        try:
-            for line in self.line_typed:
-                self.line = self.dict_tag_to_entity[line]
-        except Exception:
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            title = "Error: invalid Line ID"
-            self.info_text = [title, message]
-            return True
-        return False
-
     def _get_dict_key_section(self):
         self.labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
         self.dict_sections = dict(zip(self.labels, np.arange(7)))
@@ -184,221 +117,58 @@ class PlotCrossSectionInput(QDialog):
 
         if self.flagEntity:
 
-            if self.check_input_line():
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.line_typed = self.mesh.check_input_LineID(lineEdit, single_ID=True)
+            if self.stop:
+                return None
+
+            if self.line_typed in list(self.project.number_sections_by_line.keys()):
+                N = self.project.number_sections_by_line[self.line_typed]
+                message = f"Dear user, you have selected a line with {N} multiple cross-sections, therefore, the cross-section "
+                message += "plot by line selection will not work. \n\nIn this case, we strongly recommend selecting an element " 
+                message += "from the desired line to plot its cross-section."
+                title = "Line with multiples cross-sections"
+                self.info_text = [title, message, "WARNING"]
                 PrintMessageInput(self.info_text)
                 return None
 
-            entity = self.dict_tag_to_entity[self.line_typed[0]]
+            entity = self.dict_tag_to_entity[self.line_typed]
+            
             if entity.cross_section is None:
                 message = "Please, define a cross-section to the \nselected line before trying to plot the section."
                 title = "Error: undefined line cross-section"
-                self.info_text = [title, message]
-                return None
-            additional_section_info = entity.cross_section.additional_section_info
-    
-        elif self.flagElements:
-
-            if self.check_input_element():
+                self.info_text = [title, message, "ERROR"]
                 PrintMessageInput(self.info_text)
                 return None
+            self.section_info = entity.cross_section.section_info
+            
+        elif self.flagElements:
 
-            element = self.structural_elements[self.element_typed[0]]
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.element_typed = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+            if self.stop:
+                return None
+
+            element = self.structural_elements[self.element_typed]
             if element.cross_section is None:
                 message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
                 title = "Error: undefined element cross-section"
-                self.info_text = [title, message]     
+                self.info_text = [title, message, "ERROR"]     
                 PrintMessageInput(self.info_text)       
                 return None
 
-            additional_section_info = element.cross_section.additional_section_info
+            self.section_info = element.cross_section.section_info
 
-        self.parameters = additional_section_info[1]
-        self.section_type = self.dict_sections[additional_section_info[0]]
-
+        self.section_label = self.section_info["section_type_label"]
+        self.section_parameters = self.section_info["section_parameters"]
+         
+        if self.section_label not in ["Pipe section", "Generic section"]:
+            self.section_properties = self.section_info["section_properties"]
+        self.section_type = self.dict_sections[self.section_label]
+        
         return 0
 
-    def get_points_to_plot_section(self):
-
-        if self.section_type == 0: # Pipe section
-
-            N = 60
-            d_out, thickness, offset_y, offset_z, insulation_thickness = self.parameters
-            self.insulation_thickness = insulation_thickness
-            Yc, Zc = offset_y, offset_z
-
-            d_theta = np.pi/N
-            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-            d_in = d_out - 2*thickness
-
-            Yp_out = (d_out/2)*np.cos(theta)
-            Zp_out = (d_out/2)*np.sin(theta)
-            Yp_in = (d_in/2)*np.cos(-theta)
-            Zp_in = (d_in/2)*np.sin(-theta)
-
-            Yp_list = [list(Yp_out), list(Yp_in),[0]]
-            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-            
-            Yp = np.array([Yp_right, Yp_left]).flatten() + Yc
-            Zp = np.array([Zp_right, Zp_left]).flatten() + Zc
-            
-            if insulation_thickness != float(0):
-
-                Yp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.cos(theta)
-                Zp_out_ins = ((d_out + 2*insulation_thickness)/2)*np.sin(theta)
-                Yp_in_ins = (d_out/2)*np.cos(-theta)
-                Zp_in_ins = (d_out/2)*np.sin(-theta)
-
-                Yp_list_ins = [list(Yp_out_ins), list(Yp_in_ins), [0]]
-                Zp_list_ins = [list(Zp_out_ins), list(Zp_in_ins), [-(d_out/2)]]
-
-                Yp_right_ins = [value for _list in Yp_list_ins for value in _list]
-                Zp_right_ins = [value for _list in Zp_list_ins for value in _list]
-
-                Yp_left_ins = -np.flip(Yp_right_ins)
-                Zp_left_ins =  np.flip(Zp_right_ins)
-
-                self.Yp_ins = np.array([Yp_right_ins, Yp_left_ins]).flatten() + Yc
-                self.Zp_ins = np.array([Zp_right_ins, Zp_left_ins]).flatten() + Zc
-                
-        if self.section_type == 1: # Rectangular section
-
-            b, h, b_in, h_in, Yc, Zc = self.parameters
-            Yp_right = [0, (b/2), (b/2), 0, 0, (b_in/2), (b_in/2), 0, 0]
-            Zp_right = [-(h/2), -(h/2), (h/2), (h/2), (h_in/2), (h_in/2), -(h_in/2), -(h_in/2), -(h/2)]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 2: # Circular section
-            
-            N = 60
-            d_out, d_in, Yc, Zc = self.parameters
-            
-            d_theta = np.pi/N
-            theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)
-
-            Yp_out = (d_out/2)*np.cos(theta)
-            Zp_out = (d_out/2)*np.sin(theta)
-            Yp_in = (d_in/2)*np.cos(-theta)
-            Zp_in = (d_in/2)*np.sin(-theta)
-
-            Yp_list = [list(Yp_out), list(Yp_in), [0]]
-            Zp_list = [list(Zp_out), list(Zp_in), [-(d_out/2)]]
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 3: # Beam: C-section
-
-            h, w1, w2, w3, t1, t2, t3, r, Yc, Zc = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w3, w3, w2+r]) 
-            Yp_list.append(list(np.flip(-y_r+w2)))
-            Yp_list.append([w2, w2])
-            Yp_list.append(list(w2-y_r))
-            Yp_list.append([w2+r, w1, w1, 0, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(h/2), -(h/2), -(t2/2), -(t2/2)]) 
-            Zp_list.append(list(np.flip((-z_r+r)-(t2/2))))
-            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Zp_list.append(list(z_r+(t2/2)-r))
-            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2), -(h/2)])
-
-            Yp = [value for _list in Yp_list for value in _list]
-            Zp = [value for _list in Zp_list for value in _list]
-
-        elif self.section_type == 4: # Beam: I-section
-
-            h, w1, w2, w3, t1, t2, t3, r, Yc, Zc = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w3/2, w3/2, (w2/2)+r]) 
-            Yp_list.append(list(np.flip(-y_r+(w2/2))))
-            Yp_list.append([w2/2, w2/2])
-            Yp_list.append(list((w2/2)-y_r))
-            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(h/2), -(h/2), -((h/2)-t3), -((h/2)-t3)]) 
-            Zp_list.append(list(np.flip((-z_r+r)-((h/2)-t3))))
-            Zp_list.append([-(h/2)+t3+r, (h/2)-t1-r])
-            Zp_list.append(list(z_r+(h/2)-t1-r))
-            Zp_list.append([(h/2)-t1, (h/2)-t1, (h/2), (h/2)])
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-
-        elif self.section_type == 5: # Beam: T-section
-
-            h, w1, w2, t1, t2, r, Yc, Zc = self.parameters
-            y_r, z_r = self.get_points_at_radius(r)
-
-            Yp_list =[]
-            Yp_list.append([0, w2/2, w2/2])
-            Yp_list.append(list((w2/2)-y_r))
-            Yp_list.append([(w2/2)+r, w1/2, w1/2, 0])
-
-            Zp_list =[]
-            Zp_list.append([-(t2/2), -(t2/2), (h/2)-t1-r])
-            Zp_list.append(list(z_r+(t2/2)-r))
-            Zp_list.append([(t2/2), (t2/2), (t2/2)+t1, (t2/2)+t1])
-
-            Yp_right = [value for _list in Yp_list for value in _list]
-            Zp_right = [value for _list in Zp_list for value in _list]
-
-            Yp_left = -np.flip(Yp_right)
-            Zp_left =  np.flip(Zp_right)
-
-            Yp = np.array([Yp_right, Yp_left]).flatten()
-            Zp = np.array([Zp_right, Zp_left]).flatten()
-        
-        elif self.section_type == 6: # Beam: Generic section
-
-            message = "The GENERIC BEAM SECTION cannot be ploted."
-            title = "Error while graphing cross-section"
-            info_text = [title, message]
-
-            PrintMessageInput(info_text)
-
-            self.stop = True
-            return 0, 0, 0, 0
-
-        return Yp, Zp, Yc, Zc
-        
-    def get_points_at_radius(self, r, N=20):
-
-            d_theta = (np.pi/2)/N
-            theta = np.arange(d_theta, (np.pi/2), d_theta)
-            y_r = -r + r*np.cos(theta)
-            z_r = r*np.sin(theta)
-
-            return y_r, z_r
-
+       
     def plot_section(self):
 
         plt.close()
@@ -406,7 +176,10 @@ class PlotCrossSectionInput(QDialog):
         if self.preprocess_selection() is None:
             return
 
-        Yp, Zp, Yc, Zc = self.get_points_to_plot_section()
+        if self.section_label == "Pipe section":
+            Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
+        else:
+            Yp, Zp, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
 
         if self.stop:
             self.stop = False
@@ -419,13 +192,14 @@ class PlotCrossSectionInput(QDialog):
 
         first_plot, = plt.fill(Yp, Zp, color=[0.2,0.2,0.2], linewidth=2, zorder=2)
         second_plot = plt.scatter(Yc, Zc, marker="+", linewidth=2, zorder=3, color=[1,0,0], s=150)
+        third_plot = plt.scatter(0, 0, marker="+", linewidth=1.5, zorder=4, color=[0,0,1], s=120)
 
-        if self.section_type == 0 and self.insulation_thickness != float(0):
-            third_plot, = plt.fill(self.Yp_ins, self.Zp_ins, color=[0.5,1,1], linewidth=2, zorder=4) 
-            _max = np.max(np.abs(np.array([self.Zp_ins, self.Yp_ins])))*1.2
+        if self.section_label == "Pipe section" and Yp_ins is not None:
+            fourth, = plt.fill(Yp_ins, Zp_ins, color=[0.5,1,1], linewidth=2, zorder=5) 
+            _max = np.max(np.abs(np.array([Zp_ins, Yp_ins])))*1.2
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
-            third_plot.set_label("Insulation material")
-            plt.legend(handles=[second_plot, third_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
+            fourth.set_label("Insulation material")
+            plt.legend(handles=[second_plot, fourth], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')
         else:
             second_plot.set_label("y: %7.5e // z: %7.5e" % (Yc, Zc))
             plt.legend(handles=[second_plot], framealpha=1, facecolor=[1,1,1], loc='upper right', title=r'$\bf{Centroid}$ $\bf{coordinates:}$')

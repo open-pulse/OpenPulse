@@ -82,8 +82,8 @@ class Plot_TL_NR_Input(QDialog):
         self.imag = False
         self.flagTL = False
         self.flagNR = False
-        self.input_node = None
-        self.output_node = None
+        self.input_node_ID = None
+        self.output_node_ID = None
         self.imported_data = None
         self.elements = self.mesh.acoustic_elements
         self.dict_elements_diameter = self.mesh.neighbor_elements_diameter()
@@ -137,27 +137,18 @@ class Plot_TL_NR_Input(QDialog):
             self.close()
 
     def writeNodes(self, list_node_ids):
-        text = ""
-        self.text_inputNodeID = ""
-        self.text_outputNodeID = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
         if len(list_node_ids) == 2:
-            self.text_inputNodeID = str(list_node_ids[-2])
-            self.text_outputNodeID = str(list_node_ids[-1])
+            self.lineEdit_inputNodeID.setText(str(list_node_ids[-2]))
+            self.lineEdit_outputNodeID.setText(str(list_node_ids[-1]))
         elif len(list_node_ids) == 1:
-            self.text_inputNodeID = str(list_node_ids[-1])
-            self.text_outputNodeID = ""
-        self.lineEdit_inputNodeID.setText(self.text_inputNodeID )
-        self.lineEdit_outputNodeID.setText(self.text_outputNodeID)
+            self.lineEdit_inputNodeID.setText(str(list_node_ids[-1]))
+            self.lineEdit_outputNodeID.setText("")
 
     def flip_nodes(self):
-        temp_text_output = self.text_outputNodeID
-        temp_text_input = self.text_inputNodeID
-        self.text_inputNodeID = temp_text_output
-        self.text_outputNodeID = temp_text_input
-        self.lineEdit_inputNodeID.setText(self.text_inputNodeID )
-        self.lineEdit_outputNodeID.setText(self.text_outputNodeID)   
+        temp_text_input = self.lineEdit_inputNodeID.text()
+        temp_text_output = self.lineEdit_outputNodeID.text()
+        self.lineEdit_inputNodeID.setText(temp_text_output)
+        self.lineEdit_outputNodeID.setText(temp_text_input)   
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())
@@ -215,12 +206,14 @@ class Plot_TL_NR_Input(QDialog):
 
     def check(self, export=False):
 
-        self.input_node, input_ok = self.check_node(self.lineEdit_inputNodeID)
-        if not input_ok:
+        lineEdit_input = self.lineEdit_inputNodeID.text()
+        stop, self.input_node_ID = self.mesh.check_input_NodeID(lineEdit_input, single_ID=True)
+        if stop:
             return
 
-        self.output_node, output_ok = self.check_node(self.lineEdit_outputNodeID)
-        if not output_ok:
+        lineEdit_output = self.lineEdit_outputNodeID.text()
+        stop, self.output_node_ID = self.mesh.check_input_NodeID(lineEdit_output, single_ID=True)
+        if stop:
             return
 
         if export:
@@ -312,27 +305,27 @@ class Plot_TL_NR_Input(QDialog):
         message = "The results have been exported."
         PrintMessageInput([title, message, window_title2])
 
-    def get_minor_external_diameter_from_node(self, node):
+    def get_minor_outer_diameter_from_node(self, node):
         data = self.dict_elements_diameter[node]
-        internal_diameter = []
+        inner_diameter = []
         density = []
         speed_of_sound = []
         for (index, _, int_dia) in data:
-            internal_diameter.append(int_dia)
+            inner_diameter.append(int_dia)
             density.append(self.elements[index].fluid.density)
             speed_of_sound.append(self.elements[index].speed_of_sound_corrected())
-        ind = internal_diameter.index(min(internal_diameter))
-        return internal_diameter[ind], density[ind], speed_of_sound[ind]
+        ind = inner_diameter.index(min(inner_diameter))
+        return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
     def get_TL_NR(self):
-        P_input = get_acoustic_frf(self.mesh, self.solution, self.input_node)
-        P_output = get_acoustic_frf(self.mesh, self.solution, self.output_node)
+        P_input = get_acoustic_frf(self.mesh, self.solution, self.input_node_ID)
+        P_output = get_acoustic_frf(self.mesh, self.solution, self.output_node_ID)
         
         P_input2 = 0.5*np.real(P_input*np.conjugate(P_input))
         P_output2 = 0.5*np.real(P_output*np.conjugate(P_output))
 
-        d_in, rho_in, c0_in = self.get_minor_external_diameter_from_node(self.input_node)
-        d_out, rho_out, c0_out = self.get_minor_external_diameter_from_node(self.output_node)
+        d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
+        d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
 
         if P_input2.all()!=0:
             alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
@@ -367,7 +360,7 @@ class Plot_TL_NR_Input(QDialog):
         cursor = SnaptoCursor(ax, frequencies, results, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
         unit_label = "dB"
-        legend_label = "Input Node ID: {} || Output Node ID: {}".format(self.input_node, self.output_node)
+        legend_label = "Input Node ID: {} || Output Node ID: {}".format(self.input_node_ID, self.output_node_ID)
 
         if self.imported_data is None:
             first_plot, = plt.plot(frequencies, results, color=[1,0,0], linewidth=2, label=legend_label)

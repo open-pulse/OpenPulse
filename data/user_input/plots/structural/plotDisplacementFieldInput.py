@@ -1,12 +1,12 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from pulse.utils import error
-from os.path import basename
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
+
 import numpy as np
+
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotDisplacementFieldInput(QDialog):
     def __init__(self, opv, frequencies, *args, **kwargs):
@@ -31,7 +31,7 @@ class PlotDisplacementFieldInput(QDialog):
         self.lineEdit = self.findChild(QLineEdit, 'lineEdit')
         self.treeWidget = self.findChild(QTreeWidget, 'treeWidget')
         self.pushButton = self.findChild(QPushButton, 'pushButton')
-        self.pushButton.clicked.connect(self.button)
+        self.pushButton.clicked.connect(self.check_selected_frequency)
 
         self.treeWidget.itemClicked.connect(self.on_click_item)
         self.treeWidget.itemDoubleClicked.connect(self.on_doubleclick_item)
@@ -42,21 +42,22 @@ class PlotDisplacementFieldInput(QDialog):
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.check()
+            self.check_selected_frequency()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def check(self):
+    def check_selected_frequency(self):
         if self.lineEdit.text() == "":
-            error("Select a frequency")
+            window_title = "WARNING"
+            title = "Additional action required to plot the results"
+            message = "You should select a frequency from the available list \n\n"
+            message += "before trying to plot the displacement/rotation field."
+            PrintMessageInput([title, message, window_title])
             return
         else:
             frequency_selected = float(self.lineEdit.text())
             if frequency_selected in self.frequencies:
                 self.frequency = self.frequency_to_index[frequency_selected]
-            else:
-                error("  You typed an invalid frequency!  ")
-                return
             
         self.close()
 
@@ -72,7 +73,4 @@ class PlotDisplacementFieldInput(QDialog):
 
     def on_doubleclick_item(self, item):
         self.lineEdit.setText(item.text(0))
-        self.check()
-
-    def button(self):
-        self.check()
+        self.check_selected_frequency()

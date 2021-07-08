@@ -48,7 +48,6 @@ from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSect
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 #
-from data.user_input.project.LogTimes import LogTimes
 from data.user_input.project.printMessageInput import PrintMessageInput
 #
 from pulse.preprocessing.cross_section import CrossSection
@@ -144,27 +143,12 @@ class InputUi:
 
     def set_material(self, cache_selected_lines=[]):
         mat = MaterialInput(    self.opv, 
-                                self.project.get_material_list_path(), 
+                                self.project, 
                                 cache_selected_lines = cache_selected_lines)
                                 
         if mat.material is None:
             return
 
-        if mat.flagSelectedLines:
-            # entities_id = self.opv.getListPickedEntities()
-            if len(mat.lines_ids) == 0:
-                return
-            for line in mat.lines_ids:
-                self.project.set_material_by_line(line, mat.material)
-            print("[Set Material] - {} defined in the entities {}".format(mat.material.name, mat.lines_ids))
-            # self.opv.changeColorEntities(mat.lines_ids, mat.material.getNormalizedColorRGB())
-        else:
-            self.project.set_material(mat.material)
-            entities = []
-            for entity in self.project.entities:#get_entities():
-                entities.append(entity.get_tag())
-            print("[Set Material] - {} defined in all entities".format(mat.material.name))
-            # self.opv.changeColorEntities(entities, mat.material.getNormalizedColorRGB())
             
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = CrossSectionInput(   self.project, 
@@ -175,31 +159,33 @@ class InputUi:
 
         if not read.complete:
             return False
-
-        if read.flagEntity:
-            if len(read.lines_typed) == 0:
-                return False
-            for line in read.lines_typed:
-                self.project.set_cross_section_by_entity(line, read.cross_section)
-                self.project.set_structural_element_type_by_entity(line, read.element_type)
-            print("[Set Cross-section] - defined at lines {}".format(read.lines_typed))
-
-        elif read.flagElements:
-            if len(read.elements_typed) == 0:
-                return False
-            else:
-                self.project.set_cross_section_by_elements(read.elements_typed, read.cross_section)
-                if len(read.elements_typed) > 20:
-                    print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_typed)))
-
         else:
-            self.project.set_cross_section_to_all(read.cross_section)
-            self.project.set_structural_element_type_to_all(read.element_type)
-            print("[Set Cross-section] - defined at all lines")
+            self.opv.updateEntityRadius()
+            self.opv.changePlotToMesh()
+            return True
+
+        # if read.flagEntity:
+        #     if len(read.lines_typed) == 0:
+        #         return False
+        #     for line in read.lines_typed:
+        #         self.project.set_cross_section_by_entity(line, read.cross_section)
+        #         self.project.set_structural_element_type_by_entity(line, read.element_type)
+        #     print("[Set Cross-section] - defined at lines {}".format(read.lines_typed))
+
+        # elif read.flagElements:
+        #     if len(read.elements_typed) == 0:
+        #         return False
+        #     else:
+        #         self.project.set_cross_section_by_elements(read.elements_typed, read.cross_section)
+        #         if len(read.elements_typed) > 20:
+        #             print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_typed)))
+
+        # else:
+        #     self.project.set_cross_section_to_all(read.cross_section)
+        #     self.project.set_structural_element_type_to_all(read.element_type)
+        #     print("[Set Cross-section] - defined at all lines")
             
-        self.opv.updateEntityRadius()
-        self.opv.changePlotToMesh()
-        return True
+
     
     def plot_cross_section(self):
         PlotCrossSectionInput(self.project, self.opv)
@@ -434,7 +420,7 @@ class InputUi:
     
     def runAnalysis(self):
 
-        t0 = time()
+        # t0 = time()
         if self.analysis_ID is None or not self.setup_analysis_complete:
             
             title = "INCOMPLETE SETUP ANALYSIS" 
@@ -448,88 +434,10 @@ class InputUi:
     
         if self._check_is_there_a_problem():
             return
-        self.project.time_to_checking_entries = time()-t0
+        # self.project.time_to_checking_entries = time()-t0
+
+        RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
         
-        t0 = time()
-        self.project.load_mapped_cross_section()
-        self.project.time_to_process_cross_sections = time()-t0
-        self.project.get_dict_multiple_cross_sections()
-
-        if self.analysis_ID in [0,1,3,5,6]:
-            if self.frequencies is None:
-                return
-            if len(self.frequencies) == 0:
-                return
-
-        if self.project.mesh._process_beam_nodes_and_indexes():
-            if self.analysis_ID not in [0,1,2]:
-                title = "INCORRECT ANALYSIS TYPE"
-                message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
-                info_text = [title, message, window_title2]
-                PrintMessageInput(info_text)
-                return
-
-        if self.analysis_ID == 2:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
-            solve = self.project.get_structural_solve()
-            modes = self.project.get_modes()
-        elif self.analysis_ID == 4:
-            solve = self.project.get_acoustic_solve()
-            modes = self.project.get_modes()
-        elif self.analysis_ID == 3:
-            solve = self.project.get_acoustic_solve()
-        elif self.analysis_ID in [5,6]:
-            self.project.mesh.enable_fluid_mass_adding_effect()
-            solve = self.project.get_acoustic_solve()
-            modes = self.project.get_modes()
-            damping = self.project.get_damping()
-        else:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
-            solve = self.project.get_structural_solve()
-            modes = self.project.get_modes()
-            damping = self.project.get_damping()
-
-        self.project.time_to_preprocess_model = time() - t0
-
-        if self.analysis_ID == 2:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
-            if solution.solution_structural is None:
-                return
-            self.project.set_structural_solution(solution.solution_structural)
-            self.project.set_structural_natural_frequencies(solution.natural_frequencies_structural.tolist())
-
-        elif self.analysis_ID == 4:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, [], modes, [], self.project)
-            if solution.solution_acoustic is None:
-                return
-            self.project.set_acoustic_solution(solution.solution_acoustic)
-            self.project.set_acoustic_natural_frequencies(solution.natural_frequencies_acoustic.tolist())
-        
-        elif self.analysis_ID == 3:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, [], [], self.project)
-            if solution.solution_acoustic is None:
-                return
-            self.project.set_acoustic_solution(solution.solution_acoustic)
-        elif self.analysis_ID in [5,6]:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
-            self.solve = solution.solve
-            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
-            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
-            self.project.set_structural_solution(solution.solution_structural)
-        else:
-            solution = RunAnalysisInput(solve, self.analysis_ID, self.analysis_type_label, self.frequencies, modes, damping, self.project)
-            if solution.solution_structural is None:
-                return
-            self.solve = solution.solve
-            self.dict_reactions_at_constrained_dofs = solution.dict_reactions_at_constrained_dofs
-            self.dict_reactions_at_springs, self.dict_reactions_at_dampers = solution.dict_reactions_at_springs, solution.dict_reactions_at_dampers
-            self.project.set_structural_solution(solution.solution_structural)
-        
-        self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model + self.project.time_to_preprocess_model)
-        self.project.total_time = time() - t0
-        
-        LogTimes(self.project)
-
     def plotStructuralModeShapes(self):
             self.project.set_min_max_type_stresses("", "", "")
             self.project.plot_pressure_field = False
@@ -617,7 +525,7 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressFieldInput(self.project, self.solve, self.opv)
+            PlotStressFieldInput(self.project, self.opv)
 
     def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
@@ -626,13 +534,17 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressFrequencyResponseInput(self.opv, self.project, self.solve, self.analysis_method_label)
+            PlotStressFrequencyResponseInput(self.opv, self.project, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
 
         if self.analysis_ID in [0,1,5,6]:
-            reactions = [self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers]
-            PlotReactionsInput(self.opv, self.project.get_mesh(), self.analysis_method_label, self.frequencies, reactions)
+            PlotReactionsInput( self.opv, 
+                                self.project,
+                                # self.project.get_mesh(), 
+                                self.analysis_method_label, 
+                                self.frequencies    )#, 
+                                #self.project.get_structural_reactions() )
             return
 
     def _check_is_there_a_problem(self):

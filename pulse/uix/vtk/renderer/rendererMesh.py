@@ -607,14 +607,14 @@ class RendererMesh(vtkRendererBase):
             acoustic_element = self.project.get_acoustic_element(listSelected[0])
             
             if structural_element.cross_section is None: 
-                external_diameter = 'undefined'
+                outer_diameter = 'undefined'
                 thickness = 'undefined'
                 offset_y = 'undefined'
                 offset_z = 'undefined'
                 insulation_thickness = 'undefined'
                 insulation_density = 'undefined'
             else:
-                external_diameter = structural_element.cross_section.external_diameter
+                outer_diameter = structural_element.cross_section.outer_diameter
                 thickness = structural_element.cross_section.thickness
                 offset_y = structural_element.cross_section.offset_y
                 offset_z = structural_element.cross_section.offset_z
@@ -633,18 +633,18 @@ class RendererMesh(vtkRendererBase):
 
             if structural_element.element_type is None:
                 structural_element_type = 'undefined'
-            elif 'BEAM' in structural_element.element_type.upper():
+            elif 'beam_1' in structural_element.element_type:
 
                 area = structural_element.cross_section.area
                 Iyy = structural_element.cross_section.second_moment_area_y
                 Izz = structural_element.cross_section.second_moment_area_z
                 Iyz = structural_element.cross_section.second_moment_area_yz
-                additional_section_info = structural_element.cross_section.additional_section_info
+                section_label = structural_element.cross_section.section_label
 
-                if additional_section_info is None:
+                if section_label is None:
                     structural_element_type = "{} (-)".format(structural_element.element_type)
                 else:
-                    structural_element_type = "{} ({})".format(structural_element.element_type, additional_section_info[0].capitalize())
+                    structural_element_type = "{} ({})".format(structural_element.element_type, section_label.capitalize())
 
             else:
                 structural_element_type = structural_element.element_type
@@ -663,7 +663,7 @@ class RendererMesh(vtkRendererBase):
             text += f'Strutural element type: {structural_element_type} \n'
             
             if "PIPE" in structural_element_type:        
-                text += f'Diameter: {external_diameter} [m]\n'
+                text += f'Diameter: {outer_diameter} [m]\n'
                 text += f'Thickness: {thickness} [m]\n'
                 if offset_y != 0 or offset_z != 0:
                     text += f'Offset y: {offset_y} [m]\n'

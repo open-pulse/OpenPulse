@@ -29,6 +29,7 @@ class DecouplingRotationDOFsInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.stop = False
         self.complete = False
         
@@ -160,50 +161,6 @@ class DecouplingRotationDOFsInput(QDialog):
             self.element_id = self.opv.getListPickedElements()[0]
         self.update_texts(self.element_id)
 
-
-    def check_input_element(self):
-
-        try:
-            tokens = self.lineEdit_selected_element.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.element_typed = list(map(int, tokens))
-
-            if len(self.element_typed) > 1:
-                message = "Please, select only one element \nto modify dofs coupling."
-                title = "Error: multiple elements in selection"
-                window_title = "Error message"
-                self.info_text = [title, message, window_title]
-                return True
-            
-            if self.lineEdit_selected_element.text() == "":
-                message = "Inform a valid Element ID before \nto confirm the input."
-                title = "Error: empty Element ID input"
-                window_title = "Error message"
-                self.info_text = [title, message, window_title]
-                return True
-
-        except Exception:
-            message = "Wrong input for Element ID."
-            title = "Error in Element ID"
-            window_title = "Error message"
-            self.info_text = [title, message, window_title]
-            return True
-
-        try:
-            for elem_ID in self.element_typed:
-                self.element = self.structural_elements[elem_ID]
-                self.element_id = self.structural_elements[elem_ID].index
-        except Exception:
-            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
-            title = "Error: invalid Element ID input"
-            window_title = "Error message"
-            self.info_text = [title, message, window_title]
-            return True
-        return False
-
     def remove_group(self):
         key = self.dict_decoupled_DOFs_label_to_bool[self.lineEdit_decoupled_DOFs.text()]
         _, _, section = self.project.mesh.dict_B2PX_rotation_decoupling[key]
@@ -215,9 +172,13 @@ class DecouplingRotationDOFsInput(QDialog):
         self.clear_texts()
 
     def check_get_nodes(self):
-        if self.check_input_element():
-            PrintMessageInput(self.info_text)
-            return True
+
+        lineEdit = self.lineEdit_selected_element.text()
+        self.stop, self.element_typed = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+        if self.stop:
+            return True   
+        self.element_id = self.element_typed
+
         self.update_texts(self.element_id)
         return False
 

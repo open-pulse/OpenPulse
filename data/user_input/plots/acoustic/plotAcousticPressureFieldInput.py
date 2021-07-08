@@ -1,11 +1,11 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from os.path import basename
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
 import numpy as np
+
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotAcousticPressureFieldInput(QDialog):
     def __init__(self, opv, frequencies, *args, **kwargs):
@@ -43,16 +43,13 @@ class PlotAcousticPressureFieldInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def check(self):
         if self.lineEdit.text() == "":
-            self.error("Select a frequency")
+            window_title = "WARNING"
+            title = "Additional action required to plot the results"
+            message = "You should select a frequency from the available list \n\n"
+            message += "before trying to plot the acoustic pressure field."
+            PrintMessageInput([title, message, window_title])
             return
         else:
             frequency_selected = float(self.lineEdit.text())

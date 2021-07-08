@@ -1515,7 +1515,7 @@ p, li { white-space: pre-wrap; }
        <string>Cursor</string>
       </property>
       <property name="checked">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
      </widget>
     </widget>

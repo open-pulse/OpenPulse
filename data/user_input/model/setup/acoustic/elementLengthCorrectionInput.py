@@ -26,6 +26,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.acoustic_elements = project.mesh.acoustic_elements
         self.dict_group_elements = project.mesh.group_elements_with_length_correction
         self.elements_id = self.opv.getListPickedElements()
@@ -108,41 +109,12 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.flag_side_branch = self.radioButton_side_branch.isChecked()
         self.flag_loop = self.radioButton_loop.isChecked()
      
-    def check_input_elements(self):
-        try:
-            tokens = self.lineEdit_elementID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.elements_typed = list(map(int, tokens))
-
-            if self.lineEdit_elementID.text()=="":
-                title = "ERROR IN ELEMENT ID's"
-                message = "Inform a valid Element ID before to confirm the input!"
-                self.info_text = [title, message, window_title]
-                return True
-
-        except Exception:
-            title = "ERROR IN ELEMENT ID's"
-            message = "Wrong input for Element ID's!"
-            self.info_text = [title, message, window_title]
-            return True
-
-        try:
-            for element_id in self.elements_typed:
-                self.acoustic_elements[element_id]
-        except:
-            title = "INCORRECT ELEMENT ID INPUT"
-            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.acoustic_elements))
-            self.info_text = [title, message, window_title]
-            return True
-        return False
-
     def check_element_correction_type(self):
 
-        if self.check_input_elements():
-            PrintMessageInput(self.info_text)
+        lineEdit = self.lineEdit_elementID.text()
+        self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+        
+        if self.stop:
             return
 
         if self.flag_expansion:

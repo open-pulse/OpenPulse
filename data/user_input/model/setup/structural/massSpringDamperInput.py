@@ -2,7 +2,7 @@ import os
 from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import error, remove_bc_from_file
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -245,32 +245,6 @@ class MassSpringDamperInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def check_input_nodes(self):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return True
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            return True
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return True
-        return False
-
     def check_entries(self, lineEdit, label):
 
         self.stop = False
@@ -290,9 +264,10 @@ class MassSpringDamperInput(QDialog):
             return value
 
     def check_constant_values_lumped_masses(self):
-
-        if self.check_input_nodes():
-            self.stop = True
+        
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stopstop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stopstop:
             return
 
         Mx = self.check_entries(self.lineEdit_Mx, "Mx")
@@ -323,8 +298,9 @@ class MassSpringDamperInput(QDialog):
         
     def check_constant_values_lumped_stiffness(self):
 
-        if self.check_input_nodes():
-            self.stop = True
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stopstop:
             return
 
         Kx = self.check_entries(self.lineEdit_Kx, "Kx")
@@ -355,8 +331,9 @@ class MassSpringDamperInput(QDialog):
  
     def check_constant_values_lumped_dampings(self):
 
-        if self.check_input_nodes():
-            self.stop = True
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stopstop:
             return
 
         Cx = self.check_entries(self.lineEdit_Cx, "Cx")
@@ -531,8 +508,9 @@ class MassSpringDamperInput(QDialog):
       
     def check_table_values_lumped_masses(self):
 
-        if self.check_input_nodes():
-            self.stop = True
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
             return
 
         Mx = My = Mz = None
@@ -585,8 +563,9 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_stiffness(self):
 
-        if self.check_input_nodes():
-            self.stop = True
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
             return
 
         Kx = Ky = Kz = None
@@ -639,8 +618,9 @@ class MassSpringDamperInput(QDialog):
 
     def check_table_values_lumped_dampings(self):
 
-        if self.check_input_nodes():
-            self.stop = True
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
             return
 
         Cx = Cy = Cz = None
@@ -717,7 +697,9 @@ class MassSpringDamperInput(QDialog):
         self.remove_spring = self.checkBox_remove_spring.isChecked()
         self.remove_damper = self.checkBox_remove_damper.isChecked()
 
-        if self.check_input_nodes():
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if self.stop:
             return
 
         if (self.remove_mass and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==2:    

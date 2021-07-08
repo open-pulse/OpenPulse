@@ -200,59 +200,27 @@ class ElasticNodalLinksInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_selected_node_ID.setText(text)
         if len(list_node_ids) == 2:
-            self.lineEdit_first_node_ID.setText(str(list_node_ids[-2]))
-            self.lineEdit_last_node_ID.setText(str(list_node_ids[-1]))
+            self.lineEdit_first_node_ID.setText(str(min(list_node_ids[-2:])))
+            self.lineEdit_last_node_ID.setText(str(max(list_node_ids[-2:])))
         elif len(list_node_ids) == 1:
             self.lineEdit_first_node_ID.setText(str(list_node_ids[-1]))
             self.lineEdit_last_node_ID.setText("")
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())
-
-    def check_nodeID(self, lineEdit, export=False):
-        try:
-            tokens = lineEdit.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            node_typed = list(map(int, tokens))
-
-        except Exception:
-            title = "INVALID NODE ID"
-            message = "Wrong input for Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
-        if len(node_typed) == 1:
-            try:
-                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-            except:
-                title = "INVALID NODE ID"
-                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
-                PrintMessageInput([title, message, window_title1])
-                return True
-
-        elif len(node_typed) == 0:
-            title = "INVALID NODE ID"
-            message = "Please, enter a valid Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-            
-        else:
-            title = "MULTIPLE NODE IDs"
-            message = "Please, type or select only one Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-              
+             
     def check_all_nodes(self):
         
-        if self.check_nodeID(self.lineEdit_first_node_ID):
+        lineEdit_nodeID = self.lineEdit_first_node_ID.text()
+        self.stop, self.nodeID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if self.stop:
             return True
         temp_nodeID_1 = self.nodeID
         
-        if self.check_nodeID(self.lineEdit_last_node_ID):
-            return True
+        lineEdit_nodeID = self.lineEdit_last_node_ID.text()
+        self.stop, self.nodeID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if self.stop:
+            return True           
         temp_nodeID_2 = self.nodeID
 
         if temp_nodeID_1 == temp_nodeID_2:

@@ -382,19 +382,36 @@ class opvRenderer(vtkRendererBase):
             acoustic_element = self.project.get_acoustic_element(listSelected[0])
             
             if structural_element.cross_section is None: 
-                external_diameter = 'undefined'
+                outer_diameter = 'undefined'
                 thickness = 'undefined'
                 offset_y = 'undefined'
                 offset_z = 'undefined'
                 insulation_thickness = 'undefined'
                 insulation_density = 'undefined'
             else:
-                external_diameter = structural_element.cross_section.external_diameter
-                thickness = structural_element.cross_section.thickness
-                offset_y = structural_element.cross_section.offset_y
-                offset_z = structural_element.cross_section.offset_z
-                insulation_thickness = structural_element.cross_section.insulation_thickness
-                insulation_density = structural_element.cross_section.insulation_density
+                if structural_element.element_type is None:
+                    structural_element_type = 'undefined'
+                else:                    
+                    if structural_element.element_type in ["pipe_1", "pipe_2"]:
+                        outer_diameter = structural_element.cross_section.outer_diameter
+                        thickness = structural_element.cross_section.thickness
+                        offset_y = structural_element.cross_section.offset_y
+                        offset_z = structural_element.cross_section.offset_z
+                        insulation_thickness = structural_element.cross_section.insulation_thickness
+                        insulation_density = structural_element.cross_section.insulation_density
+                        structural_element_type = structural_element.element_type
+                   
+                    elif structural_element.element_type == "beam_1":
+                        area = structural_element.cross_section.area
+                        Iyy = structural_element.cross_section.second_moment_area_y
+                        Izz = structural_element.cross_section.second_moment_area_z
+                        Iyz = structural_element.cross_section.second_moment_area_yz
+                        section_label = structural_element.cross_section.section_label
+
+                        if section_label is None:
+                            structural_element_type = "{} (-)".format(structural_element.element_type)
+                        else:
+                            structural_element_type = "{} ({})".format(structural_element.element_type, section_label.capitalize())
             
             if structural_element.material is None:
                 material = 'undefined'
@@ -404,28 +421,14 @@ class opvRenderer(vtkRendererBase):
             if structural_element.fluid is None:
                 fluid = 'undefined'
             else:
-                fluid = structural_element.fluid.name.upper()
+                fluid = structural_element.fluid.name.upper()               
 
-            if structural_element.element_type is None:
-                structural_element_type = 'undefined'
-            elif 'BEAM' in structural_element.element_type.upper():
-
-                area = structural_element.cross_section.area
-                Iyy = structural_element.cross_section.second_moment_area_y
-                Izz = structural_element.cross_section.second_moment_area_z
-                Iyz = structural_element.cross_section.second_moment_area_yz
-                additional_section_info = structural_element.cross_section.additional_section_info
-
-                if additional_section_info is None:
-                    structural_element_type = "{} (-)".format(structural_element.element_type)
-                else:
-                    structural_element_type = "{} ({})".format(structural_element.element_type, additional_section_info[0].capitalize())
-
-            else:
-                structural_element_type = structural_element.element_type
-
-            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.first_node.x, structural_element.first_node.y, structural_element.first_node.z)
-            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.last_node.x, structural_element.last_node.y, structural_element.last_node.z)
+            firstNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.first_node.x, 
+                                                                structural_element.first_node.y, 
+                                                                structural_element.first_node.z)
+            lastNodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(structural_element.last_node.x, 
+                                                                structural_element.last_node.y, 
+                                                                structural_element.last_node.z)
             
             rotations = structural_element.section_rotation_xyz_undeformed
             str_rotations = '{:.3f}, {:.3f}, {:.3f}'.format(rotations[0], rotations[1], rotations[2])
@@ -438,7 +441,7 @@ class opvRenderer(vtkRendererBase):
             text += f'Strutural element type: {structural_element_type} \n\n'
             
             if "pipe_" in structural_element_type:        
-                text += f'Diameter: {external_diameter} [m]\n'
+                text += f'Diameter: {outer_diameter} [m]\n'
                 text += f'Thickness: {thickness} [m]\n'
                 if offset_y != 0 or offset_z != 0:
                     text += f'Offset y: {offset_y} [m]\n'
@@ -485,7 +488,7 @@ class opvRenderer(vtkRendererBase):
             
             structural_element_type = 'undefined'
             material_name = 'undefined'
-            diam_ext, thickness = 'undefined', 'undefined'
+            outer_diameter, thickness = 'undefined', 'undefined'
             offset_y, offset_z = 'undefined', 'undefined'
             
             if entity.material is not None:
@@ -494,36 +497,23 @@ class opvRenderer(vtkRendererBase):
             if entity.structural_element_type is not None:
                 structural_element_type = entity.structural_element_type
 
-            if entity.tag in (self.project.lines_multiples_cross_sections or self.project.file.lines_multiples_cross_sections):
+            if entity.tag in list(self.project.number_sections_by_line.keys()):
 
-                if len(self.project.lines_multiples_cross_sections) != 0:
-                    number_cross_sections = self.project.lines_multiples_cross_sections.count(entity.tag)
-                    # print(self.project.lines_multiples_cross_sections)
-
-                if len(self.project.file.lines_multiples_cross_sections) != 0:
-                    number_cross_sections = self.project.file.lines_multiples_cross_sections.count(entity.tag)
-                    # print(self.project.file.lines_multiples_cross_sections)
+                number_cross_sections = self.project.number_sections_by_line[entity.tag]
 
                 if entity.structural_element_type not in [None, 'beam_1']:
                 
-                    diam_ext, thickness = 'multiples', 'multiples'
+                    outer_diameter, thickness = 'multiples', 'multiples'
                     offset_y, offset_z = 'multiples', 'multiples'
                     insulation_thickness, insulation_density = 'multiples', 'multiples'
 
                     text = 'Line ID  {} ({} cross-sections)\n\n'.format(listActorsIDs[0], number_cross_sections)              
                     text += 'Material:  {}\n'.format(entity.material.name)
                     text += f'Structural element type:  {structural_element_type}\n'
-                    text += f'External diameter: {diam_ext} [m]\n'
-                    text += f'Thickness: {thickness} [m]\n'
-                    if offset_y != 0 or offset_z != 0:
-                        text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
-                    if insulation_thickness != 0 or insulation_density != 0: 
-                        text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
-                    
+              
                     if entity.structural_element_type not in ['beam_1']:
                         if entity.fluid is not None:
-                            text += f'\nFluid: {entity.fluid}' 
-
+                            text += f'\nFluid: {entity.fluid.name}' 
                         if entity.acoustic_element_type is not None:
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'
                         if entity.hysteretic_damping is not None:
@@ -544,10 +534,10 @@ class opvRenderer(vtkRendererBase):
                         Iyy = entity.cross_section.second_moment_area_y
                         Izz = entity.cross_section.second_moment_area_z
                         Iyz = entity.cross_section.second_moment_area_yz
-                        additional_section_info = entity.getCrossSection().additional_section_info
+                        section_label = entity.getCrossSection().section_label
 
-                        if additional_section_info is not None:
-                            text += 'Structural element type:  {} ({})\n\n'.format(structural_element_type, additional_section_info[0].capitalize())
+                        if section_label is not None:
+                            text += 'Structural element type:  {} ({})\n\n'.format(structural_element_type, section_label.capitalize())
 
                         text += 'Area:  {} [m²]\n'.format(area)
                         text += 'Iyy:  {} [m^4]\n'.format(Iyy)
@@ -558,19 +548,19 @@ class opvRenderer(vtkRendererBase):
 
                         text += f'Structural element type:  {structural_element_type}\n\n'
                         
-                        diam_ext = entity.cross_section.external_diameter
+                        outer_diameter = entity.cross_section.outer_diameter
                         thickness = entity.cross_section.thickness
                         offset_y = entity.cross_section.offset_y
                         offset_z = entity.cross_section.offset_z
                         insulation_thickness = entity.cross_section.insulation_thickness
                         insulation_density = entity.cross_section.insulation_density
                                             
-                        text += f'External Diameter:  {diam_ext} [m]\n'
+                        text += f'Outer diameter:  {outer_diameter} [m]\n'
                         text += f'Thickness:  {thickness} [m]\n'
                         if offset_y != 0 or offset_z != 0:
                             text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                         if insulation_thickness != 0 or insulation_density != 0: 
-                            text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                            text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]\n'.format(insulation_thickness, int(insulation_density))
                                                    
                         if entity.fluid is not None:
                             text += f'\nFluid: {entity.fluid.name}' 

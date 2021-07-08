@@ -190,7 +190,7 @@ class AssemblyAcoustic:
             first = element.first_node.global_index
             last = element.last_node.global_index
 
-            di_actual = element.cross_section.internal_diameter
+            di_actual = element.cross_section.inner_diameter
 
             diameters_first = np.array(self.neighbor_diameters[first])
             diameters_last = np.array(self.neighbor_diameters[last])

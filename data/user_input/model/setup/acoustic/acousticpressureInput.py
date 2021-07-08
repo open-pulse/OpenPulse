@@ -29,6 +29,7 @@ class AcousticPressureInput(QDialog):
         self.new_load_path_table = ""
 
         self.project = project
+        self.mesh = project.mesh
         self.transform_points = transform_points
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
@@ -45,6 +46,7 @@ class AcousticPressureInput(QDialog):
         self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.tabWidget_acoustic_pressure = self.findChild(QTabWidget, "tabWidget_acoustic_pressure")
+        self.tabWidget_acoustic_pressure.currentChanged.connect(self.tabEvent_acoustic_pressure)
         self.tab_constant_values = self.tabWidget_acoustic_pressure.findChild(QWidget, "tab_constant_values")
         self.tab_table_values = self.tabWidget_acoustic_pressure.findChild(QWidget, "tab_table_values")
 
@@ -53,7 +55,7 @@ class AcousticPressureInput(QDialog):
         self.treeWidget_acoustic_pressure.setColumnWidth(2, 80)
         self.treeWidget_acoustic_pressure.itemClicked.connect(self.on_click_item)
         self.treeWidget_acoustic_pressure.itemDoubleClicked.connect(self.on_doubleclick_item)
-
+        
         self.toolButton_load_table = self.findChild(QToolButton, 'toolButton_load_table')
         self.toolButton_load_table.clicked.connect(self.load_acoustic_pressure_table)
 
@@ -85,41 +87,19 @@ class AcousticPressureInput(QDialog):
                 self.check_remove_bc_from_node()
         elif event.key() == Qt.Key_Escape:
             self.close()
+        
+    def tabEvent_acoustic_pressure(self):
+        self.current_tab =  self.tabWidget_acoustic_pressure.currentIndex()
+        if self.current_tab == 2:
+            self.lineEdit_nodeID.setDisabled(True)
+        else:
+            self.lineEdit_nodeID.setDisabled(False)
 
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
-
-    def check_input_nodes(self):
-        self.stop = False
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                self.stop = True
-                return
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            self.stop = True
-            return
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            self.stop = True
-            return
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag):
 
@@ -151,7 +131,11 @@ class AcousticPressureInput(QDialog):
 
     def check_constant_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         acoustic_pressure = self.check_complex_entries(self.lineEdit_acoustic_pressure_real, self.lineEdit_acoustic_pressure_imag)
 
         if self.stop:
@@ -222,9 +206,12 @@ class AcousticPressureInput(QDialog):
         self.acoustic_pressure, self.basename_acoustic_pressure = self.load_table(self.lineEdit_load_table_path, header)
     
     def check_table_values(self):
-        self.check_input_nodes()
+
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
+
         if self.lineEdit_load_table_path != "":
             if self.acoustic_pressure is not None:
                 self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, self.acoustic_pressure, True, table_name=self.basename_acoustic_pressure)
@@ -256,7 +243,11 @@ class AcousticPressureInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         key_strings = ["acoustic pressure"]
         message = "The acoustic pressure attributed to the {} node(s) has been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
@@ -264,7 +255,7 @@ class AcousticPressureInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.treeWidget_acoustic_pressure.clear()
         self.load_nodes_info()
-        # self.close()
+        self.close()
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())

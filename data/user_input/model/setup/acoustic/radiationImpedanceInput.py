@@ -29,6 +29,7 @@ class RadiationImpedanceInput(QDialog):
         self.new_load_path_table = ""
 
         self.project = project
+        self.mesh = project.mesh
         self.transform_points = transform_points
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
@@ -52,6 +53,8 @@ class RadiationImpedanceInput(QDialog):
         self.flag_unflanged = self.radioButton_unflanged.isChecked()
 
         self.tabWidget_radiation_impedance = self.findChild(QTabWidget, "tabWidget_radiation_impedance")
+        self.tabWidget_radiation_impedance.currentChanged.connect(self.tabEvent_radiation_impedance)
+
         self.tab_model = self.tabWidget_radiation_impedance.findChild(QWidget, "tab_model")
         self.tab_remove = self.tabWidget_radiation_impedance.findChild(QWidget, "tab_remove")
 
@@ -89,39 +92,26 @@ class RadiationImpedanceInput(QDialog):
         self.flag_flanged = self.radioButton_flanged.isChecked()
         self.flag_unflanged = self.radioButton_unflanged.isChecked()
 
+    def tabEvent_radiation_impedance(self):
+        self.current_tab =  self.tabWidget_radiation_impedance.currentIndex()
+        if self.current_tab == 1:
+            self.lineEdit_nodeID.setDisabled(True)
+        else:
+            self.lineEdit_nodeID.setDisabled(False)
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def check_input_nodes(self):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            return
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return
-
     def check_radiation_impedance_type(self):
-        self.check_input_nodes()
+
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         try:
             if self.flag_anechoic:
                 type_id = 0
@@ -154,7 +144,11 @@ class RadiationImpedanceInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         key_strings = ["radiation impedance"]
         message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)

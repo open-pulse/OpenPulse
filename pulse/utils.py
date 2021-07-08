@@ -549,3 +549,7 @@ def get_new_path(path, name):
     elif "/" in path:
         new_path = '{}/{}'.format(path, name)
     return new_path
+
+def get_linear_distribution(x_initial, x_final, N):
+    n = np.arange(N)/(N-1)
+    return (x_final-x_initial)*n + x_initial

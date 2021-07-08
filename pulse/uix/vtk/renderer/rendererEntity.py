@@ -26,7 +26,7 @@ class RendererEntity(vtkRendererBase):
             
             structural_element_type = 'undefined'
             material_name = 'undefined'
-            diam_ext, thickness = 'undefined', 'undefined'
+            outer_diameter, thickness = 'undefined', 'undefined'
             offset_y, offset_z = 'undefined', 'undefined'
             
             if entity.material is not None:
@@ -35,31 +35,25 @@ class RendererEntity(vtkRendererBase):
             if entity.structural_element_type is not None:
                 structural_element_type = entity.structural_element_type
 
-            if entity.tag in (self.project.lines_multiples_cross_sections or self.project.file.lines_multiples_cross_sections):
+            if entity.tag in list(self.project.number_sections_by_line.keys()):
 
-                if len(self.project.lines_multiples_cross_sections) != 0:
-                    number_cross_sections = self.project.lines_multiples_cross_sections.count(entity.tag)
-                    # print(self.project.lines_multiples_cross_sections)
-
-                if len(self.project.file.lines_multiples_cross_sections) != 0:
-                    number_cross_sections = self.project.file.lines_multiples_cross_sections.count(entity.tag)
-                    # print(self.project.file.lines_multiples_cross_sections)
+                number_cross_sections = self.project.number_sections_by_line[entity.tag]
 
                 if entity.structural_element_type not in [None, 'beam_1']:
                 
-                    diam_ext, thickness = 'multiples', 'multiples'
+                    outer_diameter, thickness = 'multiples', 'multiples'
                     offset_y, offset_z = 'multiples', 'multiples'
                     insulation_thickness, insulation_density = 'multiples', 'multiples'
 
                     text = 'Line ID  {} ({} cross-sections)\n\n'.format(listActorsIDs[0], number_cross_sections)              
                     text += 'Material:  {}\n'.format(entity.material.name)
                     text += f'Structural element type:  {structural_element_type}\n'
-                    text += f'External diameter: {diam_ext} [m]\n'
+                    text += f'Outer diameter: {outer_diameter} [m]\n'
                     text += f'Thickness: {thickness} [m]\n'
                     if offset_y != 0 or offset_z != 0:
                         text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                     if insulation_thickness != 0 or insulation_density != 0: 
-                        text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                        text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]\n'.format(insulation_thickness, int(insulation_density))
                     
                     if entity.fluid is not None:
                         text += f'\nFluid: {entity.fluid}' 
@@ -83,34 +77,33 @@ class RendererEntity(vtkRendererBase):
                 if entity.cross_section is not None:
                     if entity.structural_element_type not in [None, 'beam_1']:
                         
-                        diam_ext = entity.cross_section.external_diameter
+                        outer_diameter = entity.cross_section.outer_diameter
                         thickness = entity.cross_section.thickness
                         offset_y = entity.cross_section.offset_y
                         offset_z = entity.cross_section.offset_z
                         insulation_thickness = entity.cross_section.insulation_thickness
                         insulation_density = entity.cross_section.insulation_density
                                             
-                        text += f'External Diameter:  {diam_ext} [m]\n'
+                        text += f'Outer diameter:  {outer_diameter} [m]\n'
                         text += f'Thickness:  {thickness} [m]\n'
                         if offset_y != 0 or offset_z != 0:
                             text += 'Offset y: {} [m]\nOffset z: {} [m]\n'.format(offset_y, offset_z)
                         if insulation_thickness != 0 or insulation_density != 0: 
-                            text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]'.format(insulation_thickness, int(insulation_density))
+                            text += 'Insulation thickness: {} [m]\nInsulation density: {} [kg/m³]\n'.format(insulation_thickness, int(insulation_density))
                            
                     if entity.structural_element_type in ['beam_1']:
 
-                        # text = ''
                         area = entity.cross_section.area
                         Iyy = entity.cross_section.second_moment_area_y
                         Izz = entity.cross_section.second_moment_area_z
                         Iyz = entity.cross_section.second_moment_area_yz
-                        additional_section_info = entity.getCrossSection().additional_section_info
+                        section_label = entity.getCrossSection().section_label
 
                         text += 'Line ID  {}\n\n'.format(listActorsIDs[0])
                         text += 'Material:  {}\n'.format(material_name)
 
-                        if additional_section_info is not None:
-                            text += 'Structural element type:  {} ({})\n'.format(structural_element_type, additional_section_info[0].capitalize())
+                        if section_label is not None:
+                            text += 'Structural element type:  {} ({})\n'.format(structural_element_type, section_label.capitalize())
                         else:
                             text += 'Structural element type:  {} (-)\n'.format(structural_element_type)
 

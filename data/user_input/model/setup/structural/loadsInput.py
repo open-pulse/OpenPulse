@@ -2,7 +2,7 @@ import os
 from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import error, remove_bc_from_file
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -26,6 +26,7 @@ class LoadsInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.transform_points = opv.transformPoints
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
@@ -131,31 +132,6 @@ class LoadsInput(QDialog):
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
 
-    def check_input_nodes(self):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            return
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return
-
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
         self.stop = False
@@ -186,7 +162,10 @@ class LoadsInput(QDialog):
 
     def check_constant_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
 
         Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx, "Fx")
         if self.stop:
@@ -292,7 +271,10 @@ class LoadsInput(QDialog):
 
     def check_table_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
 
         Fx = Fy = Fz = None
         if self.lineEdit_path_table_Fx != "":
@@ -324,7 +306,11 @@ class LoadsInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         key_strings = ["forces", "moments"]
         message = "The nodal loads attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
@@ -332,7 +318,7 @@ class LoadsInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.treeWidget_nodal_loads.clear()
         self.load_nodes_info()
-        # self.close()
+        self.close()
 
     def text_label(self, mask):
         

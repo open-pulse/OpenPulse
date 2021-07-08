@@ -10,7 +10,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_reactions
-from pulse.utils import error
+from data.user_input.project.printMessageInput import PrintMessageInput
+
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
+window_title_3 = "INFORMATION"
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -52,7 +56,7 @@ class SnaptoCursor(object):
 
 
 class PlotReactionsInput(QDialog):
-    def __init__(self, opv, mesh, analysisMethod, frequencies, reactions, *args, **kwargs):
+    def __init__(self, opv, project, analysisMethod, frequencies, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui', self)
 
@@ -67,17 +71,16 @@ class PlotReactionsInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.mesh = mesh
-        
+        self.mesh = project.mesh
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
-     
+
+        reactions = project.get_structural_reactions()
         self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
-        self.nodeID = 0
+
+        self.node_ID = 0
         self.imported_data = None
         self.localDof = None
-
-        # self.writeNodes(list_node_ids)
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
@@ -107,6 +110,9 @@ class PlotReactionsInput(QDialog):
         self.Mx = self.radioButton_Mx.isChecked()
         self.My = self.radioButton_My.isChecked()
         self.Mz = self.radioButton_Mz.isChecked()
+
+        self.list_radioButtons = [  self.radioButton_Fx, self.radioButton_Fy, self.radioButton_Fz,
+                                    self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
         self.cursor = self.checkBox_cursor.isChecked()
@@ -170,7 +176,9 @@ class PlotReactionsInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title_2])
     
     def writeNodes(self, list_node_ids):
         text = ""
@@ -200,13 +208,6 @@ class PlotReactionsInput(QDialog):
         self.save_Absolute = self.radioButton_Absolute.isChecked()
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
-    def messages(self, msg, title = " Information "):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def choose_path_import_results(self):
         self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
         self.import_name = basename(self.import_path)
@@ -218,11 +219,15 @@ class PlotReactionsInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",",skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The reactions data have been imported.")
-        except Exception as e:
-            message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
-            return
+            
+            title = "Loading table"
+            message = "The reactions data have been imported."
+            PrintMessageInput([title, message, window_title_3])
+        except Exception as _error:
+            
+            title = "Error reached while loading table"
+            message = f"{str(_error)}\n It is recommended to skip the header rows." 
+            PrintMessageInput([title, message, window_title_1])
 
     def choose_path_export_results(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)
@@ -307,12 +312,17 @@ class PlotReactionsInput(QDialog):
                 self.reactions = self.dict_reactions_at_dampers
                 self.damper = True
 
-        self.radioButton_Fx.setDisabled(not mask[0])
-        self.radioButton_Fy.setDisabled(not mask[1])
-        self.radioButton_Fz.setDisabled(not mask[2])
-        self.radioButton_Mx.setDisabled(not mask[3])
-        self.radioButton_My.setDisabled(not mask[4])
-        self.radioButton_Mz.setDisabled(not mask[5])
+        list_disabled_buttons = []
+        for index, radioButton in enumerate(self.list_radioButtons):
+            radioButton.setDisabled(not mask[index])
+            if not radioButton.isEnabled():
+                list_disabled_buttons.append(radioButton)
+
+        if len(list_disabled_buttons) > 0:
+            for radioButton in self.list_radioButtons:
+                if radioButton.isEnabled():
+                    radioButton.setChecked(True)
+                    break
 
     def on_click_item(self, item):
         self.lineEdit_nodeID.setText(item.text(0))
@@ -323,33 +333,16 @@ class PlotReactionsInput(QDialog):
         self.check()
 
     def button(self):
-        self.check()
+        self.check()         
 
     def check(self, export=False):
-        self.localDof = None
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            node_typed = list(map(int, tokens))
-            if len(node_typed) == 1:
-                try:
-                    self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-                except:
-                    error("Incorrect Node ID input!")
-                    return
-            elif len(node_typed) == 0:
-                error("Please, enter a valid Node ID!")
-                return
-            else:
-                error("Multiple Node IDs", "Error Node ID's")
-                return
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
+        
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        stop, self.node_ID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if stop:
             return
 
+        self.localDof = None
         if self.radioButton_Fx.isChecked():
             self.localDof = 0
             self.localdof_label = "Fx"
@@ -395,21 +388,28 @@ class PlotReactionsInput(QDialog):
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
-                error("Plese, choose a folder before trying export the results!")
+                
+                title = "Additional action required"
+                message = "Plese, choose a folder before trying export the results!"
+                PrintMessageInput([title, message, window_title_2])
                 return
         else:
-            error("Inform a file name before trying export the results!")
+            title = "Additional action required"
+            message = "Inform a file name before trying export the results!"
+            PrintMessageInput([title, message, window_title_2])
             return
         
         self.check(export=True)
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
-            response = get_reactions(self.mesh, self.reactions, self.nodeID, self.localDof)
-            header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(self.unit_label, self.unit_label, self.unit_label)
+            response = get_reactions(self.mesh, self.reactions, self.node_ID, self.localDof)
+            header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(  self.unit_label, 
+                                                                                                    self.unit_label, 
+                                                                                                    self.unit_label )
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_reactions(self.mesh, self.reactions, self.nodeID, self.localDof)
+            response = get_reactions(self.mesh, self.reactions, self.node_ID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}]").format(self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
@@ -422,7 +422,13 @@ class PlotReactionsInput(QDialog):
         ax = fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
-        response = get_reactions(self.mesh, self.reactions, self.nodeID, self.localDof, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
+        response = get_reactions(   self.mesh, 
+                                    self.reactions, 
+                                    self.node_ID, 
+                                    self.localDof, 
+                                    absolute=self.plotAbs, 
+                                    real=self.plotReal, 
+                                    imaginary=self.plotImag )
 
         if self.damper and self.frequencies[0]==0:
             frequencies = self.frequencies[1:]
@@ -439,7 +445,7 @@ class PlotReactionsInput(QDialog):
         cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
-        legend_label = "Reaction {} at node {}".format(self.localdof_label, self.nodeID)
+        legend_label = "Reaction {} at node {}".format(self.localdof_label, self.node_ID)
         if self.imported_data is None:
                 
             if any(value<=0 for value in response):

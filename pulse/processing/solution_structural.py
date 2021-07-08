@@ -504,8 +504,8 @@ class SolutionStructural:
 
                 element.internal_load = np.multiply(np.r_[normal, shear],damping)
                 # Stress
-                do = element.cross_section.external_diameter
-                di = element.cross_section.internal_diameter
+                do = element.cross_section.outer_diameter
+                di = element.cross_section.inner_diameter
                 ro = do/2
                 area = element.cross_section.area
                 Iy = element.cross_section.second_moment_area_y

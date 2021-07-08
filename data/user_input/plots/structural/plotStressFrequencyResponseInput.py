@@ -50,7 +50,7 @@ class SnaptoCursor(object):
 
 
 class PlotStressFrequencyResponseInput(QDialog):
-    def __init__(self, opv, project, solve, analysisMethod, *args, **kwargs):
+    def __init__(self, opv, project, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFrequencyResponseInput.ui', self)
 
@@ -66,7 +66,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
-        self.solve = solve        
+        self.solve = self.project.structural_solve   
         self.analysisMethod = analysisMethod
 
         self.mesh = project.mesh
@@ -240,28 +240,10 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def check(self, export=False):
 
-        try:
-            tokens = self.lineEdit_elementID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            element_typed = list(map(int, tokens))
-            if len(element_typed) == 1:
-                try:
-                    self.elementID = self.mesh.structural_elements[element_typed[0]].index
-                except:
-                    message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.mesh.structural_elements))]
-                    error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                    return
-            elif len(element_typed) == 0:
-                error("Please, enter a valid Element ID!")
-                return
-            else:
-                error("Multiple Element IDs", "Error Element ID's")
-                return
-        except Exception:
-            error("Wrong input for Element ID's!", "Error Element ID's")
+        lineEdit = self.lineEdit_elementID.text()
+        stop, self.elementID = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+        
+        if stop:
             return
         
         self.get_stress_data()

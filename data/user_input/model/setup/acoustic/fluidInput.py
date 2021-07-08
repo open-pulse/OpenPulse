@@ -33,6 +33,7 @@ class FluidInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.mesh = project.mesh
         self.fluid_path = project.get_fluid_list_path()
         self.lines_ids = opv.getListPickedEntities()
 
@@ -284,50 +285,31 @@ class FluidInput(QDialog):
                 return True
             self.dict_inputs['color'] = color_string
        
-    def check_input_lines(self):
-        
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.lines_typed = list(map(int, tokens))
+    def check_element_type_of_lines(self):
+
+        self.flag_all_fluid_inputs = False
+
+        if self.flagSelection:
             
-            if self.lineEdit_selected_ID.text() == "":
-                title = "Error: empty Line ID input"
-                message = "Inform a valid Line ID before to confirm the input."
-                self.info_text = [title, message, window_title1]
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            if self.stop:
                 return True
-        except Exception:
-            title = "Error: invalid Line ID input"
-            message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title1]
-            return True
-            
-        try:
+
             for line in self.lines_typed:
                 _line = self.dict_tag_to_line[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                    self.flag_all_fluid_inputs = True
-        except Exception:
-            title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_line))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
-    def check_element_type_of_lines(self):
-        self.flag_all_fluid_inputs = False
-        if self.flagSelection:
-            if self.check_input_lines():
-                PrintMessageInput(self.info_text)
-                return True
+                    self.flag_all_fluid_inputs = True 
+                    break
+          
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
-                if self.dict_tag_to_line[line].acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
+                _line = self.dict_tag_to_line[line]
+                if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
-                    return False
+                    break
+        
+        return False
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -489,7 +471,8 @@ class FluidInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
         
-        self.check_element_type_of_lines()
+        if self.check_element_type_of_lines():
+            return
         
         try:
             isentropic_exponent = None
@@ -503,7 +486,6 @@ class FluidInput(QDialog):
             color = self.clicked_item.text(2)
             fluid_density = float(self.clicked_item.text(3))
             speed_of_sound = float(self.clicked_item.text(4))
-            # impedance = float(self.clicked_item.text(5)) # internal calculation
             
             title = "Empty entries in fluid properties"
             message = "Please, it is necessary update the fluid properties or select another fluid in the list " 
@@ -548,14 +530,15 @@ class FluidInput(QDialog):
 
             if self.flagSelection:
 
-                if len(self.lines_ids) == 0:
+                if self.lineEdit_selected_ID.text() == "":
                     return
+
                 for line in self.lines_ids:
                     self.project.set_fluid_by_line(line, self.fluid)
                     
-                print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_ids))
+                print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_typed))
                 # self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
-            
+
             elif self.flagAll:
 
                 self.project.set_fluid_to_all_lines(self.fluid)

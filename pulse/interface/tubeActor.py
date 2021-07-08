@@ -128,7 +128,7 @@ class TubeActor(vtkActorBase):
 
         for element in self.elements.values():
             try:
-                sec = element.cross_section.external_diameter / 2
+                sec = element.cross_section.outer_diameter / 2
                 sums += sec 
                 items += 1
             except:                
@@ -163,7 +163,7 @@ class TubeActor(vtkActorBase):
             return poly
 
         if self.pressure_plot and (element.element_type not in ['beam_1']):
-            r = element.cross_section.internal_diameter/2 * self.bff
+            r = element.cross_section.inner_diameter/2 * self.bff
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(20)
             poly.SetNormal(1,0,0)

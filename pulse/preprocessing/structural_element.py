@@ -628,8 +628,8 @@ class StructuralElement:
         """
         
         A = self.cross_section.area
-        Do = self.cross_section.external_diameter
-        Di = self.cross_section.internal_diameter
+        Do = self.cross_section.outer_diameter
+        Di = self.cross_section.inner_diameter
         rows = DOF_PER_ELEMENT
         cols = len(frequencies)
 
@@ -673,8 +673,8 @@ class StructuralElement:
         if self.element_type in ['beam_1']:
             return S
         
-        Din = self.cross_section.external_diameter
-        Dout = self.cross_section.internal_diameter
+        Din = self.cross_section.outer_diameter
+        Dout = self.cross_section.inner_diameter
         nu = self.material.poisson_ratio
         E = self.material.young_modulus
         alpha = self.material.thermal_expansion_coefficient
@@ -814,8 +814,8 @@ class StructuralElement:
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
 
-        alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
-        k_2 = alpha
+        # alpha = self.get_shear_coefficient(self.cross_section.section_info, self.material.poisson_ratio)
+        # k_2 = alpha
         k_2 = 1
         
         # Others constitutive constants
@@ -940,10 +940,10 @@ class StructuralElement:
 
         elif section_label == "C-section":
 
-            h, w1, w2, w3, t1, _, t3, _, _, _ = parameters
+            h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
-            tf = (t1+t3)/2
-            b = (w1+w3)/2
+            tf = (t1+t2)/2
+            b = (w1+w2)/2
 
             m = (2*b*tf)/(h*w2)
             n = b/h
@@ -953,10 +953,10 @@ class StructuralElement:
 
         elif section_label == "I-section":
 
-            h, w1, w2, w3, t1, _, t3, _, _, _ = parameters
+            h, w1, t1, w2, t2, tw, _, _, _ = parameters
             
-            tf = (t1+t3)/2
-            b = (w1+w3)/2
+            tf = (t1+t2)/2
+            b = (w1+w2)/2
 
             m = (2*b*tf)/(h*w2)
             n = b/h
@@ -966,10 +966,10 @@ class StructuralElement:
 
         elif section_label == "T-section":
 
-            h, w1, w2, t1, _, _, _, _ = parameters
+            h, w1, t1, tw, _, _, _ = parameters
             tf, b = t1, w1
       
-            m = (2*b*tf)/(h*w2)
+            m = (2*b*tf)/(h*tw)
             n = b/h
             numerator = 10*(1 + poisson)*((1 + 4*m)**2)
             denominator = (12 + 96*m + 278*m**2 + 192*m**3) + poisson*(11 + 88*m + 248*m**2 + 216*m**3) + (m + m**2)*(30*n**2) + (4*m + 5*m**2 + m**3)*(10*poisson*n**2)

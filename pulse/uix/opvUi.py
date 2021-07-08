@@ -69,7 +69,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
-        self.change_plot_to_entities = False#True
+        self.change_plot_to_entities = False
 
         self.setRenderer(self.opvRenderer)
 

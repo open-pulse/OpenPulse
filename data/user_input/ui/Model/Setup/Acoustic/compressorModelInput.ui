@@ -380,11 +380,23 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>46</x>
+         <x>8</x>
          <y>100</y>
-         <width>155</width>
-         <height>25</height>
+         <width>170</width>
+         <height>26</height>
         </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>26</height>
+        </size>
        </property>
        <property name="palette">
         <palette>
@@ -526,15 +538,15 @@
         <bool>false</bool>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QLineEdit" name="lineEdit_discharge_node_ID">
        <property name="geometry">
         <rect>
-         <x>202</x>
+         <x>180</x>
          <y>138</y>
-         <width>120</width>
+         <width>80</width>
          <height>26</height>
         </rect>
        </property>
@@ -575,9 +587,9 @@
       <widget class="QLineEdit" name="lineEdit_suction_node_ID">
        <property name="geometry">
         <rect>
-         <x>202</x>
+         <x>180</x>
          <y>100</y>
-         <width>120</width>
+         <width>80</width>
          <height>26</height>
         </rect>
        </property>
@@ -621,11 +633,23 @@
        </property>
        <property name="geometry">
         <rect>
-         <x>26</x>
+         <x>8</x>
          <y>138</y>
-         <width>175</width>
-         <height>25</height>
+         <width>170</width>
+         <height>26</height>
         </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>170</width>
+         <height>26</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>170</width>
+         <height>26</height>
+        </size>
        </property>
        <property name="palette">
         <palette>
@@ -767,7 +791,7 @@
         <bool>false</bool>
        </property>
        <property name="alignment">
-        <set>Qt::AlignCenter</set>
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
       <widget class="QFrame" name="frame_8">
@@ -791,15 +815,21 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>202</x>
+          <x>190</x>
           <y>16</y>
-          <width>120</width>
+          <width>150</width>
           <height>26</height>
          </rect>
         </property>
+        <property name="minimumSize">
+         <size>
+          <width>150</width>
+          <height>26</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
-          <width>16777215</width>
+          <width>150</width>
           <height>26</height>
          </size>
         </property>
@@ -835,7 +865,7 @@ background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>38</x>
+          <x>20</x>
           <y>16</y>
           <width>163</width>
           <height>26</height>
@@ -993,9 +1023,47 @@ background-color: rgb(255, 255, 255);</string>
          <bool>false</bool>
         </property>
         <property name="alignment">
-         <set>Qt::AlignCenter</set>
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
         </property>
        </widget>
+      </widget>
+      <widget class="QPushButton" name="pushButton_flipNodes">
+       <property name="geometry">
+        <rect>
+         <x>272</x>
+         <y>106</y>
+         <width>70</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>70</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>70</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(150, 255, 200);</string>
+       </property>
+       <property name="text">
+        <string>Flip 
+nodes</string>
+       </property>
       </widget>
      </widget>
      <widget class="QWidget" name="gridLayoutWidget_2">

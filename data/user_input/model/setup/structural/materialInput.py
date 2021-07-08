@@ -13,14 +13,9 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 window_title = "ERROR"
 
 class MaterialInput(QDialog):
-    def __init__(   self, 
-                    opv, 
-                    material_path, 
-                    cache_selected_lines=[], 
-                    *args, 
-                    **kwargs):
+    def __init__(   self, project, opv,  cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.materialPath = material_path
+        
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/materialInput.ui', self)
 
         icons_path = 'data\\icons\\'
@@ -32,6 +27,9 @@ class MaterialInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
         
+        self.project = project
+        self.mesh = project.mesh
+        self.materialPath = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines
         self.lines_ids = self.opv.getListPickedEntities()
         self.clicked_item = None
@@ -161,6 +159,12 @@ class MaterialInput(QDialog):
                 self.selected_material_to_remove()
             
     def check(self):
+
+        lineEdit = self.lineEdit_selected_ID.text()
+        self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+        if self.stop:
+            return True 
+
         if self.clicked_item is None:
             self.title = "NO MATERIAL SELECTION"
             self.message = "Select a material in the list before \nconfirming the material attribution."
@@ -184,10 +188,22 @@ class MaterialInput(QDialog):
                                             thermal_expansion_coefficient=thermal_expansion_coefficient, 
                                             color=color)
             self.material = new_material
+            
+            if self.flagSelectedLines:
+                               
+                for line in self.lines_typed:
+                    self.project.set_material_by_line(line, self.material)
+                print("[Set Material] - {} defined in the entities {}".format(self.material.name, self.lines_typed))
+                # self.opv.changeColorEntities(self.lines_typed, self.material.getNormalizedColorRGB())
+            else:
+                self.project.set_material(self.material)       
+                print("[Set Material] - {} defined in all entities".format(self.material.name))
+                # self.opv.changeColorEntities(entities, self.material.getNormalizedColorRGB())
             self.close()
-        except Exception as e:
+
+        except Exception as error_log:
             self.title = "ERROR WITH THE MATERIAL LIST DATA"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return
 
