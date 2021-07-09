@@ -160,11 +160,6 @@ class MaterialInput(QDialog):
             
     def check(self):
 
-        lineEdit = self.lineEdit_selected_ID.text()
-        self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
-        if self.stop:
-            return True 
-
         if self.clicked_item is None:
             self.title = "NO MATERIAL SELECTION"
             self.message = "Select a material in the list before \nconfirming the material attribution."
@@ -190,6 +185,11 @@ class MaterialInput(QDialog):
             self.material = new_material
             
             if self.flagSelectedLines:
+
+                lineEdit = self.lineEdit_selected_ID.text()
+                self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+                if self.stop:
+                    return True 
                                
                 for line in self.lines_typed:
                     self.project.set_material_by_line(line, self.material)

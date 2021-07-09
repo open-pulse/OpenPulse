@@ -366,6 +366,31 @@ class Mesh:
                 for element in elements_of_entity:
                     self.elements_to_line[mapping[element]] = tag 
 
+    def get_line_length(self, line_ID):
+        # print(self.line_to_elements[line_ID])
+        first_element_ID = self.line_to_elements[line_ID][0]
+        last_element_ID = self.line_to_elements[line_ID][-1]
+        print(first_element_ID, last_element_ID)
+
+        node1_first_element = self.structural_elements[first_element_ID].first_node
+        node2_first_element = self.structural_elements[first_element_ID].last_node
+        # print(node1_first_element.external_index, node2_first_element.external_index)
+
+        node1_last_element = self.structural_elements[last_element_ID].first_node
+        node2_last_element = self.structural_elements[last_element_ID].last_node
+        # print(node1_last_element.external_index, node2_last_element.external_index)
+
+        list_nodes = [  node1_first_element, node2_first_element, 
+                        node1_last_element, node2_last_element  ]
+
+        length = 0
+        for index in range(1, len(list_nodes)):
+            length_i = np.linalg.norm(list_nodes[0].coordinates - list_nodes[index].coordinates)
+            if length_i > length:
+                length = length_i
+        
+        return length
+
     def _finalize_gmsh(self):
         """
         This method finalize the mesher gmsh algorithm.

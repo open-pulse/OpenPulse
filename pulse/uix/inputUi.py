@@ -18,6 +18,7 @@ from data.user_input.model.setup.structural.massSpringDamperInput import MassSpr
 from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
 from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
 from data.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
+from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from data.user_input.model.setup.acoustic.fluidInput import FluidInput
@@ -142,8 +143,8 @@ class InputUi:
             self.opv.changePlotToEntitiesWithCrossSection()
 
     def set_material(self, cache_selected_lines=[]):
-        mat = MaterialInput(    self.opv, 
-                                self.project, 
+        mat = MaterialInput(    self.project,
+                                self.opv, 
                                 cache_selected_lines = cache_selected_lines)
                                 
         if mat.material is None:
@@ -162,31 +163,8 @@ class InputUi:
         else:
             self.opv.updateEntityRadius()
             self.opv.changePlotToMesh()
-            return True
+            return True        
 
-        # if read.flagEntity:
-        #     if len(read.lines_typed) == 0:
-        #         return False
-        #     for line in read.lines_typed:
-        #         self.project.set_cross_section_by_entity(line, read.cross_section)
-        #         self.project.set_structural_element_type_by_entity(line, read.element_type)
-        #     print("[Set Cross-section] - defined at lines {}".format(read.lines_typed))
-
-        # elif read.flagElements:
-        #     if len(read.elements_typed) == 0:
-        #         return False
-        #     else:
-        #         self.project.set_cross_section_by_elements(read.elements_typed, read.cross_section)
-        #         if len(read.elements_typed) > 20:
-        #             print("[Set Cross-section] - defined at {} selected elements".format(len(read.elements_typed)))
-
-        # else:
-        #     self.project.set_cross_section_to_all(read.cross_section)
-        #     self.project.set_structural_element_type_to_all(read.element_type)
-        #     print("[Set Cross-section] - defined at all lines")
-            
-
-    
     def plot_cross_section(self):
         PlotCrossSectionInput(self.project, self.opv)
 
@@ -238,6 +216,9 @@ class InputUi:
     def add_elastic_nodal_links(self):
         ElasticNodalLinksInput(self.project, self.opv)
         return
+    
+    def add_expansion_joint(self):
+        ExpansionJointInput(self.project, self.opv)
 
     def set_acoustic_element_type(self):
         read = AcousticElementTypeInput(self.project, self.opv)

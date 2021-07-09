@@ -164,6 +164,15 @@ class StructuralElement:
         self.internal_temperature = kwargs.get('internal_temperature', 0)
         self.external_temperature = kwargs.get('external_temperature', 0)
 
+        self.expansion_joint = False
+        self.expansion_joint_mass = 0
+        self.expansion_joint_diameter = 0
+        self.expansion_joint_length = 0  
+        self.longitudinal_stiffness = 0
+        self.torsional_stiffness = 0
+        self.transversal_stiffness = 0
+        self.angular_stiffness = 0
+
         self.stress = None
         self.internal_load = None
 
@@ -287,6 +296,9 @@ class StructuralElement:
         elif self.element_type in ['beam_1']:
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
+        elif self.element_type == "expansion_joint":
+            stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
+            mass = Rt @ self.mass_matrix_expansion_joint() @ R            
         return stiffness, mass
 
     def stiffness_matrix_gcs(self):
@@ -979,6 +991,31 @@ class StructuralElement:
             shear_coefficient = self.cross_section.shear_coefficient
 
         return shear_coefficient
+
+    def stiffness_matrix_expansion_joint(self):
+        L_e = self.expansion_joint_length/self.length
+        K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        K1 = self.longitudinal_stiffness/L_e
+        K2 = K3 = self.transversal_stiffness/L_e
+        K4 = K5 = self.angular_stiffness/L_e
+        K6 = self.torsional_stiffness/L_e
+
+        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float)
+        K_matrix[0:6,0:6] = K_matrix[6:,6:] = Ks
+        K_matrix[0:6,6:] = K_matrix[6:,0:6] = -Ks
+
+        return K_matrix
+
+    def mass_matrix_expansion_joint(self):
+        L_e = self.expansion_joint_length/self.length
+        M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        M1 = M2 = M3 = self.expansion_joint_mass/(L_e/2)
+        M_matrix[[0,1,2,6,7,8],[0,1,2,6,7,8]] = [M1, M2, M3, M1, M2, M3]
+
+        return M_matrix
+
 
     def __str__(self):
         text = ''
