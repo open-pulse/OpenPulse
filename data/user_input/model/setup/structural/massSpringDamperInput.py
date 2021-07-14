@@ -20,13 +20,17 @@ class MassSpringDamperInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.transform_points = self.opv.transformPoints
+
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+        
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
 
@@ -34,7 +38,7 @@ class MassSpringDamperInput(QDialog):
         self.new_load_path_table = ""
         self.imported_table_name = ""
 
-        self.nodes = project.mesh.nodes
+        self.nodes = self.mesh.nodes
         self.loads = None
         self.nodes_typed = []
         self.imported_table = False
@@ -266,7 +270,7 @@ class MassSpringDamperInput(QDialog):
     def check_constant_values_lumped_masses(self):
         
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stopstop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stopstop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stopstop:
             return
 
@@ -299,7 +303,7 @@ class MassSpringDamperInput(QDialog):
     def check_constant_values_lumped_stiffness(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stopstop:
             return
 
@@ -332,7 +336,7 @@ class MassSpringDamperInput(QDialog):
     def check_constant_values_lumped_dampings(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stopstop:
             return
 
@@ -509,7 +513,7 @@ class MassSpringDamperInput(QDialog):
     def check_table_values_lumped_masses(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -564,7 +568,7 @@ class MassSpringDamperInput(QDialog):
     def check_table_values_lumped_stiffness(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -619,7 +623,7 @@ class MassSpringDamperInput(QDialog):
     def check_table_values_lumped_dampings(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -698,7 +702,7 @@ class MassSpringDamperInput(QDialog):
         self.remove_damper = self.checkBox_remove_damper.isChecked()
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if self.stop:
             return
 

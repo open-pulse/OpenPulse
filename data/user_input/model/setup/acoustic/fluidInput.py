@@ -27,17 +27,20 @@ class FluidInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.fluid_path = project.get_fluid_list_path()
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_ids = opv.getListPickedEntities()
 
-        self.dict_tag_to_line = self.project.mesh.dict_tag_to_entity
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
+        self.fluid_path = project.get_fluid_list_path()
+
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
@@ -292,19 +295,19 @@ class FluidInput(QDialog):
         if self.flagSelection:
             
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True
 
             for line in self.lines_typed:
-                _line = self.dict_tag_to_line[line]
+                _line = self.dict_tag_to_entity[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True 
                     break
           
         elif self.flagAll:
             for line in self.project.mesh.all_lines:
-                _line = self.dict_tag_to_line[line]
+                _line = self.dict_tag_to_entity[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
                     break
@@ -719,7 +722,7 @@ class FluidInput(QDialog):
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
-                for tag, line in self.dict_tag_to_line.items():
+                for tag, line in self.dict_tag_to_entity.items():
                     if line.fluid.name == self.lineEdit_name_remove.text():
                         self.project.set_fluid_by_line(tag, None)
 

@@ -45,11 +45,14 @@ class RunAnalysisInput(QDialog):
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
 
+        self.complete = False
+
         Thread(target=self.run).start()
         self.exec()
 
 
     def run(self):
+        self.complete = False
         t0i = time()
         self.label_message.setText("Processing the cross-sections...")
         self.project.load_mapped_cross_section()
@@ -136,6 +139,7 @@ class RunAnalysisInput(QDialog):
         self.project.total_time = time() - t0i
 
         self.print_final_log()
+        self.complete = True
 
     def process_analysis(self):
         

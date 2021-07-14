@@ -54,12 +54,11 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.entity import Entity
 from pulse.project import Project
-from pulse.utils import error
 #
 from time import time
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class InputUi:
     def __init__(self, project, parent=None):
@@ -161,8 +160,6 @@ class InputUi:
         if not read.complete:
             return False
         else:
-            self.opv.updateEntityRadius()
-            self.opv.changePlotToMesh()
             return True        
 
     def plot_cross_section(self):
@@ -232,7 +229,7 @@ class InputUi:
             return
 
     def setAcousticPressure(self):
-        read = AcousticPressureInput(self.project, self.opv, self.opv.transformPoints)
+        read = AcousticPressureInput(self.project, self.opv)
         if read.acoustic_pressure is None:
             return
         if read.imported_table:
@@ -241,7 +238,7 @@ class InputUi:
         print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
 
     def setVolumeVelocity(self):
-        read = VolumeVelocityInput(self.project, self.opv, self.opv.transformPoints)
+        read = VolumeVelocityInput(self.project, self.opv)
         if read.volume_velocity is None:
             return
         if read.imported_table:
@@ -250,7 +247,7 @@ class InputUi:
         print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
 
     def setSpecificImpedance(self):
-        read = SpecificImpedanceInput(self.project, self.opv, self.opv.transformPoints)
+        read = SpecificImpedanceInput(self.project, self.opv)
         if read.specific_impedance is None:
             return
         if read.imported_table:
@@ -260,7 +257,7 @@ class InputUi:
         print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
     
     def set_radiation_impedance(self):
-        read = RadiationImpedanceInput(self.project, self.opv, self.opv.transformPoints)
+        read = RadiationImpedanceInput(self.project, self.opv)
 
         if read.radiation_impedance is None:
             return
@@ -272,7 +269,7 @@ class InputUi:
     def add_perforated_plate(self):
         title = "UNAVAILABLE FUNCTIONALITY"
         message = "This feature is currently under development and \nit will be available in the future updates."
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title_2])
 
     def set_acoustic_element_length_correction(self):
         read = AcousticElementLengthCorrectionInput(self.project, self.opv)
@@ -282,47 +279,7 @@ class InputUi:
     def add_compressor_excitation(self):
         CompressorModelInput(self.project, self.opv)
         self.opv.updateRendererMesh()
-        return
-        
-    def _load_frequencies_from_table(self, obj):
-        self.project.file.f_min = obj.f_min
-        self.project.file.f_max = obj.f_max
-        self.project.file.f_step = obj.f_step
-        self.project.file.frequencies = obj.frequencies
-        self.project.file.temp_table_name = obj.imported_table_name  
-        return obj.frequencies 
-    
-    def check_acoustic_bc_tables(self):
-
-        if self.acoustic_pressure_frequencies is not None:
-            if self.volume_velocity_frequencies is not None:
-                if self.specific_impedance_frequencies is not None:
-                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        error("Check frequency setup of all imported tables.")
-                        return
-                else:
-                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies:
-                        pass
-                    else:
-                        error("Check frequency setup of imported tables (Acoustic Pressure and Volume Velocity).")
-                        return    
-            else:
-                if self.specific_impedance_frequencies is not None:
-                    if self.acoustic_pressure_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        error("Check frequency setup of imported tables (Acoustic Pressure and Specific Impedance).")
-                        return
-        else:
-            if self.volume_velocity_frequencies is not None:
-                if self.specific_impedance_frequencies is not None:
-                    if self.volume_velocity_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        error("Check frequency setup of imported tables (Volume Velocity and Specific Impedance).")
-                        return
+        return                                 
 
     def analysisTypeInput(self):
 
@@ -406,18 +363,22 @@ class InputUi:
             
             title = "INCOMPLETE SETUP ANALYSIS" 
             message = "Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return
 
         if self.flag_imported_table:
             if self.analysisSetup():
                 return
-    
-        if self._check_is_there_a_problem():
+
+        self.before_run = self.project.mesh.get_model_checks()
+        if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
 
-        RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
+        read = RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
+        if read.complete:
+            self.before_run.check_all_acoustic_criteria()
+
         
     def plotStructuralModeShapes(self):
             self.project.set_min_max_type_stresses("", "", "")
@@ -522,112 +483,64 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             PlotReactionsInput( self.opv, 
                                 self.project,
-                                # self.project.get_mesh(), 
                                 self.analysis_method_label, 
-                                self.frequencies    )#, 
-                                #self.project.get_structural_reactions() )
+                                self.frequencies    )
             return
-
-    def _check_is_there_a_problem(self):
-
-        title = " ERROR: INSUFFICIENT MODEL INPUTS! "
-
-        cross_section_message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
-        material_message = "You should to set a Material to all elements\n before trying to run any Analysis!"
-        fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!"
-        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF \nfluid equivalent and LRF full acoustic element types."
-        structural_message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
-        acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
-          
-        if self.analysis_ID == 2:
-            self.project.mesh.check_material_and_cross_section_in_all_elements()
-            if self.project.mesh.check_set_material:
-                error(material_message, title = title)
-                return True
-            elif self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-        
-        elif self.analysis_ID == 4:
-            self.project.mesh.check_material_all_elements()
-            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            self.project.mesh.check_fluid_inputs_in_all_elements()
-            if self.project.mesh.check_set_material:
-                error(material_message, title = title)
-                return True
-            elif self.project.mesh.check_set_fluid:
-                error(fluid_message, title = title)
-                return True
-            elif self.project.mesh.check_all_fluid_inputs:
-                error(all_fluid_inputs_message, title = title)
-                return True
-            elif self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-
-        elif self.analysis_ID == 0 or self.analysis_ID == 1:
-            self.project.mesh.check_material_and_cross_section_in_all_elements()
-            self.project.mesh.check_nodes_attributes(structural=True)
-            if self.project.mesh.check_set_material:
-                error(material_message, title = title)
-                return True
-            elif self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-            elif not self.project.mesh.is_there_loads:
-                if not self.project.mesh.is_there_prescribed_dofs:
-                    error(structural_message, title = title)
-                    return True
-    
-        elif self.analysis_ID == 3:
-            self.project.mesh.check_material_all_elements()
-            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            self.project.mesh.check_fluid_inputs_in_all_elements()
-            self.project.mesh.check_nodes_attributes(acoustic=True)
-            if self.project.mesh.check_set_fluid:
-                error(fluid_message, title = title)
-                return True
-            elif self.project.mesh.check_all_fluid_inputs:
-                error(all_fluid_inputs_message, title = title)
-                return True
-            elif self.project.mesh.check_set_material:
-                error(material_message, title = title)
-                return True
-            elif self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-            elif not self.project.mesh.is_there_volume_velocity:
-                if not self.project.mesh.is_there_acoustic_pressure:
-                    error(acoustic_message, title = title)
-                    return True
-
-        elif self.analysis_ID == 5 or self.analysis_ID == 6:
-            self.project.mesh.check_material_and_cross_section_in_all_elements()
-            self.project.mesh.check_fluid_and_cross_section_in_all_elements()
-            self.project.mesh.check_fluid_inputs_in_all_elements()
-            self.project.mesh.check_nodes_attributes(coupled=True)
-            if self.project.mesh.check_set_material:
-                error(material_message, title = title)
-                return True
-            elif self.project.mesh.check_set_fluid:
-                error(fluid_message, title = title)
-                return True
-            elif self.project.mesh.check_all_fluid_inputs:
-                error(all_fluid_inputs_message, title = title)
-                return True
-            elif self.project.mesh.check_set_crossSection:
-                error(cross_section_message, title = title)
-                return True
-            elif not self.project.mesh.is_there_volume_velocity:
-                if not self.project.mesh.is_there_acoustic_pressure:
-                    error(acoustic_message, title = title)
-                    return True
 
     def structural_model_info(self):
         StructuralModelInfoInput(self.project)
 
     def acoustic_model_info(self):
         AcousticModelInfoInput(self.project)
+
+
+    def _load_frequencies_from_table(self, obj):
+        self.project.file.f_min = obj.f_min
+        self.project.file.f_max = obj.f_max
+        self.project.file.f_step = obj.f_step
+        self.project.file.frequencies = obj.frequencies
+        self.project.file.temp_table_name = obj.imported_table_name  
+        return obj.frequencies 
+    
+
+    def check_acoustic_bc_tables(self):
+
+        title = "Error while checking tables"
+
+        if self.acoustic_pressure_frequencies is not None:
+            if self.volume_velocity_frequencies is not None:
+                if self.specific_impedance_frequencies is not None:
+                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        message = "Check frequency setup of all imported tables."
+                        PrintMessageInput([title, message, window_title_1])
+                        return
+                else:
+                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies:
+                        pass
+                    else:
+                        message = "Check frequency setup of imported tables (Acoustic Pressure and Volume Velocity)."
+                        PrintMessageInput([title, message, window_title_1])
+                        return    
+            else:
+                if self.specific_impedance_frequencies is not None:
+                    if self.acoustic_pressure_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        message = "Check frequency setup of imported tables (Acoustic Pressure and Specific Impedance)."
+                        PrintMessageInput([title, message, window_title_1])
+                        return
+        else:
+            if self.volume_velocity_frequencies is not None:
+                if self.specific_impedance_frequencies is not None:
+                    if self.volume_velocity_frequencies==self.specific_impedance_frequencies:
+                        pass
+                    else:
+                        message = "Check frequency setup of imported tables (Volume Velocity and Specific Impedance)."
+                        PrintMessageInput([title, message, window_title_1])
+                        return
+ 
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

@@ -1,3 +1,4 @@
+from data.user_input.project.printMessageInput import PrintMessageInput
 from functools import wraps
 from time import time
 from scipy.sparse import issparse
@@ -496,10 +497,11 @@ def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
                     config.write(config_file)
 
         if message is not None and bc_removed:
-            info_messages(message)
+            PrintMessageInput(["Error while removing BC from file" ,message, "ERROR"])
 
-    except Exception as err:
-        error(str(err))
+    except Exception as log_error:
+        PrintMessageInput(["Error while removing BC from file" ,str(log_error), "ERROR"])
+
 
 def getColorRGB(color):
     temp = color[1:-1] #Remove "[ ]"

@@ -21,19 +21,23 @@ class PlotCrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.line_id = self.opv.getListPickedEntities()
+        self.element_id = self.opv.getListPickedElements()
+
         self.project = project
         self.mesh = project.mesh
-        self.stop = False
+        self.before_run = self.mesh.get_model_checks()
         
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
-        self.line_id = self.opv.getListPickedEntities()
-        self.element_id = self.opv.getListPickedElements()
+
+        self.stop = False
+
         self._get_dict_key_section()
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
@@ -118,7 +122,7 @@ class PlotCrossSectionInput(QDialog):
         if self.flagEntity:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.line_typed = self.mesh.check_input_LineID(lineEdit, single_ID=True)
+            self.stop, self.line_typed = self.before_run.check_input_LineID(lineEdit, single_ID=True)
             if self.stop:
                 return None
 
@@ -145,7 +149,7 @@ class PlotCrossSectionInput(QDialog):
         elif self.flagElements:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.element_typed = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+            self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
             if self.stop:
                 return None
 

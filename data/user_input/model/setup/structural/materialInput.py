@@ -21,17 +21,21 @@ class MaterialInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+        
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        
+        self.lines_ids = self.opv.getListPickedEntities()
+
         self.project = project
         self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
         self.materialPath = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines
-        self.lines_ids = self.opv.getListPickedEntities()
+        
         self.clicked_item = None
         self.material = None
         self.flagAll = False
@@ -187,7 +191,7 @@ class MaterialInput(QDialog):
             if self.flagSelectedLines:
 
                 lineEdit = self.lineEdit_selected_ID.text()
-                self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+                self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
                 if self.stop:
                     return True 
                                

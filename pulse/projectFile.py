@@ -13,23 +13,23 @@ window_title = "ERROR"
 
 class ProjectFile:
     def __init__(self):
-        self._project_name = ""
-        self._import_type = 0
-        self._section = 0
-        self._project_path = ""
-        self._material_list_path = ""
-        self._fluid_list_path = ""
-        self._geometry_path = ""
-        self._conn_path = ""
-        self._coord_path = ""
-        self._node_structural_path = ""
-        self._node_acoustic_path = ""
-        self._entity_path = ""
-        self._element_info_path = ""
-        self._analysis_path = ""
-        self.temp_table_name = None
-
-        self.element_type_is_structural = False
+        self._reset()
+        # self._project_name = ""
+        # self._import_type = 0
+        # self._section = 0
+        # self._project_path = ""
+        # self._material_list_path = ""
+        # self._fluid_list_path = ""
+        # self._geometry_path = ""
+        # self._conn_path = ""
+        # self._coord_path = ""
+        # self._node_structural_path = ""
+        # self._node_acoustic_path = ""
+        # self._entity_path = ""
+        # self._element_info_path = ""
+        # self._analysis_path = ""
+        # self.temp_table_name = None
+        # self.element_type_is_structural = False
 
         self._entity_file_name = "entity.dat"
         self._node_structural_file_name = "structural_nodal_info.dat"
@@ -40,6 +40,7 @@ class ProjectFile:
     def _reset(self):
         self._project_name = ""
         self._import_type = 0
+        self._section = 0
         self._element_size = 1e-8
         self._project_path = ""
         self._material_list_path = ""
@@ -47,8 +48,12 @@ class ProjectFile:
         self._geometry_path = ""
         self._conn_path = ""
         self._coord_path = ""
+        self._entity_path = ""
         self._node_structural_path = ""
         self._node_acoustic_path = ""
+        self._element_info_path = ""
+        self._analysis_path = ""
+        self.temp_table_name = None
         self.element_type_is_structural = False
 
     def new(self, project_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
@@ -224,6 +229,9 @@ class ProjectFile:
    
         self.dict_material = {}
         self.dict_cross = {}
+        self.dict_variable_sections = {}
+        self.dict_expansion_joint_parameters = {}
+        self.dict_expansion_joint_sections = {}
         self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
         self.dict_acoustic_element_type = {}
@@ -309,80 +317,86 @@ class ProjectFile:
                         PrintMessageInput([title, message, window_title])
 
             else:
-                if entityFile[entity]['structural element type'] == 'beam_1':
+                if 'structural element type' in entityFile[entity].keys():
+                    if entityFile[entity]['structural element type'] == 'beam_1':
 
-                    if 'beam section type' in entityFile[entity].keys():
-                        section_type = entityFile[entity]['beam section type']
+                        if 'beam section type' in entityFile[entity].keys():
+                            section_type = entityFile[entity]['beam section type']
 
-                    try:
-      
-                        if section_type == "Generic section":                 
-                            if 'section properties' in entityFile[entity].keys():
-                                str_section_properties =  entityFile[entity]['section properties']
-                                section_properties = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
-                                section_properties = get_beam_section_properties(section_type, section_properties)
-                                section_parameters = None
-                        else:
-                            if 'section parameters' in entityFile[entity].keys():
-                                str_section_parameters = entityFile[entity]['section parameters']
-                                section_parameters = self._get_list_of_values_from_string(str_section_parameters, are_values_int=False)
-                                section_properties = get_beam_section_properties(section_type, section_parameters)
-    
-                        beam_section_info = {   "section_type_label" : section_type,
-                                                "section_parameters" : section_parameters,
-                                                "section_properties" : section_properties   }
-
-                        cross = CrossSection(beam_section_info=beam_section_info)
-                        self.dict_cross[entity] = cross
-                        
-                    except Exception as err:
-                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(err)
-                        message += f"\n\nProblem detected at line: {entity}"
-                        PrintMessageInput([title, message, window_title])
-
-                else:
-
-                    if 'outer diameter' in entityFile[entity].keys():
-                        outerDiameter = entityFile[entity]['outer Diameter']
-                    if 'thickness' in entityFile[entity].keys():    
-                        thickness = entityFile[entity]['thickness']
-                    if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
-                        offset = entityFile[entity]['offset [e_y, e_z]']
-                        offset_y, offset_z = self._get_offset_from_string(offset) 
-                    if 'insulation thickness' in entityFile[entity].keys():
-                        insulation_thickness = entityFile[entity]['insulation thickness']
-                    if 'insulation density' in entityFile[entity].keys():
-                        insulation_density = entityFile[entity]['insulation density']
-                            
-                    if outerDiameter != "" and thickness != "":
                         try:
-                            outerDiameter = float(outerDiameter)
-                            thickness = float(thickness)
-                            offset_y = float(offset_y)
-                            offset_z = float(offset_z)
-                            insulation_thickness = float(insulation_thickness)
-                            insulation_density = float(insulation_density)
-
-                            section_parameters = {  "outer_diameter" : outerDiameter,
-                                                    "thickness" : thickness, 
-                                                    "offset_y" : offset_y, 
-                                                    "offset_z" : offset_z, 
-                                                    "insulation_thickness" : insulation_thickness, 
-                                                    "insulation_density" : insulation_density }
         
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
+                            if section_type == "Generic section":                 
+                                if 'section properties' in entityFile[entity].keys():
+                                    str_section_properties =  entityFile[entity]['section properties']
+                                    section_properties = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
+                                    section_properties = get_beam_section_properties(section_type, section_properties)
+                                    section_parameters = None
+                            else:
+                                if 'section parameters' in entityFile[entity].keys():
+                                    str_section_parameters = entityFile[entity]['section parameters']
+                                    section_parameters = self._get_list_of_values_from_string(str_section_parameters, are_values_int=False)
+                                    section_properties = get_beam_section_properties(section_type, section_parameters)
+        
+                            beam_section_info = {   "section_type_label" : section_type,
+                                                    "section_parameters" : section_parameters,
+                                                    "section_properties" : section_properties   }
 
-                            cross = CrossSection(pipe_section_info=pipe_section_info)
-
+                            cross = CrossSection(beam_section_info=beam_section_info)
                             self.dict_cross[entity] = cross
-
+                            
                         except Exception as err:
                             title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
                             message = str(err)
                             message += f"\n\nProblem detected at line: {entity}"
                             PrintMessageInput([title, message, window_title])
+
+                    else:
+
+                        if 'outer diameter' in entityFile[entity].keys():
+                            outerDiameter = entityFile[entity]['outer Diameter']
+                        if 'thickness' in entityFile[entity].keys():    
+                            thickness = entityFile[entity]['thickness']
+                        if 'offset [e_y, e_z]' in entityFile[entity].keys(): 
+                            offset = entityFile[entity]['offset [e_y, e_z]']
+                            offset_y, offset_z = self._get_offset_from_string(offset) 
+                        if 'insulation thickness' in entityFile[entity].keys():
+                            insulation_thickness = entityFile[entity]['insulation thickness']
+                        if 'insulation density' in entityFile[entity].keys():
+                            insulation_density = entityFile[entity]['insulation density']
+
+                        if 'variable section parameters' in entityFile[entity].keys():
+                            str_section_variable_parameters = entityFile[entity]['variable section parameters']
+                            section_variable_parameters = self._get_list_of_values_from_string(str_section_variable_parameters, are_values_int=False)
+                            self.dict_variable_sections[entity] = section_variable_parameters
+
+                        if outerDiameter != "" and thickness != "":
+                            try:
+                                outerDiameter = float(outerDiameter)
+                                thickness = float(thickness)
+                                offset_y = float(offset_y)
+                                offset_z = float(offset_z)
+                                insulation_thickness = float(insulation_thickness)
+                                insulation_density = float(insulation_density)
+
+                                section_parameters = {  "outer_diameter" : outerDiameter,
+                                                        "thickness" : thickness, 
+                                                        "offset_y" : offset_y, 
+                                                        "offset_z" : offset_z, 
+                                                        "insulation_thickness" : insulation_thickness, 
+                                                        "insulation_density" : insulation_density }
+            
+                                pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                                        "section_parameters" : section_parameters  }
+
+                                cross = CrossSection(pipe_section_info=pipe_section_info)
+
+                                self.dict_cross[entity] = cross
+
+                            except Exception as err:
+                                title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
+                                message = str(err)
+                                message += f"\n\nProblem detected at line: {entity}"
+                                PrintMessageInput([title, message, window_title])
                         
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
@@ -461,6 +475,19 @@ class ProjectFile:
                     if capped_end != "":
                         self.dict_capped_end[capped_end].append(int(entity))
             
+            str_joint_parameters = ""
+            if 'expansion joint parameters' in entityFile[entity].keys():
+                str_joint_parameters = entityFile[entity]['expansion joint parameters']
+                joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
+           
+            str_joint_stiffness = ""
+            if 'expansion joint stiffness' in entityFile[entity].keys():
+                str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
+                joint_stiffness = self._get_list_of_values_from_string(str_joint_stiffness, are_values_int=False)   
+
+            if str_joint_parameters != "" and str_joint_stiffness != "":
+                self.dict_expansion_joint_parameters[int(entity)]= [joint_parameters, joint_stiffness]
+
             if 'stress stiffening parameters' in entityFile[entity].keys():
                 list_parameters = entityFile[entity]['stress stiffening parameters']
                 _list_parameters = self._get_list_of_values_from_string(list_parameters, are_values_int=False)
@@ -533,38 +560,44 @@ class ProjectFile:
     def add_cross_section_in_file(self, entity_id, cross_section):   
         config = configparser.ConfigParser()
         config.read(self._entity_path)
+        line_id = str(entity_id)
 
         for section in list(config.sections()):
-            section_prefix = str(entity_id) + '-'
+            section_prefix = line_id + '-'
             if section_prefix in section:
                 config.remove_section(section)
     
-        if str(entity_id) in list(config.sections()):
-            config.remove_option(section=str(entity_id), option='outer diameter')
-            config.remove_option(section=str(entity_id), option='thickness')
-            config.remove_option(section=str(entity_id), option='offset [e_y, e_z]')
-            config.remove_option(section=str(entity_id), option='insulation thickness')
-            config.remove_option(section=str(entity_id), option='insulation density')  
+        str_keys = [    'outer diameter', 
+                        'thickness', 
+                        'offset [e_y, e_z]', 
+                        'insulation thickness', 
+                        'insulation density',
+                        'variable section parameters',
+                        'beam section type',
+                        'section parameters',
+                        'section properties',
+                        'expansion joint parameters',
+                        'expansion joint stiffness'    ]
 
-            config.remove_option(section=str(entity_id), option='beam section type')
-            config.remove_option(section=str(entity_id), option='section parameters')
-            config.remove_option(section=str(entity_id), option='section properties')
+        for str_key in str_keys:
+            if str_key in list(config[line_id].keys()):
+                config.remove_option(section=line_id, option=str_key)
 
         if cross_section is not None:
             if cross_section.beam_section_info is not None:
-                if str(entity_id) in list(config.sections()):
-                    config[str(entity_id)]['beam section type'] = cross_section.section_label
+                if line_id in list(config.sections()):
+                    config[line_id]['beam section type'] = cross_section.section_label
                     if "Generic section" == cross_section.section_label:
-                        config[str(entity_id)]['section properties'] = str(cross_section.section_properties)
+                        config[line_id]['section properties'] = str(cross_section.section_properties)
                     else:
-                        config[str(entity_id)]['section parameters'] = str(cross_section.section_parameters)
+                        config[line_id]['section parameters'] = str(cross_section.section_parameters)
             else:
-                if str(entity_id) in list(config.sections()):
-                    config[str(entity_id)]['outer diameter'] = str(cross_section.outer_diameter)
-                    config[str(entity_id)]['thickness'] = str(cross_section.thickness)
-                    config[str(entity_id)]['offset [e_y, e_z]'] = str(cross_section.offset)
-                    config[str(entity_id)]['insulation thickness'] = str(cross_section.insulation_thickness)
-                    config[str(entity_id)]['insulation density'] = str(cross_section.insulation_density)
+                if line_id in list(config.sections()):
+                    config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
+                    config[line_id]['thickness'] = str(cross_section.thickness)
+                    config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
+                    config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
+                    config[line_id]['insulation density'] = str(cross_section.insulation_density)
         
         self.write_bc_in_file(self._entity_path, config)
         
@@ -580,7 +613,9 @@ class ProjectFile:
                         'insulation density',
                         'beam section type',
                         'section parameters',
-                        'section properties'    ]
+                        'section properties',
+                        'expansion joint parameters',
+                        'expansion joint stiffness'    ]
 
         for line in [lines]:
             subkey = 0
@@ -606,6 +641,45 @@ class ProjectFile:
 
         self.write_bc_in_file(self._entity_path, config)
 
+    def modify_variable_cross_section_in_file(self, line_id, parameters):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        str_line = str(line_id)
+        if str_line in list(config.sections()):
+            config[str_line]['variable section parameters'] = str(parameters)
+        
+        self.write_bc_in_file(self._entity_path, config)
+
+
+    def modify_expansion_joint_in_file(self, line_id, parameters, list_table_names=[]):
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        list_keys = [   'outer diameter', 
+                        'thickness', 
+                        'offset [e_y, e_z]', 
+                        'insulation thickness', 
+                        'insulation density',
+                        'variable section parameters',
+                        'beam section type',
+                        'section parameters',
+                        'section properties'    ]
+
+        str_line = str(line_id)
+        for _key in list_keys:
+            if _key in list(config[str_line].keys()):
+                config.remove_option(section=str_line, option=_key)
+
+        config[str_line]['expansion joint parameters'] = str(parameters[0])
+        if list_table_names == []:
+            config[str_line]['expansion joint stiffness'] = str(parameters[1])
+        else:
+            config[str_line]['expansion joint stiffness'] = str(list_table_names)
+
+        with open(self._entity_path, 'w') as config_file:
+            config.write(config_file)
 
     def add_length_correction_in_file(self, elements, _type, section): 
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
@@ -1063,7 +1137,6 @@ class ProjectFile:
                 self.write_bc_in_file(self._node_structural_path, config)
                 self._single_structural_excitation_bc([node_id], labels)
             else:
-
                 if len(labels)==3:
                     config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
                                                 labels[1]: "[{},{},{}]".format(values[3], values[4], values[5]),

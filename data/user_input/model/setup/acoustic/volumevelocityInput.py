@@ -12,7 +12,7 @@ from shutil import copyfile
 from pulse.utils import error, remove_bc_from_file
 
 class VolumeVelocityInput(QDialog):
-    def __init__(self, project, opv, transform_points, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/volumevelocityInput.ui', self)
 
@@ -20,17 +20,19 @@ class VolumeVelocityInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.transform_points = self.opv.transformPoints
 
         self.project = project
         self.mesh = project.mesh
-        self.transform_points = transform_points
+        self.before_run = self.mesh.get_model_checks()
+
+        self.userPath = os.path.expanduser('~')
+        self.new_load_path_table = ""
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
@@ -133,7 +135,7 @@ class VolumeVelocityInput(QDialog):
     def check_single_values(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -209,7 +211,7 @@ class VolumeVelocityInput(QDialog):
     def check_table_values(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -245,7 +247,7 @@ class VolumeVelocityInput(QDialog):
     def check_remove_bc_from_node(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
             

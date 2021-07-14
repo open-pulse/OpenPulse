@@ -61,14 +61,20 @@ class Plot_TL_NR_Input(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+
         self.projec = project
         self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
+        self.elements = self.mesh.acoustic_elements
+        self.dict_elements_diameter = self.mesh.neighbor_elements_diameter()
         self.nodes = project.mesh.nodes
+        
         self.userPath = os.path.expanduser('~')
         self.path = ""
         self.save_path = ""
@@ -85,8 +91,6 @@ class Plot_TL_NR_Input(QDialog):
         self.input_node_ID = None
         self.output_node_ID = None
         self.imported_data = None
-        self.elements = self.mesh.acoustic_elements
-        self.dict_elements_diameter = self.mesh.neighbor_elements_diameter()
     
         self.lineEdit_inputNodeID = self.findChild(QLineEdit, 'lineEdit_inputNodeID')   
         self.lineEdit_outputNodeID = self.findChild(QLineEdit, 'lineEdit_outputNodeID')
@@ -207,12 +211,12 @@ class Plot_TL_NR_Input(QDialog):
     def check(self, export=False):
 
         lineEdit_input = self.lineEdit_inputNodeID.text()
-        stop, self.input_node_ID = self.mesh.check_input_NodeID(lineEdit_input, single_ID=True)
+        stop, self.input_node_ID = self.before_run.check_input_NodeID(lineEdit_input, single_ID=True)
         if stop:
             return
 
         lineEdit_output = self.lineEdit_outputNodeID.text()
-        stop, self.output_node_ID = self.mesh.check_input_NodeID(lineEdit_output, single_ID=True)
+        stop, self.output_node_ID = self.before_run.check_input_NodeID(lineEdit_output, single_ID=True)
         if stop:
             return
 

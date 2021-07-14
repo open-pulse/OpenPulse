@@ -60,20 +60,22 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.solve = self.project.structural_solve   
-        self.analysisMethod = analysisMethod
+        self.opv = opv
+        self.opv.setInputObject(self)
 
+        self.project = project
         self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
         self.frequencies = project.frequencies
         self.damping = project.get_damping()
+        self.solve = self.project.structural_solve 
     
-        self.elementID = None#0
+        self.analysisMethod = analysisMethod
+        self.elementID = None
         self.imported_data = None
 
         self.keys = np.arange(7)
@@ -241,7 +243,7 @@ class PlotStressFrequencyResponseInput(QDialog):
     def check(self, export=False):
 
         lineEdit = self.lineEdit_elementID.text()
-        stop, self.elementID = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+        stop, self.elementID = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
         
         if stop:
             return

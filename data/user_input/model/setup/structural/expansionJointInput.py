@@ -1,9 +1,10 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox
+from re import M
+from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QTreeWidget, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget, QToolButton, QMessageBox, QRadioButton
 from os.path import basename
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtGui import QColor, QBrush
-from PyQt5.QtCore import Qt
-from PyQt5 import uic
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5 import uic, QtCore
 import configparser
 from collections import defaultdict
 import os
@@ -11,32 +12,60 @@ import numpy as np
 import matplotlib.pyplot as plt  
 
 from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.preprocessing.cross_section import CrossSection
+from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
+class ClickableLineEdit(QLineEdit):
+    
+    def __init__(self, *args):
+        super().__init__(*args)
+       
+        # self.setFixedWidth(100)
+        # self.setFixedHeight(26)
+        # self.setAlignment(Qt.AlignHCenter)
+        # self.setStyleSheet("color:red")
+        # self.set_font()        
+        
+    def set_font(self):
+        font = QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setItalic(True)
+        font.setFamily("Arial")
+        font.setWeight(81)
+        self.setFont(font)
+
+    def mousePressEvent(self, event):
+        self.clicked.emit()
+
 class ExpansionJointInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui', self)
+        
+        clicked = QtCore.pyqtSignal()
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.nodes = self.project.mesh.nodes
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.node_id = self.opv.getListPickedPoints()
-
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
+
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+        self.nodes = self.project.mesh.nodes
         
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
@@ -48,111 +77,70 @@ class ExpansionJointInput(QDialog):
         self.aquisition_parameters_processed = False
         self.node_ID_remove = None
         self.ext_key = None
+
+        self.label_selected_id = self.findChild(QLabel, 'label_selected_id')
         
-        self.lineEdit_selected_line_ID = self.findChild(QLineEdit, 'lineEdit_selected_line_ID')
-        self.lineEdit_joint_length_by_line = self.findChild(QLineEdit, 'lineEdit_joint_length_by_line')
+        self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+        self.lineEdit_effective_diameter = self.findChild(QLineEdit, 'lineEdit_effective_diameter')
+        self.lineEdit_joint_mass = self.findChild(QLineEdit, 'lineEdit_joint_mass')
+        self.lineEdit_joint_length = self.findChild(QLineEdit, 'lineEdit_joint_length')
+        self.lineEdit_axial_locking_criteria = self.findChild(QLineEdit, 'lineEdit_axial_locking_criteria')
 
-        self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
-        self.lineEdit_joint_length_by_node = self.findChild(QLineEdit, 'lineEdit_joint_length_by_node')
+        self.lineEdit_axial_stiffness = self.findChild(QLineEdit, 'lineEdit_axial_stiffness')
+        self.lineEdit_transversal_stiffness = self.findChild(QLineEdit, 'lineEdit_transversal_stiffness')
+        self.lineEdit_torsional_stiffness = self.findChild(QLineEdit, 'lineEdit_torsional_stiffness')
+        self.lineEdit_angular_stiffness = self.findChild(QLineEdit, 'lineEdit_angular_stiffness')
 
-        self.lineEdit_selected_element_ID = self.findChild(QLineEdit, 'lineEdit_selected_element_ID')
-        self.lineEdit_joint_length_by_element = self.findChild(QLineEdit, 'lineEdit_joint_length_by_element')
- 
-        self.lineEdit_first_node_ID = self.findChild(QLineEdit, 'lineEdit_first_node_ID')
-        self.lineEdit_last_node_ID = self.findChild(QLineEdit, 'lineEdit_last_node_ID')
+        self.lineEdit_path_table_axial_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_axial_stiffness')
+        self.lineEdit_path_table_transversal_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_transversal_stiffness')
+        self.lineEdit_path_table_torsional_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_torsional_stiffness')
+        self.lineEdit_path_table_angular_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_angular_stiffness')
 
-        self.lineEdit_Kx = self.findChild(QLineEdit, 'lineEdit_Kx')
-        self.lineEdit_Ky = self.findChild(QLineEdit, 'lineEdit_Ky')
-        self.lineEdit_Kz = self.findChild(QLineEdit, 'lineEdit_Kz')
-        self.lineEdit_Krx = self.findChild(QLineEdit, 'lineEdit_Krx')
-        self.lineEdit_Kry = self.findChild(QLineEdit, 'lineEdit_Kry')
-        self.lineEdit_Krz = self.findChild(QLineEdit, 'lineEdit_Krz')
+        self.toolButton_load_table_axial_stiffness = self.findChild(QToolButton, 'toolButton_load_table_axial_stiffness')
+        self.toolButton_load_table_transversal_stiffness = self.findChild(QToolButton, 'toolButton_load_table_transversal_stiffness')
+        self.toolButton_load_table_torsional_stiffness = self.findChild(QToolButton, 'toolButton_load_table_torsional_stiffness')
+        self.toolButton_load_table_angular_stiffness = self.findChild(QToolButton, 'toolButton_load_table_angular_stiffness')
 
-        self.lineEdit_Cx = self.findChild(QLineEdit, 'lineEdit_Cx')
-        self.lineEdit_Cy = self.findChild(QLineEdit, 'lineEdit_Cy')
-        self.lineEdit_Cz = self.findChild(QLineEdit, 'lineEdit_Cz')
-        self.lineEdit_Crx = self.findChild(QLineEdit, 'lineEdit_Crx')
-        self.lineEdit_Cry = self.findChild(QLineEdit, 'lineEdit_Cry')
-        self.lineEdit_Crz = self.findChild(QLineEdit, 'lineEdit_Crz')
-
-        self.lineEdit_path_table_Kx = self.findChild(QLineEdit, 'lineEdit_path_table_Kx')
-        self.lineEdit_path_table_Ky = self.findChild(QLineEdit, 'lineEdit_path_table_Ky')
-        self.lineEdit_path_table_Kz = self.findChild(QLineEdit, 'lineEdit_path_table_Kz')
-        self.lineEdit_path_table_Krx = self.findChild(QLineEdit, 'lineEdit_path_table_Krx')
-        self.lineEdit_path_table_Kry = self.findChild(QLineEdit, 'lineEdit_path_table_Kry')
-        self.lineEdit_path_table_Krz = self.findChild(QLineEdit, 'lineEdit_path_table_Krz')
-
-        self.toolButton_load_Kx_table = self.findChild(QToolButton, 'toolButton_load_Kx_table')
-        self.toolButton_load_Ky_table = self.findChild(QToolButton, 'toolButton_load_Ky_table')
-        self.toolButton_load_Kz_table = self.findChild(QToolButton, 'toolButton_load_Kz_table')
-        self.toolButton_load_Krx_table = self.findChild(QToolButton, 'toolButton_load_Krx_table')
-        self.toolButton_load_Kry_table = self.findChild(QToolButton, 'toolButton_load_Kry_table')
-        self.toolButton_load_Krz_table = self.findChild(QToolButton, 'toolButton_load_Krz_table') 
-
-        # self.toolButton_load_Kx_table.clicked.connect(self.load_Kx_table)
-        # self.toolButton_load_Ky_table.clicked.connect(self.load_Ky_table)
-        # self.toolButton_load_Kz_table.clicked.connect(self.load_Kz_table)
-        # self.toolButton_load_Krx_table.clicked.connect(self.load_Krx_table)
-        # self.toolButton_load_Kry_table.clicked.connect(self.load_Kry_table)
-        # self.toolButton_load_Krz_table.clicked.connect(self.load_Krz_table)
+        self.toolButton_load_table_axial_stiffness.clicked.connect(self.load_Kx_table)
+        self.toolButton_load_table_transversal_stiffness.clicked.connect(self.load_Kyz_table)
+        self.toolButton_load_table_torsional_stiffness.clicked.connect(self.load_Krx_table)
+        self.toolButton_load_table_angular_stiffness.clicked.connect(self.load_Kryz_table)
 
         self.Kx_table = None
-        self.Ky_table = None
-        self.Kz_table = None
+        self.Kyz_table = None
         self.Krx_table = None
-        self.Kry_table = None
-        self.Krz_table = None
-
+        self.Kryz_table = None
+        
         self.basename_Kx = None
-        self.basename_Ky = None
-        self.basename_Kz = None
+        self.basename_Kyz = None
         self.basename_Krx = None
-        self.basename_Kry = None
-        self.basename_Krz = None
-
-        self.lineEdit_path_table_Cx = self.findChild(QLineEdit, 'lineEdit_path_table_Cx')
-        self.lineEdit_path_table_Cy = self.findChild(QLineEdit, 'lineEdit_path_table_Cy')
-        self.lineEdit_path_table_Cz = self.findChild(QLineEdit, 'lineEdit_path_table_Cz')
-        self.lineEdit_path_table_Crx = self.findChild(QLineEdit, 'lineEdit_path_table_Crx')
-        self.lineEdit_path_table_Cry = self.findChild(QLineEdit, 'lineEdit_path_table_Cry')
-        self.lineEdit_path_table_Crz = self.findChild(QLineEdit, 'lineEdit_path_table_Crz')
-
-        self.toolButton_load_Cx_table = self.findChild(QToolButton, 'toolButton_load_Cx_table')
-        self.toolButton_load_Cy_table = self.findChild(QToolButton, 'toolButton_load_Cy_table')
-        self.toolButton_load_Cz_table = self.findChild(QToolButton, 'toolButton_load_Cz_table')
-        self.toolButton_load_Crx_table = self.findChild(QToolButton, 'toolButton_load_Crx_table')
-        self.toolButton_load_Cry_table = self.findChild(QToolButton, 'toolButton_load_Cry_table')
-        self.toolButton_load_Crz_table = self.findChild(QToolButton, 'toolButton_load_Crz_table') 
-
-        # self.toolButton_load_Cx_table.clicked.connect(self.load_Cx_table)
-        # self.toolButton_load_Cy_table.clicked.connect(self.load_Cy_table)
-        # self.toolButton_load_Cz_table.clicked.connect(self.load_Cz_table)
-        # self.toolButton_load_Crx_table.clicked.connect(self.load_Crx_table)
-        # self.toolButton_load_Cry_table.clicked.connect(self.load_Cry_table)
-        # self.toolButton_load_Crz_table.clicked.connect(self.load_Crz_table)
-
-        self.Cx_table = None
-        self.Cy_table = None
-        self.Cz_table = None
-        self.Crx_table = None
-        self.Cry_table = None
-        self.Crz_table = None
-
-        self.basename_Cx = None
-        self.basename_Cy = None
-        self.basename_Cz = None
-        self.basename_Crx = None
-        self.basename_Cry = None
-        self.basename_Crz = None
+        self.basename_Kryz = None
 
         self.flag_stiffness_parameters = False
         self.flag_damping_parameters = False
-                
-        # self.pushButton_constant_input_confirm = self.findChild(QPushButton, 'pushButton_constant_input_confirm')
-        # self.pushButton_constant_input_confirm.clicked.connect(self.constant_input_confirm)
 
-        # self.pushButton_table_input_confirm = self.findChild(QPushButton, 'pushButton_table_input_confirm')
-        # self.pushButton_table_input_confirm.clicked.connect(self.table_input_confirm)
+        self.radioButton_line_selection = self.findChild(QRadioButton, 'radioButton_line_selection')
+        self.radioButton_node_selection = self.findChild(QRadioButton, 'radioButton_node_selection')
+        self.radioButton_element_selection = self.findChild(QRadioButton, 'radioButton_element_selection')
+        self.radioButton_line_selection.clicked.connect(self.radioButtonEvent_selection_type)
+        self.radioButton_node_selection.clicked.connect(self.radioButtonEvent_selection_type)
+        self.radioButton_element_selection.clicked.connect(self.radioButtonEvent_selection_type)
+        self.selection_by_line = self.radioButton_line_selection.isChecked()
+        self.selection_by_node = self.radioButton_node_selection.isChecked()
+        self.selection_by_element = self.radioButton_element_selection.isChecked()
+        self.previous_flag = self.selection_by_line
+        
+        self.radioButton_add_rods = self.findChild(QRadioButton, 'radioButton_add_rods')
+        self.radioButton_not_add_rods = self.findChild(QRadioButton, 'radioButton_not_add_rods')
+        self.radioButton_add_rods.clicked.connect(self.radioButtonEvent_rods)
+        self.radioButton_not_add_rods.clicked.connect(self.radioButtonEvent_rods)
+        self.add_rods = self.radioButton_add_rods.isChecked()
+
+        self.pushButton_constant_input_confirm = self.findChild(QPushButton, 'pushButton_constant_input_confirm')
+        self.pushButton_constant_input_confirm.clicked.connect(self.constant_input_confirm)
+
+        self.pushButton_table_input_confirm = self.findChild(QPushButton, 'pushButton_table_input_confirm')
+        self.pushButton_table_input_confirm.clicked.connect(self.table_input_confirm)
 
         # self.pushButton_remove_link_stiffness = self.findChild(QPushButton, 'pushButton_remove_link_stiffness')
         # self.pushButton_remove_link_stiffness.clicked.connect(self.remove_selected_link_stiffness)
@@ -166,20 +154,20 @@ class ExpansionJointInput(QDialog):
         # self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
         # self.pushButton_reset_all.clicked.connect(self.reset_all)
 
-        # self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        # self.pushButton_close.clicked.connect(self.force_to_close)
+        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+        self.pushButton_close.clicked.connect(self.force_to_close)
 
-        self.tabWidget_inputs = self.findChild(QTabWidget, 'tabWidget_inputs')
-        # self.tabWidget_inputs.currentChanged.connect(self.tabEvent)
+        self.pushButton_get_length = self.findChild(QPushButton, 'pushButton_get_length')
+        self.pushButton_get_length.clicked.connect(self.get_length)
 
-        self.tabWidget_selection_type = self.findChild(QTabWidget, 'tabWidget_selection_type')
-        self.tabWidget_selection_type.currentChanged.connect(self.tabEvent_selection_type)
-        self.current_tab_selection_type = self.tabWidget_selection_type.currentIndex()
+        # self.pushButton_get_length.clicked.connect(self.force_to_close)
 
-        self.tab_line_selection = self.findChild(QWidget, "tab_line_selection")
-        self.tab_node_selection = self.findChild(QWidget, "tab_node_selection")
-        self.tab_element_selection = self.findChild(QWidget, "tab_element_selection")
-
+        # self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
+        # self.tabWidget_main.currentChanged.connect(self.tabEvent_selection_type)
+        # self.current_tab_selection_type = self.tabWidget_main.currentIndex()
+        # self.tab_setup = self.findChild(QWidget, "tab_setup")
+        # self.tab_remove = self.findChild(QWidget, "tab_remove")
+  
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         # self.lineEdit_parameters_info = self.findChild(QLineEdit, 'lineEdit_parameters_info')
 
@@ -196,10 +184,31 @@ class ExpansionJointInput(QDialog):
         # self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
         self.update()
-        # self.writeNodes(self.opv.getListPickedPoints())
+        # self.write_id(self.opv.getListPickedPoints())
         # self.load_elastic_links_stiffness_info()
         # self.load_elastic_links_damping_info()
         self.exec_()
+
+    # def mousePressEvent(self, event):
+    #     clicked = QtCore.pyqtSignal()
+    #     # self.lineEdit_axial_stiffness.clicked.emit()
+    #     print(event)
+        # self.lineEdit_axial_stiffness.clicked.connect(self.print_message)
+
+    # def print_message(self):
+    #     print("Alguma mensagem deve ser printada!")
+    
+    def get_length(self):
+        lineEdit_lineID = self.lineEdit_selected_ID.text()
+        if lineEdit_lineID != "":
+            self.stop, self.line_id = self.before_run.check_input_LineID(lineEdit_lineID, single_ID=True)
+            if self.stop:
+                self.lineEdit_selected_ID.setText("")
+                self.lineEdit_joint_length.setText("")
+                self.lineEdit_selected_ID.setFocus()
+                return True  
+            length = self.mesh.get_line_length(self.line_id) 
+            self.lineEdit_joint_length.setText(str(round(length,8)))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -209,112 +218,212 @@ class ExpansionJointInput(QDialog):
                 self.table_input_confirm() 
         if event.key() == Qt.Key_Escape:
             self.close()
-    
-    def tabEvent_selection_type(self):
-        self.current_tab_selection_type = self.tabWidget_selection_type.currentIndex()
-        print(self.current_tab_selection_type)
 
-    def update_tabs(self):
+    def write_id(self, selected_id):
+        self.lineEdit_selected_ID.setText(str(selected_id[0]))
+
+    def update(self):
+
+        self.update_selected_id()
+        self.update_selection_lineEdit_visibility()
+        
+        if self.line_id != []:
+            self.write_id(self.line_id)
+            self.radioButton_line_selection.setChecked(True)
+            length = self.mesh.get_line_length(self.line_id[0])
+            self.lineEdit_joint_length.setText(str(round(length,8)))
+        
+        elif self.node_id != []:
+            self.write_id(self.node_id)
+            self.radioButton_node_selection.setChecked(True)
+          
+        elif self.element_id != []:
+            self.write_id(self.element_id)
+            self.radioButton_element_selection.setChecked(True)
+        self.load_input_fields()
+        
+
+    def update_get_length_button_visibility(self):
+        if self.selection_by_line:
+            self.pushButton_get_length.setVisible(True)
+        else:
+            if self.line_id == []:
+                self.pushButton_get_length.setVisible(False)      
+
+    def update_selected_id(self):
+        
         self.node_id = self.opv.getListPickedPoints()
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
-
-        if len(self.line_id) > 0:
-            self.tabWidget_selection_type.setCurrentWidget(self.tab_line_selection)
-        elif len(self.node_id) > 0:
-            self.tabWidget_selection_type.setCurrentWidget(self.tab_node_selection)
-        elif len(self.element_id) > 0:
-            self.tabWidget_selection_type.setCurrentWidget(self.tab_element_selection)
         
-    # def radioButtonEvent_(self):
-    #     self.current_tab_index = self.tabWidget_compressor.currentIndex()
-    #     if self.current_tab_index == 3:
-    #         self.pushButton_confirm.setDisabled(True)
-    #     else:
-    #         self.pushButton_confirm.setDisabled(False)
+        if self.previous_flag:
+            if self.node_id != [] or self.element_id != []:
+                self.lineEdit_joint_length.setText("")
+                self.lineEdit_joint_length.setEnabled(True)
+            if not self.selection_by_line and self.line_id == []:
+                self.lineEdit_joint_length.setText("")
+                self.lineEdit_joint_length.setEnabled(True)
+        
+        elif self.selection_by_line:
+            if self.node_id == [] or self.element_id == []:
+                self.lineEdit_joint_length.setEnabled(False)
 
-    def check_input_length(self):
-        try:
+        self.previous_flag = self.selection_by_line
+    
+    def update_selection_lineEdit_visibility(self):
 
-            if self.current_tab_selection_type == 1:
-                self.length = float(self.lineEdit_joint_length_by_node.text())
+        if self.line_id != []:
+            self.label_selected_id.setText("Line ID:")
+            self.lineEdit_selected_ID.setText("")
+            self.radioButton_line_selection.setChecked(True)
+        
+        elif self.node_id != []:
+            self.label_selected_id.setText("Node ID:")
+            self.radioButton_node_selection.setChecked(True)
+
+        elif self.element_id != []:
+            self.label_selected_id.setText("Element ID:")
+            self.radioButton_element_selection.setChecked(True)
+
+    def update_selection_flags(self):
+        self.selection_by_line = self.radioButton_line_selection.isChecked()
+        self.selection_by_node = self.radioButton_node_selection.isChecked()
+        self.selection_by_element = self.radioButton_element_selection.isChecked()
+        self.update_get_length_button_visibility()
+
+    def radioButtonEvent_selection_type(self):   
+
+        self.update_selection_flags()
+        self.update_selected_id()
+        self.update_selection_lineEdit_visibility()
+
+        if self.line_id != []:
+            self.write_id(self.line_id)
             
-            if self.current_tab_selection_type == 2:
-                self.length = float(self.lineEdit_joint_length_by_element.text()) 
+        elif self.node_id != []:
+            self.write_id(self.node_id)
+                    
+        elif self.element_id != []:
+            self.write_id(self.element_id)     
 
-        except Exception as log_error:
-            title = "Invalid value to the joint length"
-            message = "An invalid value has been typed to the joint length."
-            message += "The input value must be an positive float number.\n\n"
-            message += f"{str(log_error)}"
-            PrintMessageInput([title, message, window_title1])
+        else:
+            self.lineEdit_selected_ID.setText("")       
 
-    def get_nodes_elements_according_joint_length(self):
-        if self.node_id > 0:
-            node_ID = self.node_id[0]
-            self.list_node, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_node(node_ID, self.length)
-        if self.element_id > 0:
-            element_ID = self.element_id[0]
-            self.list_node, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_element(element_ID, self.length)
+    def radioButtonEvent_rods(self):
+        self.add_rods = self.radioButton_add_rods.isChecked()
 
-    def writeNodes(self, list_ids, lineEdit):
-        text = ""
-        for node in list_ids:
-            text += "{}, ".format(node)
-        lineEdit.setText(text)
+    def tabEvent_selection_type(self):
+        self.current_tab_selection_type = self.tabWidget_selection_type.currentIndex()
 
-    def update(self):
-        self.lineEdit_selected_line_ID.setText("")
-        self.lineEdit_selected_node_ID.setText("")
-        self.lineEdit_selected_element_ID.setText("")
-        self.lineEdit_joint_length_by_line.setText("")
+    def check_selection_type(self):
 
-        self.update_tabs()
-        # print(self.line_id, self.node_id, self.element_id)
-        
-        if len(self.line_id) > 0:
-            self.writeNodes(self.line_id, self.lineEdit_selected_line_ID)
-            # print(f"entrei aqui: {self.line_id}")
-            length = self.mesh.get_line_length(self.line_id[0])
-            self.lineEdit_joint_length_by_line.setText(str(round(length,8)))
-        
-        elif len(self.node_id) > 0:
-            self.writeNodes(self.node_id, self.lineEdit_selected_node_ID)
-            self.lineEdit_selected_node_ID.setText(str(self.node_id[0]))
-            # print(f"entrei aqui: {self.line_ID}")
-          
-        elif len(self.element_id) > 0:
-            self.writeNodes(self.element_id, self.lineEdit_selected_element_ID)
-            self.lineEdit_selected_element_ID.setText(str(self.element_id[0]))
-            # print(f"entrei aqui: {self.line_ID}")
+        if self.selection_by_line:
             
-    def check_all_nodes(self):
+            lineEdit_lineID = self.lineEdit_selected_ID.text()
+            self.stop, self.lineID = self.before_run.check_input_LineID(lineEdit_lineID, single_ID=True)
+            if self.stop:
+                self.lineEdit_selected_ID.setText("")
+                self.lineEdit_joint_length.setText("")
+                self.lineEdit_selected_ID.setFocus()
+                return True
+            self.get_length()
         
-        lineEdit_lineID = self.lineEdit_selected_line_ID.text()
-        self.stop, self.lineID = self.mesh.check_input_LineID(lineEdit_lineID, single_ID=True)
-        if self.stop:
-            return True
-        
-        lineEdit_nodeID = self.lineEdit_selected_node_ID.text()
-        self.stop, self.nodeID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
-        if self.stop:
-            return True
+        elif self.selection_by_node:  
 
-        lineEdit_elementID = self.lineEdit_selected_element_ID.text()
-        self.stop, self.elementID = self.mesh.check_input_ElementID(lineEdit_elementID, single_ID=True)
-        if self.stop:
-            return True
+            lineEdit_nodeID = self.lineEdit_selected_ID.text()
+            self.stop, self.nodeID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+            if self.stop:
+                return True
 
-        # if temp_nodeID_1 == temp_nodeID_2:
-        #     title = "ERROR IN NODES SELECTION"
-        #     message = "The selected nodes must differ. Try to choose another pair of nodes."
-        #     PrintMessageInput([title, message, window_title1])
-        #     return True
+        elif self.selection_by_element:
+
+            lineEdit_elementID = self.lineEdit_selected_ID.text()
+            self.stop, self.elementID = self.before_run.check_input_ElementID(lineEdit_elementID, single_ID=True)
+            if self.stop:
+                return True
 
         return False
-        
+
+    def reset_all_lineEdits(self):
+        self.lineEdit_joint_length.setText("")
+        self.lineEdit_effective_diameter.setText("")
+        self.lineEdit_joint_mass.setText("")
+        self.lineEdit_axial_locking_criteria.setText("")
+        self.lineEdit_axial_stiffness.setText("")
+        self.lineEdit_transversal_stiffness.setText("")
+        self.lineEdit_torsional_stiffness.setText("")
+        self.lineEdit_angular_stiffness.setText("")
+
+    def load_input_fields(self):
+        if self.line_id == []:
+            self.reset_all_lineEdits()
+        else:    
+            entity = self.dict_tag_to_entity[self.line_id[0]]
+            if entity.expansion_joint_parameters is None:
+                return
+
+            [read_parameters, read_stiffness]  = entity.expansion_joint_parameters
+          
+            # if isinstance(_parameters, list):
+            #     read_parameters = _parameters
+
+            try:
+                self.lineEdit_joint_length.setText(str(read_parameters[0]))
+                self.lineEdit_effective_diameter.setText(str(read_parameters[1]))
+                self.lineEdit_joint_mass.setText(str(read_parameters[2]))
+                self.lineEdit_axial_locking_criteria.setText(str(read_parameters[3]))
+                if read_parameters[4] == 1:
+                    self.radioButton_add_rods.setChecked(True)
+                elif read_parameters[4] == 0:
+                    self.radioButton_add_rods.setChecked(False) 
+                
+                if isinstance(read_stiffness[0], np.ndarray):
+                    pass
+                else:
+                    self.lineEdit_axial_stiffness.setText(str(read_stiffness[0]))
+                
+                if isinstance(read_stiffness[1], np.ndarray):
+                    pass
+                else:    
+                    self.lineEdit_transversal_stiffness.setText(str(read_stiffness[1]))
+                
+                if isinstance(read_stiffness[2], np.ndarray):
+                    pass
+                else:                
+                    self.lineEdit_torsional_stiffness.setText(str(read_stiffness[2]))
+                
+                if isinstance(read_stiffness[3], np.ndarray):
+                    pass
+                else:
+                    self.lineEdit_angular_stiffness.setText(str(read_stiffness[3]))
+
+            except Exception as _log_error:
+                title = "Error while loading info from entity"
+                message = str(_log_error)
+                PrintMessageInput([title, message, window_title1])
+        pass
+
+    # def check_input_length(self):
+    #     try:
+
+    #         self.length = float(self.lineEdit_joint_length.text())
+            
+    #     except Exception as log_error:
+    #         title = "Invalid value to the joint length"
+    #         message = "An invalid value has been typed to the joint length."
+    #         message += "The input value must be a positive float number.\n\n"
+    #         message += f"{str(log_error)}"
+    #         PrintMessageInput([title, message, window_title1])
+
+    def get_nodes_elements_according_joint_length(self):
+        if self.selection_by_node:
+            self.list_nodes, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_node(self.nodeID, self.length)
+        elif self.selection_by_element:
+            self.list_nodes, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_element(self.elementID, self.length)
+
     def check_input_parameters(self, lineEdit, label, _float=True):
-        title = "INPUT ERROR"
+        message = ""
+        title = f"Invalid entry to the '{label}'"
         value_string = lineEdit.text()
         if value_string != "":
             try:
@@ -322,109 +431,152 @@ class ExpansionJointInput(QDialog):
                     value = float(value_string)
                 else:
                     value = int(value_string) 
-                if value < 0:
-                    message = "You cannot input a negative value to the {}.".format(label)
-                    PrintMessageInput([title, message, window_title1])
-                    return True
+                if value <= 0:
+                    message = f"You cannot input a non-positive value to the '{label}'."
                 else:
                     self.value = value
-            except Exception:
-                message = "You have typed an invalid value to the {}.".format(label)
-                PrintMessageInput([title, message, window_title1])
-                return True
+            except Exception as _log_error:
+                message = f"You have typed an invalid value to the '{label}' input field."
+                message += "The input value should be a positive float number.\n\n"
+                message += f"{str(_log_error)}"
         else:
+            message = f"An empty entry has been detected at the '{label}' input field.\n\n" 
+            message += "You should to enter a positive value to proceed."
             self.value = None
-        return False
-    
-    def check_all_inputs(self):
-        self.parameters_K = None
-        self.parameters_C = None
-        if self.check_all_nodes():
-            return True
-
-        if self.check_input_parameters(self.lineEdit_Kx, 'Kx'):
-            return True
-        else:
-            Kx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Ky, 'Ky'):
-            return True
-        else:
-            Ky = self.value
-
-        if self.check_input_parameters(self.lineEdit_Kz, 'Kz'):
-            return True
-        else:
-            Kz = self.value
-
-        if self.check_input_parameters(self.lineEdit_Krx, 'Krx'):
-            return True
-        else:
-            Krx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Kry, 'Kry'):
-            return True
-        else:
-            Kry = self.value
-
-        if self.check_input_parameters(self.lineEdit_Krz, 'Krz'):
-            return True
-        else:
-            Krz = self.value
-        
-        if self.check_input_parameters(self.lineEdit_Cx, 'Cx'):
-            return True
-        else:
-            Cx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Cy, 'Cy'):
-            return True
-        else:
-            Cy = self.value
-
-        if self.check_input_parameters(self.lineEdit_Cz, 'Cz'):
-            return True
-        else:
-            Cz = self.value
-
-        if self.check_input_parameters(self.lineEdit_Crx, 'Crx'):
-            return True
-        else:
-            Crx = self.value
-
-        if self.check_input_parameters(self.lineEdit_Cry, 'Cry'):
-            return True
-        else:
-            Cry = self.value
-
-        if self.check_input_parameters(self.lineEdit_Crz, 'Crz'):
-            return True
-        else:
-            Crz = self.value
-
-        list_K = [Kx, Ky, Kz, Krx, Kry, Krz]
-        list_C = [Cx, Cy, Cz, Crx, Cry, Crz] 
-                
-        if list_K.count(None) != 6:
-            self.parameters_K = list_K
-        if list_C.count(None) != 6:
-            self.parameters_C = list_C
-        
-        if list_K.count(None) == 6 and list_C.count(None) == 6:
-            title = 'EMPTY INPUTS FOR STIFFNESS AND DAMPING'
-            message = 'Please insert at least a stiffness or damping value before confirming the attribution.'
+        if message != "":
             PrintMessageInput([title, message, window_title1])
+            return True
+        else:
+            return False
+    
+    def check_initial_inputs(self):
+
+        self.list_parameters = []
+                
+        if self.check_selection_type():
+            return True
+            
+        if self.check_input_parameters(self.lineEdit_joint_length, 'Joint length'):
+            self.lineEdit_joint_length.setFocus()
+            return True
+        else:
+            self.joint_length = self.value
+
+        if self.check_input_parameters(self.lineEdit_effective_diameter, 'Effective diameter'):
+            self.lineEdit_effective_diameter.setFocus()
+            return True
+        else:
+            self.effective_diameter = self.value
+        
+        if self.check_input_parameters(self.lineEdit_joint_mass, 'Joint mass'):
+            self.lineEdit_joint_mass.setFocus()
+            return True
+        else:
+            self.joint_mass = self.value
+
+        if self.check_input_parameters(self.lineEdit_axial_locking_criteria, 'Axial locking criteria'):
+            self.lineEdit_axial_locking_criteria.setFocus()
+            return True
+        else:
+            self.axial_locking_criteria = self.value
+
+        self.add_rods_key = int(self.add_rods)
+        self.list_parameters =  [   self.joint_length,
+                                    self.effective_diameter,  
+                                    self.joint_mass, 
+                                    self.axial_locking_criteria,
+                                    self.add_rods_key    ]
+
+    def check_constant_values_to_stiffness(self):
+        self.list_stiffness = []       
+        if self.check_input_parameters(self.lineEdit_axial_stiffness, 'Axial stiffness'):
+            self.lineEdit_axial_stiffness.setFocus()
+            return True
+        else:
+            self.list_stiffness.append(self.value)
+
+        if self.check_input_parameters(self.lineEdit_transversal_stiffness, 'Transversal stiffness'):
+            self.lineEdit_transversal_stiffness.setFocus()
+            return True
+        else:
+            self.list_stiffness.append(self.value)
+
+        if self.check_input_parameters(self.lineEdit_torsional_stiffness, 'Torsional stiffness'):
+            self.lineEdit_torsional_stiffness.setFocus()
+            return True
+        else:
+            self.list_stiffness.append(self.value)
+
+        if self.check_input_parameters(self.lineEdit_angular_stiffness, 'Angular stiffness'):
+            self.lineEdit_angular_stiffness.setFocus()
+            return True
+        else:
+            self.list_stiffness.append(self.value)
+
+        # list_stiffness_parameters = [Kx, Kyz, Krx, Kryz]
+                
+        # if len(list_stiffness_parameters) == 4:
+        #     for _value in list_stiffness_parameters:
+        #         self.list_parameters.append(_value)
+        #     return False
+        # else:
+        #     return True
 
     def constant_input_confirm(self):
-        if self.check_all_inputs():
+        
+        if self.check_initial_inputs():
             return
-        if self.parameters_K is not None:
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.parameters_K, False)
-        if self.parameters_C is not None:
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.parameters_C, False)
-        if (self.parameters_K or self.parameters_C) is not None:
-            self.opv.updateRendererMesh()
-            self.close()
+        
+        if self.check_constant_values_to_stiffness():
+            return
+
+        self.all_parameters = [self.list_parameters, self.list_stiffness]
+
+        # if self.list_parameters != []:
+            
+        if self.selection_by_line:
+
+            self.project.set_cross_section_by_line(self.lineID, None)
+
+            self.list_elements = self.project.mesh.line_to_elements[self.lineID]
+            list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
+                                                                            self.effective_diameter )
+            
+            self.project.mesh.set_cross_section_by_element(self.list_elements, list_cross)
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, False)
+            self.opv.updatePlots()
+            self.opv.changePlotToEntitiesWithCrossSection()
+        else:
+            return
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, False)
+        # self.opv.updateRendererMesh()
+        self.close()
+        # else:
+        #     title = 'EMPTY INPUTS FOR EXPASION JOINT STIFFNESS'
+        #     message = 'Please insert at least a stiffness value value to proceed.'
+        #     PrintMessageInput([title, message, window_title1])
+
+    # def get_parameters(self):
+    #     [   effective_diameter,
+    #         joint_length,
+    #         joint_mass,
+    #         axial_locking_criteria,
+    #         add_rods_key,  
+    #         axial_stiffness,
+    #         transversal_stiffness,
+    #         torsional_stiffness,
+    #         angular_stiffness   ] = self.list_parameters
+
+    #     data =  {   "joint_length" : joint_length,   
+    #                 "effective_diameter" : effective_diameter, 
+    #                 "joint_mass" : joint_mass,
+    #                 "axial_locking_criteria" : axial_locking_criteria,
+    #                 "rods_included" : add_rods_key,
+    #                 "axial_stiffness" : axial_stiffness,
+    #                 "transversal_stiffness" : transversal_stiffness,
+    #                 "torsional_stiffness" : torsional_stiffness,
+    #                 "angular_stiffness" : angular_stiffness }
+    #     return data
 
     def load_table(self, lineEdit, text, header, direct_load=False):
 
@@ -459,7 +611,8 @@ class ExpansionJointInput(QDialog):
             
         if imported_file.shape[1]<2:
             title = "ERROR WHILE LOADING {} TABLE".format(text)
-            message = "The imported table has insufficient number of columns. The spectrum data must have only two columns to the frequencies and values."
+            message = "The imported table has insufficient number of columns. The spectrum"
+            message += " data must have only two columns to the frequencies and values."
             PrintMessageInput([title, message, window_title1])
             return
     
@@ -485,185 +638,104 @@ class ExpansionJointInput(QDialog):
         return self.imported_values, self.basename
 
     def load_Kx_table(self):
-        header = "Kx || Frequency [Hz], Value [N/m]"
-        self.Kx_table, self.basename_Kx = self.load_table(self.lineEdit_path_table_Kx, "Kx", header)
+        label = "Axial stiffness"
+        header = f"{label} || Frequency [Hz], Value [N/m]"
+        self.Kx_table, self.basename_Kx = self.load_table(self.lineEdit_path_table_axial_stiffness, label, header)
 
-    def load_Ky_table(self):
-        header = "Ky || Frequency [Hz], Value [N/m]"
-        self.Ky_table, self.basename_Ky = self.load_table(self.lineEdit_path_table_Ky, "Ky", header)
-
-    def load_Kz_table(self):
-        header = "Kz || Frequency [Hz], Value [N/m]"
-        self.Kz_table, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header)
+    def load_Kyz_table(self):
+        label = "Transversal stiffness"
+        header = f"{label} || Frequency [Hz], Value [N/m]"
+        self.Kyz_table, self.basename_Kyz = self.load_table(self.lineEdit_path_table_transversal_stiffness, label, header)
 
     def load_Krx_table(self):
-        header = "Krx || Frequency [Hz], value[N.m/rad]"
-        self.Krx_table, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header)
+        label = "Torsional stiffness"
+        header = f"{label} || Frequency [Hz], Value [N.m/rad]"
+        self.Krx_table, self.basename_Krx = self.load_table(self.lineEdit_path_table_torsional_stiffness, label, header)
 
-    def load_Kry_table(self):
-        header = "Kry || Frequency [Hz], value[N.m/rad]"
-        self.Kry_table, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header)
+    def load_Kryz_table(self):
+        label = "Angular stiffness"
+        header = f"{label} || Frequency [Hz], Value [N.m/rad]"
+        self.Kryz_table, self.basename_Kryz = self.load_table(self.lineEdit_path_table_angular_stiffness, label, header)
 
-    def load_Krz_table(self):
-        header = "Krz || Frequency [Hz], value[N.m/rad]"
-        self.Krz_table, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header)
+    def check_table_of_values(self):
 
-    def load_Cx_table(self):
-        header = "Cx || Frequency [Hz], value[N.s/m]"
-        self.Cx_table, self.basename_Cx = self.load_table(self.lineEdit_path_table_Cx, "Cx", header)
-
-    def load_Cy_table(self):
-        header = "Cy || Frequency [Hz], value[N.s/m]"
-        self.Cy_table, self.basename_Cy = self.load_table(self.lineEdit_path_table_Cy, "Cy", header)
-
-    def load_Cz_table(self):
-        header = "Cz || Frequency [Hz], value[N.s/m]"
-        self.Cz_table, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header)
-
-    def load_Crx_table(self):
-        header = "Crx || Frequency [Hz], value[N.m.s/rad]"
-        self.Crx_table, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header)
-
-    def load_Cry_table(self):
-        header = "Cry || Frequency [Hz], value[N.m.s/rad]"
-        self.Cry_table, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header)
-
-    def load_Crz_table(self):
-        header = "Crz || Frequency [Hz], value[N.m.s/rad]"
-        self.Crz_table, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header)
-
-    def check_table_for_elastic_link_stiffness(self):
-
-        Kx = Ky = Kz = None
-        if self.lineEdit_path_table_Kx.text() != "":
+        self.loaded_stiffness = None
+        
+        Kx = Kyz = Krx = Kryz = None
+        if self.lineEdit_path_table_axial_stiffness.text() != "":
             if self.Kx_table is None:
-                header = "Kx || Frequency [Hz], Value [N/m]"
-                Kx, self.basename_Kx = self.load_table(self.lineEdit_path_table_Kx, "Kx", header, direct_load=True)
+                label = "Axial stiffness"
+                header = f"{label} || Frequency [Hz], Value [N/m]"
+                lineEdit = self.lineEdit_path_table_axial_stiffness
+                Kx, self.basename_Kx = self.load_table(lineEdit, label, header, direct_load=True)
             else:
                 Kx = self.Kx_table
-        
-        if self.lineEdit_path_table_Ky.text() != "":
-            if self.Ky_table is None:
-                header = "Ky || Frequency [Hz], Value [N/m]"
-                Ky, self.basename_Ky = self.load_table(self.lineEdit_path_table_Ky, "Ky", header, direct_load=True)                
-            else:
-                Ky = self.Ky_table
 
-        if self.lineEdit_path_table_Kz.text() != "":
-            if self.Kz_table is None:
-                header = "Kz || Frequency [Hz], Value [N/m]"
-                Kz, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header, direct_load=True)                
+        if self.lineEdit_path_table_transversal_stiffness.text() != "":
+            if self.Kyz_table is None:
+                label = "Transversal stiffness"
+                header = f"{label} || Frequency [Hz], Value [N/m]"
+                lineEdit = self.lineEdit_path_table_transversal_stiffness
+                Kyz, self.basename_Kyz = self.load_table(lineEdit, label, header, direct_load=True)
             else:
-                Kz = self.Kz_table
+                Kyz = self.Kyz_table
 
-        Krx = Kry = Krz = None
-        if self.lineEdit_path_table_Krx.text() != "":
+        if self.lineEdit_path_table_torsional_stiffness.text() != "":
             if self.Krx_table is None:
-                header = "Krx || Frequency [Hz], Value [N.m/rad]"
-                Krx, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header, direct_load=True)
+                label = "Torsional stiffness"
+                header = f"{label} || Frequency [Hz], Value [N.m/m]"
+                lineEdit = self.lineEdit_path_table_torsional_stiffness
+                Krx, self.basename_Krx = self.load_table(lineEdit, label, header, direct_load=True)
             else:
                 Krx = self.Krx_table
-        
-        if self.lineEdit_path_table_Kry.text() != "":
-            if self.Kry_table is None:
-                header = "Kry || Frequency [Hz], Value [N.m/rad]"
-                Kry, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header, direct_load=True)            
-            else:
-                Kry = self.Kry_table
-        
-        if self.lineEdit_path_table_Krz.text() != "":
-            if self.Krz_table is not None:
-                header = "Krz || Frequency [Hz], Value [N.m/rad]"
-                Krz, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header, direct_load=True)            
-            else:
-                Krz = self.Krz_table
-        
-        stiffness_parameters = [Kx, Ky, Kz, Krx, Kry, Krz]
 
-        if sum([1 if bc is not None else 0 for bc in stiffness_parameters]) != 0:
-            self.flag_stiffness_parameters = True
-            self.basenames = [self.basename_Kx, self.basename_Ky, self.basename_Kz, self.basename_Krx, self.basename_Kry, self.basename_Krz]
-            self.stiffness_parameters = stiffness_parameters
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.stiffness_parameters, True, table_name=self.basenames)
-            return False
-        else:
+        if self.lineEdit_path_table_angular_stiffness.text() != "":
+            if self.Kryz_table is None:
+                label = "Angular stiffness"
+                header = f"{label} || Frequency [Hz], Value [N.m/m]"
+                lineEdit = self.lineEdit_path_table_angular_stiffness
+                Kryz, self.basename_Kryz = self.load_table(lineEdit, label, header, direct_load=True)
+            else:
+                Kryz = self.Kryz_table
+
+        self.labels = ["Axial stiffness", "Transversal stiffness", "Torsional stiffness", "Angular stiffness"]
+        self.loaded_stiffness_tables = [Kx, Kyz, Krx, Kryz]
+
+        if None in self.loaded_stiffness_tables:
+            list_labels = []
+            for index, value in enumerate(self.loaded_stiffness_tables):
+                if value is None:
+                    list_labels.append(self.labels[index])
+
+            title = 'NONE TABLE SELECTED FOR STIFFNESS'
+            message = f"Please, define at least one table of values to the:\n\n {list_labels} \n\n"
+            message += "before confirming the attribution."
+            PrintMessageInput([title, message, window_title1])
             return True
-
-    def check_table_for_elastic_link_damping(self):
-
-        Cx = Cy = Cz = None
-        if self.lineEdit_path_table_Cx.text() != "":
-            if self.Cx_table is None:
-                header = "Cx || Frequency [Hz], Value [N.s/m]"
-                Cx, self.basename_Cx = self.load_table(self.lineEdit_path_table_Cx, "Cx", header, direct_load=True)            
-            else:
-                Cx = self.Cx_table
-        
-        if self.lineEdit_path_table_Cy.text() != "":
-            if self.Cy_table is None:
-                header = "Cy || Frequency [Hz], Value [N.s/m]"
-                Cy, self.basename_Cy = self.load_table(self.lineEdit_path_table_Cy, "Cy", header, direct_load=True)
-            else:
-                Cy = self.Cy_table
-        
-        if self.lineEdit_path_table_Cz.text() != "":
-            if self.Cz_table is None:
-                header = "Cz || Frequency [Hz], Value [N.s/m]"
-                Cz, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header, direct_load=True)
-            else:
-                Cz = self.Cz_table
-
-        Crx = Cry = Crz = None
-        if self.lineEdit_path_table_Crx.text() != "":
-            if self.Crx_table is None:
-                header = "Crx || Frequency [Hz], Value [N.m.s/rad]"
-                Crx, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header, direct_load=True)
-            else:
-                Crx = self.Crx_table
-        
-        if self.lineEdit_path_table_Cry.text() != "":
-            if self.Cry_table is None:
-                header = "Cry || Frequency [Hz], Value [N.m.s/rad]"
-                Cry, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header, direct_load=True)
-            else:
-                Cry = self.Cry_table
-        
-        if self.lineEdit_path_table_Crz.text() != "":
-            if self.Crz_table is None:
-                header = "Crz || Frequency [Hz], Value [N.m.s/rad]"
-                Crz, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header, direct_load=True)
-            else:
-                Crz = self.Crz_table
-                    
-        damping_parameters = [Cx, Cy, Cz, Crx, Cry, Crz]
-
-        if sum([1 if bc is not None else 0 for bc in damping_parameters]) != 0:
-            self.flag_damping_parameters = True
-            self.basenames = [self.basename_Cx, self.basename_Cy, self.basename_Cz, self.basename_Crx, self.basename_Cry, self.basename_Crz]
-            self.damping_parameters = damping_parameters
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.damping_parameters, True, table_name=self.basenames)
-            return False
         else:
-            return True
-  
+            self.basenames = [  self.basename_Kx, self.basename_Kyz, 
+                                self.basename_Krx, self.basename_Kryz   ]    
+            return False
+
+
     def table_input_confirm(self):
 
-        if self.check_all_nodes():
-            return True
-
-        if self.check_table_for_elastic_link_stiffness() and self.check_table_for_elastic_link_damping():
-            title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
-            message = 'Please, define at least a table of values to the stiffness or damping before confirming the attribution.'
-            PrintMessageInput([title, message, window_title1])
+        if self.check_initial_inputs():
             return
 
-        if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
-            title = "ERROR"
-            message = "You must to add at least one external element before confirm the input!"
-            PrintMessageInput([title, message, window_title1])
+        if self.check_table_of_values():
             return
+
+        self.all_parameters = [self.list_parameters, self.list_stiffness]
+        if self.selection_by_line:
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, True, self.basenames)
+            self.opv.updatePlots()
+            self.opv.changePlotToEntitiesWithCrossSection()
+        else:
+            return
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, True, self.basenames)
         
-        self.opv.updateRendererMesh()
+        # self.opv.updateRendererMesh()
         self.close()
 
     def text_label(self, mask, load_labels):
@@ -1002,3 +1074,31 @@ class GetInformationOfGroup(QDialog):
 
     def force_to_close(self):
         self.close()
+
+
+def get_list_cross_sections_to_plot_expansion_joint(list_elements, effective_diameter):
+    list_cross_sections = []
+    flanges_elements = [    list_elements[0],
+                            list_elements[1],
+                            list_elements[-2],
+                            list_elements[-1]  ]
+    
+    # self.project.set_cross_section_by_line(self.lineID, None)
+    
+    for element in list_elements:
+
+        if element in flanges_elements:
+            plot_key = "flanges"
+        else:
+            if np.remainder(element,2) == 0:
+                plot_key = "minor"
+            else:
+                plot_key = "major"
+
+        expansion_joint_info = [    "expansion joint", 
+                                    plot_key,
+                                    effective_diameter ]
+
+        list_cross_sections.append(CrossSection(expansion_joint_info=expansion_joint_info))
+    return list_cross_sections
+    

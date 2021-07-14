@@ -66,18 +66,21 @@ class PlotReactionsInput(QDialog):
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        
+        self.opv = opv
+        self.opv.setInputObject(self)
 
         self.mesh = project.mesh
-        self.analysisMethod = analysisMethod
-        self.frequencies = frequencies
+        self.before_run = self.mesh.get_model_checks()
 
         reactions = project.get_structural_reactions()
         self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
 
+        self.analysisMethod = analysisMethod
+        self.frequencies = frequencies
+        
         self.node_ID = 0
         self.imported_data = None
         self.localDof = None
@@ -338,7 +341,7 @@ class PlotReactionsInput(QDialog):
     def check(self, export=False):
         
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if stop:
             return
 

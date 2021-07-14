@@ -16,6 +16,7 @@ class Entity:
         self.material = None
         self.fluid = None
         self.cross_section = None
+        self.variable_cross_section_data = None
         self.beam_xaxis_rotation = None
         self.acoustic_element_type = None
         self.hysteretic_damping = None
@@ -26,6 +27,7 @@ class Entity:
         self.external_pressure = kwargs.get('external_pressure', None)
         self.internal_temperature = kwargs.get('internal_temperature', None)
         self.external_temperature = kwargs.get('external_temperature', None)
+        self.expansion_joint_parameters = None
 
     def insertNode(self, node):
         """

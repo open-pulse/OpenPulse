@@ -25,15 +25,17 @@ class CompressorModelInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.node_id = self.opv.getListPickedPoints()
+
         self.project = project
         self.mesh = project.mesh
-        self.nodes = self.project.mesh.nodes
-        self.node_id = self.opv.getListPickedPoints()
+        self.nodes = self.mesh.nodes
+        self.before_run = self.mesh.get_model_checks()    
 
         self.project_folder_path = project.file._project_path      
         self.stop = False
@@ -267,7 +269,7 @@ class CompressorModelInput(QDialog):
     def check_nodeID(self, lineEdit, export=False):
         
         lineEdit_nodeID = lineEdit.text()
-        self.stop, self.node_ID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        self.stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         
         if self.stop:
             return True

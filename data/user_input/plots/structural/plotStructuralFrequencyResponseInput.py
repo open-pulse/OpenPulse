@@ -59,20 +59,23 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-                
-        self.opv = opv
-        self.opv.setInputObject(self)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.list_node_IDs = self.opv.getListPickedPoints()
+
         self.projec = project
         self.mesh = project.mesh
-        self.nodes = project.mesh.nodes
+        self.before_run = self.mesh.get_model_checks()
+        self.nodes = self.mesh.nodes
+        
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
 
-        self.list_node_IDs = self.opv.getListPickedPoints()
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
         self.node_ID = 0
@@ -217,7 +220,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
     def check(self, export=False):
         
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        stop, self.node_ID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if stop:
             return
 

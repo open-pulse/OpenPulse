@@ -22,19 +22,21 @@ class CappedEndInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
         self.structural_elements = self.project.mesh.structural_elements
         self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
-        # self.entities = self.project.mesh.entities
+        
         self.complete = False
         self.info_text = ["NO MESSAGE", "NO MESSAGE", "NO MESSAGE"]
 
@@ -286,7 +288,7 @@ class CappedEndInput(QDialog):
 
         elif self.flagElements:
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
             if self.stop:
                 return
 
@@ -335,7 +337,7 @@ class CappedEndInput(QDialog):
         elif self.flagEntity:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True      
 

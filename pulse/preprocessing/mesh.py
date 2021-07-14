@@ -12,6 +12,7 @@ from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE
 from pulse.preprocessing.structural_element import StructuralElement, NODES_PER_ELEMENT
 from pulse.preprocessing.acoustic_element import AcousticElement, NODES_PER_ELEMENT
 from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _transformation_matrix_3x3, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
@@ -32,15 +33,17 @@ class Mesh:
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
-        self.neighbors = {}
+        # self.neighbors = {}
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
         self.group_elements_with_stress_stiffening = {}
-        self.group_lines_with_capped_end = {}
+        self.group_elements_with_expansion_joint = {}
+        self.group_lines_with_capped_end = {}        
         self.dict_lines_with_stress_stiffening = {}
+        self.dict_lines_with_expansion_joint = {}
         self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
         self.connectivity_matrix = []
@@ -111,9 +114,10 @@ class Mesh:
         self._order_global_indexes()
         # dt = time() - t0
         # print(f"Time to process _order_global_indexes: {dt}")
-
+        
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self.get_list_edge_nodes(element_size)
         self._get_principal_diagonal_structure_parallelepiped()
         
         # t0 = time()
@@ -204,7 +208,7 @@ class Mesh:
         gmsh.initialize('', False)
         gmsh.open(path)
 
-    def _set_gmsh_options(self, element_size, tolerance=1e-8):
+    def _set_gmsh_options(self, element_size, tolerance=1e-6):
         """
         This method sets the mesher algorithm configuration.
 
@@ -370,7 +374,7 @@ class Mesh:
         # print(self.line_to_elements[line_ID])
         first_element_ID = self.line_to_elements[line_ID][0]
         last_element_ID = self.line_to_elements[line_ID][-1]
-        print(first_element_ID, last_element_ID)
+        # print(first_element_ID, last_element_ID)
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
@@ -411,6 +415,38 @@ class Mesh:
             # if len(self.neighbors[element.last_node]) > 2:
             #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
+
+    def get_list_edge_nodes(self, size, tolerance=1e-5):
+        
+        coord_matrix = self.nodal_coordinates_matrix_external
+        # self.list_edge_nodes = []
+        list_node_ids = []
+        for node, neigh_nodes in self.neighbors.items():
+            if len(neigh_nodes) == 1:
+                # self.list_edge_nodes.append(node.external_index)
+                coord = node.coordinates
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
+                mask = diff < ((size/2) + tolerance)
+                if True in mask:
+                    try:
+                        list_external_indexes = coord_matrix[:,0][mask]
+                        if len(list_external_indexes) > 1:
+                            for external_index in list_external_indexes:
+                                if len(self.neighbors[self.nodes[external_index]]) == 1:
+                                    list_node_ids.append(int(external_index))
+                    except Exception as _log_error:
+                        PrintMessageInput(["Error while checking mesh at the line edges", str(_log_error), window_title_1])
+        
+        if len(list_node_ids)>0:
+            title = "Problem detected in connectivity between neighbor nodes"
+            message = "At least one disconnected node has been detected at the edge of one line due "
+            message += "to the mismatch between the geometry 'keypoints' and the current mesh setup. " 
+            message += "We strongly recommend reducing the element size or correcting the problem "
+            message += "in the geometry file before proceeding with the model setup.\n\n"
+            message += f"List of disconnected node(s): \n{list_node_ids}"
+            PrintMessageInput([title, message, window_title_1])                
+        
+ 
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.
@@ -537,6 +573,7 @@ class Mesh:
         self.create_dict_lines_to_rotation_angles()
         # self._create_dict_gdofs_to_external_indexes()
 
+
     def get_nodal_coordinates_matrix(self, reordering=True):
         """
         This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
@@ -550,17 +587,22 @@ class Mesh:
         """
         # self.number_nodes = len(self.nodes)
         nodal_coordinates = np.zeros((self.number_nodes, 4))
-        if reordering:
-            for external_index, node in self.nodes.items():
-                index = self.nodes[external_index].global_index
-                nodal_coordinates[index,:] = index, node.x, node.y, node.z
-        else:               
-            for external_index, node in self.nodes.items():
-                index = self.nodes[external_index].global_index
-                nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
+        nodal_coordinates_external = nodal_coordinates
+
+        # if reordering:
+        for external_index, node in self.nodes.items():
+            index = self.nodes[external_index].global_index
+            nodal_coordinates[index,:] = index, node.x, node.y, node.z
+            nodal_coordinates_external[index,:] = external_index, node.x, node.y, node.z
+        # else:               
+        #     for external_index, node in self.nodes.items():
+        #         index = self.nodes[external_index].global_index
+        #         nodal_coordinates[index,:] = external_index, node.x, node.y, node.z
+
         self.nodal_coordinates_matrix = nodal_coordinates
-        return
+        self.nodal_coordinates_matrix_external = nodal_coordinates_external
     
+
     def get_connectivity_matrix(self, reordering=True):
         """
         This method updates the mesh connectivity data. Connectivity matrix row structure:
@@ -577,6 +619,8 @@ class Mesh:
             for index, element in enumerate(self.structural_elements.values()):
                 first = element.first_node.global_index
                 last  = element.last_node.global_index
+                first_external = element.first_node.external_index
+                last_external  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         else:
             for index, element in enumerate(self.structural_elements.values()):
@@ -584,7 +628,7 @@ class Mesh:
                 last  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         self.connectivity_matrix = connectivity.astype(int) 
-        return 
+        
 
     def _get_principal_diagonal_structure_parallelepiped(self):
         nodal_coordinates = self.nodal_coordinates_matrix.copy()
@@ -734,7 +778,7 @@ class Mesh:
         elements : list
             Structural elements indexes.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1']
+        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint']
             Structural element type to be attributed to the listed elements.
             
         remove : boll, optional
@@ -790,10 +834,20 @@ class Mesh:
         """
         if update_cross_section:
             cross_section.update_properties()
-        for element in slicer(self.structural_elements, elements):
-            element.cross_section = cross_section
-        for element in slicer(self.acoustic_elements, elements):
-            element.cross_section = cross_section
+
+        if isinstance(cross_section, list):
+            for i, element in enumerate(elements):
+                _cross_section = cross_section[i]
+                _element = [element]
+                for element in slicer(self.structural_elements, _element):
+                    element.cross_section = _cross_section
+                for element in slicer(self.acoustic_elements, _element):
+                    element.cross_section = _cross_section
+        else:    
+            for element in slicer(self.structural_elements, elements):
+                element.cross_section = cross_section
+            for element in slicer(self.acoustic_elements, elements):
+                element.cross_section = cross_section
 
     def set_cross_section_by_line(self, line, cross_section):
         """
@@ -1423,6 +1477,82 @@ class Mesh:
                 else:
                     self.group_elements_with_stress_stiffening[section] = [parameters, elements]
 
+
+    def add_expansion_joint_by_elements(self, elements, parameters, section=None, remove=False):
+        """
+        This method .
+
+        Parameters
+        ----------
+        lines : list
+            Elements indexes.
+
+        parameters : list
+            ????????.
+
+        section : ?????
+            ??????
+            Default is None
+            
+        remove : boll, optional
+            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+            Default is False.
+        """
+        # if isinstance(parameters, dict):
+                
+        #     joint_length = parameters["joint_length"]
+        #     effective_diameter = parameters["effective_diameter"]
+        #     joint_mass = parameters["joint_mass"]
+        #     axial_locking_criteria = parameters["axial_locking_criteria"]
+        #     rods_included = parameters["rods_included"]
+        #     axial_stiffness = parameters["axial_stiffness"]
+        #     transversal_stiffness = parameters["transversal_stiffness"]
+        #     torsional_stiffness = parameters["torsional_stiffness"]
+        #     angular_stiffness = parameters["angular_stiffness"]
+        
+        # elif isinstance(parameters, list):
+
+        [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
+        [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+
+        for element in slicer(self.structural_elements, elements):
+            element.joint_length = joint_length
+            element.joint_effective_diameter = effective_diameter
+            element.joint_mass = joint_mass
+            element.joint_axial_locking_criteria = axial_locking_criteria
+            element.joint_rods_included = rods_included
+            element.joint_axial_stiffness = axial_stiffness
+            element.joint_transversal_stiffness = transversal_stiffness
+            element.joint_torsional_stiffness = torsional_stiffness
+            element.joint_angular_stiffness = angular_stiffness
+            
+            if section is not None:
+                if remove:
+                    if section in self.group_elements_with_expansion_joint.keys():
+                        self.group_elements_with_expansion_joint.pop(section) 
+                else:
+                    self.group_elements_with_expansion_joint[section] = [parameters, elements]
+
+    def add_expansion_joint_by_line(self, line, parameters, remove=False):
+        """
+        This method .
+
+        Parameters
+        ----------
+        lines : list
+            Lines/entities indexes.
+
+        parameters : list
+            ????????.
+            
+        remove : boll, optional
+            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+            Default is False.
+        """
+        for elements in slicer(self.line_to_elements, line):
+            self.add_expansion_joint_by_elements(elements, parameters)
+        self.dict_lines_with_expansion_joint[line] = parameters
+        
     def set_stress_intensification_by_element(self, elements, value):
         """
         This method enables or disables the stress intensification effect in a list of structural elements.
@@ -1846,126 +1976,7 @@ class Mesh:
                 list_elements.append(element)
         return list_elements
 
-    def check_material_all_elements(self):
-        """
-        This method checks if all structural elements have a material object attributed.
-        """
-        self.check_set_material = False
-        self.check_poisson = False
-        for element in self.structural_elements.values():
-            if element.material is None:
-                self.check_set_material = True
-                return
 
-    def check_poisson_all_elements(self):
-        """
-        This method checks if all structural elements have a Poisson ratio attributed.
-        """
-        self.check_poisson = False
-        for element in self.structural_elements.values():
-            if element.material.poisson_ratio == 0:
-                self.check_poisson = True
-                return
-
-    def check_material_and_cross_section_in_all_elements(self):
-        """
-        This method checks if all structural elements have a material object and a cross section object attributed.
-        """
-        self.check_set_material = False
-        self.check_set_crossSection = False
-        self.check_poisson = False
-        for element in self.structural_elements.values():
-            if element.material is None:
-                self.check_set_material = True
-                return
-            if element.cross_section is None:
-                self.check_set_crossSection = True
-                return
-            if element.cross_section.thickness == 0:
-                if element.cross_section.area == 0:
-                    self.check_set_crossSection = True
-                    return
-
-    def check_fluid_and_cross_section_in_all_elements(self):
-        """
-        This method checks if all acoustic elements have a fluid object and a cross section object attributed.
-        """
-        self.check_set_fluid = False
-        self.check_set_crossSection = False
-        for element in self.acoustic_elements.values():
-            if element.fluid is None:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
-                    self.check_set_fluid = True
-                    return
-            if element.cross_section is None:
-                self.check_set_crossSection = True
-                return
-            if element.cross_section.thickness == 0:
-                if element.cross_section.area == 0:
-                    self.check_set_crossSection = True
-                    return
-
-    def check_fluid_inputs_in_all_elements(self):
-        """
-        This method checks if each acoustic element has the necessary fluid data to evaluate the analysis according to its element type.
-        """
-        self.check_all_fluid_inputs = False
-        for element in self.acoustic_elements.values():
-            if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                if 'pipe_' in self.structural_elements[element.index].element_type:
-                    _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
-                                element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
-                    if None in _list:
-                        self.check_all_fluid_inputs = True
-                        return
-    
-    def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
-        """
-        This method checks if there is the necessary nodal input data to evaluate the analysis according to its type.
-
-        Parameters
-        ----------
-        acoustic : boll, optional
-            True if a acoustic analysis will be performed. False otherwise.
-            Default is False.
-
-        structural : boll, optional
-            True if a structural analysis will be performed. False otherwise.
-            Default is False.
-
-        coupled : boll, optional
-            True if a coupled analysis will be performed. False otherwise.
-            Default is False.
-        """
-        self.is_there_loads = False
-        self.is_there_prescribed_dofs = False
-        self.is_there_acoustic_pressure = False
-        self.is_there_volume_velocity = False
-        for node in self.nodes.values():
-
-            if structural:
-                if node.there_are_nodal_loads:
-                    self.is_there_loads = True
-                    return
-
-                if node.there_are_prescribed_dofs:
-                    if True in [True if isinstance(value, np.ndarray) else False for value in node.prescribed_dofs]:
-                        self.is_there_prescribed_dofs = True
-                        return
-
-                    elif sum([value if value is not None else complex(0) for value in node.prescribed_dofs]) != complex(0):
-                        self.is_there_prescribed_dofs = True
-                        return
-
-            if acoustic or coupled:
-                if node.acoustic_pressure is not None:
-                    self.is_there_acoustic_pressure = True
-                    return
-
-                if node.volume_velocity is not None:
-                    self.is_there_volume_velocity = True
-                    return    
-    
     def add_compressor_excitation(self, parameters):
         """
         This method ???????
@@ -2191,14 +2202,13 @@ class Mesh:
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
-    def update_node_ids_after_remesh(self, dict_chache, tolerance=1e-8):
-        self.get_nodal_coordinates_matrix(reordering=False)
-        coord_matrix = self.nodal_coordinates_matrix
-        list_coordinates = self.nodal_coordinates_matrix[:,1:].tolist()
-        new_external_indexes = self.nodal_coordinates_matrix[:,0]
+    def update_node_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+        coord_matrix = self.nodal_coordinates_matrix_external
+        list_coordinates = coord_matrix[:,1:].tolist()
+        new_external_indexes = coord_matrix[:,0]
         self.dict_non_mapped_bcs = {}
 
-        for key, old_external_index in dict_chache.items():
+        for key, old_external_index in dict_cache.items():
             list_key = key[1:-1].split(" ")
             coord = [float(_key) for _key in list_key if _key != ""]
             if coord in list_coordinates:
@@ -2215,131 +2225,9 @@ class Mesh:
                     # print(f"Coord not found: {coord} - {old_external_index}/{new_external_index} == {diff[mask]}")
                 except Exception as _err:
                     self.dict_non_mapped_bcs[key] = old_external_index
-
+        self.get_nodal_coordinates_matrix()
         return self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs
 
-    def check_input_NodeID(self, lineEdit, single_ID=False):
-        try:
 
-            title = "Invalid entry to the Node ID"
-            message = ""
-            tokens = lineEdit.strip().split(',')
-
-            try:
-                tokens.remove('')
-            except:
-                pass
-
-            _size = len(self.nodes)
-
-            list_nodes_typed = list(map(int, tokens))
-
-            if len(list_nodes_typed) == 0:
-                    message = "An empty input field for the Node ID has been detected. \n\nPlease, enter a valid Node ID to proceed!"
-            
-            elif len(list_nodes_typed) >= 1: 
-                if single_ID and len(list_nodes_typed) > 1:
-                    message = "Multiple Node IDs"
-                else:
-                    try:
-                        for node_ID in list_nodes_typed:
-                            self.nodes[node_ID]
-                    except:
-                        message = "Dear user, you have typed an invalid entry at the Node ID input field.\n\n" 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
-
-        except Exception as _error:
-            message = f"Wrong input for the Node ID's! \n\n{str(_error)}"
-
-        if message != "":
-            PrintMessageInput([title, message, window_title_1])               
-            return True, [] 
-
-        if single_ID:
-            return False, list_nodes_typed[0]
-        else:
-            return False, list_nodes_typed
-
-    def check_input_ElementID(self, lineEdit, single_ID=False):
-        try:
-
-            title = "Invalid entry to the Element ID"
-            message = ""
-            tokens = lineEdit.strip().split(',')
-
-            try:
-                tokens.remove('')
-            except:
-                pass
-
-            _size = len(self.structural_elements)
-
-            list_elements_typed = list(map(int, tokens))
-
-            if len(list_elements_typed) == 0:
-                    message = "An empty input field for the Element ID has been detected. \n\nPlease, enter a valid Element ID to proceed!"
-
-            elif len(list_elements_typed) >= 1: 
-                if single_ID and len(list_elements_typed)>1:
-                    message = "Multiple Element IDs"
-                else:
-                    try:
-                        for element_ID in list_elements_typed:
-                            self.structural_elements[element_ID]
-                    except:
-                        message = "Dear user, you have typed an invalid entry at the Element ID input field.\n\n" 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
-
-        except Exception as _error:
-            message = f"Wrong input for the Element ID's! \n\n{str(_error)}"
-
-        if message != "":
-            PrintMessageInput([title, message, window_title_1])               
-            return True, [] 
-
-        if single_ID:
-            return False, list_elements_typed[0]
-        else:
-            return False, list_elements_typed
-
-    def check_input_LineID(self, lineEdit, single_ID=False):
-        try:
-
-            title = "Invalid entry to the Line ID"
-            message = ""
-            tokens = lineEdit.strip().split(',')
-
-            try:
-                tokens.remove('')
-            except:
-                pass
-
-            _size = len(self.dict_tag_to_entity)
-
-            list_lines_typed = list(map(int, tokens))
-
-            if len(list_lines_typed) == 0:
-                    message = "An empty input field for the Line ID has been detected. \n\nPlease, enter a valid Line ID to proceed!"
-
-            elif len(list_lines_typed) >= 1: 
-                if single_ID and len(list_lines_typed)>1:
-                    message = "Multiple Line IDs"
-                else:
-                    try:
-                        for line_ID in list_lines_typed:
-                            self.dict_tag_to_entity[line_ID]
-                    except:
-                        message = "Dear user, you have typed an invalid entry at the Line ID input field.\n\n" 
-                        message += f"The input value(s) must be integer(s) number(s) greater than 1 and\n less than {_size}."
-
-        except Exception as _error:
-            message = f"Wrong input for the Line ID's! \n\n{str(_error)}"
-
-        if message != "":
-            PrintMessageInput([title, message, window_title_1])               
-            return True, [] 
-
-        if single_ID:
-            return False, list_lines_typed[0]
-        else:
-            return False, list_lines_typed
+    def get_model_checks(self):
+        return BeforeRun(self)

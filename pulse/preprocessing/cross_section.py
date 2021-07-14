@@ -226,8 +226,10 @@ class CrossSection:
         # Input cluster data for pipe and beam sections 
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
         self.beam_section_info = kwargs.get('beam_section_info', None)
+        self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
         self.section_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
+        self.expansion_joint_plot_key = None
 
         # Unwrap cluster data for pipe sections 
         if self.pipe_section_info is not None:
@@ -264,6 +266,11 @@ class CrossSection:
                 self.shear_coefficient = self.section_properties['shear factor']
             
             self.section_info = self.beam_section_info
+        
+        if self.expansion_joint_info is not None:
+            self.section_label = self.expansion_joint_info[0]
+            self.expansion_joint_plot_key = self.expansion_joint_info[1]
+            self.outer_diameter = self.expansion_joint_info[2]
 
 
     @property
@@ -273,6 +280,10 @@ class CrossSection:
     @property
     def inner_diameter(self):
         return self.outer_diameter - 2*self.thickness
+
+    @property
+    def inner_radius(self):
+        return self.inner_diameter/2
 
     @property
     def area_fluid(self):
@@ -698,22 +709,32 @@ class CrossSection:
 
     def get_cross_section_points(self):
 
-        labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
-        dict_sections = dict(zip(labels, np.arange(7)))
+        # section_labels = [  "Pipe section", 
+        #                     "Rectangular section", 
+        #                     "Circular section", 
+        #                     "C-section", 
+        #                     "I-section", 
+        #                     "T-section", 
+        #                     "Generic section", 
+        #                     "expansion joint"   ]
 
-        try:
-            section_type = dict_sections[self.section_label]
-        except:
-            # i just want this working
-            section_type = -1
+        # dict_sections = dict(zip(section_labels, np.arange(8)))
+
+        # if self.section_label in section_labels:
+
+
+        # try:
+        #     section_type = dict_sections[self.section_label]
+        # except:
+        #     section_type = -1
 
         inner_points = []
 
-        if section_type == 0: # Pipe section - It's a pipe section, so ignore for beam plots
+        if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
 
             # N = element.cross_section.division_number
             N = 32 # temporary number of divisions for pipe sections
-    
+ 
             d_out = self.outer_diameter
             d_in = d_out - 2*self.thickness
 
@@ -734,7 +755,7 @@ class CrossSection:
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 
-        elif section_type == 1: # Rectangular section
+        elif self.section_label == "Rectangular section": # Rectangular section
 
             b, h, b_in, h_in, offset_y, offset_z = self.section_parameters           
             # Y_out = np.array([(b/2), (b/2), -(b/2), -(b/2), (b/2)]
@@ -748,7 +769,7 @@ class CrossSection:
                 Z_in = np.array([(h_in/2), -(h_in/2), -(h_in/2), (h_in/2)]) + offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
-        elif section_type == 2: # Circular section
+        elif self.section_label == "Circular section": # Circular section
             
             N = 12# element.cross_section.division_number
             d_out, thickness, offset_y, offset_z = self.section_parameters
@@ -769,7 +790,7 @@ class CrossSection:
                 Z_in = (d_in/2)*sine + offset_z
                 inner_points = list(zip(Y_in, Z_in))
             
-        elif section_type == 3: # Beam: C-section
+        elif self.section_label == 'C-section': # Beam: C-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
             Y_out = [0, w2, w2, tw, tw, w1, w1, 0]
@@ -779,7 +800,7 @@ class CrossSection:
             Zs = np.array(Z_out) + offset_z
             outer_points = list(zip(Ys, Zs))
 
-        elif section_type == 4: # Beam: I-section
+        elif self.section_label == 'I-section': # Beam: I-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
             Y_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
@@ -789,7 +810,7 @@ class CrossSection:
             Zs = np.array(Z_out) + offset_z
             outer_points = list(zip(Ys, Zs))
     
-        elif section_type == 5: # Beam: T-section
+        elif self.section_label == 'T-section': # Beam: T-section
 
             h, w1, t1, tw, offset_y, offset_z = self.section_parameters
             Y_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
@@ -799,6 +820,34 @@ class CrossSection:
             Zs = np.array(Z_out) + offset_z
             outer_points = list(zip(Ys, Zs))
         
+        elif self.section_label == "expansion joint" :#8:
+    
+            N = 32 # temporary number of divisions for pipe sections
+    
+            if self.expansion_joint_plot_key == "major":
+              r_out = self.outer_radius*1.25 
+            
+            elif self.expansion_joint_plot_key == "minor":
+                r_out = self.outer_radius*1.1            
+            
+            else:
+                r_out = self.outer_radius*1.4
+            
+            r_in = self.outer_radius*0.8
+
+            d_theta = 2*np.pi/N
+            theta = -np.arange(0, 2*np.pi, d_theta)
+            sine = np.sin(theta)
+            cossine = np.cos(theta)
+            
+            Y_out = r_out*cossine + self.offset_y
+            Z_out = r_out*sine + self.offset_z
+            Y_in = r_in*cossine + self.offset_y
+            Z_in = r_in*sine + self.offset_z
+            
+            outer_points = list(zip(Y_out, Z_out))
+            inner_points = list(zip(Y_in, Z_in))
+
         else:
 
             # A very small triangle to prevent bugs

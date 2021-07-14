@@ -21,14 +21,16 @@ class DOFInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.transform_points = opv.transformPoints
+
         self.project = project
         self.mesh = project.mesh
-        self.transform_points = opv.transformPoints
+        self.before_run = self.mesh.get_model_checks()
 
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
@@ -220,7 +222,7 @@ class DOFInput(QDialog):
     def check_constant_values(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -356,7 +358,7 @@ class DOFInput(QDialog):
     def check_table_values(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
 
@@ -425,7 +427,7 @@ class DOFInput(QDialog):
 
     def check_remove_bc_from_node(self):
         lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.mesh.check_input_NodeID(lineEdit_nodeID)
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
         key_strings = ["displacements", "rotations"]

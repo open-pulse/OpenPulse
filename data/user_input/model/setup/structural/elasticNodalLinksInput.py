@@ -25,15 +25,17 @@ class ElasticNodalLinksInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.node_id = self.opv.getListPickedPoints()
+
         self.project = project
         self.mesh = project.mesh
-        self.nodes = self.project.mesh.nodes
-        self.node_id = self.opv.getListPickedPoints()
+        self.before_run = self.mesh.get_model_checks()
+        self.nodes = self.mesh.nodes
 
         self.project_folder_path = project.project_folder_path 
         self.userPath = os.path.expanduser('~')       
@@ -212,13 +214,13 @@ class ElasticNodalLinksInput(QDialog):
     def check_all_nodes(self):
         
         lineEdit_nodeID = self.lineEdit_first_node_ID.text()
-        self.stop, self.nodeID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        self.stop, self.nodeID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if self.stop:
             return True
         temp_nodeID_1 = self.nodeID
         
         lineEdit_nodeID = self.lineEdit_last_node_ID.text()
-        self.stop, self.nodeID = self.mesh.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        self.stop, self.nodeID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if self.stop:
             return True           
         temp_nodeID_2 = self.nodeID

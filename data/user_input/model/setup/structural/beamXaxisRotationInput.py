@@ -21,14 +21,17 @@ class BeamXaxisRotationInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
+
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
         # self.typed_lines = []
         self.dict_entities = project.mesh.dict_tag_to_entity
         self.index = 0
@@ -180,7 +183,7 @@ class BeamXaxisRotationInput(QDialog):
         if self.flagEntity:
 
             lineEdit_lineID = self.lineEdit_selected_ID.text()
-            self.stop, lines = self.mesh.check_input_LineID(lineEdit_lineID)
+            self.stop, lines = self.before_run.check_input_LineID(lineEdit_lineID)
             if self.stop:
                 return
  

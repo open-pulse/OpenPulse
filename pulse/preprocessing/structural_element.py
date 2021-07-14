@@ -163,15 +163,16 @@ class StructuralElement:
         self.external_pressure = kwargs.get('external_pressure', 0)
         self.internal_temperature = kwargs.get('internal_temperature', 0)
         self.external_temperature = kwargs.get('external_temperature', 0)
-
-        self.expansion_joint = False
-        self.expansion_joint_mass = 0
-        self.expansion_joint_diameter = 0
-        self.expansion_joint_length = 0  
-        self.longitudinal_stiffness = 0
-        self.torsional_stiffness = 0
-        self.transversal_stiffness = 0
-        self.angular_stiffness = 0
+      
+        self.joint_length = 0
+        self.joint_effective_diameter = 0
+        self.joint_mass = 0  
+        self.joint_axial_locking_criteria = 0
+        self.joint_rods_included = False
+        self.joint_axial_stiffness = 0
+        self.joint_transversal_stiffness = 0
+        self.joint_torsional_stiffness = 0
+        self.joint_angular_stiffness = 0
 
         self.stress = None
         self.internal_load = None
@@ -993,35 +994,38 @@ class StructuralElement:
         return shear_coefficient
 
     def stiffness_matrix_expansion_joint(self):
-        L_e = self.expansion_joint_length/self.length
+        L_e = self.joint_length/self.length
         K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        K1 = self.longitudinal_stiffness/L_e
-        K2 = K3 = self.transversal_stiffness/L_e
-        K4 = K5 = self.angular_stiffness/L_e
-        K6 = self.torsional_stiffness/L_e
+        K1 = self.joint_axial_stiffness/L_e
+        K2 = K3 = self.joint_transversal_stiffness/L_e
+        K4 = self.joint_torsional_stiffness/L_e
+        K5 = K6 = self.joint_angular_stiffness/L_e       
 
         Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float)
-        K_matrix[0:6,0:6] = K_matrix[6:,6:] = Ks
-        K_matrix[0:6,6:] = K_matrix[6:,0:6] = -Ks
+        indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
+        indexes_2 = indexes_1 + 6
 
+        K_matrix[indexes_1,indexes_1] = K_matrix[indexes_2,indexes_2] = Ks
+        K_matrix[indexes_1,indexes_2] = K_matrix[indexes_2,indexes_1] = -Ks
         return K_matrix
 
     def mass_matrix_expansion_joint(self):
-        L_e = self.expansion_joint_length/self.length
+        L_e = self.joint_length/self.length
         M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        M1 = M2 = M3 = self.expansion_joint_mass/(L_e/2)
-        M_matrix[[0,1,2,6,7,8],[0,1,2,6,7,8]] = [M1, M2, M3, M1, M2, M3]
+        M1 = M2 = M3 = self.joint_mass/(2*L_e)
+        indexes = np.array([0,1,2,6,7,8], dtype=int)
 
+        M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
 
-    def __str__(self):
-        text = ''
-        text += f'Element ID: {self.index} \n'
-        text += f'First Node ID: {self.first_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
-        text += f'Last Node ID: {self.last_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
-        text += f'Material: {self.material.name} \n'
-        text += f'Strutural element type: {self.element_type} \n'
-        return text
+    # def __str__(self):
+    #     text = ''
+    #     text += f'Element ID: {self.index} \n'
+    #     text += f'First Node ID: {self.first_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
+    #     text += f'Last Node ID: {self.last_node.external_index} -- Coordinates: ({self.first_node.coordinates}) [m]\n'
+    #     text += f'Material: {self.material.name} \n'
+    #     text += f'Strutural element type: {self.element_type} \n'
+    #     return text

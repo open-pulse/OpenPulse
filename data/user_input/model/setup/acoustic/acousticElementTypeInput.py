@@ -18,16 +18,19 @@ class AcousticElementTypeInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-
-        self.opv = opv
-        self.opv.setInputObject(self)
+  
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.lines_id = self.opv.getListPickedEntities()
+
         self.project = project
         self.mesh = project.mesh
-        self.lines_id = self.opv.getListPickedEntities()
-        self.dict_entities = project.mesh.dict_tag_to_entity
+        self.before_run = self.mesh.get_model_checks()
+
+        self.dict_tag_to_entity = project.mesh.dict_tag_to_entity
         self.comboBox_index = 0
         self.element_type = 'undamped'
         self.complete = False
@@ -140,7 +143,7 @@ class AcousticElementTypeInput(QDialog):
     #     final_etype = self.element_type
 
     #     for tag in self.lines_id:
-    #         initial_etype = self.dict_entities[tag].acoustic_element_type
+    #         initial_etype = self.dict_tag_to_entity[tag].acoustic_element_type
     #         if initial_etype in ['etype1', 'etype1'] and final_etype in ['etype2']:
     #             self.update_cross_section = True
     #             self.etype1_to_etype2 = True
@@ -211,7 +214,7 @@ class AcousticElementTypeInput(QDialog):
         if self.flagSelection:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True
 
@@ -265,7 +268,7 @@ class GetInformationOfGroup(QDialog):
         uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
-        self.dict_entities = project.mesh.dict_tag_to_entity
+        self.dict_tag_to_entity = project.mesh.dict_tag_to_entity
         self.key = key
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
@@ -299,7 +302,7 @@ class GetInformationOfGroup(QDialog):
         lines = self.project.mesh.dict_acoustic_element_type_to_lines[self.key]
         for line in lines:
             if self.key == 'hysteretic':
-                damping = self.dict_entities[line].hysteretic_damping
+                damping = self.dict_tag_to_entity[line].hysteretic_damping
                 new = QTreeWidgetItem([str(line), self.key, str(damping)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             else:

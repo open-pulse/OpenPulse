@@ -8,6 +8,7 @@ from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.projectFile import ProjectFile
+from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
@@ -27,41 +28,43 @@ class Project:
         self.project_folder_path = ""
 
         #Analysis
-        self.analysis_ID = None
-        self.analysis_type_label = ""
-        self.analysis_method_label = ""
-        self.global_damping = [0,0,0,0]
-        self.modes = 0
-        self.frequencies = None
-        self.f_min = 0
-        self.f_max = 0
-        self.f_step = 0
-        self.natural_frequencies_structural = []
-        self.solution_structural = None
-        self.solution_acoustic = None
-        self.flag_set_material = False
-        self.flag_set_crossSection = False
-        self.plot_pressure_field = False
-        self.is_file_loaded = False
-        self.setup_analysis_complete = False
-        self.none_project_action = False
+        self.reset_info()
+        # self.analysis_ID = None
+        # self.analysis_type_label = ""
+        # self.analysis_method_label = ""
+        # self.global_damping = [0,0,0,0]
+        # self.modes = 0
+        # self.frequencies = None
+        # self.f_min = 0
+        # self.f_max = 0
+        # self.f_step = 0
+        # self.natural_frequencies_structural = []
+        # self.solution_structural = None
+        # self.solution_acoustic = None
+        # self.flag_set_material = False
+        # self.flag_set_crossSection = False
+        # self.plot_pressure_field = False
+        # self.plot_stress_field = False
+        # self.is_file_loaded = False
+        # self.setup_analysis_complete = False
+        # self.none_project_action = False
 
-        self.time_to_load_or_create_project = None
-        self.time_to_checking_entries = None 
-        self.time_to_process_cross_sections = None
-        self.time_to_preprocess_model = None
-        self.time_to_solve_model = None
-        self.time_to_solve_acoustic_model = None
-        self.time_to_solve_structural_model = None
-        self.time_to_postprocess = None
-        self.total_time = None
+        # self.time_to_load_or_create_project = None
+        # self.time_to_checking_entries = None 
+        # self.time_to_process_cross_sections = None
+        # self.time_to_preprocess_model = None
+        # self.time_to_solve_model = None
+        # self.time_to_solve_acoustic_model = None
+        # self.time_to_solve_structural_model = None
+        # self.time_to_postprocess = None
+        # self.total_time = None
 
-        self.number_sections_by_line = {}
-        self.lines_with_cross_section_by_elements = []
-        self.stresses_values_for_color_table = None
-        self.min_stress = ""
-        self.max_stress = ""
-        self.stress_label = ""
+        # self.number_sections_by_line = {}
+        # self.lines_with_cross_section_by_elements = []
+        # self.stresses_values_for_color_table = None
+        # self.min_stress = ""
+        # self.max_stress = ""
+        # self.stress_label = ""
 
     def reset_info(self):
 
@@ -83,6 +86,8 @@ class Project:
         self.plot_pressure_field = False
         self.plot_stress_field = False
         self.is_file_loaded = False
+        self.setup_analysis_complete = False
+        self.none_project_action = False
 
         self.time_to_load_or_create_project = None
         self.time_to_checking_entries = None
@@ -175,12 +180,14 @@ class Project:
         dict_element_length_correction = self.file.dict_length_correction
         dict_materials = self.file.dict_material
         dict_cross_sections = self.file.dict_cross
+        dict_variable_sections = self.file.dict_variable_sections
         dict_beam_xaxis_rotation = self.file.dict_beam_xaxis_rotation
         dict_fluids = self.file.dict_fluid
         dict_element_length_correction = self.file.dict_length_correction
         dict_capped_end = self.file.dict_capped_end
         dict_stress_stiffening = self.file.dict_stress_stiffening
         dict_B2PX_rotation_decoupling = self.file.dict_B2XP_rotation_decoupling
+        dict_expansion_joint = self.file.dict_expansion_joint_parameters
         
         # Structural element type to the entities
         for key, el_type in dict_structural_element_type.items():
@@ -204,7 +211,7 @@ class Project:
         for key, fld in dict_fluids.items():
             self.load_fluid_by_entity(key, fld)
 
-        # Cross-section to the entities
+        # Straight Cross-section to the entities
         for key, cross in dict_cross_sections.items():
             if "-" in key:
                 self.load_cross_section_by_element(cross[1], cross[0])
@@ -215,6 +222,10 @@ class Project:
                     self.number_sections_by_line[prefix_key] = 1
             else:
                 self.load_cross_section_by_entity(int(key), cross)
+        
+        # Variable Cross-section to the entities
+        for key, value in dict_variable_sections.items():
+            self.load_variable_cross_section_by_entity(int(key), value)
 
         # Beam X-axis rotation to the entities
         for key, angle in dict_beam_xaxis_rotation.items():
@@ -228,7 +239,11 @@ class Project:
                 self.mesh.dict_B2PX_rotation_decoupling[str(item[2])] = [item[0], item[1], key]
                 for i in range(len(item[0])):
                     self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
-                    
+
+        # Expansion Joint to the entities
+        for key, parameters in dict_expansion_joint.items():
+            self.load_expansion_joint_by_line(key, parameters)
+        
         # Stress Stiffening to the entities and elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
@@ -254,7 +269,7 @@ class Project:
         for index, element in self.mesh.structural_elements.items():
 
             e_type  = element.element_type
-            if e_type == 'beam_1':
+            if e_type in ['beam_1','expansion_joint']:
                 continue
             elif e_type is None:
                 e_type = 'pipe_1'
@@ -342,7 +357,7 @@ class Project:
             if len(dict_multiple_cross_sections) == 1:
                 if count_sections == 1:
                     _cross_section = elements[element_id].cross_section
-                    self.set_cross_section_by_entity(line, _cross_section)
+                    self.set_cross_section_by_line(line, _cross_section)
                     self.number_sections_by_line.pop(line)
             else:
                 self.number_sections_by_line[line] = count_sections
@@ -470,15 +485,19 @@ class Project:
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
 
-    def set_cross_section_by_entity(self, entity_id, cross_section):
+    def set_cross_section_by_line(self, line_id, cross_section):
         if self.file.get_import_type() == 0:
-            self.mesh.set_cross_section_by_line(entity_id, cross_section)
+            self.mesh.set_cross_section_by_line(line_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.mesh.set_cross_section_by_element('all', cross_section)
 
-        self._set_cross_section_to_selected_entity(entity_id, cross_section)
-        self.file.add_cross_section_in_file(entity_id, cross_section)
+        self._set_cross_section_to_selected_entity(line_id, cross_section)
+        self.file.add_cross_section_in_file(line_id, cross_section)
 
+    def set_variable_cross_section_by_line(self, line_id, parameters):
+        self._set_variable_cross_section_to_selected_entity(line_id, parameters)
+        self.file.modify_variable_cross_section_in_file(line_id, parameters)
+    
     def set_structural_element_type_to_all(self, element_type):
         self.mesh.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_all_entities(element_type)
@@ -607,6 +626,22 @@ class Project:
             values = parameters
         self.file.add_structural_bc_in_file(section_string, values, labels)
 
+    def add_expansion_joint_by_line(self, lineID, parameters, imported_table, list_table_names=[]):
+        self.mesh.add_expansion_joint_by_line(lineID, parameters)
+        self.set_structural_element_type_by_entity(lineID, "expansion_joint")
+        # self.set_cross_section_by_line(lineID, None)  
+        self._set_expansion_joint_to_selected_entity(lineID, parameters)
+        if imported_table:
+            self.file.modify_expansion_joint_in_file(lineID, parameters, list_table_names=list_table_names) 
+        else:
+            self.file.modify_expansion_joint_in_file(lineID, parameters)   
+           
+
+    def add_expansion_joint_by_elements(self, list_elements, _parameters):
+        parameters = _parameters
+        self.mesh.add_expansion_joint_by_elements(list_elements, parameters)
+        self.mesh.set_structural_element_type_by_element(list_elements, "expansion_joint")
+
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.mesh.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
         self.file.modify_stress_stiffnening_element_in_file(elements, parameters, section, remove=remove)
@@ -669,6 +704,19 @@ class Project:
             self.mesh.set_cross_section_by_element('all', cross_section)
         self._set_cross_section_to_selected_entity(entity_id, cross_section)
 
+    def load_variable_cross_section_by_entity(self, entity_id, data):
+        self._set_variable_cross_section_to_selected_entity(entity_id, data)
+
+    def load_expansion_joint_by_line(self, line_id, data):
+        self.mesh.add_expansion_joint_by_line(line_id, data)
+        self._set_expansion_joint_to_selected_entity(line_id, data)
+        list_elements = self.mesh.line_to_elements[line_id]
+        effective_diameter = data[0][1]
+        list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
+                                                                                effective_diameter  )
+        self.mesh.set_cross_section_by_element(list_elements, list_cross_sections)
+
+    
     def load_beam_xaxis_rotation_by_entity(self, line_id, angle):
         self.mesh.set_beam_xaxis_rotation_by_line(line_id, angle)
         self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
@@ -771,6 +819,10 @@ class Project:
         for entity in self.entities:
             entity.cross_section = cross
 
+    def _set_variable_cross_section_to_selected_entity(self, entity_id, parameters):
+        entity = self.mesh.dict_tag_to_entity[entity_id]
+        entity.variable_cross_section_data = parameters
+
     def _set_structural_element_type_to_selected_entity(self, entity_id, element_type):
         entity = self.mesh.dict_tag_to_entity[entity_id]
         entity.structural_element_type = element_type
@@ -807,6 +859,10 @@ class Project:
             entity.external_pressure = parameters[2]
             entity.internal_pressure = parameters[3]
 
+    def _set_expansion_joint_to_selected_entity(self, entity_id, parameters):
+        entity = self.mesh.dict_tag_to_entity[entity_id]
+        entity.expansion_joint_parameters = parameters
+    
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.mesh.nodes_with_prescribed_dofs
 

@@ -1,3 +1,4 @@
+from pulse.preprocessing.entity import Entity
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -31,17 +32,20 @@ class CrossSectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
+
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
+        self.structural_elements = self.project.mesh.structural_elements
+        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
 
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
@@ -53,8 +57,8 @@ class CrossSectionInput(QDialog):
         self.section_data = None
         self.complete = False
         self.stop = False
-        self.flagAll = False
-        self.flagEntity = False
+        self.flip = False
+ 
         self.currentTab = 0
         self.list_elements = []
 
@@ -233,8 +237,8 @@ class CrossSectionInput(QDialog):
                                             self.lineEdit_thickness,
                                             self.lineEdit_offset_y,
                                             self.lineEdit_offset_z,
-                                            self.lineEdit_insulation_density,
                                             self.lineEdit_insulation_thickness,
+                                            self.lineEdit_insulation_density,
                                             self.lineEdit_outerDiameter_initial,
                                             self.lineEdit_thickness_initial,
                                             self.lineEdit_offset_y_initial,
@@ -242,7 +246,9 @@ class CrossSectionInput(QDialog):
                                             self.lineEdit_outerDiameter_final,
                                             self.lineEdit_thickness_final,
                                             self.lineEdit_offset_y_final,
-                                            self.lineEdit_offset_z_final  ] 
+                                            self.lineEdit_offset_z_final,
+                                            self.lineEdit_insulation_thickness_variable_section,
+                                            self.lineEdit_insulation_density_variable_section  ] 
 
         self.list_beam_section_entries = [  self.lineEdit_base_rectangular_section,
                                             self.lineEdit_height_rectangular_section,
@@ -284,31 +290,37 @@ class CrossSectionInput(QDialog):
     def update_QDialog_info(self):
         if len(self.lines_id) > 0:   
             self.reset_all_input_texts()
-            selection = self.dict_tag_to_entity[self.lines_id[0]]
-            element_type = selection.structural_element_type
+            self.selection = self.dict_tag_to_entity[self.lines_id[0]]
+            element_type = self.selection.structural_element_type
         elif len(self.elements_id) > 0:   
             self.reset_all_input_texts()
-            selection = self.structural_elements[self.elements_id[0]]
-            element_type = selection.element_type
+            self.selection = self.structural_elements[self.elements_id[0]]
+            element_type = self.selection.element_type
         else:
             return
         
-        if selection.cross_section is not None:
-            cross = selection.cross_section
+        if self.selection.cross_section is not None:
+            cross = self.selection.cross_section
             self.section_label = cross.section_info["section_type_label"]
             self.section_parameters = cross.section_info["section_parameters"]
                     
             if element_type in ['pipe_1', 'pipe_2']:
                 self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-            
+                self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+                            
             elif element_type in ['beam_1']:
                 self.tabWidget_general.setCurrentWidget(self.tab_beam)
 
             self.update_section_entries()
 
         else:
+
             if element_type in ['pipe_1', 'pipe_2']:
                 self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+                if self.selection.variable_cross_section_data is not None:
+                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_variable_pipe_section)
+                    self.update_section_entries(variable_section=True)
+            
             elif element_type in ['beam_1']:
                 self.tabWidget_general.setCurrentWidget(self.tab_beam)
 
@@ -332,17 +344,17 @@ class CrossSectionInput(QDialog):
         if self.stop:
             return
 
-        offset_y_initial = self.check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", zero_included=True)
+        offset_y_initial = self.check_inputs(self.lineEdit_offset_y_initial, "'offset y (initial)'", only_positive=False, zero_included=True)
         if self.stop:
             return
-        offset_y_final = self.check_inputs(self.lineEdit_offset_y_final, "'offset y (final)'", zero_included=True)
+        offset_y_final = self.check_inputs(self.lineEdit_offset_y_final, "'offset y (final)'", only_positive=False, zero_included=True)
         if self.stop:
             return
 
-        offset_z_initial = self.check_inputs(self.lineEdit_offset_z_initial, "'offset z (initial)'", zero_included=True)
+        offset_z_initial = self.check_inputs(self.lineEdit_offset_z_initial, "'offset z (initial)'", only_positive=False, zero_included=True)
         if self.stop:
             return
-        offset_z_final = self.check_inputs(self.lineEdit_offset_z_final, "'offset z (final)'", zero_included=True)
+        offset_z_final = self.check_inputs(self.lineEdit_offset_z_final, "'offset z (final)'", only_positive=False, zero_included=True)
         if self.stop:
             return
         
@@ -363,6 +375,25 @@ class CrossSectionInput(QDialog):
         list_offset_y = get_linear_distribution(offset_y_initial, offset_y_final, N)
         list_offset_z = get_linear_distribution(offset_z_initial, offset_z_final, N)
 
+        if self.flip:
+            list_outerDiameter = np.flip(list_outerDiameter)
+            list_thickness = np.flip(list_thickness)
+            list_offset_y = np.flip(list_offset_y)
+            list_offset_z = np.flip(list_offset_z)
+
+            list_variable_parameters = [    outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
+                                            outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+                                            insulation_thickness, insulation_density  ]
+
+        else:
+
+            list_variable_parameters = [    outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
+                                            outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
+                                            insulation_thickness, insulation_density  ]
+                
+        print(list_outerDiameter)
+        print(list_thickness)
+
         self.section_label = "Pipe section"
 
         for index, element_id in enumerate(self.list_elements):
@@ -379,15 +410,22 @@ class CrossSectionInput(QDialog):
 
             self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
             self.project.set_cross_section_by_elements([element_id], self.cross_section)
+            self.project.set_structural_element_type_by_entity(self.lines_typed[0], self.element_type)
+            self.project.set_variable_cross_section_by_line(self.lines_typed[0], list_variable_parameters)
         
         self.remove_line_from_list(self.lines_typed[0])
         self.project.get_dict_multiple_cross_sections()
-        
-        self.complete = True
-        plt.close()
-        self.close()
+        self.actions_to_finalize()
 
-    def update_section_entries(self):
+    def update_section_entries(self, variable_section=False):
+
+        if variable_section:
+    
+            data = self.selection.variable_cross_section_data
+
+            for index, lineEdit in enumerate(self.list_pipe_section_entries[6:]):
+                lineEdit.setText(str(data[index]))
+            return
         
         if self.section_label == 'Pipe section':
 
@@ -516,7 +554,9 @@ class CrossSectionInput(QDialog):
         for lineEdit in self.list_beam_section_entries:
             lineEdit.setText("")
 
+
     def flip_element_ids(self):
+        self.flip = not self.flip
         temp_initial = self.lineEdit_element_id_initial.text()
         temp_final = self.lineEdit_element_id_final.text()
         self.lineEdit_element_id_initial.setText(temp_final)
@@ -565,10 +605,8 @@ class CrossSectionInput(QDialog):
                 if len(self.lines_id) == 1:
                     line = self.lines_id[0]
                     self.list_elements = self.project.mesh.line_to_elements[line]
-                    element_id_initial = self.list_elements[0]
-                    element_id_final = self.list_elements[-1]
-                    self.lineEdit_element_id_initial.setText(str(element_id_initial))
-                    self.lineEdit_element_id_final.setText(str(element_id_final))
+                    self.lineEdit_element_id_initial.setText(str(self.list_elements[0]))
+                    self.lineEdit_element_id_final.setText(str(self.list_elements[-1]))
 
     def tabEvent_cross_section(self):
         self.currentTab_cross_section = self.tabWidget_general.currentIndex()
@@ -601,6 +639,13 @@ class CrossSectionInput(QDialog):
         self.radioButton_selected_elements.setDisabled(_bool)
         self.radioButton_all_lines.setDisabled(_bool)
 
+    def actions_to_finalize(self):
+        self.complete = True
+        plt.close()
+        self.opv.updateEntityRadius()
+        self.opv.changePlotToMesh()       
+        self.close()
+
     def check_straight_pipe(self, plot=False):
                     
         outerDiameter = self.check_inputs(self.lineEdit_outerDiameter, "'outer diameter (Pipe section)'")
@@ -611,11 +656,11 @@ class CrossSectionInput(QDialog):
         if self.stop:
             return
         
-        offset_y = self.check_inputs(self.lineEdit_offset_y, "'offset y (Pipe section)'", zero_included=True)
+        offset_y = self.check_inputs(self.lineEdit_offset_y, "'offset y (Pipe section)'", only_positive=False, zero_included=True)
         if self.stop:
             return
 
-        offset_z = self.check_inputs(self.lineEdit_offset_z, "'offset z (Pipe section)'", zero_included=True)
+        offset_z = self.check_inputs(self.lineEdit_offset_z, "'offset z (Pipe section)'", only_positive=False, zero_included=True)
         if self.stop:
             return
 
@@ -667,10 +712,7 @@ class CrossSectionInput(QDialog):
             return
         self.cross_section = CrossSection(pipe_section_info=self.pipe_section_info)
         self.set_cross_sections()
-        # self.project.get_dict_multiple_cross_sections()
-        self.complete = True
-        plt.close()
-        self.close()
+        self.actions_to_finalize()
 
     def confirm_pipe(self):
 
@@ -683,14 +725,14 @@ class CrossSectionInput(QDialog):
         if self.flagElements:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
             if self.stop:
                 return
 
         elif self.flagEntity:
 
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True 
 
@@ -703,14 +745,15 @@ class CrossSectionInput(QDialog):
 
         if self.flagElements:
             return
+            #TODO: future implementation
             # lineEdit = self.lineEdit_elementID.text()
-            # self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+            # self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
             # if self.stop:
             #     return
         elif self.flagEntity:
             
             lineEdit = self.lineEdit_selected_ID.text()
-            self.stop, self.lines_typed = self.mesh.check_input_LineID(lineEdit)
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True        
         
@@ -767,10 +810,7 @@ class CrossSectionInput(QDialog):
        
             self.cross_section = CrossSection(beam_section_info=self.beam_section_info)
             self.set_cross_sections()
-       
-        self.complete = True
-        plt.close()
-        self.close()
+        self.actions_to_finalize()
 
     def remove_line_from_list(self, line):
         if line in list(self.project.number_sections_by_line.keys()):
@@ -780,7 +820,7 @@ class CrossSectionInput(QDialog):
         if self.flagEntity:
             for line in self.lines_typed:
                 self.remove_line_from_list(line)
-                self.project.set_cross_section_by_entity(line, self.cross_section)
+                self.project.set_cross_section_by_line(line, self.cross_section)
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Cross-section] - defined at lines {}".format(self.lines_typed))
 
@@ -814,11 +854,11 @@ class CrossSectionInput(QDialog):
             if self.stop:
                 return True
             
-            offset_y = self.check_inputs(self.lineEdit_offsety_rectangular_section, 'Offset y (Rectangular section)', zero_included=True)
+            offset_y = self.check_inputs(self.lineEdit_offsety_rectangular_section, 'Offset y (Rectangular section)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
             
-            offset_z = self.check_inputs(self.lineEdit_offsetz_rectangular_section, 'Offset z (Rectangular section)', zero_included=True)
+            offset_z = self.check_inputs(self.lineEdit_offsetz_rectangular_section, 'Offset z (Rectangular section)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
    
@@ -851,11 +891,11 @@ class CrossSectionInput(QDialog):
             if self.stop:
                 return True
             
-            offset_y = self.check_inputs(self.lineEdit_offsety_circular_section, 'Offset y (Circular section)', zero_included=True)
+            offset_y = self.check_inputs(self.lineEdit_offsety_circular_section, 'Offset y (Circular section)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
             
-            offset_z = self.check_inputs(self.lineEdit_offsetz_circular_section, 'Offset z (Circular section)', zero_included=True)
+            offset_z = self.check_inputs(self.lineEdit_offsetz_circular_section, 'Offset z (Circular section)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
 
@@ -904,11 +944,11 @@ class CrossSectionInput(QDialog):
             if self.stop:
                 return True
 
-            offset_y = self.check_inputs(self.lineEdit_offsety_C_section, 'Offset y (C-profile)', zero_included=True)
+            offset_y = self.check_inputs(self.lineEdit_offsety_C_section, 'Offset y (C-profile)',only_positive=False, zero_included=True)
             if self.stop:
                 return True
 
-            offset_z = self.check_inputs(self.lineEdit_offsetz_C_section, 'Offset z (C-profile)', zero_included=True)            
+            offset_z = self.check_inputs(self.lineEdit_offsetz_C_section, 'Offset z (C-profile)', only_positive=False, zero_included=True)            
             if self.stop:
                 return True
 
@@ -949,11 +989,11 @@ class CrossSectionInput(QDialog):
             if self.stop:
                 return True
 
-            offset_y = self.check_inputs(self.lineEdit_offsety_I_section, 'Offset y (I-profile)', zero_included=True)
+            offset_y = self.check_inputs(self.lineEdit_offsety_I_section, 'Offset y (I-profile)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
 
-            offset_z = self.check_inputs(self.lineEdit_offsetz_I_section, 'Offset z (I-profile)', zero_included=True)
+            offset_z = self.check_inputs(self.lineEdit_offsetz_I_section, 'Offset z (I-profile)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
 
@@ -986,11 +1026,11 @@ class CrossSectionInput(QDialog):
             if self.stop:
                 return True
 
-            offset_y = self.check_inputs(self.lineEdit_offsety_T_section, 'OFFSET Y (T-profile)', zero_included=True)
+            offset_y = self.check_inputs(self.lineEdit_offsety_T_section, 'OFFSET Y (T-profile)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
 
-            offset_z = self.check_inputs(self.lineEdit_offsetz_T_section, 'OFFSET Y (T-profile)', zero_included=True)
+            offset_z = self.check_inputs(self.lineEdit_offsetz_T_section, 'OFFSET Y (T-profile)', only_positive=False, zero_included=True)
             if self.stop:
                 return True
 

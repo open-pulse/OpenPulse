@@ -19,14 +19,17 @@ class StructuralElementTypeInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
+
         self.project = project
         self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()
+
         self.dict_entities = project.mesh.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
@@ -197,9 +200,9 @@ class StructuralElementTypeInput(QDialog):
         for tag in tags:
             initial_etype = self.dict_entities[tag].structural_element_type
             if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
-                self.project.set_cross_section_by_entity(tag, None)
+                self.project.set_cross_section_by_line(tag, None)
             elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
-                self.project.set_cross_section_by_entity(tag, None)
+                self.project.set_cross_section_by_line(tag, None)
 
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
@@ -214,7 +217,7 @@ class StructuralElementTypeInput(QDialog):
         self.check_element_type_changes()
         if self.flagEntity:
             lineEdit_lineID = self.lineEdit_selected_ID.text()
-            self.stop, self.typed_lines = self.mesh.check_input_LineID(lineEdit_lineID)
+            self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit_lineID)
             if self.stop:
                 return
             for line in self.typed_lines:

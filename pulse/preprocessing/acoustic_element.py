@@ -28,67 +28,6 @@ def poly_function(x):
     x = x.reshape(-1, 1) @ np.ones([1,7])
     return (x**b ) @ a
 
-def unflanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
-    """
-    Auxiliary function to update the radiation impedance attributed to the element nodes according to the unflanged prescription.
-
-    Parameters
-    -------
-    kappa_complex : complex-array
-        Complex wavenumber.
-
-    pipe_radius : float
-        Pipe radius.
-
-    impedance_complex : complex-array
-        Complex system impedance.
-
-    Returns
-    -------
-    array
-        Unflanged pipe termination impedance. The array has the same length as kappa_complex parameter.
-    """
-    kr = kappa_complex * pipe_radius
-    mask = kr<=1
-    
-    kr_less_t_1 = kr[mask]
-    gamma = np.exp(0.5772)
-    aux_1_1 = np.abs(np.exp((-kr_less_t_1**2)/2) * (1 + kr_less_t_1**4 / 6 * np.log(1 / (gamma * kr_less_t_1) + 19/12)))
-
-    kr_great_t_1 = kr[~mask]
-    if np.any(kr_great_t_1 > 3.83):
-        info_messages("The unflanged radiation impedance model is out of \nits validity frequency range.")
-    aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
-
-    aux_1 = np.r_[aux_1_1, aux_1_2]
-
-    aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
-
-    return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
-
-def flanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
-    """
-    Auxiliary function to update the radiation impedance attributed to the element nodes according to the flanged prescription.
-
-    Parameters
-    -------
-    kappa_complex : complex-array
-        Complex wavenumber.
-
-    pipe_radius : float
-        Pipe radius.
-
-    impedance_complex : complex-array
-        Complex impedance.
-
-    Returns
-    -------
-    array
-        Flanged termination impedance. The array has the same length as kappa_complex parameter.
-    """
-    kr = kappa_complex * pipe_radius
-    return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*np.real(kr))/ kr  ) +0j
-
 def j2j0(z):
     """
     Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the imaginary part of input z reaches 700, the following syntonic approximation is used:
@@ -170,6 +109,7 @@ class AcousticElement:
         self.flag_wide_duct = False
         self.flag_lrf_fluid_eq = False
         self.flag_lrf_full = False
+        self.flag_unflanged_radiation_impedance = False
 
     @property
     def length(self):
@@ -251,8 +191,11 @@ class AcousticElement:
         ----------
         .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
-        return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+        if self.cross_section.section_label == 'expansion joint':
+            return self.fluid.speed_of_sound
+        else:
+            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
+            return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
     def matrix(self, frequencies, length_correction=0):
         """
@@ -295,6 +238,7 @@ class AcousticElement:
         """
         ones = np.ones(len(frequencies), dtype='float64')
         kappa_complex, impedance_complex = self._fetm_damping_models(frequencies)
+        self.radiation_impedance(kappa_complex, impedance_complex)
         
         area_fluid = self.cross_section.area_fluid
 
@@ -302,8 +246,6 @@ class AcousticElement:
         sine = np.sin(kappaLe)
         cossine = np.cos(kappaLe)
         matrix = ((area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
-
-        self.radiation_impedance(kappa_complex, impedance_complex)
 
         return matrix
 
@@ -473,17 +415,76 @@ class AcousticElement:
         if self.first_node.radiation_impedance_type == 0:
             self.first_node.radiation_impedance = impedance_complex + 0j
         elif self.first_node.radiation_impedance_type == 1:
-            self.first_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.first_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.first_node.radiation_impedance_type == 2:
-            self.first_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.first_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
         if self.last_node.radiation_impedance_type == 0:
             self.last_node.radiation_impedance = impedance_complex + 0j
         elif self.last_node.radiation_impedance_type == 1:
-            self.last_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.last_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.last_node.radiation_impedance_type == 2:
-            self.last_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
-    
+            self.last_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
+
+    def unflanged_termination_impedance(self, kappa_complex, impedance_complex):
+        """
+        This method updates the radiation impedance attributed to the element nodes according to the unflanged prescription.
+
+        Parameters
+        -------
+        kappa_complex : complex-array
+            Complex wavenumber.
+
+        impedance_complex : complex-array
+            Complex system impedance.
+
+        Returns
+        -------
+        array
+            Unflanged pipe termination impedance. The array has the same length as kappa_complex parameter.
+        """
+
+        radius = self.cross_section.inner_radius
+        
+        kr = kappa_complex * radius
+        mask = kr<=1
+        
+        kr_less_t_1 = kr[mask]
+        gamma = np.exp(0.5772)
+        aux_1_1 = np.abs(np.exp((-kr_less_t_1**2)/2) * (1 + kr_less_t_1**4 / 6 * np.log(1 / (gamma * kr_less_t_1) + 19/12)))
+
+        kr_great_t_1 = kr[~mask]
+
+        if np.any(kr_great_t_1 > 3.83):
+            self.flag_unflanged_radiation_impedance = True
+
+        aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
+        aux_1 = np.r_[aux_1_1, aux_1_2]
+        aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
+
+        return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
+
+    def flanged_termination_impedance(self, kappa_complex, impedance_complex):
+        """
+        This method updates the radiation impedance attributed to the element nodes according to the flanged prescription.
+
+        Parameters
+        -------
+        kappa_complex : complex-array
+            Complex wavenumber.
+
+        impedance_complex : complex-array
+            Complex impedance.
+
+        Returns
+        -------
+        array
+            Flanged termination impedance. The array has the same length as kappa_complex parameter.
+        """
+        radius = self.cross_section.inner_radius
+        kr = kappa_complex * radius
+        return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*np.real(kr))/ kr  ) +0j 
+
     def fem_1d_matrix(self, length_correction=0 ):
         """
         This method returns the FEM acoustic 1D elementary matrices. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The FEM is not compatible with any damping model.

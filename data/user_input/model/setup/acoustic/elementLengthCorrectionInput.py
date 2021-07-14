@@ -20,16 +20,20 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.elements_id = self.opv.getListPickedElements()
+
         self.project = project
         self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks()   
+
         self.acoustic_elements = project.mesh.acoustic_elements
         self.dict_group_elements = project.mesh.group_elements_with_length_correction
-        self.elements_id = self.opv.getListPickedElements()
+        
         self.type_label = None
         self.dkey = None
         self.elements_info_path = project.file._element_info_path
@@ -112,7 +116,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
     def check_element_correction_type(self):
 
         lineEdit = self.lineEdit_elementID.text()
-        self.stop, self.elements_typed = self.mesh.check_input_ElementID(lineEdit)
+        self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
         
         if self.stop:
             return

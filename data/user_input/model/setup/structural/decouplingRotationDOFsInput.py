@@ -23,23 +23,25 @@ class DecouplingRotationDOFsInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.stop = False
-        self.complete = False
-        
-        self.structural_elements = self.project.mesh.structural_elements
-        self.nodes = self.project.mesh.nodes
-
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
         self.node_id = self.opv.getListPickedPoints()
+
+        self.project = project
+        self.mesh = project.mesh
+        self.before_run = self.mesh.get_model_checks() 
+
+        self.nodes = self.mesh.nodes
+        self.structural_elements = self.mesh.structural_elements
+        self.dict_tag_to_entity = self.mesh.dict_tag_to_entity
+
+        self.stop = False
+        self.complete = False
 
         self.lineEdit_selected_element = self.findChild(QLineEdit, 'lineEdit_selected_element')
         self.lineEdit_first_node = self.findChild(QLineEdit, 'lineEdit_first_node')
@@ -174,7 +176,7 @@ class DecouplingRotationDOFsInput(QDialog):
     def check_get_nodes(self):
 
         lineEdit = self.lineEdit_selected_element.text()
-        self.stop, self.element_typed = self.mesh.check_input_ElementID(lineEdit, single_ID=True)
+        self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
         if self.stop:
             return True   
         self.element_id = self.element_typed
