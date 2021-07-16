@@ -943,8 +943,8 @@ class ExpansionJointInput(QDialog):
 #         elif "/" in self.project_folder_path:
 #             self.path_of_selected_table = "{}/{}".format(self.project_folder_path, selected_table)
 
-#     def force_to_close(self):
-#         self.close()
+    def force_to_close(self):
+        self.close()
 
 # class GetInformationOfGroup(QDialog):
 #     def __init__(self, project, selected_link, label, *args, **kwargs):
