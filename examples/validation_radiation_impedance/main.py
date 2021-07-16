@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.mesh import Mesh
+from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
@@ -23,31 +23,31 @@ cross_section_expansion.update_properties()
 cross_section_branch = CrossSection(0.025, 0.004, offset_y=0, offset_z=0)
 cross_section_branch.update_properties()
 
-# Mesh init
-mesh = Mesh()
-mesh.generate('examples/iges_files/tube_2.iges', 0.01)
-mesh.set_material_by_element('all', steel)
-mesh.set_acoustic_pressure_bc_by_node(50, 1 + 0j)
+# Preprocessor init
+preprocessor = Preprocessor()
+preprocessor.generate('examples/iges_files/tube_2.iges', 0.01)
+preprocessor.set_material_by_element('all', steel)
+preprocessor.set_acoustic_pressure_bc_by_node(50, 1 + 0j)
 
 unflanged = True
 flanged = False
 if unflanged:
-    mesh.set_radiation_impedance_bc_by_node(1086 , 1)
+    preprocessor.set_radiation_impedance_bc_by_node(1086 , 1)
 elif flanged:
-    mesh.set_radiation_impedance_bc_by_node(1086 , 2)
+    preprocessor.set_radiation_impedance_bc_by_node(1086 , 2)
 
-mesh.set_fluid_by_element('all', air)
-mesh.set_cross_section_by_element('all', cross_section)
+preprocessor.set_fluid_by_element('all', air)
+preprocessor.set_cross_section_by_element('all', cross_section)
 # Analisys Frequencies
 f_max = 2500
 df = 1
 frequencies = np.arange(df, f_max+df, df)
 
-solution = SolutionAcoustic(mesh, frequencies)
+solution = SolutionAcoustic(preprocessor, frequencies)
 
 direct = solution.direct_method()
 
-pressure = get_acoustic_frf(mesh, direct, 1086, dB=True)
+pressure = get_acoustic_frf(preprocessor, direct, 1086, dB=True)
 p_ref = 20e-6
  
 plt.rcParams.update({'font.size': 12})

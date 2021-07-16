@@ -68,12 +68,12 @@ class Plot_TL_NR_Input(QDialog):
         self.opv.setInputObject(self)
 
         self.projec = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.elements = self.mesh.acoustic_elements
-        self.dict_elements_diameter = self.mesh.neighbor_elements_diameter()
-        self.nodes = project.mesh.nodes
+        self.elements = self.preprocessor.acoustic_elements
+        self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
+        self.nodes = project.preprocessor.nodes
         
         self.userPath = os.path.expanduser('~')
         self.path = ""
@@ -177,7 +177,7 @@ class Plot_TL_NR_Input(QDialog):
 
         if len(node_typed) == 1:
             try:
-                self.mesh.nodes[node_typed[0]].external_index
+                self.preprocessor.nodes[node_typed[0]].external_index
             except:
                 title = "INVALID NODE ID"
                 message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
@@ -267,7 +267,11 @@ class Plot_TL_NR_Input(QDialog):
             return
             
         self.check(export=True)
-        TL, NR = self.get_TL_NR()
+        data = self.get_TL_NR()
+
+        if self.stop:
+            return
+
         freq = self.frequencies
 
         check_name_TL = []
@@ -289,21 +293,19 @@ class Plot_TL_NR_Input(QDialog):
                 title = "File name recheck"
                 message = "Please, it's recommended to check the file name before export the results!"
                 PrintMessageInput([title, message, window_title2])
-                return
-            self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
-            data_to_export = np.array([freq, TL]).T
-            header = "Frequency[Hz], TL - Magnitude [dB]"
-            np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
+                return            
+            header = "Frequency[Hz], TL - Magnitude [dB]"    
         else:
             if True in check_name_NR:
                 title = "File name recheck"
                 message = "Please, it's recommended to check the file name before export the results!"
                 PrintMessageInput([title, message, window_title2])
                 return
-            self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
-            data_to_export = np.array([freq, NR]).T
             header = "Frequency[Hz], NR - Magnitude [dB]"
-            np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
+
+        self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
+        data_to_export = np.array([freq, data]).T    
+        np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
             
         title = "Information"
         message = "The results have been exported."
@@ -322,39 +324,51 @@ class Plot_TL_NR_Input(QDialog):
         return inner_diameter[ind], density[ind], speed_of_sound[ind]
 
     def get_TL_NR(self):
-        P_input = get_acoustic_frf(self.mesh, self.solution, self.input_node_ID)
-        P_output = get_acoustic_frf(self.mesh, self.solution, self.output_node_ID)
+        
+        self.stop = False
+
+        P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
+        P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
         
         P_input2 = 0.5*np.real(P_input*np.conjugate(P_input))
         P_output2 = 0.5*np.real(P_output*np.conjugate(P_output))
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
+               
+        if 0 not in P_input2 and 0 not in P_output2:
+            if self.flagTL:
+                alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
+                TL = -10*np.log10(alpha_T)
+                return TL
+                
+            if self.flagNR:
+                delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
+                NR = 10*np.log10(delta)
+                return NR
 
-        if P_input2.all()!=0:
-            alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
-            TL = -10*np.log10(alpha_T)
-            delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
-            NR = 10*np.log10(delta)
         else:
-            title = "Invalid pressure values"
-            message = "The input pressure must be different from zero value!"
-            PrintMessageInput([title, message, window_title1])
-        return TL, NR
+            self.stop = True
+            return None
 
     def plot(self):
 
+        plt.close()
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
-        TL, NR = self.get_TL_NR()
+        results = self.get_TL_NR()
+        
+        if self.stop:
+            title = "Invalid pressure values"
+            message = "The input pressure must be different from zero value!"
+            PrintMessageInput([title, message, window_title1])
+            return
 
         if self.flagTL:
-            results = TL
             analysis_label = "TRANSMISSION LOSS"
         else:
-            results = NR
             analysis_label = "ATTENUATION"
          
         # mng = plt.get_current_fig_manager()

@@ -15,13 +15,13 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, error, inverse_matrix_3x3, inverse_matrix_Nx3x3, _transformation_matrix_3x3, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
 
 window_title_1 = "ERROR"
 
-class Mesh:
-    """A mesh class.
-    This class creates a acoustic and structural mesh object.
+class Preprocessor:
+    """A preprocessor class.
+    This class creates a acoustic and structural preprocessor object.
     """
     def __init__(self):
         self.reset_variables()
@@ -96,7 +96,7 @@ class Mesh:
             CAD file path. '.igs' is the only format file supported.
 
         element_size : float
-            Element size to be used to build the mesh.
+            Element size to be used to build the preprocessor.
         """
         self.reset_variables()
         self._initialize_gmsh(path)
@@ -119,6 +119,7 @@ class Mesh:
         self.get_connectivity_matrix()
         self.get_list_edge_nodes(element_size)
         self._get_principal_diagonal_structure_parallelepiped()
+        self.get_dict_line_to_nodes()
         
         # t0 = time()
         self.process_all_rotation_matrices()
@@ -229,7 +230,8 @@ class Mesh:
 
     def _create_entities(self):
         """
-        This method generate the mesh entities, nodes, structural elements, acoustic elements and their connectivity.
+        This method generate the mesh entities, nodes, structural elements, acoustic elements 
+        and their connectivity.
         """
         gmsh.model.mesh.generate(3)
 
@@ -362,16 +364,20 @@ class Mesh:
             self.line_to_elements[1] = list(self.structural_elements.keys())
             for element in list(self.structural_elements.keys()):
                 self.elements_to_line[element] = 1
-        else:    
+        else: 
+            # t0 = time()   
             mapping = self.map_elements
             for dim, tag in gmsh.model.getEntities(1):
                 elements_of_entity = gmsh.model.mesh.getElements(dim, tag)[1][0]
-                self.line_to_elements[tag] = np.array([mapping[element] for element in elements_of_entity], dtype=int)
-                for element in elements_of_entity:
-                    self.elements_to_line[mapping[element]] = tag 
+                list_elements = np.array([mapping[element] for element in elements_of_entity], dtype=int)
+                self.line_to_elements[tag] = list_elements
+                for element_id in list_elements:
+                    self.elements_to_line[element_id] = tag 
+            # dt = time() - t0
+            # print(f"Time to process : {dt}")
+
 
     def get_line_length(self, line_ID):
-        # print(self.line_to_elements[line_ID])
         first_element_ID = self.line_to_elements[line_ID][0]
         last_element_ID = self.line_to_elements[line_ID][-1]
         # print(first_element_ID, last_element_ID)
@@ -520,6 +526,29 @@ class Mesh:
 
         # dt = time()-t0
         # print("Time to process the global matrices bandwidth reduction: ", dt)
+
+    def get_dict_line_to_nodes(self):
+        # t0 = time()
+        self.dict_line_to_nodes = {}
+        for line_ID, list_elements in self.line_to_elements.items():
+            # list_nodes = []
+            list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+            for i, _id in enumerate(list_elements):
+                element = self.structural_elements[_id]
+                first_node_id = element.first_node.external_index
+                last_node_id = element.last_node.external_index
+                if i==0:
+                    list_nodes[i] = first_node_id
+                list_nodes[i+1] = last_node_id
+                # if first_node_id not in list_nodes:
+                #     list_nodes.append(first_node_id)
+                # if last_node_id not in list_nodes:
+                #     list_nodes.append(last_node_id)
+            self.dict_line_to_nodes[line_ID] = list_nodes  
+            # if line_ID in [1,2,3]:
+            #     print(self.dict_line_to_nodes[line_ID])  
+        # dt = time() - t0
+        # print(f"Time to process : {dt}")
 
     def load_mesh(self, coordinates, connectivity):
         """
@@ -2231,3 +2260,4 @@ class Mesh:
 
     def get_model_checks(self):
         return BeforeRun(self)
+                

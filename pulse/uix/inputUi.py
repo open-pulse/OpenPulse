@@ -370,7 +370,7 @@ class InputUi:
             if self.analysisSetup():
                 return
 
-        self.before_run = self.project.mesh.get_model_checks()
+        self.before_run = self.project.preprocessor.get_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0

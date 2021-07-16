@@ -33,15 +33,15 @@ class StressStiffeningInput(QDialog):
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.structural_elements = self.mesh.structural_elements
-        self.dict_tag_to_entity = self.mesh.dict_tag_to_entity
+        self.structural_elements = self.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
-        self.dict_group_elements = project.mesh.group_elements_with_stress_stiffening
-        self.lines_with_stress_stiffening = project.mesh.lines_with_stress_stiffening
-        self.dict_lines_with_stress_stiffening = project.mesh.dict_lines_with_stress_stiffening
+        self.dict_group_elements = project.preprocessor.group_elements_with_stress_stiffening
+        self.lines_with_stress_stiffening = project.preprocessor.lines_with_stress_stiffening
+        self.dict_lines_with_stress_stiffening = project.preprocessor.dict_lines_with_stress_stiffening
         
         self.stop = False
         self.error_label = ""
@@ -239,7 +239,7 @@ class StressStiffeningInput(QDialog):
 
     def load_lines_info(self):        
         self.treeWidget_stress_stiffening_lines.clear()
-        lines = self.project.mesh.lines_with_stress_stiffening
+        lines = self.project.preprocessor.lines_with_stress_stiffening
         if len(lines) != 0:
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -369,7 +369,7 @@ class StressStiffeningInput(QDialog):
                 if self.stop:
                     return
 
-                size = len(self.project.mesh.group_elements_with_stress_stiffening)
+                size = len(self.project.preprocessor.group_elements_with_stress_stiffening)
                 section = self.dictKey_label.format("Selection-{}".format(size+1))
                 self.set_stress_stiffening_to_elements(section)
                 self.replaced = False
@@ -418,7 +418,7 @@ class StressStiffeningInput(QDialog):
                     self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
 
             elif self.flagAll:
-                all_lines = self.project.mesh.all_lines
+                all_lines = self.project.preprocessor.all_lines
                 self.project.set_stress_stiffening_by_line(all_lines, self.stress_stiffening_parameters)
 
             self.complete = True
@@ -430,7 +430,7 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
         temp_dict_group_elements = self.dict_group_elements.copy()
-        for line_id in self.project.mesh.all_lines:
+        for line_id in self.project.preprocessor.all_lines:
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
             self.project.file.remove_all_stress_stiffnening_in_file_by_group_elements()
         for key, item in temp_dict_group_elements.items():
@@ -464,7 +464,7 @@ class StressStiffeningInput(QDialog):
 
     def remove_line_group(self):
         parameters = [0,0,0,0]
-        lines = self.project.mesh.lines_with_stress_stiffening.copy()
+        lines = self.project.preprocessor.lines_with_stress_stiffening.copy()
         self.project.set_stress_stiffening_by_line(lines, parameters, remove=True)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
@@ -556,8 +556,8 @@ class GetInformationOfGroup(QDialog):
             self.check_remove()
 
     def update_dict(self):
-        self.dict_lines_parameters = self.project.mesh.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.project.mesh.group_elements_with_stress_stiffening
+        self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
+        self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
 
     def on_click_item_(self, item):
         text = item.text(0)

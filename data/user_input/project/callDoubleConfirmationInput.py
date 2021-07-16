@@ -22,8 +22,6 @@ class CallDoubleConfirmationInput(QDialog):
         # self.setWindowFlag(Qt.FramelessWindowHint, False)
 
         # self.QDialog = self#.findChild(QDialog, "Dialog")
-        # print(self.QDialog)
-        # print(self.x(),self.y())
         # self.QDialog.setGeometry(100,100,1000,800)
         # self.getPx
         # self.resize(1000,600)

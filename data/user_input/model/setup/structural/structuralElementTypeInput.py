@@ -27,10 +27,10 @@ class StructuralElementTypeInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.dict_entities = project.mesh.dict_tag_to_entity
+        self.dict_entities = project.preprocessor.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
         self.complete = False
@@ -91,16 +91,16 @@ class StructuralElementTypeInput(QDialog):
         self.exec_()
     
     # def reset_all(self):
-    #     temp_dict = self.project.mesh.dict_structural_element_type_to_lines
+    #     temp_dict = self.project.preprocessor.dict_structural_element_type_to_lines
     #     element_type = ""
-    #     for line in self.project.mesh.all_lines:
+    #     for line in self.project.preprocessor.all_lines:
     #         self.project.set_structural_element_type_by_entity(line, element_type)
 
     # def group_remove(self):
     #     key = self.lineEdit_selected_group.text()
     #     if key != "":
     #         try:
-    #             lines = self.project.mesh.dict_structural_element_type_to_lines[key]
+    #             lines = self.project.preprocessor.dict_structural_element_type_to_lines[key]
     #             for line in lines:
     #                 element_type = ""
     #                 self.project.set_structural_element_type_by_entity(line, element_type, remove=True)
@@ -156,7 +156,7 @@ class StructuralElementTypeInput(QDialog):
 
     def load_element_type_info(self):
         self.treeWidget_element_type.clear()
-        for key, lines in self.project.mesh.dict_structural_element_type_to_lines.items():
+        for key, lines in self.project.preprocessor.dict_structural_element_type_to_lines.items():
             new = QTreeWidgetItem([str(key), str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -224,7 +224,7 @@ class StructuralElementTypeInput(QDialog):
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in the entities {}".format(self.typed_lines))
         elif self.flagAll:
-            for line in self.project.mesh.all_lines:
+            for line in self.project.preprocessor.all_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in all the entities")
         self.complete = True
@@ -304,7 +304,7 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        lines = self.project.mesh.dict_structural_element_type_to_lines[self.key]
+        lines = self.project.preprocessor.dict_structural_element_type_to_lines[self.key]
         for line in lines:
             new = QTreeWidgetItem([str(line), self.key])
             new.setTextAlignment(0, Qt.AlignCenter)

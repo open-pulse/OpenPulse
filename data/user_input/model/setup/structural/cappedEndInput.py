@@ -31,22 +31,22 @@ class CappedEndInput(QDialog):
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
         
         self.complete = False
         self.info_text = ["NO MESSAGE", "NO MESSAGE", "NO MESSAGE"]
 
         self.project_lines = {}
-        for line in self.project.mesh.all_lines:
+        for line in self.project.preprocessor.all_lines:
             self.project_lines[line] = True
 
-        self.dict_group_elements = project.mesh.group_elements_with_capped_end
-        self.dict_group_lines = project.mesh.group_lines_with_capped_end
-        self.lines_with_capped_end = project.mesh.lines_with_capped_end
+        self.dict_group_elements = project.preprocessor.group_elements_with_capped_end
+        self.dict_group_lines = project.preprocessor.group_lines_with_capped_end
+        self.lines_with_capped_end = project.preprocessor.lines_with_capped_end
     
         self.dictkey_to_remove = None
         self.elements_info_path = project.file._element_info_path
@@ -232,7 +232,7 @@ class CappedEndInput(QDialog):
 
     def load_lines_info(self):        
         self.treeWidget_cappedEnd_lines.clear()
-        lines = self.project.mesh.lines_with_capped_end
+        lines = self.project.preprocessor.lines_with_capped_end
         if len(lines) != 0:
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -292,7 +292,7 @@ class CappedEndInput(QDialog):
             if self.stop:
                 return
 
-            size = len(self.project.mesh.group_elements_with_capped_end)
+            size = len(self.project.preprocessor.group_elements_with_capped_end)
             selection = self.dictKey_label.format("Selection-{}".format(size+1))
             self.set_capped_end_to_elements(selection)
             self.replaced = False
@@ -370,7 +370,7 @@ class CappedEndInput(QDialog):
             self.remove_elements(self.dictkey_to_remove)
 
     def remove_line_group(self):
-        lines = self.project.mesh.lines_with_capped_end.copy()
+        lines = self.project.preprocessor.lines_with_capped_end.copy()
         self.project.set_capped_end_by_line(lines, False)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")

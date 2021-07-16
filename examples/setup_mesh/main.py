@@ -1,6 +1,6 @@
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
-from pulse.preprocessing.mesh import Mesh
+from pulse.preprocessing.preprocessor import  Preprocessor
 from pulse.processing.assembly_structural import get_global_matrices
 
 # create materials
@@ -11,16 +11,16 @@ alloy_steel = Material('AISI4140', density=7850, young_modulus=203200000000, poi
 large_tube = CrossSection(0.05, 0.034)
 thin_tube = CrossSection(0.01, 0.005)
 
-# create mesh
-mesh = Mesh()
+# create preprocessor
+preprocessor = Preprocessor()
 
 # define mesh file and element size
-mesh.generate('tube_2.iges', 0.01)
+preprocessor.generate('tube_2.iges', 0.01)
 
 # set properties to all elements
-mesh.set_material_by_element('all', steel)
-mesh.set_cross_section_by_element('all', large_tube)
+preprocessor.set_material_by_element('all', steel)
+preprocessor.set_cross_section_by_element('all', large_tube)
 
 # set properties for specific lines
-mesh.set_cross_section_by_line([37, 38, 39], thin_tube)
-mesh.set_material_by_line([37, 38, 39], alloy_steel)
+preprocessor.set_cross_section_by_line([37, 38, 39], thin_tube)
+preprocessor.set_material_by_line([37, 38, 39], alloy_steel)

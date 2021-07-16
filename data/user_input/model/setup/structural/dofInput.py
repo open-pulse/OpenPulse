@@ -29,8 +29,8 @@ class DOFInput(QDialog):
         self.transform_points = opv.transformPoints
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
@@ -39,7 +39,7 @@ class DOFInput(QDialog):
         self.new_load_path_table = ""
         self.imported_table_name = ""
 
-        self.nodes = self.mesh.nodes
+        self.nodes = self.preprocessor.nodes
         self.prescribed_dofs = None
         self.nodes_typed = []
         self.imported_table = False
@@ -411,7 +411,7 @@ class DOFInput(QDialog):
         return text
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_prescribed_dofs:
+        for node in self.project.preprocessor.nodes_with_prescribed_dofs:
             constrained_dofs_mask = [False if bc is None else True for bc in node.prescribed_dofs]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -433,7 +433,7 @@ class DOFInput(QDialog):
         key_strings = ["displacements", "rotations"]
         message = "The prescribed dof(s) value(s) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.project.mesh.set_prescribed_dofs_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
+        self.project.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
         self.transform_points(self.nodes_typed)
         self.treeWidget_prescribed_dofs.clear()
         self.load_nodes_info()

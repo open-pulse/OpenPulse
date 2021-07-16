@@ -42,8 +42,8 @@ class RendererMesh(vtkRendererBase):
     def highlight(self, obj, event):
         # selectedNodes = [self.project.get_node(i) for i in self.getListPickedPoints()]
         # selectedElements = [self.project.get_structural_element(i) for i in self.getListPickedElements()]
-        selectedNodes = [self.project.mesh.nodes[i] for i in self.getListPickedPoints()]
-        selectedElements = [self.project.mesh.structural_elements[i] for i in self.getListPickedElements()]
+        selectedNodes = [self.project.preprocessor.nodes[i] for i in self.getListPickedPoints()]
+        selectedElements = [self.project.preprocessor.structural_elements[i] for i in self.getListPickedElements()]
 
         self._renderer.RemoveActor(self.selectionNodesActor)
         self._renderer.RemoveActor(self.selectionNodesActorAcoustic)
@@ -52,10 +52,10 @@ class RendererMesh(vtkRendererBase):
         
         if selectedNodes:
             selectedNodesAcoustic = []
-            volume_velocity = self.project.mesh.nodes_with_volume_velocity #Vermelha
-            acoustic_pressure = self.project.mesh.nodes_with_acoustic_pressure #Branca
-            specific_impedance = self.project.mesh.nodes_with_specific_impedance #Verde
-            radiation_impedance = self.project.mesh.nodes_with_radiation_impedance #Rosa
+            volume_velocity = self.project.preprocessor.nodes_with_volume_velocity #Vermelha
+            acoustic_pressure = self.project.preprocessor.nodes_with_acoustic_pressure #Branca
+            specific_impedance = self.project.preprocessor.nodes_with_specific_impedance #Verde
+            radiation_impedance = self.project.preprocessor.nodes_with_radiation_impedance #Rosa
             #Remove nodes with volume velocity from nodes[]
             for node in volume_velocity:
                 if node in selectedNodes:
@@ -182,10 +182,10 @@ class RendererMesh(vtkRendererBase):
     def plotNodes(self):
         self.removeActorNodes()
         nodes = list(self.project.get_nodes().values())
-        volume_velocity = self.project.mesh.nodes_with_volume_velocity #Vermelha
-        acoustic_pressure = self.project.mesh.nodes_with_acoustic_pressure #Branca
-        specific_impedance = self.project.mesh.nodes_with_specific_impedance #Verde
-        radiation_impedance = self.project.mesh.nodes_with_radiation_impedance #Rosa
+        volume_velocity = self.project.preprocessor.nodes_with_volume_velocity #Vermelha
+        acoustic_pressure = self.project.preprocessor.nodes_with_acoustic_pressure #Branca
+        specific_impedance = self.project.preprocessor.nodes_with_specific_impedance #Verde
+        radiation_impedance = self.project.preprocessor.nodes_with_radiation_impedance #Rosa
         #Remove nodes with volume velocity from nodes[]
         for node in volume_velocity:
             if node in nodes:
@@ -407,7 +407,7 @@ class RendererMesh(vtkRendererBase):
             return source
 
     # def createSectionPolygon(self, element):
-    #     outer_points, inner_points, number_points = self.project.get_mesh().get_cross_section_points(element.index)
+    #     outer_points, inner_points, number_points = self.project.get_preprocess().get_cross_section_points(element.index)
     #     points = vtk.vtkPoints()
     #     edges = vtk.vtkCellArray()
     #     data = vtk.vtkPolyData()
@@ -476,31 +476,31 @@ class RendererMesh(vtkRendererBase):
             nodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(node.x, node.y, node.z)
             text = f'NODE ID: {nodeId} \n   Position: ({nodePosition}) [m]\n'
 
-            if node in self.project.mesh.nodes_with_prescribed_dofs:
+            if node in self.project.preprocessor.nodes_with_prescribed_dofs:
                 values = node.prescribed_dofs
                 labels = np.array(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'])
                 unit_labels = ['m', 'rad']
                 text += self.structuralNodalInfo(values, labels, 'PRESCRIBED DOFs', unit_labels, node.loaded_table_for_prescribed_dofs)
 
-            if node in self.project.mesh.nodes_with_nodal_loads:
+            if node in self.project.preprocessor.nodes_with_nodal_loads:
                 values = node.nodal_loads
                 labels = np.array(['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'])
                 unit_labels = ['N', 'N.m']
                 text += self.structuralNodalInfo(values, labels, 'NODAL LOADS', unit_labels, node.loaded_table_for_nodal_loads)
 
-            if node in self.project.mesh.nodes_connected_to_springs:
+            if node in self.project.preprocessor.nodes_connected_to_springs:
                 values = node.lumped_stiffness
                 labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
                 unit_labels = ['N/m', 'N.m/rad']
                 text += self.structuralNodalInfo(values, labels, 'LUMPED STIFFNESS', unit_labels, node.loaded_table_for_lumped_stiffness)
 
-            if node in self.project.mesh.nodes_connected_to_dampers:
+            if node in self.project.preprocessor.nodes_connected_to_dampers:
                 values = node.lumped_dampings
                 labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
                 unit_labels = ['N.s/m', 'N.m.s/rad']
                 text += self.structuralNodalInfo(values, labels, 'LUMPED DAMPINGS', unit_labels, node.loaded_table_for_lumped_dampings)
 
-            if node in self.project.mesh.nodes_with_masses:
+            if node in self.project.preprocessor.nodes_with_masses:
                 values = node.lumped_masses
                 labels = np.array(['mx', 'my', 'mz', 'Jx', 'Jy', 'Jz'])
                 unit_labels = ['kg', 'N.m²']
@@ -524,13 +524,13 @@ class RendererMesh(vtkRendererBase):
                     if index in linked_nodes:            
                         text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
  
-            if node in self.project.mesh.nodes_with_acoustic_pressure:
+            if node in self.project.preprocessor.nodes_with_acoustic_pressure:
                 value = node.acoustic_pressure
                 label = 'P'
                 unit_label = '[Pa]'
                 text += self.acousticNodalInfo(value, label, 'ACOUSTIC PRESSURE', unit_label)
    
-            if node in self.project.mesh.nodes_with_volume_velocity:
+            if node in self.project.preprocessor.nodes_with_volume_velocity:
                 value = node.volume_velocity
                 label = 'Q'
                 unit_label = '[m³/s]'
@@ -541,13 +541,13 @@ class RendererMesh(vtkRendererBase):
                     bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
                     text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
             
-            if node in self.project.mesh.nodes_with_specific_impedance:
+            if node in self.project.preprocessor.nodes_with_specific_impedance:
                 value = node.specific_impedance
                 label = 'Zs'
                 unit_label = '[kg/m².s]'
                 text += self.acousticNodalInfo(value, label, 'SPECIFIC IMPEDANCE', unit_label)
 
-            if node in self.project.mesh.nodes_with_radiation_impedance:
+            if node in self.project.preprocessor.nodes_with_radiation_impedance:
                 Z_type = node.radiation_impedance_type
                 _dict = {0:'anechoic termination', 1:'unflanged pipe', 2:'flanged pipe'}
                 label = 'Type'
@@ -713,12 +713,12 @@ class RendererMesh(vtkRendererBase):
             try:
                 node = self.project.get_node(ID)
                 self.plotAxes(node, ID)
-            except Exception as err:
-                print(err)
+            except Exception as log_error:
+                print(str(log_error))
 
     def plotElasticLinks(self):
-        elastic_links_stiffness = self.project.mesh.dict_nodes_with_elastic_link_stiffness
-        elastic_links_damping = self.project.mesh.dict_nodes_with_elastic_link_damping
+        elastic_links_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness
+        elastic_links_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping
         self.removeElasticLinks()
         for key, _ in elastic_links_stiffness.items():
             try:
@@ -728,8 +728,8 @@ class RendererMesh(vtkRendererBase):
                 nodeB = self.project.get_node(k[1])
                 self.plotElastic(nodeA, nodeB, key)
                 # print(f"Key {key} - Stiff")
-            except Exception as err:
-                print(err)
+            except Exception as log_error:
+                print(str(log_error))
                 continue
         
         for key, _ in elastic_links_damping.items():
@@ -740,8 +740,8 @@ class RendererMesh(vtkRendererBase):
                 nodeB = self.project.get_node(k[1])
                 self.plotElastic(nodeA, nodeB, key)
                 # print(f"Key {key} - Damping")
-            except Exception as err:
-                print(err)
+            except Exception as log_error:
+                print(str(log_error))
                 continue
 
     def plotElastic(self, nodeA, nodeB, key):

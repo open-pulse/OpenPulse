@@ -44,12 +44,12 @@ class RendererPostProcessing(vtkRendererBase):
         self.stress_field_plot = stress_field_plot
         self.pressure_field_plot = pressure_field_plot
         if self.pressure_field_plot:
-            _, connect, coord, u_def = get_acoustic_response( self.project.get_mesh(), 
+            _, connect, coord, u_def = get_acoustic_response( self.project.get_preprocess(), 
                                                               self.project.get_acoustic_solution(), 
                                                               self.frequencyIndice,
                                                               real_part = real_part)
         else:
-            connect, coord, u_def, self.valueFactor = get_structural_response(  self.project.get_mesh(), 
+            connect, coord, u_def, self.valueFactor = get_structural_response(  self.project.get_preprocess(), 
                                                                                 self.project.get_structural_solution(), 
                                                                                 self.frequencyIndice, 
                                                                                 gain=self.sliderFactor)            

@@ -148,9 +148,9 @@ class RendererEntity(vtkRendererBase):
 
     def plot(self):
         self.reset()
-        mesh = self.project.get_mesh()
+        preprocessor = self.project.get_preprocess()
         for entity in self.project.entities:#get_entities():
-            elements = [mesh.structural_elements[i] for i in mesh.line_to_elements[entity.tag]]
+            elements = [preprocessor.structural_elements[i] for i in preprocessor.line_to_elements[entity.tag]]
             actor = self.createActorTubes(elements)
             self.actors[actor] = entity.get_tag()
             self._renderer.AddActor(actor)
@@ -191,7 +191,7 @@ class RendererEntity(vtkRendererBase):
                 polygon = self.createSectionPolygon(element)
             else:
                 if self.defaultRadius is None:
-                    base_length = self.project.mesh.structure_principal_diagonal
+                    base_length = self.project.preprocessor.structure_principal_diagonal
                     if element.length/10 > base_length/1000:
                         self.defaultRadius = element.length/10
                     else:

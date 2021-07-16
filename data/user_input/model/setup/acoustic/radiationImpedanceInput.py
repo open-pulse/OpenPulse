@@ -28,15 +28,15 @@ class RadiationImpedanceInput(QDialog):
         self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
-        self.nodes = project.mesh.nodes
+        self.nodes = project.preprocessor.nodes
         self.radiation_impedance = None
         self.nodes_typed = []
   
@@ -154,14 +154,14 @@ class RadiationImpedanceInput(QDialog):
         key_strings = ["radiation impedance"]
         message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
+        self.project.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.treeWidget_radiation_impedance.clear()
         self.load_nodes_info()
         # self.close()
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_radiation_impedance:
+        for node in self.project.preprocessor.nodes_with_radiation_impedance:
             if node.radiation_impedance_type == 0:
                 text = "Anechoic"
             elif node.radiation_impedance_type == 1:

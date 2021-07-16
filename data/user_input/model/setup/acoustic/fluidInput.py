@@ -35,12 +35,12 @@ class FluidInput(QDialog):
         self.lines_ids = opv.getListPickedEntities()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.fluid_path = project.get_fluid_list_path()
 
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
@@ -306,7 +306,7 @@ class FluidInput(QDialog):
                     break
           
         elif self.flagAll:
-            for line in self.project.mesh.all_lines:
+            for line in self.project.preprocessor.all_lines:
                 _line = self.dict_tag_to_entity[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                     self.flag_all_fluid_inputs = True
@@ -545,7 +545,7 @@ class FluidInput(QDialog):
             elif self.flagAll:
 
                 self.project.set_fluid_to_all_lines(self.fluid)
-                lines = self.project.mesh.all_lines
+                lines = self.project.preprocessor.all_lines
 
                 print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
                 # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())

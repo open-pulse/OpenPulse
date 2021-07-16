@@ -11,8 +11,8 @@ class AssemblyStructural:
 
     Parameters
     ----------
-    mesh : Mesh object
-        Acoustic finite element mesh.
+    preprocessor : Preprocessor object
+        Acoustic finite element preprocessor.
 
     frequencies : array
         Frequencies of analysis.
@@ -21,8 +21,8 @@ class AssemblyStructural:
         Solution of the acoustic FETM model. This solution is need to solve the coupled problem.
         Default is None.
     """
-    def __init__(self, mesh, frequencies, **kwargs):
-        self.mesh = mesh
+    def __init__(self, preprocessor, frequencies, **kwargs):
+        self.preprocessor = preprocessor
         self.frequencies = frequencies
         self.acoustic_solution = kwargs.get('acoustic_solution', None)
         self.no_table = True
@@ -43,7 +43,7 @@ class AssemblyStructural:
         get_unprescribed_indexes : Indexes of the structural free degrees of freedom.
         """
         global_prescribed = []
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             if node.there_are_prescribed_dofs:
                 starting_position = node.global_index * DOF_PER_NODE_STRUCTURAL
                 dofs = np.array(node.get_prescribed_dofs_bc_indexes()) + starting_position
@@ -73,7 +73,7 @@ class AssemblyStructural:
         else:
             cols = len(self.frequencies)
         
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             if node.there_are_prescribed_dofs:
                 global_prescribed.extend(node.get_prescribed_dofs_bc_values())      
 
@@ -105,7 +105,7 @@ class AssemblyStructural:
 
         get_prescribed_values : Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
         """
-        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         all_indexes = np.arange(total_dof)
         prescribed_indexes = self.get_prescribed_indexes()
         unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
@@ -130,14 +130,14 @@ class AssemblyStructural:
             List of mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
         """
  
-        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
-        number_elements = len(self.mesh.structural_elements)
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
+        number_elements = len(self.preprocessor.structural_elements)
 
-        rows, cols = self.mesh.get_global_structural_indexes()
+        rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        for index, element in enumerate(self.mesh.structural_elements.values()):
+        for index, element in enumerate(self.preprocessor.structural_elements.values()):
             mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs() 
 
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
@@ -181,7 +181,7 @@ class AssemblyStructural:
             This flag returns True if the damping matrices are non zero, and False otherwise.
         """
 
-        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         
         if self.frequencies is None:
             cols = 1
@@ -204,7 +204,7 @@ class AssemblyStructural:
         flag_Clump = False
 
         # processing external elements by node
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
 
             # processing mass added
             if node.there_are_lumped_stiffness:
@@ -231,14 +231,14 @@ class AssemblyStructural:
                 j_indexes_C.append(position)
                 flag_Clump = True
         
-        for cluster_data in self.mesh.dict_nodes_with_elastic_link_stiffness.values():
+        for cluster_data in self.preprocessor.dict_nodes_with_elastic_link_stiffness.values():
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_K.append(indexes_i[i])
                     j_indexes_K.append(indexes_j[i])
                     list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
 
-        for cluster_data in self.mesh.dict_nodes_with_elastic_link_damping.values():
+        for cluster_data in self.preprocessor.dict_nodes_with_elastic_link_damping.values():
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_C.append(indexes_i[i])
@@ -294,19 +294,19 @@ class AssemblyStructural:
             Loads vectors. Each column corresponds to a frequency of analysis.
         """
         
-        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.mesh.nodes)
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         cols = len(self.frequencies)
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
 
         # distributed loads
-        for element in self.mesh.structural_elements.values():
+        for element in self.preprocessor.structural_elements.values():
             if np.sum(element.loaded_forces) != 0:
                 position = element.global_dof
                 loads[position] += element.force_vector_gcs()      
 
         # nodal loads
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             if node.there_are_nodal_loads:
                 position = node.global_dof
                 if node.loaded_table_for_nodal_loads:
@@ -319,7 +319,7 @@ class AssemblyStructural:
         loads = loads[unprescribed_indexes,:]
         
         if self.acoustic_solution is not None:
-            for element in self.mesh.structural_elements.values():
+            for element in self.preprocessor.structural_elements.values():
                 pressure_first = self.acoustic_solution[element.first_node.global_index, :]
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
                 pressure_avg = (pressure_first + pressure_last) / 2

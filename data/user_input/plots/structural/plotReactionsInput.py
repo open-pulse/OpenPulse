@@ -72,8 +72,8 @@ class PlotReactionsInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         reactions = project.get_structural_reactions()
         self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
@@ -259,21 +259,21 @@ class PlotReactionsInput(QDialog):
 
     def load_nodes_info(self):
         
-        for node in self.mesh.nodes_connected_to_springs:
+        for node in self.preprocessor.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_reactions_at_springs.addTopLevelItem(new)
 
-        for node in self.mesh.nodes_connected_to_dampers:
+        for node in self.preprocessor.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_reactions_at_dampers.addTopLevelItem(new)
 
-        for node in self.mesh.nodes_with_constrained_dofs:
+        for node in self.preprocessor.nodes_with_constrained_dofs:
             constrained_dofs_mask = [False, False, False, False, False, False]
             for index, value in enumerate(node.prescribed_dofs):
                 if isinstance(value, complex):
@@ -290,7 +290,7 @@ class PlotReactionsInput(QDialog):
 
     def disable_non_existing_reactions(self, node_id):
 
-        node = self.mesh.nodes[int(node_id)]
+        node = self.preprocessor.nodes[int(node_id)]
         if self.tabWidget_reactions.currentIndex()==0:
             mask = [False, False, False, False, False, False]
             for index, value in enumerate(node.prescribed_dofs):
@@ -406,13 +406,13 @@ class PlotReactionsInput(QDialog):
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
-            response = get_reactions(self.mesh, self.reactions, self.node_ID, self.localDof)
+            response = get_reactions(self.preprocessor, self.reactions, self.node_ID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}], Absolute [{}]").format(  self.unit_label, 
                                                                                                     self.unit_label, 
                                                                                                     self.unit_label )
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_reactions(self.mesh, self.reactions, self.node_ID, self.localDof)
+            response = get_reactions(self.preprocessor, self.reactions, self.node_ID, self.localDof)
             header = ("Frequency[Hz], Real part [{}], Imaginary part [{}]").format(self.unit_label, self.unit_label)
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
@@ -425,7 +425,7 @@ class PlotReactionsInput(QDialog):
         ax = fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
-        response = get_reactions(   self.mesh, 
+        response = get_reactions(   self.preprocessor, 
                                     self.reactions, 
                                     self.node_ID, 
                                     self.localDof, 

@@ -33,9 +33,9 @@ class CompressorModelInput(QDialog):
         self.node_id = self.opv.getListPickedPoints()
 
         self.project = project
-        self.mesh = project.mesh
-        self.nodes = self.mesh.nodes
-        self.before_run = self.mesh.get_model_checks()    
+        self.preprocessor = project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.before_run = self.preprocessor.get_model_checks()    
 
         self.project_folder_path = project.file._project_path      
         self.stop = False
@@ -274,7 +274,7 @@ class CompressorModelInput(QDialog):
         if self.stop:
             return True
 
-        if len(self.project.mesh.neighboor_elements_of_node(self.node_ID))>1:
+        if len(self.project.preprocessor.neighboor_elements_of_node(self.node_ID))>1:
             title = "INVALID SELECTION - NODE {}".format(self.node_ID)
             message = "The selected NODE ID must be in the beginning \nor termination of the pipelines."
             PrintMessageInput([title, message, window_title1])
@@ -507,7 +507,7 @@ class CompressorModelInput(QDialog):
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
     def get_table_name(self, label, _node):
-        self.size = self.mesh.volume_velocity_table_index + 1
+        self.size = self.preprocessor.volume_velocity_table_index + 1
         return 'table{}_compressor_excitation_{}.dat'.format( self.size, label)
 
     def process_all_inputs(self):
@@ -695,7 +695,7 @@ class CompressorModelInput(QDialog):
         title = "RESET OF COMPRESSOR EXCITATION"
         message = "All compressor excitations have been removed from the model."
         PrintMessageInput([title, message, window_title2])
-        self.mesh.volume_velocity_table_index = 0
+        self.preprocessor.volume_velocity_table_index = 0
 
     def reset_node(self):
         self.get_dict_of_volume_velocity_from_file()
@@ -711,7 +711,7 @@ class CompressorModelInput(QDialog):
         config = configparser.ConfigParser()
         config.read(self.project.file._node_acoustic_path)
         config.remove_section(str(self.selected_node)) 
-        self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), None)
         for _, table_str in self.dict_volume_velocity[int(self.selected_node)]:
             self.selected_table = table_str.replace("[", "").replace("]", "")
             self.get_path_of_selected_table()
@@ -751,10 +751,10 @@ class CompressorModelInput(QDialog):
     
     def reset_node_and_reload(self):
         self.get_dict_of_volume_velocity_from_file()
-        self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), None)
         for key, table_name in self.dict_volume_velocity[int(self.selected_node)]:
             volume_velocity = self.project.file._get_acoustic_bc_from_string(table_name, key)
-            self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), volume_velocity)
+            self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), volume_velocity)
 
     def load_volume_velocity_tables_info(self):
         self.treeWidget_compressor_excitation.clear()

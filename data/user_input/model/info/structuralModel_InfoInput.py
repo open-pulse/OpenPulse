@@ -58,8 +58,8 @@ class StructuralModelInfoInput(QDialog):
             self.close()
 
     def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.mesh.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.mesh.structural_elements)))
+        self.lineEdit_number_nodes.setText(str(len(self.project.preprocessor.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.project.preprocessor.structural_elements)))
         
     def text_label(self, mask, load_labels):
         
@@ -83,25 +83,25 @@ class StructuralModelInfoInput(QDialog):
     def load_nodes_info(self):
 
         load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
-        for node in self.project.mesh.nodes_connected_to_springs:
+        for node in self.project.preprocessor.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask, load_labels))])
             self.treeWidget_springs.addTopLevelItem(new)
 
         load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
-        for node in self.project.mesh.nodes_connected_to_dampers:
+        for node in self.project.preprocessor.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask, load_labels))])
             self.treeWidget_dampers.addTopLevelItem(new)
 
         load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
-        for node in self.project.mesh.nodes_with_masses:
+        for node in self.project.preprocessor.nodes_with_masses:
             lumped_masses_mask = [False if bc is None else True for bc in node.lumped_masses]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_masses_mask, load_labels))])
             self.treeWidget_masses.addTopLevelItem(new)
 
         load_labels = np.array(['Ux','Uy','Uz','Rx','Ry','Rz'])
-        for node in self.project.mesh.nodes_with_prescribed_dofs:
+        for node in self.project.preprocessor.nodes_with_prescribed_dofs:
             prescribed_dofs_mask = [False, False, False, False, False, False]
             for index, value in enumerate(node.prescribed_dofs):
                 if isinstance(value, complex):
@@ -114,7 +114,7 @@ class StructuralModelInfoInput(QDialog):
                 new = QTreeWidgetItem([str(node.external_index), str(self.text_label(prescribed_dofs_mask, load_labels))])
                 self.treeWidget_prescribed_dofs.addTopLevelItem(new)
             
-        for node in self.project.mesh.nodes_with_constrained_dofs:
+        for node in self.project.preprocessor.nodes_with_constrained_dofs:
             # constrained_dofs_mask = np.array(node.prescribed_dofs) == complex(0)
             constrained_dofs_mask = [False, False, False, False, False, False]
             for index, value in enumerate(node.prescribed_dofs):
@@ -128,7 +128,7 @@ class StructuralModelInfoInput(QDialog):
                 self.treeWidget_constrained_dofs.addTopLevelItem(new)
 
         load_labels = np.array(['Fx','Fy','Fz','Mx','My','Mz'])
-        for node in self.project.mesh.nodes_with_nodal_loads:
+        for node in self.project.preprocessor.nodes_with_nodal_loads:
             nodal_loads_mask = [False if bc is None else True for bc in node.nodal_loads]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(nodal_loads_mask, load_labels))])
             self.treeWidget_nodal_loads.addTopLevelItem(new)

@@ -28,9 +28,9 @@ class AcousticPressureInput(QDialog):
         self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.mesh = project.mesh
-        self.nodes = self.mesh.nodes
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
@@ -230,7 +230,7 @@ class AcousticPressureInput(QDialog):
         return text
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_acoustic_pressure:
+        for node in self.project.preprocessor.nodes_with_acoustic_pressure:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.acoustic_pressure))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -253,7 +253,7 @@ class AcousticPressureInput(QDialog):
         key_strings = ["acoustic pressure"]
         message = "The acoustic pressure attributed to the {} node(s) has been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_acoustic_pressure_bc_by_node(self.nodes_typed, None)
+        self.project.preprocessor.set_acoustic_pressure_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.treeWidget_acoustic_pressure.clear()
         self.load_nodes_info()

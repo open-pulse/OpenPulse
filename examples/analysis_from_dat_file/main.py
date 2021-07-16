@@ -15,7 +15,7 @@ from pulse.engine.solution import Solution
 from pulse.engine.postprocessing import PostProcessing
 from pulse.engine.savedata import SaveData
 from pulse.engine.readdata import ReadData
-from pulse.mesh import Mesh
+from pulse.preprocessor import Preprocessor
 
 from pulse.engine.plot_results import modeshape_plot as plot
 import matplotlib.pylab as plt
@@ -34,7 +34,7 @@ outer_diameter = 0.05   # Outer diameter [m]
 thickness  = 0.008 # Thickness [m]
 cross_section_1 = TCS(outer_diameter, thickness = thickness) 
 
-# m = Mesh("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
+# m = Preprocessor("C:\\Petro\\OpenPulse\\Examples\\geometry\\tube_1.iges")
 # m.generate(0.01,0.01)
 # # m.reorder_index_bfs()
 # nodal_coordinates = np.array(m.nodes)
@@ -46,7 +46,7 @@ nodal_coordinates = np.loadtxt('input_data/coord.dat')
 ## Connectivity
 connectivity = np.loadtxt('input_data/connect.dat', dtype=int)
 
-#TODO: determinate how those material, cross section properties and element type will come from mesh.
+#TODO: determinate how those material, cross section properties and element type will come from preprocessor.
 ## Material atribuition for each element
 material_list = [1, material_1]
 material_dictionary = { i:material_list[1] for i in connectivity[:,0] }

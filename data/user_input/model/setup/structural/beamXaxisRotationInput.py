@@ -29,11 +29,11 @@ class BeamXaxisRotationInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         # self.typed_lines = []
-        self.dict_entities = project.mesh.dict_tag_to_entity
+        self.dict_entities = project.preprocessor.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
         self.complete = False
@@ -188,7 +188,7 @@ class BeamXaxisRotationInput(QDialog):
                 return
  
         elif self.flagAll:
-            lines = self.project.mesh.all_lines
+            lines = self.project.preprocessor.all_lines
         for line in lines:
             self.project.set_beam_xaxis_rotation_by_line(line, self.rotation_angle)
         self.close()
@@ -196,7 +196,7 @@ class BeamXaxisRotationInput(QDialog):
 
     def update_plots(self):
         self.load_beam_xaxis_rotation_info()
-        self.project.mesh.process_all_rotation_matrices() 
+        self.project.preprocessor.process_all_rotation_matrices() 
         self.opv.opvRenderer.plot()
         self.opv.changePlotToEntitiesWithCrossSection() 
 
@@ -218,7 +218,7 @@ class BeamXaxisRotationInput(QDialog):
 
     def load_beam_xaxis_rotation_info(self):
         self.treeWidget_xaxis_rotation_angle.clear()
-        _dict = self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines
+        _dict = self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines
         if len(_dict) == 0:
             self.tabWidget_xaxis_rotation_angle.setTabEnabled(1, False)
             return
@@ -235,10 +235,10 @@ class BeamXaxisRotationInput(QDialog):
     def remove_selected_beam_xaxis_rotation(self):
         if self.selected_key == "":
             return
-        lines = self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines[self.selected_key]
-        self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines.pop(self.selected_key)
+        lines = self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines[self.selected_key]
+        self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines.pop(self.selected_key)
         for line in lines:
-            delta_angle = - self.project.mesh.dict_lines_to_rotation_angles[line]
+            delta_angle = - self.project.preprocessor.dict_lines_to_rotation_angles[line]
             self.project.set_beam_xaxis_rotation_by_line(line, delta_angle)
         self.update_plots()
         title = "X-axis rotation angle removal"
@@ -254,12 +254,12 @@ class BeamXaxisRotationInput(QDialog):
         if read._doNotRun:
             return
         if read._continue:
-            if len(self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines) > 0:
-                for line in self.project.mesh.all_lines:
-                    delta_angle = - self.project.mesh.dict_lines_to_rotation_angles[line]
+            if len(self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines) > 0:
+                for line in self.project.preprocessor.all_lines:
+                    delta_angle = - self.project.preprocessor.dict_lines_to_rotation_angles[line]
                     self.project.set_beam_xaxis_rotation_by_line(line, delta_angle)
-                self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines.clear()
-                self.project.mesh.create_dict_lines_to_rotation_angles()
+                self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines.clear()
+                self.project.preprocessor.create_dict_lines_to_rotation_angles()
                 self.update_plots()
 
     def get_information(self):
@@ -313,7 +313,7 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        lines = self.project.mesh.dict_beam_xaxis_rotating_angle_to_lines[self.key]
+        lines = self.project.preprocessor.dict_beam_xaxis_rotating_angle_to_lines[self.key]
         for line in lines:
             new = QTreeWidgetItem([str(line), self.key])
             new.setTextAlignment(0, Qt.AlignCenter)

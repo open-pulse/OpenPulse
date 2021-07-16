@@ -59,7 +59,7 @@ class ActorAnalysis(vtkActorBase):
 
         self.radiusArray.SetName("TubeRadius")
         self.radiusArray.SetNumberOfTuples(len(indice))
-        radius = self.project.mesh.get_radius()
+        radius = self.project.preprocessor.get_radius()
         for i in range(len(indice)):
             id_ = int(indice[i])
             self.radiusArray.SetTuple1(id_, radius[id_])

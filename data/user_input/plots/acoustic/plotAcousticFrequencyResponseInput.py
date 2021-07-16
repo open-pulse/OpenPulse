@@ -68,10 +68,10 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.list_node_IDs = self.opv.getListPickedPoints()
 
         self.projec = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.nodes = self.mesh.nodes
+        self.nodes = self.preprocessor.nodes
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
@@ -226,11 +226,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
-            response = get_acoustic_frf(self.mesh, self.solution, self.node_ID)
+            response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID)
             header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa], Absolute [Pa]"
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_acoustic_frf(self.mesh, self.solution, self.node_ID)
+            response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID)
             header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa]"
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
@@ -249,10 +249,10 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         ax = fig.add_subplot(1,1,1)  
 
         frequencies = self.frequencies
-        response = get_acoustic_frf(self.mesh, self.solution, self.node_ID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
 
         if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-8)
+            response += np.ones(len(response), dtype=float)*(1e-12)
 
         if self.scale_dB :
             if self.plotAbs:

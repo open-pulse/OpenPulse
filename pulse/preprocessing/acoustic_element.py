@@ -191,7 +191,7 @@ class AcousticElement:
         ----------
         .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        if self.cross_section.section_label == 'expansion joint':
+        if self.cross_section.section_label == 'Expansion joint section':
             return self.fluid.speed_of_sound
         else:
             factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)

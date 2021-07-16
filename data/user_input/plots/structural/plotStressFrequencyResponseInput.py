@@ -67,8 +67,8 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.opv.setInputObject(self)
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.frequencies = project.frequencies
         self.damping = project.get_damping()

@@ -6,12 +6,12 @@ window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 
 class BeforeRun:
-    def __init__(self, mesh, **kwargs):
-        self.mesh = mesh
-        self.nodes = mesh.nodes
-        self.structural_elements = mesh.structural_elements
-        self.acoustic_elements = mesh.acoustic_elements
-        self.dict_tag_to_entity = mesh.dict_tag_to_entity
+    def __init__(self, preprocessor, **kwargs):
+        self.preprocessor = preprocessor
+        self.nodes = preprocessor.nodes
+        self.structural_elements = preprocessor.structural_elements
+        self.acoustic_elements = preprocessor.acoustic_elements
+        self.dict_tag_to_entity = preprocessor.dict_tag_to_entity
 
 
     def check_input_NodeID(self, lineEdit, single_ID=False):

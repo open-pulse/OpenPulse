@@ -41,11 +41,11 @@ class CrossSectionInput(QDialog):
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
@@ -390,10 +390,7 @@ class CrossSectionInput(QDialog):
             list_variable_parameters = [    outerDiameter_initial, thickness_initial, offset_y_initial, offset_z_initial,
                                             outerDiameter_final, thickness_final, offset_y_final, offset_z_final,
                                             insulation_thickness, insulation_density  ]
-                
-        print(list_outerDiameter)
-        print(list_thickness)
-
+ 
         self.section_label = "Pipe section"
 
         for index, element_id in enumerate(self.list_elements):
@@ -604,7 +601,7 @@ class CrossSectionInput(QDialog):
             if self.flagEntity:
                 if len(self.lines_id) == 1:
                     line = self.lines_id[0]
-                    self.list_elements = self.project.mesh.line_to_elements[line]
+                    self.list_elements = self.project.preprocessor.line_to_elements[line]
                     self.lineEdit_element_id_initial.setText(str(self.list_elements[0]))
                     self.lineEdit_element_id_final.setText(str(self.list_elements[-1]))
 
@@ -827,7 +824,7 @@ class CrossSectionInput(QDialog):
         elif self.flagElements:
             self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
             self.project.get_dict_multiple_cross_sections()
-            # self.project.mesh.set_structural_element_type_by_element(self.elements_typed, self.element_type)
+            # self.project.preprocessor.set_structural_element_type_by_element(self.elements_typed, self.element_type)
             if len(self.elements_typed) < 20:
                 print("[Set Cross-section] - defined at {} selected elements".format(len(self.elements_typed)))
 

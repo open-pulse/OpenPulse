@@ -68,21 +68,21 @@ class AssemblyAcoustic:
     Parameters
     ----------
     mesh : Mesh object
-        Acoustic finite element mesh.
+        Acoustic finite element preprocessor.
 
     frequencies : array
         Frequencies of analysis.
     """
-    def __init__(self, mesh, frequencies):
-        self.mesh = mesh
+    def __init__(self, preprocessor, frequencies):
+        self.preprocessor = preprocessor
         self.frequencies = frequencies
-        if mesh.beam_gdofs is None:
-            self.beam_gdofs, self.pipe_gdofs = mesh.get_beam_and_pipe_elements_global_dofs()
+        if preprocessor.beam_gdofs is None:
+            self.beam_gdofs, self.pipe_gdofs = preprocessor.get_beam_and_pipe_elements_global_dofs()
         else:
-            self.beam_gdofs, self.pipe_gdofs = mesh.beam_gdofs, mesh.pipe_gdofs
-        self.acoustic_elements = mesh.get_pipe_elements()
-        self.total_dof = DOF_PER_NODE_ACOUSTIC * len(mesh.nodes)
-        self.neighbor_diameters = mesh.neighbor_elements_diameter_global()
+            self.beam_gdofs, self.pipe_gdofs = preprocessor.beam_gdofs, preprocessor.pipe_gdofs
+        self.acoustic_elements = preprocessor.get_pipe_elements()
+        self.total_dof = DOF_PER_NODE_ACOUSTIC * len(preprocessor.nodes)
+        self.neighbor_diameters = preprocessor.neighbor_elements_diameter_global()
         self.prescribed_indexes = self.get_prescribed_indexes()
         self.unprescribed_indexes = self.get_pipe_and_unprescribed_indexes()
 
@@ -102,7 +102,7 @@ class AssemblyAcoustic:
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
         global_prescribed = []
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             starting_position = node.global_index * DOF_PER_NODE_ACOUSTIC
             dofs = np.array(node.get_acoustic_boundary_condition_indexes()) + starting_position
             global_prescribed.extend(dofs)
@@ -124,7 +124,7 @@ class AssemblyAcoustic:
         get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.
         """
         global_prescribed = []
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             if node.acoustic_pressure is not None:
                 global_prescribed.extend([node.acoustic_pressure])
         return global_prescribed
@@ -237,10 +237,10 @@ class AssemblyAcoustic:
             List of admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
         """
 
-        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
-        total_entries = ENTRIES_PER_ELEMENT * len(self.mesh.acoustic_elements)
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+        total_entries = ENTRIES_PER_ELEMENT * len(self.preprocessor.acoustic_elements)
 
-        rows, cols = self.mesh.get_global_acoustic_indexes()
+        rows, cols = self.preprocessor.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
         for element in self.acoustic_elements:
             
@@ -272,7 +272,7 @@ class AssemblyAcoustic:
             List of lumped admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
         """
 
-        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
         
         data_Klump = []
         ind_Klump = []
@@ -281,7 +281,7 @@ class AssemblyAcoustic:
         elements = self.acoustic_elements
 
         # processing external elements by node
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
 
             if node.specific_impedance is None:
                 node_specific_impedance = 0
@@ -329,14 +329,14 @@ class AssemblyAcoustic:
             Acoustic inertia matrix.
         """
 
-        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
-        number_elements = len(self.mesh.acoustic_elements)
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
+        number_elements = len(self.preprocessor.acoustic_elements)
 
-        rows, cols = self.mesh.get_global_acoustic_indexes()
+        rows, cols = self.preprocessor.get_global_acoustic_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
 
-        # for index, element in enumerate(self.mesh.acoustic_elements.values()):
+        # for index, element in enumerate(self.preprocessor.acoustic_elements.values()):
         for element in self.acoustic_elements:
             index = element.index - 1
             length_correction = self.get_length_corretion(element)
@@ -360,10 +360,10 @@ class AssemblyAcoustic:
             Volume velocity load.
         """
 
-        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.mesh.nodes)
+        total_dof = DOF_PER_NODE_ACOUSTIC * len(self.preprocessor.nodes)
         volume_velocity = np.zeros([len(self.frequencies), total_dof], dtype=complex)
 
-        for node in self.mesh.nodes.values():
+        for node in self.preprocessor.nodes.values():
             if node.volume_velocity is not None:
                 position = node.global_index
                 volume_velocity[:, position] += node.get_volume_velocity(self.frequencies)

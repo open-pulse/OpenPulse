@@ -122,8 +122,8 @@ class opvRenderer(vtkRendererBase):
             self.elementsBounds[key] = bounds
 
     def saveLineToElements(self):
-        mesh = self.project.get_mesh()
-        self.lineToElements = mesh.line_to_elements
+        # preprocessor = self.project.get_preprocess()
+        self.lineToElements = self.project.preprocessor.line_to_elements
     
     def getListPickedPoints(self):
         if self._selectionToNodes:
@@ -250,31 +250,31 @@ class opvRenderer(vtkRendererBase):
             nodePosition = '{:.3f}, {:.3f}, {:.3f}'.format(node.x, node.y, node.z)
             text = f'NODE ID: {nodeId} \n   Position: ({nodePosition}) [m]\n'
 
-            if node in self.project.mesh.nodes_with_prescribed_dofs:
+            if node in self.project.preprocessor.nodes_with_prescribed_dofs:
                 values = node.prescribed_dofs
                 labels = np.array(['ux', 'uy', 'uz', 'rx', 'ry', 'rz'])
                 unit_labels = ['m', 'rad']
                 text += self.structuralNodalInfo(values, labels, 'PRESCRIBED DOFs', unit_labels, node.loaded_table_for_prescribed_dofs)
 
-            if node in self.project.mesh.nodes_with_nodal_loads:
+            if node in self.project.preprocessor.nodes_with_nodal_loads:
                 values = node.nodal_loads
                 labels = np.array(['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz'])
                 unit_labels = ['N', 'N.m']
                 text += self.structuralNodalInfo(values, labels, 'NODAL LOADS', unit_labels, node.loaded_table_for_nodal_loads)
 
-            if node in self.project.mesh.nodes_connected_to_springs:
+            if node in self.project.preprocessor.nodes_connected_to_springs:
                 values = node.lumped_stiffness
                 labels = np.array(['kx', 'ky', 'kz', 'krx', 'kry', 'krz'])
                 unit_labels = ['N/m', 'N.m/rad']
                 text += self.structuralNodalInfo(values, labels, 'LUMPED STIFFNESS', unit_labels, node.loaded_table_for_lumped_stiffness)
 
-            if node in self.project.mesh.nodes_connected_to_dampers:
+            if node in self.project.preprocessor.nodes_connected_to_dampers:
                 values = node.lumped_dampings
                 labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
                 unit_labels = ['N.s/m', 'N.m.s/rad']
                 text += self.structuralNodalInfo(values, labels, 'LUMPED DAMPINGS', unit_labels, node.loaded_table_for_lumped_dampings)
 
-            if node in self.project.mesh.nodes_with_masses:
+            if node in self.project.preprocessor.nodes_with_masses:
                 values = node.lumped_masses
                 labels = np.array(['mx', 'my', 'mz', 'Jx', 'Jy', 'Jz'])
                 unit_labels = ['kg', 'N.m²']
@@ -298,13 +298,13 @@ class opvRenderer(vtkRendererBase):
                     if index in linked_nodes:            
                         text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
  
-            if node in self.project.mesh.nodes_with_acoustic_pressure:
+            if node in self.project.preprocessor.nodes_with_acoustic_pressure:
                 value = node.acoustic_pressure
                 label = 'P'
                 unit_label = '[Pa]'
                 text += self.acousticNodalInfo(value, label, 'ACOUSTIC PRESSURE', unit_label)
    
-            if node in self.project.mesh.nodes_with_volume_velocity:
+            if node in self.project.preprocessor.nodes_with_volume_velocity:
                 value = node.volume_velocity
                 label = 'Q'
                 unit_label = '[m³/s]'
@@ -315,13 +315,13 @@ class opvRenderer(vtkRendererBase):
                     bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
                     text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
             
-            if node in self.project.mesh.nodes_with_specific_impedance:
+            if node in self.project.preprocessor.nodes_with_specific_impedance:
                 value = node.specific_impedance
                 label = 'Zs'
                 unit_label = '[kg/m².s]'
                 text += self.acousticNodalInfo(value, label, 'SPECIFIC IMPEDANCE', unit_label)
 
-            if node in self.project.mesh.nodes_with_radiation_impedance:
+            if node in self.project.preprocessor.nodes_with_radiation_impedance:
                 Z_type = node.radiation_impedance_type
                 _dict = {0:'anechoic termination', 1:'unflanged pipe', 2:'flanged pipe'}
                 label = 'Type'
@@ -402,11 +402,15 @@ class opvRenderer(vtkRendererBase):
             if acoustic_element_type is None:
                 acoustic_element_type = "undefined"
 
-            if structural_element.material is None:
-                material = 'undefined'
+            if material is None:
+                material_name = 'undefined'
+            else:
+                material_name = material.name
 
-            if structural_element.fluid is None:
-                fluid = 'undefined'
+            if fluid is None:
+                fluid_name = 'undefined'
+            else:
+                fluid_name = fluid.name
 
             if structural_element.cross_section is None: 
                 outer_diameter = 'undefined'
@@ -435,7 +439,7 @@ class opvRenderer(vtkRendererBase):
 
                         structural_element_type = f"{structural_element.element_type} ({section_label.capitalize()})"               
 
-                    elif structural_element_type == 'expansion joint':
+                    elif structural_element_type == "expansion_joint":
                         effective_diameter = structural_element.cross_section.outer_diameter
 
             # rotations = structural_element.section_rotation_xyz_undeformed
@@ -445,7 +449,7 @@ class opvRenderer(vtkRendererBase):
             text += f'First Node ID: {structural_element.first_node.external_index} -- Coordinates: ({firstNodePosition}) [m]\n'
             text += f'Last Node ID: {structural_element.last_node.external_index} -- Coordinates: ({lastNodePosition}) [m]\n\n'
             # text += f'Rotations xyz: ({str_rotations})[deg]\n\n'
-            text += f'Material: {material} \n'
+            text += f'Material: {material_name} \n'
             text += f'Strutural element type: {structural_element_type} \n\n'
             
             if "pipe_" in structural_element_type:        
@@ -459,9 +463,9 @@ class opvRenderer(vtkRendererBase):
                     text += f'Insulation density: {insulation_density} [kg/m³]\n'
 
                 if acoustic_element.fluid is not None:
-                    text += f'\nFluid: {fluid} \n'                                
+                    text += f'\nFluid: {fluid_name} \n'                                
                 if acoustic_element.element_type is not None:
-                    text += f'Acoustic element type: {acoustic_element.element_type} \n'
+                    text += f'Acoustic element type: {acoustic_element_type} \n'
                 if acoustic_element.hysteretic_damping is not None:
                     text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
 
@@ -471,7 +475,7 @@ class opvRenderer(vtkRendererBase):
                 text += f'Izz:  {Izz} [m^4]\n'
                 text += f'Iyz:  {Iyz} [m^4]\n'
 
-            elif structural_element_type == "expansion joint":
+            elif structural_element_type == "expansion_joint":
                 text += f'Effective diameter: {effective_diameter} [m]\n'
             
         elif len(listSelected) > 1:
@@ -495,11 +499,20 @@ class opvRenderer(vtkRendererBase):
 
             entity = self.project.get_entity(line_ids[0])
             
+            material = entity.material
+            fluid = entity.fluid
             structural_element_type = entity.structural_element_type
-            material_name = entity.material.name
+            acoustic_element_type = entity.acoustic_element_type
 
             if entity.material is None:
                 material_name = 'undefined'    
+            else:
+                material_name = material.name
+
+            if entity.fluid is None:
+                fluid_name = 'undefined'    
+            else:
+                fluid_name = fluid.name
 
             if entity.structural_element_type is None:
                 structural_element_type = 'undefined'
@@ -530,9 +543,9 @@ class opvRenderer(vtkRendererBase):
                     text += f'Structural element type:  {structural_element_type}\n'
               
                     if entity.fluid is not None:
-                        text += f'\nFluid: {entity.fluid.name}' 
+                        text += f'\nFluid: {fluid_name}' 
                     if entity.acoustic_element_type is not None:
-                        text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+                        text += f'\nAcoustic element type: {acoustic_element_type}'
                     if entity.hysteretic_damping is not None:
                         text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
 

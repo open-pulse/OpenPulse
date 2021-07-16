@@ -30,8 +30,8 @@ class MaterialInput(QDialog):
         self.lines_ids = self.opv.getListPickedEntities()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.materialPath = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines

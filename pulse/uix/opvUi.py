@@ -2,14 +2,13 @@ from PyQt5 import Qt
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from time import sleep
 import vtk
 
-from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-from pulse.uix.vtk.renderer.rendererElement import RendererElement
-from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
-from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
-from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
+# from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
+# from pulse.uix.vtk.renderer.rendererElement import RendererElement
+# from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
+# from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
+# from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer
 from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 

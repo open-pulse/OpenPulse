@@ -3,7 +3,8 @@ import numpy as np
 from math import pi
 from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_structural import AssemblyStructural
-from pulse.utils import error
+from data.user_input.project.printMessageInput import PrintMessageInput
+
 
 class SolutionStructural:
     """ This class creates a Structural Solution object from input data.
@@ -11,7 +12,7 @@ class SolutionStructural:
     Parameters
     ----------
     mesh : Mesh object
-        Structural finite element mesh.
+        Structural finite element preprocessor.
 
     frequencies : array
         Frequencies of analysis.
@@ -21,11 +22,11 @@ class SolutionStructural:
         Default is None.
     """
 
-    def __init__(self, mesh, frequencies, **kwargs):
+    def __init__(self, preprocessor, frequencies, **kwargs):
 
         self.acoustic_solution = kwargs.get("acoustic_solution", None)
-        self.assembly = AssemblyStructural(mesh, frequencies, acoustic_solution=self.acoustic_solution)
-        self.mesh = mesh
+        self.assembly = AssemblyStructural(preprocessor, frequencies, acoustic_solution=self.acoustic_solution)
+        self.preprocessor = preprocessor
         self.frequencies = frequencies
         
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
@@ -405,14 +406,14 @@ class SolutionStructural:
             springs_stiffness = []
             dampers_dampings = []
 
-            for node in self.mesh.nodes_connected_to_springs:
+            for node in self.preprocessor.nodes_connected_to_springs:
                 global_dofs_of_springs.append(node.global_dof)
                 if node.loaded_table_for_lumped_stiffness:
                     springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_stiffness])
                 else:
                     springs_stiffness.append([np.zeros_like(self.frequencies) if value is None else np.ones_like(self.frequencies)*value for value in node.lumped_stiffness])
 
-            for node in self.mesh.nodes_connected_to_dampers:
+            for node in self.preprocessor.nodes_connected_to_dampers:
                 global_dofs_of_dampers.append(node.global_dof)
                 if node.loaded_table_for_lumped_dampings:
                     dampers_dampings.append([np.zeros_like(self.frequencies) if value is None else value for value in node.lumped_dampings])
@@ -472,21 +473,24 @@ class SolutionStructural:
             _, betaH, _, betaV = global_damping
         else:
             betaH = betaV = 0
-        elements = self.mesh.structural_elements.values()
+        elements = self.preprocessor.structural_elements.values()
         omega = 2 * pi * self.frequencies.reshape(1,-1)
         damping = np.ones([6,1]) @  (1 + 1j*( betaH + omega * betaV ))
         p0 = pressure_external
 
         for element in elements:
 
-            if element.element_type in ['beam_1']:
+            if element.element_type in ['beam_1', 'expansion_joint']:
                 element.stress = np.zeros((7, len(self.frequencies)))
             
             elif element.element_type in ['pipe_1', 'pipe_2']:
                 # Internal Loads
                 structural_dofs = np.r_[element.first_node.global_dof, element.last_node.global_dof]
                 if self.solution is None:
-                    error("Strutural analysis must be performed to obtain the stress field.")
+                    window_title = "ERROR"
+                    title = "Empty solution"
+                    message = "A strutural analysis must be performed to obtain the stress field."
+                    PrintMessageInput([title, message, window_title])
                     return
 
                 u = self.solution[structural_dofs, :]

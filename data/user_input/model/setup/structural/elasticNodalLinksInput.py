@@ -33,9 +33,9 @@ class ElasticNodalLinksInput(QDialog):
         self.node_id = self.opv.getListPickedPoints()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
-        self.nodes = self.mesh.nodes
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+        self.nodes = self.preprocessor.nodes
 
         self.project_folder_path = project.project_folder_path 
         self.userPath = os.path.expanduser('~')       
@@ -626,15 +626,15 @@ class ElasticNodalLinksInput(QDialog):
         self.skip_treeWidget_row(self.treeWidget_nodal_links_stiffness)
         self.pushButton_remove_link_stiffness.setDisabled(False)
 
-        for key in self.mesh.dict_nodes_with_elastic_link_stiffness.keys():
+        for key in self.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
             node_ids = [int(node) for node in key.split("-")]
-            mask, _ = self.project.mesh.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
+            mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
             new = QTreeWidgetItem([key, str(self.text_label(mask, stiffness_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
 
-        if len(self.mesh.dict_nodes_with_elastic_link_stiffness) == 0:
+        if len(self.preprocessor.dict_nodes_with_elastic_link_stiffness) == 0:
             self.pushButton_remove_link_stiffness.setDisabled(True)
 
     def load_elastic_links_damping_info(self):
@@ -644,15 +644,15 @@ class ElasticNodalLinksInput(QDialog):
         self.skip_treeWidget_row(self.treeWidget_nodal_links_damping)
         self.pushButton_remove_link_damping.setDisabled(False)
 
-        for key in self.mesh.dict_nodes_with_elastic_link_damping.keys():
+        for key in self.preprocessor.dict_nodes_with_elastic_link_damping.keys():
             node_ids = [int(node) for node in key.split("-")]
-            mask, _ = self.project.mesh.nodes[node_ids[0]].elastic_nodal_link_damping[key]
+            mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_damping[key]
             new = QTreeWidgetItem([key, str(self.text_label(mask, damping_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_damping.addTopLevelItem(new)
 
-        if len(self.mesh.dict_nodes_with_elastic_link_damping) == 0:
+        if len(self.preprocessor.dict_nodes_with_elastic_link_damping) == 0:
             self.pushButton_remove_link_damping.setDisabled(True)
 
     def on_click_item(self, item):
@@ -733,8 +733,8 @@ class ElasticNodalLinksInput(QDialog):
 
         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.mesh.dict_nodes_with_elastic_link_stiffness.keys():
-            self.project.mesh.dict_nodes_with_elastic_link_stiffness.pop(key)
+        if key in self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
+            self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.pop(key)
             for node_ID in node_IDs:
                 self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
             self.remove_elastic_link_stiffness_from_file(key)
@@ -759,8 +759,8 @@ class ElasticNodalLinksInput(QDialog):
 
         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.mesh.dict_nodes_with_elastic_link_damping.keys():
-            self.project.mesh.dict_nodes_with_elastic_link_damping.pop(key)
+        if key in self.project.preprocessor.dict_nodes_with_elastic_link_damping.keys():
+            self.project.preprocessor.dict_nodes_with_elastic_link_damping.pop(key)
             for node_ID in node_IDs:
                 self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
             self.remove_elastic_link_damping_from_file(key)
@@ -775,8 +775,8 @@ class ElasticNodalLinksInput(QDialog):
     def reset_all(self):
         if self.double_confirm_action():
             return
-        temp_dict_stiffness = self.project.mesh.dict_nodes_with_elastic_link_stiffness.copy()
-        temp_dict_damping = self.project.mesh.dict_nodes_with_elastic_link_damping.copy()
+        temp_dict_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.copy()
+        temp_dict_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping.copy()
         for key in temp_dict_stiffness.keys():
             self.ext_key = key
             self.remove_selected_link_stiffness()
@@ -826,7 +826,7 @@ class GetInformationOfGroup(QDialog):
         self.node_IDs = [int(node) for node in selected_link.split("-")]
 
         self.project = project
-        self.nodes = project.mesh.nodes
+        self.nodes = project.preprocessor.nodes
         self.dict_elastic_link_stiffness = {}
         self.dict_elastic_link_damping = {}
 
@@ -858,8 +858,8 @@ class GetInformationOfGroup(QDialog):
             self.close()
 
     def update_dict(self):
-        self.dict_lines_parameters = self.project.mesh.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.project.mesh.group_elements_with_stress_stiffening
+        self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
+        self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
 
     def load_file_info(self):
 

@@ -28,11 +28,11 @@ class AcousticElementLengthCorrectionInput(QDialog):
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()   
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()   
 
-        self.acoustic_elements = project.mesh.acoustic_elements
-        self.dict_group_elements = project.mesh.group_elements_with_length_correction
+        self.acoustic_elements = project.preprocessor.acoustic_elements
+        self.dict_group_elements = project.preprocessor.group_elements_with_length_correction
         
         self.type_label = None
         self.dkey = None
@@ -214,7 +214,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
             message = None
 
         values = self.dict_group_elements[section]
-        self.project.mesh.set_length_correction_by_element(values[1], None, section, delete_from_dict=True)
+        self.project.preprocessor.set_length_correction_by_element(values[1], None, section, delete_from_dict=True)
         key_strings = ["length correction type", "list of elements"]
         
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)

@@ -33,12 +33,12 @@ class DecouplingRotationDOFsInput(QDialog):
         self.node_id = self.opv.getListPickedPoints()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks() 
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks() 
 
-        self.nodes = self.mesh.nodes
-        self.structural_elements = self.mesh.structural_elements
-        self.dict_tag_to_entity = self.mesh.dict_tag_to_entity
+        self.nodes = self.preprocessor.nodes
+        self.structural_elements = self.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
 
         self.stop = False
         self.complete = False
@@ -165,10 +165,10 @@ class DecouplingRotationDOFsInput(QDialog):
 
     def remove_group(self):
         key = self.dict_decoupled_DOFs_label_to_bool[self.lineEdit_decoupled_DOFs.text()]
-        _, _, section = self.project.mesh.dict_B2PX_rotation_decoupling[key]
-        self.project.mesh.dict_elements_with_B2PX_rotation_decoupling.pop(key)
-        self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
-        self.project.mesh.dict_B2PX_rotation_decoupling.pop(key)
+        _, _, section = self.project.preprocessor.dict_B2PX_rotation_decoupling[key]
+        self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling.pop(key)
+        self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
+        self.project.preprocessor.dict_B2PX_rotation_decoupling.pop(key)
         self.project.file.modify_B2PX_rotation_decoupling_in_file([], [], [], section, remove=True)
         self.load_decoupling_info()
         self.clear_texts()
@@ -194,7 +194,7 @@ class DecouplingRotationDOFsInput(QDialog):
         elif self.flag_last_node:
             self.selected_node_id = self.last_node
 
-        neighboor_elements = self.project.mesh.neighboor_elements_of_node(self.selected_node_id)
+        neighboor_elements = self.project.preprocessor.neighboor_elements_of_node(self.selected_node_id)
         if len(neighboor_elements)<3:
             message = "The decoupling of rotation dofs can only \nbe applied to the T connections." 
             title = "Incorrect Node ID selection"
@@ -243,9 +243,9 @@ class DecouplingRotationDOFsInput(QDialog):
         self.treeWidget_B2PX_rotation_decoupling.clear()
         self.dict_decoupled_DOFs_label_to_bool = {}
         self.dict_decoupled_DOFs_bool_to_label = {}
-        for key, elements in self.project.mesh.dict_elements_with_B2PX_rotation_decoupling.items():
+        for key, elements in self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling.items():
             bool_list = self.project.file._get_list_bool_from_string(key)
-            nodes = self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling[key]
+            nodes = self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[key]
             decoupling_dofs_mask = bool_list
             label_decoupled_DOFs = self.text_label(decoupling_dofs_mask)
             
@@ -329,8 +329,8 @@ class GetInformationOfGroup(QDialog):
             self.check_remove()
 
     def update_dict(self):
-        self.list_elements = self.project.mesh.dict_elements_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
-        self.list_nodes = self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
+        self.list_elements = self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
+        self.list_nodes = self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
         
     def on_click_item_(self, item):
         self.lineEdit_decoupled_DOFs.setText(self.decoupled_DOFs_labels)

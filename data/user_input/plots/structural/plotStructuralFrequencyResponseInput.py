@@ -68,9 +68,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.list_node_IDs = self.opv.getListPickedPoints()
 
         self.projec = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
-        self.nodes = self.mesh.nodes
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+        self.nodes = self.preprocessor.nodes
         
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
@@ -308,7 +308,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         PrintMessageInput([title, message, window_title2])
 
     def get_response(self):
-        response = get_structural_frf(self.mesh, self.solution, self.node_ID, self.localDof)
+        response = get_structural_frf(self.preprocessor, self.solution, self.node_ID, self.localDof)
         if self.SingleDiff:
             output_data = response*(1j*2*np.pi)*self.frequencies
         elif self.DoubleDiff:

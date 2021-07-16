@@ -28,15 +28,15 @@ class VolumeVelocityInput(QDialog):
         self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
-        self.nodes = project.mesh.nodes
+        self.nodes = project.preprocessor.nodes
         self.volume_velocity = None
         self.nodes_typed = []
         self.imported_table = False
@@ -231,7 +231,7 @@ class VolumeVelocityInput(QDialog):
         return text
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_volume_velocity:
+        for node in self.project.preprocessor.nodes_with_volume_velocity:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -254,7 +254,7 @@ class VolumeVelocityInput(QDialog):
         key_strings = ["volume velocity"]
         message = "The volume velocity attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_volume_velocity_bc_by_node(self.nodes_typed, None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.treeWidget_volume_velocity.clear()
         self.load_nodes_info()

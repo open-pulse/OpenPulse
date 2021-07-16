@@ -66,7 +66,7 @@ class RunAnalysisInput(QDialog):
             if len(self.frequencies) == 0:
                 return
 
-        if self.project.mesh._process_beam_nodes_and_indexes():
+        if self.project.preprocessor._process_beam_nodes_and_indexes():
             if self.analysis_ID not in [0,1,2]:
                 title = "INCORRECT ANALYSIS TYPE"
                 message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
@@ -75,7 +75,7 @@ class RunAnalysisInput(QDialog):
                 return
 
         if self.analysis_ID == 2:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
+            self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
 
         elif self.analysis_ID == 4:
@@ -85,11 +85,11 @@ class RunAnalysisInput(QDialog):
             self.solve = self.project.get_acoustic_solve()
 
         elif self.analysis_ID in [5,6]:
-            self.project.mesh.enable_fluid_mass_adding_effect()
+            self.project.preprocessor.enable_fluid_mass_adding_effect()
             self.solve = self.project.get_acoustic_solve()
             
         else:
-            self.project.mesh.enable_fluid_mass_adding_effect(reset=True)
+            self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
 
         self.project.time_to_preprocess_model = time() - (t0i + self.project.time_to_process_cross_sections)

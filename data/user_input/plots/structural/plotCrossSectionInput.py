@@ -1,10 +1,8 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QPushButton, QLabel, QComboBox, QWidget
-from os.path import basename
+from PyQt5.QtWidgets import QLineEdit, QDialog, QPushButton, QRadioButton, QLabel, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
 
 from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -30,11 +28,11 @@ class PlotCrossSectionInput(QDialog):
         self.element_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
         
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
         self.stop = False
 
@@ -114,72 +112,88 @@ class PlotCrossSectionInput(QDialog):
             self.lineEdit_selected_ID.setText("")
 
     def _get_dict_key_section(self):
-        self.labels = ["Pipe section", "Rectangular section", "Circular section", "C-section", "I-section", "T-section", "Generic section"]
-        self.dict_sections = dict(zip(self.labels, np.arange(7)))
+        self.labels = [ "Pipe section", 
+                        "Rectangular section", 
+                        "Circular section", 
+                        "C-section", 
+                        "I-section", 
+                        "T-section", 
+                        "Generic section"   ]
+        # self.dict_sections = dict(zip(self.labels, np.arange(7)))
         
     def preprocess_selection(self):
+
+        self.stop = False
+        self.message = ""
 
         if self.flagEntity:
 
             lineEdit = self.lineEdit_selected_ID.text()
             self.stop, self.line_typed = self.before_run.check_input_LineID(lineEdit, single_ID=True)
             if self.stop:
-                return None
+                return True
 
             if self.line_typed in list(self.project.number_sections_by_line.keys()):
                 N = self.project.number_sections_by_line[self.line_typed]
-                message = f"Dear user, you have selected a line with {N} multiple cross-sections, therefore, the cross-section "
-                message += "plot by line selection will not work. \n\nIn this case, we strongly recommend selecting an element " 
-                message += "from the desired line to plot its cross-section."
-                title = "Line with multiples cross-sections"
-                self.info_text = [title, message, "WARNING"]
-                PrintMessageInput(self.info_text)
-                return None
+                self.message = f"Dear user, you have selected a line with {N} multiple cross-sections, therefore, the cross-section "
+                self.message += "plot by line selection will not work. \n\nIn this case, we strongly recommend selecting an element " 
+                self.message += "from the desired line to plot its cross-section."
+                self.title = "Line with multiples cross-sections"
+                self.window_title = "WARNING"
+                return True
 
             entity = self.dict_tag_to_entity[self.line_typed]
             
-            if entity.cross_section is None:
-                message = "Please, define a cross-section to the \nselected line before trying to plot the section."
-                title = "Error: undefined line cross-section"
-                self.info_text = [title, message, "ERROR"]
-                PrintMessageInput(self.info_text)
-                return None
-            self.section_info = entity.cross_section.section_info
+            if entity.cross_section is None and entity.expansion_joint_parameters is None:
+                self.message = "Please, define a cross-section to the \nselected line before trying to plot the section."
+                self.title = "Error: undefined line cross-section"
+                self.window_title = "ERROR"
+                return True
+
+            cross_section = entity.cross_section
             
         elif self.flagElements:
 
             lineEdit = self.lineEdit_selected_ID.text()
             self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
             if self.stop:
-                return None
+                return True
 
             element = self.structural_elements[self.element_typed]
             if element.cross_section is None:
-                message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
-                title = "Error: undefined element cross-section"
-                self.info_text = [title, message, "ERROR"]     
-                PrintMessageInput(self.info_text)       
-                return None
+                self.message = "Please, define a cross-section to the selected \nelement before trying to plot the section."
+                self.title = "Error: undefined element cross-section"
+                self.window_title = "ERROR"          
+                return True
 
-            self.section_info = element.cross_section.section_info
+            cross_section = element.cross_section
 
-        self.section_label = self.section_info["section_type_label"]
-        self.section_parameters = self.section_info["section_parameters"]
-         
-        if self.section_label not in ["Pipe section", "Generic section"]:
-            self.section_properties = self.section_info["section_properties"]
-        self.section_type = self.dict_sections[self.section_label]
-        
-        return 0
+        self.section_label = cross_section.section_label
+
+        if self.section_label != 'Expansion joint section':
+            self.section_parameters = cross_section.section_parameters
+            
+            if self.section_label != "Pipe section":
+                self.section_properties = cross_section.section_properties
+               
+        else:
+            self.window_title = "WARNING"
+            self.title = "Unable to plot cross-section"
+            self.message = "The cross-section plot has been desativated to \n\n"
+            self.message += "the 'expansion joint' element type."
+            return True
+            
+        return False
 
        
     def plot_section(self):
 
         plt.close()
 
-        if self.preprocess_selection() is None:
+        if self.preprocess_selection():
+            PrintMessageInput([self.title, self.message, self.window_title])
             return
-
+        
         if self.section_label == "Pipe section":
             Yp, Zp, Yp_ins, Zp_ins, Yc, Zc = get_points_to_plot_section(self.section_label, self.section_parameters)
         else:
@@ -213,7 +227,7 @@ class PlotCrossSectionInput(QDialog):
         ax.set_ylabel('z [m]', fontsize = 16, fontweight = 'bold')
         
         f = 1.25
-        if self.section_type == 3:
+        if self.section_label == 'C-section':
             plt.xlim(-(1/2)*_max, (3/2)*_max)
         else:
             plt.xlim(-_max*f, _max*f)

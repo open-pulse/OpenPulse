@@ -27,10 +27,10 @@ class AcousticElementTypeInput(QDialog):
         self.lines_id = self.opv.getListPickedEntities()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
 
-        self.dict_tag_to_entity = project.mesh.dict_tag_to_entity
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.comboBox_index = 0
         self.element_type = 'undamped'
         self.complete = False
@@ -222,7 +222,7 @@ class AcousticElementTypeInput(QDialog):
                 self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
             print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_typed))
         elif self.flagAll:
-            for line in self.project.mesh.all_lines:
+            for line in self.project.preprocessor.all_lines:
                 self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
             # self.project.set_acoustic_element_type_to_all(self.element_type, hysteretic_damping=hysteretic_damping)
             print("[Set Acoustic Element Type] - defined in all the entities")
@@ -234,7 +234,7 @@ class AcousticElementTypeInput(QDialog):
 
     def load_element_type_info(self):
         self.treeWidget_element_type.clear()
-        for key, lines in self.project.mesh.dict_acoustic_element_type_to_lines.items():
+        for key, lines in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
             new = QTreeWidgetItem([str(key), str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -268,7 +268,7 @@ class GetInformationOfGroup(QDialog):
         uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
-        self.dict_tag_to_entity = project.mesh.dict_tag_to_entity
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.key = key
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
@@ -299,7 +299,7 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        lines = self.project.mesh.dict_acoustic_element_type_to_lines[self.key]
+        lines = self.project.preprocessor.dict_acoustic_element_type_to_lines[self.key]
         for line in lines:
             if self.key == 'hysteretic':
                 damping = self.dict_tag_to_entity[line].hysteretic_damping

@@ -41,7 +41,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper = vtk.vtkGlyph3DMapper()
     
     def source(self):
-        self.scaleFactor = self.project.mesh.structure_principal_diagonal / 10
+        self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
         
         self._createArrays()
         self._createNodalLinks()

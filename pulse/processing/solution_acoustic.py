@@ -9,21 +9,21 @@ class SolutionAcoustic:
 
     Parameters
     ----------
-    mesh : Mesh object
-        Acoustic finite element mesh.
+    preprocessor : Preprocessor object
+        Acoustic finite element preprocessor.
 
     frequencies : array
         Frequencies of analysis.
     """
 
-    def __init__(self, mesh, frequencies):
+    def __init__(self, preprocessor, frequencies):
 
         if frequencies is None:
             pass
         elif frequencies[0]==0:
             frequencies[0] = float(1e-4)
-        self.all_dofs = len(mesh.nodes)
-        self.assembly = AssemblyAcoustic(mesh, frequencies)
+        self.all_dofs = len(preprocessor.nodes)
+        self.assembly = AssemblyAcoustic(preprocessor, frequencies)
         self.frequencies = frequencies
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()

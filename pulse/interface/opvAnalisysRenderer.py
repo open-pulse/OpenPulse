@@ -12,7 +12,6 @@ from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 
-
 class opvAnalisysRenderer(vtkRendererBase):
     def __init__(self, project, opv):
         super().__init__(vtkMeshClicker(self))
@@ -73,12 +72,12 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createScaleBar()
 
     def showDisplacement(self, frequency, gain=1):
-        mesh = self.project.get_mesh()
+        preprocessor = self.project.get_preprocess()
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showDisplacement
         self._currentFrequency = frequency
 
-        _, _, u_def, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
+        _, _, u_def, self._magnificationFactor = get_structural_response(preprocessor, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
         # self.opvSymbols.build()
 
@@ -97,12 +96,12 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showStressField(self, frequency, gain=1):
-        mesh = self.project.get_mesh()
+        preprocessor = self.project.get_preprocess()
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showStressField
         self._currentFrequency = frequency
 
-        _, _, _, self._magnificationFactor = get_structural_response(mesh, solution, frequency, gain=gain)
+        _, _, _, self._magnificationFactor = get_structural_response(preprocessor, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
@@ -120,12 +119,12 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showPressureField(self, frequency, real_part=True):
-        mesh = self.project.get_mesh()
+        preprocessor = self.project.get_preprocess()
         solution = self.project.get_acoustic_solution()
         self._currentFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
 
-        *args, pressure_field_data = get_acoustic_response(mesh, solution, frequency, real_part)
+        *args, pressure_field_data = get_acoustic_response(preprocessor, solution, frequency, real_part)
         self.opvPressureTubes.build()
 
         colorTable = ColorTable(self.project, pressure_field_data, pressure_field_plot=True)

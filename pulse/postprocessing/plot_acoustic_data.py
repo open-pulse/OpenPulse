@@ -1,8 +1,8 @@
 import numpy as np
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 
-def get_acoustic_frf(mesh, solution, node, absolute=False, real=False, imag=False, dB=False):
-    position = mesh.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
+def get_acoustic_frf(preprocessor, solution, node, absolute=False, real=False, imag=False, dB=False):
+    position = preprocessor.nodes[node].global_index * DOF_PER_NODE_ACOUSTIC
     if absolute:
         results = np.abs(solution[position])
     elif real:
@@ -16,7 +16,7 @@ def get_acoustic_frf(mesh, solution, node, absolute=False, real=False, imag=Fals
         results = 20*np.log10(np.abs(results/p_ref))
     return results
 
-def get_acoustic_response(mesh, solution, column, real_part = True):
+def get_acoustic_response(preprocessor, solution, column, real_part = True):
     if real_part:
         data = np.real(solution.T)
     else:
@@ -28,7 +28,7 @@ def get_acoustic_response(mesh, solution, column, real_part = True):
     
     u_def = data[column]
 
-    coord = mesh.nodal_coordinates_matrix
-    connect = mesh.connectivity_matrix
+    coord = preprocessor.nodal_coordinates_matrix
+    connect = preprocessor.connectivity_matrix
         
     return pressure, connect, coord, u_def

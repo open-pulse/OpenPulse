@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.mesh import Mesh
+from pulse.preprocessing.preprocessor import  Preprocessor
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 from pulse.processing.solution_acoustic import SolutionAcoustic
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_frf
@@ -29,24 +29,24 @@ cross_section_expansion.update_properties()
 cross_section_branch = CrossSection(0.025, 0.004, offset_y=0, offset_z=0)
 cross_section_branch.update_properties()
 
-# Mesh init
-mesh = Mesh()
-mesh.generate('examples/validation_length_correction/tube_2_expasion.iges', 0.01)
-mesh.set_material_by_element('all', steel)
-mesh.set_acoustic_pressure_bc_by_node(10, 1 + 0j)
-mesh.set_radiation_impedance_bc_by_node(1047 , 0)
+# Preprocessor init
+preprocessor = Preprocessor()
+preprocessor.generate('examples/validation_length_correction/tube_2_expasion.iges', 0.01)
+preprocessor.set_material_by_element('all', steel)
+preprocessor.set_acoustic_pressure_bc_by_node(10, 1 + 0j)
+preprocessor.set_radiation_impedance_bc_by_node(1047 , 0)
 
 element_type = 'LRF full'
-mesh.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=None)
+preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=None)
 
-mesh.set_fluid_by_element('all', air)
-mesh.set_cross_section_by_element('all', cross_section)
-mesh.set_cross_section_by_line(40, cross_section_expansion)
-mesh.set_cross_section_by_line([37, 38, 39], cross_section_branch)
-mesh.set_cross_section_by_line([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
+preprocessor.set_fluid_by_element('all', air)
+preprocessor.set_cross_section_by_element('all', cross_section)
+preprocessor.set_cross_section_by_line(40, cross_section_expansion)
+preprocessor.set_cross_section_by_line([37, 38, 39], cross_section_branch)
+preprocessor.set_cross_section_by_line([21, 22, 23, 24, 25, 27, 28], cross_section_branch)
 
-mesh.set_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
-mesh.set_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
+preprocessor.set_length_correction_by_element([9, 10, 11, 12, 13, 659, 660, 661, 662, 663, 711, 712, 885, 886, 1197, 1198, 1225, 1226, 1227, 1228, 1235, 1236], 0, "section") # Expansion correction
+preprocessor.set_length_correction_by_element([608, 609, 610, 967, 968, 984, 985, 986, 987, 988, 1004, 1005, 1006, 1007, 1008, 1009, 1047, 1048, 1097, 1098, 1147, 1148, 1149], 1, "section") # Side branch correction
 # Analisys Frequencies
 f_max = 250
 df = 1

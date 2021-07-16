@@ -371,19 +371,13 @@ class ProjectFile:
 
                         if outerDiameter != "" and thickness != "":
                             try:
-                                outerDiameter = float(outerDiameter)
-                                thickness = float(thickness)
-                                offset_y = float(offset_y)
-                                offset_z = float(offset_z)
-                                insulation_thickness = float(insulation_thickness)
-                                insulation_density = float(insulation_density)
 
-                                section_parameters = {  "outer_diameter" : outerDiameter,
-                                                        "thickness" : thickness, 
-                                                        "offset_y" : offset_y, 
-                                                        "offset_z" : offset_z, 
-                                                        "insulation_thickness" : insulation_thickness, 
-                                                        "insulation_density" : insulation_density }
+                                section_parameters = {  "outer_diameter" : float(outerDiameter),
+                                                        "thickness" : float(thickness), 
+                                                        "offset_y" : float(offset_y), 
+                                                        "offset_z" : float(offset_z), 
+                                                        "insulation_thickness" : float(insulation_thickness), 
+                                                        "insulation_density" : float(insulation_density) }
             
                                 pipe_section_info = {   "section_type_label" : "Pipe section" ,
                                                         "section_parameters" : section_parameters  }

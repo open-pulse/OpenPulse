@@ -2963,7 +2963,7 @@ elements</string>
       <property name="geometry">
        <rect>
         <x>8</x>
-        <y>32</y>
+        <y>24</y>
         <width>554</width>
         <height>350</height>
        </rect>
@@ -3965,25 +3965,6 @@ elements</string>
        <attribute name="title">
         <string>C-section</string>
        </attribute>
-       <widget class="QLabel" name="label_5">
-        <property name="geometry">
-         <rect>
-          <x>298</x>
-          <y>6</y>
-          <width>149</width>
-          <height>199</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>../../../../../../../Users/Jacson_Corsair/Desktop/C_profile2.PNG</pixmap>
-        </property>
-        <property name="scaledContents">
-         <bool>true</bool>
-        </property>
-       </widget>
        <widget class="QLabel" name="label_9">
         <property name="geometry">
          <rect>
@@ -6787,7 +6768,7 @@ elements</string>
       <property name="geometry">
        <rect>
         <x>316</x>
-        <y>398</y>
+        <y>394</y>
         <width>180</width>
         <height>32</height>
        </rect>
@@ -6821,7 +6802,7 @@ elements</string>
       <property name="geometry">
        <rect>
         <x>80</x>
-        <y>398</y>
+        <y>394</y>
         <width>180</width>
         <height>32</height>
        </rect>

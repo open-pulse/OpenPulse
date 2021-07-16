@@ -28,8 +28,8 @@ class MassSpringDamperInput(QDialog):
         self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
         
         self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
@@ -38,7 +38,7 @@ class MassSpringDamperInput(QDialog):
         self.new_load_path_table = ""
         self.imported_table_name = ""
 
-        self.nodes = self.mesh.nodes
+        self.nodes = self.preprocessor.nodes
         self.loads = None
         self.nodes_typed = []
         self.imported_table = False
@@ -710,21 +710,21 @@ class MassSpringDamperInput(QDialog):
             key_strings = ["masses", "moments of inertia"]
             message = "The masses and moments of inertia attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.project.mesh.add_mass_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.project.preprocessor.add_mass_to_node(self.nodes_typed, [None, None, None, None, None, None])
             self.treeWidget_masses.clear()
    
         if (self.remove_spring and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==1:   
             key_strings = ["spring stiffness", "torsional spring stiffness"]
             message = "The stiffness (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.project.mesh.add_spring_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.project.preprocessor.add_spring_to_node(self.nodes_typed, [None, None, None, None, None, None])
             self.treeWidget_springs.clear()
   
         if (self.remove_damper and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==3: 
             key_strings = ["damping coefficients", "torsional damping coefficients"]
             message = "The dampings (translational and tosional) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-            self.project.mesh.add_damper_to_node(self.nodes_typed, [None, None, None, None, None, None])
+            self.project.preprocessor.add_damper_to_node(self.nodes_typed, [None, None, None, None, None, None])
             self.treeWidget_dampers.clear()
 
         self.load_nodes_info()
@@ -754,7 +754,7 @@ class MassSpringDamperInput(QDialog):
     def load_nodes_info(self):
 
         load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
-        for node in self.project.mesh.nodes_connected_to_springs:
+        for node in self.project.preprocessor.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -762,7 +762,7 @@ class MassSpringDamperInput(QDialog):
             self.treeWidget_springs.addTopLevelItem(new)
 
         load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
-        for node in self.project.mesh.nodes_connected_to_dampers:
+        for node in self.project.preprocessor.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -770,7 +770,7 @@ class MassSpringDamperInput(QDialog):
             self.treeWidget_dampers.addTopLevelItem(new)
 
         load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
-        for node in self.project.mesh.nodes_with_masses:
+        for node in self.project.preprocessor.nodes_with_masses:
             lumped_masses_mask = [False if bc is None else True for bc in node.lumped_masses]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_masses_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)

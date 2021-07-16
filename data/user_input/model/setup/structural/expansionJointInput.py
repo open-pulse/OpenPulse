@@ -63,12 +63,12 @@ class ExpansionJointInput(QDialog):
         self.element_id = self.opv.getListPickedElements()
 
         self.project = project
-        self.mesh = project.mesh
-        self.before_run = self.mesh.get_model_checks()
-        self.nodes = self.project.mesh.nodes
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+        self.nodes = self.project.preprocessor.nodes
         
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
         self.project_folder_path = project.project_folder_path 
         self.userPath = os.path.expanduser('~')       
@@ -192,11 +192,7 @@ class ExpansionJointInput(QDialog):
     # def mousePressEvent(self, event):
     #     clicked = QtCore.pyqtSignal()
     #     # self.lineEdit_axial_stiffness.clicked.emit()
-    #     print(event)
         # self.lineEdit_axial_stiffness.clicked.connect(self.print_message)
-
-    # def print_message(self):
-    #     print("Alguma mensagem deve ser printada!")
     
     def get_length(self):
         lineEdit_lineID = self.lineEdit_selected_ID.text()
@@ -207,7 +203,7 @@ class ExpansionJointInput(QDialog):
                 self.lineEdit_joint_length.setText("")
                 self.lineEdit_selected_ID.setFocus()
                 return True  
-            length = self.mesh.get_line_length(self.line_id) 
+            length = self.preprocessor.get_line_length(self.line_id) 
             self.lineEdit_joint_length.setText(str(round(length,8)))
 
     def keyPressEvent(self, event):
@@ -230,7 +226,7 @@ class ExpansionJointInput(QDialog):
         if self.line_id != []:
             self.write_id(self.line_id)
             self.radioButton_line_selection.setChecked(True)
-            length = self.mesh.get_line_length(self.line_id[0])
+            length = self.preprocessor.get_line_length(self.line_id[0])
             self.lineEdit_joint_length.setText(str(round(length,8)))
         
         elif self.node_id != []:
@@ -417,9 +413,9 @@ class ExpansionJointInput(QDialog):
 
     def get_nodes_elements_according_joint_length(self):
         if self.selection_by_node:
-            self.list_nodes, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_node(self.nodeID, self.length)
+            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_node(self.nodeID, self.length)
         elif self.selection_by_element:
-            self.list_nodes, self.list_elements = self.mesh.get_neighbor_nodes_and_elements_by_element(self.elementID, self.length)
+            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_element(self.elementID, self.length)
 
     def check_input_parameters(self, lineEdit, label, _float=True):
         message = ""
@@ -538,23 +534,19 @@ class ExpansionJointInput(QDialog):
 
             self.project.set_cross_section_by_line(self.lineID, None)
 
-            self.list_elements = self.project.mesh.line_to_elements[self.lineID]
+            self.list_elements = self.project.preprocessor.line_to_elements[self.lineID]
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
                                                                             self.effective_diameter )
             
-            self.project.mesh.set_cross_section_by_element(self.list_elements, list_cross)
+            self.project.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
             self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, False)
             self.opv.updatePlots()
             self.opv.changePlotToEntitiesWithCrossSection()
         else:
             return
             self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, False)
-        # self.opv.updateRendererMesh()
         self.close()
-        # else:
-        #     title = 'EMPTY INPUTS FOR EXPASION JOINT STIFFNESS'
-        #     message = 'Please insert at least a stiffness value value to proceed.'
-        #     PrintMessageInput([title, message, window_title1])
+
 
     # def get_parameters(self):
     #     [   effective_diameter,
@@ -771,15 +763,15 @@ class ExpansionJointInput(QDialog):
     #     self.skip_treeWidget_row(self.treeWidget_nodal_links_stiffness)
     #     self.pushButton_remove_link_stiffness.setDisabled(False)
 
-    #     for key in self.mesh.dict_nodes_with_elastic_link_stiffness.keys():
+    #     for key in self.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
     #         node_ids = [int(node) for node in key.split("-")]
-    #         mask, _ = self.project.mesh.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
+    #         mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
     #         new = QTreeWidgetItem([key, str(self.text_label(mask, stiffness_labels))])
     #         new.setTextAlignment(0, Qt.AlignCenter)
     #         new.setTextAlignment(1, Qt.AlignCenter)
     #         self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
 
-    #     if len(self.mesh.dict_nodes_with_elastic_link_stiffness) == 0:
+    #     if len(self.preprocessor.dict_nodes_with_elastic_link_stiffness) == 0:
     #         self.pushButton_remove_link_stiffness.setDisabled(True)
 
     # def load_elastic_links_damping_info(self):
@@ -789,301 +781,300 @@ class ExpansionJointInput(QDialog):
     #     self.skip_treeWidget_row(self.treeWidget_nodal_links_damping)
     #     self.pushButton_remove_link_damping.setDisabled(False)
 
-    #     for key in self.mesh.dict_nodes_with_elastic_link_damping.keys():
+    #     for key in self.preprocessor.dict_nodes_with_elastic_link_damping.keys():
     #         node_ids = [int(node) for node in key.split("-")]
-    #         mask, _ = self.project.mesh.nodes[node_ids[0]].elastic_nodal_link_damping[key]
+    #         mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_damping[key]
     #         new = QTreeWidgetItem([key, str(self.text_label(mask, damping_labels))])
     #         new.setTextAlignment(0, Qt.AlignCenter)
     #         new.setTextAlignment(1, Qt.AlignCenter)
     #         self.treeWidget_nodal_links_damping.addTopLevelItem(new)
 
-    #     if len(self.mesh.dict_nodes_with_elastic_link_damping) == 0:
+    #     if len(self.preprocessor.dict_nodes_with_elastic_link_damping) == 0:
     #         self.pushButton_remove_link_damping.setDisabled(True)
 
     def on_click_item(self, item):
         self.lineEdit_node_ID_info.setText(item.text(0))
 
-    def get_information(self):
-        try:
-            selected_link = self.lineEdit_node_ID_info.text()
-            if selected_link != "":        
-                GetInformationOfGroup(self.project, selected_link, "Lines")
-            else:
-                title = "UNSELECTED ELASTIC LINK"
-                message = "Please, select an elastic link in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+    # def get_information(self):
+    #     try:
+    #         selected_link = self.lineEdit_node_ID_info.text()
+    #         if selected_link != "":        
+    #             GetInformationOfGroup(self.project, selected_link, "Lines")
+    #         else:
+    #             title = "UNSELECTED ELASTIC LINK"
+    #             message = "Please, select an elastic link in the list to get the information."
+    #             PrintMessageInput([title, message, window_title2])
                 
-        except Exception as e:
-            title = "ERROR WHILE GETTING INFORMATION OF SELECTED ELASTIC LINK"
-            message = str(e)
-            PrintMessageInput([title, message, window_title1])
+    #     except Exception as e:
+    #         title = "ERROR WHILE GETTING INFORMATION OF SELECTED ELASTIC LINK"
+    #         message = str(e)
+    #         PrintMessageInput([title, message, window_title1])
 
-    def remove_table_files(self, values):          
-        for value in values:
-            if value != 'None' and ".dat" in value:
-                self.get_path_of_selected_table(value)
-                try:
-                    os.remove(self.path_of_selected_table)
-                except:
-                    pass
+    # def remove_table_files(self, values):          
+    #     for value in values:
+    #         if value != 'None' and ".dat" in value:
+    #             self.get_path_of_selected_table(value)
+    #             try:
+    #                 os.remove(self.path_of_selected_table)
+    #             except:
+    #                 pass
 
-    def remove_elastic_link_stiffness_from_file(self, section_key):
+#     def remove_elastic_link_stiffness_from_file(self, section_key):
 
-        path = self.project.file._node_structural_path
-        config = configparser.ConfigParser()
-        config.read(path)
+#         path = self.project.file._node_structural_path
+#         config = configparser.ConfigParser()
+#         config.read(path)
 
-        keys = list(config[section_key].keys())
-        if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
-            values_stiffness = config[section_key]["connecting stiffness"][1:-1].split(",")
-            self.remove_table_files(values_stiffness)
-            values_torsional_stiffness = config[section_key]["connecting torsional stiffness"][1:-1].split(",")
-            self.remove_table_files(values_torsional_stiffness)
-            config.remove_option(section=section_key, option="connecting stiffness")
-            config.remove_option(section=section_key, option="connecting torsional stiffness")
-            if len(list(config[section_key].keys())) == 0:
-                config.remove_section(section=section_key)
-        with open(path, 'w') as config_file:
-            config.write(config_file)
+#         keys = list(config[section_key].keys())
+#         if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
+#             values_stiffness = config[section_key]["connecting stiffness"][1:-1].split(",")
+#             self.remove_table_files(values_stiffness)
+#             values_torsional_stiffness = config[section_key]["connecting torsional stiffness"][1:-1].split(",")
+#             self.remove_table_files(values_torsional_stiffness)
+#             config.remove_option(section=section_key, option="connecting stiffness")
+#             config.remove_option(section=section_key, option="connecting torsional stiffness")
+#             if len(list(config[section_key].keys())) == 0:
+#                 config.remove_section(section=section_key)
+#         with open(path, 'w') as config_file:
+#             config.write(config_file)
 
-    def remove_elastic_link_damping_from_file(self, section_key):
+#     def remove_elastic_link_damping_from_file(self, section_key):
 
-        path = self.project.file._node_structural_path
-        config = configparser.ConfigParser()
-        config.read(path)        
+#         path = self.project.file._node_structural_path
+#         config = configparser.ConfigParser()
+#         config.read(path)        
 
-        keys = list(config[section_key].keys())
-        if "connecting damping" in keys and "connecting torsional damping" in keys:
-            values_damping = config[section_key]["connecting damping"][1:-1].split(",")
-            self.remove_table_files(values_damping)
-            values_torsional_damping = config[section_key]["connecting torsional damping"][1:-1].split(",")
-            self.remove_table_files(values_torsional_damping)
-            config.remove_option(section=section_key, option="connecting damping")
-            config.remove_option(section=section_key, option="connecting torsional damping")
-            if len(list(config[section_key].keys())) == 0:
-                config.remove_section(section=section_key)    
-        with open(path, 'w') as config_file:
-            config.write(config_file)
+#         keys = list(config[section_key].keys())
+#         if "connecting damping" in keys and "connecting torsional damping" in keys:
+#             values_damping = config[section_key]["connecting damping"][1:-1].split(",")
+#             self.remove_table_files(values_damping)
+#             values_torsional_damping = config[section_key]["connecting torsional damping"][1:-1].split(",")
+#             self.remove_table_files(values_torsional_damping)
+#             config.remove_option(section=section_key, option="connecting damping")
+#             config.remove_option(section=section_key, option="connecting torsional damping")
+#             if len(list(config[section_key].keys())) == 0:
+#                 config.remove_section(section=section_key)    
+#         with open(path, 'w') as config_file:
+#             config.write(config_file)
 
-    def remove_selected_link_stiffness(self):
-        if self.ext_key is None:
-            key = self.lineEdit_node_ID_info.text()
-        else:
-            key = self.ext_key
-        if key == "":
-            title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
-            message = "Please, select a stiffness elastic link in the list before confirm the link removal."
-            PrintMessageInput([title, message, window_title2])
-            return
+#     def remove_selected_link_stiffness(self):
+#         if self.ext_key is None:
+#             key = self.lineEdit_node_ID_info.text()
+#         else:
+#             key = self.ext_key
+#         if key == "":
+#             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
+#             message = "Please, select a stiffness elastic link in the list before confirm the link removal."
+#             PrintMessageInput([title, message, window_title2])
+#             return
 
-        node_IDs = [int(nodeID) for nodeID in key.split("-")]
+#         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.mesh.dict_nodes_with_elastic_link_stiffness.keys():
-            self.project.mesh.dict_nodes_with_elastic_link_stiffness.pop(key)
-            for node_ID in node_IDs:
-                self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
-            self.remove_elastic_link_stiffness_from_file(key)
-            self.load_elastic_links_stiffness_info()
-            self.opv.updateRendererMesh()
-            self.lineEdit_node_ID_info.setText("")
-        else:
-            title = "REMOVAL OF ELASTIC NODAL LINKS - STIFFNESS"
-            message = "The selected elastic link is invalid thus cannot be removed."
-            PrintMessageInput([title, message, window_title1])
+#         if key in self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
+#             self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.pop(key)
+#             for node_ID in node_IDs:
+#                 self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
+#             self.remove_elastic_link_stiffness_from_file(key)
+#             self.load_elastic_links_stiffness_info()
+#             self.opv.updateRendererMesh()
+#             self.lineEdit_node_ID_info.setText("")
+#         else:
+#             title = "REMOVAL OF ELASTIC NODAL LINKS - STIFFNESS"
+#             message = "The selected elastic link is invalid thus cannot be removed."
+#             PrintMessageInput([title, message, window_title1])
 
-    def remove_selected_link_damping(self):
-        if self.ext_key is None:
-            key = self.lineEdit_node_ID_info.text()
-        else:
-            key = self.ext_key
-        if key == "":
-            title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
-            message = "Please, select a damping elastic link in the list before confirm the link removal."
-            PrintMessageInput([title, message, window_title2])
-            return
+#     def remove_selected_link_damping(self):
+#         if self.ext_key is None:
+#             key = self.lineEdit_node_ID_info.text()
+#         else:
+#             key = self.ext_key
+#         if key == "":
+#             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
+#             message = "Please, select a damping elastic link in the list before confirm the link removal."
+#             PrintMessageInput([title, message, window_title2])
+#             return
 
-        node_IDs = [int(nodeID) for nodeID in key.split("-")]
+#         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.mesh.dict_nodes_with_elastic_link_damping.keys():
-            self.project.mesh.dict_nodes_with_elastic_link_damping.pop(key)
-            for node_ID in node_IDs:
-                self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
-            self.remove_elastic_link_damping_from_file(key)
-            self.load_elastic_links_damping_info()
-            self.opv.updateRendererMesh()
-            self.lineEdit_node_ID_info.setText("")
-        else:
-            title = "REMOVAL OF ELASTIC NODAL LINKS - DAMPING"
-            message = "The selected elastic link are invalid thus cannot be removed."
-            PrintMessageInput([title, message, window_title2])
+#         if key in self.project.preprocessor.dict_nodes_with_elastic_link_damping.keys():
+#             self.project.preprocessor.dict_nodes_with_elastic_link_damping.pop(key)
+#             for node_ID in node_IDs:
+#                 self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
+#             self.remove_elastic_link_damping_from_file(key)
+#             self.load_elastic_links_damping_info()
+#             self.opv.updateRendererMesh()
+#             self.lineEdit_node_ID_info.setText("")
+#         else:
+#             title = "REMOVAL OF ELASTIC NODAL LINKS - DAMPING"
+#             message = "The selected elastic link are invalid thus cannot be removed."
+#             PrintMessageInput([title, message, window_title2])
 
-    def reset_all(self):
-        if self.double_confirm_action():
-            return
-        temp_dict_stiffness = self.project.mesh.dict_nodes_with_elastic_link_stiffness.copy()
-        temp_dict_damping = self.project.mesh.dict_nodes_with_elastic_link_damping.copy()
-        for key in temp_dict_stiffness.keys():
-            self.ext_key = key
-            self.remove_selected_link_stiffness()
-        for key in temp_dict_damping.keys():
-            self.ext_key = key
-            self.remove_selected_link_damping()
-        title = "RESET OF ELASTIC NODAL LINKS"
-        message = "All elastic nodal links have been removed from the model."
-        PrintMessageInput([title, message, window_title1])
-        self.ext_key = None
+#     def reset_all(self):
+#         if self.double_confirm_action():
+#             return
+#         temp_dict_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.copy()
+#         temp_dict_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping.copy()
+#         for key in temp_dict_stiffness.keys():
+#             self.ext_key = key
+#             self.remove_selected_link_stiffness()
+#         for key in temp_dict_damping.keys():
+#             self.ext_key = key
+#             self.remove_selected_link_damping()
+#         title = "RESET OF ELASTIC NODAL LINKS"
+#         message = "All elastic nodal links have been removed from the model."
+#         PrintMessageInput([title, message, window_title1])
+#         self.ext_key = None
 
-    def double_confirm_action(self):
-        confirm_act = QMessageBox.question(
-            self,
-            "QUIT",
-            "Are you sure you want to remove all elastic links attributed to the structural model?",
-            QMessageBox.No | QMessageBox.Yes)
+#     def double_confirm_action(self):
+#         confirm_act = QMessageBox.question(
+#             self,
+#             "QUIT",
+#             "Are you sure you want to remove all elastic links attributed to the structural model?",
+#             QMessageBox.No | QMessageBox.Yes)
         
-        if confirm_act == QMessageBox.Yes:
-            return False
-        else:
-            return True
+#         if confirm_act == QMessageBox.Yes:
+#             return False
+#         else:
+#             return True
 
-    def get_path_of_selected_table(self, selected_table):
-        if "\\" in self.project_folder_path:
-            self.path_of_selected_table = "{}\\{}".format(self.project_folder_path, selected_table)
-        elif "/" in self.project_folder_path:
-            self.path_of_selected_table = "{}/{}".format(self.project_folder_path, selected_table)
+#     def get_path_of_selected_table(self, selected_table):
+#         if "\\" in self.project_folder_path:
+#             self.path_of_selected_table = "{}\\{}".format(self.project_folder_path, selected_table)
+#         elif "/" in self.project_folder_path:
+#             self.path_of_selected_table = "{}/{}".format(self.project_folder_path, selected_table)
 
-    def force_to_close(self):
-        self.close()
+#     def force_to_close(self):
+#         self.close()
 
-class GetInformationOfGroup(QDialog):
-    def __init__(self, project, selected_link, label, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+# class GetInformationOfGroup(QDialog):
+#     def __init__(self, project, selected_link, label, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
 
-        icons_path = 'data\\icons\\'
-        self.icon = QIcon(icons_path + 'pulse.png')
-        self.setWindowIcon(self.icon)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
+#         icons_path = 'data\\icons\\'
+#         self.icon = QIcon(icons_path + 'pulse.png')
+#         self.setWindowIcon(self.icon)
+#         self.setWindowFlags(Qt.WindowStaysOnTopHint)
+#         self.setWindowModality(Qt.WindowModal)
 
-        uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
+#         uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
-        self.label = label
-        self.selected_link = selected_link
-        self.node_IDs = [int(node) for node in selected_link.split("-")]
+#         self.label = label
+#         self.selected_link = selected_link
+#         self.node_IDs = [int(node) for node in selected_link.split("-")]
 
-        self.project = project
-        self.nodes = project.mesh.nodes
-        self.dict_elastic_link_stiffness = {}
-        self.dict_elastic_link_damping = {}
+#         self.project = project
+#         self.nodes = project.preprocessor.nodes
+#         self.dict_elastic_link_stiffness = {}
+#         self.dict_elastic_link_damping = {}
 
-        self.title_label = self.findChild(QLabel, 'title_label')
-        self.title_label.setText('INFORMATION OF SELECTED ELASTIC LINK')
+#         self.title_label = self.findChild(QLabel, 'title_label')
+#         self.title_label.setText('INFORMATION OF SELECTED ELASTIC LINK')
 
-        self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-        self.treeWidget_group_info.headerItem().setText(0, "Linked nodes")
-        self.treeWidget_group_info.headerItem().setText(1, "Parameter")
-        self.treeWidget_group_info.headerItem().setText(2, "Value")
-        self.treeWidget_group_info.setColumnWidth(0, 100)
-        self.treeWidget_group_info.setColumnWidth(1, 90)
-        self.treeWidget_group_info.setColumnWidth(2, 120)
-        self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
-        self.treeWidget_group_info.headerItem().setTextAlignment(2, Qt.AlignCenter)
+#         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
+#         self.treeWidget_group_info.headerItem().setText(0, "Linked nodes")
+#         self.treeWidget_group_info.headerItem().setText(1, "Parameter")
+#         self.treeWidget_group_info.headerItem().setText(2, "Value")
+#         self.treeWidget_group_info.setColumnWidth(0, 100)
+#         self.treeWidget_group_info.setColumnWidth(1, 90)
+#         self.treeWidget_group_info.setColumnWidth(2, 120)
+#         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
+#         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
+#         self.treeWidget_group_info.headerItem().setTextAlignment(2, Qt.AlignCenter)
         
-        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-        self.pushButton_close.clicked.connect(self.force_to_close)
+#         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+#         self.pushButton_close.clicked.connect(self.force_to_close)
         
-        self.load_file_info()
-        self.update_treeWidget_info()
-        self.exec_()
+#         self.load_file_info()
+#         self.update_treeWidget_info()
+#         self.exec_()
 
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Escape:
-            self.close()
-        elif event.key() == Qt.Key_Enter:
-            self.close()
+#     def keyPressEvent(self, event):
+#         if event.key() == Qt.Key_Escape:
+#             self.close()
+#         elif event.key() == Qt.Key_Enter:
+#             self.close()
 
-    def update_dict(self):
-        self.dict_lines_parameters = self.project.mesh.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.project.mesh.group_elements_with_stress_stiffening
+#     def update_dict(self):
+#         self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
+#         self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
 
-    def load_file_info(self):
+#     def load_file_info(self):
 
-        config = configparser.ConfigParser()
-        config.read(self.project.file._node_structural_path)
+#         config = configparser.ConfigParser()
+#         config.read(self.project.file._node_structural_path)
 
-        for str_node in config.sections():
+#         for str_node in config.sections():
 
-            keys = list(config[str_node].keys())
+#             keys = list(config[str_node].keys())
 
-            if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
-                connecting_stiffness = config[str_node]['connecting stiffness'][1:-1].split(',')
-                connecting_torsional_stiffness = config[str_node]['connecting torsional stiffness'][1:-1].split(',')
-                out_stiffness = [value for _list in [connecting_stiffness, connecting_torsional_stiffness] for value in _list]
-                self.dict_elastic_link_stiffness[str_node] = out_stiffness
+#             if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
+#                 connecting_stiffness = config[str_node]['connecting stiffness'][1:-1].split(',')
+#                 connecting_torsional_stiffness = config[str_node]['connecting torsional stiffness'][1:-1].split(',')
+#                 out_stiffness = [value for _list in [connecting_stiffness, connecting_torsional_stiffness] for value in _list]
+#                 self.dict_elastic_link_stiffness[str_node] = out_stiffness
         
-            if "connecting damping" in keys and "connecting torsional damping" in keys:
-                connecting_damping = config[str_node]['connecting damping'][1:-1].split(',')
-                connecting_torsional_damping = config[str_node]['connecting torsional damping'][1:-1].split(',')
-                out_damping = [value for _list in [connecting_damping, connecting_torsional_damping] for value in _list]
-                self.dict_elastic_link_damping[str_node] = out_damping          
+#             if "connecting damping" in keys and "connecting torsional damping" in keys:
+#                 connecting_damping = config[str_node]['connecting damping'][1:-1].split(',')
+#                 connecting_torsional_damping = config[str_node]['connecting torsional damping'][1:-1].split(',')
+#                 out_damping = [value for _list in [connecting_damping, connecting_torsional_damping] for value in _list]
+#                 self.dict_elastic_link_damping[str_node] = out_damping          
     
-    def skip_treeWidget_row(self):
-        new = QTreeWidgetItem(["", "", ""])
-        new.setTextAlignment(0, Qt.AlignCenter)
-        new.setTextAlignment(1, Qt.AlignCenter)
-        new.setTextAlignment(2, Qt.AlignCenter)
-        self.treeWidget_group_info.addTopLevelItem(new)
+#     def skip_treeWidget_row(self):
+#         new = QTreeWidgetItem(["", "", ""])
+#         new.setTextAlignment(0, Qt.AlignCenter)
+#         new.setTextAlignment(1, Qt.AlignCenter)
+#         new.setTextAlignment(2, Qt.AlignCenter)
+#         self.treeWidget_group_info.addTopLevelItem(new)
 
-    def update_treeWidget_info(self):
+#     def update_treeWidget_info(self):
 
-        self.treeWidget_group_info.clear()
+#         self.treeWidget_group_info.clear()
         
-        try:
+#         try:
 
-            mask_stiffness, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_stiffness[self.selected_link]
-            stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
-            output_stiffness_labels = stiffness_labels[mask_stiffness]
-            values_stiffness = np.array(self.dict_elastic_link_stiffness[self.selected_link])[mask_stiffness]        
+#             mask_stiffness, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_stiffness[self.selected_link]
+#             stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
+#             output_stiffness_labels = stiffness_labels[mask_stiffness]
+#             values_stiffness = np.array(self.dict_elastic_link_stiffness[self.selected_link])[mask_stiffness]        
             
-            self.skip_treeWidget_row()
-            for i, value in enumerate(values_stiffness):
-                new = QTreeWidgetItem([str(self.selected_link), output_stiffness_labels[i], value])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                new.setTextAlignment(2, Qt.AlignCenter)
-                self.treeWidget_group_info.addTopLevelItem(new)
-        except:
-            pass
+#             self.skip_treeWidget_row()
+#             for i, value in enumerate(values_stiffness):
+#                 new = QTreeWidgetItem([str(self.selected_link), output_stiffness_labels[i], value])
+#                 new.setTextAlignment(0, Qt.AlignCenter)
+#                 new.setTextAlignment(1, Qt.AlignCenter)
+#                 new.setTextAlignment(2, Qt.AlignCenter)
+#                 self.treeWidget_group_info.addTopLevelItem(new)
+#         except:
+#             pass
 
-        try:
+#         try:
 
-            damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
-            mask_damping, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_damping[self.selected_link]
-            output_damping_labels = damping_labels[mask_damping]
-            values_damping = np.array(self.dict_elastic_link_damping[self.selected_link])[mask_damping]
+#             damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
+#             mask_damping, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_damping[self.selected_link]
+#             output_damping_labels = damping_labels[mask_damping]
+#             values_damping = np.array(self.dict_elastic_link_damping[self.selected_link])[mask_damping]
             
-            self.skip_treeWidget_row()
-            for i, value in enumerate(values_damping):
-                new = QTreeWidgetItem([str(self.selected_link), output_damping_labels[i], value])
-                new.setTextAlignment(0, Qt.AlignCenter)
-                new.setTextAlignment(1, Qt.AlignCenter)
-                new.setTextAlignment(2, Qt.AlignCenter)
-                self.treeWidget_group_info.addTopLevelItem(new)
-        except:
-            pass
+#             self.skip_treeWidget_row()
+#             for i, value in enumerate(values_damping):
+#                 new = QTreeWidgetItem([str(self.selected_link), output_damping_labels[i], value])
+#                 new.setTextAlignment(0, Qt.AlignCenter)
+#                 new.setTextAlignment(1, Qt.AlignCenter)
+#                 new.setTextAlignment(2, Qt.AlignCenter)
+#                 self.treeWidget_group_info.addTopLevelItem(new)
+#         except:
+#             pass
 
-    def force_to_close(self):
-        self.close()
+#     def force_to_close(self):
+#         self.close()
 
 
 def get_list_cross_sections_to_plot_expansion_joint(list_elements, effective_diameter):
+
     list_cross_sections = []
     flanges_elements = [    list_elements[0],
                             list_elements[1],
                             list_elements[-2],
                             list_elements[-1]  ]
-    
-    # self.project.set_cross_section_by_line(self.lineID, None)
     
     for element in list_elements:
 
@@ -1095,7 +1086,7 @@ def get_list_cross_sections_to_plot_expansion_joint(list_elements, effective_dia
             else:
                 plot_key = "major"
 
-        expansion_joint_info = [    "expansion joint", 
+        expansion_joint_info = [    "Expansion joint section", 
                                     plot_key,
                                     effective_diameter ]
 

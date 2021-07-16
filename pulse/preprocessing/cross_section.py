@@ -709,25 +709,6 @@ class CrossSection:
 
     def get_cross_section_points(self):
 
-        # section_labels = [  "Pipe section", 
-        #                     "Rectangular section", 
-        #                     "Circular section", 
-        #                     "C-section", 
-        #                     "I-section", 
-        #                     "T-section", 
-        #                     "Generic section", 
-        #                     "expansion joint"   ]
-
-        # dict_sections = dict(zip(section_labels, np.arange(8)))
-
-        # if self.section_label in section_labels:
-
-
-        # try:
-        #     section_type = dict_sections[self.section_label]
-        # except:
-        #     section_type = -1
-
         inner_points = []
 
         if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
@@ -771,7 +752,7 @@ class CrossSection:
             
         elif self.section_label == "Circular section": # Circular section
             
-            N = 12# element.cross_section.division_number
+            N = 24# element.cross_section.division_number
             d_out, thickness, offset_y, offset_z = self.section_parameters
             d_in = d_out - 2*thickness
 
@@ -820,7 +801,7 @@ class CrossSection:
             Zs = np.array(Z_out) + offset_z
             outer_points = list(zip(Ys, Zs))
         
-        elif self.section_label == "expansion joint" :#8:
+        elif self.section_label == "Expansion joint section" :#8:
     
             N = 32 # temporary number of divisions for pipe sections
     
