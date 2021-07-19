@@ -39,6 +39,7 @@ class Preprocessor:
         self.elements_to_line = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
+        self.group_elements_with_perforated_plate = {}
         self.group_elements_with_stress_stiffening = {}
         self.group_elements_with_expansion_joint = {}
         self.group_lines_with_capped_end = {}        
@@ -60,6 +61,7 @@ class Preprocessor:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
+        self.element_with_perforated_plate = []
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
@@ -1651,6 +1653,19 @@ class Preprocessor:
         """
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
+
+    def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
+        for element in slicer(self.acoustic_elements, elements):
+            element.perforated_plate = perforated_plate
+            if element not in self.element_with_perforated_plate:
+                self.element_with_perforated_plate.append(element)
+            if perforated_plate is None:
+                if element in self.element_with_perforated_plate:
+                    self.element_with_perforated_plate.remove(element)
+        if delete_from_dict:
+            self.group_elements_with_perforated_plate.pop(section) 
+        else:
+            self.group_elements_with_perforated_plate[section] = [perforated_plate, elements]
 
     def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
         """
