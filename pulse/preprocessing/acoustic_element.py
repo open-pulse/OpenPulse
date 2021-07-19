@@ -435,7 +435,7 @@ class AcousticElement:
         z = self.fluid.impedance
 
         # Perforated plate physical quantities
-        t = self.length
+        t = self.perforated_plate.thickness
         t_foks = t + self.perforated_plate.foks_delta
         c_l = self.perforated_plate.linear_discharge_coefficient
         d = self.perforated_plate.hole_diameter
@@ -453,10 +453,12 @@ class AcousticElement:
             theta_rad = self.perforated_plate.radiation_impedance(k)
 
             #TODO: use mach number as input when the formulation is validated
-            theta_flow = self.perforated_plate.flow_impedance(0) 
+            # theta_flow = self.perforated_plate.flow_impedance(0) 
+            theta_flow = 0
 
+            #TODO: use mach number as input when the formulation is validated
             if self.perforated_plate.bias_effect:
-                theta_g = self.perforated_plate.bias_impedance(self.mach)
+                theta_g = self.perforated_plate.bias_impedance(0)
             else:
                 theta_g = 0
             
@@ -492,7 +494,7 @@ class AcousticElement:
 
             xi_l = 1j*k/(sigma*c_l)*( t / f_function(k_ef * d/2) + 8* d/(3*pi * f_function(k_stokes * d/2))*foks_porosity )
             xi_nl = 4 * u_n * (1-sigma**2)/(3*pi*c*(sigma*c_l)**2)
-            z_orif = (xi_l + xi_nl) * z 
+            z_orif = - (xi_l + xi_nl) * z 
         
         self.pp_impedance = z_orif
 

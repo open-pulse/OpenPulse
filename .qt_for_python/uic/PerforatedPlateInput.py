@@ -995,7 +995,7 @@ class Ui_Dialog(object):
         self.checkBox_bias = QtWidgets.QCheckBox(self.tab_setup)
         self.checkBox_bias.setEnabled(True)
         self.checkBox_bias.setGeometry(QtCore.QRect(10, 311, 360, 17))
-        self.checkBox_bias.setChecked(True)
+        self.checkBox_bias.setChecked(False)
         self.checkBox_bias.setObjectName("checkBox_bias")
         self.line_2 = QtWidgets.QFrame(self.tab_setup)
         self.line_2.setGeometry(QtCore.QRect(0, 290, 381, 20))

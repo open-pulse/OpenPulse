@@ -2472,7 +2472,7 @@ impedance</string>
         <string>Include bias flow effects</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
       <widget class="Line" name="line_2">

@@ -124,7 +124,7 @@ class PerforatedPlateInput(QDialog):
         
         self.checkBox_bias = self.findChild(QCheckBox, 'checkBox_bias')
         self.checkBox_bias.toggled.connect(self.checkBoxEvent_bias)
-        self.flag_bias = self.checkBox_bias.isChecked()
+        self.checkBoxEvent_bias()
         self.lineEdit_bias = self.findChild(QLineEdit, 'lineEdit_bias')
 
         # User defined tab
@@ -277,6 +277,7 @@ class PerforatedPlateInput(QDialog):
             self.checkBox_bias.setDisabled(True)
             self.lineEdit_bias.setDisabled(True)
             self.dict_inputs['type'] = 1
+        
 
     def check_input_parameters(self, string, label, not_None = False):
         title = "INPUT ERROR"
@@ -559,7 +560,6 @@ class PerforatedPlateInput(QDialog):
         values = self.dict_group_elements[section]
         self.project.preprocessor.set_perforated_plate_by_elements(values[1], None, section, delete_from_dict=True)
 
-        # TODO: Set the save in file structure
         key_strings = ['perforated plate data', 'dimensionless impedance', 'list of elements']
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)
         self.load_elements_info()
@@ -794,8 +794,8 @@ class GetInformationOfGroup(QDialog):
         self.treeWidget_group_info.addTopLevelItem(new)
         
         self.Label_dh.setText(str(self.perforated_plate.hole_diameter))
-        self.Label_tp.setText(str(self.perforated_plate.porosity))
-        self.Label_phi.setText(str(self.perforated_plate.thickness))
+        self.Label_tp.setText(str(self.perforated_plate.thickness))
+        self.Label_phi.setText(str(self.perforated_plate.porosity))
         self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
         if self.perforated_plate.nonlinear_effect:
             self.Label_nl_effects.setText("On")
