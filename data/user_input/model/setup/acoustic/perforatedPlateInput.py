@@ -506,10 +506,10 @@ class PerforatedPlateInput(QDialog):
             for key, values in temp_dict.items():
                 if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
                     if self.replaced:
+                        self.set_perforated_plate_to_elements(self.dkey)
+                    else:
                         self.dkey = key
                         self.remove_perforated_plate_by_group()
-                    else:
-                        self.set_perforated_plate_to_elements(key)
                         self.replaced = True
                 else:
                     count1, count2 = 0, 0
@@ -710,7 +710,7 @@ class PerforatedPlateInput(QDialog):
     def load_elements_info(self):
         self.treeWidget_perforated_plate_plot.clear()
         for section, value in self.dict_group_elements.items():
-            text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].porosity, value[0].thickness)
+            text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -719,7 +719,7 @@ class PerforatedPlateInput(QDialog):
 
         self.treeWidget_perforated_plate_remove.clear()
         for section, value in self.dict_group_elements.items():
-            text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].porosity, value[0].thickness)
+            text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
             new.setTextAlignment(0, Qt.AlignCenter)

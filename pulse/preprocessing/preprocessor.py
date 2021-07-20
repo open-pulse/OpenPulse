@@ -1657,6 +1657,8 @@ class Preprocessor:
     def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
         for element in slicer(self.acoustic_elements, elements):
             element.perforated_plate = perforated_plate
+            element.delta_pressure = 0
+            element.pp_impedance = None
             if element not in self.element_with_perforated_plate:
                 self.element_with_perforated_plate.append(element)
             if perforated_plate is None:

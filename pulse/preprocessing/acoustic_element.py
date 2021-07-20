@@ -435,11 +435,11 @@ class AcousticElement:
         z = self.fluid.impedance
 
         # Perforated plate physical quantities
+        d = self.perforated_plate.hole_diameter
         t = self.perforated_plate.thickness
+        sigma = self.perforated_plate.porosity
         t_foks = t + self.perforated_plate.foks_delta
         c_l = self.perforated_plate.linear_discharge_coefficient
-        d = self.perforated_plate.hole_diameter
-        sigma = self.perforated_plate.porosity
 
         omega = 2 * pi * frequencies
         k = omega / c
