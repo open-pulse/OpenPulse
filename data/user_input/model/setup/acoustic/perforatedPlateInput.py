@@ -692,6 +692,7 @@ class PerforatedPlateInput(QDialog):
                 ax.set_ylabel(("Normalized Impedance - Imaginary [-]"), fontsize = 14, fontweight = 'bold')
         elif self.flag_absortion: 
             ax.set_ylabel(("Absortion coefficient [-]"), fontsize = 14, fontweight = 'bold')
+            ax.set_ylim(0, 1)
 
         cursor = SnaptoCursor(ax, frequencies, response, True)
         plt.connect('motion_notify_event', cursor.mouse_move)
