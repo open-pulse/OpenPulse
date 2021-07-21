@@ -499,37 +499,35 @@ class PerforatedPlateInput(QDialog):
                 return
             size = len(self.dict_group_elements)
             section = self.dict_label.format("Selection-{}".format(size+1))
-
-            self.set_perforated_plate_to_elements(section, _print=True)
             self.replaced = False
             temp_dict = self.dict_group_elements.copy()
-            for key, values in temp_dict.items():
-                if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
-                    if self.replaced:
-                        self.set_perforated_plate_to_elements(self.dkey)
-                    else:
+            if not temp_dict:
+                self.set_perforated_plate_to_elements(section, _print=True)
+            else:
+                for key, values in temp_dict.items():
+                    if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
                         self.dkey = key
                         self.remove_perforated_plate_by_group()
-                        self.replaced = True
-                else:
-                    count1, count2 = 0, 0
-                    for element in self.elements_typed:
-                        if element in values[1]:
-                            count1 += 1
-                    fill_rate1 = count1/len(self.elements_typed)
+                        self.set_perforated_plate_to_elements(key)
+                    else:
+                        count1, count2 = 0, 0
+                        for element in self.elements_typed:
+                            if element in values[1]:
+                                count1 += 1
+                        fill_rate1 = count1/len(self.elements_typed)
 
-                    for element in values[1]:
-                        if element in self.elements_typed:
-                            count2 += 1
-                    fill_rate2 = count2/len(values[1])
-                    
-                    if np.max([fill_rate1, fill_rate2])>0.5 :
-                        if not self.replaced:
-                            self.set_perforated_plate_to_elements(key)
-                            self.replaced = True
-                        else:
-                            self.dkey = key
-                            self.remove_perforated_plate_by_group()
+                        for element in values[1]:
+                            if element in self.elements_typed:
+                                count2 += 1
+                        fill_rate2 = count2/len(values[1])
+                        
+                        if np.max([fill_rate1, fill_rate2])>0.5 :
+                            if not self.replaced:
+                                self.set_perforated_plate_to_elements(key)
+                                self.replaced = True
+                            else:
+                                self.dkey = key
+                                self.remove_perforated_plate_by_group()
                 self.dkey = None  
             self.close()         
 
@@ -692,7 +690,7 @@ class PerforatedPlateInput(QDialog):
                 ax.set_ylabel(("Normalized Impedance - Imaginary [-]"), fontsize = 14, fontweight = 'bold')
         elif self.flag_absortion: 
             ax.set_ylabel(("Absortion coefficient [-]"), fontsize = 14, fontweight = 'bold')
-            ax.set_ylim(0, 1)
+            ax.set_ylim(0,1)
 
         cursor = SnaptoCursor(ax, frequencies, response, True)
         plt.connect('motion_notify_event', cursor.mouse_move)
