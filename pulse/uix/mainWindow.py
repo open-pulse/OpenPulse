@@ -9,6 +9,7 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+from pulse.interface.opvRenderer import ViewOptions, SelectOptions
 
 import sys
 from os.path import expanduser, basename, exists, dirname
@@ -16,7 +17,17 @@ from pathlib import Path
 import numpy as np
 
 from pulse.uix.menu import *
-# from pulse.uix.menu.widgets import *
+
+
+class CustomQMenu(QMenu):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.mouseReleaseFunc = kwargs.get("mouseReleaseFunc", lambda *args, **kwargs:())
+
+    def mouseReleaseEvent(self, *args, **kwargs):
+        super().mouseReleaseEvent(*args, **kwargs)
+        self.mouseReleaseFunc()
+
 
 class MainWindow(QMainWindow):
     def __init__(self, parent = None):
@@ -317,9 +328,12 @@ class MainWindow(QMainWindow):
         self.projectMenu.addAction(self.exit_action)
 
     def _loadGraphicMenu(self):
+        self.createCustomPlotMenu()
+
         self.graphicMenu.addAction(self.entities_action)
         self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.mesh_action)
+        self.graphicMenu.addMenu(self.customPlotMenu)
         self.graphicMenu.addAction(self.section_action)
 
     def _loadModelSetupMenu(self):
@@ -367,6 +381,18 @@ class MainWindow(QMainWindow):
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
+
+    def createCustomPlotMenu(self):
+        self.customPlotMenu = CustomQMenu('Custom Menu', parent=self)
+        self.customPlotMenu.mouseReleaseFunc = self.custom_plot_parameters
+
+        self.customPlotNodes = QAction('Plot Nodes', self, checkable=True)
+        self.customPlotTubes = QAction('Plot Tubes', self, checkable=True)
+        self.customPlotSymbols = QAction('Plot Symbols', self, checkable=True)
+
+        self.customPlotMenu.addAction(self.customPlotNodes)
+        self.customPlotMenu.addAction(self.customPlotTubes)
+        self.customPlotMenu.addAction(self.customPlotSymbols)
 
     def _createMenuBar(self):
         menuBar = self.menuBar()
@@ -470,6 +496,22 @@ class MainWindow(QMainWindow):
 
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
+    
+    def custom_plot_parameters(self, *args, **kwargs):
+        transparent = self.customPlotNodes.isChecked() and self.customPlotTubes.isChecked()
+        select_nodes = self.customPlotNodes.isChecked()
+
+        viewOpt  = (ViewOptions.SHOW_LINES)
+        viewOpt |= (ViewOptions.SHOW_NODES) if self.customPlotNodes.isChecked() else 0
+        viewOpt |= (ViewOptions.SHOW_TUBES) if self.customPlotTubes.isChecked() else 0
+        viewOpt |= (ViewOptions.SHOW_TRANSP) if transparent else 0
+
+        if select_nodes:
+            selectOpt = SelectOptions.SELECT_NODES | SelectOptions.SELECT_ELEMENTS
+        else:
+            selectOpt = SelectOptions.SELECT_ENTITIES
+
+        self.opv_widget.changePlotToCustom(viewOpt, selectOpt)
 
     def draw(self):
         self.opv_widget.updatePlots()

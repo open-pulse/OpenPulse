@@ -9,7 +9,7 @@ import vtk
 # from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
 # from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
 # from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
-from pulse.interface.opvRenderer import opvRenderer
+from pulse.interface.opvRenderer import opvRenderer, ViewOptions, SelectOptions
 from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 
 
@@ -25,6 +25,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
+        self.change_plot_to_custom = False
 
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
@@ -44,65 +45,75 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalisysRenderer.plot()
     
     def changePlotToEntities(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(False)
+        viewOpt = (
+            ViewOptions.SHOW_LINES
+        )
+
+        selectOpt = (
+            SelectOptions.SELECT_ENTITIES
+        )
+
+        self.opvRenderer.setShowOptions(viewOpt)
+        self.opvRenderer.setSelectionOptions(selectOpt)
+
         self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
-
         self._updateAxes()
-
     
     def changePlotToEntitiesWithCrossSection(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
 
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(True, transparent=False)
+        viewOpt = (
+            ViewOptions.SHOW_LINES | ViewOptions.SHOW_TUBES
+        )
+
+        selectOpt = (
+            SelectOptions.SELECT_ENTITIES
+        )
+
+        self.opvRenderer.setShowOptions(viewOpt)
+        self.opvRenderer.setSelectionOptions(selectOpt)
+
         self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
-
         self._updateAxes()
 
 
     def changePlotToMesh(self):
-
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(True)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(True)
-        self.opvRenderer.showTubes(True, transparent=True)
+        viewOpt = (
+            ViewOptions.SHOW_NODES | ViewOptions.SHOW_LINES | ViewOptions.SHOW_SYMBOLS |
+            ViewOptions.SHOW_TUBES | ViewOptions.SHOW_TRANSP
+        )
+
+        selectOpt = (
+            SelectOptions.SELECT_NODES | SelectOptions.SELECT_ELEMENTS
+        )
+
+        self.opvRenderer.setShowOptions(viewOpt)
+        self.opvRenderer.setSelectionOptions(selectOpt)
+
         self.opvRenderer.update()
+        self._updateAxes()
 
-        self.opvRenderer.selectNodes(True)
-        self.opvRenderer.selectElements(True)
-        self.opvRenderer.selectEntities(False)
-
+    def changePlotToCustom(self, viewOpt=1, selectOpt=2):
+        self.setRenderer(self.opvRenderer)
+        self.opvRenderer.setShowOptions(viewOpt)
+        self.opvRenderer.setSelectionOptions(selectOpt)
+        self.opvRenderer.update()
         self._updateAxes()
 
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
