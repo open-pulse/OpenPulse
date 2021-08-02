@@ -60,6 +60,10 @@ class opvAnalisysRenderer(vtkRendererBase):
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()
+
+    def setInUse(self, *args, **kwargs):
+        super().setInUse(*args, **kwargs)
+        self.pauseAnimation()
     
     def update(self):
         self.opv.updateDialogs()
