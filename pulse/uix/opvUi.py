@@ -4,11 +4,6 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-# from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-# from pulse.uix.vtk.renderer.rendererElement import RendererElement
-# from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
-# from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
-# from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer, ViewOptions, SelectOptions
 from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 
@@ -49,16 +44,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
 
+        viewOpt = ViewOptions.SHOW_LINES
+        selectOpt = SelectOptions.SELECT_ENTITIES
+
         self.setRenderer(self.opvRenderer)
-
-        viewOpt = (
-            ViewOptions.SHOW_LINES
-        )
-
-        selectOpt = (
-            SelectOptions.SELECT_ENTITIES
-        )
-
         self.opvRenderer.setShowOptions(viewOpt)
         self.opvRenderer.setSelectionOptions(selectOpt)
 
@@ -70,16 +59,10 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
 
+        viewOpt = ViewOptions.SHOW_LINES | ViewOptions.SHOW_TUBES
+        selectOpt = SelectOptions.SELECT_ENTITIES
+
         self.setRenderer(self.opvRenderer)
-
-        viewOpt = (
-            ViewOptions.SHOW_LINES | ViewOptions.SHOW_TUBES
-        )
-
-        selectOpt = (
-            SelectOptions.SELECT_ENTITIES
-        )
-
         self.opvRenderer.setShowOptions(viewOpt)
         self.opvRenderer.setSelectionOptions(selectOpt)
 
@@ -92,17 +75,14 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-        self.setRenderer(self.opvRenderer)
-
         viewOpt = (
             ViewOptions.SHOW_NODES | ViewOptions.SHOW_LINES | ViewOptions.SHOW_SYMBOLS |
             ViewOptions.SHOW_TUBES | ViewOptions.SHOW_TRANSP
         )
 
-        selectOpt = (
-            SelectOptions.SELECT_NODES | SelectOptions.SELECT_ELEMENTS
-        )
+        selectOpt = SelectOptions.SELECT_NODES | SelectOptions.SELECT_ELEMENTS
 
+        self.setRenderer(self.opvRenderer)
         self.opvRenderer.setShowOptions(viewOpt)
         self.opvRenderer.setSelectionOptions(selectOpt)
 
@@ -138,17 +118,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities_with_cross_section = False
 
     def setRenderer(self, renderer):
-        # if renderer.getInUse(): 
-        #     return
-        
         self.clearRendereres()
         self.clearRendereresUse()
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
 
-    # def updateDialogs(self):
-    #     pass
 
     def updateDialogs(self):
         if self.inputObject is None:
