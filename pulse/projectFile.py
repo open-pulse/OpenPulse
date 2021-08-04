@@ -259,9 +259,9 @@ class ProjectFile:
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
                 if acoustic_element_type != "":
-                    if acoustic_element_type == 'hysteretic':
-                        hysteretic_damping = entityFile[entity]['hysteretic damping']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(hysteretic_damping)]
+                    if acoustic_element_type == 'proportional':
+                        proportional_damping = entityFile[entity]['proportional damping']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping)]
                     else:
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None]
                     self.element_type_is_acoustic = True
@@ -870,18 +870,18 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_acoustic_element_type_in_file(self, entity_id, element_type, hysteretic_damping=None):
+    def modify_acoustic_element_type_in_file(self, entity_id, element_type, proportional_damping=None):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
         _section = str(entity_id)
 
         config[_section]['acoustic element type'] = element_type
-        if element_type == 'hysteretic':
-            config[_section]['hysteretic damping'] = str(hysteretic_damping)
+        if element_type == 'proportional':
+            config[_section]['proportional damping'] = str(proportional_damping)
             
-        if element_type != 'hysteretic' and 'hysteretic damping' in config[_section].keys():
-            config.remove_option(section=_section, option='hysteretic damping')  
+        if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
+            config.remove_option(section=_section, option='proportional damping')  
     
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)

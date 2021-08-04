@@ -60,8 +60,8 @@ class RendererEntity(vtkRendererBase):
 
                     if entity.acoustic_element_type is not None:
                         text += f'\nAcoustic element type: {entity.acoustic_element_type}'
-                    if entity.hysteretic_damping is not None:
-                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
+                    if entity.proportional_damping is not None:
+                        text += f'\nProportional damping: {entity.proportional_damping}'        
 
             else:
 
@@ -118,8 +118,8 @@ class RendererEntity(vtkRendererBase):
                 if entity.acoustic_element_type is not None:
                     text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
-                if entity.hysteretic_damping is not None:
-                    text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+                if entity.proportional_damping is not None:
+                    text += f'\nProportional damping: {entity.proportional_damping}' 
 
         else:
 

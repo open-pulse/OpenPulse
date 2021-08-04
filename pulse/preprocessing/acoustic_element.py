@@ -65,12 +65,12 @@ class AcousticElement:
     index : int
         Element index.
 
-    element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
+    element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
         Element type
         Default is 'undamped'.
 
-    hysteretic_damping : float, optional
-        Hysteretic damping coefficient 
+    proportional_damping : float, optional
+        Proportional damping coefficient 
         Default is 'None'.
 
     material : Material object, optional
@@ -102,7 +102,7 @@ class AcousticElement:
         self.last_node = last_node
         self.index = index
         self.element_type = kwargs.get('element_type', 'undamped')
-        self.hysteretic_damping = kwargs.get('hysteretic_damping', None)
+        self.proportional_damping = kwargs.get('proportional_damping', None)
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
@@ -236,14 +236,14 @@ class AcousticElement:
         """
         if self.perforated_plate:
             return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
-        elif self.element_type in ['undamped','hysteretic','wide-duct','LRF fluid equivalent']:
+        elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
             return self.fetm_1d_matrix(frequencies, length_correction)
         elif self.element_type == 'LRF full':
             return self.lrf_thermoviscous_matrix(frequencies, length_correction)  
     
     def fetm_1d_matrix(self, frequencies, length_correction = 0):
         """
-        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Hysteretic, Wide-duct, and LRF fluid equivalent.
+        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
 
         Parameters
         ----------
@@ -273,7 +273,7 @@ class AcousticElement:
 
     def _fetm_damping_models(self, frequencies):
         """
-        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are Undamped, Hysteretic, Wide-duct, and LRF fluid equivalent.
+        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
 
         Parameters
         ----------
@@ -299,8 +299,8 @@ class AcousticElement:
                 self.flag_plane_wave = True
             return kappa_real, c0 * rho_0
 
-        elif self.element_type == 'hysteretic':
-            hysteresis = (1 - 1j*self.hysteretic_damping)
+        elif self.element_type == 'proportional':
+            hysteresis = (1 - 1j*self.proportional_damping)
             kappa_complex = kappa_real * hysteresis
             impedance_complex = c0 * rho_0 * hysteresis
             

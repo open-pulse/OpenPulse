@@ -37,7 +37,7 @@ preprocessor.set_acoustic_pressure_bc_by_node(10, 1 + 0j)
 preprocessor.set_radiation_impedance_bc_by_node(1047 , 0)
 
 element_type = 'LRF full'
-preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=None)
+preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=None)
 
 preprocessor.set_fluid_by_element('all', air)
 preprocessor.set_cross_section_by_element('all', cross_section)
