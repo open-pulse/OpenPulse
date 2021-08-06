@@ -82,6 +82,7 @@ class Node:
         self.deformed_rotations_xyz_gcs = None
         self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
+        self.static_nodal_solution_gcs = None
 
     @property
     def coordinates(self):

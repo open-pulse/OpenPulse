@@ -222,7 +222,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if stop:
-            return
+            return True
 
         self.localDof = None
         if self.SingleDiff:
@@ -271,6 +271,8 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         if not export:
             self.plot()
+
+        return False
 
     def ExportResults(self):
         

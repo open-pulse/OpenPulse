@@ -30,6 +30,7 @@ class Preprocessor:
         """
         This method reset the class default values.
         """
+        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
@@ -37,13 +38,14 @@ class Preprocessor:
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
+        self.elements_with_expansion_joint = []
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
         self.group_elements_with_stress_stiffening = {}
-        self.group_elements_with_expansion_joint = {}
+        self.group_elements_with_expansion_joints = {}
         self.group_lines_with_capped_end = {}        
         self.dict_lines_with_stress_stiffening = {}
-        self.dict_lines_with_expansion_joint = {}
+        self.dict_lines_with_expansion_joints = {}
         self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
         self.connectivity_matrix = []
@@ -71,8 +73,8 @@ class Preprocessor:
         self.dict_coordinate_to_update_bc_after_remesh = {}
         self.dict_old_to_new_extenal_indexes = {}
 
-        self.dict_nodes_with_elastic_link_stiffness = {}
-        self.dict_nodes_with_elastic_link_damping = {}
+        self.nodes_with_elastic_link_stiffness = {}
+        self.nodes_with_elastic_link_damping = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -80,9 +82,10 @@ class Preprocessor:
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
         self.flag_fluid_mass_effect = False
+        self.stress_stiffening_enabled = False
         self.group_index = 0
         self.volume_velocity_table_index = 0
-        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        
         self.beam_gdofs = None
         self.pipe_gdofs = None
 
@@ -98,6 +101,7 @@ class Preprocessor:
         element_size : float
             Element size to be used to build the preprocessor.
         """
+        self.element_size = element_size
         self.reset_variables()
         self._initialize_gmsh(path)
         self._set_gmsh_options(element_size)
@@ -119,7 +123,7 @@ class Preprocessor:
         self.get_connectivity_matrix()
         self.get_list_edge_nodes(element_size)
         self._get_principal_diagonal_structure_parallelepiped()
-        self.get_dict_line_to_nodes()
+        # self.get_dict_line_to_nodes()
         
         # t0 = time()
         self.process_all_rotation_matrices()
@@ -527,28 +531,28 @@ class Preprocessor:
         # dt = time()-t0
         # print("Time to process the global matrices bandwidth reduction: ", dt)
 
-    def get_dict_line_to_nodes(self):
-        # t0 = time()
-        self.dict_line_to_nodes = {}
-        for line_ID, list_elements in self.line_to_elements.items():
-            # list_nodes = []
-            list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-            for i, _id in enumerate(list_elements):
-                element = self.structural_elements[_id]
-                first_node_id = element.first_node.external_index
-                last_node_id = element.last_node.external_index
-                if i==0:
-                    list_nodes[i] = first_node_id
-                list_nodes[i+1] = last_node_id
-                # if first_node_id not in list_nodes:
-                #     list_nodes.append(first_node_id)
-                # if last_node_id not in list_nodes:
-                #     list_nodes.append(last_node_id)
-            self.dict_line_to_nodes[line_ID] = list_nodes  
-            # if line_ID in [1,2,3]:
-            #     print(self.dict_line_to_nodes[line_ID])  
-        # dt = time() - t0
-        # print(f"Time to process : {dt}")
+    # def get_dict_line_to_nodes(self):
+    #     # t0 = time()
+    #     self.dict_line_to_nodes = {}
+    #     for line_ID, list_elements in self.line_to_elements.items():
+    #         # list_nodes = []
+    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+    #         for i, _id in enumerate(list_elements):
+    #             element = self.structural_elements[_id]
+    #             first_node_id = element.first_node.external_index
+    #             last_node_id = element.last_node.external_index
+    #             if i==0:
+    #                 list_nodes[i] = first_node_id
+    #             list_nodes[i+1] = last_node_id
+    #             # if first_node_id not in list_nodes:
+    #             #     list_nodes.append(first_node_id)
+    #             # if last_node_id not in list_nodes:
+    #             #     list_nodes.append(last_node_id)
+    #         self.dict_line_to_nodes[line_ID] = list_nodes  
+    #         # if line_ID in [1,2,3]:
+    #         #     print(self.dict_line_to_nodes[line_ID])  
+    #     # dt = time() - t0
+    #     # print(f"Time to process : {dt}")
 
     def load_mesh(self, coordinates, connectivity):
         """
@@ -1435,7 +1439,7 @@ class Preprocessor:
     #         for line in self.all_lines:
     #             self.lines_with_capped_end.append(line)
 
-    def set_stress_stiffening_by_line(self, lines, parameters, remove=False):
+    def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """
         This method .
 
@@ -1454,14 +1458,14 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
         for elements in slicer(self.line_to_elements, lines):
-            self.set_stress_stiffening_by_elements(elements, parameters)
+            self.set_stress_stiffening_by_elements(elements, pressures)
         if lines == "all":
             self.group_elements_with_stress_stiffening = {}
             self.lines_with_stress_stiffening = []
             if not remove:
                 for line in self.all_lines:
                     self.lines_with_stress_stiffening.append(line)
-                    self.dict_lines_with_stress_stiffening[line] = parameters
+                    self.dict_lines_with_stress_stiffening[line] = pressures
         else:
             for line in lines:
                 if remove:
@@ -1471,9 +1475,9 @@ class Preprocessor:
                 else:
                     if line not in self.lines_with_stress_stiffening:
                         self.lines_with_stress_stiffening.append(line)
-                        self.dict_lines_with_stress_stiffening[line] = parameters
+                        self.dict_lines_with_stress_stiffening[line] = pressures
 
-    def set_stress_stiffening_by_elements(self, elements, parameters, section=None, remove=False):
+    def set_stress_stiffening_by_elements(self, elements, pressures, section=None, remove=False):
         """
         This method .
 
@@ -1493,21 +1497,21 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
+        self.stress_stiffening_enabled = True
+        
         for element in slicer(self.structural_elements, elements):
-            element.external_temperature = parameters[0]
-            element.internal_temperature = parameters[1]
-            element.external_pressure = parameters[2]
-            element.internal_pressure = parameters[3]
+            element.external_pressure = pressures[0]
+            element.internal_pressure = pressures[1]
             
             if section is not None:
                 if remove:
                     if section in self.group_elements_with_stress_stiffening.keys():
                         self.group_elements_with_stress_stiffening.pop(section) 
                 else:
-                    self.group_elements_with_stress_stiffening[section] = [parameters, elements]
+                    self.group_elements_with_stress_stiffening[section] = [pressures, elements]
 
 
-    def add_expansion_joint_by_elements(self, elements, parameters, section=None, remove=False):
+    def add_expansion_joint_by_elements(self, list_elements, parameters, remove=False, aux_line_id=None):
         """
         This method .
 
@@ -1527,40 +1531,52 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        # if isinstance(parameters, dict):
+        if aux_line_id is not None:
+            elements_from_line = self.line_to_elements[aux_line_id]
+            temp_dict = self.group_elements_with_expansion_joints.copy()
+            for key, [list_elements, _] in temp_dict.items():
+                for element_id in list_elements:
+                    if element_id in elements_from_line:
+                        self.group_elements_with_expansion_joints.pop(key)
+                        break
+
+        if remove:
+            for element in slicer(self.structural_elements, list_elements):
+                element.reset_expansion_joint_parameters()
+                element.cross_section = None
+                if element in self.elements_with_expansion_joint:
+                    self.elements_with_expansion_joint.remove(element)
+                                    
+        else:
+
+            list_lines = []
+            for element_id in list_elements:
+                line_id = self.elements_to_line[element_id]
+                if line_id not in list_lines:
+                    list_lines.append(line_id)
+
+            [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
+            [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+
+            for element in slicer(self.structural_elements, list_elements):
+                element.joint_length = joint_length
+                element.joint_effective_diameter = effective_diameter
+                element.joint_mass = joint_mass
+                element.joint_axial_locking_criteria = axial_locking_criteria
+                element.joint_rods_included = rods_included
+                element.joint_axial_stiffness = axial_stiffness
+                element.joint_transversal_stiffness = transversal_stiffness
+                element.joint_torsional_stiffness = torsional_stiffness
+                element.joint_angular_stiffness = angular_stiffness
+                element.expansion_joint_parameters = parameters
+                if element not in self.elements_with_expansion_joint:
+                    self.elements_with_expansion_joint.append(element)
                 
-        #     joint_length = parameters["joint_length"]
-        #     effective_diameter = parameters["effective_diameter"]
-        #     joint_mass = parameters["joint_mass"]
-        #     axial_locking_criteria = parameters["axial_locking_criteria"]
-        #     rods_included = parameters["rods_included"]
-        #     axial_stiffness = parameters["axial_stiffness"]
-        #     transversal_stiffness = parameters["transversal_stiffness"]
-        #     torsional_stiffness = parameters["torsional_stiffness"]
-        #     angular_stiffness = parameters["angular_stiffness"]
-        
-        # elif isinstance(parameters, list):
+            if aux_line_id is None:
+                size = len(self.group_elements_with_expansion_joints)
+                key = f"group-{size+1}"
+                self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
 
-        [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
-        [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
-
-        for element in slicer(self.structural_elements, elements):
-            element.joint_length = joint_length
-            element.joint_effective_diameter = effective_diameter
-            element.joint_mass = joint_mass
-            element.joint_axial_locking_criteria = axial_locking_criteria
-            element.joint_rods_included = rods_included
-            element.joint_axial_stiffness = axial_stiffness
-            element.joint_transversal_stiffness = transversal_stiffness
-            element.joint_torsional_stiffness = torsional_stiffness
-            element.joint_angular_stiffness = angular_stiffness
-            
-            if section is not None:
-                if remove:
-                    if section in self.group_elements_with_expansion_joint.keys():
-                        self.group_elements_with_expansion_joint.pop(section) 
-                else:
-                    self.group_elements_with_expansion_joint[section] = [parameters, elements]
 
     def add_expansion_joint_by_line(self, line, parameters, remove=False):
         """
@@ -1579,8 +1595,12 @@ class Preprocessor:
             Default is False.
         """
         for elements in slicer(self.line_to_elements, line):
-            self.add_expansion_joint_by_elements(elements, parameters)
-        self.dict_lines_with_expansion_joint[line] = parameters
+            self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line)
+        if remove:
+            if line in list(self.dict_lines_with_expansion_joints.keys()):
+                self.dict_lines_with_expansion_joints.pop(line)
+        else:
+            self.dict_lines_with_expansion_joints[line] = parameters
         
     def set_stress_intensification_by_element(self, elements, value):
         """
@@ -2101,8 +2121,10 @@ class Preprocessor:
 
         if True in check_tables:
             node1.loaded_table_for_elastic_link_stiffness = True
+            node2.loaded_table_for_elastic_link_stiffness = True
+            node1.loaded_table_for_elastic_link_damping = True
             node2.loaded_table_for_elastic_link_damping = True
-            value_labels = ["Table"]*len(check_tables)#.count(True)
+            value_labels = ["Table"]*len(check_tables)
         else:
             value_labels = parameters#np.array(parameters)#[mask]
             node1.loaded_table_for_elastic_link_stiffness = False
@@ -2121,14 +2143,14 @@ class Preprocessor:
         key = "{}-{}".format(min_node_ID, max_node_ID)
         
         if _stiffness:
-            self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            self.nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
             node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node1.there_are_elastic_nodal_link_stiffness = True
             node2.there_are_elastic_nodal_link_stiffness = True
         
         if _damping:
-            self.dict_nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            self.nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
             node1.elastic_nodal_link_damping[key] = [mask, value_labels]
             node2.elastic_nodal_link_damping[key] = [mask, value_labels]
             node1.there_are_elastic_nodal_link_damping = True
@@ -2261,3 +2283,28 @@ class Preprocessor:
     def get_model_checks(self):
         return BeforeRun(self)
                 
+
+    def deformed_amplitude_control_in_expansion_joints(self):
+        """This method evaluates the deformed amplitudes in expansion joints nodes
+        and reduces the amplitude through rescalling if higher levels are observed."""
+        for element in self.elements_with_expansion_joint:
+
+            results_lcs = element.element_results_lcs()
+            delta_yz = sum(results_lcs[1:3]**2)**(1/2)
+            
+            if delta_yz > 3*self.element_size:
+                value = element.joint_effective_diameter/6
+                # print(f"Element: {element.index} <==> delta_yz: {delta_yz}")
+                return True, value
+            
+            first_node = element.first_node
+            last_node = element.last_node
+            delta_x = abs(  (last_node.x + results_lcs[6]) - 
+                            (first_node.x + results_lcs[0]) )
+
+            if delta_x < self.element_size/3 or delta_x > 2*self.element_size: 
+                value = self.element_size/2
+                # print(f"Element: {element.index} <==> delta_yz: {delta_x}")
+                return True, value
+
+        return False, None

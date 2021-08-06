@@ -87,6 +87,7 @@ class Project:
         self.is_file_loaded = False
         self.setup_analysis_complete = False
         self.none_project_action = False
+        self.stress_stiffening_enabled = False
 
         self.time_to_load_or_create_project = None
         self.time_to_checking_entries = None
@@ -100,6 +101,7 @@ class Project:
 
         self.number_sections_by_line = {}
         self.lines_with_cross_section_by_elements = []
+        # self.lines_with_expansion_joint_by_elements = defaultdict(list)
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -189,9 +191,13 @@ class Project:
         dict_expansion_joint = self.file.dict_expansion_joint_parameters
         
         # Structural element type to the entities
-        for key, el_type in dict_structural_element_type.items():
+        for key, etype_data in dict_structural_element_type.items():
             if self.file.element_type_is_structural:
-                self.load_structural_element_type_by_entity(key, el_type)
+                if "-" in key:
+                    self.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
+                else:
+                    line_id = int(key)
+                    self.load_structural_element_type_by_entity(line_id, etype_data) 
 
         # Acoustic element type to the entities
         for key, [el_type, hysteretic_damping] in dict_acoustic_element_types.items():
@@ -240,22 +246,30 @@ class Project:
                     self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
 
         # Expansion Joint to the entities
-        for key, parameters in dict_expansion_joint.items():
-            self.load_expansion_joint_by_line(key, parameters)
+        for key, joint_data in dict_expansion_joint.items():
+            if "-" in key:
+                parameters = joint_data[1]
+                for list_elements in joint_data[0]:
+                    self.load_expansion_joint_by_elements(list_elements, parameters)
+            else:
+                line_id = int(key)
+                self.load_expansion_joint_by_line(line_id, joint_data)
         
         # Stress Stiffening to the entities and elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
                 self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
             else:
-                self.load_stress_stiffening_by_entity(key, parameters)        
+                self.load_stress_stiffening_by_line(key, parameters)        
 
         # Capped end to the entities and elements
         for key, group in dict_capped_end.items():
             if "CAPPED END" in key:  
                 self.load_capped_end_by_elements(group, True, key)
-            elif "True" in key:
+            else:
                 self.load_capped_end_by_entity(group, True, key)
+            # elif "True" in key:
+            #     self.load_capped_end_by_entity(group, True, key)
 
     def load_mapped_cross_section(self):  
 
@@ -294,7 +308,6 @@ class Project:
                                                 index_etype, 
                                                 insulation_thickness, 
                                                 insulation_density ])].append(index)
-        # print(len(map_cross_section_to_elements))
             
         for key, elements in map_cross_section_to_elements.items():
 
@@ -478,18 +491,17 @@ class Project:
 
     def set_cross_section_by_elements(self, elements, cross_section):
         self.preprocessor.set_cross_section_by_element(elements, cross_section)
-        dict_elements_to_line = self.preprocessor.elements_to_line
         for element in elements:
-            line = dict_elements_to_line[element]
+            line = self.preprocessor.elements_to_line[element]
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
 
     def set_cross_section_by_line(self, line_id, cross_section):
+        self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
         if self.file.get_import_type() == 0:
             self.preprocessor.set_cross_section_by_line(line_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
-
         self._set_cross_section_to_selected_entity(line_id, cross_section)
         self.file.add_cross_section_in_file(line_id, cross_section)
 
@@ -512,11 +524,11 @@ class Project:
         self._set_structural_element_type_to_selected_entity(entity_id, element_type)
         self.file.modify_structural_element_type_in_file(entity_id, element_type)
         
-    def set_acoustic_element_type_to_all(self, element_type, hysteretic_damping=None):
-        self.preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
-        self._set_acoustic_element_type_to_all_entities(element_type, hysteretic_damping=hysteretic_damping)
-        for line_id in self.preprocessor.all_lines:
-            self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
+    # def set_acoustic_element_type_to_all(self, element_type, hysteretic_damping=None):
+    #     self.preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
+    #     self._set_acoustic_element_type_to_all_entities(element_type, hysteretic_damping=hysteretic_damping)
+    #     for line_id in self.preprocessor.all_lines:
+    #         self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
 
     def set_acoustic_element_type_by_line(self, entity_id, element_type, hysteretic_damping=None):
         if self.file.get_import_type() == 0:
@@ -625,21 +637,77 @@ class Project:
             values = parameters
         self.file.add_structural_bc_in_file(section_string, values, labels)
 
-    def add_expansion_joint_by_line(self, lineID, parameters, imported_table, list_table_names=[]):
-        self.preprocessor.add_expansion_joint_by_line(lineID, parameters)
-        self.set_structural_element_type_by_entity(lineID, "expansion_joint")
-        # self.set_cross_section_by_line(lineID, None)  
-        self._set_expansion_joint_to_selected_entity(lineID, parameters)
-        if imported_table:
-            self.file.modify_expansion_joint_in_file(lineID, parameters, list_table_names=list_table_names) 
+    def add_expansion_joint_by_line(self, line_id, parameters, imported_table, list_table_names=[]):
+        if parameters is None:
+            remove = True
+            capped = False
+            etype = "pipe_1"
         else:
-            self.file.modify_expansion_joint_in_file(lineID, parameters)   
+            remove = False
+            capped = True
+            etype = "expansion_joint"
+
+        self.preprocessor.add_expansion_joint_by_line(line_id, parameters, remove=remove)
+        self.set_capped_end_by_line(line_id, capped)
+        self.set_structural_element_type_by_entity(line_id, etype)
+        if etype == "pipe_1":
+            self.set_cross_section_by_line(line_id, None)  
+        self._set_expansion_joint_to_selected_entity(line_id, parameters)
+        if imported_table:
+            self.file.modify_expansion_joint_in_file(line_id, parameters, list_table_names=list_table_names) 
+        else:
+            self.file.modify_expansion_joint_in_file(line_id, parameters)   
            
 
-    def add_expansion_joint_by_elements(self, list_elements, _parameters):
-        parameters = _parameters
-        self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters)
-        self.preprocessor.set_structural_element_type_by_element(list_elements, "expansion_joint")
+    def add_expansion_joint_by_elements(self, list_elements, parameters, imported_table, list_table_names=[], update_element_type=True):
+        if parameters is None:
+            remove = True
+            capped = False
+            element_type = "pipe_1"
+        else:
+            remove = False
+            capped = True
+            element_type = "expansion_joint"
+
+        self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters, remove=remove)
+        if update_element_type:
+            self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
+
+        list_lines = []
+        for element in list_elements:
+            line_id = self.preprocessor.elements_to_line[element]
+            if line_id not in list_lines:
+                list_lines.append(line_id)
+            # if line_id not in self.lines_with_expansion_joint_by_elements.keys():
+            #     self.lines_with_expansion_joint_by_elements[line_id].append(parameters)
+            # else:
+            #     if parameters not in self.lines_with_expansion_joint_by_elements[line_id]:
+            #         self.lines_with_expansion_joint_by_elements[line_id].append(parameters)
+                    
+        structural_elements = self.preprocessor.structural_elements
+        dict_multiple_expansion_joints = {}
+        dict_key_parameters_to_elements = defaultdict(list)
+        dict_key_parameters_to_parameters = {}
+        for line_id in list_lines:
+            for element_id in self.preprocessor.line_to_elements[line_id]:
+                element = structural_elements[element_id]
+                dict_key_parameters_to_elements[str(element.expansion_joint_parameters)].append(element_id)
+                dict_key_parameters_to_parameters[str(element.expansion_joint_parameters)] = element.expansion_joint_parameters
+            
+            for ind, (key_parameters, _list_elements) in enumerate(dict_key_parameters_to_elements.items()):
+                section_key = f"{line_id}-{ind+1}"
+                parameters = dict_key_parameters_to_parameters[key_parameters]
+                dict_multiple_expansion_joints[section_key] = [parameters, _list_elements]
+                if ind > 0:
+                    list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
+                                                                                            parameters[0][1]  )
+                    self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
+
+            if imported_table:
+                self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints, list_table_names=list_table_names) 
+            else:
+                self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints) 
+
 
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.preprocessor.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
@@ -657,17 +725,17 @@ class Project:
         
         for line in lines:    
             if remove:
-                self._set_stress_stiffening_to_selected_entity(line, [None, None, None, None])
+                self._set_stress_stiffening_to_selected_line(line, [None, None, None, None])
                 self.file.modify_stress_stiffnening_entity_in_file(line, [], remove=True)
             else:
-                self._set_stress_stiffening_to_selected_entity(line, parameters)
+                self._set_stress_stiffening_to_selected_line(line, parameters)
                 self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
 
-    def set_stress_stiffening_to_all_lines(self, parameters):
-        self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
-        self._set_stress_stiffening_to_all_entities(parameters)
-        for line in self.preprocessor.all_lines:
-            self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
+    # def set_stress_stiffening_to_all_lines(self, parameters):
+    #     self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
+    #     self._set_stress_stiffening_to_all_entities(parameters)
+    #     for line in self.preprocessor.all_lines:
+    #         self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
 
     def load_material_by_entity(self, entity_id, material):
         if self.file.get_import_type() == 0:
@@ -679,12 +747,12 @@ class Project:
     def load_stress_stiffening_by_elements(self, elements_id, parameters, section=None):
         self.preprocessor.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
 
-    def load_stress_stiffening_by_entity(self, entity_id, parameters):
+    def load_stress_stiffening_by_line(self, line_id, parameters):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_stress_stiffening_by_line(entity_id, parameters)
+            self.preprocessor.set_stress_stiffening_by_line(line_id, parameters)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_fluid_by_element('all', parameters)
-        self._set_fluid_to_selected_entity(entity_id, parameters)
+        self._set_stress_stiffening_to_selected_line(line_id, parameters)
 
     def load_fluid_by_entity(self, entity_id, fluid):
         if self.file.get_import_type() == 0:
@@ -715,6 +783,12 @@ class Project:
         self._set_cross_section_to_selected_entity(line_id, list_cross_sections[0])
         self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
     
+    def load_expansion_joint_by_elements(self, list_elements, data):
+        self.preprocessor.add_expansion_joint_by_elements(list_elements, data)
+        list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
+                                                                                data[0][1]  )
+        self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
+
     def load_beam_xaxis_rotation_by_entity(self, line_id, angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, angle)
         self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
@@ -725,6 +799,10 @@ class Project:
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_selected_entity(entity_id, element_type)
+
+    def load_structural_element_type_by_elements(self, list_elements, element_type):
+        self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
+        # self._set_structural_element_type_to_selected_entity(entity_id, element_type)
 
     def load_acoustic_element_type_by_entity(self, entity_id, element_type, hysteretic_damping=None):
         if self.file.get_import_type() == 0:
@@ -762,6 +840,7 @@ class Project:
             self.preprocessor.set_capped_end_by_line(lines, value)
         # elif self.file.get_import_type() == 1:
         #     self.preprocessor.set_capped_end_by_element('all', value)
+        self._set_capped_end_to_entity(lines, value)
 
     def get_nodes_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
@@ -843,19 +922,14 @@ class Project:
         entity = self.preprocessor.dict_tag_to_entity[line_id]
         entity.beam_xaxis_rotation = angle
 
-    def _set_stress_stiffening_to_selected_entity(self, entity_id, parameters):
+    def _set_stress_stiffening_to_selected_line(self, entity_id, pressures):
         entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.external_temperature = parameters[0]
-        entity.internal_temperature = parameters[1]
-        entity.external_pressure = parameters[2]
-        entity.internal_pressure = parameters[3]
-
-    def _set_stress_stiffening_to_all_entities(self, parameters):
-        for entity in self.entities:
-            entity.external_temperature = parameters[0]
-            entity.internal_temperature = parameters[1]
-            entity.external_pressure = parameters[2]
-            entity.internal_pressure = parameters[3]
+        entity.stress_stiffening_parameters = pressures
+        
+    # def _set_stress_stiffening_to_all_entities(self, pressures):
+    #     for entity in self.entities:
+    #         entity.external_pressure = pressures[0]
+    #         entity.internal_pressure = pressures[1]
 
     def _set_expansion_joint_to_selected_entity(self, entity_id, parameters):
         entity = self.preprocessor.dict_tag_to_entity[entity_id]
@@ -924,15 +998,18 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         self.preprocessor.set_capped_end_by_line(lines, value)
-        if lines == "all":
-            for tag in self.preprocessor.all_lines:
-                self.file.modify_capped_end_entity_in_file(tag, value)
-        else:
-            for tag in lines:
-                if value:
-                    self.file.modify_capped_end_entity_in_file(tag, value)
-                else:
-                    self.file.modify_capped_end_entity_in_file(tag, value)      
+        # if lines == "all":
+        #     for line_id in self.preprocessor.all_lines:
+        #         self.file.modify_capped_end_entity_in_file(line_id, value)
+        # else:
+        self._set_capped_end_to_entity(lines, value)
+        for line_id in lines:
+            self.file.modify_capped_end_entity_in_file(line_id, value)      
+
+    def _set_capped_end_to_entity(self, lines, value):
+        for line in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity.capped_end = value
 
     def get_nodes_with_acoustic_pressure_bc(self):
         return self.preprocessor.nodesAcousticBC

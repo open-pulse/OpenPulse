@@ -358,7 +358,7 @@ class opvRenderer(vtkRendererBase):
                     unit = f'[{unit_labels[0]}]'
                 else:
                     unit = f'[{unit_labels[1]}]'
-                text += f'  {label} = {value} {unit} \n'
+            text += f'  {label} = {value} {unit} \n'
 
         return text
 

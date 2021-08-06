@@ -370,7 +370,7 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_setStructuralElementType:
             if not self.item_child_setStructuralElementType.isDisabled():
-                self.update_plot_entities()
+                # self.update_plot_entities()
                 self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item == self.item_child_set_material:
@@ -440,7 +440,7 @@ class MenuItems(QTreeWidget):
         
         elif item == self.item_child_setAcousticElementType:
             if not self.item_child_setAcousticElementType.isDisabled():
-                self.update_plot_entities()
+                # self.update_plot_entities()
                 self.mainWindow.getInputWidget().set_acoustic_element_type()
                 self.mainWindow.plot_entities()
 

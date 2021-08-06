@@ -15,19 +15,22 @@ def get_structural_frf(preprocessor, solution, node, dof, absolute=False, real=F
         results = solution[position]
     return results
 
-def get_structural_response(preprocessor, solution, column, gain=None, Normalize=True):
+def get_structural_response(preprocessor, solution, column, gain=None, new_scf=None, Normalize=True):
        
     data = np.real(solution)
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
 
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
-    u_def = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
+    r_xyz = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
     
-    scf = preprocessor.structure_principal_diagonal/50
+    if new_scf is None:
+        scf = preprocessor.structure_principal_diagonal/50
+    else:
+        scf = new_scf
 
     if Normalize:
-        r_max = max(u_def)
+        r_max = max(r_xyz)
         if r_max==0:
             r_max=1
     else:
@@ -53,9 +56,7 @@ def get_structural_response(preprocessor, solution, column, gain=None, Normalize
                                     data[ind+3, column], 
                                     data[ind+4, column], 
                                     data[ind+5, column]]).T*factor
-    # nodal_solution_gcs = nodal_solution_gcs.copy()*factor
 
-    # t0 = time()
     nodes = preprocessor.nodes
     for node in nodes.values():
         
@@ -66,18 +67,18 @@ def get_structural_response(preprocessor, solution, column, gain=None, Normalize
         node.deformed_rotations_xyz_gcs =  nodal_solution_gcs[global_index, [3,4,5]]
 
     preprocessor.process_element_cross_sections_orientation_to_plot()
-    # dt = time() - t0
-    # print(dt)
+   
+    if new_scf is None:
+        control, new_scf = preprocessor.deformed_amplitude_control_in_expansion_joints()
+        if control:
+            return get_structural_response( preprocessor, 
+                                            solution, 
+                                            column, 
+                                            gain=None, 
+                                            new_scf=new_scf,
+                                            Normalize=True  )
 
-    # t0 = time()
-    # elements = preprocessor.structural_elements
-    # list_test = []
-    # for element in elements.values():
-    #     element.get_deformed_local_coordinate_system_info()
-    # dt = time() - t0
-    # print(dt)
-    
-    return connect, coord_def, u_def, factor
+    return connect, coord_def, r_xyz, factor, scf
 
 def get_reactions(preprocessor, reactions, node, dof, absolute=False, real=False, imaginary=False):
     #reactions: dictionary with all reactions and global dofs are the keys of dictionary

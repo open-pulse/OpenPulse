@@ -40,7 +40,6 @@ class StructuralElementTypeInput(QDialog):
         self.list_lines_to_update_cross_section = []
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_selected_ID.setDisabled(True)
         self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
         self.lineEdit_selected_group.setDisabled(True)
 
@@ -80,13 +79,7 @@ class StructuralElementTypeInput(QDialog):
         self.pushButton_get_information.setDisabled(True)
         # self.pushButton_remove.setDisabled(True)
 
-        if self.lines_id != []:
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
-
+        self.update()
         self.load_element_type_info()
         self.exec_()
     
@@ -122,20 +115,24 @@ class StructuralElementTypeInput(QDialog):
         if self.lines_id != []:
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
+            self.lineEdit_selected_ID.setDisabled(False)
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setDisabled(True)
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.lines_id  = self.opv.getListPickedEntities()
         if self.flagEntity:
+            self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
+            self.lineEdit_selected_ID.setDisabled(True)
             self.lineEdit_selected_ID.setText("All lines")
 
     def tabEvent_(self):
@@ -214,16 +211,17 @@ class StructuralElementTypeInput(QDialog):
             self.element_type = 'beam_1'
 
     def button_clicked(self):
-        self.check_element_type_changes()
         if self.flagEntity:
             lineEdit_lineID = self.lineEdit_selected_ID.text()
             self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit_lineID)
             if self.stop:
                 return
+            self.check_element_type_changes()
             for line in self.typed_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in the entities {}".format(self.typed_lines))
         elif self.flagAll:
+            self.check_element_type_changes()
             for line in self.project.preprocessor.all_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in all the entities")

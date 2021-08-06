@@ -1,4 +1,5 @@
 from math import pi, sqrt, sin, cos
+from pulse.preprocessing.acoustic_element import DOF_PER_NODE
 import numpy as np
 
 from pulse.preprocessing.node import Node, distance, DOF_PER_NODE_STRUCTURAL
@@ -131,11 +132,16 @@ class StructuralElement:
 
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
+        self.wall_formutation_type = kwargs.get('wall_formutation_type', "thick wall")
 
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
         self.deformed_length = None
         self.xaxis_beam_rotation = 0
+        
+        self.internal_pressure = 0
+        self.external_pressure = 0
+        self.reset_expansion_joint_parameters()
 
         self.delta_x = self.last_node.x - self.first_node.x
         self.delta_y = self.last_node.y - self.first_node.y
@@ -155,27 +161,13 @@ class StructuralElement:
         self.sub_inverse_rotation_matrix = None
         self.section_directional_vectors = None
         self.mean_rotation_results = None
-        self.rotation_matrix_results_at_local_coordinate_system = None
+        self.rotation_matrix_results_at_lcs = None
 
         self.results_at_global_coordinate_system = None
 
-        self.internal_pressure = kwargs.get('internal_pressure', 0)
-        self.external_pressure = kwargs.get('external_pressure', 0)
-        self.internal_temperature = kwargs.get('internal_temperature', 0)
-        self.external_temperature = kwargs.get('external_temperature', 0)
-      
-        self.joint_length = 0
-        self.joint_effective_diameter = 0
-        self.joint_mass = 0  
-        self.joint_axial_locking_criteria = 0
-        self.joint_rods_included = False
-        self.joint_axial_stiffness = 0
-        self.joint_transversal_stiffness = 0
-        self.joint_torsional_stiffness = 0
-        self.joint_angular_stiffness = 0
-
         self.stress = None
         self.internal_load = None
+        self.static_analysis_evaluated = False
 
 
     @property
@@ -218,15 +210,27 @@ class StructuralElement:
     def element_results_lcs(self):
         return self.element_rotation_matrix@self.element_results_gcs()
     
+    def static_element_results_gcs(self):
+        values = np.zeros(DOF_PER_ELEMENT, dtype=float)
+        values[:DOF_PER_NODE_STRUCTURAL] = self.first_node.static_nodal_solution_gcs
+        values[DOF_PER_NODE_STRUCTURAL:] = self.last_node.static_nodal_solution_gcs
+        return values
+
+    def static_element_results_lcs(self):
+        return self.element_rotation_matrix@self.static_element_results_gcs()
+
     def mean_element_results(self):
         results_gcs = self.element_results_gcs()
-        u_x = (results_gcs[0] + results_gcs[-6])/2
-        u_y = (results_gcs[1] + results_gcs[-5])/2
-        u_z = (results_gcs[2] + results_gcs[-4])/2       
-        theta_x = (results_gcs[3] + results_gcs[-3])/2
-        tehta_y = (results_gcs[4] + results_gcs[-2])/2
-        tehta_z = (results_gcs[5] + results_gcs[-1])/2
-        return np.array([u_x, u_y, u_z, theta_x, tehta_y, tehta_z], dtype=float)
+        results_first_node = results_gcs[:DOF_PER_NODE_STRUCTURAL]
+        results_last_node = results_gcs[DOF_PER_NODE_STRUCTURAL:]
+        return (results_first_node+results_last_node)/2
+        # u_x = (results_gcs[0] + results_gcs[-6])/2
+        # u_y = (results_gcs[1] + results_gcs[-5])/2
+        # u_z = (results_gcs[2] + results_gcs[-4])/2       
+        # theta_x = (results_gcs[3] + results_gcs[-3])/2
+        # tehta_y = (results_gcs[4] + results_gcs[-2])/2
+        # tehta_z = (results_gcs[5] + results_gcs[-1])/2
+        # return np.array([u_x, u_y, u_z, theta_x, tehta_y, tehta_z], dtype=float)
 
     def mean_rotations_at_global_coordinate_system(self):
         results_gcs = self.element_results_gcs()
@@ -269,7 +273,7 @@ class StructuralElement:
         """
         rows = self.global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
         cols = rows.T
-        return rows, cols
+        return rows.reshape(-1), cols.reshape(-1)
 
     def matrices_gcs(self):
         """
@@ -297,12 +301,37 @@ class StructuralElement:
         elif self.element_type in ['beam_1']:
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
-        elif self.element_type == "expansion_joint":
-            stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
+        # elif self.element_type == "expansion_joint":
+        #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
+        #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
+        return stiffness, mass
+
+    def expansion_joint_matrices_gcs(self, frequencies=None):
+        """
+        This method returns the element stiffness and mass matrices according to the 3D Timoshenko beam theory in the global coordinate system.
+
+        Returns
+        -------
+        stiffness : array
+            Element stiffness matrix in the global coordinate system.
+            
+        mass : array
+            Element mass matrix in the global coordinate system.
+
+        See also
+        --------
+        stiffness_matrix_gcs : Element stiffness matrix in the global coordinate system.
+        
+        mass_matrix_gcs : Element mass matrix in the global coordinate system.
+        """
+        self._rot = R = self.element_rotation_matrix = self._element_rotation_matrix()
+        Rt = self.transpose_rotation_matrix = self.element_rotation_matrix.T
+        if self.element_type == "expansion_joint":
+            stiffness = Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
             mass = Rt @ self.mass_matrix_expansion_joint() @ R            
         return stiffness, mass
 
-    def stiffness_matrix_gcs(self):
+    def stiffness_matrix_gcs(self, frequencies=None):
         """
         This method returns the element stiffness matrix according to the 3D Timoshenko beam theory in the global coordinate system.
 
@@ -327,7 +356,9 @@ class StructuralElement:
             return Rt @ self.stiffness_matrix_pipes() @ R
         elif self.element_type in ['beam_1']:
             return Rt @ self.stiffness_matrix_beam() @ R
-
+        elif self.element_type == "expansion_joint":
+            return Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
+            
     def mass_matrix_gcs(self):
         """
         This method returns the element mass matrix according to the 3D Timoshenko beam theory in the global coordinate system.
@@ -349,7 +380,9 @@ class StructuralElement:
             return Rt @ self.mass_matrix_pipes() @ R
         elif self.element_type in ['beam_1']:
             return Rt @ self.mass_matrix_beam() @ R
-    
+        elif self.element_type == "expansion_joint":
+            return Rt @ self.mass_matrix_expansion_joint() @ R  
+
     def force_vector_gcs(self):
         """
         This method returns the element force vector in the global coordinate system.
@@ -393,7 +426,6 @@ class StructuralElement:
         directional_vectors: array
             Element local coordinate system.
         """
-
         # invR = np.linalg.inv(self.sub_transformation_matrix)
         # u = invR@np.array([1,0,0])
         # v = invR@np.array([0,1,0])
@@ -401,7 +433,6 @@ class StructuralElement:
         # invR = inverse_matrix_3x3(self.sub_transformation_matrix)
         # u ,v, w = invR.T
         # self.section_directional_vectors = [u, v, w]
-
         return self.center_element_coordinates, self.section_directional_vectors 
 
     def stiffness_matrix_pipes(self):
@@ -421,6 +452,7 @@ class StructuralElement:
 
         E = self.material.young_modulus
         mu = self.material.mu_parameter
+        G = self.material.shear_modulus
 
         # Area properties
         A = self.cross_section.area
@@ -429,9 +461,6 @@ class StructuralElement:
         J = self.cross_section.polar_moment_area
         res_y = self.cross_section.res_y
         res_z = self.cross_section.res_z
-
-        # Stress stiffening
-        S = self.stress_stiffening()
  
         # Shear coefficiets
         aly = 1/res_y
@@ -467,13 +496,37 @@ class StructuralElement:
                         [-Qz,-Iyz, Iz]])
         self._Dab = Dab
 
+        key = 1
+
+        # Variables related to prestress effect
+        self.Phi_y = key*(12*E*Iz)/(G*aly*A*L**2)
+        self.Phi_z = key*(12*E*Iy)/(G*alz*A*L**2)
+        self.Jx_Ax = key*J/A
+
         ## Numerical integration by Gauss quadrature
         integrations_points = 1
         points, weigths = gauss_quadrature( integrations_points )
 
-        Kabe = 0
-        Ktse = 0
-        Kabt_geo = 0
+        Kabe = 0.
+        Ktse = 0.
+
+        Ue = np.zeros(DOF_PER_ELEMENT, dtype=float)
+        K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        if self.static_analysis_evaluated:
+
+            self.static_analysis_evaluated = False
+            Ue = self.static_element_results_lcs()
+            mat_K_geo = self.get_Te_matrix()
+            Fp_x = self.force_vector_stress_stiffening(vector_gcs=False)
+            Te = (E*A/L)*(Ue[6] - Ue[0]) - Fp_x
+            K_geo = (Te/L)*mat_K_geo
+
+            # if self.index in [12]:
+            #     # print("\nElement 12:")
+            #     # print("UX(11):", self.first_node.static_nodal_solution_gcs[0])
+            #     # print("UX(12):", self.last_node.static_nodal_solution_gcs[0])
+            #     print(f"Te: {Te}")
 
         for point, weigth in zip( points, weigths ):
 
@@ -499,11 +552,65 @@ class StructuralElement:
 
             Kabe += Bab.T @ Dab @ Bab * det_jacob * weigth
             Ktse += Bts.T @ Dts @ Bts * det_jacob * weigth
-            Kabt_geo += Bab.T @ S @ Bab * det_jacob * weigth
-              
-        Ke = Kabe + Ktse + Kabt_geo
+
+        Ke = Kabe + Ktse + K_geo
 
         return principal_axis.T @ Ke @ principal_axis
+
+    def get_Te_matrix(self):
+               
+        L = self.length    
+        den_y = (1 + self.Phi_y)**2
+        den_z = (1 + self.Phi_z)**2
+
+        mat_K_geo = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        
+        mat_K_geo[[1,2,7,8],[1,2,7,8]] = [  (6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y, 
+                                            (6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z,
+                                            (6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y,
+                                            (6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z  ]
+
+        mat_K_geo[[1,2,7,8],[7,8,1,2]] = [  -(6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y, 
+                                            -(6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z,
+                                            -(6/5 + 2*self.Phi_y + self.Phi_y**2)/den_y,
+                                            -(6/5 + 2*self.Phi_z + self.Phi_z**2)/den_z   ]
+
+        mat_K_geo[[3,3,9,9],[3,9,3,9]] =  [  self.Jx_Ax, 
+                                            -self.Jx_Ax, 
+                                            -self.Jx_Ax, 
+                                             self.Jx_Ax    ]
+
+        mat_K_geo[[4,5,10,11],[4,5,10,11]] = [  (L**2)*((2/15) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
+                                                (L**2)*((2/15) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y,
+                                                (L**2)*((2/15) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
+                                                (L**2)*((2/15) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y   ]
+
+        mat_K_geo[[4,5,10,11],[10,11,4,5]] = [  -(L**2)*((1/30) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
+                                                -(L**2)*((1/30) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y,
+                                                -(L**2)*((1/30) + (self.Phi_z/6) + ((self.Phi_z**2)/12))/den_z,
+                                                -(L**2)*((1/30) + (self.Phi_y/6) + ((self.Phi_y**2)/12))/den_y   ]
+
+        mat_K_geo[[1,1,5,11],[5,11,1,1]] =  [   L/(10*den_y), 
+                                                L/(10*den_y),  
+                                                L/(10*den_y), 
+                                                L/(10*den_y)     ]
+
+        mat_K_geo[[4,8,8,10],[8,4,10,8]] =  [   L/(10*den_z), 
+                                                L/(10*den_z), 
+                                                L/(10*den_z), 
+                                                L/(10*den_z)     ]
+
+        mat_K_geo[[5,7,7,11],[7,5,11,7]] =  [   -L/(10*den_y), 
+                                                -L/(10*den_y), 
+                                                -L/(10*den_y), 
+                                                -L/(10*den_y)    ]
+
+        mat_K_geo[[2,2,4,10],[4,10,2,2]] =  [   -L/(10*den_z), 
+                                                -L/(10*den_z), 
+                                                -L/(10*den_z), 
+                                                -L/(10*den_z)    ]
+        
+        return mat_K_geo
 
     def mass_matrix_pipes(self):
         """
@@ -639,12 +746,12 @@ class StructuralElement:
         force : array
             Load vector in the global coordinate system.
         """
-        
-        A = self.cross_section.area
-        Do = self.cross_section.outer_diameter
-        Di = self.cross_section.inner_diameter
         rows = DOF_PER_ELEMENT
         cols = len(frequencies)
+        Do = self.cross_section.outer_diameter
+        Di = self.cross_section.inner_diameter
+        A = self.cross_section.area
+        nu = self.material.poisson_ratio
 
         if self.element_type in ['pipe_1', 'pipe_2']:
             stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
@@ -652,7 +759,7 @@ class StructuralElement:
             return np.zeros((rows, cols))
 
         aux = np.zeros([rows, 1])
-        aux[0], aux[6] = 1, -1
+        aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix
 
         # if self.element_type in ['pipe_1']:
@@ -666,51 +773,60 @@ class StructuralElement:
             capped_end = 0
 
         # aux = R.T @ principal_axis.T @ aux
-        aux = R.T @ aux
-        F_p = (capped_end - 2*self.material.poisson_ratio)* A * aux @ stress_axial.reshape([1,-1])
+        aux = R.T @ aux 
 
-        return F_p
+        return (capped_end - 2*nu)* A * aux @ stress_axial.reshape([1,-1])
 
-    def stress_stiffening(self):
+    def force_vector_stress_stiffening(self, vector_gcs=True):
         """
         This method returns description
-
         Returns
         -------
         S : array
             Load vector in the global coordinate system.
         """
 
-        S = zeros_3x3.copy()
+        rows = DOF_PER_ELEMENT
+        aux = np.zeros([rows, 1])
         
-        if self.element_type in ['beam_1']:
-            return S
-        
-        Din = self.cross_section.outer_diameter
-        Dout = self.cross_section.inner_diameter
+        D_out = self.cross_section.outer_diameter
+        D_in = self.cross_section.inner_diameter
+        A = self.cross_section.area
         nu = self.material.poisson_ratio
-        E = self.material.young_modulus
-        alpha = self.material.thermal_expansion_coefficient
 
-        Pin = self.internal_pressure
-        Pout = self.external_pressure
-        Tin = self.internal_temperature
-        Tout = self.external_temperature
+        P_in = self.internal_pressure
+        P_out = self.external_pressure
+        
+        if self.element_type in ['pipe_1', 'pipe_2']:
+            axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
+        else:
+            return aux
         
         if self.capped_end:
-            sigma_1 = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+            capped_end = 1
         else:
-            sigma_1 = 0
-        sigma_r = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
-        sigma_c = (Pin*(Din**2) - Pout*(Dout**2))/(Dout**2 - Din**2)
+            capped_end = 0
 
-        sigma_1a = sigma_1 - nu*(sigma_r + sigma_c)
-        sigma_1t = -E*alpha*(Tout - Tin)/(1 - nu)
+        if self.element_type == 'pipe_1':
+            principal_axis = self.cross_section.principal_axis
+        else:
+            principal_axis = np.eye(DOF_PER_ELEMENT)
 
-        S[0,0] = sigma_1a + sigma_1t
+        aux[0], aux[6] = -1, 1
+        R = self.element_rotation_matrix
 
-        return S
+        if vector_gcs:
+            # aux = R.T @ (principal_axis.T @ aux)
+            aux = R.T @ aux
+        else:
+            aux = 1
+            capped_end = 0
 
+        if self.wall_formutation_type == "thick wall":
+            return (capped_end - 2*nu) * axial_stress * A * aux
+        elif self.wall_formutation_type == "thin wall":
+            return (capped_end*axial_stress - nu*((P_in*D_out/(D_out-D_in))-P_in)) * A * aux
+            
     def stiffness_matrix_beam(self):
         """
         This method returns the beam element stiffness matrix according to the 3D Timoshenko beam theory in the local coordinate system. This formulation is suitable for any beam cross section data.
@@ -993,14 +1109,14 @@ class StructuralElement:
 
         return shear_coefficient
 
-    def stiffness_matrix_expansion_joint(self):
+    def stiffness_matrix_expansion_joint(self, frequencies=None):
         L_e = self.joint_length/self.length
         K_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-
-        K1 = self.joint_axial_stiffness/L_e
+        
+        K1 = self.joint_axial_stiffness*L_e
         K2 = K3 = self.joint_transversal_stiffness/L_e
-        K4 = self.joint_torsional_stiffness/L_e
-        K5 = K6 = self.joint_angular_stiffness/L_e       
+        K4 = self.joint_torsional_stiffness*L_e
+        K5 = K6 = self.joint_angular_stiffness/L_e  
 
         Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float)
         indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
@@ -1008,6 +1124,35 @@ class StructuralElement:
 
         K_matrix[indexes_1,indexes_1] = K_matrix[indexes_2,indexes_2] = Ks
         K_matrix[indexes_1,indexes_2] = K_matrix[indexes_2,indexes_1] = -Ks
+ 
+        return K_matrix
+
+    def stiffness_matrix_expansion_joint_harmonic(self, frequencies=None):
+        L_e = self.joint_length/self.length
+        if frequencies is None:
+            K_matrix = np.zeros((1, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        else:
+            K_matrix = np.zeros((len(frequencies), DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+        
+        K1 = self.joint_axial_stiffness*L_e
+        K2 = K3 = self.joint_transversal_stiffness/L_e
+        K4 = self.joint_torsional_stiffness*L_e
+        K5 = K6 = self.joint_angular_stiffness/L_e  
+
+        K1 = self.get_array_values(K1, frequencies)
+        K2 = self.get_array_values(K2, frequencies)
+        K3 = K2
+        K4 = self.get_array_values(K4, frequencies)
+        K5 = self.get_array_values(K5, frequencies)
+        K6 = K5   
+
+        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(len(frequencies), DOF_PER_NODE_STRUCTURAL)
+        indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
+        indexes_2 = indexes_1 + 6
+
+        K_matrix[:,indexes_1,indexes_1] = K_matrix[:,indexes_2,indexes_2] = Ks
+        K_matrix[:,indexes_1,indexes_2] = K_matrix[:,indexes_2,indexes_1] = -Ks
+
         return K_matrix
 
     def mass_matrix_expansion_joint(self):
@@ -1020,6 +1165,28 @@ class StructuralElement:
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
+    def reset_expansion_joint_parameters(self):
+        self.expansion_joint_parameters = None
+        self.joint_length = 0
+        self.joint_effective_diameter = 0
+        self.joint_mass = 0  
+        self.joint_axial_locking_criteria = 0
+        self.joint_rods_included = False
+        self.joint_axial_stiffness = 0
+        self.joint_transversal_stiffness = 0
+        self.joint_torsional_stiffness = 0
+        self.joint_angular_stiffness = 0
+
+    def get_array_values(self, value, frequencies):
+        if frequencies is None:
+            size = 1
+        else:
+            size = len(frequencies) 
+
+        if isinstance(value, np.ndarray):
+            return value
+        else:
+            return value*np.ones(size)
 
     # def __str__(self):
     #     text = ''

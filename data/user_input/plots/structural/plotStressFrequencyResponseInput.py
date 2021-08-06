@@ -1,3 +1,5 @@
+from time import process_time_ns
+from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -48,6 +50,8 @@ class SnaptoCursor(object):
     
             self.ax.figure.canvas.draw_idle()
 
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
 
 class PlotStressFrequencyResponseInput(QDialog):
     def __init__(self, opv, project, analysisMethod, *args, **kwargs):
@@ -176,7 +180,9 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title_2])
     
     def writeElements(self, list_elements_ids):
         text = ""
@@ -229,7 +235,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title_2])
         except Exception as e:
             message = [str(e) + " It is recommended to skip the header rows."] 
             error(message[0], title="ERROR WHILE LOADING TABLE")
@@ -278,7 +286,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results have been exported.")
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title_2])
 
     def get_stress_data(self):
         

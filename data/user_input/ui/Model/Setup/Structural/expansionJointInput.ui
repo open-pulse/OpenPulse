@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>500</width>
-    <height>779</height>
+    <height>768</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>450</width>
-    <height>779</height>
+    <height>768</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>600</width>
-    <height>779</height>
+    <height>768</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -31,13 +31,13 @@
      <x>0</x>
      <y>78</y>
      <width>500</width>
-     <height>700</height>
+     <height>690</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>500</width>
-     <height>700</height>
+     <height>690</height>
     </size>
    </property>
    <property name="maximumSize">
@@ -55,21 +55,21 @@
    <widget class="QTabWidget" name="tabWidget_main">
     <property name="geometry">
      <rect>
-      <x>16</x>
-      <y>14</y>
-      <width>470</width>
-      <height>675</height>
+      <x>10</x>
+      <y>12</y>
+      <width>482</width>
+      <height>667</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>433</width>
+      <width>482</width>
       <height>600</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>470</width>
+      <width>482</width>
       <height>700</height>
      </size>
     </property>
@@ -185,22 +185,22 @@ background-color: rgb(255, 255, 255);</string>
      <widget class="QFrame" name="frame_6">
       <property name="geometry">
        <rect>
-        <x>6</x>
+        <x>12</x>
         <y>56</y>
         <width>451</width>
-        <height>575</height>
+        <height>574</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
         <width>451</width>
-        <height>0</height>
+        <height>574</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>451</width>
-        <height>16777215</height>
+        <height>574</height>
        </size>
       </property>
       <property name="frameShape">
@@ -214,19 +214,19 @@ background-color: rgb(255, 255, 255);</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>450</width>
+         <width>451</width>
          <height>34</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>450</width>
+         <width>451</width>
          <height>34</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>450</width>
+         <width>451</width>
          <height>34</height>
         </size>
        </property>
@@ -254,7 +254,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>304</x>
+         <x>324</x>
          <y>84</y>
          <width>40</width>
          <height>26</height>
@@ -297,7 +297,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>304</x>
+         <x>324</x>
          <y>120</y>
          <width>40</width>
          <height>26</height>
@@ -340,7 +340,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>32</x>
+         <x>8</x>
          <y>120</y>
          <width>176</width>
          <height>26</height>
@@ -383,7 +383,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>32</x>
+         <x>8</x>
          <y>84</y>
          <width>176</width>
          <height>26</height>
@@ -426,9 +426,9 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>216</x>
+         <x>194</x>
          <y>84</y>
-         <width>80</width>
+         <width>120</width>
          <height>26</height>
         </rect>
        </property>
@@ -459,6 +459,9 @@ background-color: rgb(255, 255, 255);</string>
        <property name="styleSheet">
         <string notr="true">color: rgb(0, 0, 255);
 background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -470,9 +473,9 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>216</x>
+         <x>194</x>
          <y>120</y>
-         <width>80</width>
+         <width>120</width>
          <height>26</height>
         </rect>
        </property>
@@ -504,6 +507,9 @@ background-color: rgb(255, 255, 255);</string>
         <string notr="true">color: rgb(0, 0, 255);
 background-color: rgb(255, 255, 255);</string>
        </property>
+       <property name="text">
+        <string/>
+       </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
        </property>
@@ -514,9 +520,9 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>216</x>
+         <x>194</x>
          <y>48</y>
-         <width>80</width>
+         <width>120</width>
          <height>26</height>
         </rect>
        </property>
@@ -558,7 +564,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>32</x>
+         <x>8</x>
          <y>48</y>
          <width>176</width>
          <height>26</height>
@@ -601,7 +607,7 @@ background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>304</x>
+         <x>324</x>
          <y>48</y>
          <width>40</width>
          <height>26</height>
@@ -797,6 +803,9 @@ background-color: rgb(255, 255, 255);</string>
          <property name="styleSheet">
           <string notr="true">color: rgb(0, 0, 255);
 background-color: rgb(255, 255, 255);</string>
+         </property>
+         <property name="text">
+          <string/>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -2079,33 +2088,33 @@ background-color: rgb(255, 255, 255);</string>
      <attribute name="title">
       <string>Remove</string>
      </attribute>
-     <widget class="QTreeWidget" name="treeWidget_nodal_links_stiffness">
+     <widget class="QTreeWidget" name="treeWidget_expansion_joint_by_lines">
       <property name="geometry">
        <rect>
-        <x>34</x>
+        <x>8</x>
         <y>52</y>
-        <width>400</width>
-        <height>200</height>
+        <width>460</width>
+        <height>260</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>400</width>
-        <height>200</height>
+        <width>460</width>
+        <height>260</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>400</width>
-        <height>200</height>
+        <width>460</width>
+        <height>260</height>
        </size>
       </property>
       <property name="font">
        <font>
         <family>Arial</family>
-        <pointsize>11</pointsize>
+        <pointsize>9</pointsize>
         <weight>75</weight>
-        <italic>true</italic>
+        <italic>false</italic>
         <bold>true</bold>
        </font>
       </property>
@@ -2120,12 +2129,12 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <column>
        <property name="text">
-        <string>Linked nodes</string>
+        <string>Line ID</string>
        </property>
        <property name="font">
         <font>
          <family>Arial</family>
-         <pointsize>10</pointsize>
+         <pointsize>9</pointsize>
          <weight>75</weight>
          <italic>true</italic>
          <bold>true</bold>
@@ -2137,12 +2146,12 @@ background-color: rgb(255, 255, 255);</string>
       </column>
       <column>
        <property name="text">
-        <string>Active Parameters</string>
+        <string>Joint parameters [L, d_eff, m, ε, rods, kx, kyz, krx, kryz]</string>
        </property>
        <property name="font">
         <font>
          <family>Arial</family>
-         <pointsize>10</pointsize>
+         <pointsize>9</pointsize>
          <weight>75</weight>
          <italic>true</italic>
          <bold>true</bold>
@@ -2156,8 +2165,8 @@ background-color: rgb(255, 255, 255);</string>
      <widget class="QPushButton" name="pushButton_close">
       <property name="geometry">
        <rect>
-        <x>266</x>
-        <y>474</y>
+        <x>276</x>
+        <y>597</y>
         <width>100</width>
         <height>32</height>
        </rect>
@@ -2190,10 +2199,10 @@ background-color: rgb(255, 255, 255);</string>
        <string>Close</string>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_see_details_selected_link">
+     <widget class="QPushButton" name="pushButton_see_details_from_selection">
       <property name="geometry">
        <rect>
-        <x>316</x>
+        <x>322</x>
         <y>10</y>
         <width>107</width>
         <height>30</height>
@@ -2224,168 +2233,13 @@ background-color: rgb(255, 255, 255);</string>
        <string>See details</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="lineEdit_id_labels_node_IDs">
+     <widget class="QLineEdit" name="lineEdit_selected_info">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>46</x>
-        <y>12</y>
-        <width>103</width>
-        <height>26</height>
-       </rect>
-      </property>
-      <property name="palette">
-       <palette>
-        <active>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </active>
-        <inactive>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </inactive>
-        <disabled>
-         <colorrole role="WindowText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Dark">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="Text">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-         <colorrole role="ButtonText">
-          <brush brushstyle="SolidPattern">
-           <color alpha="255">
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-           </color>
-          </brush>
-         </colorrole>
-        </disabled>
-       </palette>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>false</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::ClickFocus</enum>
-      </property>
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="text">
-       <string>Selection ID:</string>
-      </property>
-      <property name="frame">
-       <bool>false</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-      </property>
-     </widget>
-     <widget class="QLineEdit" name="lineEdit_node_ID_info">
-      <property name="enabled">
-       <bool>false</bool>
-      </property>
-      <property name="geometry">
-       <rect>
-        <x>154</x>
+        <x>156</x>
         <y>12</y>
         <width>157</width>
         <height>26</height>
@@ -2411,24 +2265,24 @@ color: rgb(0, 0, 0);</string>
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_remove_link_stiffness">
+     <widget class="QPushButton" name="pushButton_remove_expansion_joint_by_line">
       <property name="geometry">
        <rect>
-        <x>134</x>
-        <y>218</y>
-        <width>200</width>
+        <x>178</x>
+        <y>274</y>
+        <width>120</width>
         <height>30</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>200</width>
+        <width>120</width>
         <height>30</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>200</width>
+        <width>120</width>
         <height>30</height>
        </size>
       </property>
@@ -2442,122 +2296,14 @@ color: rgb(0, 0, 0);</string>
        </font>
       </property>
       <property name="text">
-       <string>Remove stiffness link</string>
-      </property>
-     </widget>
-     <widget class="QTreeWidget" name="treeWidget_nodal_links_damping">
-      <property name="geometry">
-       <rect>
-        <x>34</x>
-        <y>264</y>
-        <width>400</width>
-        <height>200</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>400</width>
-        <height>200</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>400</width>
-        <height>200</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>11</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="indentation">
-       <number>0</number>
-      </property>
-      <column>
-       <property name="text">
-        <string>Linked nodes</string>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="textAlignment">
-        <set>AlignCenter</set>
-       </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Active parameters</string>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>10</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="textAlignment">
-        <set>AlignCenter</set>
-       </property>
-      </column>
-     </widget>
-     <widget class="QPushButton" name="pushButton_remove_link_damping">
-      <property name="geometry">
-       <rect>
-        <x>134</x>
-        <y>430</y>
-        <width>200</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>200</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>200</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Remove damping link</string>
+       <string>Remove</string>
       </property>
      </widget>
      <widget class="QPushButton" name="pushButton_reset_all">
       <property name="geometry">
        <rect>
-        <x>106</x>
-        <y>474</y>
+        <x>102</x>
+        <y>597</y>
         <width>100</width>
         <height>32</height>
        </rect>
@@ -2590,6 +2336,166 @@ color: rgb(0, 0, 0);</string>
        <string>Reset all</string>
       </property>
      </widget>
+     <widget class="QTreeWidget" name="treeWidget_expansion_joint_by_elements">
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>326</y>
+        <width>460</width>
+        <height>260</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>460</width>
+        <height>260</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>460</width>
+        <height>260</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
+      <column>
+       <property name="text">
+        <string>Element ID</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Joint parameters [L, d_eff, m, ε, rods, kx, kyz, krx, kryz]</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+     </widget>
+     <widget class="QPushButton" name="pushButton_remove_expansion_joint_by_elements">
+      <property name="geometry">
+       <rect>
+        <x>178</x>
+        <y>548</y>
+        <width>120</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Remove</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_selected_id_2">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>8</x>
+        <y>12</y>
+        <width>140</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>140</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="mouseTracking">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Selected ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <zorder>treeWidget_expansion_joint_by_elements</zorder>
+     <zorder>treeWidget_expansion_joint_by_lines</zorder>
+     <zorder>pushButton_close</zorder>
+     <zorder>pushButton_see_details_from_selection</zorder>
+     <zorder>lineEdit_selected_info</zorder>
+     <zorder>pushButton_remove_expansion_joint_by_line</zorder>
+     <zorder>pushButton_reset_all</zorder>
+     <zorder>pushButton_remove_expansion_joint_by_elements</zorder>
+     <zorder>label_selected_id_2</zorder>
     </widget>
    </widget>
   </widget>
@@ -2805,18 +2711,16 @@ color: rgb(0, 0, 0);</string>
   <tabstop>lineEdit_path_table_angular_stiffness</tabstop>
   <tabstop>toolButton_load_table_angular_stiffness</tabstop>
   <tabstop>pushButton_table_input_confirm</tabstop>
-  <tabstop>pushButton_see_details_selected_link</tabstop>
-  <tabstop>pushButton_remove_link_stiffness</tabstop>
-  <tabstop>pushButton_remove_link_damping</tabstop>
+  <tabstop>pushButton_see_details_from_selection</tabstop>
+  <tabstop>pushButton_remove_expansion_joint_by_line</tabstop>
   <tabstop>pushButton_reset_all</tabstop>
   <tabstop>pushButton_close</tabstop>
-  <tabstop>treeWidget_nodal_links_stiffness</tabstop>
-  <tabstop>treeWidget_nodal_links_damping</tabstop>
+  <tabstop>treeWidget_expansion_joint_by_lines</tabstop>
  </tabstops>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

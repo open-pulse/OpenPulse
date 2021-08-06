@@ -26,6 +26,8 @@ class AssemblyStructural:
         self.frequencies = frequencies
         self.acoustic_solution = kwargs.get('acoustic_solution', None)
         self.no_table = True
+        self.prescribed_indexes = self.get_prescribed_indexes()
+        self.unprescribed_indexes = self.get_unprescribed_indexes()
 
     def get_prescribed_indexes(self):
         """
@@ -85,8 +87,8 @@ class AssemblyStructural:
                 elif isinstance(value, np.ndarray):
                     list_prescribed_dofs.append(value)
             array_prescribed_values = np.array(list_prescribed_dofs)
-        except Exception as e:
-            error(str(e))
+        except Exception as log_error:
+            print(str(log_error))
 
         return global_prescribed, array_prescribed_values
 
@@ -107,9 +109,7 @@ class AssemblyStructural:
         """
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         all_indexes = np.arange(total_dof)
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = np.delete(all_indexes, prescribed_indexes)
-        return unprescribed_indexes
+        return np.delete(all_indexes, self.prescribed_indexes)
 
     def get_global_matrices(self):
         """
@@ -129,28 +129,72 @@ class AssemblyStructural:
         Mr : list
             List of mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.
         """
- 
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         number_elements = len(self.preprocessor.structural_elements)
+        self.expansion_joint_data = {}
 
         rows, cols = self.preprocessor.get_global_structural_indexes()
         mat_Ke = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
         mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
-
+        
         for index, element in enumerate(self.preprocessor.structural_elements.values()):
-            mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs() 
-
+            # mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
+            if element.element_type == "expansion_joint":
+                self.expansion_joint_data[index] = element
+            else:
+                mat_Ke[index,:,:], mat_Me[index,:,:] = element.matrices_gcs()
+  
         full_K = csr_matrix((mat_Ke.flatten(), (rows, cols)), shape=[total_dof, total_dof])
         full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
 
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = self.get_unprescribed_indexes()
+        K = full_K[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+        Kr = full_K[:, self.prescribed_indexes]
+        Mr = full_M[:, self.prescribed_indexes]
 
-        K = full_K[unprescribed_indexes, :][:, unprescribed_indexes]
-        M = full_M[unprescribed_indexes, :][:, unprescribed_indexes]
-        Kr = full_K[:, prescribed_indexes]
-        Mr = full_M[:, prescribed_indexes]
+        return K, M, Kr, Mr
 
+    def get_expansion_joint_global_matrices(self):
+        
+        total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
+        number_elements = len(self.expansion_joint_data)
+        
+        if self.frequencies is None:
+            number_frequencies = 1
+        else:
+            number_frequencies = len(self.frequencies)
+
+        if number_elements == 0:
+
+            full_K = [csr_matrix(([], ([], [])), shape=[total_dof, total_dof]) for _ in range(number_frequencies)]
+            full_M = csr_matrix(([], ([], [])), shape=[total_dof, total_dof])
+
+        else: 
+
+            rows = []
+            cols = []  
+            mat_Ke = np.zeros((number_frequencies, number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            mat_Me = np.zeros((number_elements, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+            for ind, element in enumerate(self.expansion_joint_data.values()):
+                
+                i, j = element.global_matrix_indexes()
+                rows.append(i)
+                cols.append(j)
+                mat_Ke[:,ind,:,:], mat_Me[ind,:,:] = element.expansion_joint_matrices_gcs(self.frequencies) 
+            
+            rows = np.array(rows).flatten()
+            cols = np.array(cols).flatten()   
+
+            full_K = [csr_matrix((mat_Ke[j,:,:,:].flatten(), (rows, cols)), shape=[total_dof, total_dof]) for j in range(number_frequencies)]
+            full_M = csr_matrix((mat_Me.flatten(), (rows, cols)), shape=[total_dof, total_dof])
+
+        K = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_K]
+        M = full_M[self.unprescribed_indexes, :][:, self.unprescribed_indexes]
+
+        Kr = [sparse_matrix[:, self.prescribed_indexes] for sparse_matrix in full_K]
+        Mr = full_M[:, self.prescribed_indexes]
+ 
         return K, M, Kr, Mr
         
     def get_lumped_matrices(self):
@@ -180,7 +224,6 @@ class AssemblyStructural:
         flag_Clump  : boll
             This flag returns True if the damping matrices are non zero, and False otherwise.
         """
-
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
         
         if self.frequencies is None:
@@ -231,14 +274,14 @@ class AssemblyStructural:
                 j_indexes_C.append(position)
                 flag_Clump = True
         
-        for cluster_data in self.preprocessor.dict_nodes_with_elastic_link_stiffness.values():
+        for cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.values():
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_K.append(indexes_i[i])
                     j_indexes_K.append(indexes_j[i])
                     list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
 
-        for cluster_data in self.preprocessor.dict_nodes_with_elastic_link_damping.values():
+        for cluster_data in self.preprocessor.nodes_with_elastic_link_damping.values():
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_C.append(indexes_i[i])
@@ -261,20 +304,17 @@ class AssemblyStructural:
         full_M = [csr_matrix((data_Mlump[:,j], (i_indexes_M, j_indexes_M)), shape=[total_dof, total_dof]) for j in range(cols)]
         full_C = [csr_matrix((data_Clump[:,j], (i_indexes_C, j_indexes_C)), shape=[total_dof, total_dof]) for j in range(cols)]
 
-        prescribed_indexes = self.get_prescribed_indexes()
-        unprescribed_indexes = self.get_unprescribed_indexes()
+        K_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_K]
+        M_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_M]
+        C_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_C]
 
-        K_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_K]
-        M_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_M]
-        C_lump = [sparse_matrix[unprescribed_indexes, :][:, unprescribed_indexes] for sparse_matrix in full_C]
-
-        Kr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_K]
-        Mr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_M]
-        Cr_lump = [sparse_matrix[:, prescribed_indexes] for sparse_matrix in full_C]
+        Kr_lump = [sparse_matrix[:, self.prescribed_indexes] for sparse_matrix in full_K]
+        Mr_lump = [sparse_matrix[:, self.prescribed_indexes] for sparse_matrix in full_M]
+        Cr_lump = [sparse_matrix[:, self.prescribed_indexes] for sparse_matrix in full_C]
 
         return K_lump, M_lump, C_lump, Kr_lump, Mr_lump, Cr_lump, flag_Clump
         
-    def get_global_loads(self, pressure_external = 0, loads_matrix3D=False):
+    def get_global_loads(self, pressure_external = 0, loads_matrix3D=False, static_analysis=False):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
 
@@ -295,9 +335,21 @@ class AssemblyStructural:
         """
         
         total_dof = DOF_PER_NODE_STRUCTURAL * len(self.preprocessor.nodes)
-        cols = len(self.frequencies)
+
+        if self.frequencies is None or static_analysis:
+            cols = 1
+        else:
+            cols = len(self.frequencies)
+
         loads = np.zeros((total_dof, cols), dtype=complex)
         pressure_loads = np.zeros((total_dof, cols), dtype=complex)
+    
+        # stress stiffening loads
+        if static_analysis:
+            for element in self.preprocessor.structural_elements.values():
+                position = element.global_dof
+                loads[position] += element.force_vector_stress_stiffening() 
+            return loads[self.unprescribed_indexes,:]
 
         # distributed loads
         for element in self.preprocessor.structural_elements.values():
@@ -315,8 +367,7 @@ class AssemblyStructural:
                     temp_loads = [np.zeros_like(self.frequencies) if bc is None else np.ones_like(self.frequencies)*bc for bc in node.nodal_loads]
                 loads[position, :] += temp_loads
            
-        unprescribed_indexes = self.get_unprescribed_indexes()
-        loads = loads[unprescribed_indexes,:]
+        loads = loads[self.unprescribed_indexes,:]
         
         if self.acoustic_solution is not None:
             for element in self.preprocessor.structural_elements.values():
@@ -326,7 +377,7 @@ class AssemblyStructural:
                 position = element.global_dof
                 pressure_loads[position, :] += element.force_vector_acoustic_gcs(self.frequencies, pressure_avg, pressure_external)
         
-        pressure_loads = pressure_loads[unprescribed_indexes,:]
+        pressure_loads = pressure_loads[self.unprescribed_indexes,:]
 
         if loads_matrix3D:
             loads = loads.T.reshape((len(self.frequencies), loads.shape[0], 1))

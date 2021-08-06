@@ -417,8 +417,10 @@ class PlotReactionsInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results have been exported.")
-
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title_2])
+ 
     def plot(self):
 
         fig = plt.figure(figsize=[12,7])
