@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
+        self.playpause_icon = QIcon(icons_path + 'play_pause.png')
         
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
@@ -229,7 +230,7 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
         # Results Viewer
-        self.playPauseAnimaton_action = QAction('&Play/Pause Animation', self)
+        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
         self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
         self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalisysRenderer.tooglePlayPauseAnimation)
@@ -412,6 +413,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.playPauseAnimaton_action)
 
     def _createBasicLayout(self):
         self.menuWidget = Menu(self)
