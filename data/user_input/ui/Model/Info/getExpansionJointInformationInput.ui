@@ -6,19 +6,19 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
+    <width>702</width>
     <height>522</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>650</width>
+    <width>702</width>
     <height>522</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>650</width>
+    <width>702</width>
     <height>522</height>
    </size>
   </property>
@@ -30,19 +30,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>650</width>
+     <width>702</width>
      <height>39</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>650</width>
+     <width>702</width>
      <height>0</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>650</width>
+     <width>702</width>
      <height>16777215</height>
     </size>
    </property>
@@ -58,35 +58,35 @@
    <widget class="QLabel" name="title_label">
     <property name="geometry">
      <rect>
-      <x>102</x>
+      <x>100</x>
       <y>4</y>
-      <width>446</width>
+      <width>502</width>
       <height>33</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>446</width>
-      <height>0</height>
+      <width>502</width>
+      <height>33</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>446</width>
-      <height>16777215</height>
+      <width>502</width>
+      <height>33</height>
      </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>12</pointsize>
+      <pointsize>14</pointsize>
       <weight>75</weight>
       <italic>false</italic>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Information of selected group&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Information of selected expansion joint&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
@@ -101,19 +101,19 @@
     <rect>
      <x>0</x>
      <y>38</y>
-     <width>650</width>
+     <width>702</width>
      <height>484</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
-     <width>650</width>
+     <width>702</width>
      <height>0</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>650</width>
+     <width>702</width>
      <height>16777215</height>
     </size>
    </property>
@@ -126,7 +126,7 @@
    <widget class="QPushButton" name="pushButton_close">
     <property name="geometry">
      <rect>
-      <x>274</x>
+      <x>300</x>
       <y>440</y>
       <width>102</width>
       <height>32</height>
@@ -160,21 +160,21 @@
    <widget class="QTreeWidget" name="treeWidget_group_info">
     <property name="geometry">
      <rect>
-      <x>24</x>
+      <x>10</x>
       <y>16</y>
-      <width>602</width>
+      <width>682</width>
       <height>412</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>602</width>
+      <width>682</width>
       <height>370</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>602</width>
+      <width>382</width>
       <height>430</height>
      </size>
     </property>
@@ -213,7 +213,16 @@
     </attribute>
     <column>
      <property name="text">
-      <string>Elements</string>
+      <string>Line ID</string>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="textAlignment">
       <set>AlignCenter</set>
@@ -221,7 +230,16 @@
     </column>
     <column>
      <property name="text">
-      <string>Type</string>
+      <string>Parameters [length, effective diameter, mass, axial locking ε,  rods, kx, kyz, krx, kryz]</string>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>10</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
      </property>
      <property name="textAlignment">
       <set>AlignCenter</set>

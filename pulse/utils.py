@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 import configparser
 import numpy as np
+import os
 from scipy.spatial.transform import Rotation
 
 
@@ -555,3 +556,9 @@ def get_new_path(path, name):
 def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
     return (x_final-x_initial)*n + x_initial
+
+def create_new_folder(path, folder_name):
+    folder_path = get_new_path(path, folder_name)
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
+    return folder_path

@@ -271,7 +271,7 @@
      </widget>
      <widget class="QLineEdit" name="lineEdit_selected_ID">
       <property name="enabled">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>

@@ -96,7 +96,9 @@ class Material:
             self.poisson_ratio = (self.young_modulus / (2 * self.shear_modulus)) - 1
 
         else:
-            raise TypeError("At least two arguments among Young's modulus, Poisson's ratio\n and shear modulus have to be attributed to the material.")
+            message = "At least two arguments among Young's modulus, Poisson's ratio"
+            message += "\n and shear modulus have to be attributed to the material."
+            raise TypeError(message)
     
     def getColorRGB(self):
         """

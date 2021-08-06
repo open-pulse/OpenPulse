@@ -583,7 +583,7 @@ class RendererMesh(vtkRendererBase):
                     unit = f'[{unit_labels[0]}]'
                 else:
                     unit = f'[{unit_labels[1]}]'
-                text += f'  {label} = {value} {unit} \n'
+            text += f'  {label} = {value} {unit} \n'
 
         return text
 
@@ -717,8 +717,8 @@ class RendererMesh(vtkRendererBase):
                 print(str(log_error))
 
     def plotElasticLinks(self):
-        elastic_links_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness
-        elastic_links_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping
+        elastic_links_stiffness = self.project.preprocessor.nodes_with_elastic_link_stiffness
+        elastic_links_damping = self.project.preprocessor.nodes_with_elastic_link_damping
         self.removeElasticLinks()
         for key, _ in elastic_links_stiffness.items():
             try:

@@ -3,7 +3,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import remove_bc_from_file
+from pulse.utils import remove_bc_from_file, get_new_path
 import configparser
 from collections import defaultdict
 import os
@@ -251,11 +251,17 @@ class ProjectFile:
             if 'structural element type' in entityFile[entity].keys():
                 structural_element_type = entityFile[entity]['structural element type']
                 if structural_element_type != "":
-                    self.dict_structural_element_type[int(entity)] = structural_element_type
+                    if "-" in entity:
+                        if 'list of elements (cross-sections)' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements (cross-sections)']
+                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
+                    else:
+                        self.dict_structural_element_type[entity] = structural_element_type
                     self.element_type_is_structural = True
                 else:
-                    self.dict_structural_element_type[int(entity)] = 'pipe_1'
-            
+                    self.dict_structural_element_type[entity] = 'pipe_1'
+        
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
                 if acoustic_element_type != "":
@@ -268,6 +274,16 @@ class ProjectFile:
                 else:
                     self.dict_acoustic_element_type[int(entity)] = 'undamped'
 
+            str_joint_parameters = ""
+            if 'expansion joint parameters' in entityFile[entity].keys():
+                str_joint_parameters = entityFile[entity]['expansion joint parameters']
+                joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
+        
+            str_joint_stiffness = ""
+            if 'expansion joint stiffness' in entityFile[entity].keys():
+                str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
+                joint_stiffness = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
+
             outerDiameter = ""
             thickness = ""
             offset_y, offset_z = 0., 0.
@@ -275,52 +291,60 @@ class ProjectFile:
             insulation_density = 0.
 
             if "-" in entity:
-                if 'outer diameter' in entityFile[entity].keys():
-                    outerDiameter = entityFile[entity]['outer diameter']
-                if 'thickness' in entityFile[entity].keys():
-                    thickness = entityFile[entity]['thickness']
-                if 'offset [e_y, e_z]' in entityFile[entity].keys():
-                    offset = entityFile[entity]['offset [e_y, e_z]']
-                    offset_y, offset_z = self._get_offset_from_string(offset) 
-                if 'insulation thickness' in entityFile[entity].keys():
-                    insulation_thickness = entityFile[entity]['insulation thickness']
-                if 'insulation density' in entityFile[entity].keys():
-                    insulation_density = entityFile[entity]['insulation density']
+
                 if 'list of elements (cross-sections)' in entityFile[entity].keys():
-                    list_elements = entityFile[entity]['list of elements (cross-sections)']
-                    get_list_elements = self._get_list_of_values_from_string(list_elements)
-    
-                if outerDiameter != "" and thickness != "":
-                    try:
-                        outerDiameter = float(outerDiameter)
-                        thickness = float(thickness)
-                        offset_y = float(offset_y)
-                        offset_z = float(offset_z)
-                        insulation_thickness = float(insulation_thickness)
-                        insulation_density = float(insulation_density)
+                    str_list_elements = entityFile[entity]['list of elements (cross-sections)']
+                    list_elements = self._get_list_of_values_from_string(str_list_elements)
 
-                        section_parameters = {  "outer_diameter" : outerDiameter,
-                                                "thickness" : thickness, 
-                                                "offset_y" : offset_y, 
-                                                "offset_z" : offset_z, 
-                                                "insulation_thickness" : insulation_thickness, 
-                                                "insulation_density" : insulation_density }
+                if structural_element_type in ['pipe_1', 'pipe_2']:
+
+                    if 'outer diameter' in entityFile[entity].keys():
+                        outerDiameter = entityFile[entity]['outer diameter']
+                    if 'thickness' in entityFile[entity].keys():
+                        thickness = entityFile[entity]['thickness']
+                    if 'offset [e_y, e_z]' in entityFile[entity].keys():
+                        offset = entityFile[entity]['offset [e_y, e_z]']
+                        offset_y, offset_z = self._get_offset_from_string(offset) 
+                    if 'insulation thickness' in entityFile[entity].keys():
+                        insulation_thickness = entityFile[entity]['insulation thickness']
+                    if 'insulation density' in entityFile[entity].keys():
+                        insulation_density = entityFile[entity]['insulation density']
         
-                        pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                "section_parameters" : section_parameters  }
+                    if outerDiameter != "" and thickness != "":
+                        try:
+                            outerDiameter = float(outerDiameter)
+                            thickness = float(thickness)
+                            offset_y = float(offset_y)
+                            offset_z = float(offset_z)
+                            insulation_thickness = float(insulation_thickness)
+                            insulation_density = float(insulation_density)
 
-                        cross = CrossSection(pipe_section_info=pipe_section_info)
-                        
-                        self.dict_cross[entity] = [cross, get_list_elements]
-                    except Exception as err:
-                        title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
-                        message = str(err)
-                        message += f"\n\n {entity}"
-                        PrintMessageInput([title, message, window_title])
+                            section_parameters = {  "outer_diameter" : outerDiameter,
+                                                    "thickness" : thickness, 
+                                                    "offset_y" : offset_y, 
+                                                    "offset_z" : offset_z, 
+                                                    "insulation_thickness" : insulation_thickness, 
+                                                    "insulation_density" : insulation_density }
+            
+                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
+                                                    "section_parameters" : section_parameters  }
+
+                            cross = CrossSection(pipe_section_info=pipe_section_info)
+                            
+                            self.dict_cross[entity] = [cross, list_elements]
+                        except Exception as log_error:
+                            title = "ERROR WHILE LOADING CROSS-SECTION PARAMETERS FROM FILE"
+                            message = str(log_error)
+                            message += f"\n\n {entity}"
+                            PrintMessageInput([title, message, window_title])
+                
+                if str_joint_parameters != "" and str_joint_stiffness != "":
+                    _list_elements = self.check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                    self.dict_expansion_joint_parameters[entity]= [_list_elements, [joint_parameters, joint_stiffness]]
 
             else:
-                if 'structural element type' in entityFile[entity].keys():
-                    if entityFile[entity]['structural element type'] == 'beam_1':
+
+                    if structural_element_type == 'beam_1':
 
                         if 'beam section type' in entityFile[entity].keys():
                             section_type = entityFile[entity]['beam section type']
@@ -393,7 +417,10 @@ class ProjectFile:
                                 message = str(err)
                                 message += f"\n\nProblem detected at line: {entity}"
                                 PrintMessageInput([title, message, window_title])
-                        
+                
+                        if str_joint_parameters != "" and str_joint_stiffness != "":
+                            self.dict_expansion_joint_parameters[entity] = [joint_parameters, joint_stiffness]
+
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
 
@@ -471,18 +498,6 @@ class ProjectFile:
                     if capped_end != "":
                         self.dict_capped_end[capped_end].append(int(entity))
             
-            str_joint_parameters = ""
-            if 'expansion joint parameters' in entityFile[entity].keys():
-                str_joint_parameters = entityFile[entity]['expansion joint parameters']
-                joint_parameters = self._get_list_of_values_from_string(str_joint_parameters, are_values_int=False)
-           
-            str_joint_stiffness = ""
-            if 'expansion joint stiffness' in entityFile[entity].keys():
-                str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
-                joint_stiffness = self._get_list_of_values_from_string(str_joint_stiffness, are_values_int=False)   
-
-            if str_joint_parameters != "" and str_joint_stiffness != "":
-                self.dict_expansion_joint_parameters[int(entity)]= [joint_parameters, joint_stiffness]
 
             if 'stress stiffening parameters' in entityFile[entity].keys():
                 list_parameters = entityFile[entity]['stress stiffening parameters']
@@ -687,6 +702,7 @@ class ProjectFile:
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
+        sections = config.sections()
 
         list_keys = [   'outer diameter', 
                         'thickness', 
@@ -696,21 +712,108 @@ class ProjectFile:
                         'variable section parameters',
                         'beam section type',
                         'section parameters',
-                        'section properties'    ]
+                        'section properties',
+                        'expansion joint parameters',
+                        'expansion joint stiffness'    ]
 
         str_line = str(line_id)
         for _key in list_keys:
             if _key in list(config[str_line].keys()):
                 config.remove_option(section=str_line, option=_key)
+        
+        for section in sections:
+            if f'{line_id}-' in section:
+                config.remove_section(section)
+        
+        if parameters is not None or list_table_names!=[]:
 
-        config[str_line]['expansion joint parameters'] = str(parameters[0])
-        if list_table_names == []:
-            config[str_line]['expansion joint stiffness'] = str(parameters[1])
-        else:
-            config[str_line]['expansion joint stiffness'] = str(list_table_names)
+            config[str_line]['expansion joint parameters'] = str(parameters[0])
+            if list_table_names == []:
+                config[str_line]['expansion joint stiffness'] = str(parameters[1])
+            else:
+                str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+                config[str_line]['expansion joint stiffness'] = str_table_names
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
+
+    def add_multiple_expansion_joints_in_file(self, line, map_expansion_joint_to_elements, list_table_names=[]):
+        config_new = configparser.ConfigParser()
+        config_new.read(self._entity_path)
+        config_base = configparser.ConfigParser()
+        config_base.read(self._entity_path)
+
+        sections = config_base.sections()
+        
+        str_keys = [    'structural element type',
+                        'outer diameter', 
+                        'thickness', 
+                        'offset [e_y, e_z]', 
+                        'insulation thickness', 
+                        'insulation density',
+                        'beam section type',
+                        'section parameters',
+                        'section properties',
+                        'expansion joint parameters',
+                        'expansion joint stiffness'    ]
+
+        str_line = str(line) 
+
+        for str_key in str_keys:
+            if str_key in config_new[str_line].keys():
+                config_new.remove_option(section=str_line, option=str_key)
+        
+        for section in sections:
+            if f'{line}-' in section:
+                config_new.remove_section(section)
+                
+
+        for ind, (section_key, (parameters, list_elements)) in enumerate(map_expansion_joint_to_elements.items()):
+            if ind==0:
+
+                for section in sections:
+                    if f'{line}-' in section:
+                        str_line = f'{line}-1'  
+
+                if 'structural element type' in config_base[str_line].keys():
+                    etype = config_base[str_line]['structural element type']
+                else:
+                    etype = 'pipe_1'
+
+                if 'outer diameter' in config_base[str_line].keys():
+                    config_new[section_key] = { 'structural element type' : etype,
+                                                'outer diameter' : config_base[str_line]['outer diameter'],
+                                                'thickness' : config_base[str_line]['thickness'],
+                                                'offset [e_y, e_z]' : config_base[str_line]['offset [e_y, e_z]'],
+                                                'insulation thickness' : config_base[str_line]['insulation thickness'],
+                                                'insulation density' : config_base[str_line]['insulation density'],
+                                                'list of elements (cross-sections)' : list_elements }
+                else:
+                    config_new[section_key] = { 'structural element type' : etype,
+                                                'outer diameter' : '',
+                                                'thickness' : '',
+                                                'offset [e_y, e_z]' : '',
+                                                'insulation thickness' : '',
+                                                'insulation density' : '',
+                                                'list of elements (cross-sections)' : list_elements }
+
+            else:
+
+                if list_table_names == []:
+
+                    config_new[section_key] = { 'structural element type' : 'expansion_joint',
+                                                'expansion joint parameters' : f'{parameters[0]}',
+                                                'expansion joint stiffness' : f'{parameters[1]}',
+                                                'list of elements (cross-sections)' : list_elements }
+                else:
+
+                    str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+                    config_new[section_key] = { 'structural element type' : 'expansion_joint',
+                                                'expansion joint parameters' : f'{parameters[0]}',
+                                                'expansion joint stiffness' : str_table_names,
+                                                'list of elements (cross-sections)' : list_elements }
+
+        self.write_bc_in_file(self._entity_path, config_new)
 
     def add_length_correction_in_file(self, elements, _type, section): 
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
@@ -786,18 +889,19 @@ class ProjectFile:
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_stress_stiffnening_entity_in_file(self, entity_id, parameters, remove=False,): 
+    def modify_stress_stiffnening_entity_in_file(self, entity_id, pressures, remove=False,): 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-
+        str_entity_id = str(entity_id)
         if remove:
-            if str(entity_id) in list(config.sections()):
-                config.remove_option(section=str(entity_id), option='stress stiffening parameters')
+            if str_entity_id in list(config.sections()):
+                config.remove_option(section=str_entity_id, option='stress stiffening parameters')
         else:
-            if str(entity_id) in list(config.sections()):
-                config[str(entity_id)]['stress stiffening parameters'] = str(parameters)
-            else:
-                config[str(entity_id)] = { 'stress stiffening parameters': str(parameters) }  
+            config[str_entity_id]['stress stiffening parameters'] = str(pressures)
+            # if str_entity_id in list(config.sections()):
+            #     config[str_entity_id]['stress stiffening parameters'] = str(pressures)
+            # else:
+            #     config[str_entity_id] = { 'stress stiffening parameters': str(pressures) }  
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -838,10 +942,11 @@ class ProjectFile:
         config.read(self._element_info_path)
 
         if value:
-            if section in list(config.sections()):
-                config[section]['list of elements'] = str(elements)
-            else:
-                config[section] =   { 'list of elements': str(elements) }
+            config[section]['list of elements'] = str(elements)
+            # if section in list(config.sections()):
+            #     config[section]['list of elements'] = str(elements)
+            # else:
+            #     config[section] =   { 'list of elements': str(elements) }
         else:    
             config.remove_section(section)
         
@@ -851,13 +956,15 @@ class ProjectFile:
     def modify_capped_end_entity_in_file(self, entity_id, value):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
+        str_entity_id = str(entity_id)
         if value:    
-            if str(entity_id) in list(config.sections()):
-                config[str(entity_id)]['capped end'] = str(value)
-            else:
-                config[str(entity_id)] = { 'capped end': str(value) }
+            config[str_entity_id]['capped end'] = str(value)
+        #     if str_entity_id in list(config.sections()):
+        #         config[str_entity_id]['capped end'] = str(value)
+        #     else:
+        #         config[str_entity_id] = { 'capped end': str(value) }
         else:
-            config.remove_option(section=str(entity_id), option='capped end')
+            config.remove_option(section=str_entity_id, option='capped end')
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -1065,6 +1172,22 @@ class ProjectFile:
 
         return list_values
 
+    def check_is_there_a_group_of_elements_inside_list_elements(self, input_list):
+        ord_list = np.sort(input_list)
+        _value = ord_list[0]
+        list_i = [_value]
+        list_of_lists = []
+        for value in ord_list[1:]:
+            if value == _value + 1:
+                list_i.append(value)
+            else:
+                temp_list = list_i.copy()
+                list_of_lists.append(temp_list)
+                list_i = [value]
+            _value = value
+        list_of_lists.append(list_i)
+        return list_of_lists
+
     def _get_acoustic_bc_from_string(self, value, label):
         
         load_path_table = ""
@@ -1078,10 +1201,8 @@ class ProjectFile:
                 except Exception:
                     try:
                         path = os.path.dirname(self.project_file_path)
-                        if "/" in path:
-                            load_path_table = "{}/{}".format(path, value[0])
-                        elif "\\" in path:
-                            load_path_table = "{}\\{}".format(path, value[0])
+                        load_path_table = get_new_path(path, value[0])
+
                         data = np.loadtxt(load_path_table, delimiter=",")
                         output = data[:,1] + 1j*data[:,2]
                         self.frequencies = data[:,0]
@@ -1125,20 +1246,57 @@ class ProjectFile:
                         return None
         return output
 
+    def _get_expansion_joint_stiffness_from_string(self, input_string):   
+        labels = ['Kx', 'Kyz', 'Krx', 'Kryz']
+        read = input_string[1:-1].replace(" ","").split(',')
+        
+        N = len(read)
+        output = [None, None, None, None]
+
+        if len(read)==4:
+            for i in range(N):
+                try:
+                    output[i] = float(read[i])
+                except Exception:
+                    try:
+
+                        load_path_table = ""
+                        project_folder_path = os.path.dirname(self.project_file_path)     
+                        imported_data_path = get_new_path(project_folder_path, "imported_data")
+                        load_path_table = get_new_path(imported_data_path, read[i])
+                        data = np.loadtxt(load_path_table, delimiter=",")
+                        output[i] = data[:,1]
+                        
+                        self.frequencies = data[:,0]
+                        self.f_min = self.frequencies[0]
+                        self.f_max = self.frequencies[-1]
+                        self.f_step = self.frequencies[1] - self.frequencies[0]
+                        self.temp_table_name = read[i]
+
+                    except Exception as log_error:
+                        title = f"Expansion joint: error while loading {labels[i]} table of values"
+                        message = str(log_error)
+                        PrintMessageInput([title, message, window_title])
+                        return None
+        return output
+
     def structural_tables_load(self, table_name, label):
         output = None
+        
+        labels = [  'm_x','m_y','m_z','Jx','Jy','Jz',
+                    'k_x','k_y','k_z','k_rx','k_ry','k_rz',
+                    'c_x','c_y','c_z','c_rx','c_ry','c_rz'  ]
+               
         try:
-
             if table_name == "None":
                 return output
+
             load_path_table = ""
-            path = os.path.dirname(self.project_file_path)
-            if "/" in path:
-                load_path_table = "{}/{}".format(path, table_name)
-            elif "\\" in path:
-                load_path_table = "{}\\{}".format(path, table_name)
+            project_folder_path = os.path.dirname(self.project_file_path)
+            load_path_table = get_new_path(project_folder_path, table_name)
+                        
             data = np.loadtxt(load_path_table, delimiter=",")
-            if label in ['m_x','m_y','m_z','Jx','Jy','Jz','k_x','k_y','k_z','k_rx','k_ry','k_rz','c_x','c_y','c_z','c_rx','c_ry','c_rz']:
+            if label in labels:
                 output = data[:,1]
             else:
                 output = data[:,1] + 1j*data[:,2]
