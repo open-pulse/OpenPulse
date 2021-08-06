@@ -147,12 +147,12 @@ class Ui_Dialog(object):
         self.tab_damping.setObjectName("tab_damping")
         self.label_109 = QtWidgets.QLabel(self.tab_damping)
         self.label_109.setEnabled(True)
-        self.label_109.setGeometry(QtCore.QRect(14, 68, 170, 30))
-        self.label_109.setMinimumSize(QtCore.QSize(170, 30))
-        self.label_109.setMaximumSize(QtCore.QSize(170, 30))
+        self.label_109.setGeometry(QtCore.QRect(3, 57, 181, 51))
+        self.label_109.setMinimumSize(QtCore.QSize(0, 0))
+        self.label_109.setMaximumSize(QtCore.QSize(16777215, 16777215))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(12)
+        font.setPointSize(11)
         font.setBold(True)
         font.setItalic(True)
         font.setWeight(75)
@@ -364,7 +364,12 @@ class Ui_Dialog(object):
         self.comboBox.setItemText(3, _translate("Dialog", "  LRF fluid equivalent"))
         self.comboBox.setItemText(4, _translate("Dialog", "  LRF full"))
         self.tabWidget_element_type.setTabText(self.tabWidget_element_type.indexOf(self.tab_type), _translate("Dialog", "Type"))
-        self.label_109.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">proportional coefficient</p></body></html>"))
+        self.label_109.setText(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:11pt; font-weight:600; font-style:italic;\">\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">proportional</p>\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">coefficient</p></body></html>"))
         self.label_5.setText(_translate("Dialog", "Insert a value to the damping:"))
         self.label_110.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">[ - ]</p></body></html>"))
         self.tabWidget_element_type.setTabText(self.tabWidget_element_type.indexOf(self.tab_damping), _translate("Dialog", "Damping"))

@@ -283,8 +283,8 @@
          <rect>
           <x>0</x>
           <y>60</y>
-          <width>350</width>
-          <height>124</height>
+          <width>352</width>
+          <height>125</height>
          </rect>
         </property>
         <layout class="QGridLayout" name="gridLayout">
@@ -1143,7 +1143,7 @@
          <rect>
           <x>0</x>
           <y>220</y>
-          <width>351</width>
+          <width>352</width>
           <height>80</height>
          </rect>
         </property>
@@ -1161,6 +1161,9 @@
            </property>
            <item>
             <widget class="QLineEdit" name="lineEdit_nonlinDischarge">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1292,6 +1295,9 @@
            </item>
            <item>
             <widget class="QLineEdit" name="lineEdit_correction">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -1598,7 +1604,7 @@ discharge coefficient:</string>
          <rect>
           <x>0</x>
           <y>330</y>
-          <width>351</width>
+          <width>352</width>
           <height>41</height>
          </rect>
         </property>
@@ -1875,7 +1881,7 @@ discharge coefficient:</string>
            <rect>
             <x>10</x>
             <y>70</y>
-            <width>350</width>
+            <width>353</width>
             <height>71</height>
            </rect>
           </property>
@@ -2440,7 +2446,7 @@ impedance</string>
         <string>Enable nonlinear effects</string>
        </property>
        <property name="checked">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
       <widget class="Line" name="line">
@@ -2945,7 +2951,9 @@ perfurated plate parameter:</string>
         <font>
          <family>Arial</family>
          <pointsize>9</pointsize>
-         <italic>true</italic>
+         <weight>75</weight>
+         <italic>false</italic>
+         <bold>true</bold>
         </font>
        </property>
        <property name="indentation">
@@ -2997,6 +3005,22 @@ perfurated plate parameter:</string>
          <set>AlignCenter</set>
         </property>
        </column>
+       <item>
+        <property name="text">
+         <string>Qual</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>New Item</string>
+        </property>
+        <property name="text">
+         <string>Coisa</string>
+        </property>
+       </item>
       </widget>
       <widget class="QPushButton" name="pushButton_get_information_plot">
        <property name="geometry">
