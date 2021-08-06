@@ -466,8 +466,8 @@ class opvRenderer(vtkRendererBase):
                     text += f'\nFluid: {fluid_name} \n'                                
                 if acoustic_element.element_type is not None:
                     text += f'Acoustic element type: {acoustic_element_type} \n'
-                if acoustic_element.hysteretic_damping is not None:
-                    text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+                if acoustic_element.proportional_damping is not None:
+                    text += f'Proportional damping: {acoustic_element.proportional_damping} \n'             
 
             elif "beam_1" in structural_element_type:
                 text += f'Area:  {area} [m²]\n'
@@ -546,8 +546,8 @@ class opvRenderer(vtkRendererBase):
                         text += f'\nFluid: {fluid_name}' 
                     if entity.acoustic_element_type is not None:
                         text += f'\nAcoustic element type: {acoustic_element_type}'
-                    if entity.hysteretic_damping is not None:
-                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
+                    if entity.proportional_damping is not None:
+                        text += f'\nProportional damping: {entity.proportional_damping}'        
 
             else:
 
@@ -599,8 +599,8 @@ class opvRenderer(vtkRendererBase):
                         if entity.acoustic_element_type is not None:
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
-                        if entity.hysteretic_damping is not None:
-                            text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+                        if entity.proportional_damping is not None:
+                            text += f'\nProportional damping: {entity.proportional_damping}' 
                 
                 if entity.expansion_joint_parameters is not None:
                     if entity.structural_element_type == 'expansion_joint':

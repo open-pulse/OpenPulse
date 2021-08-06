@@ -180,7 +180,7 @@ class Plot_TL_NR_Input(QDialog):
                 self.preprocessor.nodes[node_typed[0]].external_index
             except:
                 title = "INVALID NODE ID"
-                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
+                message = " The Node ID input values must be\n greater than 1 and less than {}.".format(len(self.nodes))
                 PrintMessageInput([title, message, window_title1])
                 return None, False
 

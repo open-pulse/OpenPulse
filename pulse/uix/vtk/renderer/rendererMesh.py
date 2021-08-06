@@ -682,8 +682,8 @@ class RendererMesh(vtkRendererBase):
                 text += f'\nFluid: {fluid} \n'
             if acoustic_element.element_type is not None:
                 text += f'Acoustic element type: {acoustic_element.element_type} \n'
-            if acoustic_element.hysteretic_damping is not None:
-                text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+            if acoustic_element.proportional_damping is not None:
+                text += f'Proportional damping: {acoustic_element.proportional_damping} \n'             
 
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'

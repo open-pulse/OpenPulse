@@ -354,7 +354,7 @@ color: rgb(0, 0, 255);</string>
         </item>
         <item>
          <property name="text">
-          <string>  Hysteretic</string>
+          <string>  Proportional</string>
          </property>
         </item>
         <item>
@@ -415,13 +415,13 @@ color: rgb(0, 0, 255);</string>
          <bool>true</bool>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;hysteretic coefficient&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;proportional coefficient&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
         </property>
        </widget>
-       <widget class="QLineEdit" name="lineEdit_hysteretic_damping">
+       <widget class="QLineEdit" name="lineEdit_proportional_damping">
         <property name="enabled">
          <bool>true</bool>
         </property>

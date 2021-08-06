@@ -1,6 +1,7 @@
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import remove_bc_from_file, get_new_path
 import configparser
@@ -237,6 +238,7 @@ class ProjectFile:
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
         self.dict_length_correction = {}
+        self.dict_perforated_plate = {}
         self.temp_dict = {}
         self.dict_stress_stiffening = {}
         self.dict_capped_end = defaultdict(list)
@@ -263,9 +265,9 @@ class ProjectFile:
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
                 if acoustic_element_type != "":
-                    if acoustic_element_type == 'hysteretic':
-                        hysteretic_damping = entityFile[entity]['hysteretic damping']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(hysteretic_damping)]
+                    if acoustic_element_type == 'proportional':
+                        proportional_damping = entityFile[entity]['proportional damping']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping)]
                     else:
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None]
                     self.element_type_is_acoustic = True
@@ -520,6 +522,41 @@ class ProjectFile:
                         self.dict_length_correction[section] = [get_list_elements, length_correction_type]
             except Exception as err:  
                 title = "ERROR WHILE LOADING ACOUSTIC ELEMENT LENGTH CORRECTION FROM FILE"
+                message = str(err)
+                PrintMessageInput([title, message, window_title])
+
+            try:
+                if "PERFORATED PLATE" in section:
+                    if 'perforated plate data' in  element_file[section].keys():
+                        list_data = element_file[section]['perforated plate data']   
+                        pp_data = self._get_list_of_values_from_string(list_data, False)
+                    if 'dimensionless impedance' in  element_file[section].keys():
+                        dimensionless_data = element_file[section]['dimensionless impedance']
+                    if 'list of elements' in  element_file[section].keys():
+                        list_elements = element_file[section]['list of elements']
+                        get_list_elements = self._get_list_of_values_from_string(list_elements)
+                    if pp_data != [] and get_list_elements != []:
+                        perforated_plate = PerforatedPlate( float(pp_data[0]), 
+                                                            float(pp_data[1]),
+                                                            float(pp_data[2]),
+                                                            discharge_coefficient = float(pp_data[3]),
+                                                            nonlinear_effect = bool(pp_data[4]),
+                                                            nonlinear_discharge_coefficient = float(pp_data[5]),
+                                                            correction_factor = float(pp_data[6]),
+                                                            bias_effect = bool(pp_data[7]),
+                                                            bias_coefficient = float(pp_data[8]),
+                                                            type = int(pp_data[9]) )
+                        if dimensionless_data == 'None':
+                            pass
+                        elif self._element_info_path in dimensionless_data:
+                            data = np.loadtxt(dimensionless_data, delimiter=",")
+                            perforated_plate.dimensionless_impedance = data[:,1] + 1j*data[:,2]
+                            perforated_plate.dimensionless_path = dimensionless_data
+                        else:
+                            perforated_plate.dimensionless_impedance = complex(dimensionless_data)
+                        self.dict_perforated_plate[section] = [get_list_elements, perforated_plate]
+            except Exception as err:  
+                window_title = "ERROR WHILE LOADING ACOUSTIC ELEMENT PERFORATED PLATE FROM FILE"
                 message = str(err)
                 PrintMessageInput([title, message, window_title])
 
@@ -793,6 +830,40 @@ class ProjectFile:
                                 }
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
+
+    def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
+        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+
+        data  = [perforated_plate.hole_diameter,
+                    perforated_plate.thickness,
+                    perforated_plate.porosity,
+                    perforated_plate.linear_discharge_coefficient,
+                    int(perforated_plate.nonlinear_effect),
+                    perforated_plate.nonlinear_discharge_coefficient,
+                    perforated_plate.correction_factor,
+                    int(perforated_plate.bias_effect),
+                    perforated_plate.bias_coefficient,
+                    int(perforated_plate.type)]
+        
+        if perforated_plate.dimensionless_path != '':
+            dimensionless_impedance = perforated_plate.dimensionless_path
+        else:
+            dimensionless_impedance = perforated_plate.dimensionless_impedance
+
+        if section in list(config.sections()):
+            config[section]['perforated plate data'] = str(data)
+            config[section]['dimensionless impedance'] = str(dimensionless_impedance)
+            config[section]['list of elements'] = str(elements)
+        else:
+            config[section] =   { 
+                                  'perforated plate data': str(data),
+                                  'dimensionless impedance' : str(dimensionless_impedance),
+                                  'list of elements': str(elements)
+                                }
+        with open(self._element_info_path, 'w') as config_file:
+            config.write(config_file)
     
     def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
@@ -906,18 +977,18 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_acoustic_element_type_in_file(self, entity_id, element_type, hysteretic_damping=None):
+    def modify_acoustic_element_type_in_file(self, entity_id, element_type, proportional_damping=None):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
         _section = str(entity_id)
 
         config[_section]['acoustic element type'] = element_type
-        if element_type == 'hysteretic':
-            config[_section]['hysteretic damping'] = str(hysteretic_damping)
+        if element_type == 'proportional':
+            config[_section]['proportional damping'] = str(proportional_damping)
             
-        if element_type != 'hysteretic' and 'hysteretic damping' in config[_section].keys():
-            config.remove_option(section=_section, option='hysteretic damping')  
+        if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
+            config.remove_option(section=_section, option='proportional damping')  
     
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)

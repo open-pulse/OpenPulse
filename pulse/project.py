@@ -179,6 +179,7 @@ class Project:
         dict_structural_element_type = self.file.dict_structural_element_type
         dict_acoustic_element_types = self.file.dict_acoustic_element_type
         dict_element_length_correction = self.file.dict_length_correction
+        dict_element_perforated_plate = self.file.dict_perforated_plate
         dict_materials = self.file.dict_material
         dict_cross_sections = self.file.dict_cross
         dict_variable_sections = self.file.dict_variable_sections
@@ -200,13 +201,16 @@ class Project:
                     self.load_structural_element_type_by_entity(line_id, etype_data) 
 
         # Acoustic element type to the entities
-        for key, [el_type, hysteretic_damping] in dict_acoustic_element_types.items():
+        for key, [el_type, proportional_damping] in dict_acoustic_element_types.items():
             if self.file.element_type_is_acoustic:
-                self.load_acoustic_element_type_by_entity(key, el_type, hysteretic_damping=hysteretic_damping)
+                self.load_acoustic_element_type_by_entity(key, el_type, proportional_damping=proportional_damping)
 
         # Length correction to the elements
         for key, value in dict_element_length_correction.items():
             self.load_length_correction_by_elements(value[0], value[1], key)
+
+        for key, value in dict_element_perforated_plate.items():
+            self.load_perforated_plate_by_elements(value[0], value[1], key)
 
         # Material to the entities
         for key, mat in dict_materials.items():
@@ -530,14 +534,14 @@ class Project:
     #     for line_id in self.preprocessor.all_lines:
     #         self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
 
-    def set_acoustic_element_type_by_line(self, entity_id, element_type, hysteretic_damping=None):
+    def set_acoustic_element_type_by_line(self, entity_id, element_type, proportional_damping=None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping)
         elif self.file.get_import_type() == 1:
-            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
+            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
 
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, hysteretic_damping=hysteretic_damping)
-        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping)
+        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, proportional_damping=proportional_damping)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
@@ -804,12 +808,12 @@ class Project:
         self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
         # self._set_structural_element_type_to_selected_entity(entity_id, element_type)
 
-    def load_acoustic_element_type_by_entity(self, entity_id, element_type, hysteretic_damping=None):
+    def load_acoustic_element_type_by_entity(self, entity_id, element_type, proportional_damping=None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping)
         elif self.file.get_import_type() == 1:
-            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, hysteretic_damping=hysteretic_damping)
+            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping)
 
     def load_structural_loads_by_node(self, node_id, values):
         self.preprocessor.set_structural_load_bc_by_node(node_id, values)
@@ -908,15 +912,15 @@ class Project:
         for entity in self.entities:
             entity.structural_element_type = element_type
 
-    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, hysteretic_damping=None):
+    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, proportional_damping=None):
         entity = self.preprocessor.dict_tag_to_entity[entity_id]
         entity.acoustic_element_type = element_type
-        entity.hysteretic_damping = hysteretic_damping
+        entity.proportional_damping = proportional_damping
 
-    def _set_acoustic_element_type_to_all_entities(self, element_type, hysteretic_damping=None):
+    def _set_acoustic_element_type_to_all_entities(self, element_type, proportional_damping=None):
         for entity in self.entities: 
             entity.acoustic_element_type = element_type
-            entity.hysteretic_damping = hysteretic_damping
+            entity.proportional_damping = proportional_damping
 
     def _set_beam_xaxis_rotation_to_selected_entity(self, line_id, angle):
         entity = self.preprocessor.dict_tag_to_entity[line_id]
@@ -989,6 +993,10 @@ class Project:
         # label = ["acoustic element length correction"] 
         self.preprocessor.set_length_correction_by_element(elements, value, section)
         self.file.add_length_correction_in_file(elements, value, section)
+    
+    def set_perforated_plate_by_elements(self, elements, perforated_plate, section):
+        self.preprocessor.set_perforated_plate_by_elements(elements, perforated_plate, section)
+        self.file.add_perforated_plate_in_file(elements, perforated_plate, section)
 
     def set_capped_end_by_elements(self, elements, value, selection):
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
@@ -1028,6 +1036,9 @@ class Project:
 
     def load_length_correction_by_elements(self, elements, value, key):
         self.preprocessor.set_length_correction_by_element(elements, value, key)
+    
+    def load_perforated_plate_by_elements(self, elements, perforated_plate, key):
+        self.preprocessor.set_perforated_plate_by_elements(elements, perforated_plate, key)
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

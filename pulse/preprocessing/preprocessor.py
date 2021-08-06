@@ -41,6 +41,7 @@ class Preprocessor:
         self.elements_with_expansion_joint = []
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
+        self.group_elements_with_perforated_plate = {}
         self.group_elements_with_stress_stiffening = {}
         self.group_elements_with_expansion_joints = {}
         self.group_lines_with_capped_end = {}        
@@ -62,6 +63,7 @@ class Preprocessor:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
+        self.element_with_perforated_plate = []
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
@@ -823,7 +825,7 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
-    def set_acoustic_element_type_by_element(self, elements, element_type, hysteretic_damping=None, remove=False):
+    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, remove=False):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -832,11 +834,11 @@ class Preprocessor:
         elements : list
             Acoustic elements indexes.
             
-        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
-        hysteretic_damping : float, optional
-            Acoustic hysteretic damping coefficient. It must be attributed to the elements of type 'hysteretic'.
+        proportional_damping : float, optional
+            Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
         remove : boll, optional
@@ -845,7 +847,7 @@ class Preprocessor:
         """
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
-            element.hysteretic_damping = hysteretic_damping
+            element.proportional_damping = proportional_damping
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
@@ -937,7 +939,7 @@ class Preprocessor:
                     if self.dict_structural_element_type_to_lines[key] == []:
                         self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_line(self, line, element_type, hysteretic_damping=None, remove=False):
+    def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -946,11 +948,11 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
-        hysteretic_damping : float, optional
-            Acoustic hysteretic damping coefficient. It must be attributed to the elements of type 'hysteretic'.
+        proportional_damping : float, optional
+            Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
         remove : boll, optional
@@ -958,7 +960,7 @@ class Preprocessor:
             Default is False.
         """
         for elements in slicer(self.line_to_elements, line):
-            self.set_acoustic_element_type_by_element(elements, element_type, hysteretic_damping=hysteretic_damping)
+            self.set_acoustic_element_type_by_element(elements, element_type, proportional_damping=proportional_damping)
 
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
@@ -1671,6 +1673,21 @@ class Preprocessor:
         """
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
+
+    def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
+        for element in slicer(self.acoustic_elements, elements):
+            element.perforated_plate = perforated_plate
+            element.delta_pressure = 0
+            element.pp_impedance = None
+            if element not in self.element_with_perforated_plate:
+                self.element_with_perforated_plate.append(element)
+            if perforated_plate is None:
+                if element in self.element_with_perforated_plate:
+                    self.element_with_perforated_plate.remove(element)
+        if delete_from_dict:
+            self.group_elements_with_perforated_plate.pop(section) 
+        else:
+            self.group_elements_with_perforated_plate[section] = [perforated_plate, elements]
 
     def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
         """

@@ -1,9 +1,13 @@
 from time import time
 import numpy as np
+from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 
+
+def relative_error(p1,p2):
+    return norm(p1-p2)/norm(p1)
 class SolutionAcoustic:
     """ This class creates a Acoustic Solution object from input data.
 
@@ -24,7 +28,11 @@ class SolutionAcoustic:
             frequencies[0] = float(1e-4)
         self.all_dofs = len(preprocessor.nodes)
         self.assembly = AssemblyAcoustic(preprocessor, frequencies)
+        self.acoustic_elements = preprocessor.acoustic_elements
         self.frequencies = frequencies
+
+        self.elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
+        self.solution_nm1 = None
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -125,10 +133,52 @@ class SolutionAcoustic:
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
 
-        for i in range(cols):
-            solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
+        if bool(self.elements_with_perforated_plate):
+            values = list(dict.values(self.elements_with_perforated_plate))
+            elements = [self.acoustic_elements[j] for [_,i] in values for j in i ]
+            count = 0
+            crit = 1
+            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
 
-        solution = self._reinsert_prescribed_dofs(solution)
+            while count < 100 and crit > 1e-2:
+                self.get_global_matrices()
+
+                for i in range(cols):
+                    solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
+
+                solution = self._reinsert_prescribed_dofs(solution)
+
+                Crit = np.array([])
+                for el in elements:
+                    el.update_pressure(solution)
+                    first = el.first_node.global_index
+                    last = el.last_node.global_index
+                    Crit = np.r_[Crit, relative_error(solution[first,:], self.solution_nm1[first,:]), relative_error(solution[last,:], self.solution_nm1[last,:]) ]
+                crit = np.max(Crit)
+                # TODO: create a plot showing the iteration convergence.
+                # print(crit) 
+                
+                count += 1
+                self.solution_nm1 = solution
+                solution = np.zeros((rows, cols), dtype=complex)
+
+            if crit < 1e-2:
+                return self.solution_nm1
+            elif count > 100:
+                # TODO: print warning message
+
+                # title = "ITERATIVE PROCESS HAS NOT CONVERGED"
+                # message = "The perforated plate solver has not converged."
+                # message += "\n\nActual relative error: {}\n".format(str(crit.shape).replace(",", ""))
+                # PrintMessageInput([title, message, "WARNING"])
+                return self.solution_nm1
+        else:
+            for i in range(cols):
+                solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
+
+            solution = self._reinsert_prescribed_dofs(solution)
+
+            return solution
 
         return solution
 

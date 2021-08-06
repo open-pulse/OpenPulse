@@ -27,6 +27,7 @@ from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVeloc
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
 from data.user_input.model.setup.acoustic.radiationImpedanceInput import RadiationImpedanceInput
 from data.user_input.model.setup.acoustic.elementLengthCorrectionInput import AcousticElementLengthCorrectionInput
+from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from data.user_input.model.setup.acoustic.compressorModelinput import CompressorModelInput
 #
 from data.user_input.analysis.analysisTypeInput import AnalysisTypeInput
@@ -267,9 +268,9 @@ class InputUi:
             print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
 
     def add_perforated_plate(self):
-        title = "UNAVAILABLE FUNCTIONALITY"
-        message = "This feature is currently under development and \nit will be available in the future updates."
-        PrintMessageInput([title, message, window_title_2])
+        read = PerforatedPlateInput(self.project, self.opv)
+        if read.type_label is None:
+            return
 
     def set_acoustic_element_length_correction(self):
         read = AcousticElementLengthCorrectionInput(self.project, self.opv)
