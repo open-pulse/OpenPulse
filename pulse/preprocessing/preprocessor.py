@@ -1536,8 +1536,8 @@ class Preprocessor:
         if aux_line_id is not None:
             elements_from_line = self.line_to_elements[aux_line_id]
             temp_dict = self.group_elements_with_expansion_joints.copy()
-            for key, [list_elements, _] in temp_dict.items():
-                for element_id in list_elements:
+            for key, [_list_elements_ids, _] in temp_dict.items():
+                for element_id in _list_elements_ids:
                     if element_id in elements_from_line:
                         self.group_elements_with_expansion_joints.pop(key)
                         break

@@ -681,17 +681,17 @@ class CrossSectionInput(QDialog):
             PrintMessageInput([title, message, window_title]) 
             return
         
-        elif abs(offset_y) > 0.2*(outerDiameter/2):
-            title = "INPUT CROSS-SECTION ERROR"
-            message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
-            PrintMessageInput([title, message, window_title]) 
-            return
+        # elif abs(offset_y) > 0.2*(outerDiameter/2):
+        #     title = "INPUT CROSS-SECTION ERROR"
+        #     message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
+        #     PrintMessageInput([title, message, window_title]) 
+        #     return
         
-        elif abs(offset_z) > 0.2*(outerDiameter/2):
-            title = "INPUT CROSS-SECTION ERROR"
-            message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
-            PrintMessageInput([title, message, window_title]) 
-            return
+        # elif abs(offset_z) > 0.2*(outerDiameter/2):
+        #     title = "INPUT CROSS-SECTION ERROR"
+        #     message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
+        #     PrintMessageInput([title, message, window_title]) 
+        #     return
             
         self.section_label = "Pipe section"
 
