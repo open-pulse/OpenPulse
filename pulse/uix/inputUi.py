@@ -174,7 +174,8 @@ class InputUi:
         if read.prescribed_dofs is None:
             return
         if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)     
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)  
+            self.flag_imported_table = True   
         print("[Set Prescribed DOF] - defined at node(s) {}".format(read.nodes_typed))
 
     def setRotationDecoupling(self):
@@ -188,6 +189,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
         
     def addMassSpringDamper(self):
@@ -235,6 +237,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         self.opv.updateRendererMesh()
         print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
 
@@ -244,6 +247,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         self.opv.updateRendererMesh()
         print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
 
@@ -495,13 +499,13 @@ class InputUi:
         AcousticModelInfoInput(self.project)
 
 
-    def _load_frequencies_from_table(self, obj):
-        self.project.file.f_min = obj.f_min
-        self.project.file.f_max = obj.f_max
-        self.project.file.f_step = obj.f_step
-        self.project.file.frequencies = obj.frequencies
-        self.project.file.temp_table_name = obj.imported_table_name  
-        return obj.frequencies 
+    def _load_frequencies_from_table(self, _read):
+        self.project.file.f_min = _read.f_min
+        self.project.file.f_max = _read.f_max
+        self.project.file.f_step = _read.f_step
+        self.project.file.frequencies = _read.frequencies
+        self.project.file.temp_table_name = _read.imported_table_name  
+        return _read.frequencies 
     
 
     def check_acoustic_bc_tables(self):

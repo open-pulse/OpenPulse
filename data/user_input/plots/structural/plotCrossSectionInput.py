@@ -36,7 +36,7 @@ class PlotCrossSectionInput(QDialog):
 
         self.stop = False
 
-        self._get_dict_key_section()
+        # self._get_dict_key_section()
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_id_labels = self.findChild(QLineEdit, 'lineEdit_id_labels')
@@ -108,19 +108,17 @@ class PlotCrossSectionInput(QDialog):
             self.write_ids(self.element_id)
             self.radioButton_selected_elements.setChecked(True)
         else:
-            self.lineEdit_id_labels.setText("Selected ID:")
             self.lineEdit_selected_ID.setText("")
 
-    def _get_dict_key_section(self):
-        self.labels = [ "Pipe section", 
-                        "Rectangular section", 
-                        "Circular section", 
-                        "C-section", 
-                        "I-section", 
-                        "T-section", 
-                        "Generic section"   ]
-        # self.dict_sections = dict(zip(self.labels, np.arange(7)))
-        
+    # def _get_dict_key_section(self):
+    #     self.labels = [ "Pipe section", 
+    #                     "Rectangular section", 
+    #                     "Circular section", 
+    #                     "C-section", 
+    #                     "I-section", 
+    #                     "T-section", 
+    #                     "Generic section"   ]
+
     def preprocess_selection(self):
 
         self.stop = False
@@ -179,7 +177,7 @@ class PlotCrossSectionInput(QDialog):
         else:
             self.window_title = "WARNING"
             self.title = "Unable to plot cross-section"
-            self.message = "The cross-section plot has been desativated to \n\n"
+            self.message = "The cross-section plot has been deactivated to \n\n"
             self.message += "the 'expansion joint' element type."
             return True
             
@@ -191,7 +189,8 @@ class PlotCrossSectionInput(QDialog):
         plt.close()
 
         if self.preprocess_selection():
-            PrintMessageInput([self.title, self.message, self.window_title])
+            if not self.stop:
+                PrintMessageInput([self.title, self.message, self.window_title])
             return
         
         if self.section_label == "Pipe section":

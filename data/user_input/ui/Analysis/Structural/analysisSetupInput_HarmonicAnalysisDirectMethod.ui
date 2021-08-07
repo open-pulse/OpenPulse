@@ -474,7 +474,7 @@
     </widget>
     <widget class="QWidget" name="widget">
      <attribute name="title">
-      <string>Damping</string>
+      <string>Structural damping</string>
      </attribute>
      <widget class="QWidget" name="verticalLayoutWidget_5">
       <property name="geometry">

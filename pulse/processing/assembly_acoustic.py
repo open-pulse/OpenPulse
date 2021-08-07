@@ -77,10 +77,10 @@ class AssemblyAcoustic:
         self.preprocessor = preprocessor
         self.frequencies = frequencies
         if preprocessor.beam_gdofs is None:
-            self.beam_gdofs, self.pipe_gdofs = preprocessor.get_beam_and_pipe_elements_global_dofs()
+            self.beam_gdofs, _ = preprocessor.get_beam_and_non_beam_elements_global_gdofs()
         else:
-            self.beam_gdofs, self.pipe_gdofs = preprocessor.beam_gdofs, preprocessor.pipe_gdofs
-        self.acoustic_elements = preprocessor.get_pipe_elements()
+            self.beam_gdofs, _ = preprocessor.beam_gdofs, preprocessor.pipe_gdofs
+        self.acoustic_elements = preprocessor.get_acoustic_elements()
         self.total_dof = DOF_PER_NODE_ACOUSTIC * len(preprocessor.nodes)
         self.neighbor_diameters = preprocessor.neighbor_elements_diameter_global()
         self.prescribed_indexes = self.get_prescribed_indexes()
@@ -200,7 +200,7 @@ class AssemblyAcoustic:
 
             for _,_,di in diameters_first:
                 if di_actual < di:
-                    if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                    if element.acoustic_length_correction in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
                     elif element.acoustic_length_correction == 1:
                         correction = length_correction_branch(di_actual, di)
@@ -212,7 +212,7 @@ class AssemblyAcoustic:
 
             for _,_,di in diameters_last:
                 if di_actual < di:
-                    if element.acoustic_length_correction == 0 or element.acoustic_length_correction == 2:
+                    if element.acoustic_length_correction in [0, 2]:
                         correction = length_correction_expansion(di_actual, di)
                     elif element.acoustic_length_correction == 1:
                         correction = length_correction_branch(di_actual, di)

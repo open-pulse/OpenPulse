@@ -855,8 +855,8 @@ class Project:
     def get_structural_element(self, element_id):
         return self.preprocessor.structural_elements[element_id]
 
-    def get_acoustic_elements(self):
-        return self.preprocessor.acoustic_elements    
+    # def get_acoustic_elements(self):
+    #     return self.preprocessor.acoustic_elements    
 
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]

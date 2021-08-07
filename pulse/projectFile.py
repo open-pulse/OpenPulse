@@ -104,25 +104,25 @@ class ProjectFile:
                 geometry_tolerance = config['PROJECT']['Geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
             self._element_size = float(element_size)
-            self._geometry_path = "{}\\{}".format(self._project_path, geometry_file)
+            self._geometry_path =  get_new_path(self._project_path, geometry_file)
 
         elif import_type == 1:
             coord_file = config['PROJECT']['Nodal coordinates file']
             conn_file = config['PROJECT']['Connectivity matrix file']
-            self._conn_path = "{}\\{}".format(self._project_path, conn_file)
-            self._coord_path = "{}\\{}".format(self._project_path, coord_file)
+            self._conn_path =  get_new_path(self._project_path, conn_file)
+            self._coord_path =  get_new_path(self._project_path, coord_file)
 
         material_list_file = config['PROJECT']['Material list file']
         fluid_list_file = config['PROJECT']['Fluid list file']
 
         self._project_name = project_name
         self._import_type = import_type
-        self._material_list_path = "{}\\{}".format(self._project_path, material_list_file)
-        self._fluid_list_path = "{}\\{}".format(self._project_path, fluid_list_file)
-        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
-        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
-        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
+        self._material_list_path = get_new_path(self._project_path, material_list_file)
+        self._fluid_list_path =  get_new_path(self._project_path, fluid_list_file)
+        self._entity_path =  get_new_path(self._project_path, self._entity_file_name)
+        self._element_info_path =  get_new_path(self._project_path, self._elements_file_name)
+        self._node_structural_path =  get_new_path(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path =  get_new_path(self._project_path, self._node_acoustic_file_name)
 
     #Frequency Setup Analysis
     def load_analysis_file(self):
@@ -132,7 +132,7 @@ class ProjectFile:
         alpha_v, beta_v = 0, 0
         alpha_h, beta_h = 0, 0
         
-        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         sections = config.sections()
@@ -160,7 +160,7 @@ class ProjectFile:
         min_ = str(min_)
         max_ = str(max_)
         step_ = str(step_)
-        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
         # sections = config.sections()
@@ -178,7 +178,7 @@ class ProjectFile:
         beta_v = str(global_damping[1])
         alpha_h = str(global_damping[2])
         beta_h = str(global_damping[3])
-        temp_project_base_file_path = "{}\\{}".format(self._project_path, self._project_base_name)
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(temp_project_base_file_path)
 
@@ -192,7 +192,7 @@ class ProjectFile:
             config.write(config_file)
 
     def reset_project_setup(self):
-        path = "{}\\{}".format(self._project_path, self._project_base_name)
+        path =  get_new_path(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
         config.read(path)
         sections = config.sections()
@@ -244,7 +244,8 @@ class ProjectFile:
         self.dict_capped_end = defaultdict(list)
         self.dict_B2XP_rotation_decoupling = {}
 
-        title = "ERROR WHILE LOADING DATA FROM FILE"
+        window_title = "ERROR"
+        title = "Error while loading data from project file"
 
         for entity in entityFile.sections():
 
@@ -898,10 +899,6 @@ class ProjectFile:
                 config.remove_option(section=str_entity_id, option='stress stiffening parameters')
         else:
             config[str_entity_id]['stress stiffening parameters'] = str(pressures)
-            # if str_entity_id in list(config.sections()):
-            #     config[str_entity_id]['stress stiffening parameters'] = str(pressures)
-            # else:
-            #     config[str_entity_id] = { 'stress stiffening parameters': str(pressures) }  
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -914,12 +911,14 @@ class ProjectFile:
         if remove:
             config.remove_section(section)
         else:
-            if section in list(config.sections()):
-                config[section]['stress stiffening parameters'] = str(parameters)
-                config[section]['list of elements'] = str(elements)
-            else:
-                config[section] =  { 'stress stiffening parameters': str(parameters),
-                                     'list of elements': str(elements)                }
+            config[section]['stress stiffening parameters'] = str(parameters)
+            config[section]['list of elements'] = str(elements)
+            # if section in list(config.sections()):
+            #     config[section]['stress stiffening parameters'] = str(parameters)
+            #     config[section]['list of elements'] = str(elements)
+            # else:
+            #     config[section] =  { 'stress stiffening parameters': str(parameters),
+            #                          'list of elements': str(elements)                }
 
         with open(self._element_info_path, 'w') as config_file:
             config.write(config_file)
@@ -943,10 +942,6 @@ class ProjectFile:
 
         if value:
             config[section]['list of elements'] = str(elements)
-            # if section in list(config.sections()):
-            #     config[section]['list of elements'] = str(elements)
-            # else:
-            #     config[section] =   { 'list of elements': str(elements) }
         else:    
             config.remove_section(section)
         
@@ -959,20 +954,25 @@ class ProjectFile:
         str_entity_id = str(entity_id)
         if value:    
             config[str_entity_id]['capped end'] = str(value)
-        #     if str_entity_id in list(config.sections()):
-        #         config[str_entity_id]['capped end'] = str(value)
-        #     else:
-        #         config[str_entity_id] = { 'capped end': str(value) }
         else:
             config.remove_option(section=str_entity_id, option='capped end')
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_structural_element_type_in_file(self, entity_id, element_type):
+    def modify_structural_element_type_in_file(self, line_id, element_type):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['structural element type'] = element_type
+        
+        str_line = str(line_id)
+        if element_type in ["beam_1"]:
+            str_keys = ['fluid id', 'stress stiffening parameters']
+            
+            for str_key in str_keys:
+                if str_key in config[str_line].keys():
+                    config.remove_option(section=str_line, option=str_key)
+        
+        config[str_line]['structural element type'] = element_type
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)

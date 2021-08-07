@@ -525,7 +525,7 @@ class Preprocessor:
                                 stack.appendleft(node.external_index)
                                 break
                         
-                        #TODO: uncomment to rebegin from start or end nodes
+                        #TODO: uncomment to begin from start or end nodes
                         # for node in list_nodes:
                         #     if len(self.neighbors[node]) == 1:
                         #         stack.appendleft(node)   
@@ -1879,7 +1879,7 @@ class Preprocessor:
                 self.radius[last] = radius
         return self.radius
 
-    def get_pipe_elements_global_dofs(self):
+    def get_pipe_and_expansion_joint_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. This method helps to exclude those degrees of freedom from acoustic analysis.
 
@@ -1888,22 +1888,22 @@ class Preprocessor:
         list
             Acoustic global degrees of freedom associated to beam element.
         """
-        list_pipe_gdofs = []  
+        # list_pipe_gdofs = []  
+        pipe_gdofs = {}
         for element in self.structural_elements.values():
-            if element.element_type in ['pipe_1', 'pipe_2']:
-
+            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
-                
-                if gdofs_node_first not in list_pipe_gdofs:
-                    list_pipe_gdofs.append(gdofs_node_first)
-                
-                if gdofs_node_last not in list_pipe_gdofs:
-                    list_pipe_gdofs.append(gdofs_node_last)
+                pipe_gdofs[gdofs_node_first] = gdofs_node_first 
+                pipe_gdofs[gdofs_node_last] = gdofs_node_last 
+        return list(pipe_gdofs.keys())
+                # if gdofs_node_first not in list_pipe_gdofs:
+                #     list_pipe_gdofs.append(gdofs_node_first)
+                # if gdofs_node_last not in list_pipe_gdofs:
+                #     list_pipe_gdofs.append(gdofs_node_last)
+        # return list_pipe_gdofs
 
-        return list_pipe_gdofs
-
-    def get_beam_and_pipe_elements_global_dofs(self):
+    def get_beam_and_non_beam_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements. This method helps to keep only those degrees of freedom in acoustic analysis.
 
@@ -1912,11 +1912,11 @@ class Preprocessor:
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
-        self.pipe_gdofs = self.get_pipe_elements_global_dofs()
+        self.pipe_and_expansion_joint_gdofs = self.get_pipe_and_expansion_joint_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        self.beam_gdofs = np.delete(all_indexes, list(self.pipe_gdofs))
-        return self.beam_gdofs, self.pipe_gdofs
+        self.beam_gdofs = np.delete(all_indexes, self.pipe_and_expansion_joint_gdofs)
+        return self.beam_gdofs, self.pipe_and_expansion_joint_gdofs
 
     # def get_beam_nodes_and_indexes(self, list_beam_elements):
     #     """
@@ -1989,43 +1989,48 @@ class Preprocessor:
         boll
             ?????
         """
-        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_pipe_elements_global_dofs()
+        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
         if len(self.beam_gdofs) == self.number_nodes:
             return True
         else:
             return False
     
-    def get_pipe_elements(self):
+    def get_acoustic_elements(self):
         """
-        This method returns the indexes of the structural pipe elements.
+        This method returns a list of acoustic elements.
 
         Returns
         ----------
         list
-            Pipe elements indexes.
+            Acoustic elements list.
         """
-        list_elements = []
+        acoustic_elements = []
         dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
             if element.element_type not in ['beam_1']:
-                list_elements.append(dict_structural_to_acoustic_elements[element])
-        return list_elements   
+                acoustic_element = dict_structural_to_acoustic_elements[element]
+                acoustic_elements.append(acoustic_element)
+        return acoustic_elements   
     
-    # def get_beam_elements(self):
-    #     """
-    #     This method returns the a list of acoustic elements associated to structural beam elements.
+    def get_nodes_relative_to_acoustic_elements(self):
+        """
+        This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.
 
-    #     Returns
-    #     ----------
-    #     list
-    #         Acoustic elements objects.
-    #     """
-    #     list_elements = []
-    #     dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
-    #     for element in self.structural_elements.values():
-    #         if element.element_type in ['beam_1']:
-    #             list_elements.append(dict_structural_to_acoustic_elements[element])
-    #     return list_elements
+        Returns
+        ----------
+        list
+            Dictionary of nodes relative to the acoustic elements.
+        """
+        acoustic_elements = self.get_acoustic_elements()
+        acoustic_nodes = {}
+        
+        for element in acoustic_elements:
+            first_node = element.first_node.external_index
+            last_node = element.last_node.external_index
+            acoustic_nodes[first_node] = element.first_node
+            acoustic_nodes[last_node] = element.last_node
+
+        return acoustic_nodes  
 
     def get_beam_elements(self):
         """
