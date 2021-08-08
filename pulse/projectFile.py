@@ -86,10 +86,8 @@ class ProjectFile:
         self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
 
     def load(self, project_file_path):
-        self.project_file_path = project_file_path
-        project_file_path = project_file_path.replace('/', '\\')
-        project_folder_path = os.path.dirname(project_file_path)
-        self._project_path = project_folder_path
+        self.project_file_path = project_file_path.replace('/', '\\')
+        self._project_path = os.path.dirname(self.project_file_path)
                 
         config = configparser.ConfigParser()
         config.read(project_file_path)
@@ -248,6 +246,9 @@ class ProjectFile:
         title = "Error while loading data from project file"
 
         for entity in entityFile.sections():
+
+            structural_element_type = ""
+            acoustic_element_type = ""
 
             if 'structural element type' in entityFile[entity].keys():
                 structural_element_type = entityFile[entity]['structural element type']
@@ -448,10 +449,6 @@ class ProjectFile:
                                                             color = color,
                                                             identifier = int(identifier))
                             self.dict_material[int(entity)] = temp_material
-            
-            if 'beam x-axis rotation' in entityFile[entity].keys():
-                beam_xaxis_rotation = entityFile[entity]['beam x-axis rotation']
-                self.dict_beam_xaxis_rotation[int(entity)] = float(beam_xaxis_rotation)
 
             if 'fluid id' in entityFile[entity].keys():    
                 fluid_id = entityFile[entity]['fluid id']
@@ -494,11 +491,14 @@ class ProjectFile:
                                                color=color, identifier=int(identifier))
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
-                if 'capped end' in entityFile[entity].keys():
-                    capped_end = entityFile[entity]['capped end']
-                    if capped_end != "":
-                        self.dict_capped_end[capped_end].append(int(entity))
+            if 'capped end' in entityFile[entity].keys():
+                capped_end = entityFile[entity]['capped end']
+                if capped_end != "":
+                    self.dict_capped_end[capped_end].append(int(entity))
             
+            if 'beam x-axis rotation' in entityFile[entity].keys():
+                beam_xaxis_rotation = entityFile[entity]['beam x-axis rotation']
+                self.dict_beam_xaxis_rotation[int(entity)] = float(beam_xaxis_rotation)
 
             if 'stress stiffening parameters' in entityFile[entity].keys():
                 list_parameters = entityFile[entity]['stress stiffening parameters']
@@ -556,9 +556,9 @@ class ProjectFile:
                         else:
                             perforated_plate.dimensionless_impedance = complex(dimensionless_data)
                         self.dict_perforated_plate[section] = [get_list_elements, perforated_plate]
-            except Exception as err:  
+            except Exception as log_error:  
                 window_title = "ERROR WHILE LOADING ACOUSTIC ELEMENT PERFORATED PLATE FROM FILE"
-                message = str(err)
+                message = str(log_error)
                 PrintMessageInput([title, message, window_title])
 
             try:

@@ -13,6 +13,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
 import configparser
+from shutil import rmtree
 from collections import defaultdict
 import os
 
@@ -20,53 +21,14 @@ window_title = "ERROR"
 
 class Project:
     def __init__(self):
-
-        self._project_name = ""
-        self.project_folder_path = ""
-
-        #Analysis
-        self.reset_info()
-        # self.analysis_ID = None
-        # self.analysis_type_label = ""
-        # self.analysis_method_label = ""
-        # self.global_damping = [0,0,0,0]
-        # self.modes = 0
-        # self.frequencies = None
-        # self.f_min = 0
-        # self.f_max = 0
-        # self.f_step = 0
-        # self.natural_frequencies_structural = []
-        # self.solution_structural = None
-        # self.solution_acoustic = None
-        # self.flag_set_material = False
-        # self.flag_set_crossSection = False
-        # self.plot_pressure_field = False
-        # self.plot_stress_field = False
-        # self.is_file_loaded = False
-        # self.setup_analysis_complete = False
-        # self.none_project_action = False
-
-        # self.time_to_load_or_create_project = None
-        # self.time_to_checking_entries = None 
-        # self.time_to_process_cross_sections = None
-        # self.time_to_preprocess_model = None
-        # self.time_to_solve_model = None
-        # self.time_to_solve_acoustic_model = None
-        # self.time_to_solve_structural_model = None
-        # self.time_to_postprocess = None
-        # self.total_time = None
-
-        # self.number_sections_by_line = {}
-        # self.lines_with_cross_section_by_elements = []
-        # self.stresses_values_for_color_table = None
-        # self.min_stress = ""
-        # self.max_stress = ""
-        # self.stress_label = ""
-
-    def reset_info(self):
-
+        
         self.preprocessor = Preprocessor()
         self.file = ProjectFile()
+        self._project_name = ""
+        self.project_folder_path = ""    
+        self.reset_info()
+
+    def reset_info(self):
 
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -101,7 +63,6 @@ class Project:
 
         self.number_sections_by_line = {}
         self.lines_with_cross_section_by_elements = []
-        # self.lines_with_expansion_joint_by_elements = defaultdict(list)
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -143,7 +104,6 @@ class Project:
             self.load_frequencies_from_table()
 
     def update_node_ids_in_file_after_remesh(self, dict_old_to_new_extenal_indexes):
-        # print(f"Dictionary: \n {dict_old_to_new_extenal_indexes}")
         self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_extenal_indexes)
         self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_extenal_indexes)
 
@@ -161,7 +121,11 @@ class Project:
             if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", geometry_filename]:
                 file_path = get_new_path(self.file._project_path, filename)
                 if os.path.exists(file_path):
-                    os.remove(file_path)
+                    if "." in filename:
+                        os.remove(file_path)
+                    else:
+                        rmtree(file_path)
+                    
 
     def process_geometry_and_mesh(self):
         if self.file.get_import_type() == 0:
