@@ -143,7 +143,7 @@ class SetProjectAttributesInput(QDialog):
         self.lineEdit_new_project_folder.setText(str(self.new_project_directory))        
 
     def copyTreeProjectFiles(self):  
-        self.new_project_folder_path = self.get_new_path(self.new_project_folder, self.new_project_name)
+        self.new_project_folder_path = get_new_path(self.new_project_folder, self.new_project_name)
         copytree(self.current_project_file_path, self.new_project_folder_path)
 
     def update_all_file_paths(self):
