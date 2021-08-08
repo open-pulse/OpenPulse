@@ -68,9 +68,9 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
-        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
-        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
-        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
+        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
     
     def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -80,10 +80,10 @@ class ProjectFile:
         self._geometry_path = geometry_path
         self._conn_path = conn_path
         self._coord_path = coord_path
-        self._entity_path = "{}\\{}".format(self._project_path, self._entity_file_name)
-        self._node_structural_path = "{}\\{}".format(self._project_path, self._node_structural_file_name)
-        self._node_acoustic_path = "{}\\{}".format(self._project_path, self._node_acoustic_file_name)
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)
+        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
 
     def load(self, project_file_path):
         self.project_file_path = project_file_path.replace('/', '\\')
@@ -817,7 +817,7 @@ class ProjectFile:
         self.write_bc_in_file(self._entity_path, config_new)
 
     def add_length_correction_in_file(self, elements, _type, section): 
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -833,7 +833,7 @@ class ProjectFile:
             config.write(config_file)
 
     def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -867,7 +867,7 @@ class ProjectFile:
             config.write(config_file)
     
     def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -904,7 +904,7 @@ class ProjectFile:
             config.write(config_file)
 
     def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -924,7 +924,7 @@ class ProjectFile:
             config.write(config_file)
 
     def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -936,7 +936,7 @@ class ProjectFile:
             config.write(config_file)
 
     def modify_capped_end_element_in_file(self, elements, value, section): 
-        self._element_info_path = "{}\\{}".format(self._project_path, self._elements_file_name)  
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 

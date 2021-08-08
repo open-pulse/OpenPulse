@@ -91,7 +91,7 @@ class Preprocessor:
         self.beam_gdofs = None
         self.pipe_gdofs = None
 
-    def generate(self, path, element_size):
+    def generate(self, path, element_size, tolerance=1e-6):
         """
         This method evaluates the Lamé's first parameter `lambda`.
 
@@ -106,7 +106,7 @@ class Preprocessor:
         self.element_size = element_size
         self.reset_variables()
         self._initialize_gmsh(path)
-        self._set_gmsh_options(element_size)
+        self._set_gmsh_options(element_size, tolerance=tolerance)
         self._create_entities()
         self._map_lines_to_elements()
         self._finalize_gmsh()

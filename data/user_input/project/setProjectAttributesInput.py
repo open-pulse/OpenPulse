@@ -1,19 +1,16 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QRadioButton, QPushButton
+from PyQt5.QtWidgets import QToolButton, QLineEdit, QFileDialog, QDialog, QRadioButton, QPushButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import os
 import configparser
-from shutil import copyfile, copy, copytree, rmtree
-import numpy as np
+from shutil import copytree, rmtree
 
-from pulse.project import Project
-from pulse.default_libraries import default_material_library, default_fluid_library
 from pulse.utils import get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class SetProjectAttributesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -133,10 +130,9 @@ class SetProjectAttributesInput(QDialog):
                 self.search_project_folder()
                 return self.check_entries_and_confirm()
         else:
-            window_title = "WARNING"
             message_title = "Empty project name"
             message = "Please, inform a valid project name at 'New project name' input field to continue."
-            PrintMessageInput([message_title, message, window_title])
+            PrintMessageInput([message_title, message, window_title_2])
 
     def search_project_folder(self):
         self.new_project_directory = QFileDialog.getExistingDirectory(None, 'Choose a new folder to save the project files', self.userPath)

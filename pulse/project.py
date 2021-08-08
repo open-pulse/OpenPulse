@@ -71,16 +71,31 @@ class Project:
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
         self.reset_info()
-        self.file.new(project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.new(  project_folder_path, 
+                        project_name, 
+                        element_size, 
+                        geometry_tolerance, 
+                        import_type, 
+                        material_list_path, 
+                        fluid_list_path, 
+                        geometry_path, 
+                        coord_path, 
+                        conn_path   )
         self._project_name = project_name
         self.project_folder_path = project_folder_path
 
-        self.process_geometry_and_mesh()
+        self.process_geometry_and_mesh(tolerance=geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
-        self.file.copy(project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.copy( project_folder_path, 
+                        project_name, 
+                        material_list_path, 
+                        fluid_list_path, 
+                        geometry_path, 
+                        coord_path, 
+                        conn_path)
         self._project_name = project_name
          
     def load_project(self, project_file_path):
@@ -92,7 +107,7 @@ class Project:
         self.file.load(project_file_path)
         self._project_name = self.file._project_name
         self.project_folder_path = os.path.dirname(project_file_path)
-        self.process_geometry_and_mesh()
+        self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
 
     def load_project_files(self):
@@ -127,9 +142,9 @@ class Project:
                         rmtree(file_path)
                     
 
-    def process_geometry_and_mesh(self):
+    def process_geometry_and_mesh(self, tolerance=1e-6):
         if self.file.get_import_type() == 0:
-            self.preprocessor.generate(self.file.geometry_path, self.file.element_size)
+            self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
         elif self.file.get_import_type() == 1:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
   
