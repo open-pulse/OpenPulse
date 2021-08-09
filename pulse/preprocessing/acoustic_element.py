@@ -615,4 +615,5 @@ class AcousticElement:
 
         Ke = area/(rho*length) * np.array([[1,-1],[-1,1]])
         Me = area * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
+        
         return Ke, Me

@@ -17,6 +17,7 @@ from pulse.preprocessing.before_run import BeforeRun
 from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
 
 
 window_title_1 = "ERROR MESSAGE"
@@ -304,6 +305,7 @@ class ExpansionJointInput(QDialog):
             elif self.element_id != []:
                 self.label_selected_id.setText("Element ID:")
                 self.radioButton_element_selection.setChecked(True)
+            self.update_selection_flags()
 
     def update_selection_flags(self):
         self.selection_by_line = self.radioButton_line_selection.isChecked()
@@ -388,10 +390,7 @@ class ExpansionJointInput(QDialog):
         self.lineEdit_angular_stiffness.setText("")
 
     def load_input_fields(self):
-        if self.line_id == []:
-            pass
-            # self.reset_all_lineEdits()
-        else:    
+        if self.line_id != []: 
             entity = self.dict_tag_to_entity[self.line_id[0]]
             if entity.expansion_joint_parameters is None:
                 return
@@ -436,7 +435,6 @@ class ExpansionJointInput(QDialog):
                 title = "Error while loading info from entity"
                 message = str(_log_error)
                 PrintMessageInput([title, message, window_title_1])
-        pass
 
     def get_nodes_elements_according_joint_length(self):
         if self.selection_by_node:
@@ -557,20 +555,34 @@ class ExpansionJointInput(QDialog):
             self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, False)
 
         else:
-         
+
             self.get_nodes_elements_according_joint_length()
-            self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)
-              
-            # if self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters):
-            #     title = "Update of expansion joint parameters from elements"
-            #     message = "The current expansion joint parameters has been replaced by new setup."
-            #     message += "Check to results to make sure that modifications are correct."
-            #     PrintMessageInput([title, message, window_title_1])
-            
+            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
+            if self.lines_to_apply_cross_section != []:
+                read = CrossSectionInput(   self.project, 
+                                            self.opv, 
+                                            pipe_to_beam = False, 
+                                            beam_to_pipe = True, 
+                                            lines_to_update_cross_section = self.lines_to_apply_cross_section)
+                if not read.complete:
+                    return
+            self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)            
             self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, False)
 
         self.update_plots()
         self.close()
+
+    def get_list_of_lines_to_update_cross_section(self):
+        list_lines = []
+        for element_id in self.list_elements:
+            line_id = self.preprocessor.elements_to_line[element_id]
+            list_elements_from_line = self.preprocessor.line_to_elements[line_id]
+            for element_id_from_line in list_elements_from_line:
+                element = self.structural_elements[element_id_from_line]
+                if element.element_type in [None, "beam_1"] or element.cross_section in [None]:
+                    if line_id not in list_lines:
+                        list_lines.append(line_id)
+        return list_lines
 
     def get_pipe_cross_section_from_file(self, line):
         config = configparser.ConfigParser()
@@ -825,6 +837,15 @@ class ExpansionJointInput(QDialog):
         else:
             
             self.get_nodes_elements_according_joint_length()
+            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
+            if self.lines_to_apply_cross_section != []:
+                read = CrossSectionInput(   self.project, 
+                                            self.opv, 
+                                            pipe_to_beam = False, 
+                                            beam_to_pipe = True, 
+                                            lines_to_update_cross_section = self.lines_to_apply_cross_section)
+                if not read.complete:
+                    return
             self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)
               
             # if self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters):
@@ -981,53 +1002,55 @@ class ExpansionJointInput(QDialog):
             return
 
         if read._continue:
-
-            if group in self.preprocessor.group_elements_with_expansion_joints.keys():
-                [list_elements, _] = self.preprocessor.group_elements_with_expansion_joints[group]
-                list_lines = []
-                for element_id in list_elements:
-                    line_id = self.preprocessor.elements_to_line[element_id]
-                    if line_id not in list_lines:
-                        list_lines.append(line_id)
-            
-            for line_id in list_lines:
-                cross, etype = self.get_pipe_cross_section_from_file(line_id)
-                self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
-                self.project.add_expansion_joint_by_elements(list_elements, None, False, update_element_type=False)
-                self.project.set_cross_section_by_elements(list_elements, cross)
-                self.preprocessor.group_elements_with_expansion_joints.pop(group)
-
+            self.remove_expansion_joint_by_group_of_elements(group)
             self.update_plots()
                 
         title = "Removal of the expansion joint"
         message = f"The expansion joint added to the group {group} \nhas been removed from the model."
         PrintMessageInput([title, message, window_title_1])
 
+    def remove_expansion_joint_by_group_of_elements(self, _group):
+
+        if _group in self.preprocessor.group_elements_with_expansion_joints.keys():
+            [list_elements, _] = self.preprocessor.group_elements_with_expansion_joints[_group]
+            list_lines = []
+            for element_id in list_elements:
+                line_id = self.preprocessor.elements_to_line[element_id]
+                if line_id not in list_lines:
+                    list_lines.append(line_id)
+        
+        for line_id in list_lines:
+            cross, etype = self.get_pipe_cross_section_from_file(line_id)
+            self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
+            self.project.add_expansion_joint_by_elements(   list_elements, 
+                                                            None, 
+                                                            False, 
+                                                            update_element_type=False   )
+            self.project.set_cross_section_by_elements(list_elements, cross)
+            self.preprocessor.group_elements_with_expansion_joints.pop(_group)
 
     def reset_all(self):
         title = "Remove all expansion joints added to the model"
         message = "Are you really sure you want to remove all expansion joints from model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message)
+
         if read._doNotRun:
             return
+
         if read._continue:
-            if len(self.preprocessor.dict_lines_with_expansion_joints) > 0:
-                for line_id, entity in self.preprocessor.dict_tag_to_entity.items():
-                    if entity.structural_element_type == "expansion_joint":
-                       self.project.add_expansion_joint_by_line(line_id, None, False) 
 
-            temp_dict = self.preprocessor.group_elements_with_expansion_joints.copy()
-            for _, joint_data in temp_dict.items():
-                list_elements = joint_data[0]
-                self.project.add_expansion_joint_by_elements(list_elements, None, False)
-                #TODO: check functionality before commit
-                return
-
+            temp_dict_1 = self.preprocessor.dict_lines_with_expansion_joints.copy()
+            for line_id in temp_dict_1.keys():
+                self.project.add_expansion_joint_by_line(line_id, None, False)
+            
+            temp_dict_2 = self.preprocessor.group_elements_with_expansion_joints.copy()
+            for group in temp_dict_2.keys(): 
+               self.remove_expansion_joint_by_group_of_elements(group)
             self.update_plots()
 
-            title = "RESET OF ELASTIC NODAL LINKS"
-            message = "All elastic nodal links have been removed from the model."
+            title = "Removal of expansion joints"
+            message = "All expansion joints have been removed from the model."
             PrintMessageInput([title, message, window_title_1])
 
     def update_plots(self):

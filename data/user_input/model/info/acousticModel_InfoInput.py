@@ -21,6 +21,7 @@ class AcousticModelInfoInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.preprocessor = project.preprocessor
 
         self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
         self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
@@ -58,8 +59,10 @@ class AcousticModelInfoInput(QDialog):
             self.close()
 
     def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.preprocessor.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.preprocessor.structural_elements)))
+        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+        self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
+        self.lineEdit_number_nodes.setText(str(len(self.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
         
     def text_label(self, value):
         text = ""

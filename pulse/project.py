@@ -13,6 +13,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 
 import numpy as np
 import configparser
+from shutil import rmtree
 from collections import defaultdict
 import os
 
@@ -20,53 +21,14 @@ window_title = "ERROR"
 
 class Project:
     def __init__(self):
-
-        self._project_name = ""
-        self.project_folder_path = ""
-
-        #Analysis
-        self.reset_info()
-        # self.analysis_ID = None
-        # self.analysis_type_label = ""
-        # self.analysis_method_label = ""
-        # self.global_damping = [0,0,0,0]
-        # self.modes = 0
-        # self.frequencies = None
-        # self.f_min = 0
-        # self.f_max = 0
-        # self.f_step = 0
-        # self.natural_frequencies_structural = []
-        # self.solution_structural = None
-        # self.solution_acoustic = None
-        # self.flag_set_material = False
-        # self.flag_set_crossSection = False
-        # self.plot_pressure_field = False
-        # self.plot_stress_field = False
-        # self.is_file_loaded = False
-        # self.setup_analysis_complete = False
-        # self.none_project_action = False
-
-        # self.time_to_load_or_create_project = None
-        # self.time_to_checking_entries = None 
-        # self.time_to_process_cross_sections = None
-        # self.time_to_preprocess_model = None
-        # self.time_to_solve_model = None
-        # self.time_to_solve_acoustic_model = None
-        # self.time_to_solve_structural_model = None
-        # self.time_to_postprocess = None
-        # self.total_time = None
-
-        # self.number_sections_by_line = {}
-        # self.lines_with_cross_section_by_elements = []
-        # self.stresses_values_for_color_table = None
-        # self.min_stress = ""
-        # self.max_stress = ""
-        # self.stress_label = ""
-
-    def reset_info(self):
-
+        
         self.preprocessor = Preprocessor()
         self.file = ProjectFile()
+        self._project_name = ""
+        self.project_folder_path = ""    
+        self.reset_info()
+
+    def reset_info(self):
 
         self.analysis_ID = None
         self.analysis_type_label = ""
@@ -101,7 +63,6 @@ class Project:
 
         self.number_sections_by_line = {}
         self.lines_with_cross_section_by_elements = []
-        # self.lines_with_expansion_joint_by_elements = defaultdict(list)
         self.stresses_values_for_color_table = None
         self.min_stress = ""
         self.max_stress = ""
@@ -110,16 +71,31 @@ class Project:
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
         self.reset_info()
-        self.file.new(project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.new(  project_folder_path, 
+                        project_name, 
+                        element_size, 
+                        geometry_tolerance, 
+                        import_type, 
+                        material_list_path, 
+                        fluid_list_path, 
+                        geometry_path, 
+                        coord_path, 
+                        conn_path   )
         self._project_name = project_name
         self.project_folder_path = project_folder_path
 
-        self.process_geometry_and_mesh()
+        self.process_geometry_and_mesh(tolerance=geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
-        self.file.copy(project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path, coord_path, conn_path)
+        self.file.copy( project_folder_path, 
+                        project_name, 
+                        material_list_path, 
+                        fluid_list_path, 
+                        geometry_path, 
+                        coord_path, 
+                        conn_path)
         self._project_name = project_name
          
     def load_project(self, project_file_path):
@@ -131,7 +107,7 @@ class Project:
         self.file.load(project_file_path)
         self._project_name = self.file._project_name
         self.project_folder_path = os.path.dirname(project_file_path)
-        self.process_geometry_and_mesh()
+        self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
 
     def load_project_files(self):
@@ -143,7 +119,6 @@ class Project:
             self.load_frequencies_from_table()
 
     def update_node_ids_in_file_after_remesh(self, dict_old_to_new_extenal_indexes):
-        # print(f"Dictionary: \n {dict_old_to_new_extenal_indexes}")
         self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_extenal_indexes)
         self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_extenal_indexes)
 
@@ -161,11 +136,24 @@ class Project:
             if filename not in ["entity.dat", "fluidList.dat", "materialList.dat", "project.ini", geometry_filename]:
                 file_path = get_new_path(self.file._project_path, filename)
                 if os.path.exists(file_path):
+                    if "." in filename:
+                        os.remove(file_path)
+                    else:
+                        rmtree(file_path)
+                    
+    def remove_file_or_folder_from_project_directory(self, filename):
+        list_filenames = os.listdir(self.file._project_path).copy()
+        if filename in list_filenames:
+            file_path = get_new_path(self.file._project_path, filename)
+            if os.path.exists(file_path):
+                if "." in filename:
                     os.remove(file_path)
+                else:
+                    rmtree(file_path)
 
-    def process_geometry_and_mesh(self):
+    def process_geometry_and_mesh(self, tolerance=1e-6):
         if self.file.get_import_type() == 0:
-            self.preprocessor.generate(self.file.geometry_path, self.file.element_size)
+            self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
         elif self.file.get_import_type() == 1:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
   
@@ -855,8 +843,8 @@ class Project:
     def get_structural_element(self, element_id):
         return self.preprocessor.structural_elements[element_id]
 
-    def get_acoustic_elements(self):
-        return self.preprocessor.acoustic_elements    
+    # def get_acoustic_elements(self):
+    #     return self.preprocessor.acoustic_elements    
 
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]

@@ -30,7 +30,7 @@ class StructuralElementTypeInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = self.preprocessor.get_model_checks()
 
-        self.dict_entities = project.preprocessor.dict_tag_to_entity
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
         self.complete = False
@@ -167,35 +167,38 @@ class StructuralElementTypeInput(QDialog):
         
         final_etype = self.element_type
         if self.lines_id == []:
-            tags = list(self.dict_entities.keys())
+            tags = list(self.dict_tag_to_entity.keys())
         else:
             tags = self.lines_id
             
         for tag in tags:
-            initial_etype = self.dict_entities[tag].structural_element_type
+            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             
-            if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+            if initial_etype in ['pipe_1', 'pipe_2', None] and final_etype in ['beam_1']:
                 self.update_cross_section = True
                 self.pipe_to_beam = True
                 self.list_lines_to_update_cross_section.append(tag)
 
-            elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1', 'pipe_2']:
                 self.update_cross_section = True
                 self.beam_to_pipe = True
                 self.list_lines_to_update_cross_section.append(tag)
 
         if self.update_cross_section:
             self.update_modified_cross_sections(tags)
-            title = "Change in element type detected"
-            message = f"The element type previously defined to {self.list_lines_to_update_cross_section} line(s) has been modified, therefore, it is necessary to update the cross-section(s) of this(ese) line(s) to continue."
-            PrintMessageInput([title, message, window_title2])
+            if initial_etype is not None:
+                title = "Change in element type detected"
+                message = f"The element type previously defined to the {self.list_lines_to_update_cross_section} line(s) \n"
+                message += "has been modified, therefore, it is necessary to update \n"
+                message += "the cross-section(s) of this(ese) line(s) to continue."
+                PrintMessageInput([title, message, window_title2])
             
     def update_modified_cross_sections(self, tags):
 
         final_etype = self.element_type
 
         for tag in tags:
-            initial_etype = self.dict_entities[tag].structural_element_type
+            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
                 self.project.set_cross_section_by_line(tag, None)
             elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
