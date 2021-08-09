@@ -141,6 +141,15 @@ class Project:
                     else:
                         rmtree(file_path)
                     
+    def remove_file_or_folder_from_project_directory(self, filename):
+        list_filenames = os.listdir(self.file._project_path).copy()
+        if filename in list_filenames:
+            file_path = get_new_path(self.file._project_path, filename)
+            if os.path.exists(file_path):
+                if "." in filename:
+                    os.remove(file_path)
+                else:
+                    rmtree(file_path)
 
     def process_geometry_and_mesh(self, tolerance=1e-6):
         if self.file.get_import_type() == 0:

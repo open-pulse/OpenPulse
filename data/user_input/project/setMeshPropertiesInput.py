@@ -29,7 +29,7 @@ class SetMeshPropertiesInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.remesh_to_match_bcs = False
-        self.cache_dict = self.project.preprocessor.dict_coordinate_to_update_bc_after_repreprocessor.copy()
+        self.cache_dict = self.project.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
 
         # self.config = config
         self.create = False
@@ -58,7 +58,7 @@ class SetMeshPropertiesInput(QDialog):
             self.current_element_size = self.project.file.element_size
  
         self.pushButton_confirm_and_generate_mesh = self.findChild(QPushButton, 'pushButton_confirm_and_generate_mesh')
-        self.pushButton_confirm_and_generate_preprocessor.clicked.connect(self.confirm_and_generate_mesh)
+        self.pushButton_confirm_and_generate_mesh.clicked.connect(self.confirm_and_generate_mesh)
 
         self.exec_()
 
@@ -84,7 +84,8 @@ class SetMeshPropertiesInput(QDialog):
         if self.new_element_size > 0:
             if self.lineEdit_current_element_size.text() == self.lineEdit_new_element_size.text():
                 title = "Same element size"
-                message = "Please, you should to insert a different value at the 'New element size' input field to update the model."
+                message = "Please, you should to insert a different value at the "
+                message += "'New element size' input field to update the model."
                 PrintMessageInput([title, message, window_title_1])
                 return
         else:
@@ -140,6 +141,7 @@ class SetMeshPropertiesInput(QDialog):
 
     def process_final_actions(self):
         self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_extenal_indexes)
+        self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()
         self.opv.changePlotToMesh()   
