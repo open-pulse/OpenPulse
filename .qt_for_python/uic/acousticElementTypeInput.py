@@ -68,7 +68,7 @@ class Ui_Dialog(object):
         self.pushButton_confirm.setFont(font)
         self.pushButton_confirm.setObjectName("pushButton_confirm")
         self.lineEdit_selected_ID = QtWidgets.QLineEdit(self.tab_setup)
-        self.lineEdit_selected_ID.setEnabled(False)
+        self.lineEdit_selected_ID.setEnabled(True)
         self.lineEdit_selected_ID.setGeometry(QtCore.QRect(136, 20, 220, 30))
         self.lineEdit_selected_ID.setMinimumSize(QtCore.QSize(220, 30))
         self.lineEdit_selected_ID.setMaximumSize(QtCore.QSize(220, 30))

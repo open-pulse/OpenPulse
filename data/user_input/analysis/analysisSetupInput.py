@@ -73,11 +73,11 @@ class AnalysisSetupInput(QDialog):
             self.lineEdit_fmax.setText(str(self.f_max))
             self.lineEdit_fstep.setText(str(self.f_step))
 
-        if True in [True if damp != 0 else False for damp in self.global_damping]:
-            self.lineEdit_av.setText(str(self.global_damping[0]))
-            self.lineEdit_bv.setText(str(self.global_damping[1]))
-            self.lineEdit_ah.setText(str(self.global_damping[2]))
-            self.lineEdit_bh.setText(str(self.global_damping[3]))
+        # if True in [True if damp != 0 else False for damp in self.global_damping]:
+        #     self.lineEdit_av.setText(str(self.global_damping[0]))
+        #     self.lineEdit_bv.setText(str(self.global_damping[1]))
+        #     self.lineEdit_ah.setText(str(self.global_damping[2]))
+        #     self.lineEdit_bh.setText(str(self.global_damping[3]))
 
         self.exec_()
 
