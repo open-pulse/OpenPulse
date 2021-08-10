@@ -16,7 +16,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - New structural element: expansion joint (integrated with acoustic analysis);
 - Prestressed structural analysis (static pressure effect);
 - Pipe reduction considering linear variation of diameters and offsets;
-- Beam elements enabling rotation and offsets.
+- Beam elements enabling rotation about axis and offsets.
 
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/mega.png?raw=true)
 
