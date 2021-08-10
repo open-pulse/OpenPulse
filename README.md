@@ -8,6 +8,13 @@ OpenPulse is a software written in Python for numerical modelling of low-frequen
 
 After defining the FEM mesh for the model, you can plot the piping system geometry and run simulations such as modal analysis and harmonic analysis. It is possible to plot deformed shapes, frequency plots of acoustical and structural responses, stress fields and local stresses of desired sections.
 
+*What's new?* 
+
+- A
+- B
+- C
+- D
+
 ![alt text](https://open-pulse.github.io/OpenPulse/doc/system3.jpeg?raw=true)
 
 ## Installing
