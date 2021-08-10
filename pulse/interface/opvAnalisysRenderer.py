@@ -78,7 +78,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createScaleBar()
     
     def showDisplacement(self, frequency, gain=1):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showDisplacement
         self._currentFrequency = frequency       
@@ -114,7 +114,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showStressField(self, frequency, gain=1):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showStressField
         self._currentFrequency = frequency
@@ -149,7 +149,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showPressureField(self, frequency, real_part=True):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
         self._currentFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'

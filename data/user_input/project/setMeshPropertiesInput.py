@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import os
 import configparser
+from time import time
 
 from pulse.utils import get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -22,6 +23,7 @@ class SetMeshPropertiesInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.preprocessor = project.preprocessor
         self.opv = opv
 
         self.opv.setInputObject(self)
@@ -29,13 +31,17 @@ class SetMeshPropertiesInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.remesh_to_match_bcs = False
-        self.cache_dict = self.project.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
+        self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
+        self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
+        self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
 
         # self.config = config
+        self.complete = False
         self.create = False
         self.stop = False
 
         self.currentTab = 0
+        self.t0 = 0
 
         self.userPath = os.path.expanduser('~')
         self.project_file_path = self.project.file._project_path
@@ -96,10 +102,8 @@ class SetMeshPropertiesInput(QDialog):
         else:
             self.print_error_message("geometry tolerance", 'Mesh tolerance') 
         self.process_intermediate_actions()
-        # self.update_project_attributes()
-        # self.project.initial_load_project_actions(self.project_ini_file_path)
-        # self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs = self.project.preprocessor.update_node_ids_after_remesh(self.cache_dict)
-        
+
+
         if len(self.dict_non_mapped_bcs) > 0:
             title = "Error while mapping boundary conditions"
             message = "The boundary conditions associated to the following nodal coordinates cannot be mapped directly after remesh:\n\n"
@@ -127,24 +131,35 @@ class SetMeshPropertiesInput(QDialog):
                 return
         else:
             self.process_final_actions()
+        self.project.time_to_load_or_create_project = time() - self.t0
         self.close()
 
     def process_intermediate_actions(self, undo_remesh=False, mapping=True):
+        self.t0 = time()
         self.update_project_attributes(undo_remesh=undo_remesh)
         self.project.initial_load_project_actions(self.project_ini_file_path)
         if mapping:
-            self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs = self.project.preprocessor.update_node_ids_after_remesh(self.cache_dict)  
+            #
+            [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)  
+            #
+            self.dict_group_elements_to_update_entity_file, _ = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+            self.dict_group_elements_to_update_element_info_file, _ = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
+
         if undo_remesh:
             self.project.load_project_files()     
             self.opv.opvRenderer.plot()
             self.opv.changePlotToMesh() 
 
     def process_final_actions(self):
-        self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_extenal_indexes)
-        self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
+        self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
+        self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file)
+        self.project.update_element_ids_in_element_info_file_after_remesh(self.dict_group_elements_to_update_element_info_file)
+        # self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()
+        self.opv.opvAnalisysRenderer.plot()
         self.opv.changePlotToMesh()   
+        self.complete = True
 
     def check_element_size_input_value(self):
         self.new_element_size = 0

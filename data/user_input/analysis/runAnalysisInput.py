@@ -137,7 +137,7 @@ class RunAnalysisInput(QDialog):
 
         self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model)
         self.project.total_time = time() - t0i
-
+        self.check_log_times()
         self.print_final_log()
         self.complete = True
 
@@ -221,6 +221,33 @@ class RunAnalysisInput(QDialog):
         # font.setWeight(60)
         self.label_message.setFont(font)
         self.label_message.setStyleSheet("color:blue")
+
+    def check_log_times(self):
+        #
+        if self.project.time_to_load_or_create_project is None:
+            self.project.time_to_load_or_create_project = 0
+        #
+        if self.project.time_to_process_cross_sections is None:
+            self.project.time_to_process_cross_sections = 0
+        #
+        if self.project.time_to_preprocess_model is None:
+            self.project.time_to_preprocess_model = 0
+        #
+        if self.project.time_to_solve_acoustic_model is None:
+            self.project.time_to_solve_acoustic_model = 0
+        #
+        if self.project.time_to_solve_structural_model is None:
+            self.project.time_to_solve_structural_model = 0
+        #
+        if self.project.time_to_solve_model is None:
+            self.project.time_to_solve_model = 0
+        #
+        if self.project.time_to_postprocess is None:
+            self.project.time_to_postprocess = 0
+        #
+        if self.project.total_time is None:
+            self.project.total_time = 0
+
 
     def print_final_log(self):
 

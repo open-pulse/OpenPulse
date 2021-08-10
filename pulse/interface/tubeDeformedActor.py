@@ -18,7 +18,7 @@ class TubeDeformedActor(TubeActor):
         rotations = vtk.vtkDoubleArray()
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
-
+   
         cache = dict()
         counter = 0
         

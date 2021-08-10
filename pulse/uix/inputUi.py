@@ -127,6 +127,7 @@ class InputUi:
 
     def set_mesh_properties(self):
         read = SetMeshPropertiesInput(self.project, self.opv)
+        return read.complete
 
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)

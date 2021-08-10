@@ -198,7 +198,7 @@ class opvRenderer(vtkRendererBase):
             return 
 
         element = self.project.get_structural_elements()[ids[0]]
-        xyz = element.center_element_coordinates
+        xyz = element.element_center_coordinates
         r_xyz = element.section_rotation_xyz_undeformed
         size = [element.length] * 3 # [a] * 3 = [a, a, a]
 

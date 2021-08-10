@@ -243,9 +243,7 @@ class CrossSection:
             self.offset_z = self.section_parameters["offset_z"]
             self.insulation_thickness = self.section_parameters["insulation_thickness"]
             self.insulation_density = self.section_parameters["insulation_density"]
-            
             self.offset = [self.offset_y, self.offset_z]
-
             self.section_info = self.pipe_section_info
         
         # Unwrap cluster data for beam sections 
@@ -259,8 +257,9 @@ class CrossSection:
             self.second_moment_area_y = self.section_properties['Iyy']
             self.second_moment_area_z = self.section_properties['Izz']
             self.second_moment_area_yz = self.section_properties['Iyz']
-            self.Yc = self.section_properties['Yc']
-            self.Zc = self.section_properties['Zc']
+            self.offset_y = self.section_properties['Yc']
+            self.offset_z = self.section_properties['Zc']
+            self.offset = [self.offset_y, self.offset_z]
             
             if self.section_label == "Generic section":
                 self.shear_coefficient = self.section_properties['shear factor']
@@ -649,48 +648,57 @@ class CrossSection:
         """
         if el_type == 'pipe_2':
             self.principal_axis = np.eye(12)
+            return
+
+        if el_type == 'beam_1':
+            self.y_shear, self.z_shear = self.get_beam_shear_center()
+            y_c = self.y_centroid + self.offset_y
+            z_c = self.z_centroid + self.offset_z
+            y_s = self.y_shear + self.offset_y
+            z_s = self.z_shear + self.offset_z
         else:
             y_c = self.y_centroid
             z_c = self.z_centroid
             y_s = self.y_shear
             z_s = self.z_shear
-            if norm(self.offset) > 0:
-                Iy = self.second_moment_area_y 
-                Iz = self.second_moment_area_z
-                Iyz = self.second_moment_area_yz
-                if Iz==Iy:
-                    if Iyz>0:
-                        angle = pi/2
-                    elif Iyz<0:
-                        angle = -pi/2
-                else:
-                    angle = atan(2*Iyz/(Iz-Iy))/2
-                # Rotational part of transformation matrix
-                rotation = np.array([[ 1. ,      0.   ,    0.    ],
-                                    [ 0. ,cos(angle) ,sin(angle)],
-                                    [ 0. ,-sin(angle),cos(angle)]])
-                # Translational part of transformation matrix
-                translation = np.array([[ 0  , z_c,-y_c],
-                                        [-z_s,  0 , 0  ],
-                                        [y_s ,  0 , 0  ]])
-                T = np.eye(12)
-                T[0:3,3:6]   = translation
-                T[6:9,9:12]  = translation
-                #
-                R = np.zeros([12, 12])
-                R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
-                self.principal_axis_translation = T
-                self.principal_axis = R @ T
+
+        if norm(self.offset) > 0:
+            Iy = self.second_moment_area_y 
+            Iz = self.second_moment_area_z
+            Iyz = self.second_moment_area_yz
+            if Iz==Iy:
+                if Iyz>0:
+                    angle = pi/2
+                elif Iyz<0:
+                    angle = -pi/2
             else:
-                translation = np.array([[ 0  , z_c,-y_c],
-                                        [-z_s,  0 , 0  ],
-                                        [y_s ,  0 , 0  ]])
-                T = self.principal_axis_rotation = np.eye(12)
-                T[0:3,3:6]   = translation
-                T[6:9,9:12]  = translation
-                self.principal_axis_translation = T
-                self.principal_axis = T
-    
+                angle = atan(2*Iyz/(Iz-Iy))/2
+            # Rotational part of transformation matrix
+            rotation = np.array([[ 1. ,      0.   ,    0.    ],
+                                [ 0. ,cos(angle) ,sin(angle)],
+                                [ 0. ,-sin(angle),cos(angle)]])
+            # Translational part of transformation matrix
+            translation = np.array([[ 0  , z_c,-y_c],
+                                    [-z_s,  0 , 0  ],
+                                    [y_s ,  0 , 0  ]])
+            T = np.eye(12)
+            T[0:3,3:6]   = translation
+            T[6:9,9:12]  = translation
+            #
+            R = np.zeros([12, 12])
+            R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
+            self.principal_axis_translation = T
+            self.principal_axis = R @ T
+        else:
+            translation = np.array([[ 0  , z_c,-y_c],
+                                    [-z_s,  0 , 0  ],
+                                    [y_s ,  0 , 0  ]])
+            T = self.principal_axis_rotation = np.eye(12)
+            T[0:3,3:6]   = translation
+            T[6:9,9:12]  = translation
+            self.principal_axis_translation = T
+            self.principal_axis = T
+
     def update_properties(self):
         """
         This method updates all the tube cross section properties.
@@ -853,7 +861,7 @@ class CrossSection:
             return 0, 0
         
         elif self.section_label == "C-section":
-            h, w1, t1, w2, t2, tw, r, offset_y, offset_z = self.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
             b2 = w2
@@ -904,7 +912,7 @@ class CrossSection:
             return e_y, e_z
 
         elif self.section_label == "I-section":
-            h, w1, t1, w2, t2, tw, r, offset_y, offset_z = self.section_parameters
+            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
             b2 = w2
@@ -955,7 +963,7 @@ class CrossSection:
             return e_y, e_z
 
         elif self.section_label == "T-section":
-            h, w1, t1, tw, r, offset_y, offset_z = self.section_parameters
+            h, w1, t1, tw, offset_y, offset_z = self.section_parameters
 
             b1 = w1
 

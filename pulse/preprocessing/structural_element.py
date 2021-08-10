@@ -147,7 +147,7 @@ class StructuralElement:
         self.delta_y = self.last_node.y - self.first_node.y
         self.delta_z = self.last_node.z - self.first_node.z
 
-        self.center_element_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
+        self.element_center_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
                                             (self.last_node.y + self.first_node.y)/2,
                                             (self.last_node.z + self.first_node.z)/2 ]
 
@@ -420,7 +420,7 @@ class StructuralElement:
 
         Returns
         -------
-        center_element_coordinates: array
+        element_center_coordinates: array
             Coordinates of element center.
 
         directional_vectors: array
@@ -433,7 +433,7 @@ class StructuralElement:
         # invR = inverse_matrix_3x3(self.sub_transformation_matrix)
         # u ,v, w = invR.T
         # self.section_directional_vectors = [u, v, w]
-        return self.center_element_coordinates, self.section_directional_vectors 
+        return self.element_center_coordinates, self.section_directional_vectors 
 
     def stiffness_matrix_pipes(self):
         """
@@ -854,7 +854,11 @@ class StructuralElement:
         I_2 = self.cross_section.second_moment_area_y
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
- 
+
+        # Process cross-section offset
+        self.cross_section.offset_rotation(el_type = 'beam_1')
+        principal_axis = self.cross_section.principal_axis
+
         # alpha = self.get_shear_coefficient(self.cross_section.additional_section_info, self.material.poisson_ratio)
         # k_2 = alpha
         k_2 = 1
@@ -873,7 +877,6 @@ class StructuralElement:
         beta_12_c   = (2. - Phi_12) * beta_12_a
         beta_13_c   = (2. - Phi_13) * beta_13_a
 
-        
         ke = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         # stiffness matrix diagonal construction
@@ -912,7 +915,7 @@ class StructuralElement:
 
         Ke = symmetrize(ke)*self.decoupling_matrix
 
-        return Ke
+        return principal_axis.T @ Ke @ principal_axis
 
     def mass_matrix_beam(self):
         """
@@ -942,6 +945,10 @@ class StructuralElement:
         I_2 = self.cross_section.second_moment_area_y
         I_3 = self.cross_section.second_moment_area_z
         J   = self.cross_section._polar_moment_area()
+
+        # Process cross-section offset
+        self.cross_section.offset_rotation(el_type = 'beam_1')
+        principal_axis = self.cross_section.principal_axis
 
         # alpha = self.get_shear_coefficient(self.cross_section.section_info, self.material.poisson_ratio)
         # k_2 = alpha
@@ -989,7 +996,6 @@ class StructuralElement:
         gamma_12 = rho * L / (b_12 * L**2 + 12*a_12)**2
         gamma_13 = rho * L / (b_13 * L**2 + 12*a_13)**2
 
-
         me = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT))
 
         # Mass matrix diagonal construction
@@ -1025,7 +1031,7 @@ class StructuralElement:
         
         Me = symmetrize(me)*self.decoupling_matrix
 
-        return Me
+        return principal_axis.T @ Me @ principal_axis
 
     def get_shear_coefficient(self, section_info, poisson):
         """
