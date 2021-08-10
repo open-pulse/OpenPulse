@@ -1,4 +1,4 @@
-![alt text](https://open-pulse.github.io/OpenPulse/doc/opav.PNG?raw=true)
+![alt text](https://open-pulse.github.io/OpenPulse/doc/opav_beta.PNG?raw=true)
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
