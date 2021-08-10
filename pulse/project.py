@@ -118,9 +118,15 @@ class Project:
         if self.file.temp_table_name is not None:
             self.load_frequencies_from_table()
 
-    def update_node_ids_in_file_after_remesh(self, dict_old_to_new_extenal_indexes):
-        self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_extenal_indexes)
-        self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_extenal_indexes)
+    def update_node_ids_in_file_after_remesh(self, dict_old_to_new_node_external_indexes):
+        self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_node_external_indexes)
+        self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_node_external_indexes)
+
+    def update_element_ids_in_entity_file_after_remesh(self, dict_group_elements_to_update_entity_file):
+        self.file.modify_list_of_element_ids_in_entity_file(dict_group_elements_to_update_entity_file)
+    
+    def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update_element_info_file):
+        self.file.modify_element_ids_in_element_info_file(dict_group_elements_to_update_element_info_file)
 
     def reset_project(self):
         self.reset_info()
@@ -481,9 +487,9 @@ class Project:
         for line in self.preprocessor.all_lines:
             self.file.add_cross_section_in_file(line, cross_section)
 
-    def set_cross_section_by_elements(self, elements, cross_section):
-        self.preprocessor.set_cross_section_by_element(elements, cross_section)
-        for element in elements:
+    def set_cross_section_by_elements(self, list_elements, cross_section):
+        self.preprocessor.set_cross_section_by_element(list_elements, cross_section)
+        for element in list_elements:
             line = self.preprocessor.elements_to_line[element]
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
@@ -650,7 +656,6 @@ class Project:
         else:
             self.file.modify_expansion_joint_in_file(line_id, parameters)   
            
-
     def add_expansion_joint_by_elements(self, list_elements, parameters, imported_table, list_table_names=[], update_element_type=True):
         if parameters is None:
             remove = True
@@ -699,7 +704,6 @@ class Project:
                 self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints, list_table_names=list_table_names) 
             else:
                 self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints) 
-
 
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.preprocessor.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
@@ -753,8 +757,9 @@ class Project:
             self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_selected_entity(entity_id, fluid)
 
-    def load_cross_section_by_element(self, elements_id, cross_section):
-        self.preprocessor.set_cross_section_by_element(elements_id, cross_section)
+    def load_cross_section_by_element(self, list_elements, cross_section):
+        self.preprocessor.set_cross_section_by_element(list_elements, cross_section)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
 
     def load_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
@@ -777,6 +782,7 @@ class Project:
     
     def load_expansion_joint_by_elements(self, list_elements, data):
         self.preprocessor.add_expansion_joint_by_elements(list_elements, data)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
         list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
                                                                                 data[0][1]  )
         self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
@@ -1022,11 +1028,13 @@ class Project:
     def load_radiation_impedance_bc_by_node(self, node_id, value):
         self.preprocessor.set_radiation_impedance_bc_by_node(node_id, value)
 
-    def load_length_correction_by_elements(self, elements, value, key):
-        self.preprocessor.set_length_correction_by_element(elements, value, key)
+    def load_length_correction_by_elements(self, list_elements, value, key):
+        self.preprocessor.set_length_correction_by_element(list_elements, value, key)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
     
-    def load_perforated_plate_by_elements(self, elements, perforated_plate, key):
-        self.preprocessor.set_perforated_plate_by_elements(elements, perforated_plate, key)
+    def load_perforated_plate_by_elements(self, list_elements, perforated_plate, key):
+        self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
+        # self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

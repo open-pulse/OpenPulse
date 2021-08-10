@@ -15,7 +15,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles, check_is_there_a_group_of_elements_inside_list_elements
 
 window_title_1 = "ERROR"
 
@@ -73,7 +73,9 @@ class Preprocessor:
         self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
 
         self.dict_coordinate_to_update_bc_after_remesh = {}
-        self.dict_old_to_new_extenal_indexes = {}
+        self.dict_element_info_to_update_indexes_in_entity_file = {}
+        self.dict_element_info_to_update_indexes_in_element_info_file = {}
+        self.dict_old_to_new_node_external_indexes = {}
 
         self.nodes_with_elastic_link_stiffness = {}
         self.nodes_with_elastic_link_damping = {}
@@ -123,8 +125,9 @@ class Preprocessor:
         
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self.get_dict_nodes_to_element_indexes()
         self.get_list_edge_nodes(element_size)
-        self._get_principal_diagonal_structure_parallelepiped()
+        self.get_principal_diagonal_structure_parallelepiped()
         # self.get_dict_line_to_nodes()
         
         # t0 = time()
@@ -601,13 +604,25 @@ class Preprocessor:
 
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
-        self._get_principal_diagonal_structure_parallelepiped()
+        self.get_dict_nodes_to_element_indexes()
+        self.get_principal_diagonal_structure_parallelepiped()
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
         self.process_all_rotation_matrices()
         self.create_dict_lines_to_rotation_angles()
         # self._create_dict_gdofs_to_external_indexes()
 
+    def get_dict_nodes_to_element_indexes(self):
+        """
+        This method updates the dictionary that maps the external node to the element index.
+        """
+        self.dict_first_node_to_element_index = {}
+        self.dict_last_node_to_element_index = {}
+        for index, element in self.structural_elements.items():
+            first_node_index = element.first_node.external_index
+            last_node_index = element.last_node.external_index
+            self.dict_first_node_to_element_index[first_node_index] = index
+            self.dict_last_node_to_element_index[last_node_index] = index
 
     def get_nodal_coordinates_matrix(self, reordering=True):
         """
@@ -663,9 +678,26 @@ class Preprocessor:
                 last  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         self.connectivity_matrix = connectivity.astype(int) 
-        
 
-    def _get_principal_diagonal_structure_parallelepiped(self):
+    def get_element_center_coordinates_matrix(self):
+        """
+        This method updates the center coordinates matrix attribute. 
+        
+        Element center coordinates matrix row structure:
+
+        [Element index, x-element_center_coordinate, y-element_center_coordinate, z-element_center_coordinate].
+
+        """
+        self.center_coordinates_matrix = np.zeros((len(self.structural_elements), 4))
+        for index, element in self.structural_elements.items():
+            self.center_coordinates_matrix[index-1, 0] = index
+            self.center_coordinates_matrix[index-1, 1:] = element.element_center_coordinates
+        
+    def get_principal_diagonal_structure_parallelepiped(self):
+        """
+        This method updates the principal structure diagonal parallelepiped attribute. 
+        
+        """
         nodal_coordinates = self.nodal_coordinates_matrix.copy()
         x_min, y_min, z_min = np.min(nodal_coordinates[:,1:], axis=0)
         x_max, y_max, z_max = np.max(nodal_coordinates[:,1:], axis=0)
@@ -1035,7 +1067,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes_id):
             node.nodal_loads = values
             node.prescribed_dofs = [None,None,None,None,None,None]
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1071,7 +1103,7 @@ class Preprocessor:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1107,7 +1139,7 @@ class Preprocessor:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1143,7 +1175,7 @@ class Preprocessor:
         """
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1180,7 +1212,7 @@ class Preprocessor:
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
             node.nodal_loads = [None,None,None,None,None,None]
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1747,7 +1779,7 @@ class Preprocessor:
             if node in self.nodes_with_volume_velocity:
                 self.nodes_with_volume_velocity.remove(node)
             
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
 
     def set_volume_velocity_bc_by_node(self, nodes, values, additional_info=None):
         """
@@ -1789,7 +1821,7 @@ class Preprocessor:
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
                 
-                self.update_dict_coordinates_to_external_indexes(node)
+                self.process_nodes_to_update_indexes_after_remesh(node)
 
         except Exception as error:
             title = "ERROR WHILE SET VOLUME VELOCITY"
@@ -1823,7 +1855,7 @@ class Preprocessor:
             if node in self.nodes_with_radiation_impedance:
                 self.nodes_with_radiation_impedance.remove(node)
             
-            self.update_dict_coordinates_to_external_indexes(node) 
+            self.process_nodes_to_update_indexes_after_remesh(node) 
 
     def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         """
@@ -1853,7 +1885,7 @@ class Preprocessor:
             if node in self.nodes_with_specific_impedance:
                 self.nodes_with_specific_impedance.remove(node)
 
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
 
     def get_radius(self):
         """
@@ -2047,7 +2079,6 @@ class Preprocessor:
                 list_elements.append(element)
         return list_elements
 
-
     def add_compressor_excitation(self, parameters):
         """
         This method ???????
@@ -2132,8 +2163,8 @@ class Preprocessor:
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
-        self.update_dict_coordinates_to_external_indexes(node1)
-        self.update_dict_coordinates_to_external_indexes(node2)
+        self.process_nodes_to_update_indexes_after_remesh(node1)
+        self.process_nodes_to_update_indexes_after_remesh(node2)
 
         pos_data = parameters
         neg_data = [-value if value is not None else None for value in parameters]
@@ -2270,7 +2301,10 @@ class Preprocessor:
         for line in self.all_lines:
             self.dict_lines_to_rotation_angles[line] = 0
 
-    def update_dict_coordinates_to_external_indexes(self, node):
+    def process_nodes_to_update_indexes_after_remesh(self, node):
+        """
+        This method ...
+        """        
         # print(f"Node index: {node.external_index} - Coordinates: {node.coordinates}")
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
@@ -2287,25 +2321,120 @@ class Preprocessor:
             if coord in list_coordinates:
                 ind = list_coordinates.index(coord)
                 new_external_index = int(new_external_indexes[ind])
-                self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
+                self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
                 # print(f"External index: {new_external_index}/{old_external_index} - Coordinates: {coord}")
             else:
                 diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
                 mask = diff < tolerance
                 try:
                     new_external_index = int(coord_matrix[:,0][mask])
-                    self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
+                    self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
                     # print(f"Coord not found: {coord} - {old_external_index}/{new_external_index} == {diff[mask]}")
-                except Exception as _err:
+                except:
                     self.dict_non_mapped_bcs[key] = old_external_index
         self.get_nodal_coordinates_matrix()
-        return self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs
+        return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
 
+    def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements):
+        """
+        This method ...
+        """
+        list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+
+        for subgroup_elements in list_groups_elements:
+            first_element_id = subgroup_elements[0]
+            last_element_id = subgroup_elements[-1]
+            first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
+            last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+
+            key = f"{first_element_id}-{last_element_id}"
+            self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
+                                                                                list(last_node_coordinates),
+                                                                                subgroup_elements   ]
+
+    def process_elements_to_update_indexes_after_remesh_in_element_info_file(self, list_elements):
+        """
+        This method ...
+        """
+        list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+
+        for subgroup_elements in list_groups_elements:
+            first_element_id = subgroup_elements[0]
+            last_element_id = subgroup_elements[-1]
+            first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
+            last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+
+            key = f"{first_element_id}-{last_element_id}"
+            self.dict_element_info_to_update_indexes_in_element_info_file[key] = [  list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    subgroup_elements   ]
+
+    def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+        """
+        This method ...
+        """      
+        coord_matrix = self.nodal_coordinates_matrix_external
+        list_coordinates = coord_matrix[:,1:].tolist()
+        new_external_indexes = coord_matrix[:,0]
+        dict_old_to_new_list_of_elements = {}
+        dict_non_mapped_elements_ids = {}
+        dict_subgroups_old_to_new_group_nodes = defaultdict(list)
+
+        for key, data in dict_cache.items():
+
+            [first_node_coord, last_node_coord, subgroup_elements] = data
+
+            if first_node_coord in list_coordinates:
+
+                ind = list_coordinates.index(first_node_coord)
+                new_external_index = int(new_external_indexes[ind])
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                # print(f"External index first: {new_external_index}/{key} - Coordinates: {first_node_coord}")            
+            
+            else:
+
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(first_node_coord), axis=1)
+                mask = diff < tolerance
+                
+                try:
+                    new_external_index = int(coord_matrix[:,0][mask])
+                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                    # print(f"Coord not found first: {first_node_coord} - {key}/{new_external_index} == {diff[mask]}")
+                except:
+                    dict_non_mapped_elements_ids[key] = subgroup_elements
+                
+            if last_node_coord in list_coordinates:
+
+                ind = list_coordinates.index(last_node_coord)
+                new_external_index = int(new_external_indexes[ind])
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                # print(f"External index last: {new_external_index}/{key} - Coordinates: {last_node_coord}")            
+            
+            else:
+
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(last_node_coord), axis=1)
+                mask = diff < tolerance
+                
+                try:
+                    new_external_index = int(coord_matrix[:,0][mask])
+                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                    # print(f"Coord not found last: {last_node_coord} - {key}/{new_external_index} == {diff[mask]}")
+                except:
+                    dict_non_mapped_elements_ids[key] = subgroup_elements
+
+        for str_group_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
+            start_node = min(edge_nodes_from_group)
+            end_node = max(edge_nodes_from_group)
+            start_element_index = self.dict_first_node_to_element_index[start_node]
+            end_element_index = self.dict_last_node_to_element_index[end_node]
+            new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
+            dict_old_to_new_list_of_elements[str_group_elements] = new_list_elements
+
+        return dict_old_to_new_list_of_elements, dict_non_mapped_elements_ids
 
     def get_model_checks(self):
         return BeforeRun(self)
                 
-
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes
         and reduces the amplitude through rescalling if higher levels are observed."""

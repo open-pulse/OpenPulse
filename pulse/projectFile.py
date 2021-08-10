@@ -3,7 +3,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import remove_bc_from_file, get_new_path
+from pulse.utils import remove_bc_from_file, get_new_path, check_is_there_a_group_of_elements_inside_list_elements
 import configparser
 from collections import defaultdict
 import os
@@ -254,8 +254,8 @@ class ProjectFile:
                 structural_element_type = entityFile[entity]['structural element type']
                 if structural_element_type != "":
                     if "-" in entity:
-                        if 'list of elements (cross-sections)' in entityFile[entity].keys():
-                            str_list_elements = entityFile[entity]['list of elements (cross-sections)']
+                        if 'list of elements' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements']
                             list_elements = self._get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
                     else:
@@ -294,8 +294,8 @@ class ProjectFile:
 
             if "-" in entity:
 
-                if 'list of elements (cross-sections)' in entityFile[entity].keys():
-                    str_list_elements = entityFile[entity]['list of elements (cross-sections)']
+                if 'list of elements' in entityFile[entity].keys():
+                    str_list_elements = entityFile[entity]['list of elements']
                     list_elements = self._get_list_of_values_from_string(str_list_elements)
 
                 if structural_element_type in ['pipe_1', 'pipe_2']:
@@ -341,7 +341,7 @@ class ProjectFile:
                             PrintMessageInput([title, message, window_title])
                 
                 if str_joint_parameters != "" and str_joint_stiffness != "":
-                    _list_elements = self.check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+                    _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
                     self.dict_expansion_joint_parameters[entity]= [_list_elements, [joint_parameters, joint_stiffness]]
 
             else:
@@ -684,7 +684,7 @@ class ProjectFile:
                                 'offset [e_y, e_z]': '[{}, {}]'.format(vals[2],vals[3]),
                                 'insulation thickness': '{}'.format(vals[4]),
                                 'insulation density': '{}'.format(vals[5]),
-                                'list of elements (cross-sections)': '{}'.format(elements) }
+                                'list of elements': '{}'.format(elements) }
 
         self.write_bc_in_file(self._entity_path, config)
 
@@ -788,7 +788,7 @@ class ProjectFile:
                                                 'offset [e_y, e_z]' : config_base[str_line]['offset [e_y, e_z]'],
                                                 'insulation thickness' : config_base[str_line]['insulation thickness'],
                                                 'insulation density' : config_base[str_line]['insulation density'],
-                                                'list of elements (cross-sections)' : list_elements }
+                                                'list of elements' : list_elements }
                 else:
                     config_new[section_key] = { 'structural element type' : etype,
                                                 'outer diameter' : '',
@@ -796,7 +796,7 @@ class ProjectFile:
                                                 'offset [e_y, e_z]' : '',
                                                 'insulation thickness' : '',
                                                 'insulation density' : '',
-                                                'list of elements (cross-sections)' : list_elements }
+                                                'list of elements' : list_elements }
 
             else:
 
@@ -805,14 +805,14 @@ class ProjectFile:
                     config_new[section_key] = { 'structural element type' : 'expansion_joint',
                                                 'expansion joint parameters' : f'{parameters[0]}',
                                                 'expansion joint stiffness' : f'{parameters[1]}',
-                                                'list of elements (cross-sections)' : list_elements }
+                                                'list of elements' : list_elements }
                 else:
 
                     str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
                     config_new[section_key] = { 'structural element type' : 'expansion_joint',
                                                 'expansion joint parameters' : f'{parameters[0]}',
                                                 'expansion joint stiffness' : str_table_names,
-                                                'list of elements (cross-sections)' : list_elements }
+                                                'list of elements' : list_elements }
 
         self.write_bc_in_file(self._entity_path, config_new)
 
@@ -1172,22 +1172,6 @@ class ProjectFile:
 
         return list_values
 
-    def check_is_there_a_group_of_elements_inside_list_elements(self, input_list):
-        ord_list = np.sort(input_list)
-        _value = ord_list[0]
-        list_i = [_value]
-        list_of_lists = []
-        for value in ord_list[1:]:
-            if value == _value + 1:
-                list_i.append(value)
-            else:
-                temp_list = list_i.copy()
-                list_of_lists.append(temp_list)
-                list_i = [value]
-            _value = value
-        list_of_lists.append(list_i)
-        return list_of_lists
-
     def _get_acoustic_bc_from_string(self, value, label):
         
         load_path_table = ""
@@ -1428,6 +1412,77 @@ class ProjectFile:
                 config.remove_section(node_id)
 
         self.write_bc_in_file(self._node_structural_path, config)
+
+    def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh):
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        for section in sections:
+            if 'list of elements' in config[section].keys():
+            
+                str_list_elements = config[section]['list of elements']
+                list_elements = self._get_list_of_values_from_string(str_list_elements)
+                list_group_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+
+                temp_list = []
+                try:
+
+                    for group_elements in list_group_elements:
+                        str_group_elements = str(group_elements)
+                        temp_list.append(dict_group_elements_to_update_after_remesh[str_group_elements])
+                        # print(section, ' : group elements:', str_group_elements)
+                        # print(section, ' : new_list_elements:', dict_group_elements_to_update_after_remesh[str_group_elements])
+                        
+                    new_list_elements = [value for group in temp_list for value in group]
+                    config[section]['list of elements'] =  str(new_list_elements)
+
+                except:
+                    
+                    if "-" in section:
+                        line_id = section.split("-")[0]
+                        subkey = f"{line_id}-"
+                        config.remove_section(section)
+                        if line_id in sections:
+                            for key in config[line_id].keys():                                                     
+                                for key in config[line_id].keys():
+                                    config.remove_option(section=line_id, option=key)
+                        for _section in sections:
+                            if subkey in _section:
+                                config.remove_section(_section)           
+
+        self.write_bc_in_file(self._entity_path, config)
+
+    def modify_element_ids_in_element_info_file(self, dict_subgroups_old_to_new_group_elements):
+        config = configparser.ConfigParser()
+        config.read(self._element_info_path)
+        sections = config.sections()
+        
+        for section in sections:
+            if 'list of elements' in config[section].keys():
+                
+                str_list_elements = config[section]['list of elements']
+                list_elements = self._get_list_of_values_from_string(str_list_elements)
+                list_group_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+
+                temp_list = []
+                try:
+
+                    for group_elements in list_group_elements:
+                        str_group_elements = str(group_elements)
+                        temp_list.append(dict_subgroups_old_to_new_group_elements[str_group_elements])
+                        # print(section, ' : group elements:', str_group_elements)
+                        # print(section, ' : new_list_elements:', dict_subgroups_old_to_new_group_elements[str_group_elements])
+                        
+                    new_list_elements = [value for group in temp_list for value in group]
+                    config[section]['list of elements'] =  str(new_list_elements)
+
+                except:
+                    
+                    config.remove_section(section) 
+          
+
+        self.write_bc_in_file(self._element_info_path, config)
 
     def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
         _line_id = str(line_id)

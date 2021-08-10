@@ -25,7 +25,8 @@ class TubeActor(vtkActorBase):
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.elements))
-        
+        print("TubeActor", len(self.elements))
+
 
     @property
     def transparent(self):

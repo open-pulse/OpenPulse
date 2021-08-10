@@ -562,3 +562,19 @@ def create_new_folder(path, folder_name):
     if not os.path.exists(folder_path):
         os.mkdir(folder_path)
     return folder_path
+
+def check_is_there_a_group_of_elements_inside_list_elements(input_list):
+    ord_list = np.sort(input_list)
+    _value = ord_list[0]
+    list_i = [_value]
+    list_of_lists = []
+    for value in ord_list[1:]:
+        if value == _value + 1:
+            list_i.append(value)
+        else:
+            temp_list = list_i.copy()
+            list_of_lists.append(temp_list)
+            list_i = [value]
+        _value = value
+    list_of_lists.append(list_i)
+    return list_of_lists
