@@ -18,7 +18,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Pipe reduction considering linear variation of diameters and offsets;
 - Beam elements enabling rotation and offsets.
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/system3.jpeg?raw=true)
+![alt text](https://open-pulse.github.io/OpenPulse/doc/mega.png?raw=true)
 
 ## Installing
 
