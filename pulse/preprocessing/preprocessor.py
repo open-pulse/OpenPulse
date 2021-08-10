@@ -911,6 +911,7 @@ class Preprocessor:
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
         else:    
+            # print("list of elements :", elements)
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
             for element in slicer(self.acoustic_elements, elements):
