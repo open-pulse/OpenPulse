@@ -4,6 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import os
 import configparser
+from time import time
 
 from pulse.utils import get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -35,10 +36,12 @@ class SetMeshPropertiesInput(QDialog):
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
 
         # self.config = config
+        self.complete = False
         self.create = False
         self.stop = False
 
         self.currentTab = 0
+        self.t0 = 0
 
         self.userPath = os.path.expanduser('~')
         self.project_file_path = self.project.file._project_path
@@ -128,9 +131,11 @@ class SetMeshPropertiesInput(QDialog):
                 return
         else:
             self.process_final_actions()
+        self.project.time_to_load_or_create_project = time() - self.t0
         self.close()
 
     def process_intermediate_actions(self, undo_remesh=False, mapping=True):
+        self.t0 = time()
         self.update_project_attributes(undo_remesh=undo_remesh)
         self.project.initial_load_project_actions(self.project_ini_file_path)
         if mapping:
@@ -154,6 +159,7 @@ class SetMeshPropertiesInput(QDialog):
         self.opv.opvRenderer.plot()
         self.opv.opvAnalisysRenderer.plot()
         self.opv.changePlotToMesh()   
+        self.complete = True
 
     def check_element_size_input_value(self):
         self.new_element_size = 0

@@ -366,7 +366,8 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_setMeshProperties:
             if not self.item_child_setMeshProperties.isDisabled():
-                self.mainWindow.getInputWidget().set_mesh_properties()
+                if self.mainWindow.getInputWidget().set_mesh_properties():
+                    self._updateItems()
 
         elif item == self.item_child_setStructuralElementType:
             if not self.item_child_setStructuralElementType.isDisabled():
