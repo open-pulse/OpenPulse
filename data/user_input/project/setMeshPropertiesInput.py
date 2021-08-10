@@ -152,6 +152,7 @@ class SetMeshPropertiesInput(QDialog):
         # self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()
+        self.opv.opvAnalisysRenderer.plot()
         self.opv.changePlotToMesh()   
 
     def check_element_size_input_value(self):
