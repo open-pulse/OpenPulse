@@ -147,15 +147,15 @@ class Ui_Dialog(object):
         self.tab_damping.setObjectName("tab_damping")
         self.label_109 = QtWidgets.QLabel(self.tab_damping)
         self.label_109.setEnabled(True)
-        self.label_109.setGeometry(QtCore.QRect(3, 57, 181, 51))
-        self.label_109.setMinimumSize(QtCore.QSize(0, 0))
-        self.label_109.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.label_109.setGeometry(QtCore.QRect(60, 60, 101, 21))
+        self.label_109.setMinimumSize(QtCore.QSize(101, 21))
+        self.label_109.setMaximumSize(QtCore.QSize(101, 21))
         font = QtGui.QFont()
         font.setFamily("Arial")
-        font.setPointSize(11)
-        font.setBold(True)
-        font.setItalic(True)
-        font.setWeight(75)
+        font.setPointSize(12)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setWeight(50)
         self.label_109.setFont(font)
         self.label_109.setMouseTracking(True)
         self.label_109.setAlignment(QtCore.Qt.AlignCenter)
@@ -204,6 +204,21 @@ class Ui_Dialog(object):
         self.label_110.setMouseTracking(True)
         self.label_110.setAlignment(QtCore.Qt.AlignCenter)
         self.label_110.setObjectName("label_110")
+        self.label_111 = QtWidgets.QLabel(self.tab_damping)
+        self.label_111.setEnabled(True)
+        self.label_111.setGeometry(QtCore.QRect(67, 80, 81, 21))
+        self.label_111.setMinimumSize(QtCore.QSize(81, 21))
+        self.label_111.setMaximumSize(QtCore.QSize(81, 21))
+        font = QtGui.QFont()
+        font.setFamily("Arial")
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setItalic(True)
+        font.setWeight(75)
+        self.label_111.setFont(font)
+        self.label_111.setMouseTracking(True)
+        self.label_111.setAlignment(QtCore.Qt.AlignCenter)
+        self.label_111.setObjectName("label_111")
         self.tabWidget_element_type.addTab(self.tab_damping, "")
         self.tabWidget_general.addTab(self.tab_setup, "")
         self.tab_details = QtWidgets.QWidget()
@@ -367,11 +382,15 @@ class Ui_Dialog(object):
         self.label_109.setText(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:\'Arial\'; font-size:11pt; font-weight:600; font-style:italic;\">\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">proportional</p>\n"
-"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">coefficient</p></body></html>"))
+"</style></head><body style=\" font-family:\'Arial\'; font-size:12pt; font-weight:400; font-style:normal;\">\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-weight:600; font-style:italic;\">proportional</span></p></body></html>"))
         self.label_5.setText(_translate("Dialog", "Insert a value to the damping:"))
         self.label_110.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">[ - ]</p></body></html>"))
+        self.label_111.setText(_translate("Dialog", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'Arial\'; font-size:11pt; font-weight:600; font-style:italic;\">\n"
+"<p align=\"center\" style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:12pt;\">coefficient</span></p></body></html>"))
         self.tabWidget_element_type.setTabText(self.tabWidget_element_type.indexOf(self.tab_damping), _translate("Dialog", "Damping"))
         self.tabWidget_general.setTabText(self.tabWidget_general.indexOf(self.tab_setup), _translate("Dialog", "Setup"))
         self.pushButton_get_information.setText(_translate("Dialog", "See details"))

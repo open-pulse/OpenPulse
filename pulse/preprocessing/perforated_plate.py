@@ -13,7 +13,7 @@ class PerforatedPlate:
         self.thickness = thickness
         self.porosity = porosity
         self.linear_discharge_coefficient = kwargs.get("discharge_coefficient", 1)
-        self.nonlinear_effect = kwargs.get("nonlinear_effect", True)
+        self.nonlinear_effect = kwargs.get("nonlinear_effect", False)
         self.nonlinear_discharge_coefficient = kwargs.get("nonlinear_discharge_coefficient", 0.76)
         self.correction_factor = kwargs.get("correction_factor", 1)
         self.bias_effect = kwargs.get("bias_effect", True)
