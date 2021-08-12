@@ -29,8 +29,8 @@ class SnaptoCursor(object):
 
         if show_cursor:
                 
-            self.vl = self.ax.axvline(x=np.min(x), ymin=np.min(y), color='k', alpha=0.3, label='_nolegend_')  # the vertical line
-            self.hl = self.ax.axhline(color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
+            self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
+            self.hl = self.ax.axhline(y=y[0], color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
             self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
             # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
             # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
@@ -50,7 +50,7 @@ class SnaptoCursor(object):
             self.hl.set_ydata(y)
             self.marker.set_data([x],[y])
             self.marker.set_label("x: %1.2f // y: %4.2e" % (x, y))
-            plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
+            plt.legend(handles=[self.marker], loc='lower right', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
     
             self.ax.figure.canvas.draw_idle()
 
@@ -715,6 +715,9 @@ class PerforatedPlateInput(QDialog):
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_perforated_plate_plot.addTopLevelItem(new)  
+            
+        self.treeWidget_perforated_plate_plot.header().setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_plot.setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
 
         self.treeWidget_perforated_plate_remove.clear()
         for section, value in self.dict_group_elements.items():
@@ -723,7 +726,10 @@ class PerforatedPlateInput(QDialog):
             new = QTreeWidgetItem([key, text])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)  
-            self.treeWidget_perforated_plate_remove.addTopLevelItem(new)   
+            self.treeWidget_perforated_plate_remove.addTopLevelItem(new)  
+
+        self.treeWidget_perforated_plate_remove.header().setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_remove.setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
 
     def get_information_of_group(self):
         try:
