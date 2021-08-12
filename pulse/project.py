@@ -726,7 +726,7 @@ class Project:
         else:
             self.file.modify_expansion_joint_in_file(line_id, parameters)   
            
-    def add_expansion_joint_by_elements(self, list_elements, parameters, imported_table, list_table_names=[], update_element_type=True):
+    def add_expansion_joint_by_elements(self, list_elements, parameters, imported_table, list_table_names=[], update_element_type=True, reset_cross=True):
         if parameters is None:
             remove = True
             capped = False
@@ -736,7 +736,7 @@ class Project:
             capped = True
             element_type = "expansion_joint"
 
-        self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters, remove=remove)
+        self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters, remove=remove, reset_cross=reset_cross)
   
         if update_element_type:
             self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)

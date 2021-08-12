@@ -1548,7 +1548,7 @@ class Preprocessor:
                     self.group_elements_with_stress_stiffening[section] = [pressures, elements]
 
 
-    def add_expansion_joint_by_elements(self, list_elements, parameters, remove=False, aux_line_id=None):
+    def add_expansion_joint_by_elements(self, list_elements, parameters, remove=False, aux_line_id=None, reset_cross=True):
         """
         This method .
 
@@ -1580,7 +1580,8 @@ class Preprocessor:
         if remove:
             for element in slicer(self.structural_elements, list_elements):
                 element.reset_expansion_joint_parameters()
-                element.cross_section = None
+                if reset_cross:
+                    element.cross_section = None
                 if element in self.elements_with_expansion_joint:
                     self.elements_with_expansion_joint.remove(element)
                                     

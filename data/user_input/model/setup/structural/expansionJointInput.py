@@ -584,48 +584,26 @@ class ExpansionJointInput(QDialog):
                         list_lines.append(line_id)
         return list_lines
 
-    def get_pipe_cross_section_from_file(self, line):
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        sections = config.sections()
+    def get_pipe_cross_section_from_file(self, line_id, list_elements):
 
-        section = f'{line}-1'
-        str_outer_diameter = "" 
-        str_thickness = ""
+        line_elements = self.preprocessor.line_to_elements[line_id]
+        lower_id = list_elements[0] - 1
+        upper_id = list_elements[-1] + 1
 
-        if section in sections:
-            if 'outer diameter' in config[section].keys():
-                str_outer_diameter = config[section]['outer diameter']
-                outer_diameter = float(str_outer_diameter)
-            if 'thickness' in config[section].keys(): 
-                str_thickness = config[section]['thickness']
-                thickness = float(str_thickness)
-            if 'offset [e_y, e_z]' in config[section].keys(): 
-                str_offset = config[section]['offset [e_y, e_z]']
-                offset_y, offset_z = self._get_offset_from_string(str_offset)
-            if 'insulation thickness' in config[section].keys(): 
-                str_insulation_thickness = config[section]['insulation thickness']
-                insulation_thickness = float(str_insulation_thickness)
-            if 'insulation density' in config[section].keys(): 
-                str_insulation_density = config[section]['insulation density']
-                insulation_density = float(str_insulation_density)
-            if 'structural element type' in config[section].keys():
-                structural_element_type = config[section]['structural element type']  
-            
-            if str_outer_diameter != "" and str_thickness != "":
-                section_parameters = {  "outer_diameter" : outer_diameter,
-                                        "thickness" : thickness, 
-                                        "offset_y" : offset_y, 
-                                        "offset_z" : offset_z, 
-                                        "insulation_thickness" : insulation_thickness, 
-                                        "insulation_density" : insulation_density }
+        cross = None
+        structural_element_type = None
+        
+        if lower_id in line_elements:
+            element = self.structural_elements[lower_id]
+            cross = element.cross_section
+            structural_element_type = element.element_type
+        
+        elif upper_id in line_elements:
+            element = self.structural_elements[upper_id]
+            cross = element.cross_section
+            structural_element_type = element.element_type
 
-                pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                        "section_parameters" : section_parameters  }
-
-                cross = CrossSection(pipe_section_info=pipe_section_info)
-                return cross, structural_element_type
-        return None, None
+        return cross, structural_element_type
 
     def check_expansion_joint_already_added_to_elements(self, list_elements_new, parameters_new):
         changed = False
@@ -1020,13 +998,14 @@ class ExpansionJointInput(QDialog):
                     list_lines.append(line_id)
         
         for line_id in list_lines:
-            cross, etype = self.get_pipe_cross_section_from_file(line_id)
+            cross, etype = self.get_pipe_cross_section_from_file(line_id, list_elements)
             self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
+            self.project.set_cross_section_by_elements(list_elements, cross)
             self.project.add_expansion_joint_by_elements(   list_elements, 
                                                             None, 
                                                             False, 
-                                                            update_element_type=False   )
-            self.project.set_cross_section_by_elements(list_elements, cross)
+                                                            update_element_type=False,
+                                                            reset_cross=False   )
             self.preprocessor.group_elements_with_expansion_joints.pop(_group)
 
     def reset_all(self):
