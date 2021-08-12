@@ -83,17 +83,17 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._currentPlot = self.showDisplacement
         self._currentFrequency = frequency       
 
-        if self.lastFrequency is not None:
-            if self.lastFrequency != self._currentFrequency:
-                self.scf = None
+        # if self.lastFrequency is not None:
+        #     if self.lastFrequency != self._currentFrequency:
+        #         self.scf = None
 
         _, _, u_def, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
                                                                                 solution, 
                                                                                 frequency, 
                                                                                 gain=gain,
                                                                                 new_scf=self.scf   )
-        self.lastFrequency = frequency
-        self.scf = scf
+        # self.lastFrequency = frequency
+        # self.scf = scf
         
         self.opvDeformedTubes.build()
       
@@ -119,19 +119,18 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._currentPlot = self.showStressField
         self._currentFrequency = frequency
 
-        if self.lastFrequency is not None:
-            if self.lastFrequency != self._currentFrequency:
-                self.scf = None
+        # if self.lastFrequency is not None:
+        #     if self.lastFrequency != self._currentFrequency:
+        #         self.scf = None
 
         _, _, _, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
-                                                                                solution, 
-                                                                                frequency, 
-                                                                                gain=gain,
-                                                                                new_scf=self.scf   )
-        self.lastFrequency = frequency
-        self.scf = scf
+                                                                            solution, 
+                                                                            frequency, 
+                                                                            gain=gain,
+                                                                            new_scf=self.scf   )
+        # self.lastFrequency = frequency
+        # self.scf = scf
 
-        # _, _, _, self._magnificationFactor = get_structural_response(preprocessor, solution, frequency, gain=gain)
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)

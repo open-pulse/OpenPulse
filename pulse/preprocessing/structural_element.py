@@ -147,9 +147,9 @@ class StructuralElement:
         self.delta_y = self.last_node.y - self.first_node.y
         self.delta_z = self.last_node.z - self.first_node.z
 
-        self.element_center_coordinates = [ (self.last_node.x + self.first_node.x)/2, 
-                                            (self.last_node.y + self.first_node.y)/2,
-                                            (self.last_node.z + self.first_node.z)/2 ]
+        self.element_center_coordinates = np.array([(self.last_node.x + self.first_node.x)/2, 
+                                                    (self.last_node.y + self.first_node.y)/2,
+                                                    (self.last_node.z + self.first_node.z)/2], dtype=float)
 
         self._Dab = None
         self._Bab = None
@@ -1136,23 +1136,25 @@ class StructuralElement:
     def stiffness_matrix_expansion_joint_harmonic(self, frequencies=None):
         L_e = self.joint_length/self.length
         if frequencies is None:
-            K_matrix = np.zeros((1, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            number_frequencies = 1
         else:
-            K_matrix = np.zeros((len(frequencies), DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            number_frequencies = len(frequencies)
         
+        K_matrix = np.zeros((number_frequencies, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+            
         K1 = self.joint_axial_stiffness*L_e
         K2 = K3 = self.joint_transversal_stiffness/L_e
         K4 = self.joint_torsional_stiffness*L_e
         K5 = K6 = self.joint_angular_stiffness/L_e  
 
-        K1 = self.get_array_values(K1, frequencies)
-        K2 = self.get_array_values(K2, frequencies)
+        K1 = self.get_array_values(K1, number_frequencies)
+        K2 = self.get_array_values(K2, number_frequencies)
         K3 = K2
-        K4 = self.get_array_values(K4, frequencies)
-        K5 = self.get_array_values(K5, frequencies)
+        K4 = self.get_array_values(K4, number_frequencies)
+        K5 = self.get_array_values(K5, number_frequencies)
         K6 = K5   
 
-        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(len(frequencies), DOF_PER_NODE_STRUCTURAL)
+        Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(number_frequencies, DOF_PER_NODE_STRUCTURAL)
         indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
         indexes_2 = indexes_1 + 6
 
@@ -1183,12 +1185,11 @@ class StructuralElement:
         self.joint_torsional_stiffness = 0
         self.joint_angular_stiffness = 0
 
-    def get_array_values(self, value, frequencies):
-        if frequencies is None:
-            size = 1
-        else:
-            size = len(frequencies) 
-
+    def get_array_values(self, value, size):
+        # if frequencies is None:
+        #     size = 1
+        # else:
+        #     size = len(frequencies) 
         if isinstance(value, np.ndarray):
             return value
         else:

@@ -34,7 +34,8 @@ class SetMeshPropertiesInput(QDialog):
         self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
         self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
-
+        self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()
+  
         # self.config = config
         self.complete = False
         self.create = False
@@ -142,8 +143,8 @@ class SetMeshPropertiesInput(QDialog):
             #
             [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)  
             #
-            self.dict_group_elements_to_update_entity_file, _ = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-            self.dict_group_elements_to_update_element_info_file, _ = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
+            self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+            self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
 
         if undo_remesh:
             self.project.load_project_files()     
@@ -152,8 +153,11 @@ class SetMeshPropertiesInput(QDialog):
 
     def process_final_actions(self):
         self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
-        self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file)
-        self.project.update_element_ids_in_element_info_file_after_remesh(self.dict_group_elements_to_update_element_info_file)
+        self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
+                                                                    self.dict_non_mapped_subgroups_entity_file)
+        self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
+                                                                            self.dict_non_mapped_subgroups_info_file,
+                                                                            self.dict_list_elements_to_subgroups    )
         # self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()

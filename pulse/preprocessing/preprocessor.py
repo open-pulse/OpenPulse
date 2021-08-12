@@ -6,6 +6,7 @@ from libs.gmsh import gmsh
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
+from pulse.preprocessing import structural_element
 
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -75,6 +76,7 @@ class Preprocessor:
         self.dict_coordinate_to_update_bc_after_remesh = {}
         self.dict_element_info_to_update_indexes_in_entity_file = {}
         self.dict_element_info_to_update_indexes_in_element_info_file = {}
+        self.dict_list_elements_to_subgroups = {}
         self.dict_old_to_new_node_external_indexes = {}
 
         self.nodes_with_elastic_link_stiffness = {}
@@ -616,13 +618,13 @@ class Preprocessor:
         """
         This method updates the dictionary that maps the external node to the element index.
         """
-        self.dict_first_node_to_element_index = {}
-        self.dict_last_node_to_element_index = {}
+        self.dict_first_node_to_element_index = defaultdict(list)
+        self.dict_last_node_to_element_index = defaultdict(list)
         for index, element in self.structural_elements.items():
             first_node_index = element.first_node.external_index
             last_node_index = element.last_node.external_index
-            self.dict_first_node_to_element_index[first_node_index] = index
-            self.dict_last_node_to_element_index[last_node_index] = index
+            self.dict_first_node_to_element_index[first_node_index].append(index)
+            self.dict_last_node_to_element_index[last_node_index].append(index)
 
     def get_nodal_coordinates_matrix(self, reordering=True):
         """
@@ -2336,39 +2338,102 @@ class Preprocessor:
         self.get_nodal_coordinates_matrix()
         return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
 
-    def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements):
+    def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
         """
         This method ...
         """
         list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
 
-        for subgroup_elements in list_groups_elements:
-            first_element_id = subgroup_elements[0]
-            last_element_id = subgroup_elements[-1]
-            first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
-            last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+        if reset_line:
+            self.reset_list_elements_from_line(line_id, dict_map_cross, dict_map_expansion_joint)
+        else:
+            for subgroup_elements in list_groups_elements:
+                first_element_id = subgroup_elements[0]
+                last_element_id = subgroup_elements[-1]
+                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+                first_node_coordinates = self.nodes[start_node_id].coordinates
+                last_node_coordinates = self.nodes[end_node_id].coordinates
+                # first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
+                # last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+                line_id = self.elements_to_line[first_element_id]
+                key = f"{first_element_id}-{last_element_id}||{line_id}"
+                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    subgroup_elements   ]
 
-            key = f"{first_element_id}-{last_element_id}"
-            self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
-                                                                                list(last_node_coordinates),
-                                                                                subgroup_elements   ]
+
+    def reset_list_elements_from_line(self, line_id, dict_map_cross, dict_map_expansion_joint):
+        
+        if line_id is None:
+            return
+        if len(dict_map_cross) == 0:
+            return
+        if len(dict_map_expansion_joint) == 0:
+            return
+
+        temp_dict = self.dict_element_info_to_update_indexes_in_entity_file.copy()
+        for key in temp_dict.keys():
+            key_line_id = int(key.split("||")[1])
+            if line_id == key_line_id:
+                self.dict_element_info_to_update_indexes_in_entity_file.pop(key)
+        
+        list_group_elements = []
+        for key, list_elements_cross in dict_map_cross.items():
+            list_group_elements.append(list_elements_cross)
+        
+        for (_, list_elements_joint) in dict_map_expansion_joint.values():
+            list_group_elements.append(list_elements_joint)
+        
+        for _list_elements in list_group_elements:    
+            list_subgroups_elements = check_is_there_a_group_of_elements_inside_list_elements(_list_elements) 
+            for subgroup_elements in list_subgroups_elements:
+                first_element_id = subgroup_elements[0]
+                last_element_id = subgroup_elements[-1]
+                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+                first_node_coordinates = self.nodes[start_node_id].coordinates
+                last_node_coordinates = self.nodes[end_node_id].coordinates
+                # first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
+                # last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+                line_id = self.elements_to_line[first_element_id]
+                key = f"{first_element_id}-{last_element_id}||{line_id}"
+                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    subgroup_elements   ]
+
 
     def process_elements_to_update_indexes_after_remesh_in_element_info_file(self, list_elements):
         """
         This method ...
         """
-        list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+        input_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+        output_subgroups_elements = []
+        for input_group in input_groups_elements:
+            line_to_elements = defaultdict(list)
+            for element_id in input_group:
+                line = self.elements_to_line[element_id]
+                line_to_elements[line].append(element_id)
+            for line, elements in line_to_elements.items():
+                output_subgroups_elements.append(elements)
+        
+        self.dict_list_elements_to_subgroups[str(list_elements)] = output_subgroups_elements
 
-        for subgroup_elements in list_groups_elements:
-            first_element_id = subgroup_elements[0]
-            last_element_id = subgroup_elements[-1]
-            first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
-            last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
+        for output_subgroup in output_subgroups_elements:
+       
+            first_element_id = output_subgroup[0]
+            last_element_id = output_subgroup[-1]
+            # print(f"input element ids: {[first_element_id, last_element_id]}")
+            start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+            # print(f"output element ids: {[start_node_id, end_node_id]}")
+            first_node_coordinates = self.nodes[start_node_id].coordinates
+            last_node_coordinates = self.nodes[end_node_id].coordinates
 
             key = f"{first_element_id}-{last_element_id}"
+            
             self.dict_element_info_to_update_indexes_in_element_info_file[key] = [  list(first_node_coordinates),
                                                                                     list(last_node_coordinates),
-                                                                                    subgroup_elements   ]
+                                                                                    output_subgroup ]
+        # print("This is the end\n")
+
 
     def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-8):
         """
@@ -2378,7 +2443,7 @@ class Preprocessor:
         list_coordinates = coord_matrix[:,1:].tolist()
         new_external_indexes = coord_matrix[:,0]
         dict_old_to_new_list_of_elements = {}
-        dict_non_mapped_elements_ids = {}
+        dict_non_mapped_subgroups = {}
         dict_subgroups_old_to_new_group_nodes = defaultdict(list)
 
         for key, data in dict_cache.items():
@@ -2402,8 +2467,9 @@ class Preprocessor:
                     dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
                     # print(f"Coord not found first: {first_node_coord} - {key}/{new_external_index} == {diff[mask]}")
                 except:
-                    dict_non_mapped_elements_ids[key] = subgroup_elements
-                
+                    # print(f"Non-mapped: first coord = {first_node_coord} || subgroup: {subgroup_elements}")
+                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
+                           
             if last_node_coord in list_coordinates:
 
                 ind = list_coordinates.index(last_node_coord)
@@ -2421,17 +2487,100 @@ class Preprocessor:
                     dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
                     # print(f"Coord not found last: {last_node_coord} - {key}/{new_external_index} == {diff[mask]}")
                 except:
-                    dict_non_mapped_elements_ids[key] = subgroup_elements
+                    # print(f"Non-mapped: last coord = {last_node_coord} || subgroup: {subgroup_elements}")
+                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
+            
+        for str_subgroup_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
+            if str_subgroup_elements not in dict_non_mapped_subgroups.keys():
+                # print("str_group_elements: ", str_subgroup_elements)
+                # print("edge_nodes: ", edge_nodes_from_group)
+                start_element_index, end_element_index = self.get_elements_inside_nodes_boundaries(edge_nodes_from_group)
+                # print(f"elements at edges: {[start_element_index, end_element_index]}")
+                new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
+                dict_old_to_new_list_of_elements[str_subgroup_elements] = new_list_elements
 
-        for str_group_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
-            start_node = min(edge_nodes_from_group)
-            end_node = max(edge_nodes_from_group)
-            start_element_index = self.dict_first_node_to_element_index[start_node]
-            end_element_index = self.dict_last_node_to_element_index[end_node]
-            new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
-            dict_old_to_new_list_of_elements[str_group_elements] = new_list_elements
+        return dict_old_to_new_list_of_elements, dict_non_mapped_subgroups
 
-        return dict_old_to_new_list_of_elements, dict_non_mapped_elements_ids
+
+    def get_distantest_nodes_from_elements(self, list_elements):
+        """"This method returns the more distant nodes from selected elements
+        
+        """
+        if len(list_elements) == 1:
+            element_id = list_elements[0]
+            first_node_id = self.structural_elements[element_id].first_node.external_index
+            last_node_id = self.structural_elements[element_id].last_node.external_index
+
+        if len(list_elements) == 2:
+            [element_id1, element_id2] = list_elements
+            element_1 = self.structural_elements[element_id1]
+            element_2 = self.structural_elements[element_id2]
+            diff_1 = element_1.first_node.coordinates - element_2.last_node.coordinates
+            diff_2 = element_2.first_node.coordinates - element_1.last_node.coordinates
+            
+            if np.linalg.norm(diff_1) > np.linalg.norm(diff_2):
+                first_node_id = element_1.first_node.external_index
+                last_node_id = element_2.last_node.external_index 
+            else:
+                first_node_id = element_1.last_node.external_index
+                last_node_id = element_2.first_node.external_index
+
+        list_nodes = [first_node_id, last_node_id]
+        return min(list_nodes), max(list_nodes)
+
+
+    def get_elements_inside_nodes_boundaries(self, list_nodes):
+        # print(f"list_nodes: {list_nodes}")
+        start_node, end_node = list_nodes
+
+        element_1_start_node = self.dict_first_node_to_element_index[start_node]
+        element_2_start_node = self.dict_last_node_to_element_index[start_node]
+        # print(f"elements_start_node: {[element_1_start_node, element_2_start_node]}")
+        
+        if len(element_1_start_node) > 1 or len(element_2_start_node) > 1:
+            elements_start_node = element_1_start_node
+            for element_id in element_2_start_node:
+                elements_start_node.append(element_id)
+        elif element_1_start_node == []:
+            elements_start_node = element_2_start_node
+        elif element_2_start_node == []:
+            elements_start_node = element_1_start_node
+        else:
+            elements_start_node = [element_1_start_node[0], element_2_start_node[0]]
+        
+        element_1_end_node = self.dict_first_node_to_element_index[end_node]
+        element_2_end_node = self.dict_last_node_to_element_index[end_node]
+        # print(f"elements_end_node: {[element_1_end_node, element_2_end_node]}")
+
+        if len(element_1_end_node) > 1 or len(element_2_end_node) > 1:
+            elements_end_node = element_1_end_node
+            for element_id in element_2_end_node:
+                elements_end_node.append(element_id)
+        elif element_1_end_node == []:
+            elements_end_node = element_2_end_node
+        elif element_2_end_node == []:
+            elements_end_node = element_1_end_node
+        else:
+            elements_end_node = [element_1_end_node[0], element_2_end_node[0]]
+                
+        first = True
+        for element_start in elements_start_node:
+            for element_end in elements_end_node:
+                
+                difference = self.structural_elements[element_start].element_center_coordinates - self.structural_elements[element_end].element_center_coordinates
+                distance = np.linalg.norm(difference)
+                
+                if first:
+                    first = False
+                    previous_distance = distance
+                    output_indexes = [element_start, element_end]
+                
+                if previous_distance > distance:
+                    previous_distance = distance
+                    output_indexes = [element_start, element_end]
+        # print(f"output_indexes: {output_indexes}\n")
+        return min(output_indexes), max(output_indexes)
+
 
     def get_model_checks(self):
         return BeforeRun(self)

@@ -461,7 +461,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
-        <string/>
+        <string>0.22</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -508,7 +508,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
        </property>
        <property name="text">
-        <string/>
+        <string>0.0001</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -553,6 +553,9 @@ background-color: rgb(255, 255, 255);</string>
        <property name="styleSheet">
         <string notr="true">color: rgb(0, 0, 255);
 background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string>0.35</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -805,7 +808,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
          </property>
          <property name="text">
-          <string/>
+          <string>1e8</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -849,7 +852,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
          </property>
          <property name="text">
-          <string/>
+          <string>1e7</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -973,7 +976,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
          </property>
          <property name="text">
-          <string/>
+          <string>1e8</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -1017,7 +1020,7 @@ background-color: rgb(255, 255, 255);</string>
 background-color: rgb(255, 255, 255);</string>
          </property>
          <property name="text">
-          <string/>
+          <string>1e7</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -2720,7 +2723,7 @@ color: rgb(0, 0, 0);</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="buttonGroup_2"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
  </buttongroups>
 </ui>

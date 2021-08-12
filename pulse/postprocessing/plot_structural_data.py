@@ -26,8 +26,8 @@ def get_structural_response(preprocessor, solution, column, gain=None, new_scf=N
     
     if new_scf is None:
         scf = preprocessor.structure_principal_diagonal/50
-    else:
-        scf = new_scf
+    # else:
+    #     scf = new_scf
 
     if Normalize:
         r_max = max(r_xyz)
@@ -68,15 +68,15 @@ def get_structural_response(preprocessor, solution, column, gain=None, new_scf=N
 
     preprocessor.process_element_cross_sections_orientation_to_plot()
    
-    if new_scf is None:
-        control, new_scf = preprocessor.deformed_amplitude_control_in_expansion_joints()
-        if control:
-            return get_structural_response( preprocessor, 
-                                            solution, 
-                                            column, 
-                                            gain=None, 
-                                            new_scf=new_scf,
-                                            Normalize=True  )
+    # if new_scf is None:
+    #     control, new_scf = preprocessor.deformed_amplitude_control_in_expansion_joints()
+    #     if control:
+    #         return get_structural_response( preprocessor, 
+    #                                         solution, 
+    #                                         column, 
+    #                                         gain=None, 
+    #                                         new_scf=new_scf,
+    #                                         Normalize=True  )
 
     return connect, coord_def, r_xyz, factor, scf
 

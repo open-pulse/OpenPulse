@@ -122,11 +122,17 @@ class Project:
         self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_node_external_indexes)
         self.file.modify_node_ids_in_structural_bc_file(dict_old_to_new_node_external_indexes)
 
-    def update_element_ids_in_entity_file_after_remesh(self, dict_group_elements_to_update_entity_file):
-        self.file.modify_list_of_element_ids_in_entity_file(dict_group_elements_to_update_entity_file)
+    def update_element_ids_in_entity_file_after_remesh(self, dict_group_elements_to_update_entity_file, 
+                                                             dict_non_mapped_subgroups_entity_file):
+        self.file.modify_list_of_element_ids_in_entity_file(dict_group_elements_to_update_entity_file, 
+                                                            dict_non_mapped_subgroups_entity_file)
     
-    def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update_element_info_file):
-        self.file.modify_element_ids_in_element_info_file(dict_group_elements_to_update_element_info_file)
+    def update_element_ids_in_element_info_file_after_remesh(self, dict_group_elements_to_update,
+                                                                   dict_non_mapped_subgroups,
+                                                                   dict_list_elements_to_subgroups ):
+        self.file.modify_element_ids_in_element_info_file(  dict_group_elements_to_update,
+                                                            dict_non_mapped_subgroups,
+                                                            dict_list_elements_to_subgroups)
 
     def reset_project(self):
         self.reset_info()
@@ -336,16 +342,32 @@ class Project:
         '''This methods updates the file information of multiples cross-sections
         
         '''
+        
         if len(self.lines_with_cross_section_by_elements)==0:
             return
 
-        for line in self.lines_with_cross_section_by_elements:
+        label_etypes = ['pipe_1', 'pipe_2']
+        indexes = [0, 1]
+        dict_etype_index = dict(zip(label_etypes,indexes))
+
+        for line_id in self.lines_with_cross_section_by_elements:
             dict_multiple_cross_sections = defaultdict(list)
-            list_elements = self.preprocessor.line_to_elements[line]
+            list_elements = self.preprocessor.line_to_elements[line_id]
             elements = self.preprocessor.structural_elements
             count_sections = 0
+            update_line = True
 
             for element_id in list_elements:
+
+                element = elements[element_id]
+                e_type  = element.element_type
+                if e_type in ['beam_1', 'expansion_joint']:
+                    update_line = False
+                    continue
+                elif e_type is None:
+                    e_type = 'pipe_1'
+                
+                index_etype = dict_etype_index[e_type]
 
                 outer_diameter = elements[element_id].cross_section.outer_diameter
                 thickness = elements[element_id].cross_section.thickness
@@ -358,20 +380,67 @@ class Project:
                                     offset_y, 
                                     offset_z, 
                                     insultation_thickness, 
-                                    insultation_density])
+                                    insultation_density,
+                                    index_etype ])
 
                 if key_string not in list(dict_multiple_cross_sections.keys()):
                     count_sections += 1
                 dict_multiple_cross_sections[key_string].append(element_id)
-    
+        
             if len(dict_multiple_cross_sections) == 1:
-                if count_sections == 1:
+                if update_line and count_sections == 1:
                     _cross_section = elements[element_id].cross_section
-                    self.set_cross_section_by_line(line, _cross_section)
-                    self.number_sections_by_line.pop(line)
+                    self.set_cross_section_by_line(line_id, _cross_section)
+                    self.number_sections_by_line.pop(line_id)
             else:
-                self.number_sections_by_line[line] = count_sections
-                self.file.add_multiple_cross_section_in_file(line, dict_multiple_cross_sections)     
+                self.number_sections_by_line[line_id] = count_sections
+                self.file.add_multiple_cross_section_in_file(line_id, dict_multiple_cross_sections)     
+
+    def get_dict_multiple_cross_sections_from_line(self, line_id):
+        '''This methods returns a dictionary of multiples cross-sections associated to 
+            the line of interest.        
+        '''
+        label_etypes = ['pipe_1', 'pipe_2']
+        indexes = [0, 1]
+        dict_etype_index = dict(zip(label_etypes,indexes))
+
+        # for line_id in self.lines_with_cross_section_by_elements:
+        dict_multiple_cross_sections = defaultdict(list)
+        list_elements = self.preprocessor.line_to_elements[line_id]
+        # print(line_id, list_elements)
+        elements = self.preprocessor.structural_elements
+        count_sections = 0
+
+        for element_id in list_elements:
+
+            element = elements[element_id]
+            e_type  = element.element_type
+            if e_type in ['beam_1', 'expansion_joint']:
+                continue
+            elif e_type is None:
+                e_type = 'pipe_1'
+            index_etype = dict_etype_index[e_type]
+
+            outer_diameter = elements[element_id].cross_section.outer_diameter
+            thickness = elements[element_id].cross_section.thickness
+            offset_y = elements[element_id].cross_section.offset_y
+            offset_z = elements[element_id].cross_section.offset_z
+            insultation_thickness = elements[element_id].cross_section.insulation_thickness
+            insultation_density = elements[element_id].cross_section.insulation_density
+            key_string = str([  outer_diameter, 
+                                thickness, 
+                                offset_y, 
+                                offset_z, 
+                                insultation_thickness, 
+                                insultation_density,
+                                index_etype ])
+
+            if key_string not in list(dict_multiple_cross_sections.keys()):
+                count_sections += 1
+            # print(f"Element id: {element_id} - key cross: {key_string}")
+            dict_multiple_cross_sections[key_string].append(element_id)
+    
+        return dict_multiple_cross_sections  
 
     def load_structural_bc_file(self):
 
@@ -488,6 +557,7 @@ class Project:
             self.file.add_cross_section_in_file(line, cross_section)
 
     def set_cross_section_by_elements(self, list_elements, cross_section):
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
         self.preprocessor.set_cross_section_by_element(list_elements, cross_section)
         for element in list_elements:
             line = self.preprocessor.elements_to_line[element]
@@ -667,6 +737,7 @@ class Project:
             element_type = "expansion_joint"
 
         self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters, remove=remove)
+  
         if update_element_type:
             self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
 
@@ -686,24 +757,34 @@ class Project:
         dict_key_parameters_to_elements = defaultdict(list)
         dict_key_parameters_to_parameters = {}
         for line_id in list_lines:
+            dict_multiple_cross_sections = self.get_dict_multiple_cross_sections_from_line(line_id)
             for element_id in self.preprocessor.line_to_elements[line_id]:
                 element = structural_elements[element_id]
-                dict_key_parameters_to_elements[str(element.expansion_joint_parameters)].append(element_id)
-                dict_key_parameters_to_parameters[str(element.expansion_joint_parameters)] = element.expansion_joint_parameters
+                if element.expansion_joint_parameters is not None:
+                    dict_key_parameters_to_elements[str(element.expansion_joint_parameters)].append(element_id)
+                    dict_key_parameters_to_parameters[str(element.expansion_joint_parameters)] = element.expansion_joint_parameters
             
             for ind, (key_parameters, _list_elements) in enumerate(dict_key_parameters_to_elements.items()):
                 section_key = f"{line_id}-{ind+1}"
                 parameters = dict_key_parameters_to_parameters[key_parameters]
                 dict_multiple_expansion_joints[section_key] = [parameters, _list_elements]
-                if ind > 0:
-                    list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
-                                                                                            parameters[0][1]  )
-                    self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
-
+                list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(list_elements, parameters[0][1])
+                self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
+            
+            self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(   list_elements, 
+                                                                                                reset_line=True, 
+                                                                                                line_id=line_id, 
+                                                                                                dict_map_cross=dict_multiple_cross_sections,
+                                                                                                dict_map_expansion_joint=dict_multiple_expansion_joints )
             if imported_table:
-                self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints, list_table_names=list_table_names) 
+                self.file.add_multiple_expansion_joints_in_file(line_id, 
+                                                                dict_multiple_expansion_joints, 
+                                                                dict_multiple_cross_sections,
+                                                                list_table_names=list_table_names) 
             else:
-                self.file.add_multiple_expansion_joints_in_file(line_id, dict_multiple_expansion_joints) 
+                self.file.add_multiple_expansion_joints_in_file(line_id, 
+                                                                dict_multiple_expansion_joints,
+                                                                dict_multiple_cross_sections) 
 
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.preprocessor.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)
@@ -758,8 +839,7 @@ class Project:
         self._set_fluid_to_selected_entity(entity_id, fluid)
 
     def load_cross_section_by_element(self, list_elements, cross_section):
-        self.preprocessor.set_cross_section_by_element(list_elements, cross_section)
-        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
+        self.set_cross_section_by_elements(list_elements, cross_section)
 
     def load_cross_section_by_entity(self, entity_id, cross_section):
         if self.file.get_import_type() == 0:
@@ -988,9 +1068,10 @@ class Project:
         self.preprocessor.set_length_correction_by_element(elements, value, section)
         self.file.add_length_correction_in_file(elements, value, section)
     
-    def set_perforated_plate_by_elements(self, elements, perforated_plate, section):
-        self.preprocessor.set_perforated_plate_by_elements(elements, perforated_plate, section)
-        self.file.add_perforated_plate_in_file(elements, perforated_plate, section)
+    def set_perforated_plate_by_elements(self, list_elements, perforated_plate, section):
+        self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, section)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
+        self.file.add_perforated_plate_in_file(list_elements, perforated_plate, section)
 
     def set_capped_end_by_elements(self, elements, value, selection):
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
@@ -1034,7 +1115,7 @@ class Project:
     
     def load_perforated_plate_by_elements(self, list_elements, perforated_plate, key):
         self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
-        # self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
+        self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

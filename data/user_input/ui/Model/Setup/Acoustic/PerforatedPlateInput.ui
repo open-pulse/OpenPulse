@@ -35,11 +35,11 @@
    <enum>Qt::DefaultContextMenu</enum>
   </property>
   <property name="windowTitle">
-   <string> Set: prescribed DOFs</string>
+   <string>Add: perforated plate</string>
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</normaloff>../../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</iconset>
+    <normaloff>../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</normaloff>../../../../../../../../../Olavo/.designer/temp/Downloads/load - Copia.png</iconset>
   </property>
   <property name="whatsThis">
    <string/>
