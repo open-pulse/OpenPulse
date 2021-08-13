@@ -5,7 +5,7 @@ from PyQt5 import uic
 import os
 import configparser
 from shutil import copyfile
-import numpy as np
+from time import time
 
 from pulse.project import Project
 from pulse.default_libraries import default_material_library, default_fluid_library
@@ -48,13 +48,14 @@ class NewProjectInput(QDialog):
         self.button_create_project.accepted.connect(self.accept_project)
         self.button_create_project.rejected.connect(self.reject_project)
 
-        self.line_project_name = self.findChild(QLineEdit, 'line_project_name')
+        self.lineEdit_project_name = self.findChild(QLineEdit, 'lineEdit_project_name')
         self.lineEdit_project_folder = self.findChild(QLineEdit, 'lineEdit_project_folder')
-        self.line_import_geometry = self.findChild(QLineEdit, 'line_import_geometry')
-        self.line_element_size = self.findChild(QLineEdit, 'line_element_size')
+        self.lineEdit_import_geometry = self.findChild(QLineEdit, 'lineEdit_import_geometry')
+        self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
+        self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
 
-        self.line_import_cord = self.findChild(QLineEdit, 'line_cord')
-        self.line_import_conn = self.findChild(QLineEdit, 'line_conn')
+        self.lineEdit_import_nodal_coordinates = self.findChild(QLineEdit, 'lineEdit_import_nodal_coordinates')
+        self.lineEdit_import_connectivity = self.findChild(QLineEdit, 'lineEdit_import_connectivity')
 
         self.toolButton_import_geometry = self.findChild(QToolButton, 'toolButton_import_geometry')
         self.toolButton_import_geometry.clicked.connect(self.import_geometry)
@@ -75,7 +76,7 @@ class NewProjectInput(QDialog):
         self.exec_()
 
     def createProjectFolder(self):
-        if self.line_project_name.text() == "":
+        if self.lineEdit_project_name.text() == "":
             title = 'Empty project name'
             message = "Please, inform a valid project name to continue."
             PrintMessageInput([title, message, window_title1])
@@ -103,44 +104,60 @@ class NewProjectInput(QDialog):
         self.lineEdit_project_folder.setText(str(self.project_directory))        
 
     def accept_project(self):
+        t0 = time()
         self.createProjectFolder()
         if self.stop:
+            self.project.time_to_load_or_create_project = 0
             return
 
-        if self.line_project_name.text() in os.listdir(self.project_directory):
+        if self.lineEdit_project_name.text() in os.listdir(self.project_directory):
             title = 'Error in project name'
             message = "This project name already exists, you should use a different project name to continue."
             PrintMessageInput([title, message, window_title1])
             return
 
         if self.currentTab == 0: #.iges
-            if self.line_import_geometry.text() == "":
+            if self.lineEdit_import_geometry.text() == "":
                 title = 'Empty geometry at selection'
                 message = "Please, select a valid *.iges format geometry to continue."
                 PrintMessageInput([title, message, window_title1])
                 return
-            if self.line_element_size.text() == "":
+            if self.lineEdit_element_size.text() == "":
                 title = 'Empty element size'
                 message = "Please, inform a valid input to the element size."
                 PrintMessageInput([title, message, window_title1])
                 return
             else:
                 try:
-                    float(self.line_element_size.text())
+                    float(self.lineEdit_element_size.text())
                 except Exception:
                     title = 'Invalid element size'
                     message = "Please, inform a valid input to the element size."
                     PrintMessageInput([title, message, window_title1])
                     return
-        
+
+            if self.lineEdit_geometry_tolerance.text() == "":
+                title = 'Empty geometry tolerance'
+                message = "Please, inform a valid input to the geometry tolerance."
+                PrintMessageInput([title, message, window_title1])
+                return
+            else:
+                try:
+                    float(self.lineEdit_geometry_tolerance.text())
+                except Exception:
+                    title = 'Invalid geometry tolerance'
+                    message = "Please, inform a valid input to the geometry tolerance."
+                    PrintMessageInput([title, message, window_title1])
+                    return        
+
         if self.currentTab == 1: #.dat
-            if self.line_import_cord.text() == "":
+            if self.lineEdit_import_nodal_coordinates.text() == "":
                 title = 'None nodal coordinates matrix file selected'
                 message = "Please, select a valid nodal coordinates matrix file to continue."
                 PrintMessageInput([title, message, window_title1])
                 return
 
-            if self.line_import_conn.text() == "" :
+            if self.lineEdit_import_connectivity.text() == "" :
                 title = 'None connectivity matrix file selected'
                 message = "Please, select a valid connectivity matrix file to continue."
                 PrintMessageInput([title, message, window_title1])
@@ -148,6 +165,7 @@ class NewProjectInput(QDialog):
    
         if self.createProject():
             self.create = True
+            self.project.time_to_load_or_create_project = time() - t0
             self.close()
 
     def reject_project(self):
@@ -155,22 +173,22 @@ class NewProjectInput(QDialog):
 
     def import_geometry(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Iges Files (*.iges)')
-        self.line_import_geometry.setText(str(self.path))
+        self.lineEdit_import_geometry.setText(str(self.path))
 
     def import_cord(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.line_import_cord.setText(str(self.path))
+        self.lineEdit_import_nodal_coordinates.setText(str(self.path))
 
     def import_conn(self):
         self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
-        self.line_import_conn.setText(str(self.path))
+        self.lineEdit_import_connectivity.setText(str(self.path))
 
     def createProject(self):
 
         if "\\" in self.project_directory:
-            self.project_folder_path = '{}\\{}'.format(self.project_directory, self.line_project_name.text())
+            self.project_folder_path = '{}\\{}'.format(self.project_directory, self.lineEdit_project_name.text())
         elif "/" in self.project_directory:
-            self.project_folder_path = '{}/{}'.format(self.project_directory, self.line_project_name.text())
+            self.project_folder_path = '{}/{}'.format(self.project_directory, self.lineEdit_project_name.text())
 
         if not os.path.exists(self.project_folder_path):
             os.makedirs(self.project_folder_path)
@@ -180,26 +198,34 @@ class NewProjectInput(QDialog):
         self.createProjectFile()
         
         if self.currentTab == 0:
-            geometry_file_name = self.line_import_geometry.text().split('/')[-1]
-            new_geometry_path = "{}\\{}".format(self.project_folder_path, geometry_file_name)
-            copyfile(self.line_import_geometry.text(), new_geometry_path)
-            element_size = float(self.line_element_size.text())
+            geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())#.split('/')[-1]
+            new_geometry_path = "{}\\{}".format(self.project_folder_path, geometry_filename)
+            copyfile(self.lineEdit_import_geometry.text(), new_geometry_path)
+            element_size = float(self.lineEdit_element_size.text())
+            geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             import_type = 0
-            self.config.writeRecentProject(self.line_project_name.text(), self.project_file_path)
-            self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, geometry_path=new_geometry_path)
+            self.config.writeRecentProject(self.lineEdit_project_name.text(), self.project_file_path)
+            self.project.new_project(   self.project_folder_path, 
+                                        self.lineEdit_project_name.text(), 
+                                        element_size,
+                                        geometry_tolerance, 
+                                        import_type, 
+                                        self.material_list_path, 
+                                        self.fluid_list_path, 
+                                        geometry_path=new_geometry_path)
             return True
             
         elif self.currentTab == 1:
-            cord_file = self.line_import_cord.text().split('/')[-1]
-            conn_file = self.line_import_conn.text().split('/')[-1]
-            new_cord_path = "{}\\{}".format(self.project_folder_path, cord_file)
-            new_conn_path = "{}\\{}".format(self.project_folder_path, conn_file)
-            copyfile(self.line_import_cord.text(), new_cord_path)
-            copyfile(self.line_import_conn.text(), new_conn_path)
+            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())#.split('/')[-1]
+            connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())#.split('/')[-1]
+            new_cord_path = "{}\\{}".format(self.project_folder_path, nodal_coordinates_filename)
+            new_conn_path = "{}\\{}".format(self.project_folder_path, connectivity_filename)
+            copyfile(self.lineEdit_import_nodal_coordinates.text(), new_cord_path)
+            copyfile(self.lineEdit_import_connectivity.text(), new_conn_path)
             element_size = 0
             import_type = 1
-            self.config.writeRecentProject(self.line_project_name.text(), self.project_file_path)
-            self.project.new_project(self.project_folder_path, self.line_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
+            self.config.writeRecentProject(self.lineEdit_project_name.text(), self.project_file_path)
+            self.project.new_project(self.project_folder_path, self.lineEdit_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
             return True
         return False
 
@@ -212,19 +238,21 @@ class NewProjectInput(QDialog):
 
         config = configparser.ConfigParser()
         config['PROJECT'] = {}
-        config['PROJECT']['Name'] = self.line_project_name.text()
+        config['PROJECT']['Name'] = self.lineEdit_project_name.text()
 
         if self.currentTab == 0:
-            geometry_file_name = self.line_import_geometry.text().split('/')[-1]
-            element_size = self.line_element_size.text()
+            geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())#.split('/')[-1]
+            element_size = self.lineEdit_element_size.text()
+            geometry_tolerance = self.lineEdit_geometry_tolerance.text()
 
             config['PROJECT']['Import type'] = str(0)
-            config['PROJECT']['Element size'] = str(element_size)
             config['PROJECT']['Geometry file'] = geometry_file_name
+            config['PROJECT']['Element size'] = element_size
+            config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
         elif self.currentTab == 1:
-            nodal_coordinates_filename = self.line_import_cord.text().split('/')[-1]
-            connectivity_matrix_filename = self.line_import_conn.text().split('/')[-1]
+            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())#.split('/')[-1]
+            connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())#.split('/')[-1]
             config['PROJECT']['Import type'] = str(1)
             config['PROJECT']['Nodal coordinates file'] = nodal_coordinates_filename
             config['PROJECT']['Connectivity matrix file'] = connectivity_matrix_filename

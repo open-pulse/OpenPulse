@@ -10,8 +10,8 @@ import configparser
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class PlotStructuralModeShapeInput(QDialog):
     def __init__(self, opv, natural_frequencies, *args, **kwargs):
@@ -56,26 +56,25 @@ class PlotStructuralModeShapeInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    def check(self):
+    def check_selected_frequency(self):
+        message = ""
         if self.lineEdit_natural_frequency.text() == "":
-            title = "UNSELECTED NATURAL FREQUENCY"
-            message = "Select a natural frequency from list."
-            self.text_data = [title, message, window_title2]
+            title = "Additional action required to plot the results"
+            message = "You should select a natural frequency from the available\n\n"
+            message += "list before trying to plot the structural mode shape."
+            self.text_data = [title, message, window_title_2]
+        else:
+            frequency = self.selected_natural_frequency
+            self.mode_index = self.natural_frequencies.index(frequency)
+
+        if message != "":
+            PrintMessageInput(self.text_data)
             return True
         else:
-            try:
-                frequency = self.selected_natural_frequency
-                self.mode_index = self.natural_frequencies.index(frequency)
-            except Exception as error:
-                title = "ERROR IN NATURAL FREQUENCY SELECTION"
-                message = str(error)
-                self.text_data = [title, message, window_title1]
-                return True
-        return False
+            return False
 
     def confirm_selection(self):
-        if self.check():
-            PrintMessageInput(self.text_data)
+        if self.check_selected_frequency():
             return
         self.complete = True
         self.close()

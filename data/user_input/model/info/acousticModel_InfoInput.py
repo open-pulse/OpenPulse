@@ -21,6 +21,7 @@ class AcousticModelInfoInput(QDialog):
         self.setWindowIcon(self.icon)
 
         self.project = project
+        self.preprocessor = project.preprocessor
 
         self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
         self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
@@ -58,8 +59,10 @@ class AcousticModelInfoInput(QDialog):
             self.close()
 
     def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.mesh.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.mesh.structural_elements)))
+        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+        self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
+        self.lineEdit_number_nodes.setText(str(len(self.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
         
     def text_label(self, value):
         text = ""
@@ -72,19 +75,19 @@ class AcousticModelInfoInput(QDialog):
 
     def load_nodes_info(self):
         
-        for node in self.project.mesh.nodes_with_acoustic_pressure:
+        for node in self.project.preprocessor.nodes_with_acoustic_pressure:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.acoustic_pressure))])
             self.treeWidget_acoustic_pressure.addTopLevelItem(new)
         
-        for node in self.project.mesh.nodes_with_volume_velocity:
+        for node in self.project.preprocessor.nodes_with_volume_velocity:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
             self.treeWidget_volume_velocity.addTopLevelItem(new)
 
-        for node in self.project.mesh.nodes_with_specific_impedance:
+        for node in self.project.preprocessor.nodes_with_specific_impedance:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.specific_impedance))])
             self.treeWidget_specific_impedance.addTopLevelItem(new)
         
-        for node in self.project.mesh.nodes_with_radiation_impedance:
+        for node in self.project.preprocessor.nodes_with_radiation_impedance:
             if node.radiation_impedance_type == 0:
                 text = "Anechoic"
             elif node.radiation_impedance_type == 1:
@@ -94,7 +97,7 @@ class AcousticModelInfoInput(QDialog):
             new = QTreeWidgetItem([str(node.external_index), text])
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
 
-        for element in self.project.mesh.element_with_length_correction:
+        for element in self.project.preprocessor.element_with_length_correction:
             if element.acoustic_length_correction == 0:
                 text = "Expansion"
             if element.acoustic_length_correction == 1:

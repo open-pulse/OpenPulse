@@ -11,9 +11,9 @@ import numpy as np
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-window_title = "WARNING MESSAGE"
-title = "Project data reseted"
-message = "All project data has been reseted to default values."
+window_title = "WARNING"
+title = "Project resetting complete"
+message = "The current project setup and project data has been reset to default values."
 
 class ResetProjectInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -24,11 +24,12 @@ class ResetProjectInput(QDialog):
         self.icon = QIcon(icons_path + 'add.png')
         self.setWindowIcon(self.icon)
 
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-
         self.project = project
         self.opv = opv
+
+        self.opv.setInputObject(self)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.confirm_reset)
@@ -39,6 +40,7 @@ class ResetProjectInput(QDialog):
     
     def confirm_reset(self):
         self.project.reset_project()
+        self.opv.opvRenderer.plot()
         self.opv.changePlotToEntities()
         PrintMessageInput([title, message, window_title])
         self.close()

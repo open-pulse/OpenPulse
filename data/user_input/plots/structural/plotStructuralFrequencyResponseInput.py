@@ -59,23 +59,26 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-                
-        self.opv = opv
-        self.opv.setInputObject(self)
+
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.list_node_IDs = self.opv.getListPickedPoints()
+
         self.projec = project
-        self.mesh = project.mesh
-        self.nodes = project.mesh.nodes
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+        self.nodes = self.preprocessor.nodes
+        
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
 
-        self.list_node_IDs = self.opv.getListPickedPoints()
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
-        self.nodeID = 0
+        self.node_ID = 0
         self.imported_data = None
         self.localDof = None
 
@@ -215,39 +218,13 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
     def check(self, export=False):
+        
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if stop:
+            return True
+
         self.localDof = None
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            node_typed = list(map(int, tokens))
-        except Exception:
-            title = "INVALID NODE ID"
-            message = "Wrong input for Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
-        if len(node_typed) == 1:
-            try:
-                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-            except:
-                title = "INVALID NODE ID"
-                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
-                PrintMessageInput([title, message, window_title1])
-                return True
-        elif len(node_typed) == 0:
-            title = "INVALID NODE ID"
-            message = "Please, enter a valid Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-        else:
-            title = "MULTIPLE NODE IDs"
-            message = "Please, type or select only one Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
         if self.SingleDiff:
             _unit_label = "m/s"
         elif self.DoubleDiff:
@@ -260,7 +237,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.localdof_label = "Ux"
             self.unit_label = _unit_label
 
-
         if self.radioButton_uy.isChecked():
             self.localDof = 1
             self.localdof_label = "Uy"
@@ -271,18 +247,10 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.localdof_label = "Uz"
             self.unit_label = _unit_label
  
-        if self.SingleDiff:
-            _unit_label = "rad/s"
-        elif self.DoubleDiff:
-            _unit_label = "rad/s²"
-        else:
-            _unit_label = "rad"
-
         if self.radioButton_rx.isChecked():
             self.localDof = 3
             self.localdof_label = "Rx"
             self.unit_label = _unit_label
-
 
         if self.radioButton_ry.isChecked():
             self.localDof = 4
@@ -293,9 +261,18 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             self.localDof = 5
             self.localdof_label = "Rz"
             self.unit_label = _unit_label
-        
+
+        if self.SingleDiff:
+            _unit_label = "rad/s"
+        elif self.DoubleDiff:
+            _unit_label = "rad/s²"
+        else:
+            _unit_label = "rad"
+
         if not export:
             self.plot()
+
+        return False
 
     def ExportResults(self):
         
@@ -333,7 +310,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         PrintMessageInput([title, message, window_title2])
 
     def get_response(self):
-        response = get_structural_frf(self.mesh, self.solution, self.nodeID, self.localDof)
+        response = get_structural_frf(self.preprocessor, self.solution, self.node_ID, self.localDof)
         if self.SingleDiff:
             output_data = response*(1j*2*np.pi)*self.frequencies
         elif self.DoubleDiff:
@@ -350,35 +327,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         frequencies = self.frequencies
         response = self.get_response()
 
-        if self.plotAbs:
-            response = np.abs(response)
-            ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-            ax.set_yscale('log', nonposy='clip')
-        elif self.plotReal:
-            response = np.real(response)
-            ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-        elif self.plotImag:
-            response = np.imag(response)
-            ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-
-        #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
-        plt.connect('motion_notify_event', cursor.mouse_move)
-
-        legend_label = "Response {} at node {}".format(self.localdof_label, self.nodeID)
-        if self.imported_data is None:
-                
-            if any(value<=0 for value in response):
-                if any(value<=0 for value in response[1:]):
-                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-                else:
-                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
-            else: 
-                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
-            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
-
-        else:
-
+        if self.imported_data is not None:
             data = self.imported_data
             imported_Xvalues = data[:,0]
 
@@ -389,14 +338,47 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             elif self.plotImag:
                 imported_Yvalues = data[:,2]
 
-            if any(value<=0 for value in response) or any(value<=0 for value in imported_Yvalues):
-                if any(value<=0 for value in response[1:]) or any(value<=0 for value in imported_Yvalues[1:]):
-                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
-                    second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+        if self.plotAbs:
+            response = np.abs(response)
+            ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+            if not float(0) in response:
+                if self.imported_data is None:
+                    ax.set_yscale('log', nonposy='clip')
+                else:
+                    if not float(0) in imported_Yvalues:
+                        ax.set_yscale('log', nonposy='clip')
+        elif self.plotReal:
+            response = np.real(response)
+            ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+        elif self.plotImag:
+            response = np.imag(response)
+            ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
+   
+        #cursor = Cursor(ax)
+        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
+        plt.connect('motion_notify_event', cursor.mouse_move)
+
+        legend_label = "Response {} at node {}".format(self.localdof_label, self.node_ID)
+
+        if self.imported_data is None:
+
+            if float(0) in response or self.plotReal or self.plotImag:
+                if float(0) in response[1:] or self.plotReal or self.plotImag:
+                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 else:
                     first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
+            else: 
+                first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
+            _legends = plt.legend(handles=[first_plot], labels=[legend_label], loc='upper right')
+        else:
+            if float(0) in response or float(0) in imported_Yvalues or self.plotReal or self.plotImag:
+                if float(0) in response[1:] or float(0) in imported_Yvalues[1:] or self.plotReal or self.plotImag:
+                    first_plot, = plt.plot(frequencies, response, color=[1,0,0], linewidth=2)
+                    second_plot, = plt.plot(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
+                else:                   
+                    first_plot, = plt.semilogy(frequencies[1:], response[1:], color=[1,0,0], linewidth=2, label=legend_label)
                     second_plot, = plt.semilogy(imported_Xvalues[1:], imported_Yvalues[1:], color=[0,0,1], linewidth=1, linestyle="--")
-            else:    
+            else:                
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
                 second_plot, = plt.semilogy(imported_Xvalues, imported_Yvalues, color=[0,0,1], linewidth=1, linestyle="--")
             _legends = plt.legend(handles=[first_plot, second_plot], labels=[legend_label, self.legend_imported], loc='upper right')

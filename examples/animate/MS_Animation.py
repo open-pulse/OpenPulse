@@ -10,7 +10,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 
 """ 
 ----------------------------------------------------------------------------------------------------------------------------------
-|    This fucntion loads nodal coordinates (x_p, y_p, z_p), nodal displacements (u_x, u_y, u_z) and plots or animate results in  |
+|    This function loads nodal coordinates (x_p, y_p, z_p), nodal displacements (u_x, u_y, u_z) and plots or animate results in  |
 |    graph figures for both deformed or undeformed shapes.                                                                       |
 ----------------------------------------------------------------------------------------------------------------------------------
 

@@ -30,13 +30,13 @@ class RendererElement(vtkRendererBase):
             if element.cross_section is None:
                 text += "Diameter: {}\nThickness: {}\nOffset y: {}\nOffset z: {}\n".format("undefined", "undefined", "undefined", "undefined")
             else:
-                external_diameter = element.cross_section.external_diameter
+                outer_diameter = element.cross_section.outer_diameter
                 thickness = element.cross_section.thickness
                 offset_y = element.cross_section.offset_y
                 offset_z = element.cross_section.offset_z
                 insulation_thickness = element.cross_section.insulation_thickness
                 insulation_density = element.cross_section.insulation_density
-                text += "Diameter: {} [m]\nThickness: {} [m]\n".format(external_diameter, thickness)
+                text += "Diameter: {} [m]\nThickness: {} [m]\n".format(outer_diameter, thickness)
                 if offset_y != 0 or offset_z != 0:
                     text += "Offset y: {} [m]\nOffset z: {} [m]\n".format(offset_y, offset_z)
                 if insulation_thickness != 0 or insulation_density != 0:

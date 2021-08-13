@@ -13,27 +13,29 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 window_title = "ERROR"
 
 class MaterialInput(QDialog):
-    def __init__(   self, 
-                    opv, 
-                    material_path, 
-                    lines_to_change_material=[], 
-                    *args, 
-                    **kwargs):
+    def __init__(   self, project, opv,  cache_selected_lines=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.materialPath = material_path
+        
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/materialInput.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
+        
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.setWindowFlags(Qt.WindowStaysOnTopHint)
-        self.setWindowModality(Qt.WindowModal)
-        
-        self.lines_to_change_material = lines_to_change_material
         self.lines_ids = self.opv.getListPickedEntities()
+
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.materialPath = project.get_material_list_path()
+        self.cache_selected_lines = cache_selected_lines
+        
         self.clicked_item = None
         self.material = None
         self.flagAll = False
@@ -92,8 +94,8 @@ class MaterialInput(QDialog):
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
 
-        if self.lines_to_change_material != []:
-            self.lines_ids = self.lines_to_change_material
+        if self.cache_selected_lines != []:
+            self.lines_ids = self.cache_selected_lines
 
         if self.lines_ids != []:
             self.write_ids(self.lines_ids)
@@ -161,6 +163,7 @@ class MaterialInput(QDialog):
                 self.selected_material_to_remove()
             
     def check(self):
+
         if self.clicked_item is None:
             self.title = "NO MATERIAL SELECTION"
             self.message = "Select a material in the list before \nconfirming the material attribution."
@@ -184,10 +187,27 @@ class MaterialInput(QDialog):
                                             thermal_expansion_coefficient=thermal_expansion_coefficient, 
                                             color=color)
             self.material = new_material
+            
+            if self.flagSelectedLines:
+
+                lineEdit = self.lineEdit_selected_ID.text()
+                self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+                if self.stop:
+                    return True 
+                               
+                for line in self.lines_typed:
+                    self.project.set_material_by_line(line, self.material)
+                print("[Set Material] - {} defined in the entities {}".format(self.material.name, self.lines_typed))
+                # self.opv.changeColorEntities(self.lines_typed, self.material.getNormalizedColorRGB())
+            else:
+                self.project.set_material(self.material)       
+                print("[Set Material] - {} defined in all entities".format(self.material.name))
+                # self.opv.changeColorEntities(entities, self.material.getNormalizedColorRGB())
             self.close()
-        except Exception as e:
+
+        except Exception as error_log:
             self.title = "ERROR WITH THE MATERIAL LIST DATA"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return
 

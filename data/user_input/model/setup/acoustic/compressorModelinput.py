@@ -25,17 +25,19 @@ class CompressorModelInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.mesh = project.mesh
-        self.nodes = self.project.mesh.nodes
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.node_id = self.opv.getListPickedPoints()
 
-        self.project_folder_path = project.project_folder_path        
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.nodes = self.preprocessor.nodes
+        self.before_run = self.preprocessor.get_model_checks()    
+
+        self.project_folder_path = project.file._project_path      
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -80,6 +82,7 @@ class CompressorModelInput(QDialog):
         self.radioButton_connected_at_suction_and_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
         self.radioButton_connected_at_suction.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
         self.radioButton_connected_at_discharge.clicked.connect(self.radioButtonEvent_connections_compressor_to_pipelines)
+        self.connection_at_suction_and_discharge = self.radioButton_connected_at_suction_and_discharge.isChecked()
 
         self.radioButtonEvent_compression_setup()
         self.radioButtonEvent_connections_compressor_to_pipelines()
@@ -99,6 +102,9 @@ class CompressorModelInput(QDialog):
 
         self.spinBox_number_of_cylinders = self.findChild(QSpinBox, 'spinBox_number_of_cylinders')
         self.spinBox_number_of_cylinders.valueChanged.connect(self.spinBox_event_number_of_cylinders)
+
+        self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
+        self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
 
         self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
         self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
@@ -183,6 +189,13 @@ class CompressorModelInput(QDialog):
         else:
             self.pushButton_confirm.setDisabled(False)
     
+    def flip_nodes(self):
+        if self.connection_at_suction_and_discharge:
+            temp_text_suction = self.lineEdit_suction_node_ID.text()
+            temp_text_discharge = self.lineEdit_discharge_node_ID.text()
+            self.lineEdit_suction_node_ID.setText(temp_text_discharge)
+            self.lineEdit_discharge_node_ID.setText(temp_text_suction)   
+
     def update_compressing_cylinders_setup(self):
         self.both_cylinders = self.radioButton_both_cylinders.isChecked()
         self.head_end_cylinder = self.radioButton_head_end_cylinder.isChecked()
@@ -221,60 +234,48 @@ class CompressorModelInput(QDialog):
         self.connection_at_discharge = self.radioButton_connected_at_discharge.isChecked()
 
         self.lineEdit_suction_node_ID.setDisabled(False)
-        self.lineEdit_discharge_node_ID.setDisabled(False)
+        self.lineEdit_discharge_node_ID.setDisabled(False)       
+
+        list_node_ids = self.opv.getListPickedPoints()
 
         if self.connection_at_suction:
             self.lineEdit_discharge_node_ID.setDisabled(True)
+            self.lineEdit_discharge_node_ID.setText("")
+            if len(list_node_ids) == 1:
+                self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
         elif self.connection_at_discharge:
             self.lineEdit_suction_node_ID.setDisabled(True)
-
+            self.lineEdit_suction_node_ID.setText("")
+            if len(list_node_ids) == 1:
+                self.lineEdit_discharge_node_ID.setText(str(list_node_ids[-1]))
+        else:
+            self.writeNodes(list_node_ids)
+            
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_selected_node_ID.setText(text)
+        if len(list_node_ids) == 2:
+            self.lineEdit_suction_node_ID.setText(str(min(list_node_ids[-2:])))
+            self.lineEdit_discharge_node_ID.setText(str(max(list_node_ids[-2:])))
+        elif len(list_node_ids) == 1:
+            self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
+            self.lineEdit_discharge_node_ID.setText("")
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())
 
     def check_nodeID(self, lineEdit, export=False):
-        try:
-            tokens = lineEdit.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            node_typed = list(map(int, tokens))
-
-        except Exception:
-            title = "INVALID NODE ID"
-            message = "Wrong input for Node ID."
-            PrintMessageInput([title, message, window_title1])
+        
+        lineEdit_nodeID = lineEdit.text()
+        self.stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        
+        if self.stop:
             return True
 
-        if len(node_typed) == 1:
-            try:
-                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-            except:
-                title = "INVALID NODE ID"
-                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
-                PrintMessageInput([title, message, window_title1])
-                return True
-
-        elif len(node_typed) == 0:
-            title = "INVALID NODE ID"
-            message = "Please, enter a valid Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-            
-        else:
-            title = "MULTIPLE NODE IDs"
-            message = "Please, type or select only one Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
-        if len(self.project.mesh.neighboor_elements_of_node(self.nodeID))>1:
-            title = "INVALID SELECTION - NODE {}".format(self.nodeID)
+        if len(self.project.preprocessor.neighboor_elements_of_node(self.node_ID))>1:
+            title = "INVALID SELECTION - NODE {}".format(self.node_ID)
             message = "The selected NODE ID must be in the beginning \nor termination of the pipelines."
             PrintMessageInput([title, message, window_title1])
             return True
@@ -286,11 +287,13 @@ class CompressorModelInput(QDialog):
 
                 if self.check_nodeID(self.lineEdit_suction_node_ID):
                     return True
-                self.suction_node_ID = self.nodeID
+
+                self.suction_node_ID = self.node_ID
                 
                 if self.check_nodeID(self.lineEdit_discharge_node_ID):
                     return True
-                self.discharge_node_ID = self.nodeID
+
+                self.discharge_node_ID = self.node_ID
 
                 if self.suction_node_ID == self.discharge_node_ID:
                     title = "ERROR IN NODES SELECTION"
@@ -301,12 +304,15 @@ class CompressorModelInput(QDialog):
             if self.connection_at_suction:
                 if self.check_nodeID(self.lineEdit_suction_node_ID):
                     return True
-                self.suction_node_ID = self.nodeID
+              
+                self.suction_node_ID = self.node_ID
 
             if self.connection_at_discharge:
                 if self.check_nodeID(self.lineEdit_discharge_node_ID):
                     return True
-                self.discharge_node_ID = self.nodeID
+
+                self.discharge_node_ID = self.node_ID
+
         return False
         
     def check_input_parameters(self, lineEdit, label, _float=True):
@@ -501,7 +507,7 @@ class CompressorModelInput(QDialog):
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
     def get_table_name(self, label, _node):
-        self.size = self.mesh.volume_velocity_table_index + 1
+        self.size = self.preprocessor.volume_velocity_table_index + 1
         return 'table{}_compressor_excitation_{}.dat'.format( self.size, label)
 
     def process_all_inputs(self):
@@ -689,7 +695,7 @@ class CompressorModelInput(QDialog):
         title = "RESET OF COMPRESSOR EXCITATION"
         message = "All compressor excitations have been removed from the model."
         PrintMessageInput([title, message, window_title2])
-        self.mesh.volume_velocity_table_index = 0
+        self.preprocessor.volume_velocity_table_index = 0
 
     def reset_node(self):
         self.get_dict_of_volume_velocity_from_file()
@@ -705,7 +711,7 @@ class CompressorModelInput(QDialog):
         config = configparser.ConfigParser()
         config.read(self.project.file._node_acoustic_path)
         config.remove_section(str(self.selected_node)) 
-        self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), None)
         for _, table_str in self.dict_volume_velocity[int(self.selected_node)]:
             self.selected_table = table_str.replace("[", "").replace("]", "")
             self.get_path_of_selected_table()
@@ -745,10 +751,10 @@ class CompressorModelInput(QDialog):
     
     def reset_node_and_reload(self):
         self.get_dict_of_volume_velocity_from_file()
-        self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), None)
         for key, table_name in self.dict_volume_velocity[int(self.selected_node)]:
             volume_velocity = self.project.file._get_acoustic_bc_from_string(table_name, key)
-            self.project.mesh.set_volume_velocity_bc_by_node(int(self.selected_node), volume_velocity)
+            self.project.preprocessor.set_volume_velocity_bc_by_node(int(self.selected_node), volume_velocity)
 
     def load_volume_velocity_tables_info(self):
         self.treeWidget_compressor_excitation.clear()

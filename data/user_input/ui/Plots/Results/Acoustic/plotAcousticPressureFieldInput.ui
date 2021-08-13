@@ -278,6 +278,9 @@
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="geometry">
       <rect>
        <x>142</x>
@@ -296,7 +299,8 @@
       </font>
      </property>
      <property name="styleSheet">
-      <string notr="true">color: rgb(0, 0, 255);</string>
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

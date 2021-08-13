@@ -23,22 +23,25 @@ class DecouplingRotationDOFsInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.stop = False
-        self.complete = False
-        
-        self.structural_elements = self.project.mesh.structural_elements
-        self.nodes = self.project.mesh.nodes
-
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.line_id = self.opv.getListPickedEntities()
         self.element_id = self.opv.getListPickedElements()
         self.node_id = self.opv.getListPickedPoints()
+
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks() 
+
+        self.nodes = self.preprocessor.nodes
+        self.structural_elements = self.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+
+        self.stop = False
+        self.complete = False
 
         self.lineEdit_selected_element = self.findChild(QLineEdit, 'lineEdit_selected_element')
         self.lineEdit_first_node = self.findChild(QLineEdit, 'lineEdit_first_node')
@@ -160,64 +163,24 @@ class DecouplingRotationDOFsInput(QDialog):
             self.element_id = self.opv.getListPickedElements()[0]
         self.update_texts(self.element_id)
 
-
-    def check_input_element(self):
-
-        try:
-            tokens = self.lineEdit_selected_element.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.element_typed = list(map(int, tokens))
-
-            if len(self.element_typed) > 1:
-                message = "Please, select only one element \nto modify dofs coupling."
-                title = "Error: multiple elements in selection"
-                window_title = "Error message"
-                self.info_text = [title, message, window_title]
-                return True
-            
-            if self.lineEdit_selected_element.text() == "":
-                message = "Inform a valid Element ID before \nto confirm the input."
-                title = "Error: empty Element ID input"
-                window_title = "Error message"
-                self.info_text = [title, message, window_title]
-                return True
-
-        except Exception:
-            message = "Wrong input for Element ID."
-            title = "Error in Element ID"
-            window_title = "Error message"
-            self.info_text = [title, message, window_title]
-            return True
-
-        try:
-            for elem_ID in self.element_typed:
-                self.element = self.structural_elements[elem_ID]
-                self.element_id = self.structural_elements[elem_ID].index
-        except Exception:
-            message = " The Element ID input values must be\n major than 1 and less than {}.".format(len(self.structural_elements))
-            title = "Error: invalid Element ID input"
-            window_title = "Error message"
-            self.info_text = [title, message, window_title]
-            return True
-        return False
-
     def remove_group(self):
         key = self.dict_decoupled_DOFs_label_to_bool[self.lineEdit_decoupled_DOFs.text()]
-        _, _, section = self.project.mesh.dict_B2PX_rotation_decoupling[key]
-        self.project.mesh.dict_elements_with_B2PX_rotation_decoupling.pop(key)
-        self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
-        self.project.mesh.dict_B2PX_rotation_decoupling.pop(key)
+        _, _, section = self.project.preprocessor.dict_B2PX_rotation_decoupling[key]
+        self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling.pop(key)
+        self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling.pop(key)
+        self.project.preprocessor.dict_B2PX_rotation_decoupling.pop(key)
         self.project.file.modify_B2PX_rotation_decoupling_in_file([], [], [], section, remove=True)
         self.load_decoupling_info()
         self.clear_texts()
 
     def check_get_nodes(self):
-        if self.check_input_element():
-            PrintMessageInput(self.info_text)
-            return True
+
+        lineEdit = self.lineEdit_selected_element.text()
+        self.stop, self.element_typed = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
+        if self.stop:
+            return True   
+        self.element_id = self.element_typed
+
         self.update_texts(self.element_id)
         return False
 
@@ -231,7 +194,7 @@ class DecouplingRotationDOFsInput(QDialog):
         elif self.flag_last_node:
             self.selected_node_id = self.last_node
 
-        neighboor_elements = self.project.mesh.neighboor_elements_of_node(self.selected_node_id)
+        neighboor_elements = self.preprocessor.neighboor_elements_of_node(self.selected_node_id)
         if len(neighboor_elements)<3:
             message = "The decoupling of rotation dofs can only \nbe applied to the T connections." 
             title = "Incorrect Node ID selection"
@@ -245,13 +208,15 @@ class DecouplingRotationDOFsInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return 
         
-        if self.element.element_type in ['beam_1']:
+        if self.structural_elements[self.element_id].element_type in ['beam_1']:
             self.project.set_B2PX_rotation_decoupling(self.element_id, self.selected_node_id, self.rotations_mask)
             self.complete = True
             self.close()
         else:
             title = "INVALID DECOUPLING SETUP"
-            message = "The selected element have a {} formulation, you should have a \nBEAM_1 element type in selection to decouple the rotation dofs. \nTry to choose another element or change the element type formulation.".format(self.element.element_type.upper())
+            element_type = self.structural_elements[self.element_id]
+            message = f"The selected element have a '{element_type.upper()}' formulation, you should have a \n'BEAM_1' element type in selection"
+            message += " to decouple the rotation dofs. \nTry to choose another element or change the element type formulation."
             PrintMessageInput([title, message, window_title1])
             return
 
@@ -280,9 +245,9 @@ class DecouplingRotationDOFsInput(QDialog):
         self.treeWidget_B2PX_rotation_decoupling.clear()
         self.dict_decoupled_DOFs_label_to_bool = {}
         self.dict_decoupled_DOFs_bool_to_label = {}
-        for key, elements in self.project.mesh.dict_elements_with_B2PX_rotation_decoupling.items():
+        for key, elements in self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling.items():
             bool_list = self.project.file._get_list_bool_from_string(key)
-            nodes = self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling[key]
+            nodes = self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[key]
             decoupling_dofs_mask = bool_list
             label_decoupled_DOFs = self.text_label(decoupling_dofs_mask)
             
@@ -366,8 +331,8 @@ class GetInformationOfGroup(QDialog):
             self.check_remove()
 
     def update_dict(self):
-        self.list_elements = self.project.mesh.dict_elements_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
-        self.list_nodes = self.project.mesh.dict_nodes_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
+        self.list_elements = self.project.preprocessor.dict_elements_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
+        self.list_nodes = self.project.preprocessor.dict_nodes_with_B2PX_rotation_decoupling[self.decoupled_DOFs_bool]
         
     def on_click_item_(self, item):
         self.lineEdit_decoupled_DOFs.setText(self.decoupled_DOFs_labels)

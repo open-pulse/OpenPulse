@@ -1,18 +1,18 @@
+from data.user_input.project.printMessageInput import PrintMessageInput
 import os
 from os.path import basename
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QSpinBox
-from pulse.utils import error
+from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QFileDialog, QDialog,  QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QSpinBox
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from shutil import copyfile
-from pulse.utils import error, remove_bc_from_file
+from pulse.utils import remove_bc_from_file
 
 class SpecificImpedanceInput(QDialog):
-    def __init__(self, project, opv, transform_points, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/specificImpedanceInput.ui', self)
 
@@ -20,20 +20,23 @@ class SpecificImpedanceInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.transform_points = transform_points
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+        
+        self.userPath = os.path.expanduser('~')
+        self.new_load_path_table = ""
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
-        self.nodes = project.mesh.nodes
+        self.nodes = project.preprocessor.nodes
         self.specific_impedance = None
         self.nodes_typed = []
         self.imported_table = False
@@ -45,6 +48,8 @@ class SpecificImpedanceInput(QDialog):
         self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.tabWidget_specific_impedance = self.findChild(QTabWidget, "tabWidget_specific_impedance")
+        self.tabWidget_specific_impedance.currentChanged.connect(self.tabEvent_specific_impedance)
+
         self.tab_single_values = self.tabWidget_specific_impedance.findChild(QWidget, "tab_single_values")
         self.tab_table_values = self.tabWidget_specific_impedance.findChild(QWidget, "tab_table_values")
 
@@ -86,36 +91,18 @@ class SpecificImpedanceInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
+    def tabEvent_specific_impedance(self):
+        self.current_tab =  self.tabWidget_specific_impedance.currentIndex()
+        if self.current_tab == 2:
+            self.lineEdit_nodeID.setDisabled(True)
+        else:
+            self.lineEdit_nodeID.setDisabled(False)
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
-
-    def check_input_nodes(self):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            return
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag):
 
@@ -124,7 +111,11 @@ class SpecificImpedanceInput(QDialog):
             try:
                 real_F = float(lineEdit_real.text())
             except Exception:
-                error("Wrong input for real part of specific impedance.", title="Error")
+                window_title ="ERROR"
+                title = "Invalid entry to the specific impedance"
+                message = "Wrong input for real part of specific impedance."
+                PrintMessageInput([title, message, window_title])
+                
                 self.stop = True
                 return
         else:
@@ -134,7 +125,10 @@ class SpecificImpedanceInput(QDialog):
             try:
                 imag_F = float(lineEdit_imag.text())
             except Exception:
-                error("Wrong input for imaginary part of specific impedance.", title="Error")
+                window_title ="ERROR"
+                title = "Invalid entry to the specific impedance"
+                message = "Wrong input for imaginary part of specific impedance."
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
         else:
@@ -147,7 +141,11 @@ class SpecificImpedanceInput(QDialog):
 
     def check_single_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         specific_impedance = self.check_complex_entries(self.lineEdit_specific_impedance_real, self.lineEdit_specific_impedance_imag)
  
         if self.stop:
@@ -159,7 +157,10 @@ class SpecificImpedanceInput(QDialog):
             self.transform_points(self.nodes_typed)
             self.close()
         else:    
-            error("You must to inform at least one nodal load to confirm the input!", title = " ERROR ")
+            window_title ="ERROR"
+            title = "Additional inputs required"
+            message = "You must to inform at least one nodal load to confirm the input!"
+            PrintMessageInput([title, message, window_title])
  
     def load_table(self, lineEdit, header):
         
@@ -183,13 +184,19 @@ class SpecificImpedanceInput(QDialog):
         try:
             skiprows = int(self.lineEdit_skiprows.text())                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",", skiprows=skiprows)
-        except Exception as e:
-            message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
+        except Exception as error_log:
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = f" {str(error_log)} \n\nIt is recommended to skip the header rows."
+            PrintMessageInput([title, message, window_title])
             return
 
         if imported_file.shape[1]<2:
-            error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies, real and imaginary columns.")
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = "The imported table has insufficient number of columns. The spectrum \n"
+            message += "data must have frequencies, real and imaginary columns."
+            PrintMessageInput([title, message, window_title])
             return
     
         try:
@@ -208,9 +215,12 @@ class SpecificImpedanceInput(QDialog):
                 data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
                 np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
-        except Exception as e:
-            error(str(e))
-
+        except Exception as error_log:
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = f" {str(error_log)} \n\nIt is recommended to skip the header rows."
+            PrintMessageInput([title, message, window_title])
+       
         return self.imported_values, self.basename
 
     def load_specific_impedance_table(self):
@@ -219,7 +229,10 @@ class SpecificImpedanceInput(QDialog):
     
     def check_table_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
 
         if self.lineEdit_load_table_path != "":
             if self.specific_impedance is not None:
@@ -237,7 +250,7 @@ class SpecificImpedanceInput(QDialog):
         return text
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_specific_impedance:
+        for node in self.project.preprocessor.nodes_with_specific_impedance:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.specific_impedance))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)            
@@ -252,15 +265,19 @@ class SpecificImpedanceInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         key_strings = ["specific impedance"]
         message = "The specific impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_specific_impedance_bc_by_node(self.nodes_typed, None)
+        self.project.preprocessor.set_specific_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.treeWidget_specific_impedance.clear()
         self.load_nodes_info()
-        # self.close()
+        self.close()
 
     def update(self):
         self.writeNodes(self.opv.getListPickedPoints())

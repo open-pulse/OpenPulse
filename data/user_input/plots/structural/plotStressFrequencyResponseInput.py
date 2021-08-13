@@ -1,3 +1,5 @@
+from time import process_time_ns
+from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -48,9 +50,11 @@ class SnaptoCursor(object):
     
             self.ax.figure.canvas.draw_idle()
 
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
 
 class PlotStressFrequencyResponseInput(QDialog):
-    def __init__(self, opv, project, solve, analysisMethod, *args, **kwargs):
+    def __init__(self, opv, project, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFrequencyResponseInput.ui', self)
 
@@ -60,20 +64,22 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
-        self.solve = solve        
-        self.analysisMethod = analysisMethod
+        self.opv = opv
+        self.opv.setInputObject(self)
 
-        self.mesh = project.mesh
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
         self.frequencies = project.frequencies
         self.damping = project.get_damping()
+        self.solve = self.project.structural_solve 
     
-        self.elementID = None#0
+        self.analysisMethod = analysisMethod
+        self.elementID = None
         self.imported_data = None
 
         self.keys = np.arange(7)
@@ -174,7 +180,9 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title_2])
     
     def writeElements(self, list_elements_ids):
         text = ""
@@ -227,7 +235,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title_2])
         except Exception as e:
             message = [str(e) + " It is recommended to skip the header rows."] 
             error(message[0], title="ERROR WHILE LOADING TABLE")
@@ -240,28 +250,10 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def check(self, export=False):
 
-        try:
-            tokens = self.lineEdit_elementID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            element_typed = list(map(int, tokens))
-            if len(element_typed) == 1:
-                try:
-                    self.elementID = self.mesh.structural_elements[element_typed[0]].index
-                except:
-                    message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.mesh.structural_elements))]
-                    error(message[0], title = " INCORRECT NODE ID INPUT! ")
-                    return
-            elif len(element_typed) == 0:
-                error("Please, enter a valid Element ID!")
-                return
-            else:
-                error("Multiple Element IDs", "Error Element ID's")
-                return
-        except Exception:
-            error("Wrong input for Element ID's!", "Error Element ID's")
+        lineEdit = self.lineEdit_elementID.text()
+        stop, self.elementID = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
+        
+        if stop:
             return
         
         self.get_stress_data()
@@ -294,7 +286,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results have been exported.")
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title_2])
 
     def get_stress_data(self):
         

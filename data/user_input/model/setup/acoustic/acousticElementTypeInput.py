@@ -18,15 +18,19 @@ class AcousticElementTypeInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-
-        self.opv = opv
-        self.opv.setInputObject(self)
+  
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
-        self.dict_entities = project.mesh.dict_tag_to_entity#get_dict_of_entities()
+
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.comboBox_index = 0
         self.element_type = 'undamped'
         self.complete = False
@@ -35,18 +39,17 @@ class AcousticElementTypeInput(QDialog):
         self.beam_to_pipe = False
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_selected_ID.setDisabled(True)
         self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
         self.lineEdit_selected_group.setDisabled(True)
 
-        self.lineEdit_hysteretic_damping = self.findChild(QLineEdit, 'lineEdit_hysteretic_damping')
+        self.lineEdit_proportional_damping = self.findChild(QLineEdit, 'lineEdit_proportional_damping')
 
         self.comboBox = self.findChild(QComboBox, 'comboBox')
         self.comboBox.currentIndexChanged.connect(self.selectionChange)
         self.comboBox_index = self.comboBox.currentIndex()
 
         # index: 0 - Undamped
-        # index: 1 - Hysteretic
+        # index: 1 - Proportional
         # index: 2 - Wide-duct
         # index: 3 - LRF fluid equivalent
         # index: 4 - LRF full
@@ -85,12 +88,7 @@ class AcousticElementTypeInput(QDialog):
         # self.pushButton_get_information.setDisabled(True)
         # self.pushButton_remove.setDisabled(True)
 
-        if self.lines_id != []:
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
+        self.update()
 
         self.load_element_type_info()
         self.exec_()
@@ -106,9 +104,11 @@ class AcousticElementTypeInput(QDialog):
 
         if self.lines_id != []:
             self.write_ids(self.lines_id)
+            self.lineEdit_selected_ID.setDisabled(False)
             self.radioButton_selected_lines.setChecked(True)
         else:
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setDisabled(True)
             self.radioButton_all.setChecked(True)
 
     def radioButtonEvent(self):
@@ -116,12 +116,14 @@ class AcousticElementTypeInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
         self.lines_id  = self.opv.getListPickedEntities()
         if self.flagSelection:
+            self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setDisabled(True)
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -129,46 +131,13 @@ class AcousticElementTypeInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
-    # def check_element_type_changes(self):
-    #     # TODO: update this method soon
-    #     # Note: this method will be updated accordingly the acoustic elements entries 
-
-    #     self.etype1_to_etype2 = False
-    #     self.etype2_to_etype1 = False
-    #     self.update_cross_section = False
-    #     final_etype = self.element_type
-
-    #     for tag in self.lines_id:
-    #         initial_etype = self.dict_entities[tag].acoustic_element_type
-    #         if initial_etype in ['etype1', 'etype1'] and final_etype in ['etype2']:
-    #             self.update_cross_section = True
-    #             self.etype1_to_etype2 = True
-    #             return
-    #         elif initial_etype in ['etype2'] and final_etype in ['etype1', 'etype1']:
-    #             self.update_cross_section = True
-    #             self.etype2_to_pipe = True
-    #             return
-    #         else:
-    #             self.update_cross_section = False
-
-    def get_list_typed_entries(self):
-        if self.lineEdit_selected_group.text() == "":
-            return []
-        tokens = self.lineEdit_selected_group.text().strip().split(',')
-        try:
-            tokens.remove('')
-        except:     
-            pass
-        output = list(map(int, tokens))
-        return output
-
     def selectionChange(self, index):
         self.comboBox_index = self.comboBox.currentIndex()
         self.tabWidget_element_type.setTabEnabled(1, False)
         if self.comboBox_index == 0:
             self.element_type = 'undamped'
         elif self.comboBox_index == 1:
-            self.element_type = 'hysteretic'
+            self.element_type = 'proportional'
             self.tabWidget_element_type.setTabEnabled(1, True)
             self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
         elif self.comboBox_index == 2:
@@ -199,8 +168,8 @@ class AcousticElementTypeInput(QDialog):
                 PrintMessageInput([title, message, window_title1])
                 return True
         else:
-            title = "Empty entry to the hysteretic damping"
-            message = "Please, input a valid hysteretic damping value to continue."
+            title = "Empty entry to the proportional damping"
+            message = "Please, input a valid proportional damping value to continue."
             PrintMessageInput([title, message, window_title1])
             self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
             self.value = None
@@ -209,28 +178,27 @@ class AcousticElementTypeInput(QDialog):
 
     def confirm_element_type_attribution(self):
 
-        # self.check_element_type_changes()
-
         if self.comboBox_index == 1:
-            if self.check_input_parameters(self.lineEdit_hysteretic_damping.text(), "hysteretic damping"):
+            if self.check_input_parameters(self.lineEdit_proportional_damping.text(), "proportional damping"):
                 return
-            hysteretic_damping = self.value
+            proportional_damping = self.value
         else:
-            hysteretic_damping = None
+            proportional_damping = None
 
         if self.flagSelection:
-            if len(self.lines_id) == 0:
-                title = "Empty line ID selection"
-                message = "Please, select the line(s) of model to continue."
-                PrintMessageInput([title, message, window_title1])
-                return
-            for line in self.lines_id:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
-            print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_id))
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            if self.stop:
+                return True
+
+            for line in self.lines_typed:
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping)
+            print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_typed))
         elif self.flagAll:
-            for line in self.project.mesh.all_lines:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, hysteretic_damping=hysteretic_damping)
-            # self.project.set_acoustic_element_type_to_all(self.element_type, hysteretic_damping=hysteretic_damping)
+            for line in self.project.preprocessor.all_lines:
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping)
+            # self.project.set_acoustic_element_type_to_all(self.element_type, proportional_damping=proportional_damping)
             print("[Set Acoustic Element Type] - defined in all the entities")
         self.complete = True
         self.close()
@@ -240,7 +208,7 @@ class AcousticElementTypeInput(QDialog):
 
     def load_element_type_info(self):
         self.treeWidget_element_type.clear()
-        for key, lines in self.project.mesh.dict_acoustic_element_type_to_lines.items():
+        for key, lines in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
             new = QTreeWidgetItem([str(key), str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -274,7 +242,7 @@ class GetInformationOfGroup(QDialog):
         uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
 
         self.project = project
-        self.dict_entities = project.mesh.dict_tag_to_entity
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.key = key
 
         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
@@ -284,8 +252,8 @@ class GetInformationOfGroup(QDialog):
         header.setTextAlignment(0, Qt.AlignCenter)
         header.setTextAlignment(1, Qt.AlignCenter)
         
-        if self.key == 'hysteretic':
-            header.setText(2, "Hysteretic damping")
+        if self.key == 'proportional':
+            header.setText(2, "Proportional damping")
             header.setTextAlignment(2, Qt.AlignCenter)
             self.treeWidget_group_info.setColumnWidth(0, 90)
             self.treeWidget_group_info.setColumnWidth(1, 130)
@@ -305,10 +273,10 @@ class GetInformationOfGroup(QDialog):
 
     def load_group_info(self):
         self.treeWidget_group_info.clear()
-        lines = self.project.mesh.dict_acoustic_element_type_to_lines[self.key]
+        lines = self.project.preprocessor.dict_acoustic_element_type_to_lines[self.key]
         for line in lines:
-            if self.key == 'hysteretic':
-                damping = self.dict_entities[line].hysteretic_damping
+            if self.key == 'proportional':
+                damping = self.dict_tag_to_entity[line].proportional_damping
                 new = QTreeWidgetItem([str(line), self.key, str(damping)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             else:

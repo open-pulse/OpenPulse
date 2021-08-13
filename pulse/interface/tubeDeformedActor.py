@@ -18,7 +18,7 @@ class TubeDeformedActor(TubeActor):
         rotations = vtk.vtkDoubleArray()
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
-
+   
         cache = dict()
         counter = 0
         
@@ -54,7 +54,7 @@ class TubeDeformedActor(TubeActor):
         vector = element.section_normal_vectors_at_lcs()
 
         start_point = [0,0,0]
-        mat = element.rotation_matrix_results_at_local_coordinate_system
+        mat = element.rotation_matrix_results_at_lcs
 
         matrix.Identity()
 

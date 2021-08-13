@@ -2,14 +2,13 @@ from PyQt5 import Qt
 from PyQt5.QtWidgets import QMenu, QAction
 from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
-from time import sleep
 import vtk
 
-from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-from pulse.uix.vtk.renderer.rendererElement import RendererElement
-from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
-from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
-from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
+# from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
+# from pulse.uix.vtk.renderer.rendererElement import RendererElement
+# from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
+# from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
+# from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer
 from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
 
@@ -25,6 +24,7 @@ class OPVUi(QVTKRenderWindowInteractor):
     
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
         self.opvRenderer = opvRenderer(self.project, self)
         self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
@@ -47,6 +47,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
+        self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
@@ -66,7 +67,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def changePlotToEntitiesWithCrossSection(self):
 
         self.change_plot_to_mesh = False
-        self.change_plot_to_entities = True
+        self.change_plot_to_entities_with_cross_section = True
+        self.change_plot_to_entities = False
 
         self.setRenderer(self.opvRenderer)
 
@@ -87,6 +89,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
 
@@ -116,11 +119,12 @@ class OPVUi(QVTKRenderWindowInteractor):
             self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
         else:
             self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
-
+        
         self._updateAxes()
 
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
 
     def setRenderer(self, renderer):
         # if renderer.getInUse(): 

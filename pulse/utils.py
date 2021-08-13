@@ -1,3 +1,4 @@
+from data.user_input.project.printMessageInput import PrintMessageInput
 from functools import wraps
 from time import time
 from scipy.sparse import issparse
@@ -5,6 +6,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 import configparser
 import numpy as np
+import os
 from scipy.spatial.transform import Rotation
 
 
@@ -496,10 +498,11 @@ def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
                     config.write(config_file)
 
         if message is not None and bc_removed:
-            info_messages(message)
+            PrintMessageInput(["Error while removing BC from file" ,message, "ERROR"])
 
-    except Exception as err:
-        error(str(err))
+    except Exception as log_error:
+        PrintMessageInput(["Error while removing BC from file" ,str(log_error), "ERROR"])
+
 
 def getColorRGB(color):
     temp = color[1:-1] #Remove "[ ]"
@@ -542,3 +545,36 @@ def sparse_is_equal(a, b):
 
     if issparse(diference):
         return diference.nnz == 0
+
+def get_new_path(path, name):
+    if "\\" in path:
+        new_path = '{}\\{}'.format(path, name)
+    elif "/" in path:
+        new_path = '{}/{}'.format(path, name)
+    return new_path
+
+def get_linear_distribution(x_initial, x_final, N):
+    n = np.arange(N)/(N-1)
+    return (x_final-x_initial)*n + x_initial
+
+def create_new_folder(path, folder_name):
+    folder_path = get_new_path(path, folder_name)
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
+    return folder_path
+
+def check_is_there_a_group_of_elements_inside_list_elements(input_list):
+    ord_list = np.sort(input_list)
+    _value = ord_list[0]
+    list_i = [_value]
+    list_of_lists = []
+    for value in ord_list[1:]:
+        if value == _value + 1:
+            list_i.append(value)
+        else:
+            temp_list = list_i.copy()
+            list_of_lists.append(temp_list)
+            list_i = [value]
+        _value = value
+    list_of_lists.append(list_i)
+    return list_of_lists

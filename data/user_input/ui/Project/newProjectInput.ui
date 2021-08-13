@@ -7,19 +7,19 @@
     <x>0</x>
     <y>0</y>
     <width>567</width>
-    <height>271</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
     <width>567</width>
-    <height>271</height>
+    <height>330</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>567</width>
-    <height>271</height>
+    <height>330</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -31,8 +31,20 @@
      <x>0</x>
      <y>0</y>
      <width>567</width>
-     <height>271</height>
+     <height>330</height>
     </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>567</width>
+     <height>330</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>567</width>
+     <height>330</height>
+    </size>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -46,8 +58,8 @@
    <widget class="QLabel" name="label_8">
     <property name="geometry">
      <rect>
-      <x>54</x>
-      <y>72</y>
+      <x>48</x>
+      <y>88</y>
       <width>150</width>
       <height>25</height>
      </rect>
@@ -60,7 +72,7 @@
     </property>
     <property name="maximumSize">
      <size>
-      <width>170</width>
+      <width>150</width>
       <height>25</height>
      </size>
     </property>
@@ -74,7 +86,7 @@
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project directory:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Project directory:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -84,7 +96,7 @@
     <property name="geometry">
      <rect>
       <x>374</x>
-      <y>232</y>
+      <y>286</y>
       <width>181</width>
       <height>31</height>
      </rect>
@@ -111,7 +123,7 @@
     <property name="geometry">
      <rect>
       <x>458</x>
-      <y>74</y>
+      <y>88</y>
       <width>75</width>
       <height>25</height>
      </rect>
@@ -156,10 +168,10 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>6</y>
-      <width>551</width>
-      <height>33</height>
+      <x>0</x>
+      <y>0</y>
+      <width>567</width>
+      <height>38</height>
      </rect>
     </property>
     <property name="font">
@@ -171,6 +183,9 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="frameShape">
+     <enum>QFrame::Box</enum>
+    </property>
     <property name="text">
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;New project&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
@@ -181,21 +196,21 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>86</x>
-      <y>42</y>
-      <width>113</width>
+      <x>48</x>
+      <y>52</y>
+      <width>150</width>
       <height>25</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
-      <width>0</width>
+      <width>150</width>
       <height>25</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
-      <width>16777215</width>
+      <width>150</width>
       <height>25</height>
      </size>
     </property>
@@ -209,17 +224,17 @@
      </font>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Project name:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Project name:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
     </property>
    </widget>
-   <widget class="QLineEdit" name="line_project_name">
+   <widget class="QLineEdit" name="lineEdit_project_name">
     <property name="geometry">
      <rect>
       <x>202</x>
-      <y>42</y>
+      <y>52</y>
       <width>250</width>
       <height>25</height>
      </rect>
@@ -245,6 +260,13 @@
       <bold>true</bold>
      </font>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
@@ -253,9 +275,9 @@
     <property name="geometry">
      <rect>
       <x>16</x>
-      <y>108</y>
+      <y>126</y>
       <width>533</width>
-      <height>115</height>
+      <height>149</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -286,20 +308,32 @@
      <attribute name="title">
       <string>Import geometry</string>
      </attribute>
-     <widget class="QLineEdit" name="line_element_size">
+     <widget class="QLineEdit" name="lineEdit_element_size">
       <property name="enabled">
        <bool>true</bool>
       </property>
       <property name="geometry">
        <rect>
-        <x>126</x>
+        <x>216</x>
         <y>44</y>
         <width>131</width>
         <height>25</height>
        </rect>
       </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
       <property name="layoutDirection">
        <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
       </property>
       <property name="inputMethodHints">
        <set>Qt::ImhNone</set>
@@ -326,7 +360,7 @@
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>256</x>
+        <x>348</x>
         <y>44</y>
         <width>75</width>
         <height>25</height>
@@ -336,7 +370,7 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Unit: [m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
-     <widget class="QLineEdit" name="line_import_geometry">
+     <widget class="QLineEdit" name="lineEdit_import_geometry">
       <property name="enabled">
        <bool>false</bool>
       </property>
@@ -377,6 +411,10 @@
         <pointsize>10</pointsize>
         <italic>true</italic>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -422,14 +460,14 @@
      <widget class="QLabel" name="label_4">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>58</x>
         <y>44</y>
-        <width>105</width>
+        <width>150</width>
         <height>25</height>
        </rect>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Element size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Element size:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_3">
@@ -445,19 +483,94 @@
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Geometry file:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>348</x>
+        <y>80</y>
+        <width>75</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Unit: [m]&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>58</x>
+        <y>80</y>
+        <width>150</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Geometry tolerance:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_geometry_tolerance">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>216</x>
+        <y>80</y>
+        <width>131</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+      </property>
+      <property name="inputMethodHints">
+       <set>Qt::ImhNone</set>
+      </property>
+      <property name="text">
+       <string>1e-8</string>
+      </property>
+      <property name="maxLength">
+       <number>20</number>
+      </property>
+      <property name="frame">
+       <bool>true</bool>
+      </property>
+      <property name="cursorPosition">
+       <number>4</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="placeholderText">
+       <string>&lt; Insert a value &gt;</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
       <string>Import mesh</string>
      </attribute>
-     <widget class="QLineEdit" name="line_conn">
+     <widget class="QLineEdit" name="lineEdit_import_connectivity">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>48</y>
+        <y>66</y>
         <width>260</width>
         <height>25</height>
        </rect>
@@ -474,18 +587,30 @@
         <height>25</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>true</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+      </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QLineEdit" name="line_cord">
+     <widget class="QLineEdit" name="lineEdit_import_nodal_coordinates">
       <property name="enabled">
        <bool>false</bool>
       </property>
       <property name="geometry">
        <rect>
         <x>180</x>
-        <y>12</y>
+        <y>22</y>
         <width>260</width>
         <height>25</height>
        </rect>
@@ -514,6 +639,19 @@
         <height>0</height>
        </size>
       </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <italic>true</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+      </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
@@ -522,7 +660,7 @@
       <property name="geometry">
        <rect>
         <x>446</x>
-        <y>48</y>
+        <y>66</y>
         <width>75</width>
         <height>25</height>
        </rect>
@@ -559,7 +697,7 @@
       <property name="geometry">
        <rect>
         <x>446</x>
-        <y>12</y>
+        <y>22</y>
         <width>75</width>
         <height>25</height>
        </rect>
@@ -602,7 +740,7 @@
       <property name="geometry">
        <rect>
         <x>2</x>
-        <y>48</y>
+        <y>66</y>
         <width>177</width>
         <height>25</height>
        </rect>
@@ -627,7 +765,7 @@
       <property name="geometry">
        <rect>
         <x>6</x>
-        <y>12</y>
+        <y>22</y>
         <width>173</width>
         <height>25</height>
        </rect>
@@ -657,7 +795,7 @@
     <property name="geometry">
      <rect>
       <x>202</x>
-      <y>74</y>
+      <y>88</y>
       <width>250</width>
       <height>25</height>
      </rect>
@@ -677,11 +815,18 @@
     <property name="font">
      <font>
       <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
       <italic>true</italic>
-      <bold>true</bold>
+      <bold>false</bold>
      </font>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

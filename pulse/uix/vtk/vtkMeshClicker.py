@@ -322,13 +322,17 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         return pickedElements
 
+
+        # ===========================
+
+
     def pickEntities(self, pickedElements):
         entities = set()
+
         for index, line in self.__rendererMesh.lineToElements.items():
-            for element in pickedElements:
-                if element in line:
-                    entities.add(index)
-                    break
+            if pickedElements.intersection(line):
+                entities.add(index)
+
         return entities
         
 

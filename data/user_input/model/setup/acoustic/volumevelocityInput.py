@@ -12,7 +12,7 @@ from shutil import copyfile
 from pulse.utils import error, remove_bc_from_file
 
 class VolumeVelocityInput(QDialog):
-    def __init__(self, project, opv, transform_points, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/volumevelocityInput.ui', self)
 
@@ -20,20 +20,23 @@ class VolumeVelocityInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.userPath = os.path.expanduser('~')
-        self.new_load_path_table = ""
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.transform_points = self.opv.transformPoints
 
         self.project = project
-        self.transform_points = transform_points
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.userPath = os.path.expanduser('~')
+        self.new_load_path_table = ""
         self.project_folder_path = project.project_folder_path
         self.acoustic_bc_info_path = project.file._node_acoustic_path
 
-        self.nodes = project.mesh.nodes
+        self.nodes = project.preprocessor.nodes
         self.volume_velocity = None
         self.nodes_typed = []
         self.imported_table = False
@@ -45,6 +48,8 @@ class VolumeVelocityInput(QDialog):
         self.lineEdit_load_table_path = self.findChild(QLineEdit, 'line_load_table_path')
 
         self.tabWidget_volume_velocity = self.findChild(QTabWidget, "tabWidget_volume_velocity")
+        self.tabWidget_volume_velocity.currentChanged.connect(self.tabEvent_volume_velocity)
+
         self.tab_single_values = self.tabWidget_volume_velocity.findChild(QWidget, "tab_single_values")
         self.tab_table_values = self.tabWidget_volume_velocity.findChild(QWidget, "tab_table_values")
 
@@ -86,36 +91,18 @@ class VolumeVelocityInput(QDialog):
         elif event.key() == Qt.Key_Escape:
             self.close()
 
+    def tabEvent_volume_velocity(self):
+        self.current_tab =  self.tabWidget_volume_velocity.currentIndex()
+        if self.current_tab == 2:
+            self.lineEdit_nodeID.setDisabled(True)
+        else:
+            self.lineEdit_nodeID.setDisabled(False)
+
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
         self.lineEdit_nodeID.setText(text)
-
-    def check_input_nodes(self):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:     
-                pass
-            self.nodes_typed = list(map(int, tokens))
-
-            if self.lineEdit_nodeID.text()=="":
-                error("Inform a valid Node ID before to confirm the input!", title = "Error Node ID's")
-                return
-
-        except Exception:
-            error("Wrong input for Node ID's!", "Error Node ID's")
-            return
-
-        try:
-            for node in self.nodes_typed:
-                self.nodes[node].external_index
-        except:
-            message = [" The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))]
-            error(message[0], title = " INCORRECT NODE ID INPUT! ")
-            return
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag):
 
@@ -147,7 +134,11 @@ class VolumeVelocityInput(QDialog):
 
     def check_single_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+
         volume_velocity = self.check_complex_entries(self.lineEdit_volume_velocity_real, self.lineEdit_volume_velocity_imag)
  
         if self.stop:
@@ -219,7 +210,10 @@ class VolumeVelocityInput(QDialog):
     
     def check_table_values(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
 
         if self.lineEdit_load_table_path != "":
             if self.volume_velocity is not None:
@@ -237,7 +231,7 @@ class VolumeVelocityInput(QDialog):
         return text
 
     def load_nodes_info(self):
-        for node in self.project.mesh.nodes_with_volume_velocity:
+        for node in self.project.preprocessor.nodes_with_volume_velocity:
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(node.volume_velocity))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
@@ -252,11 +246,15 @@ class VolumeVelocityInput(QDialog):
 
     def check_remove_bc_from_node(self):
 
-        self.check_input_nodes()
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+            
         key_strings = ["volume velocity"]
         message = "The volume velocity attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.mesh.set_volume_velocity_bc_by_node(self.nodes_typed, None)
+        self.project.preprocessor.set_volume_velocity_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
         self.treeWidget_volume_velocity.clear()
         self.load_nodes_info()

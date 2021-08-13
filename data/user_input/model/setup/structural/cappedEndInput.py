@@ -22,28 +22,31 @@ class CappedEndInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.project = project
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
 
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
-        # self.entities = self.project.mesh.entities
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.structural_elements = self.project.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        
         self.complete = False
         self.info_text = ["NO MESSAGE", "NO MESSAGE", "NO MESSAGE"]
 
         self.project_lines = {}
-        for line in self.project.mesh.all_lines:
+        for line in self.project.preprocessor.all_lines:
             self.project_lines[line] = True
 
-        self.dict_group_elements = project.mesh.group_elements_with_capped_end
-        self.dict_group_lines = project.mesh.group_lines_with_capped_end
-        self.lines_with_capped_end = project.mesh.lines_with_capped_end
+        self.dict_group_elements = project.preprocessor.group_elements_with_capped_end
+        self.dict_group_lines = project.preprocessor.group_lines_with_capped_end
+        self.lines_with_capped_end = project.preprocessor.lines_with_capped_end
     
         self.dictkey_to_remove = None
         self.elements_info_path = project.file._element_info_path
@@ -146,6 +149,7 @@ class CappedEndInput(QDialog):
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
+            self.update_radioButtons()
         elif self.elements_id != []:
             self.lineEdit_id_labels.setText("Elements IDs:")
             self.write_ids(self.elements_id)
@@ -154,6 +158,15 @@ class CappedEndInput(QDialog):
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all_lines.setChecked(True)
+
+    def update_radioButtons(self):
+        if len(self.lines_id) != 0:
+            entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+            if entity.capped_end is not None:
+                if entity.capped_end:
+                    self.radioButton_enable_cappedEnd.setChecked(True)
+                else:
+                    self.radioButton_disable_cappedEnd.setChecked(True)
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_cappedEnd.currentIndex()
@@ -229,7 +242,7 @@ class CappedEndInput(QDialog):
 
     def load_lines_info(self):        
         self.treeWidget_cappedEnd_lines.clear()
-        lines = self.project.mesh.lines_with_capped_end
+        lines = self.project.preprocessor.lines_with_capped_end
         if len(lines) != 0:
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -277,56 +290,6 @@ class CappedEndInput(QDialog):
         output = list(map(int, tokens))
         return output
 
-    def check_input_elements(self):
-        
-        try:
-            if self.lineEdit_selected_ID.text() == "":
-                title = "Error: empty Element ID input"
-                message = "Inform a valid Element ID before to confirm the input!"
-                self.info_text = [title, message, window_title1]
-                return True
-            self.elements_typed = np.sort(self.get_list_typed_entries()).tolist()
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = "Wrong input for Element ID's!"
-            self.info_text = [title, message, window_title1]
-            return True
-
-        try:
-            for _element_id in self.elements_typed:
-                self.elementID = self.structural_elements[_element_id].index
-        except:
-            title = "Error: invalid Element ID input"
-            message = "The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
-    def check_input_lines(self):
-        
-        try:
-            if self.lineEdit_selected_ID.text() == "":
-                title = "Error: empty Line ID input"
-                message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message, window_title1]
-                return True
-            self.lines_typed = self.get_list_typed_entries()
-        except Exception:
-            title = "Error: invalid Line ID input"
-            message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title1]
-            return True
-
-        try:
-            for line in self.lines_typed:
-                self.line = self.dict_tag_to_entity[line]
-        except Exception:
-            title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
     def check_capped_end(self):
 
         if self.flagAll:
@@ -334,11 +297,12 @@ class CappedEndInput(QDialog):
             print("Set capped end correction to all lines.")
 
         elif self.flagElements:
-            if self.check_input_elements():
-                PrintMessageInput(self.info_text)
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
+            if self.stop:
                 return
 
-            size = len(self.project.mesh.group_elements_with_capped_end)
+            size = len(self.project.preprocessor.group_elements_with_capped_end)
             selection = self.dictKey_label.format("Selection-{}".format(size+1))
             self.set_capped_end_to_elements(selection)
             self.replaced = False
@@ -381,9 +345,11 @@ class CappedEndInput(QDialog):
                 print("Set capped end at elements: {}".format(self.elements_typed))
         
         elif self.flagEntity:
-            if self.check_input_lines():
-                PrintMessageInput(self.info_text)
-                return
+
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            if self.stop:
+                return True      
 
             self.set_capped_end_to_lines()
             self.replaced = False
@@ -414,13 +380,15 @@ class CappedEndInput(QDialog):
             self.remove_elements(self.dictkey_to_remove)
 
     def remove_line_group(self):
-        lines = self.project.mesh.lines_with_capped_end.copy()
+        lines = self.project.preprocessor.lines_with_capped_end.copy()
         self.project.set_capped_end_by_line(lines, False)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
     
-    def set_capped_end_to_elements(self, selection):
-        self.project.set_capped_end_by_elements(self.elements_typed, self.flag_cappedEnd_enable, selection)
+    def set_capped_end_to_elements(self, group_label):
+        self.project.set_capped_end_by_elements(self.elements_typed, 
+                                                self.flag_cappedEnd_enable, 
+                                                group_label)
         self.load_elements_info()
 
     def set_capped_end_to_lines(self):
@@ -428,7 +396,8 @@ class CappedEndInput(QDialog):
         self.load_lines_info()
 
     def set_capped_end_to_all_lines(self):
-        self.project.set_capped_end_by_line("all", True)
+        lines = self.project.preprocessor.all_lines
+        self.project.set_capped_end_by_line(lines, self.flag_cappedEnd_enable)
         self.load_lines_info()
         self.load_elements_info()
 
@@ -436,7 +405,8 @@ class CappedEndInput(QDialog):
         temp_dict_group_elements = self.dict_group_elements.copy()
         for key, elements in temp_dict_group_elements.items():
             self.project.set_capped_end_by_elements(elements, False, key)
-        self.project.set_capped_end_by_line("all", False)
+        lines = self.project.preprocessor.all_lines
+        self.project.set_capped_end_by_line(lines, False)
         self.load_elements_info()
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")

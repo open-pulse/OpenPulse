@@ -1,14 +1,24 @@
-![alt text](https://open-pulse.github.io/OpenPulse/doc/opav.PNG?raw=true)
+![alt text](https://open-pulse.github.io/OpenPulse/doc/opav_beta.PNG?raw=true)
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*Alpha Version* (March 11th 2021)
+*Beta Version* (August 10th 2021)
 
-OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to import the geometry of the pipe system (lines in IGES), insert materials properties, set sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
+OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to import the geometry of the pipe system (lines in IGES), insert materials properties, set sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
 After defining the FEM mesh for the model, you can plot the piping system geometry and run simulations such as modal analysis and harmonic analysis. It is possible to plot deformed shapes, frequency plots of acoustical and structural responses, stress fields and local stresses of desired sections.
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/system3.jpeg?raw=true)
+*What's new?* 
+
+- New interface and visualization tools (including animation of results);
+- Enhancements of pre-processing performance;
+- New acoustic element: orifice plate (single or multiple orifice);
+- New structural element: expansion joint (integrated with acoustic analysis);
+- Prestressed structural analysis (static pressure effect);
+- Pipe reduction considering linear variation of diameters and offsets;
+- Beam elements enabling rotation about axis and offsets.
+
+![alt text](https://open-pulse.github.io/OpenPulse/doc/mega.png?raw=true)
 
 ## Installing
 
@@ -57,7 +67,6 @@ python pulse.py
 
 ## Next events
 
-- The 27th International Congress on Sound and Vibration. July 11-15, 2021. [ICSV27](https://www.icsv27.org/).
 - The 12th Congresso Iberoamericano de Acústica. August 29 -September 01, 2021. [FIA2020/1](https://fia2020.com.br/).
 
 ## Questions

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
-from pulse.preprocessing.mesh import Mesh
+from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.assembly_structural import AssemblyStructural 
 from pulse.processing.solution_structural import SolutionStructural
 from pulse.postprocessing.plot_structural_data import get_structural_frf, get_structural_response
@@ -22,22 +22,22 @@ t0 = time()
 # PREPARING MESH
 element_type = 'beam_1'
 steel = Material('Steel', 7860, young_modulus=210e9, poisson_ratio=0.3)
-mesh = Mesh()
+preprocessor = Preprocessor()
 
 load_file = 1
 if load_file==1:
-    mesh.generate('examples/iges_files/tube_1.iges', 0.01)
-    mesh.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6, dtype=complex))
-    mesh.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.generate('examples/iges_files/tube_1.iges', 0.01)
+    preprocessor.set_prescribed_dofs_bc_by_node([40, 1424, 1324], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_load_bc_by_node([359], np.array([1,0,0,0,0,0], dtype=complex))
 if load_file==2:
-    mesh.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
-    mesh.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
-    mesh.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
+    preprocessor.load_mesh('examples/mesh_files/Geometry_01/coord.dat', 'examples/mesh_files/Geometry_01/connect.dat')
+    preprocessor.set_prescribed_dofs_bc_by_node([1, 1200, 1325], np.zeros(6, dtype=complex))
+    preprocessor.set_structural_load_bc_by_node([361], np.array([1,0,0,0,0,0], dtype=complex))
 
-mat_out = mesh.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
+mat_out = preprocessor.set_B2PX_rotation_decoupling(1316, 425, rotations_to_decouple=[True, True, False])
 
-mesh.set_structural_element_type_by_element('all', element_type)
-mesh.set_material_by_element('all', steel)
+preprocessor.set_structural_element_type_by_element('all', element_type)
+preprocessor.set_material_by_element('all', steel)
 
 
 d_out = 0.05
@@ -54,13 +54,13 @@ cross_section = CrossSection(d_out, 0, 0, 0, steel.poisson_ratio, element_type=e
 # offset = [0.005, 0.005]
 # cross_section = CrossSection(0.05, 0.008, offset[0], offset[1], steel.poisson_ratio, element_type=element_type, division_number=64)
 
-mesh.set_cross_section_by_element('all', cross_section)
+preprocessor.set_cross_section_by_element('all', cross_section)
 
 f_max = 200
 df = 2
 frequencies = np.arange(0, f_max+df, df)
 
-solution = SolutionStructural(mesh, frequencies)
+solution = SolutionStructural(preprocessor, frequencies)
 
 modes = 200
 global_damping = [0, 0, 0, 0]
@@ -107,24 +107,24 @@ elif load_file==2:
         local_dof_response  = 2 # Get the response at the following degree of freedom
 
 
-Xd = get_structural_frf(mesh, direct, node_response, local_dof_response, absolute=True)
-Xs = get_structural_frf(mesh, modal, node_response, local_dof_response, absolute=True)
+Xd = get_structural_frf(preprocessor, direct, node_response, local_dof_response, absolute=True)
+Xs = get_structural_frf(preprocessor, modal, node_response, local_dof_response, absolute=True)
 
 # test_label = "ey_{}mm_ez_{}mm".format(int(offset[0]*1000),int(offset[1]*1000))
 
 # if run==1:
 #     # file1 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Ux_n436.csv", "r")
-#     file1 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Ux_node436_Fx_node361.csv"
+#     file1 = "C:/Users/"
 #     FRF = np.loadtxt(file1, delimiter=",", skiprows=2)
 #     # file1.close()
 # elif run==2:
 #     # file2 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uy_n187.csv", "r")
-#     file2 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Uy_node187_Fx_node361.csv"
+#     file2 = "C:/Users/"
 #     FRF = np.loadtxt(file2, delimiter=",", skiprows=2)
 #     # file2.close()
 # elif run==3:
 #     # file3 = open("examples/validation_structural/data/" + test_label + "/FRF_Fx_1N_n361_Uz_n711.csv", "r")
-#     file3 = "C:/Users/Jacson_Corsair/Desktop/APDL_Beam_validation/Response_Uz_node711_Fx_node361.csv"
+#     file3 = "C:/Users/"
 #     FRF = np.loadtxt(file3, delimiter=",", skiprows=2)
 #     # file3.close()
 # else:

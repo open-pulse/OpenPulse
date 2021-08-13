@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Project reset</string>
   </property>
   <widget class="QFrame" name="frame_2">
    <property name="geometry">

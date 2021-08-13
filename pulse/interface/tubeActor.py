@@ -5,11 +5,6 @@ from scipy.spatial.transform import Rotation
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
-# At some stage of VTK creation of the Actor (and I can't properly say where),
-# the library destroy small structures. This factor is a random number, found 
-# empirically that strechs a lot the structure, and shrink it again when
-# everything is done. 
-GAMB_FACTOR = 42
 
 class TubeActor(vtkActorBase):
     def __init__(self, elements, project, **kwargs):
@@ -22,6 +17,7 @@ class TubeActor(vtkActorBase):
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
         self.transparent = True
+        self.bff = 5  # bug fix factor 
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
@@ -29,7 +25,7 @@ class TubeActor(vtkActorBase):
         self._colors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.elements))
-        
+
 
     @property
     def transparent(self):
@@ -46,6 +42,7 @@ class TubeActor(vtkActorBase):
         self.__transparent = value
 
     def source(self):
+
         points = vtk.vtkPoints()
         sources = vtk.vtkIntArray()
         sources.SetName('sources')
@@ -53,6 +50,7 @@ class TubeActor(vtkActorBase):
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
 
+        self.updateBff()
         cache = dict()
         counter = 0
 
@@ -82,7 +80,7 @@ class TubeActor(vtkActorBase):
         self._mapper.SourceIndexingOn()
         self._mapper.SetSourceIndexArray('sources')
         self._mapper.SetOrientationArray('rotations')
-        self._mapper.SetScaleFactor(1 / GAMB_FACTOR)
+        self._mapper.SetScaleFactor(1 / self.bff)
         self._mapper.SetOrientationModeToRotation()
         self._mapper.Update()
 
@@ -117,6 +115,27 @@ class TubeActor(vtkActorBase):
         self._data.GetPointData().SetScalars(c)
         self._colors = c
 
+    def updateBff(self):
+        # At some stage of VTK creation of the Actor (and I can't properly say where),
+        # the library destroys small or big structures. This factor is a random number, found 
+        # empirically that strechs a lot the structure, and shrink it again when
+        # everything is done. 
+
+        # it starts in 1 to prevent division by 0
+        # and the difference is negligible
+        sums = 1
+        items = 1
+
+        for element in self.elements.values():
+            try:
+                sec = element.cross_section.outer_diameter / 2
+                sums += sec 
+                items += 1
+            except:                
+                pass # it doesn't need to be so precise
+
+        self.bff = 0.5 / (sums / items)
+
     def createTubeSection(self, element):
         extruderFilter = vtk.vtkLinearExtrusionFilter()
         polygon = self.createSectionPolygon(element)
@@ -124,7 +143,7 @@ class TubeActor(vtkActorBase):
         extruderFilter.SetInputConnection(polygon.GetOutputPort())
         extruderFilter.SetExtrusionTypeToVectorExtrusion()
         extruderFilter.SetVector(1,0,0)
-        extruderFilter.SetScaleFactor(size * GAMB_FACTOR)
+        extruderFilter.SetScaleFactor(size * self.bff)
         extruderFilter.Update()
         return extruderFilter.GetOutput()
 
@@ -144,7 +163,7 @@ class TubeActor(vtkActorBase):
             return poly
 
         if self.pressure_plot and (element.element_type not in ['beam_1']):
-            r = element.cross_section.internal_diameter/2 * GAMB_FACTOR
+            r = element.cross_section.inner_diameter/2 * self.bff
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(20)
             poly.SetNormal(1,0,0)
@@ -169,13 +188,13 @@ class TubeActor(vtkActorBase):
 
         # create points       
         for y, z in inner_points:
-            y *= GAMB_FACTOR
-            z *= GAMB_FACTOR
+            y *= self.bff
+            z *= self.bff
             points.InsertNextPoint(0, y, z)
 
         for y, z in outer_points:
-            y *= GAMB_FACTOR
-            z *= GAMB_FACTOR
+            y *= self.bff
+            z *= self.bff
             points.InsertNextPoint(0, y, z)
 
         # create external polygon

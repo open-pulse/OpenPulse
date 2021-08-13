@@ -138,7 +138,7 @@
    </widget>
    <widget class="QLineEdit" name="lineEdit_natural_frequency">
     <property name="enabled">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="geometry">
      <rect>

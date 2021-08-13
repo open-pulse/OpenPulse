@@ -12,8 +12,8 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 import numpy as np
 import matplotlib.pyplot as plt
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class StressStiffeningInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -24,19 +24,24 @@ class StressStiffeningInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
-        self.opv = opv
-        self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
-
-        self.project = project
-        self.structural_elements = self.project.mesh.structural_elements
-        self.dict_tag_to_entity = self.project.mesh.dict_tag_to_entity#get_dict_of_entities()
+        
+        self.opv = opv
+        self.opv.setInputObject(self)
         self.lines_id = self.opv.getListPickedEntities()
         self.elements_id = self.opv.getListPickedElements()
-        self.dict_group_elements = project.mesh.group_elements_with_stress_stiffening
-        self.lines_with_stress_stiffening = project.mesh.lines_with_stress_stiffening
-        self.dict_lines_with_stress_stiffening = project.mesh.dict_lines_with_stress_stiffening
+
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.structural_elements = self.preprocessor.structural_elements
+        self.dict_tag_to_entity = self.preprocessor.dict_tag_to_entity
+
+        self.dict_group_elements = project.preprocessor.group_elements_with_stress_stiffening
+        self.lines_with_stress_stiffening = project.preprocessor.lines_with_stress_stiffening
+        self.dict_lines_with_stress_stiffening = project.preprocessor.dict_lines_with_stress_stiffening
         
         self.stop = False
         self.error_label = ""
@@ -60,15 +65,6 @@ class StressStiffeningInput(QDialog):
 
         self.lineEdit_external_pressure = self.findChild(QLineEdit, 'lineEdit_external_pressure')
         self.lineEdit_internal_pressure = self.findChild(QLineEdit, 'lineEdit_internal_pressure')   
-        self.lineEdit_external_temperature = self.findChild(QLineEdit, 'lineEdit_external_temperature')
-        self.lineEdit_internal_temperature = self.findChild(QLineEdit, 'lineEdit_internal_temperature')
-
-        self.checkBox_thermal_effect = self.findChild(QCheckBox, 'checkBox_thermal_effect')
-        self.checkBox_pressure_effect = self.findChild(QCheckBox, 'checkBox_pressure_effect')
-        self.checkBox_thermal_effect.toggled.connect(self.checkBoxEvent)
-        self.checkBox_pressure_effect.toggled.connect(self.checkBoxEvent)
-        self.flag_thermal_effect = self.checkBox_thermal_effect.isChecked()
-        self.flag_pressure_effect = self.checkBox_pressure_effect.isChecked()
 
         self.treeWidget_stress_stiffening_elements = self.findChild(QTreeWidget, 'treeWidget_stress_stiffening_elements')
         self.treeWidget_stress_stiffening_elements.setColumnWidth(0, 100)
@@ -105,20 +101,7 @@ class StressStiffeningInput(QDialog):
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close') 
         self.pushButton_close.clicked.connect(self.force_to_close)
 
-        if self.lines_id != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        elif self.elements_id != []:
-            self.lineEdit_id_labels.setText("Elements IDs:")
-            self.write_ids(self.elements_id)
-            self.radioButton_selected_elements.setChecked(True)
-        else:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.lineEdit_selected_ID.setText("All lines")
-            self.lineEdit_selected_ID.setEnabled(False)
-            self.radioButton_all_lines.setChecked(True)  
-
+        self.update()
         self.update_info()
         self.update_buttons_()
         self.tabEvent_()
@@ -146,6 +129,7 @@ class StressStiffeningInput(QDialog):
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
+            self.update_input_texts()
         elif self.elements_id != []:
             self.lineEdit_id_labels.setText("Elements IDs:")
             self.write_ids(self.elements_id)
@@ -153,7 +137,16 @@ class StressStiffeningInput(QDialog):
         else:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.lineEdit_selected_ID.setText("All lines")
+            self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all_lines.setChecked(True)
+
+    def update_input_texts(self):
+        if len(self.lines_id) != 0:
+            entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]] 
+            if entity.stress_stiffening_parameters is not None:
+                pressures = entity.stress_stiffening_parameters
+                self.lineEdit_external_pressure.setText(str(pressures[0]))
+                self.lineEdit_internal_pressure.setText(str(pressures[1]))
 
     def tabEvent_(self):
         self.currentTab_ = self.tabWidget_stress_stiffening.currentIndex()
@@ -182,24 +175,6 @@ class StressStiffeningInput(QDialog):
             self.press_confirm()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def checkBoxEvent(self):
-        self.flag_thermal_effect = self.checkBox_thermal_effect.isChecked()
-        self.flag_pressure_effect = self.checkBox_pressure_effect.isChecked()
-        
-        if self.flag_thermal_effect:
-            self.lineEdit_external_temperature.setDisabled(False)
-            self.lineEdit_internal_temperature.setDisabled(False)
-        else:
-            self.lineEdit_external_temperature.setDisabled(True)
-            self.lineEdit_internal_temperature.setDisabled(True)
-
-        if self.flag_pressure_effect:
-            self.lineEdit_external_pressure.setDisabled(False)
-            self.lineEdit_internal_pressure.setDisabled(False)
-        else:
-            self.lineEdit_external_pressure.setDisabled(True)
-            self.lineEdit_internal_pressure.setDisabled(True)
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all_lines.isChecked()
@@ -234,7 +209,7 @@ class StressStiffeningInput(QDialog):
 
     def load_lines_info(self):        
         self.treeWidget_stress_stiffening_lines.clear()
-        lines = self.project.mesh.lines_with_stress_stiffening
+        lines = self.project.preprocessor.lines_with_stress_stiffening
         if len(lines) != 0:
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -286,193 +261,124 @@ class StressStiffeningInput(QDialog):
         output = list(map(int, tokens))
         return output
 
-    def check_input_elements(self):
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.elements_typed = list(map(int, tokens))
-            
-            if self.lineEdit_selected_ID.text()=="":
-                title = "Error: empty Element ID input"
-                message = "Inform a valid Element ID before \nto confirm the input."
-                self.info_text = [title, message, window_title1]     
-                return True
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = "Wrong input for Node ID's."
-            self.info_text = [title, message, window_title1]   
-            return True
-
-        try:
-            for element in self.elements_typed:
-                self.elementID = self.structural_elements[element].index
-        except Exception:
-            title = "Error: invalid Element ID input"
-            message = " The Element ID input values must be \nmajor than 1 and less than {}.".format(len(self.structural_elements))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
-    def check_input_lines(self):
-        
-        try:
-            tokens = self.lineEdit_selected_ID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            self.lines_typed = list(map(int, tokens))
-            
-            if self.lineEdit_selected_ID.text()=="":
-                title = "Error: empty Line ID input"
-                message = "Inform a valid Line ID before \nto confirm the input.."
-                self.info_text = [title, message, window_title1]
-                return True
-        except Exception:
-            title = "Error: invalid Line ID input"
-            message = "Wrong input for Line ID."
-            self.info_text = [title, message, window_title1]
-            return True
-        try:
-            for line in self.lines_typed:
-                self.line = self.dict_tag_to_entity[line]
-        except Exception:
-            title = "Error: invalid Line ID"
-            message = "The Line ID input values must be \nmajor than 1 and less than {}.".format(len(self.dict_tag_to_entity))
-            self.info_text = [title, message, window_title1]
-            return True
-        return False
-
-    def check_input_parameters(self):
-
-        external_temperature = float(0)
-        internal_temperature = float(0)
-        external_pressure = float(0)
-        internal_pressure = float(0)
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False):
         self.stop = False
-
-        if not (self.flag_thermal_effect or self.flag_pressure_effect):
-            title = "NONE EFFECT HAS BEEN SELECTED"
-            message = "Please, enable at least one effect \nbefore to confirm the attribution."
-            PrintMessageInput([title, message, window_title1])
-            self.stop = True
-            return True
-
-        if self.flag_thermal_effect:
-
-            self.error_label = "EXTERNAL TEMPERATURE"
-            if self.lineEdit_external_temperature.text() != "":
-
-                try:
-                    external_temperature = float(self.lineEdit_external_temperature.text())
-                except Exception:
-                    return True
-            else:
-                return True
-
-            self.error_label = "INTERNAL TEMPERATURE"
-            if self.lineEdit_internal_temperature.text() != "":
-                
-                try:
-                    internal_temperature = float(self.lineEdit_internal_temperature.text())
-                except Exception:
-                    return True
-            else:
-                return True
-
-        if self.flag_pressure_effect:
-
-            self.error_label = "EXTERNAL PRESSURE"
-            if self.lineEdit_external_pressure.text() != "":
-                try:
-                    external_pressure = float(self.lineEdit_external_pressure.text())
-                except Exception:
-                    return True
-            else:
-                return True
-
-            self.error_label = "INTERNAL PRESSURE"
-            if self.lineEdit_internal_pressure.text() != "":
-                try:
-                    internal_pressure = float(self.lineEdit_internal_pressure.text())
-                except Exception:
-                    return True
-            else:
-                return True
-        
-        self.stress_stiffening_parameters = [external_temperature, internal_temperature, external_pressure, internal_pressure]
-
-        return False
+        if lineEdit.text() != "":
+            try:
+                out = float(lineEdit.text())
+                if only_positive:
+                    title = f"INVALID INPUT TO {label}"
+                    message = f"Insert a positive value to the {label}."
+                    if zero_included:
+                        if out < 0:
+                            message += "\n\nZero value is allowed."
+                            PrintMessageInput([title, message, window_title_1])
+                            self.stop = True
+                            return None
+                    else:
+                        if out <= 0:
+                            message += "\n\nZero value is not allowed."
+                            PrintMessageInput([title, message, window_title_1])
+                            self.stop = True
+                            return None
+            except Exception as log_error:
+                title = "INPUT CROSS-SECTION ERROR"
+                message = f"Wrong input for {label}.\n\n"
+                message += str(log_error)
+                PrintMessageInput([title, message, window_title_1])
+                self.stop = True
+                return None
+        else:
+            if zero_included:
+                return float(0)
+            else: 
+                title = "INPUT CROSS-SECTION ERROR"
+                message = f"Insert some value at the {label} input field."
+                PrintMessageInput([title, message, window_title_1])                   
+                self.stop = True
+                return None
+        return out
 
     def press_confirm(self):
 
-        if self.check_input_parameters():
+        external_pressure = self.check_inputs(self.lineEdit_external_pressure, "'External pressure'", zero_included=True)
+        if self.stop:
+            return
+
+        internal_pressure = self.check_inputs(self.lineEdit_internal_pressure, "'Internal pressure'", zero_included=True)
+        if self.stop:
+            return
+        
+        if external_pressure == 0 and internal_pressure == 0:
+            title = "Empty entries at the input pressure fields"
+            message = f"You should to insert a value different from zero at the external or internal "
+            message += "pressure field inputs to continue."
+            PrintMessageInput([title, message, window_title_1])  
+            return
+        else:
+            self.stress_stiffening_parameters = [external_pressure, internal_pressure]
+
+        if self.flagElements:
+            
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.elements_typed = self.before_run.check_input_ElementID(lineEdit)
             if self.stop:
                 return
-            title = "STRESS STIFFENING INPUT ERROR"
-            message = "Wrong input to the {}.".format(self.error_label)
-            PrintMessageInput([title, message, window_title1])
-        else:
 
-            if self.flagElements:
-                if self.check_input_elements():
-                    PrintMessageInput(self.info_text) 
-                    return
+            size = len(self.project.preprocessor.group_elements_with_stress_stiffening)
+            section = self.dictKey_label.format("Selection-{}".format(size+1))
+            self.set_stress_stiffening_to_elements(section)
+            self.replaced = False
 
-                size = len(self.project.mesh.group_elements_with_stress_stiffening)
-                section = self.dictKey_label.format("Selection-{}".format(size+1))
-                self.set_stress_stiffening_to_elements(section)
-                self.replaced = False
+            # checking the oversampling of elements in each group of elements
+            if size > 0:
+                temp_dict = self.dict_group_elements.copy()
+                for key, item in temp_dict.items():
+                    elements = item[1]
+                    if list(np.sort(self.elements_typed)) == list(np.sort(elements)):
+                        if self.replaced:
+                            self.dictkey_to_remove = key
+                            self.remove_elem_group()
+                        else:
+                            self.set_stress_stiffening_to_elements(key)
+                            self.replaced = True
+                    else:    
+                        count1, count2 = 0, 0
+                        for element in self.elements_typed:
+                            if element in elements:
+                                count1 += 1
+                        fill_rate1 = count1/len(self.elements_typed)
 
-                # checking the oversampling of elements in each group of elements
-                if size > 0:
-                    temp_dict = self.dict_group_elements.copy()
-                    for key, item in temp_dict.items():
-                        elements = item[1]
-                        if list(np.sort(self.elements_typed)) == list(np.sort(elements)):
+                        for element in elements:
+                            if element in self.elements_typed:
+                                count2 += 1
+                        fill_rate2 = count2/len(elements)
+                        
+                        if np.max([fill_rate1, fill_rate2])>0.5 :
                             if self.replaced:
                                 self.dictkey_to_remove = key
                                 self.remove_elem_group()
                             else:
                                 self.set_stress_stiffening_to_elements(key)
                                 self.replaced = True
-                        else:    
-                            count1, count2 = 0, 0
-                            for element in self.elements_typed:
-                                if element in elements:
-                                    count1 += 1
-                            fill_rate1 = count1/len(self.elements_typed)
+                    self.dictkey_to_remove = None 
 
-                            for element in elements:
-                                if element in self.elements_typed:
-                                    count2 += 1
-                            fill_rate2 = count2/len(elements)
-                            
-                            if np.max([fill_rate1, fill_rate2])>0.5 :
-                                if self.replaced:
-                                    self.dictkey_to_remove = key
-                                    self.remove_elem_group()
-                                else:
-                                    self.set_stress_stiffening_to_elements(key)
-                                    self.replaced = True
-                        self.dictkey_to_remove = None 
+        elif self.flagEntity:
 
-            elif self.flagEntity:
-                if self.check_input_lines():
-                    PrintMessageInput(self.info_text) 
-                    return
-                for line_id in self.lines_typed:
-                    self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
+            lineEdit = self.lineEdit_selected_ID.text()
+            self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
+            if self.stop:
+                return True                 
+        
+            for line_id in self.lines_typed:
+                self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
 
-            elif self.flagAll:
-                all_lines = self.project.mesh.all_lines
-                self.project.set_stress_stiffening_by_line(all_lines, self.stress_stiffening_parameters)
-
-            self.complete = True
-            self.close()        
+        elif self.flagAll:
+            for line_id in self.dict_tag_to_entity.keys():
+                self.project.set_stress_stiffening_by_line(line_id, self.stress_stiffening_parameters)
+           
+        self.complete = True
+        self.close()        
 
     def set_stress_stiffening_to_elements(self, section):
         self.project.set_stress_stiffening_by_elements(self.elements_typed, self.stress_stiffening_parameters, section)
@@ -480,19 +386,19 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
         temp_dict_group_elements = self.dict_group_elements.copy()
-        for line_id in self.project.mesh.all_lines:
+        for line_id in self.project.preprocessor.all_lines:
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
             self.project.file.remove_all_stress_stiffnening_in_file_by_group_elements()
         for key, item in temp_dict_group_elements.items():
             self.project.set_stress_stiffening_by_elements(item[1], item[0], key, remove=True)
-
+        self.project.mesh.stress_stiffening_enabled = False
         self.update_info()
         self.update_buttons_()
         self.lineEdit_selected_ID.setText("")
         
         title = "STRESS STIFFENING REMOVAL"
         message = "The stress stiffening applied \nto all lines has been removed."
-        PrintMessageInput([title, message, window_title2])
+        PrintMessageInput([title, message, window_title_2])
 
     def remove_elements(self, key, reset=False):
         section = key        
@@ -514,7 +420,7 @@ class StressStiffeningInput(QDialog):
 
     def remove_line_group(self):
         parameters = [0,0,0,0]
-        lines = self.project.mesh.lines_with_stress_stiffening.copy()
+        lines = self.project.preprocessor.lines_with_stress_stiffening.copy()
         self.project.set_stress_stiffening_by_line(lines, parameters, remove=True)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
@@ -528,12 +434,12 @@ class StressStiffeningInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF ELEMENTS"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
                   
         except Exception as e:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
             message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
     def get_information_line(self):
         try:
@@ -545,12 +451,12 @@ class StressStiffeningInput(QDialog):
             else:
                 title = "UNSELECTED GROUP OF LINES"
                 message = "Please, select a group in the list to get the information."
-                PrintMessageInput([title, message, window_title2])
+                PrintMessageInput([title, message, window_title_2])
                 
-        except Exception as e:
+        except Exception as log_error:
             title = "ERROR WHILE GETTING INFORMATION OF SELECTED GROUP"
-            message = str(e)
-            PrintMessageInput([title, message, window_title1])
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, values, label, *args, **kwargs):
@@ -606,8 +512,8 @@ class GetInformationOfGroup(QDialog):
             self.check_remove()
 
     def update_dict(self):
-        self.dict_lines_parameters = self.project.mesh.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.project.mesh.group_elements_with_stress_stiffening
+        self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
+        self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
 
     def on_click_item_(self, item):
         text = item.text(0)

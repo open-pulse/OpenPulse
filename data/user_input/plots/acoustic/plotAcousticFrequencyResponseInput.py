@@ -59,23 +59,26 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
-
-        self.opv = opv
-        self.opv.setInputObject(self)
+        
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.opv = opv
+        self.opv.setInputObject(self)
+        self.list_node_IDs = self.opv.getListPickedPoints()
+
         self.projec = project
-        self.mesh = project.mesh
-        self.nodes = project.mesh.nodes
+        self.preprocessor = project.preprocessor
+        self.before_run = self.preprocessor.get_model_checks()
+
+        self.nodes = self.preprocessor.nodes
         self.analysisMethod = analysisMethod
         self.frequencies = frequencies
         self.solution = solution
 
-        self.list_node_IDs = self.opv.getListPickedPoints()
         self.userPath = os.path.expanduser('~')
         self.save_path = ""
-        self.nodeID = 0
+        self.node_ID = 0
         self.imported_data = None
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
@@ -187,41 +190,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         self.lineEdit_SaveResultsPath.setText(str(self.save_path))
 
     def check(self, export=False):
-        try:
-            tokens = self.lineEdit_nodeID.text().strip().split(',')
-            try:
-                tokens.remove('')
-            except:
-                pass
-            node_typed = list(map(int, tokens))
 
-        except Exception:
-            title = "INVALID NODE ID"
-            message = "Wrong input for Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
-        if len(node_typed) == 1:
-            try:
-                self.nodeID = self.mesh.nodes[node_typed[0]].external_index
-            except:
-                title = "INVALID NODE ID"
-                message = " The Node ID input values must be\n major than 1 and less than {}.".format(len(self.nodes))
-                PrintMessageInput([title, message, window_title1])
-                return True
-
-        elif len(node_typed) == 0:
-            title = "INVALID NODE ID"
-            message = "Please, enter a valid Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-            
-        else:
-            title = "MULTIPLE NODE IDs"
-            message = "Please, type or select only one Node ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
+        if stop:
+            return
                 
         if self.checkBox_dB.isChecked():
             self.scale_dB = True
@@ -253,11 +226,11 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         if self.save_Absolute:
-            response = get_acoustic_frf(self.mesh, self.solution, self.nodeID)
+            response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID)
             header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa], Absolute [Pa]"
             data_to_export = np.array([freq, np.real(response), np.imag(response), np.abs(response)]).T
         elif self.save_Real_Imaginary:
-            response = get_acoustic_frf(self.mesh, self.solution, self.nodeID)
+            response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID)
             header = "Frequency[Hz], Real part [Pa], Imaginary part [Pa]"
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
@@ -276,10 +249,10 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         ax = fig.add_subplot(1,1,1)  
 
         frequencies = self.frequencies
-        response = get_acoustic_frf(self.mesh, self.solution, self.nodeID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
+        response = get_acoustic_frf(self.preprocessor, self.solution, self.node_ID, absolute=self.plotAbs, real=self.plotReal, imag=self.plotImag)
 
         if complex(0) in response:
-            response += np.ones(len(response), dtype=float)*(1e-8)
+            response += np.ones(len(response), dtype=float)*(1e-12)
 
         if self.scale_dB :
             if self.plotAbs:
@@ -308,7 +281,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
         plt.connect('motion_notify_event', cursor.mouse_move)
 
-        legend_label = "Acoustic Pressure at node {}".format(self.nodeID)
+        legend_label = "Acoustic Pressure at node {}".format(self.node_ID)
         
         if self.imported_data is None:
 

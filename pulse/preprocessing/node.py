@@ -82,6 +82,7 @@ class Node:
         self.deformed_rotations_xyz_gcs = None
         self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
+        self.static_nodal_solution_gcs = None
 
     @property
     def coordinates(self):
@@ -443,10 +444,10 @@ class Node:
         
         return admittance.reshape(-1,1)#([len(frequencies),1])
     
-    def __str__(self):
-        text = ''
-        text += f'Node Id: {self.external_index} \n'
-        text += f'Position: {self.coordinates} [m]\n'
-        text += f'Displacement: {self.prescribed_dofs[:3]} [m]\n'
-        text += f'Rotation: {self.prescribed_dofs[3:]} [rad]'
-        return text
+    # def __str__(self):
+    #     text = ''
+    #     text += f'Node Id: {self.external_index} \n'
+    #     text += f'Position: {self.coordinates} [m]\n'
+    #     text += f'Displacement: {self.prescribed_dofs[:3]} [m]\n'
+    #     text += f'Rotation: {self.prescribed_dofs[3:]} [rad]'
+    #     return text

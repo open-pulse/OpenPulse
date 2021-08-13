@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>460</width>
-    <height>250</height>
+    <width>600</width>
+    <height>450</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>460</width>
-    <height>250</height>
+    <width>600</width>
+    <height>450</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>460</width>
-    <height>250</height>
+    <width>600</width>
+    <height>450</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -50,131 +50,116 @@
   <property name="modal">
    <bool>false</bool>
   </property>
-  <widget class="QWidget" name="widget" native="true">
+  <widget class="QFrame" name="frame_title">
    <property name="geometry">
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>465</width>
-     <height>253</height>
+     <width>600</width>
+     <height>51</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <kerning>true</kerning>
-    </font>
+   <property name="minimumSize">
+    <size>
+     <width>600</width>
+     <height>0</height>
+    </size>
    </property>
-   <widget class="QFrame" name="frame">
+   <property name="maximumSize">
+    <size>
+     <width>600</width>
+     <height>16777215</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>1</number>
+   </property>
+   <widget class="QLabel" name="label_title">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>460</width>
-      <height>41</height>
+      <x>6</x>
+      <y>6</y>
+      <width>589</width>
+      <height>39</height>
      </rect>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>460</width>
-      <height>0</height>
-     </size>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>18</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>460</width>
-      <height>16777215</height>
-     </size>
+    <property name="text">
+     <string>Run analysis</string>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
+    <property name="textFormat">
+     <enum>Qt::AutoText</enum>
     </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
-    <property name="lineWidth">
-     <number>1</number>
-    </property>
-    <widget class="QLabel" name="label">
-     <property name="geometry">
-      <rect>
-       <x>86</x>
-       <y>8</y>
-       <width>291</width>
-       <height>27</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>16</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Run analysis</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::AutoText</enum>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
    </widget>
-   <widget class="QFrame" name="frame_2">
+  </widget>
+  <widget class="QFrame" name="frame_message">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>50</y>
+     <width>600</width>
+     <height>400</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>600</width>
+     <height>400</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>600</width>
+     <height>400</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <widget class="QLabel" name="label_message">
     <property name="geometry">
      <rect>
-      <x>0</x>
-      <y>40</y>
-      <width>460</width>
-      <height>210</height>
+      <x>6</x>
+      <y>6</y>
+      <width>589</width>
+      <height>389</height>
      </rect>
     </property>
-    <property name="minimumSize">
-     <size>
-      <width>460</width>
-      <height>140</height>
-     </size>
+    <property name="font">
+     <font>
+      <family>Arial</family>
+      <pointsize>16</pointsize>
+      <weight>75</weight>
+      <italic>true</italic>
+      <bold>true</bold>
+     </font>
     </property>
-    <property name="maximumSize">
-     <size>
-      <width>140</width>
-      <height>16777215</height>
-     </size>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;Solution in progress…&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
-    <property name="frameShadow">
-     <enum>QFrame::Plain</enum>
-    </property>
-    <widget class="QLabel" name="label_title">
-     <property name="geometry">
-      <rect>
-       <x>6</x>
-       <y>4</y>
-       <width>448</width>
-       <height>202</height>
-      </rect>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>14</pointsize>
-       <weight>50</weight>
-       <italic>true</italic>
-       <bold>false</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600; color:#0000ff;&quot;&gt;Solution in progress…&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
    </widget>
   </widget>
  </widget>

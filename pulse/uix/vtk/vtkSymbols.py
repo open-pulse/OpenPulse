@@ -19,7 +19,7 @@ class vtkSymbols:
         return actor
 
     def arrow(self, start, end):
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         arrowSource = vtk.vtkArrowSource()
         startPoint = start
         endPoint = end
@@ -84,7 +84,7 @@ class vtkSymbols:
 
     def getSpring(self, node, u_def=[]):
         a = self.getReal(node.get_lumped_stiffness())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/10 < element_length*1.5:
             shift = base_length/10
@@ -97,11 +97,11 @@ class vtkSymbols:
                     v[i] = 0
                 elif a[i] < 0:
                     v[i] = -1*v[i]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
 
         if v.count(0) == 3:
             return []
@@ -120,7 +120,7 @@ class vtkSymbols:
 
     def getDamper(self, node, u_def=[]):
         a = self.getReal(node.get_lumped_dampings())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length*1.5:
             shift = base_length/20
@@ -133,11 +133,11 @@ class vtkSymbols:
                     v[i] = 0
                 elif a[i] < 0:
                     v[i] = -1*v[i]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
 
         if v.count(0) == 3:
             return []
@@ -158,7 +158,7 @@ class vtkSymbols:
 
     def getArrowBC(self, node, u_def=[]):
         a = self.getReal(node.getStructuralBondaryCondition())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
             shift = base_length/20
@@ -171,11 +171,11 @@ class vtkSymbols:
                     v[i] = 0
                 elif a[i] < 0:
                     v[i] = -1*v[i]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
             
         if v.count(0) == 3:
             return []
@@ -194,7 +194,7 @@ class vtkSymbols:
 
     def getArrowForce(self, node):
         a = self.getReal(node.get_prescribed_loads())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
             shift = base_length/20
@@ -207,11 +207,11 @@ class vtkSymbols:
                     v[i] = 0
                 elif a[i] < 0:
                     v[i] = -1*v[i]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
 
         if v.count(0) == 3:
             return []
@@ -229,7 +229,7 @@ class vtkSymbols:
 
     def getArrowRotation(self, node):
         a = self.getReal(node.getStructuralBondaryCondition())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
             shift1 = base_length/20
@@ -244,11 +244,11 @@ class vtkSymbols:
                     v[i-3] = 0
                 elif a[i] < 0:
                     v[i-3] = -1*v[i-3]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
 
         if v.count(0) == 3:
             return []
@@ -277,7 +277,7 @@ class vtkSymbols:
 
     def getArrowMomento(self, node):
         a = self.getReal(node.get_prescribed_loads())
-        base_length = self.project.mesh.structure_principal_diagonal/10
+        base_length = self.project.preprocessor.structure_principal_diagonal/10
         element_length = self.project.get_element_size()
         if base_length/20 < element_length/2:
             shift1 = base_length/20
@@ -292,11 +292,11 @@ class vtkSymbols:
                     v[i-3] = 0
                 elif a[i] < 0:
                     v[i-3] = -1*v[i-3]
-            except Exception as e:
+            except Exception as log_error:
                 if isinstance(a[i], np.ndarray):
                     pass
                 else:
-                    print(e)
+                    print(str(log_error))
 
         if v.count(0) == 3:
             return []

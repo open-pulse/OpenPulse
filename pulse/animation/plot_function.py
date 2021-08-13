@@ -11,7 +11,7 @@ from mpl_toolkits.mplot3d.art3d import Line3DCollection
 ----------------------------------------------------------------------------------------------------------------------------------
 """
 
-def plot_results( mesh,
+def plot_results( preprocessor,
                   data,
                   data_stress = None,
                   scf = 0.4,
@@ -23,8 +23,8 @@ def plot_results( mesh,
                   Animate_Mode = True, 
                   Save = False):
      
-    connectivity = mesh.connectivity_matrix 
-    coordinates = mesh.nodal_coordinates_matrix
+    connectivity = preprocessor.connectivity_matrix 
+    coordinates = preprocessor.nodal_coordinates_matrix
 
     if data[:,1:].any():
         if not Acoustic:

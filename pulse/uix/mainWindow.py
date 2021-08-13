@@ -43,6 +43,7 @@ class MainWindow(QMainWindow):
         self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.saveImage_icon = QIcon(icons_path + 'save_image.png')
         self.exit_icon = QIcon(icons_path + 'exit.png')
+        self.playpause_icon = QIcon(icons_path + 'play_pause.png')
         
     def _config(self):
         self.setMinimumSize(QSize(800, 600))
@@ -97,7 +98,7 @@ class MainWindow(QMainWindow):
         self.entities_action_radius = QAction('&Entity with Cross-section', self)        
         self.entities_action_radius.setShortcut('Ctrl+2')
         self.entities_action_radius.setStatusTip('Plot Entities with Cross-section')
-        self.entities_action_radius.triggered.connect(self.plot_entities_radius)
+        self.entities_action_radius.triggered.connect(self.plot_entities_with_cross_section)
 
         self.mesh_action = QAction('&Mesh', self)        
         self.mesh_action.setShortcut('Ctrl+3')
@@ -229,6 +230,11 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
         # Results Viewer
+        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
+        self.playPauseAnimaton_action.setShortcut('Space')
+        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalisysRenderer.tooglePlayPauseAnimation)
+
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
@@ -354,6 +360,7 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotSressField_action)
         self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
+        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
 
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
@@ -406,6 +413,8 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.reset_action)
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(self.playPauseAnimaton_action)
 
     def _createBasicLayout(self):
         self.menuWidget = Menu(self)
@@ -459,7 +468,7 @@ class MainWindow(QMainWindow):
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()
 
-    def plot_entities_radius(self):
+    def plot_entities_with_cross_section(self):
         self.opv_widget.changePlotToEntitiesWithCrossSection()
 
     def plot_mesh(self):
@@ -467,9 +476,7 @@ class MainWindow(QMainWindow):
 
     def draw(self):
         self.opv_widget.updatePlots()
-        self.plot_entities_radius()
-
-
+        self.plot_entities_with_cross_section()
 
     def closeEvent(self, event):
         close = QMessageBox.question(

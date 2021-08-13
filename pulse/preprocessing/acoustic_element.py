@@ -1,13 +1,19 @@
 from math import sqrt, pi
 import numpy as np
 from scipy.special import jv, struve
-from pulse.preprocessing.node import Node, distance
-from pulse.utils import error, info_messages
+from pulse.preprocessing.perforated_plate import Foks_function
+from pulse.preprocessing.node import distance
 
 DOF_PER_NODE = 1
 NODES_PER_ELEMENT = 2
 DOF_PER_ELEMENT = DOF_PER_NODE * NODES_PER_ELEMENT
 ENTRIES_PER_ELEMENT = DOF_PER_ELEMENT ** 2
+
+def f_function(x):
+    return 1 - 2 * jv(1,x)/(x * jv(0,x))
+
+def H1(x):
+    return 2/np.pi - jv(0,x) + (16/np.pi - 5)*np.sin(x)/x + (12 - 36/np.pi)*(1 - np.cos(x))/x**2
 
 def poly_function(x):
     """
@@ -27,67 +33,6 @@ def poly_function(x):
     b = np.arange(7)
     x = x.reshape(-1, 1) @ np.ones([1,7])
     return (x**b ) @ a
-
-def unflanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
-    """
-    Auxiliary function to update the radiation impedance attributed to the element nodes according to the unflanged prescription.
-
-    Parameters
-    -------
-    kappa_complex : complex-array
-        Complex wavenumber.
-
-    pipe_radius : float
-        Pipe radius.
-
-    impedance_complex : complex-array
-        Complex system impedance.
-
-    Returns
-    -------
-    array
-        Unflanged pipe termination impedance. The array has the same length as kappa_complex parameter.
-    """
-    kr = kappa_complex * pipe_radius
-    mask = kr<=1
-    
-    kr_less_t_1 = kr[mask]
-    gamma = np.exp(0.5772)
-    aux_1_1 = np.abs(np.exp((-kr_less_t_1**2)/2) * (1 + kr_less_t_1**4 / 6 * np.log(1 / (gamma * kr_less_t_1) + 19/12)))
-
-    kr_great_t_1 = kr[~mask]
-    if np.any(kr_great_t_1 > 3.83):
-        info_messages("The unflanged radiation impedance model is out of \nits validity frequency range.")
-    aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
-
-    aux_1 = np.r_[aux_1_1, aux_1_2]
-
-    aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
-
-    return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
-
-def flanged_termination_impedance(kappa_complex, pipe_radius, impedance_complex):
-    """
-    Auxiliary function to update the radiation impedance attributed to the element nodes according to the flanged prescription.
-
-    Parameters
-    -------
-    kappa_complex : complex-array
-        Complex wavenumber.
-
-    pipe_radius : float
-        Pipe radius.
-
-    impedance_complex : complex-array
-        Complex impedance.
-
-    Returns
-    -------
-    array
-        Flanged termination impedance. The array has the same length as kappa_complex parameter.
-    """
-    kr = kappa_complex * pipe_radius
-    return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * struve(1,2*np.real(kr))/ kr  ) +0j
 
 def j2j0(z):
     """
@@ -120,12 +65,12 @@ class AcousticElement:
     index : int
         Element index.
 
-    element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
+    element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
         Element type
         Default is 'undamped'.
 
-    hysteretic_damping : float, optional
-        Hysteretic damping coefficient 
+    proportional_damping : float, optional
+        Proportional damping coefficient 
         Default is 'None'.
 
     material : Material object, optional
@@ -157,12 +102,17 @@ class AcousticElement:
         self.last_node = last_node
         self.index = index
         self.element_type = kwargs.get('element_type', 'undamped')
-        self.hysteretic_damping = kwargs.get('hysteretic_damping', None)
+        self.proportional_damping = kwargs.get('proportional_damping', None)
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
+        self.perforated_plate = kwargs.get('perforated_plate', None)
+        self.mean_velocity = kwargs.get('mean_velocity', 0)
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
+
+        self.delta_pressure = 0
+        self.pp_impedance = None
 
         self.element_type = kwargs.get('element_type', 'undamped')
 
@@ -170,6 +120,7 @@ class AcousticElement:
         self.flag_wide_duct = False
         self.flag_lrf_fluid_eq = False
         self.flag_lrf_full = False
+        self.flag_unflanged_radiation_impedance = False
 
     @property
     def length(self):
@@ -206,6 +157,15 @@ class AcousticElement:
             The element impedance.
         """
         return self.fluid.impedance / self.cross_section.area_fluid
+
+    @property
+    def mach(self):
+        return self.mean_velocity / self.speed_of_sound_corrected()
+
+    def update_pressure(self,solution):
+        pressure_first = solution[self.first_node.global_index, :]
+        pressure_last = solution[self.last_node.global_index, :]
+        self.delta_pressure =  pressure_last - pressure_first
 
     @property
     def global_dof(self):
@@ -251,8 +211,11 @@ class AcousticElement:
         ----------
         .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
-        factor = self.cross_section.internal_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
-        return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
+        if self.cross_section.section_label == 'Expansion joint section':
+            return self.fluid.speed_of_sound
+        else:
+            factor = self.cross_section.inner_diameter * self.fluid.bulk_modulus / (self.material.young_modulus * self.cross_section.thickness)
+            return (1 / sqrt(1 + factor))*self.fluid.speed_of_sound
         
     def matrix(self, frequencies, length_correction=0):
         """
@@ -271,14 +234,16 @@ class AcousticElement:
         2D array
             Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
         """
-        if self.element_type in ['undamped','hysteretic','wide-duct','LRF fluid equivalent']:
+        if self.perforated_plate:
+            return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
+        elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
             return self.fetm_1d_matrix(frequencies, length_correction)
         elif self.element_type == 'LRF full':
             return self.lrf_thermoviscous_matrix(frequencies, length_correction)  
     
     def fetm_1d_matrix(self, frequencies, length_correction = 0):
         """
-        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Hysteretic, Wide-duct, and LRF fluid equivalent.
+        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
 
         Parameters
         ----------
@@ -295,6 +260,7 @@ class AcousticElement:
         """
         ones = np.ones(len(frequencies), dtype='float64')
         kappa_complex, impedance_complex = self._fetm_damping_models(frequencies)
+        self.radiation_impedance(kappa_complex, impedance_complex)
         
         area_fluid = self.cross_section.area_fluid
 
@@ -303,13 +269,11 @@ class AcousticElement:
         cossine = np.cos(kappaLe)
         matrix = ((area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
 
-        self.radiation_impedance(kappa_complex, impedance_complex)
-
         return matrix
 
     def _fetm_damping_models(self, frequencies):
         """
-        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are Undamped, Hysteretic, Wide-duct, and LRF fluid equivalent.
+        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
 
         Parameters
         ----------
@@ -328,15 +292,15 @@ class AcousticElement:
         c0 = self.speed_of_sound_corrected()
         rho_0 = self.fluid.density
         kappa_real = omega/c0
-        radius = self.cross_section.internal_diameter / 2
+        radius = self.cross_section.inner_diameter / 2
         if self.element_type == 'undamped':
             criterion = np.real(kappa_real[-1] * radius) > 3.83
             if criterion:
                 self.flag_plane_wave = True
             return kappa_real, c0 * rho_0
 
-        elif self.element_type == 'hysteretic':
-            hysteresis = (1 - 1j*self.hysteretic_damping)
+        elif self.element_type == 'proportional':
+            hysteresis = (1 - 1j*self.proportional_damping)
             kappa_complex = kappa_real * hysteresis
             impedance_complex = c0 * rho_0 * hysteresis
             
@@ -374,7 +338,7 @@ class AcousticElement:
             nu = self.fluid.kinematic_viscosity
             gamma = self.fluid.isentropic_exponent
             alpha = self.fluid.thermal_diffusivity
-            radius = self.cross_section.internal_diameter / 2
+            radius = self.cross_section.inner_diameter / 2
 
             aux = np.sqrt(omega)
             kappa_v = aux * np.sqrt(-1j / nu)
@@ -423,7 +387,7 @@ class AcousticElement:
         area = self.cross_section.area_fluid
         c = self.speed_of_sound_corrected()
         length = self.length + length_correction
-        radius = self.cross_section.internal_diameter / 2
+        radius = self.cross_section.inner_diameter / 2
         kappa_real = omega / c
 
         s = radius * np.sqrt(rho * omega / mu)
@@ -457,6 +421,89 @@ class AcousticElement:
             self.flag_plane_wave = True
         return matrix  
 
+    def update_pp_impedance(self, frequencies, nonlinear_effect):
+        # Fluid physical quantities
+        if frequencies[0]==0:
+            frequencies[0] = float(1e-4)
+
+        rho = self.fluid.density
+        mu = self.fluid.dynamic_viscosity
+        gamma = self.fluid.isentropic_exponent
+        kappa = self.fluid.thermal_conductivity
+        c_p = self.fluid.specific_heat_Cp
+        c = self.speed_of_sound_corrected()
+        z = self.fluid.impedance
+
+        # Perforated plate physical quantities
+        d = self.perforated_plate.hole_diameter
+        t = self.perforated_plate.thickness
+        sigma = self.perforated_plate.porosity
+        t_foks = t + self.perforated_plate.foks_delta
+        c_l = self.perforated_plate.linear_discharge_coefficient
+
+        omega = 2 * pi * frequencies
+        k = omega / c
+
+        if isinstance(self.pp_impedance, np.ndarray):
+            u_n = np.abs(self.delta_pressure/self.pp_impedance)
+        else:
+            u_n = 0
+
+        if self.perforated_plate.type == 0:
+            theta_rad = self.perforated_plate.radiation_impedance(k)
+
+            #TODO: use mach number as input when the formulation is validated
+            # theta_flow = self.perforated_plate.flow_impedance(0) 
+            theta_flow = 0
+
+            #TODO: use mach number as input when the formulation is validated
+            if self.perforated_plate.bias_effect:
+                theta_g = self.perforated_plate.bias_impedance(0)
+            else:
+                theta_g = 0
+            
+            if nonlinear_effect:
+                theta_nl = self.perforated_plate.nonlinear_impedance(c, u_n)
+            else:
+                theta_nl = 0
+
+            if isinstance(self.perforated_plate.dimensionless_impedance, (complex, np.ndarray)):
+                theta_user = self.perforated_plate.dimensionless_impedance
+            else:
+                theta_user = 0
+
+            k_viscous = np.sqrt(-1j * omega * rho / mu)
+            mean_viscous_field = - j2j0(k_viscous*d/2)
+            
+            k_thermal = np.sqrt(-1j * omega * rho * c_p / kappa)
+            mean_thermal_field = (gamma + (gamma - 1) *j2j0(k_thermal*d/2)) 
+
+            k_vt = k * np.sqrt(mean_thermal_field/mean_viscous_field) 
+            z_vt = z / np.sqrt(mean_thermal_field * mean_viscous_field)
+
+            theta = - z *(theta_rad + theta_flow + theta_g + theta_nl + theta_user)
+
+            z_orif = - 2j * z_vt * np.sin(k_vt * t_foks / 2) / (sigma*c_l) + theta
+
+        elif self.perforated_plate.type == 1: # Melling's model
+            nu = self.fluid.kinematic_viscosity
+
+            k_stokes = np.sqrt( -1j*omega / nu)
+            k_ef = np.sqrt( -1j*omega / (2.179 * nu))
+            foks_porosity = Foks_function(np.sqrt(sigma))
+
+            xi_l = 1j*k/(sigma*c_l)*( t / f_function(k_ef * d/2) + 8* d/(3*pi * f_function(k_stokes * d/2))*foks_porosity )
+            xi_nl = 4 * u_n * (1-sigma**2)/(3*pi*c*(sigma*c_l)**2)
+            z_orif = - (xi_l + xi_nl) * z 
+        
+        self.pp_impedance = z_orif
+
+    def perforated_plate_matrix(self, frequencies, nonlinear_effect):
+        self.update_pp_impedance(frequencies, nonlinear_effect)
+        admittance = self.cross_section.area_fluid / self.pp_impedance
+        
+        return np.c_[- admittance, admittance, admittance, - admittance]
+
     def radiation_impedance(self, kappa_complex, impedance_complex):
         """
         This method update the radiation impedance attributed to the element nodes according to the anechoic, flanged, and unflanged prescription.
@@ -469,21 +516,79 @@ class AcousticElement:
         z : complex-array
             Complex impedance.
         """
-        radius = self.cross_section.internal_diameter / 2
         if self.first_node.radiation_impedance_type == 0:
             self.first_node.radiation_impedance = impedance_complex + 0j
         elif self.first_node.radiation_impedance_type == 1:
-            self.first_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.first_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.first_node.radiation_impedance_type == 2:
-            self.first_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.first_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
 
         if self.last_node.radiation_impedance_type == 0:
             self.last_node.radiation_impedance = impedance_complex + 0j
         elif self.last_node.radiation_impedance_type == 1:
-            self.last_node.radiation_impedance = unflanged_termination_impedance(kappa_complex, radius, impedance_complex)
+            self.last_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.last_node.radiation_impedance_type == 2:
-            self.last_node.radiation_impedance = flanged_termination_impedance(kappa_complex, radius, impedance_complex)
-    
+            self.last_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
+
+    def unflanged_termination_impedance(self, kappa_complex, impedance_complex):
+        """
+        This method updates the radiation impedance attributed to the element nodes according to the unflanged prescription.
+
+        Parameters
+        -------
+        kappa_complex : complex-array
+            Complex wavenumber.
+
+        impedance_complex : complex-array
+            Complex system impedance.
+
+        Returns
+        -------
+        array
+            Unflanged pipe termination impedance. The array has the same length as kappa_complex parameter.
+        """
+
+        radius = self.cross_section.inner_radius
+        
+        kr = kappa_complex * radius
+        mask = kr<=1
+        
+        kr_less_t_1 = kr[mask]
+        gamma = np.exp(0.5772)
+        aux_1_1 = np.abs(np.exp((-kr_less_t_1**2)/2) * (1 + kr_less_t_1**4 / 6 * np.log(1 / (gamma * kr_less_t_1) + 19/12)))
+
+        kr_great_t_1 = kr[~mask]
+
+        if np.any(kr_great_t_1 > 3.83):
+            self.flag_unflanged_radiation_impedance = True
+
+        aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
+        aux_1 = np.r_[aux_1_1, aux_1_2]
+        aux_2 = - aux_1 * np.exp( -2j * kr * poly_function(kr))
+
+        return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
+
+    def flanged_termination_impedance(self, kappa_complex, impedance_complex):
+        """
+        This method updates the radiation impedance attributed to the element nodes according to the flanged prescription.
+
+        Parameters
+        -------
+        kappa_complex : complex-array
+            Complex wavenumber.
+
+        impedance_complex : complex-array
+            Complex impedance.
+
+        Returns
+        -------
+        array
+            Flanged termination impedance. The array has the same length as kappa_complex parameter.
+        """
+        radius = self.cross_section.inner_radius
+        kr = kappa_complex * radius
+        return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * H1(2*kr)/ kr  ) +0j 
+
     def fem_1d_matrix(self, length_correction=0 ):
         """
         This method returns the FEM acoustic 1D elementary matrices. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The FEM is not compatible with any damping model.
@@ -510,4 +615,5 @@ class AcousticElement:
 
         Ke = area/(rho*length) * np.array([[1,-1],[-1,1]])
         Me = area * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
+        
         return Ke, Me
