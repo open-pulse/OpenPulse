@@ -153,15 +153,29 @@ class Project:
                     else:
                         rmtree(file_path)
                     
-    def remove_file_or_folder_from_project_directory(self, filename):
-        list_filenames = os.listdir(self.file._project_path).copy()
+    def remove_file_or_folder_from_project_directory(self, filename, folder_name=""):
+        
+        if folder_name != "":
+            path = get_new_path(self.file._project_path, folder_name)
+        else:
+            path = self.file._project_path
+        list_filenames = os.listdir(path).copy()
+
         if filename in list_filenames:
-            file_path = get_new_path(self.file._project_path, filename)
+
+            file_path = get_new_path(path, filename)
+            
             if os.path.exists(file_path):
                 if "." in filename:
                     os.remove(file_path)
                 else:
                     rmtree(file_path)
+
+    def remove_imported_data_folder_if_empty(self):
+        self._folder_path = get_new_path(self.file._project_path, "imported_data")
+        list_filenames = os.listdir(self._folder_path).copy()
+        if len(list_filenames) == 0:
+            rmtree(self._folder_path)
 
     def process_geometry_and_mesh(self, tolerance=1e-6):
         if self.file.get_import_type() == 0:
@@ -404,10 +418,9 @@ class Project:
         indexes = [0, 1]
         dict_etype_index = dict(zip(label_etypes,indexes))
 
-        # for line_id in self.lines_with_cross_section_by_elements:
         dict_multiple_cross_sections = defaultdict(list)
         list_elements = self.preprocessor.line_to_elements[line_id]
-        # print(line_id, list_elements)
+        
         elements = self.preprocessor.structural_elements
         count_sections = 0
 
@@ -437,7 +450,7 @@ class Project:
 
             if key_string not in list(dict_multiple_cross_sections.keys()):
                 count_sections += 1
-            # print(f"Element id: {element_id} - key cross: {key_string}")
+            
             dict_multiple_cross_sections[key_string].append(element_id)
     
         return dict_multiple_cross_sections  
@@ -729,15 +742,18 @@ class Project:
     def add_expansion_joint_by_elements(self, list_elements, parameters, imported_table, list_table_names=[], update_element_type=True, reset_cross=True):
         if parameters is None:
             remove = True
-            capped = False
+            # capped = False
             element_type = "pipe_1"
         else:
             remove = False
-            capped = True
+            # capped = True
             element_type = "expansion_joint"
 
-        self.preprocessor.add_expansion_joint_by_elements(list_elements, parameters, remove=remove, reset_cross=reset_cross)
-  
+        self.preprocessor.add_expansion_joint_by_elements(  list_elements, 
+                                                            parameters, 
+                                                            remove=remove, 
+                                                            reset_cross=reset_cross )
+        
         if update_element_type:
             self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
 
@@ -746,16 +762,13 @@ class Project:
             line_id = self.preprocessor.elements_to_line[element]
             if line_id not in list_lines:
                 list_lines.append(line_id)
-            # if line_id not in self.lines_with_expansion_joint_by_elements.keys():
-            #     self.lines_with_expansion_joint_by_elements[line_id].append(parameters)
-            # else:
-            #     if parameters not in self.lines_with_expansion_joint_by_elements[line_id]:
-            #         self.lines_with_expansion_joint_by_elements[line_id].append(parameters)
                     
         structural_elements = self.preprocessor.structural_elements
         dict_multiple_expansion_joints = {}
-        dict_key_parameters_to_elements = defaultdict(list)
         dict_key_parameters_to_parameters = {}
+        dict_key_parameters_to_table_names = {}
+        dict_key_parameters_to_elements = defaultdict(list)
+        
         for line_id in list_lines:
             dict_multiple_cross_sections = self.get_dict_multiple_cross_sections_from_line(line_id)
             for element_id in self.preprocessor.line_to_elements[line_id]:
@@ -763,28 +776,35 @@ class Project:
                 if element.expansion_joint_parameters is not None:
                     dict_key_parameters_to_elements[str(element.expansion_joint_parameters)].append(element_id)
                     dict_key_parameters_to_parameters[str(element.expansion_joint_parameters)] = element.expansion_joint_parameters
+                    dict_key_parameters_to_table_names[str(element.expansion_joint_parameters)] = element.joint_stiffness_table_names
             
             for ind, (key_parameters, _list_elements) in enumerate(dict_key_parameters_to_elements.items()):
                 section_key = f"{line_id}-{ind+1}"
                 parameters = dict_key_parameters_to_parameters[key_parameters]
-                dict_multiple_expansion_joints[section_key] = [parameters, _list_elements]
-                list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(list_elements, parameters[0][1])
-                self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
+                table_names = dict_key_parameters_to_table_names[key_parameters]
+                dict_multiple_expansion_joints[section_key] = [parameters, _list_elements, table_names]
+                list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(_list_elements, parameters[0][1])
+                self.preprocessor.set_cross_section_by_element(_list_elements, list_cross_sections)
             
             self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(   list_elements, 
                                                                                                 reset_line=True, 
                                                                                                 line_id=line_id, 
                                                                                                 dict_map_cross=dict_multiple_cross_sections,
                                                                                                 dict_map_expansion_joint=dict_multiple_expansion_joints )
-            if imported_table:
-                self.file.add_multiple_expansion_joints_in_file(line_id, 
+            
+            self.file.add_multiple_expansion_joints_in_file(    line_id, 
                                                                 dict_multiple_expansion_joints, 
-                                                                dict_multiple_cross_sections,
-                                                                list_table_names=list_table_names) 
-            else:
-                self.file.add_multiple_expansion_joints_in_file(line_id, 
-                                                                dict_multiple_expansion_joints,
-                                                                dict_multiple_cross_sections) 
+                                                                dict_multiple_cross_sections    )
+            
+            # if imported_table:
+            #     self.file.add_multiple_expansion_joints_in_file(line_id, 
+            #                                                     dict_multiple_expansion_joints, 
+            #                                                     dict_multiple_cross_sections,
+            #                                                     list_table_names=list_table_names) 
+            # else:
+            #     self.file.add_multiple_expansion_joints_in_file(line_id, 
+            #                                                     dict_multiple_expansion_joints,
+            #                                                     dict_multiple_cross_sections) 
 
     def set_stress_stiffening_by_elements(self, elements, parameters, section, remove=False):
         self.preprocessor.set_stress_stiffening_by_elements(elements, parameters, section=section, remove=remove)

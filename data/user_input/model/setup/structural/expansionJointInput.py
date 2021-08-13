@@ -78,6 +78,7 @@ class ExpansionJointInput(QDialog):
         self.userPath = os.path.expanduser('~')     
         self.folder_name = "imported_data"  
         self._entity_path = self.project.file._entity_path
+        self._project_path = self.project.file._project_path
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -543,7 +544,7 @@ class ExpansionJointInput(QDialog):
         if self.check_constant_values_to_stiffness():
             return
 
-        self.all_parameters = [self.list_parameters, self.list_stiffness]
+        self.all_parameters = [self.list_parameters, self.list_stiffness, []]
             
         if self.selection_by_line:
 
@@ -584,7 +585,7 @@ class ExpansionJointInput(QDialog):
                         list_lines.append(line_id)
         return list_lines
 
-    def get_pipe_cross_section_from_file(self, line_id, list_elements):
+    def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
         line_elements = self.preprocessor.line_to_elements[line_id]
         lower_id = list_elements[0] - 1
@@ -602,7 +603,7 @@ class ExpansionJointInput(QDialog):
             element = self.structural_elements[upper_id]
             cross = element.cross_section
             structural_element_type = element.element_type
-
+        
         return cross, structural_element_type
 
     def check_expansion_joint_already_added_to_elements(self, list_elements_new, parameters_new):
@@ -623,9 +624,13 @@ class ExpansionJointInput(QDialog):
             
             if not outside:
                 
-                cross, etype = self.get_pipe_cross_section_from_file(line_id)
+                cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements_current)
                 self.preprocessor.set_structural_element_type_by_element(list_elements_current, etype)
-                self.project.add_expansion_joint_by_elements(list_elements_current, None, False, update_element_type=False)
+                self.project.add_expansion_joint_by_elements(   list_elements_current, 
+                                                                None, 
+                                                                False, 
+                                                                update_element_type=False, 
+                                                                reset_cross=False   )
                 self.project.set_cross_section_by_elements(list_elements_current, cross)
                 self.preprocessor.group_elements_with_expansion_joints.pop(key)
                 changed = True
@@ -801,7 +806,7 @@ class ExpansionJointInput(QDialog):
         if self.check_table_of_values():
             return
 
-        self.all_parameters = [self.list_parameters, self.loaded_stiffness_tables]
+        self.all_parameters = [self.list_parameters, self.loaded_stiffness_tables, self.basenames]
 
         if self.selection_by_line:
             
@@ -825,13 +830,7 @@ class ExpansionJointInput(QDialog):
                 if not read.complete:
                     return
             self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)
-              
-            # if self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters):
-            #     title = "Update of expansion joint parameters from elements"
-            #     message = "The current expansion joint parameters has been replaced by new setup."
-            #     message += "Check to results to make sure that modifications are correct."
-            #     PrintMessageInput([title, message, window_title_1])
-            
+                          
             self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, True, self.basenames)
         
         self.update_plots()  
@@ -922,14 +921,6 @@ class ExpansionJointInput(QDialog):
             message = str(log_error)
             PrintMessageInput([title, message, window_title_1])
 
-    # def remove_table_files(self, values):          
-    #     for value in values:
-    #         if value != 'None' and ".dat" in value:
-    #             self.get_path_of_selected_table(value)
-    #             try:
-    #                 os.remove(self.path_of_selected_table)
-    #             except:
-    #                 pass
 
     def remove_selected_expansion_joint_by_line(self):
         if self.lineEdit_selected_info.text() == "":
@@ -951,9 +942,8 @@ class ExpansionJointInput(QDialog):
             return
         
         if read._continue:
-            
             if line_id in list(self.preprocessor.dict_lines_with_expansion_joints.keys()):
-                self.project.add_expansion_joint_by_line(line_id, None, False) 
+                self.remove_expansion_joint_by_line(line_id)
                 self.update_plots()
 
             title = "Removal of the expansion joint"
@@ -968,11 +958,12 @@ class ExpansionJointInput(QDialog):
             PrintMessageInput([title, message, window_title_2])
             return
 
-        group = self.lineEdit_selected_info.text()
+        selected_group = self.lineEdit_selected_info.text()
         title = "Removal of the expansion joint"
-        message = "Are you really sure you want to remove the expansion joint" 
-        message += f"added to the group {group}?\n\n\n"
-        message += "Press the Continue button to proceed with removal or press \n"
+        message = "Are you really sure you want to remove the expansion joint\n" 
+        message += f"added to the following group ?\n\n"
+        message += f"{selected_group}\n"
+        message += "\n\nPress the Continue button to proceed with removal or press \n"
         message += "Cancel or Close buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message)
 
@@ -980,25 +971,34 @@ class ExpansionJointInput(QDialog):
             return
 
         if read._continue:
-            self.remove_expansion_joint_by_group_of_elements(group)
+            self.remove_expansion_joint_by_group_of_elements(selected_group)
             self.update_plots()
                 
         title = "Removal of the expansion joint"
-        message = f"The expansion joint added to the group {group} \nhas been removed from the model."
+        message = f"The expansion joint added to the group {selected_group} \nhas been removed from the model."
         PrintMessageInput([title, message, window_title_1])
 
-    def remove_expansion_joint_by_group_of_elements(self, _group):
 
-        if _group in self.preprocessor.group_elements_with_expansion_joints.keys():
-            [list_elements, _] = self.preprocessor.group_elements_with_expansion_joints[_group]
+    def remove_expansion_joint_by_line(self, line_id):
+
+        self.remove_table_files_from_imported_data_folder_by_line(line_id)
+        self.project.add_expansion_joint_by_line(line_id, None, False) 
+
+
+    def remove_expansion_joint_by_group_of_elements(self, selected_group):
+
+        if selected_group in self.preprocessor.group_elements_with_expansion_joints.keys():
+            [list_elements, _] = self.preprocessor.group_elements_with_expansion_joints[selected_group]
             list_lines = []
             for element_id in list_elements:
                 line_id = self.preprocessor.elements_to_line[element_id]
                 if line_id not in list_lines:
                     list_lines.append(line_id)
+
+        self.remove_table_files_from_imported_data_folder_by_elements(list_elements)
         
         for line_id in list_lines:
-            cross, etype = self.get_pipe_cross_section_from_file(line_id, list_elements)
+            cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements)
             self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
             self.project.set_cross_section_by_elements(list_elements, cross)
             self.project.add_expansion_joint_by_elements(   list_elements, 
@@ -1006,11 +1006,13 @@ class ExpansionJointInput(QDialog):
                                                             False, 
                                                             update_element_type=False,
                                                             reset_cross=False   )
-            self.preprocessor.group_elements_with_expansion_joints.pop(_group)
+            self.preprocessor.group_elements_with_expansion_joints.pop(selected_group)
+        
 
     def reset_all(self):
+
         title = "Remove all expansion joints added to the model"
-        message = "Are you really sure you want to remove all expansion joints from model?\n\n\n"
+        message = "Are you really sure you want to remove all expansion joints from the model?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message)
 
@@ -1021,11 +1023,12 @@ class ExpansionJointInput(QDialog):
 
             temp_dict_1 = self.preprocessor.dict_lines_with_expansion_joints.copy()
             for line_id in temp_dict_1.keys():
-                self.project.add_expansion_joint_by_line(line_id, None, False)
+                self.remove_expansion_joint_by_line(line_id)
             
             temp_dict_2 = self.preprocessor.group_elements_with_expansion_joints.copy()
             for group in temp_dict_2.keys(): 
                self.remove_expansion_joint_by_group_of_elements(group)
+
             self.update_plots()
 
             title = "Removal of expansion joints"
@@ -1038,8 +1041,112 @@ class ExpansionJointInput(QDialog):
         self.update_remove_buttons()
         self.update_tabs()
         self.opv.opvRenderer.plot()
+        # self.opv.opvAnalisysRenderer.plot()
         self.opv.changePlotToEntitiesWithCrossSection() 
     
+    def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        list_table_names = []
+        list_joint_stiffness = []
+        for section in sections:
+            keys = list(config[section].keys())
+            if 'list of elements' in keys:
+                str_list_elements_from_file = config[section]['list of elements']
+                if str_list_elements_from_file == str(list_elements):
+                    if 'expansion joint stiffness' in keys:
+                        read_joint_stiffness = config[section]['expansion joint stiffness']
+                        list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
+                        cache_section = section
+        
+        if list_joint_stiffness == []:
+            return
+
+        for stiffness_value in list_joint_stiffness:
+            try:
+                float(stiffness_value)
+                return
+            except:
+                break
+        
+        list_table_multiple_joints = []
+        list_table_names = list_joint_stiffness
+        
+        for section in sections:
+            if section != cache_section:
+                keys = list(config[section].keys())
+                if 'expansion joint stiffness' in keys:
+                    read_table_names = config[section]['expansion joint stiffness']
+                    for table_name in list_table_names:
+                        if table_name in read_table_names:
+                            list_table_multiple_joints.append(table_name)
+        
+        if len(list_table_multiple_joints)==0:
+            self.confirm_table_file_removal(list_table_names)
+
+
+    def remove_table_files_from_imported_data_folder_by_line(self, line_id):
+
+        str_line_id = str(line_id)
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        list_table_names = []
+        list_joint_stiffness = []
+        if str_line_id in sections:
+            keys = list(config[str_line_id].keys())
+            if 'expansion joint stiffness' in keys:
+                read_joint_stiffness = config[str_line_id]['expansion joint stiffness']
+                list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
+                cache_section = str_line_id
+        
+        if list_joint_stiffness == []:
+            return
+
+        for stiffness_value in list_joint_stiffness:
+            try:
+                float(stiffness_value)
+                return
+            except:
+                break
+        
+        list_table_multiple_joints = []
+        list_table_names = list_joint_stiffness
+        
+        for section in sections:
+            if section != cache_section:
+                keys = list(config[section].keys())
+                if 'expansion joint stiffness' in keys:
+                    read_table_names = config[section]['expansion joint stiffness']
+                    for table_name in list_table_names:
+                        if table_name in read_table_names:
+                            list_table_multiple_joints.append(table_name)
+        
+        if len(list_table_multiple_joints)==0:
+            self.confirm_table_file_removal(list_table_names)
+
+
+    def confirm_table_file_removal(self, list_tables):
+
+        title = "Removal of imported table files"
+        message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
+        for table in list_tables:
+            message += f"{table}\n"
+        message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:
+            for table_name in list_tables:
+                self.project.remove_file_or_folder_from_project_directory(table_name, folder_name="imported_data")
+            self.project.remove_imported_data_folder_if_empty()             
+        
     def force_to_close(self):
         self.close()
 
@@ -1059,8 +1166,6 @@ class GetInformationOfGroup(QDialog):
         self.selection = selection
         self.preprocessor = project.preprocessor
         self._entity_path = self.project.file._entity_path
-        self.dict_elastic_link_stiffness = {}
-        self.dict_elastic_link_damping = {}
 
         self.title_label = self.findChild(QLabel, 'title_label')
         self.title_label.setText('Information of selected expansion joint')
@@ -1110,11 +1215,12 @@ class GetInformationOfGroup(QDialog):
             if self.selection in self.preprocessor.group_elements_with_expansion_joints.keys():
                 data = self.preprocessor.group_elements_with_expansion_joints[self.selection]
                 [list_elements, all_joint_parameters] = data
-                [joint_parameters, joint_stiffness] = all_joint_parameters
+                [joint_parameters, joint_stiffness, table_names] = all_joint_parameters
                 
                 str_joint_parameters = str(joint_parameters)
                 if get_string_from_joint_paramters(all_joint_parameters):
-                    str_joint_data = f"{str_joint_parameters[1:-1]}, {'Table, Table, Table, Table'}"
+                    str_table_names = f"{table_names[0]}, {table_names[1]}, {table_names[2]}, {table_names[3]}"
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_table_names}"
                 else:
                     str_joint_stiffness = str(joint_stiffness)
                     str_joint_data = f"{str_joint_parameters[1:-1]}, {str_joint_stiffness[1:-1]}"
@@ -1129,11 +1235,12 @@ class GetInformationOfGroup(QDialog):
 
             if int(self.selection) in self.preprocessor.dict_lines_with_expansion_joints.keys():
                 all_joint_parameters = self.preprocessor.dict_lines_with_expansion_joints[int(self.selection)]
-                [joint_parameters, joint_stiffness] = all_joint_parameters
+                [joint_parameters, joint_stiffness, table_names] = all_joint_parameters
 
                 str_joint_parameters = str(joint_parameters)
                 if get_string_from_joint_paramters(all_joint_parameters):
-                    str_joint_data = f"{str_joint_parameters[1:-1]}, {'Table, Table, Table, Table'}"
+                    str_table_names = f"{table_names[0]}, {table_names[1]}, {table_names[2]}, {table_names[3]}"
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_table_names}"
                 else:
                     str_joint_stiffness = str(joint_stiffness)
                     str_joint_data = f"{str_joint_parameters[1:-1]}, {str_joint_stiffness[1:-1]}"

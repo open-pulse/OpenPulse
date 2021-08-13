@@ -285,7 +285,7 @@ class ProjectFile:
             str_joint_stiffness = ""
             if 'expansion joint stiffness' in entityFile[entity].keys():
                 str_joint_stiffness = entityFile[entity]['expansion joint stiffness']
-                joint_stiffness = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
+                joint_stiffness, joint_table_names = self._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
 
             outerDiameter = ""
             thickness = ""
@@ -348,7 +348,7 @@ class ProjectFile:
                 
                 if str_joint_parameters != "" and str_joint_stiffness != "":
                     _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-                    self.dict_expansion_joint_parameters[entity]= [_list_elements, [joint_parameters, joint_stiffness]]
+                    self.dict_expansion_joint_parameters[entity]= [_list_elements, [joint_parameters, joint_stiffness, joint_table_names]]
 
             else:
 
@@ -427,7 +427,7 @@ class ProjectFile:
                             PrintMessageInput([title, message, window_title])
             
                     if str_joint_parameters != "" and str_joint_stiffness != "":
-                        self.dict_expansion_joint_parameters[entity] = [joint_parameters, joint_stiffness]
+                        self.dict_expansion_joint_parameters[entity] = [joint_parameters, joint_stiffness, joint_table_names]
 
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
@@ -611,7 +611,7 @@ class ProjectFile:
                 
 
     def add_cross_section_in_file(self, entity_id, cross_section):  
-        # print(f"passei line section {entity_id}") 
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         line_id = str(entity_id)
@@ -768,7 +768,7 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_multiple_expansion_joints_in_file(self, line_id, map_expansion_joint_to_elements, map_cross_sections_to_elements, list_table_names=[]):
+    def add_multiple_expansion_joints_in_file(self, line_id, map_expansion_joint_to_elements, map_cross_sections_to_elements):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         config_base = configparser.ConfigParser()
@@ -819,8 +819,8 @@ class ProjectFile:
                                     'insulation density': f'{vals[5]}',
                                     'list of elements': f'{elements}' }
 
-        for ind_2, (_, (parameters, list_elements)) in enumerate(map_expansion_joint_to_elements.items()):
-
+        for ind_2, (_, data) in enumerate(map_expansion_joint_to_elements.items()):
+            parameters, list_elements, list_table_names = data
             section_key = f"{line_id}-{counter_1 + ind_2 + 1}"
            
             if list_table_names == []:
@@ -1261,6 +1261,7 @@ class ProjectFile:
         
         N = len(read)
         output = [None, None, None, None]
+        list_table_names = []
 
         if len(read)==4:
             for i in range(N):
@@ -1281,13 +1282,14 @@ class ProjectFile:
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
                         self.temp_table_name = read[i]
+                        list_table_names.append(read[i])
 
                     except Exception as log_error:
                         title = f"Expansion joint: error while loading {labels[i]} table of values"
                         message = str(log_error)
                         PrintMessageInput([title, message, window_title])
-                        return None
-        return output
+                        return None, None
+        return output, list_table_names
 
     def structural_tables_load(self, table_name, label):
         output = None

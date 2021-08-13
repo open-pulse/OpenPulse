@@ -1184,6 +1184,7 @@ class StructuralElement:
         self.joint_transversal_stiffness = 0
         self.joint_torsional_stiffness = 0
         self.joint_angular_stiffness = 0
+        self.joint_stiffness_table_names = []
 
     def get_array_values(self, value, size):
         # if frequencies is None:

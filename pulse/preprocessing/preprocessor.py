@@ -391,15 +391,12 @@ class Preprocessor:
     def get_line_length(self, line_ID):
         first_element_ID = self.line_to_elements[line_ID][0]
         last_element_ID = self.line_to_elements[line_ID][-1]
-        # print(first_element_ID, last_element_ID)
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
-        # print(node1_first_element.external_index, node2_first_element.external_index)
 
         node1_last_element = self.structural_elements[last_element_ID].first_node
         node2_last_element = self.structural_elements[last_element_ID].last_node
-        # print(node1_last_element.external_index, node2_last_element.external_index)
 
         list_nodes = [  node1_first_element, node2_first_element, 
                         node1_last_element, node2_last_element  ]
@@ -913,7 +910,6 @@ class Preprocessor:
                 for element in slicer(self.acoustic_elements, _element):
                     element.cross_section = _cross_section
         else:    
-            # print("list of elements :", elements)
             for element in slicer(self.structural_elements, elements):
                 element.cross_section = cross_section
             for element in slicer(self.acoustic_elements, elements):
@@ -1595,6 +1591,7 @@ class Preprocessor:
 
             [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
             [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+            list_stiffness_table_names = parameters[2]
 
             for element in slicer(self.structural_elements, list_elements):
                 element.joint_length = joint_length
@@ -1606,6 +1603,7 @@ class Preprocessor:
                 element.joint_transversal_stiffness = transversal_stiffness
                 element.joint_torsional_stiffness = torsional_stiffness
                 element.joint_angular_stiffness = angular_stiffness
+                element.joint_stiffness_table_names = list_stiffness_table_names
                 element.expansion_joint_parameters = parameters
                 if element not in self.elements_with_expansion_joint:
                     self.elements_with_expansion_joint.append(element)
@@ -2309,7 +2307,6 @@ class Preprocessor:
         """
         This method ...
         """        
-        # print(f"Node index: {node.external_index} - Coordinates: {node.coordinates}")
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
@@ -2326,18 +2323,17 @@ class Preprocessor:
                 ind = list_coordinates.index(coord)
                 new_external_index = int(new_external_indexes[ind])
                 self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-                # print(f"External index: {new_external_index}/{old_external_index} - Coordinates: {coord}")
             else:
                 diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
                 mask = diff < tolerance
                 try:
                     new_external_index = int(coord_matrix[:,0][mask])
                     self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
-                    # print(f"Coord not found: {coord} - {old_external_index}/{new_external_index} == {diff[mask]}")
                 except:
                     self.dict_non_mapped_bcs[key] = old_external_index
         self.get_nodal_coordinates_matrix()
         return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
+
 
     def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
         """
@@ -2382,7 +2378,7 @@ class Preprocessor:
         for key, list_elements_cross in dict_map_cross.items():
             list_group_elements.append(list_elements_cross)
         
-        for (_, list_elements_joint) in dict_map_expansion_joint.values():
+        for (_, list_elements_joint, _) in dict_map_expansion_joint.values():
             list_group_elements.append(list_elements_joint)
         
         for _list_elements in list_group_elements:    
@@ -2422,9 +2418,7 @@ class Preprocessor:
        
             first_element_id = output_subgroup[0]
             last_element_id = output_subgroup[-1]
-            # print(f"input element ids: {[first_element_id, last_element_id]}")
             start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
-            # print(f"output element ids: {[start_node_id, end_node_id]}")
             first_node_coordinates = self.nodes[start_node_id].coordinates
             last_node_coordinates = self.nodes[end_node_id].coordinates
 
@@ -2433,7 +2427,6 @@ class Preprocessor:
             self.dict_element_info_to_update_indexes_in_element_info_file[key] = [  list(first_node_coordinates),
                                                                                     list(last_node_coordinates),
                                                                                     output_subgroup ]
-        # print("This is the end\n")
 
 
     def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-8):
@@ -2455,8 +2448,7 @@ class Preprocessor:
 
                 ind = list_coordinates.index(first_node_coord)
                 new_external_index = int(new_external_indexes[ind])
-                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                # print(f"External index first: {new_external_index}/{key} - Coordinates: {first_node_coord}")            
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)          
             
             else:
 
@@ -2466,17 +2458,14 @@ class Preprocessor:
                 try:
                     new_external_index = int(coord_matrix[:,0][mask])
                     dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                    # print(f"Coord not found first: {first_node_coord} - {key}/{new_external_index} == {diff[mask]}")
                 except:
-                    # print(f"Non-mapped: first coord = {first_node_coord} || subgroup: {subgroup_elements}")
                     dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
                            
             if last_node_coord in list_coordinates:
 
                 ind = list_coordinates.index(last_node_coord)
                 new_external_index = int(new_external_indexes[ind])
-                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                # print(f"External index last: {new_external_index}/{key} - Coordinates: {last_node_coord}")            
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)           
             
             else:
 
@@ -2486,17 +2475,12 @@ class Preprocessor:
                 try:
                     new_external_index = int(coord_matrix[:,0][mask])
                     dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
-                    # print(f"Coord not found last: {last_node_coord} - {key}/{new_external_index} == {diff[mask]}")
                 except:
-                    # print(f"Non-mapped: last coord = {last_node_coord} || subgroup: {subgroup_elements}")
                     dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
             
         for str_subgroup_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
             if str_subgroup_elements not in dict_non_mapped_subgroups.keys():
-                # print("str_group_elements: ", str_subgroup_elements)
-                # print("edge_nodes: ", edge_nodes_from_group)
                 start_element_index, end_element_index = self.get_elements_inside_nodes_boundaries(edge_nodes_from_group)
-                # print(f"elements at edges: {[start_element_index, end_element_index]}")
                 new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
                 dict_old_to_new_list_of_elements[str_subgroup_elements] = new_list_elements
 
@@ -2531,12 +2515,10 @@ class Preprocessor:
 
 
     def get_elements_inside_nodes_boundaries(self, list_nodes):
-        # print(f"list_nodes: {list_nodes}")
+        
         start_node, end_node = list_nodes
-
         element_1_start_node = self.dict_first_node_to_element_index[start_node]
         element_2_start_node = self.dict_last_node_to_element_index[start_node]
-        # print(f"elements_start_node: {[element_1_start_node, element_2_start_node]}")
         
         if len(element_1_start_node) > 1 or len(element_2_start_node) > 1:
             elements_start_node = element_1_start_node
@@ -2551,7 +2533,6 @@ class Preprocessor:
         
         element_1_end_node = self.dict_first_node_to_element_index[end_node]
         element_2_end_node = self.dict_last_node_to_element_index[end_node]
-        # print(f"elements_end_node: {[element_1_end_node, element_2_end_node]}")
 
         if len(element_1_end_node) > 1 or len(element_2_end_node) > 1:
             elements_end_node = element_1_end_node
@@ -2579,7 +2560,7 @@ class Preprocessor:
                 if previous_distance > distance:
                     previous_distance = distance
                     output_indexes = [element_start, element_end]
-        # print(f"output_indexes: {output_indexes}\n")
+     
         return min(output_indexes), max(output_indexes)
 
 
