@@ -75,7 +75,6 @@ class RunAnalysisInput(QDialog):
                 return
 
         if self.analysis_ID == 2:
-            print("entrei análise modal")
             self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
 
