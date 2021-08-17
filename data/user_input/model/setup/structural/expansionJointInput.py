@@ -553,7 +553,7 @@ class ExpansionJointInput(QDialog):
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
                                                                             self.effective_diameter )
             self.project.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
-            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, False)
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
 
         else:
 
@@ -568,7 +568,7 @@ class ExpansionJointInput(QDialog):
                 if not read.complete:
                     return
             self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)            
-            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, False)
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters)
 
         self.update_plots()
         self.close()
@@ -628,7 +628,6 @@ class ExpansionJointInput(QDialog):
                 self.preprocessor.set_structural_element_type_by_element(list_elements_current, etype)
                 self.project.add_expansion_joint_by_elements(   list_elements_current, 
                                                                 None, 
-                                                                False, 
                                                                 update_element_type=False, 
                                                                 reset_cross=False   )
                 self.project.set_cross_section_by_elements(list_elements_current, cross)
@@ -815,7 +814,7 @@ class ExpansionJointInput(QDialog):
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
                                                                             self.effective_diameter )
             self.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
-            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, True, self.basenames)
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
 
         else:
             
@@ -830,8 +829,7 @@ class ExpansionJointInput(QDialog):
                 if not read.complete:
                     return
             self.check_expansion_joint_already_added_to_elements(self.list_elements, self.all_parameters)
-                          
-            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, True, self.basenames)
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters)
         
         self.update_plots()  
         self.close()
@@ -982,7 +980,7 @@ class ExpansionJointInput(QDialog):
     def remove_expansion_joint_by_line(self, line_id):
 
         self.remove_table_files_from_imported_data_folder_by_line(line_id)
-        self.project.add_expansion_joint_by_line(line_id, None, False) 
+        self.project.add_expansion_joint_by_line(line_id, None) 
 
 
     def remove_expansion_joint_by_group_of_elements(self, selected_group):
@@ -998,15 +996,18 @@ class ExpansionJointInput(QDialog):
         self.remove_table_files_from_imported_data_folder_by_elements(list_elements)
         
         for line_id in list_lines:
+
             cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements)
             self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
             self.project.set_cross_section_by_elements(list_elements, cross)
+            
             self.project.add_expansion_joint_by_elements(   list_elements, 
-                                                            None, 
-                                                            False, 
+                                                            None,  
                                                             update_element_type=False,
-                                                            reset_cross=False   )
-            self.preprocessor.group_elements_with_expansion_joints.pop(selected_group)
+                                                            reset_cross=False  )
+            
+            if selected_group in self.preprocessor.group_elements_with_expansion_joints.keys():
+                self.preprocessor.group_elements_with_expansion_joints.pop(selected_group)
         
 
     def reset_all(self):

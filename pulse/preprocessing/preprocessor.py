@@ -535,28 +535,6 @@ class Preprocessor:
         # dt = time()-t0
         # print("Time to process the global matrices bandwidth reduction: ", dt)
 
-    # def get_dict_line_to_nodes(self):
-    #     # t0 = time()
-    #     self.dict_line_to_nodes = {}
-    #     for line_ID, list_elements in self.line_to_elements.items():
-    #         # list_nodes = []
-    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-    #         for i, _id in enumerate(list_elements):
-    #             element = self.structural_elements[_id]
-    #             first_node_id = element.first_node.external_index
-    #             last_node_id = element.last_node.external_index
-    #             if i==0:
-    #                 list_nodes[i] = first_node_id
-    #             list_nodes[i+1] = last_node_id
-    #             # if first_node_id not in list_nodes:
-    #             #     list_nodes.append(first_node_id)
-    #             # if last_node_id not in list_nodes:
-    #             #     list_nodes.append(last_node_id)
-    #         self.dict_line_to_nodes[line_ID] = list_nodes  
-    #         # if line_ID in [1,2,3]:
-    #         #     print(self.dict_line_to_nodes[line_ID])  
-    #     # dt = time() - t0
-    #     # print(f"Time to process : {dt}")
 
     def load_mesh(self, coordinates, connectivity):
         """
@@ -1544,7 +1522,12 @@ class Preprocessor:
                     self.group_elements_with_stress_stiffening[section] = [pressures, elements]
 
 
-    def add_expansion_joint_by_elements(self, list_elements, parameters, remove=False, aux_line_id=None, reset_cross=True):
+    def add_expansion_joint_by_elements(self, 
+                                        list_elements, 
+                                        parameters, 
+                                        remove=False, 
+                                        aux_line_id=None, 
+                                        reset_cross=True):
         """
         This method .
 
@@ -1913,9 +1896,11 @@ class Preprocessor:
                 self.radius[last] = radius
         return self.radius
 
+
     def get_pipe_and_expansion_joint_elements_global_dofs(self):
         """
-        This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. This method helps to exclude those degrees of freedom from acoustic analysis.
+        This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. 
+        This method helps to exclude those degrees of freedom from acoustic analysis.
 
         Returns
         ----------
@@ -1931,11 +1916,7 @@ class Preprocessor:
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
                 pipe_gdofs[gdofs_node_last] = gdofs_node_last 
         return list(pipe_gdofs.keys())
-                # if gdofs_node_first not in list_pipe_gdofs:
-                #     list_pipe_gdofs.append(gdofs_node_first)
-                # if gdofs_node_last not in list_pipe_gdofs:
-                #     list_pipe_gdofs.append(gdofs_node_last)
-        # return list_pipe_gdofs
+
 
     def get_beam_and_non_beam_elements_global_dofs(self):
         """
@@ -1952,68 +1933,7 @@ class Preprocessor:
         self.beam_gdofs = np.delete(all_indexes, self.pipe_and_expansion_joint_gdofs)
         return self.beam_gdofs, self.pipe_and_expansion_joint_gdofs
 
-    # def get_beam_nodes_and_indexes(self, list_beam_elements):
-    #     """
-    #     This method returns the global indexes of the nodes associated to structural beam elements.
-
-    #     Returns
-    #     ----------
-    #     list
-    #         Nodes global indexes associated to beam element.
-    #     """
-    #     list_beam_nodes = []
-    #     list_node_ids = []
-    #     # print(len(list_beam_elements))
-    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
-    #     # list(self.nodes_with_multiples_neighbors.keys())
-        
-    #     # for element in self.structural_elements.values():
-    #     for element in list_beam_elements:
-    #         # if element.element_type in ['beam_1']:
-            
-    #         node_first = element.first_node
-    #         node_last = element.last_node
-            
-    #         if node_first not in list_beam_nodes:
-    #             list_beam_nodes.append(node_first)
-    #             list_node_ids.append(node_first.global_index)
-            
-    #         if node_last not in list_beam_nodes:
-    #             list_beam_nodes.append(node_last)
-    #             list_node_ids.append(node_last.global_index)
-                        
-    #         if node_first in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'First node: {node_first.external_index}')
-    #             list_beam_nodes.remove(node_first)
-    #             list_node_ids.remove(node_first.global_index)
-
-    #         if node_last in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'Last node: {node_last.external_index}')
-    #             list_beam_nodes.remove(node_last) 
-    #             list_node_ids.remove(node_last.global_index) 
-
-    #     print(len(list_node_ids))
-    #     return list_node_ids
-
-    # def get_nodes_connected_to_beam_and_pipe(self):
-    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
-    #     self.dict_node_to_multiple_element_types = defaultdict(list)
-    #     self.nodes_connected_to_beam_and_pipe = []
-    #     for element in self.structural_elements.values():#list_beam_elements:
-    #         first_node = element.first_node
-    #         last_node = element.last_node
-    #         if first_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
-    #         if last_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
-    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
-    #         if "beam_1" in element_types:
-    #             if ("pipe_1" or "pipe_2") in element_types:
-    #                 print(f"Node to remove: {node.external_index}")
-    #                 # print(element_types)
-    #                 self.nodes_connected_to_beam_and_pipe.append(node)
-    #     print(len(self.nodes_connected_to_beam_and_pipe))
-
+    
     def _process_beam_nodes_and_indexes(self):
         """
         This method ?????.
@@ -2350,8 +2270,6 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                # first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
-                # last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
                 line_id = self.elements_to_line[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
@@ -2389,8 +2307,6 @@ class Preprocessor:
                 start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
                 first_node_coordinates = self.nodes[start_node_id].coordinates
                 last_node_coordinates = self.nodes[end_node_id].coordinates
-                # first_node_coordinates = self.structural_elements[first_element_id].first_node.coordinates
-                # last_node_coordinates = self.structural_elements[last_element_id].last_node.coordinates
                 line_id = self.elements_to_line[first_element_id]
                 key = f"{first_element_id}-{last_element_id}||{line_id}"
                 self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
@@ -2567,6 +2483,7 @@ class Preprocessor:
     def get_model_checks(self):
         return BeforeRun(self)
                 
+
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes
         and reduces the amplitude through rescalling if higher levels are observed."""
@@ -2591,3 +2508,92 @@ class Preprocessor:
                 return True, value
 
         return False, None
+
+
+    #TODO: remove the following methods if they are not necessary anymore
+
+    # def get_dict_line_to_nodes(self):
+    #     # t0 = time()
+    #     self.dict_line_to_nodes = {}
+    #     for line_ID, list_elements in self.line_to_elements.items():
+    #         # list_nodes = []
+    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+    #         for i, _id in enumerate(list_elements):
+    #             element = self.structural_elements[_id]
+    #             first_node_id = element.first_node.external_index
+    #             last_node_id = element.last_node.external_index
+    #             if i==0:
+    #                 list_nodes[i] = first_node_id
+    #             list_nodes[i+1] = last_node_id
+    #             # if first_node_id not in list_nodes:
+    #             #     list_nodes.append(first_node_id)
+    #             # if last_node_id not in list_nodes:
+    #             #     list_nodes.append(last_node_id)
+    #         self.dict_line_to_nodes[line_ID] = list_nodes  
+    #         # if line_ID in [1,2,3]:
+    #         #     print(self.dict_line_to_nodes[line_ID])  
+    #     # dt = time() - t0
+    #     # print(f"Time to process : {dt}")
+
+
+    # def get_beam_nodes_and_indexes(self, list_beam_elements):
+    #     """
+    #     This method returns the global indexes of the nodes associated to structural beam elements.
+
+    #     Returns
+    #     ----------
+    #     list
+    #         Nodes global indexes associated to beam element.
+    #     """
+    #     list_beam_nodes = []
+    #     list_node_ids = []
+    #     # print(len(list_beam_elements))
+    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
+    #     # list(self.nodes_with_multiples_neighbors.keys())
+        
+    #     # for element in self.structural_elements.values():
+    #     for element in list_beam_elements:
+    #         # if element.element_type in ['beam_1']:
+            
+    #         node_first = element.first_node
+    #         node_last = element.last_node
+            
+    #         if node_first not in list_beam_nodes:
+    #             list_beam_nodes.append(node_first)
+    #             list_node_ids.append(node_first.global_index)
+            
+    #         if node_last not in list_beam_nodes:
+    #             list_beam_nodes.append(node_last)
+    #             list_node_ids.append(node_last.global_index)
+                        
+    #         if node_first in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'First node: {node_first.external_index}')
+    #             list_beam_nodes.remove(node_first)
+    #             list_node_ids.remove(node_first.global_index)
+
+    #         if node_last in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'Last node: {node_last.external_index}')
+    #             list_beam_nodes.remove(node_last) 
+    #             list_node_ids.remove(node_last.global_index) 
+
+    #     print(len(list_node_ids))
+    #     return list_node_ids
+
+    # def get_nodes_connected_to_beam_and_pipe(self):
+    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
+    #     self.dict_node_to_multiple_element_types = defaultdict(list)
+    #     self.nodes_connected_to_beam_and_pipe = []
+    #     for element in self.structural_elements.values():#list_beam_elements:
+    #         first_node = element.first_node
+    #         last_node = element.last_node
+    #         if first_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
+    #         if last_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
+    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
+    #         if "beam_1" in element_types:
+    #             if ("pipe_1" or "pipe_2") in element_types:
+    #                 print(f"Node to remove: {node.external_index}")
+    #                 # print(element_types)
+    #                 self.nodes_connected_to_beam_and_pipe.append(node)
+    #     print(len(self.nodes_connected_to_beam_and_pipe))

@@ -15,23 +15,6 @@ window_title = "ERROR"
 class ProjectFile:
     def __init__(self):
         self._reset()
-        # self._project_name = ""
-        # self._import_type = 0
-        # self._section = 0
-        # self._project_path = ""
-        # self._material_list_path = ""
-        # self._fluid_list_path = ""
-        # self._geometry_path = ""
-        # self._conn_path = ""
-        # self._coord_path = ""
-        # self._node_structural_path = ""
-        # self._node_acoustic_path = ""
-        # self._entity_path = ""
-        # self._element_info_path = ""
-        # self._analysis_path = ""
-        # self.temp_table_name = None
-        # self.element_type_is_structural = False
-
         self._entity_file_name = "entity.dat"
         self._node_structural_file_name = "structural_nodal_info.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
@@ -653,7 +636,7 @@ class ProjectFile:
                     config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
                     config[line_id]['insulation density'] = str(cross_section.insulation_density)
         
-        self.write_bc_in_file(self._entity_path, config)
+        self.write_data_in_file(self._entity_path, config)
         
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
@@ -700,23 +683,8 @@ class ProjectFile:
                                 'insulation density': f'{vals[5]}',
                                 'list of elements': f'{elements}' }
 
-        self.write_bc_in_file(self._entity_path, config)
+        self.write_data_in_file(self._entity_path, config)
 
-    # def update_list_elements_already_exists_in_entity_file(self, line_id, config, ext_list_elements):
-    #     dict_section_to_list_elements = {}
-    #     sections = config.sections()
-    #     prefix = f"{line_id}-"
-    #     for section in sections:
-    #         if prefix in section:
-    #             if 'list of elements' in config[section].keys():
-    #                 str_list_elements = config[section]['list of elements']
-    #                 old_list_elements = self._get_list_of_values_from_string(str_list_elements)
-    #                 new_list_elements = []
-    #                 temp_list = old_list_elements.copy()
-    #                 for element_id in temp_list:
-    #                     if element_id not in ext_list_elements:
-    #                         new_list_elements.append(element_id)
-    #                 config[section]['list of elements'] = str(new_list_elements)
 
     def modify_variable_cross_section_in_file(self, line_id, parameters):
         config = configparser.ConfigParser()
@@ -726,10 +694,10 @@ class ProjectFile:
         if str_line in list(config.sections()):
             config[str_line]['variable section parameters'] = str(parameters)
         
-        self.write_bc_in_file(self._entity_path, config)
+        self.write_data_in_file(self._entity_path, config)
 
 
-    def modify_expansion_joint_in_file(self, line_id, parameters, list_table_names=[]):
+    def modify_expansion_joint_in_file(self, line_id, parameters):
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -756,7 +724,9 @@ class ProjectFile:
             if f'{line_id}-' in section:
                 config.remove_section(section)
         
-        if parameters is not None or list_table_names!=[]:
+        if parameters is not None:
+
+            list_table_names = parameters[2]
 
             config[str_line]['expansion joint parameters'] = str(parameters[0])
             if list_table_names == []:
@@ -768,7 +738,12 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_multiple_expansion_joints_in_file(self, line_id, map_expansion_joint_to_elements, map_cross_sections_to_elements):
+    def add_multiple_expansion_joints_in_file(  self, 
+                                                line_id, 
+                                                map_expansion_joint_to_elements, 
+                                                map_cross_sections_to_elements, 
+                                                update_by_cross=False   ):
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         config_base = configparser.ConfigParser()
@@ -797,10 +772,11 @@ class ProjectFile:
         for section in sections:
             if f'{line_id}-' in section:
                 config.remove_section(section)        
+        
+        counter_1 = 0
+        for (cross_key, elements) in map_cross_sections_to_elements.items():
             
-        for ind_1, (cross_key, elements) in enumerate(map_cross_sections_to_elements.items()):
-            
-            counter_1 = ind_1 + 1
+            counter_1 += 1
             section_key = f"{line_id}-{counter_1}"             
             cross_strings = cross_key[1:-1].split(',')
             vals = [float(value) for value in cross_strings] 
@@ -818,28 +794,40 @@ class ProjectFile:
                                     'insulation thickness': f'{vals[4]}',
                                     'insulation density': f'{vals[5]}',
                                     'list of elements': f'{elements}' }
+        
+        counter_2 = 0
+        if update_by_cross:    
+            for section in sections:
+                if f'{line_id}-' in section:
+                    if 'expansion joint parameters' in config_base[section].keys():
+                        counter_2 += 1
+                        section_key = f"{line_id}-{counter_1 + counter_2}"
+                        config[section_key] = config_base[section]
+        
+        else:
 
-        for ind_2, (_, data) in enumerate(map_expansion_joint_to_elements.items()):
-            parameters, list_elements, list_table_names = data
-            section_key = f"{line_id}-{counter_1 + ind_2 + 1}"
-           
-            if list_table_names == []:
+            for (_, data) in map_expansion_joint_to_elements.items():
+                counter_2 += 1
+                parameters, list_elements, list_table_names = data
+                section_key = f"{line_id}-{counter_1 + counter_2}"
+            
+                if list_table_names == []:
 
-                config[section_key] = { 'structural element type' : 'expansion_joint',
-                                        'expansion joint parameters' : f'{parameters[0]}',
-                                        'expansion joint stiffness' : f'{parameters[1]}',
-                                        'list of elements' : f'{list_elements}' }
-                    
-            else:
+                    config[section_key] = { 'structural element type' : 'expansion_joint',
+                                            'expansion joint parameters' : f'{parameters[0]}',
+                                            'expansion joint stiffness' : f'{parameters[1]}',
+                                            'list of elements' : f'{list_elements}' }
+                        
+                else:
 
-                str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+                    str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
 
-                config[section_key] = { 'structural element type' : 'expansion_joint',
-                                        'expansion joint parameters' : f'{parameters[0]}',
-                                        'expansion joint stiffness' : str_table_names,
-                                        'list of elements' : f'{list_elements}' }
+                    config[section_key] = { 'structural element type' : 'expansion_joint',
+                                            'expansion joint parameters' : f'{parameters[0]}',
+                                            'expansion joint stiffness' : str_table_names,
+                                            'list of elements' : f'{list_elements}' }
 
-        self.write_bc_in_file(self._entity_path, config)
+        self.write_data_in_file(self._entity_path, config)
 
     def add_length_correction_in_file(self, elements, _type, section): 
         self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
@@ -1368,7 +1356,7 @@ class ProjectFile:
                 config[str(node_id)][labels[1]] = "[{},{},{}]".format(values[3], values[4], values[5])
                 if len(labels)==3:
                     config[str(node_id)][labels[2]]  = "{}".format(values[6])
-                self.write_bc_in_file(self._node_structural_path, config)
+                self.write_data_in_file(self._node_structural_path, config)
                 self._single_structural_excitation_bc([node_id], labels)
             else:
                 if len(labels)==3:
@@ -1379,7 +1367,7 @@ class ProjectFile:
                     config[str(node_id)] =  {   labels[0]: "[{},{},{}]".format(values[0], values[1], values[2]),
                                                 labels[1]: "[{},{},{}]".format(values[3], values[4], values[5])   }
 
-                self.write_bc_in_file(self._node_structural_path, config)
+                self.write_data_in_file(self._node_structural_path, config)
 
 
     def add_acoustic_bc_in_file(self, list_nodesID, value, loaded_table, table_name, label):
@@ -1391,7 +1379,7 @@ class ProjectFile:
                     config[str(node_id)][label[0]]  = "[{}]".format(table_name)
                 else:
                     config[str(node_id)][label[0]] = "[{}]".format(value)
-                self.write_bc_in_file(self._node_acoustic_path, config)
+                self.write_data_in_file(self._node_acoustic_path, config)
                 self._single_acoustic_excitation_bc([node_id], label)
                 self._single_impedance_at_node([node_id], label)
             else:
@@ -1399,9 +1387,9 @@ class ProjectFile:
                     config[str(node_id)] =  {label[0]: "[{}]".format(table_name)}
                 else:    
                     config[str(node_id)] = {label[0]: "[{}]".format(value)}
-                self.write_bc_in_file(self._node_acoustic_path, config)
+                self.write_data_in_file(self._node_acoustic_path, config)
 
-    def write_bc_in_file(self, path, config):
+    def write_data_in_file(self, path, config):
         with open(path, 'w') as config_file:
             config.write(config_file)
 
@@ -1413,11 +1401,10 @@ class ProjectFile:
             try:
                 config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
                 config.remove_section(node_id)
-            except Exception as _error:
-                # print(f"An error has occured at section {node_id}")
+            except Exception as log_error:
                 config.remove_section(node_id)
 
-        self.write_bc_in_file(self._node_acoustic_path, config)
+        self.write_data_in_file(self._node_acoustic_path, config)
 
     def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes):
         config = configparser.ConfigParser()
@@ -1434,11 +1421,10 @@ class ProjectFile:
                 else:
                     config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
                 config.remove_section(node_id)
-            except Exception as _error:
-                # print(f"An error has occured at section {node_id}")
+            except Exception as log_error:
                 config.remove_section(node_id)
 
-        self.write_bc_in_file(self._node_structural_path, config)
+        self.write_data_in_file(self._node_structural_path, config)
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
         config = configparser.ConfigParser()
@@ -1460,8 +1446,7 @@ class ProjectFile:
                             str_subgroup_elements = str(subgroup_elements)
                             # if str_subgroup_elements not in dict_non_mapped_subgroups_entity_file.keys():
                             temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                            # print(section, ' : group elements:', str_group_elements)
-                            # print(section, ' : new_list_elements:', dict_group_elements_to_update_after_remesh[str_group_elements])
+                   
                         # if temp_list != []:
                             new_list_elements = [value for group in temp_list for value in group]
                             config[section]['list of elements'] =  str(new_list_elements)
@@ -1469,8 +1454,6 @@ class ProjectFile:
                         #     config.remove_section()
 
                     except Exception as log_error:
-
-                        # print(log_error)
                         
                         if "-" in section:
                             line_id = section.split("-")[0]
@@ -1484,7 +1467,7 @@ class ProjectFile:
                                 if subkey in _section:
                                     config.remove_section(_section)           
 
-        self.write_bc_in_file(self._entity_path, config)
+        self.write_data_in_file(self._entity_path, config)
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
         config = configparser.ConfigParser()
@@ -1496,8 +1479,6 @@ class ProjectFile:
                 
                 str_list_elements = config[section]['list of elements']
                 list_subgroups_elements = dict_list_elements_to_subgroups[str_list_elements]
-                # list_elements = self._get_list_of_values_from_string(str_list_elements)
-                # list_group_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
 
                 temp_list = []
                 try:
@@ -1506,8 +1487,6 @@ class ProjectFile:
                         str_group_elements = str(subgroup_elements)
                         if str_group_elements not in dict_non_mapped_subgroups.keys():
                             temp_list.append(dict_old_to_new_subgroups_elements[str(subgroup_elements)])
-                        # print(section, ' : group elements:', str_group_elements)
-                        # print(section, ' : new_list_elements:', dict_subgroups_old_to_new_group_elements[str_group_elements])
                     
                     if temp_list != []:
                         new_list_elements = [value for group in temp_list for value in group]
@@ -1519,7 +1498,7 @@ class ProjectFile:
                     
                     config.remove_section(section) 
 
-        self.write_bc_in_file(self._element_info_path, config)
+        self.write_data_in_file(self._element_info_path, config)
 
     def modify_beam_xaxis_rotation_by_lines_in_file(self, line_id, value):
         _line_id = str(line_id)
@@ -1531,7 +1510,7 @@ class ProjectFile:
                     config.remove_option(section=str(_line_id), option="beam x-axis rotation")
             else:                    
                 config[_line_id]["beam x-axis rotation"] = str(value)               
-            self.write_bc_in_file(self._entity_path, config)
+            self.write_data_in_file(self._entity_path, config)
 
     def get_import_type(self):
         return self._import_type
@@ -1555,3 +1534,20 @@ class ProjectFile:
     @property
     def material_list_path(self):
         return self._material_list_path
+
+
+    # def update_list_elements_already_exists_in_entity_file(self, line_id, config, ext_list_elements):
+    #     dict_section_to_list_elements = {}
+    #     sections = config.sections()
+    #     prefix = f"{line_id}-"
+    #     for section in sections:
+    #         if prefix in section:
+    #             if 'list of elements' in config[section].keys():
+    #                 str_list_elements = config[section]['list of elements']
+    #                 old_list_elements = self._get_list_of_values_from_string(str_list_elements)
+    #                 new_list_elements = []
+    #                 temp_list = old_list_elements.copy()
+    #                 for element_id in temp_list:
+    #                     if element_id not in ext_list_elements:
+    #                         new_list_elements.append(element_id)
+    #                 config[section]['list of elements'] = str(new_list_elements)

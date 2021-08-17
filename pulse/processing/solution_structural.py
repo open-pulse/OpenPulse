@@ -448,11 +448,16 @@ class SolutionStructural:
                 for j, freq in enumerate(self.frequencies):
                     
                     omega = 2*np.pi*freq
-                    Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())
-                        
-                    F_K = Ut_Kr[j,:]
+                    # Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())
+
+                    # F_K = Ut_Kr[j,:]
+                    # F_M = -(omega**2)*Ut_Mr[j,:]
+                    # F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])
+
+                    Ut_Kr = Ut[j,:]@(Kr+self.Kr_exp_joint[j].toarray())
+                    F_K = Ut_Kr
                     F_M = -(omega**2)*Ut_Mr[j,:]
-                    F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])
+                    F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr[j,:])
                     _reactions[j,:] = F_K + F_M + F_C
                 
                 # Mr = self.Mr.toarray()
