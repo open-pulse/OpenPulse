@@ -1249,7 +1249,10 @@ class Project:
         if self.analysis_ID in [5,6]:
             results = SolutionStructural(self.preprocessor, self.frequencies, acoustic_solution=self.solution_acoustic)
         else:
-            results = SolutionStructural(self.preprocessor, self.frequencies)
+            if self.analysis_ID in [2,4]:
+                results = SolutionStructural(self.preprocessor, None)
+            else:
+                results = SolutionStructural(self.preprocessor, self.frequencies)
         return results
 
     def set_structural_solution(self, value):

@@ -4,7 +4,7 @@ import pytest
 from pulse.utils import sparse_is_equal
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.material import Material
-from pulse.preprocessing.mesh import Preprocessor
+from pulse.preprocessing.preprocessor import Preprocessor
 from pulse.processing.solution_structural import SolutionStructural
 
 

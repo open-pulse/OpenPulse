@@ -209,7 +209,7 @@ class StressStiffeningInput(QDialog):
 
     def load_lines_info(self):        
         self.treeWidget_stress_stiffening_lines.clear()
-        lines = self.project.preprocessor.lines_with_stress_stiffening
+        lines = self.preprocessor.lines_with_stress_stiffening
         if len(lines) != 0:
             new = QTreeWidgetItem(["Enabled lines" , str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -325,7 +325,7 @@ class StressStiffeningInput(QDialog):
             if self.stop:
                 return
 
-            size = len(self.project.preprocessor.group_elements_with_stress_stiffening)
+            size = len(self.preprocessor.group_elements_with_stress_stiffening)
             section = self.dictKey_label.format("Selection-{}".format(size+1))
             self.set_stress_stiffening_to_elements(section)
             self.replaced = False
@@ -386,12 +386,12 @@ class StressStiffeningInput(QDialog):
 
     def check_reset_all(self):
         temp_dict_group_elements = self.dict_group_elements.copy()
-        for line_id in self.project.preprocessor.all_lines:
+        for line_id in self.preprocessor.all_lines:
             self.project.set_stress_stiffening_by_line(line_id, [0,0,0,0], remove=True)
             self.project.file.remove_all_stress_stiffnening_in_file_by_group_elements()
         for key, item in temp_dict_group_elements.items():
             self.project.set_stress_stiffening_by_elements(item[1], item[0], key, remove=True)
-        self.project.mesh.stress_stiffening_enabled = False
+        self.preprocessor.stress_stiffening_enabled = False
         self.update_info()
         self.update_buttons_()
         self.lineEdit_selected_ID.setText("")
@@ -420,7 +420,7 @@ class StressStiffeningInput(QDialog):
 
     def remove_line_group(self):
         parameters = [0,0,0,0]
-        lines = self.project.preprocessor.lines_with_stress_stiffening.copy()
+        lines = self.preprocessor.lines_with_stress_stiffening.copy()
         self.project.set_stress_stiffening_by_line(lines, parameters, remove=True)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
@@ -512,8 +512,8 @@ class GetInformationOfGroup(QDialog):
             self.check_remove()
 
     def update_dict(self):
-        self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
-        self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
+        self.dict_lines_parameters = self.preprocessor.dict_lines_with_stress_stiffening
+        self.dict_elements_parameters = self.preprocessor.group_elements_with_stress_stiffening
 
     def on_click_item_(self, item):
         text = item.text(0)
