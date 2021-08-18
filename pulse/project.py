@@ -491,18 +491,18 @@ class Project:
 
         title = "ERROR WHILE LOADING STRUCTURAL DATA"
         
-        for key, dofs in prescribed_dofs.items():
+        for key, [dofs, dofs_tables] in prescribed_dofs.items():
             if isinstance(dofs, list):
                 try:
-                    self.load_prescribed_dofs_bc_by_node(key, dofs)
+                    self.load_prescribed_dofs_bc_by_node(key, [dofs, dofs_tables])
                 except Exception:
                     message = "There is some error while loading prescribed dofs data." 
                     PrintMessageInput([title, message, window_title])
 
-        for key, loads in external_loads.items():
+        for key, [loads, loads_tables] in external_loads.items():
             if isinstance(loads, list):
                 try:
-                    self.load_structural_loads_by_node(key, loads)
+                    self.load_structural_loads_by_node(key, [loads, loads_tables])
                 except Exception:
                     message = "There is some error while loading nodal loads data." 
                     PrintMessageInput([title, message, window_title])
@@ -650,11 +650,12 @@ class Project:
         self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
         self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
 
-    def set_prescribed_dofs_bc_by_node(self, node_id, values, imported_table, table_name=""):
-        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, values)
+    def set_prescribed_dofs_bc_by_node(self, node_id, data, imported_table):
+        [values, table_names] = data
+        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
         labels = ["displacements", "rotations"]
         if imported_table:
-            values = table_name
+            values = table_names
         self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def set_B2PX_rotation_decoupling(self, element_id, node_id, rotations_mask, remove=False):
@@ -690,11 +691,12 @@ class Project:
         self.preprocessor.dict_elements_with_B2PX_rotation_decoupling = {}
         self.file.modify_B2PX_rotation_decoupling_in_file([], [], [], [], reset=True)
 
-    def set_loads_by_node(self, node_id, values, imported_table, table_name=""):
-        self.preprocessor.set_structural_load_bc_by_node(node_id, values)
+    def set_loads_by_node(self, node_id, data, imported_table):
+        [values, table_names] = data
+        self.preprocessor.set_structural_load_bc_by_node(node_id, data)
         labels = ["forces", "moments"]
         if imported_table:
-            values = table_name
+            values = table_names
         self.file.add_structural_bc_in_file(node_id, values, labels)
 
     def add_lumped_masses_by_node(self, node_id, values, imported_table, table_name=""):
@@ -931,8 +933,8 @@ class Project:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
         self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping)
 
-    def load_structural_loads_by_node(self, node_id, values):
-        self.preprocessor.set_structural_load_bc_by_node(node_id, values)
+    def load_structural_loads_by_node(self, node_id, data):
+        self.preprocessor.set_structural_load_bc_by_node(node_id, data)
 
     def load_mass_by_node(self, node_id, mass):
         self.preprocessor.add_mass_to_node(node_id, mass)
@@ -983,8 +985,8 @@ class Project:
             self.file.add_frequency_in_file(min_, max_, step_)
         self.frequencies = frequencies
 
-    def load_prescribed_dofs_bc_by_node(self, node_id, bc):
-        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, bc)
+    def load_prescribed_dofs_bc_by_node(self, node_id, data):
+        self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
 
     def _set_material_to_selected_entity(self, entity_id, material):
         entity = self.preprocessor.dict_tag_to_entity[entity_id]

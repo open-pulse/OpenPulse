@@ -1029,7 +1029,7 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    def set_structural_load_bc_by_node(self, nodes_id, values):
+    def set_structural_load_bc_by_node(self, nodes_id, data):
         """
         This method attributes structural force and moment loads to a list of nodes.
 
@@ -1041,9 +1041,11 @@ class Preprocessor:
         values : complex or array
             Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes_id):
             node.nodal_loads = values
-            node.prescribed_dofs = [None,None,None,None,None,None]
+            node.nodal_loads_table_names = table_names            
+            node.prescribed_dofs = [None, None, None, None, None, None]
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -1052,7 +1054,8 @@ class Preprocessor:
                 node.there_are_nodal_loads = True
                 if not node in self.nodes_with_nodal_loads:
                     self.nodes_with_nodal_loads.append(node)
-                return
+                continue
+                # return
             else:
                 node.loaded_table_for_nodal_loads = False
             # Checking complex single values    
@@ -1174,7 +1177,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
 
-    def set_prescribed_dofs_bc_by_node(self, nodes, values):
+    def set_prescribed_dofs_bc_by_node(self, nodes, data):
         """
         This method attributes structural displacement and rotation boundary condition to a list of nodes.
 
@@ -1186,8 +1189,10 @@ class Preprocessor:
         values : complex or array
             Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
+            node.prescribed_dofs_table_names = table_names
             node.nodal_loads = [None,None,None,None,None,None]
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
@@ -1199,7 +1204,8 @@ class Preprocessor:
                     self.nodes_with_constrained_dofs.append(node)
                 if not node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.append(node)
-                return
+                continue
+                # return
             else:
                 node.loaded_table_for_prescribed_dofs = False
             # Checking complex single values    

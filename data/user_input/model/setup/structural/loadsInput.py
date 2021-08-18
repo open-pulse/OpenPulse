@@ -2,7 +2,7 @@ import os
 from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox
-from pulse.utils import error, remove_bc_from_file
+from pulse.utils import error, remove_bc_from_file, get_new_path
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -31,17 +31,19 @@ class LoadsInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = self.preprocessor.get_model_checks()
         
-        self.project_folder_path = project.project_folder_path
-        self.structural_bc_info_path = project.file._node_structural_path
-
         self.userPath = os.path.expanduser('~')
+        self.folder_name = "imported_data"
         self.new_load_path_table = ""
         self.imported_table_name = ""
+        self.project_folder_path = project.project_folder_path
+        self.structural_bc_info_path = project.file._node_structural_path
+        self.imported_data_path = get_new_path(self.project_folder_path, self.folder_name) 
 
         self.nodes = project.preprocessor.nodes
         self.loads = None
         self.nodes_typed = []
         self.imported_table = False
+        self.inputs_from_node = False
 
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
@@ -59,12 +61,26 @@ class LoadsInput(QDialog):
         self.lineEdit_imag_My = self.findChild(QLineEdit, 'lineEdit_imag_My')
         self.lineEdit_imag_Mz = self.findChild(QLineEdit, 'lineEdit_imag_Mz')
 
+        self.list_lineEdit_constant_values = [  [self.lineEdit_real_Fx, self.lineEdit_imag_Fx],
+                                                [self.lineEdit_real_Fy, self.lineEdit_imag_Fy],
+                                                [self.lineEdit_real_Fz, self.lineEdit_imag_Fz],
+                                                [self.lineEdit_real_Mx, self.lineEdit_imag_Mx],
+                                                [self.lineEdit_real_My, self.lineEdit_imag_My],
+                                                [self.lineEdit_real_Mz, self.lineEdit_imag_Mz]  ]
+
         self.lineEdit_path_table_Fx = self.findChild(QLineEdit, 'lineEdit_path_table_Fx')
         self.lineEdit_path_table_Fy = self.findChild(QLineEdit, 'lineEdit_path_table_Fy')
         self.lineEdit_path_table_Fz = self.findChild(QLineEdit, 'lineEdit_path_table_Fz')
         self.lineEdit_path_table_Mx = self.findChild(QLineEdit, 'lineEdit_path_table_Mx')
         self.lineEdit_path_table_My = self.findChild(QLineEdit, 'lineEdit_path_table_My')
         self.lineEdit_path_table_Mz = self.findChild(QLineEdit, 'lineEdit_path_table_Mz')
+
+        self.list_lineEdit_table_values = [ self.lineEdit_path_table_Fx,
+                                            self.lineEdit_path_table_Fy,
+                                            self.lineEdit_path_table_Fz,
+                                            self.lineEdit_path_table_Mx,
+                                            self.lineEdit_path_table_My,
+                                            self.lineEdit_path_table_Mz ]
 
         self.toolButton_load_Fx_table = self.findChild(QToolButton, 'toolButton_load_Fx_table')
         self.toolButton_load_Fy_table = self.findChild(QToolButton, 'toolButton_load_Fy_table')
@@ -116,7 +132,7 @@ class LoadsInput(QDialog):
         self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
         self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
 
-        self.writeNodes(self.opv.getListPickedPoints())
+        self.update()
         self.load_nodes_info()
         self.exec_()
 
@@ -193,7 +209,9 @@ class LoadsInput(QDialog):
         
         if loads.count(None) != 6:
             self.loads = loads
-            self.project.set_loads_by_node(self.nodes_typed, self.loads, False)
+            table_names = [None, None, None, None, None, None]
+            data = [self.loads, table_names]
+            self.project.set_loads_by_node(self.nodes_typed, data, False)
             self.transform_points(self.nodes_typed)
             self.close()
         else:    
@@ -301,26 +319,16 @@ class LoadsInput(QDialog):
             if self.Mz_table is not None:
                 Mz = self.Mz_table
 
-        self.basenames = [self.basename_Fx, self.basename_Fy, self.basename_Fz, self.basename_Mx, self.basename_My, self.basename_Mz]
+        self.basenames = [  self.basename_Fx, 
+                            self.basename_Fy, 
+                            self.basename_Fz, 
+                            self.basename_Mx, 
+                            self.basename_My, 
+                            self.basename_Mz  ]
         self.loads = [Fx, Fy, Fz, Mx, My, Mz]
-        self.project.set_loads_by_node(self.nodes_typed, self.loads, True, table_name=self.basenames)
+        data = [self.loads, self.basenames]
+        self.project.set_loads_by_node(self.nodes_typed, data, True)
         self.transform_points(self.nodes_typed)
-        self.close()
-
-    def check_remove_bc_from_node(self):
-
-        lineEdit_nodeID = self.lineEdit_nodeID.text()
-        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
-        if self.stop:
-            return
-
-        key_strings = ["forces", "moments"]
-        message = "The nodal loads attributed to the {} node(s) have been removed.".format(self.nodes_typed)
-        remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.project.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
-        self.transform_points(self.nodes_typed)
-        self.treeWidget_nodal_loads.clear()
-        self.load_nodes_info()
         self.close()
 
     def text_label(self, mask):
@@ -358,5 +366,51 @@ class LoadsInput(QDialog):
         self.lineEdit_nodeID.setText(item.text(0))
         self.check_remove_bc_from_node()
 
+    def check_remove_bc_from_node(self):
+        lineEdit_nodeID = self.lineEdit_nodeID.text()
+        self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
+        if self.stop:
+            return
+        key_strings = ["forces", "moments"]
+        message = "The nodal loads attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+        self.project.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
+        self.transform_points(self.nodes_typed)
+        self.treeWidget_nodal_loads.clear()
+        self.load_nodes_info()
+        self.close()
+
+    def reset_input_fields(self, force_reset=False):
+        if self.inputs_from_node or force_reset:
+            for [lineEdit_real, lineEdit_imag] in self.list_lineEdit_constant_values:
+                lineEdit_real.setText("")
+                lineEdit_imag.setText("")
+            for lineEdit_table in self.list_lineEdit_table_values:
+                lineEdit_table.setText("")
+            self.inputs_from_node = False
+
     def update(self):
-        self.writeNodes(self.opv.getListPickedPoints())
+        list_picked_nodes = self.opv.getListPickedPoints()
+        if list_picked_nodes != []:
+            picked_node = list_picked_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+            if node.there_are_nodal_loads:
+                self.reset_input_fields(force_reset=True)
+                if node.loaded_table_for_nodal_loads:
+                    table_names = node.nodal_loads_table_names
+                    self.tabWidget_nodal_loads.setCurrentWidget(self.tab_table_values)
+                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
+                        if table_names[index] is not None:
+                            table_name = get_new_path(self.imported_data_path, table_names[index])
+                            lineEdit_table.setText(table_name)
+                else:
+                    nodal_loads = node.nodal_loads
+                    self.tabWidget_nodal_loads.setCurrentWidget(self.tab_constant_values)
+                    for index, [lineEdit_real, lineEdit_imag] in enumerate(self.list_lineEdit_constant_values):
+                        if nodal_loads[index] is not None:
+                            lineEdit_real.setText(str(np.real(nodal_loads[index])))
+                            lineEdit_imag.setText(str(np.imag(nodal_loads[index])))
+                self.inputs_from_node = True
+            else:
+                self.reset_input_fields()
+            self.writeNodes(self.opv.getListPickedPoints())

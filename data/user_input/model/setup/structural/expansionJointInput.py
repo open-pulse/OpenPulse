@@ -76,7 +76,8 @@ class ExpansionJointInput(QDialog):
 
         self.project_folder_path = project.project_folder_path 
         self.userPath = os.path.expanduser('~')     
-        self.folder_name = "imported_data"  
+        self.folder_name = "imported_data"
+        self.imported_data_path = get_new_path(self.project_folder_path, self.folder_name)  
         self._entity_path = self.project.file._entity_path
         self._project_path = self.project.file._project_path
         self.stop = False
@@ -180,7 +181,11 @@ class ExpansionJointInput(QDialog):
 
         self.tab_setup = self.findChild(QWidget, "tab_setup")
         self.tab_remove = self.findChild(QWidget, "tab_remove")
-  
+
+        self.tabWidget_inputs = self.findChild(QTabWidget, 'tabWidget_inputs')
+        self.tab_constant_values = self.findChild(QWidget, "tab_constant_values")
+        self.tab_table_values = self.findChild(QWidget, "tab_table_values")
+
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         # self.lineEdit_parameters_info = self.findChild(QLineEdit, 'lineEdit_parameters_info')
 
@@ -396,7 +401,7 @@ class ExpansionJointInput(QDialog):
             if entity.expansion_joint_parameters is None:
                 return
 
-            [read_parameters, read_stiffness]  = entity.expansion_joint_parameters
+            [read_parameters, read_stiffness, read_tables]  = entity.expansion_joint_parameters
           
             # if isinstance(_parameters, list):
             #     read_parameters = _parameters
@@ -413,24 +418,36 @@ class ExpansionJointInput(QDialog):
                     self.radioButton_not_add_rods.setChecked(True) 
                 
                 if isinstance(read_stiffness[0], np.ndarray):
-                    pass
+                    table_path_axial = get_new_path(self.imported_data_path, read_tables[0])
+                    self.lineEdit_path_table_axial_stiffness.setText(table_path_axial)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:
                     self.lineEdit_axial_stiffness.setText(str(read_stiffness[0]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[1], np.ndarray):
-                    pass
+                    table_path_transversal = get_new_path(self.imported_data_path, read_tables[1])
+                    self.lineEdit_path_table_transversal_stiffness.setText(table_path_transversal)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:    
                     self.lineEdit_transversal_stiffness.setText(str(read_stiffness[1]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[2], np.ndarray):
-                    pass
+                    table_path_torsional = get_new_path(self.imported_data_path, read_tables[2])
+                    self.lineEdit_path_table_torsional_stiffness.setText(table_path_torsional)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:                
                     self.lineEdit_torsional_stiffness.setText(str(read_stiffness[2]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[3], np.ndarray):
-                    pass
+                    table_path_angular = get_new_path(self.imported_data_path, read_tables[3])
+                    self.lineEdit_path_table_angular_stiffness.setText(table_path_angular)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:
                     self.lineEdit_angular_stiffness.setText(str(read_stiffness[3]))
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
 
             except Exception as _log_error:
                 title = "Error while loading info from entity"
@@ -631,7 +648,8 @@ class ExpansionJointInput(QDialog):
                                                                 update_element_type=False, 
                                                                 reset_cross=False   )
                 self.project.set_cross_section_by_elements(list_elements_current, cross)
-                self.preprocessor.group_elements_with_expansion_joints.pop(key)
+                if key in self.preprocessor.group_elements_with_expansion_joints.keys():
+                    self.preprocessor.group_elements_with_expansion_joints.pop(key)
                 changed = True
               
         return changed
@@ -1000,7 +1018,7 @@ class ExpansionJointInput(QDialog):
             cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements)
             self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
             self.project.set_cross_section_by_elements(list_elements, cross)
-            
+
             self.project.add_expansion_joint_by_elements(   list_elements, 
                                                             None,  
                                                             update_element_type=False,

@@ -173,9 +173,9 @@
        <property name="geometry">
         <rect>
          <x>28</x>
-         <y>16</y>
-         <width>308</width>
-         <height>229</height>
+         <y>8</y>
+         <width>311</width>
+         <height>243</height>
         </rect>
        </property>
        <layout class="QGridLayout" name="gridLayout">
@@ -1201,7 +1201,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab_table_values">
       <attribute name="title">
        <string>Load tables</string>
       </attribute>

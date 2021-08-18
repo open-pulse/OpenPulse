@@ -1045,25 +1045,29 @@ class ProjectFile:
                 displacement_strings = node_structural_list[str(node)]['displacements']
                 rotation_strings = node_structural_list[str(node)]['rotations']
                 labels = [["Ux","Uy","Uz"],["Rx","Ry","Rz"]]
-                prescribed_dofs = self._get_structural_bc_from_string(displacement_strings, rotation_strings, labels)
+                prescribed_dofs, prescribed_dofs_table_names = self._get_structural_bc_from_string( displacement_strings, 
+                                                                                                    rotation_strings, 
+                                                                                                    labels )
                 if prescribed_dofs is not None:
                     if sum([1 if value is None else 0 for value in prescribed_dofs]) != 6:
-                        self.dict_prescribed_dofs[node_id] = prescribed_dofs
+                        self.dict_prescribed_dofs[node_id] = [prescribed_dofs, prescribed_dofs_table_names]
                                
             if "forces" in keys and "moments" in keys:
                 forces_strings = node_structural_list[str(node)]['forces'] 
                 moments_strings = node_structural_list[str(node)]['moments']
                 labels = [["Fx","Fy","Fz"],["Mx","My","Mz"]]
-                nodal_loads = self._get_structural_bc_from_string(forces_strings, moments_strings, labels)
+                nodal_loads, nodal_loads_table_names = self._get_structural_bc_from_string( forces_strings, 
+                                                                                                moments_strings, 
+                                                                                                labels )
                 if nodal_loads is not None:
                     if sum([1 if value is None else 0 for value in nodal_loads]) != 6:
-                        self.dict_nodal_loads[node_id] = nodal_loads
+                        self.dict_nodal_loads[node_id] = [nodal_loads, nodal_loads_table_names]
             
             if "masses" in keys and "moments of inertia" in keys:
                 masses = node_structural_list[str(node)]['masses']
                 moments_of_inertia = node_structural_list[str(node)]['moments of inertia']
                 labels = [["m_x","m_y","m_z"],["Jx","Jy","Jz"]]
-                lumped_inertia = self._get_structural_bc_from_string(masses, moments_of_inertia, labels, _complex=False)
+                lumped_inertia, _ = self._get_structural_bc_from_string(masses, moments_of_inertia, labels, _complex=False)
                 if lumped_inertia is not None:
                     if sum([1 if value is None else 0 for value in lumped_inertia]) != 6:
                         self.dict_lumped_inertia[node_id] = lumped_inertia
@@ -1072,7 +1076,7 @@ class ProjectFile:
                 spring_stiffness = node_structural_list[str(node)]['spring stiffness']
                 torsional_spring_stiffness = node_structural_list[str(node)]['torsional spring stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
-                lumped_stiffness = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels, _complex=False)
+                lumped_stiffness, _ = self._get_structural_bc_from_string(spring_stiffness, torsional_spring_stiffness, labels, _complex=False)
                 if lumped_stiffness is not None:
                     if sum([1 if value is None else 0 for value in lumped_stiffness]) != 6:
                         self.dict_lumped_stiffness[node_id] = lumped_stiffness
@@ -1081,7 +1085,7 @@ class ProjectFile:
                 damping_coefficients = node_structural_list[str(node)]['damping coefficients']
                 torsional_damping_coefficients = node_structural_list[str(node)]['torsional damping coefficients']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
-                lumped_damping = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels, _complex=False)
+                lumped_damping, _ = self._get_structural_bc_from_string(damping_coefficients, torsional_damping_coefficients, labels, _complex=False)
                 if lumped_damping is not None:
                     if sum([1 if value is None else 0 for value in lumped_damping]) != 6:
                         self.dict_lumped_damping[node_id] = lumped_damping
@@ -1090,7 +1094,7 @@ class ProjectFile:
                 connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
                 connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
-                connecting_stiffness = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels, _complex=False)
+                connecting_stiffness, _ = self._get_structural_bc_from_string(connecting_stiffness, connecting_torsional_stiffness, labels, _complex=False)
                 if connecting_stiffness is not None:
                     if sum([1 if value is None else 0 for value in connecting_stiffness]) != 6:
                         self.dict_elastic_link_stiffness[node_id] = connecting_stiffness
@@ -1099,7 +1103,7 @@ class ProjectFile:
                 connecting_damping = node_structural_list[str(node)]['connecting damping']
                 connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
-                connecting_damping = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels, _complex=False)
+                connecting_damping, _ = self._get_structural_bc_from_string(connecting_damping, connecting_torsional_damping, labels, _complex=False)
                 if connecting_damping is not None:
                     if sum([1 if value is None else 0 for value in connecting_damping]) != 6:
                         self.dict_elastic_link_damping[node_id] = connecting_damping
@@ -1218,6 +1222,7 @@ class ProjectFile:
         first = first[1:-1].split(',')
         last = last[1:-1].split(',')
         output = [None, None, None, None, None, None]
+        table_names = [None, None, None, None, None, None]
 
         if len(first)==3 and len(last)==3:
             for i in range(3):
@@ -1236,12 +1241,16 @@ class ProjectFile:
                     try:
                         output[i] = self.structural_tables_load(first[i], labels[0][i])
                         output[i+3] = self.structural_tables_load(last[i], labels[1][i])
+                        if first[i] != 'None':
+                            table_names[i] = first[i]
+                        if last[i] != 'None':
+                            table_names[i+3] = last[i] 
                     except Exception as err:
                         title = "ERROR WHILE LOADING STRUCTURAL MODEL INFO"
                         message = str(err)
                         PrintMessageInput([title, message, window_title])
-                        return None
-        return output
+                        return None, None
+        return output, table_names
 
     def _get_expansion_joint_stiffness_from_string(self, input_string):   
         labels = ['Kx', 'Kyz', 'Krx', 'Kryz']
