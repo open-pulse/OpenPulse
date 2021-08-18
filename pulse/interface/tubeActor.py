@@ -121,20 +121,19 @@ class TubeActor(vtkActorBase):
         # empirically that strechs a lot the structure, and shrink it again when
         # everything is done. 
 
-        # it starts in 1 to prevent division by 0
-        # and the difference is negligible
-        sums = 1
-        items = 1
+        # max representable: outer_diameter = 22
+        # min representable: outer_diameter = 0.02
+
+        min_ = 0
+        max_ = 0        
 
         for element in self.elements.values():
-            try:
-                sec = element.cross_section.outer_diameter / 2
-                sums += sec 
-                items += 1
-            except:                
-                pass # it doesn't need to be so precise
-
-        self.bff = 0.5 / (sums / items)
+            rad = element.cross_section.outer_diameter / 2
+            min_ = min(rad, min_) if min_ else rad
+            max_ = max(rad, max_)
+                        
+        avg = (min_ + max_) / 2
+        self.bff = (5 / avg) if avg else 5
 
     def createTubeSection(self, element):
         extruderFilter = vtk.vtkLinearExtrusionFilter()
