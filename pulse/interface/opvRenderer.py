@@ -524,10 +524,16 @@ class opvRenderer(vtkRendererBase):
                 offset_z = 'undefined'
                 insulation_thickness = 'undefined'
                 insulation_density = 'undefined'
-
-            if entity.tag in list(self.project.number_sections_by_line.keys()):
+  
+            if entity.tag in self.project.number_sections_by_line.keys():
 
                 number_cross_sections = self.project.number_sections_by_line[entity.tag]
+                if entity.tag in self.project.preprocessor.number_expansion_joints_by_lines.keys():
+                    number_expansion_joints = self.project.preprocessor.number_expansion_joints_by_lines[entity.tag]
+                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections & {number_expansion_joints} expansion joints)\n\n'
+                else:
+                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections)\n\n'              
+                text += f'Material:  {material_name}\n'
 
                 if structural_element_type in ['pipe_1', 'pipe_2']:
                 
@@ -538,16 +544,14 @@ class opvRenderer(vtkRendererBase):
                     insulation_thickness = 'multiples'
                     insulation_density = 'multiples'
 
-                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections)\n\n'              
-                    text += f'Material:  {material_name}\n'
                     text += f'Structural element type:  {structural_element_type}\n'
               
-                    if entity.fluid is not None:
-                        text += f'\nFluid: {fluid_name}' 
-                    if entity.acoustic_element_type is not None:
-                        text += f'\nAcoustic element type: {acoustic_element_type}'
-                    if entity.proportional_damping is not None:
-                        text += f'\nProportional damping: {entity.proportional_damping}'        
+                if entity.fluid is not None:
+                    text += f'\nFluid: {fluid_name}' 
+                if entity.acoustic_element_type is not None:
+                    text += f'\nAcoustic element type: {acoustic_element_type}'
+                if entity.proportional_damping is not None:
+                    text += f'\nProportional damping: {entity.proportional_damping}'        
 
             else:
 

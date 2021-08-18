@@ -40,6 +40,7 @@ class Preprocessor:
         self.line_to_elements = {}
         self.elements_to_line = {}
         self.elements_with_expansion_joint = []
+        self.number_expansion_joints_by_lines = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
         self.group_elements_with_perforated_plate = {}
@@ -1562,6 +1563,12 @@ class Preprocessor:
                         self.group_elements_with_expansion_joints.pop(key)
                         break
 
+        list_lines = []
+        for element_id in list_elements:
+            line_id = self.elements_to_line[element_id]
+            if line_id not in list_lines:
+                list_lines.append(line_id)
+
         if remove:
             for element in slicer(self.structural_elements, list_elements):
                 element.reset_expansion_joint_parameters()
@@ -1569,14 +1576,18 @@ class Preprocessor:
                     element.cross_section = None
                 if element in self.elements_with_expansion_joint:
                     self.elements_with_expansion_joint.remove(element)
-                                    
+            
+            for line_id in list_lines:
+                if line_id in self.number_expansion_joints_by_lines.keys():
+                    self.number_expansion_joints_by_lines.pop(line_id)
+
         else:
 
-            list_lines = []
-            for element_id in list_elements:
-                line_id = self.elements_to_line[element_id]
-                if line_id not in list_lines:
-                    list_lines.append(line_id)
+            for line_id in list_lines:
+                if line_id in self.number_expansion_joints_by_lines.keys():
+                    self.number_expansion_joints_by_lines[line_id] += 1
+                else:
+                    self.number_expansion_joints_by_lines[line_id] = 1
 
             [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
             [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
@@ -1603,7 +1614,7 @@ class Preprocessor:
                 self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
 
 
-    def add_expansion_joint_by_line(self, line, parameters, remove=False):
+    def add_expansion_joint_by_line(self, line_id, parameters, remove=False):
         """
         This method .
 
@@ -1619,13 +1630,16 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        for elements in slicer(self.line_to_elements, line):
-            self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line)
+        for elements in slicer(self.line_to_elements, line_id):
+            self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
         if remove:
-            if line in list(self.dict_lines_with_expansion_joints.keys()):
-                self.dict_lines_with_expansion_joints.pop(line)
+            if line_id in list(self.dict_lines_with_expansion_joints.keys()):
+                self.dict_lines_with_expansion_joints.pop(line_id)
+            if line_id in self.number_expansion_joints_by_lines.keys():
+                self.number_expansion_joints_by_lines.pop(line_id)
         else:
-            self.dict_lines_with_expansion_joints[line] = parameters
+            self.dict_lines_with_expansion_joints[line_id] = parameters
+            self.number_expansion_joints_by_lines[line_id] = 1
         
     def set_stress_intensification_by_element(self, elements, value):
         """

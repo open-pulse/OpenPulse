@@ -1139,7 +1139,7 @@ class StructuralElement:
             number_frequencies = 1
         else:
             number_frequencies = len(frequencies)
-        
+         
         K_matrix = np.zeros((number_frequencies, DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
             
         K1 = self.joint_axial_stiffness*L_e
@@ -1156,7 +1156,7 @@ class StructuralElement:
 
         Ks = np.array([K1, K2, K3, K4, K5, K6], dtype=float).T.reshape(number_frequencies, DOF_PER_NODE_STRUCTURAL)
         indexes_1 = np.arange(DOF_PER_NODE_STRUCTURAL, dtype=int)
-        indexes_2 = indexes_1 + 6
+        indexes_2 = indexes_1 + DOF_PER_NODE_STRUCTURAL
 
         K_matrix[:,indexes_1,indexes_1] = K_matrix[:,indexes_2,indexes_2] = Ks
         K_matrix[:,indexes_1,indexes_2] = K_matrix[:,indexes_2,indexes_1] = -Ks
@@ -1186,15 +1186,14 @@ class StructuralElement:
         self.joint_angular_stiffness = 0
         self.joint_stiffness_table_names = []
 
-    def get_array_values(self, value, size):
-        # if frequencies is None:
-        #     size = 1
-        # else:
-        #     size = len(frequencies) 
+    def get_array_values(self, value, number_frequencies):
         if isinstance(value, np.ndarray):
-            return value
+            if number_frequencies == 1:
+                return value[0]
+            else:
+                return value
         else:
-            return value*np.ones(size)
+            return value*np.ones(number_frequencies)
 
     # def __str__(self):
     #     text = ''
