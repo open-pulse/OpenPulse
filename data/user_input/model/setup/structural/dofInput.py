@@ -3,7 +3,6 @@ from os.path import basename
 import numpy as np
 from math import pi
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox
-from pulse.utils import error, remove_bc_from_file, get_new_path
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -11,6 +10,10 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from shutil import copyfile
+
+from pulse.utils import remove_bc_from_file, get_new_path
+from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 class DOFInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -30,15 +33,14 @@ class DOFInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.userPath = os.path.expanduser('~')
-        self.folder_name = "imported_data"
         self.new_load_path_table = ""
         self.imported_table_name = ""
-        self.project_folder_path = project.project_folder_path
         self.structural_bc_info_path = project.file._node_structural_path
-        self.imported_data_path = get_new_path(self.project_folder_path, self.folder_name) 
+        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
+        self.prescribed_dofs_tables_folder_path = get_new_path(self.structural_folder_path, "prescribed_dofs_tables")
 
         self.nodes = self.preprocessor.nodes
         self.prescribed_dofs = None
@@ -185,7 +187,7 @@ class DOFInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
+        self.lineEdit_nodeID.setText(text[:-2])
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -194,7 +196,10 @@ class DOFInput(QDialog):
             try:
                 _real = float(lineEdit_real.text())
             except Exception:
-                error("Wrong input for real part of {}!".format(label), "Error")
+                window_title ="ERROR"
+                title = f"Invalid entry to the {label}"
+                message = f"Wrong input for real part of {label}."
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
         else:
@@ -204,7 +209,10 @@ class DOFInput(QDialog):
             try:
                 _imag = float(lineEdit_imag.text())
             except Exception:
-                error("Wrong input for imaginary part of {}!".format(label), "Error")
+                window_title ="ERROR"
+                title = f"Invalid entry to the {label}"
+                message = f"Wrong input for imaginary part of {label}."
+                PrintMessageInput([title, message, window_title])
                 self.stop = True
                 return
         else:
@@ -277,14 +285,17 @@ class DOFInput(QDialog):
             self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)       
             self.transform_points(self.nodes_typed)
             self.close()
-        else:    
-            error("You must to inform at least one nodal load to confirm the input!", title = " ERROR ")
-        
+        else:   
+            window_title ="ERROR"
+            title = "Additional inputs required"
+            message = "You must to inform at least one prescribed dof to confirm the input!"
+            PrintMessageInput([title, message, window_title]) 
+
     def load_table(self, lineEdit, text):
         
         self.basename = ""
         window_label = 'Choose a table to import the {} nodal load'.format(text)
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat;*.csv)')
+        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
         if self.path_imported_table == "":
             return "", ""
@@ -294,18 +305,24 @@ class DOFInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
         
-        if "\\" in self.project_folder_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
-        elif "/" in self.project_folder_path:
-            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
+        self.project.create_folders_structural("prescribed_dofs_tables")
+        self.new_load_path_table = get_new_path(self.prescribed_dofs_tables_folder_path, self.basename)
 
         try:    
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         except Exception as log_error:
-            error(str(log_error))
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
+            PrintMessageInput([title, message, window_title])
+            return
 
         if imported_file.shape[1]<2:
-            error("The imported table has insufficient number of columns. The spectrum \ndata must have frequencies, real and imaginary columns.")
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = "The imported table has insufficient number of columns. The spectrum \n"
+            message += "data must have frequencies, real and imaginary columns."
+            PrintMessageInput([title, message, window_title])
             return
 
         try:
@@ -319,8 +336,11 @@ class DOFInput(QDialog):
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.imported_table = True
 
-        except Exception as e:
-            error(str(e))
+        except Exception as log_error:
+            window_title ="ERROR"
+            title = "Error reached while loading table"
+            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
+            PrintMessageInput([title, message, window_title])
 
         return self.imported_values, self.basename
 
@@ -350,7 +370,7 @@ class DOFInput(QDialog):
 
         real_values = np.real(self.imported_values)
         imag_values = np.imag(self.imported_values)
-        abs_values = np.imag(self.imported_values)
+        abs_values = np.abs(self.imported_values)
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
         return values
@@ -435,6 +455,7 @@ class DOFInput(QDialog):
         return text
 
     def load_nodes_info(self):
+        self.treeWidget_prescribed_dofs.clear()
         for node in self.project.preprocessor.nodes_with_prescribed_dofs:
             constrained_dofs_mask = [False if bc is None else True for bc in node.prescribed_dofs]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(constrained_dofs_mask))])
@@ -457,12 +478,42 @@ class DOFInput(QDialog):
         key_strings = ["displacements", "rotations"]
         message = "The prescribed dof(s) value(s) attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+        self.remove_prescried_dofs_table_files()
         data = [[None, None, None, None, None, None], [None, None, None, None, None, None]]
         self.project.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
         self.transform_points(self.nodes_typed)
-        self.treeWidget_prescribed_dofs.clear()
         self.load_nodes_info()
         self.close()
+    
+    def remove_prescried_dofs_table_files(self):
+        for node_typed in self.nodes_typed:
+            node = self.preprocessor.nodes[node_typed]
+            if node.loaded_table_for_prescribed_dofs:
+                list_table_names = node.prescribed_dofs_table_names
+                self.confirm_table_file_removal(list_table_names, "Prescribed dofs")
+
+    def confirm_table_file_removal(self, list_table_names, label):
+        _list_table_names = []
+        for table_name in list_table_names:
+            if table_name is not None:
+                if table_name not in _list_table_names:
+                    _list_table_names.append(table_name)
+
+        title = f"{label} - removal of imported table files"
+        message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
+        for _table_name in _list_table_names:
+            message += f"{_table_name}\n"
+        message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:
+            for _table_name in _list_table_names:
+                self.project.remove_structural_table_files_from_folder(_table_name, folder_name="prescribed_dofs_tables")
+            # self.project.remove_structural_empty_folders(folder_name="lumped_elements_tables")   
+
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
@@ -485,7 +536,7 @@ class DOFInput(QDialog):
                     self.tabWidget_prescribed_dofs.setCurrentWidget(self.tab_table_values)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                         if table_names[index] is not None:
-                            table_name = get_new_path(self.imported_data_path, table_names[index])
+                            table_name = get_new_path(self.prescribed_dofs_tables_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     prescribed_dofs = node.prescribed_dofs

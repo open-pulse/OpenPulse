@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QWidget
-from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtGui import QColor, QBrush
@@ -12,8 +11,8 @@ from threading import Thread
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class RunAnalysisInput(QDialog):
     def __init__(self, project, analysis_ID, analysis_type_label, *args, **kwargs):
@@ -70,7 +69,7 @@ class RunAnalysisInput(QDialog):
             if self.analysis_ID not in [0,1,2]:
                 title = "INCORRECT ANALYSIS TYPE"
                 message = "There are only BEAM_1 elements in the model, therefore, \nonly structural analysis are allowable."
-                info_text = [title, message, window_title2]
+                info_text = [title, message, window_title_2]
                 PrintMessageInput(info_text)
                 return
 
@@ -193,15 +192,21 @@ class RunAnalysisInput(QDialog):
         self.label_message.setText("Post-processing the results...")
 
         # WARNINGS REACHED DURING SOLUTION
+        title = self.analysis_type_label
+        message = ""
         if self.analysis_type_label == "Harmonic Analysis - Structural":
             if self.solve.flag_ModeSup_prescribed_NonNull_DOFs:
-                error(self.solve.warning_ModeSup_prescribedDOFs, title = "WARNING")
+                message = self.solve.warning_ModeSup_prescribedDOFs
             if self.solve.flag_Clump and self.analysis_ID==1:
-                error(self.solve.warning_Clump[0], title = "WARNING")
+                message = self.solve.warning_Clump[0]
         if self.analysis_type_label == "Modal Analysis - Structural":
             if self.solve.flag_Modal_prescribed_NonNull_DOFs:
-                error(self.solve.warning_Modal_prescribedDOFs[0], title = "WARNING")  
-    
+                message = self.solve.warning_Modal_prescribedDOFs[0] 
+        if message != "":
+            PrintMessageInput([title, message, window_title_2])
+
+
+
     def config_title_font(self):
         font = QFont()
         font.setPointSize(19)

@@ -3,7 +3,6 @@ import numpy as np
 from math import pi
 from numpy.linalg import norm
 from scipy.sparse import csr_matrix, csc_matrix
-from pulse.utils import timer, error
 
 from pulse.preprocessing.node import DOF_PER_NODE_ACOUSTIC
 from pulse.preprocessing.acoustic_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT

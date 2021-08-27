@@ -20,7 +20,7 @@ class PerforatedPlate:
         self.bias_coefficient = kwargs.get("bias_coefficient", 1)
         self.type = kwargs.get("type", 0)
         self.dimensionless_impedance = kwargs.get("dimensionless_impedance", None)
-        self.dimensionless_path = None
+        self.dimensionless_impedance_table_name = None
 
     @property
     def foks_delta(self):

@@ -81,7 +81,7 @@ class Preprocessor:
         self.dict_old_to_new_node_external_indexes = {}
 
         self.nodes_with_elastic_link_stiffness = {}
-        self.nodes_with_elastic_link_damping = {}
+        self.nodes_with_elastic_link_dampings = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -1070,7 +1070,7 @@ class Preprocessor:
                 if node in self.nodes_with_nodal_loads:
                     self.nodes_with_nodal_loads.remove(node)
 
-    def add_mass_to_node(self, nodes, values):
+    def add_mass_to_node(self, nodes, data):
         """
         This method attributes structural lumped mass to a list of nodes.
 
@@ -1082,8 +1082,10 @@ class Preprocessor:
         values : complex or array
             Lumped mass. Complex valued input corresponds to a constant mass with respect to the frequency. Array valued input corresponds to a variable mass with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
+            node.lumped_masses_table_names = table_names
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -1092,7 +1094,7 @@ class Preprocessor:
                 node.there_are_lumped_masses = True
                 if not node in self.nodes_with_masses:
                     self.nodes_with_masses.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_masses = False
             # Checking complex single values    
@@ -1106,7 +1108,7 @@ class Preprocessor:
                 if node in self.nodes_with_masses:
                     self.nodes_with_masses.remove(node)
 
-    def add_spring_to_node(self, nodes, values):
+    def add_spring_to_node(self, nodes, data):
         """
         This method attributes structural lumped stiffness (spring) to a list of nodes.
 
@@ -1118,8 +1120,10 @@ class Preprocessor:
         values : complex or array
             Lumped stiffness. Complex valued input corresponds to a constant stiffness with respect to the frequency. Array valued input corresponds to a variable stiffness with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
+            node.lumped_stiffness_table_names = table_names
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -1128,7 +1132,7 @@ class Preprocessor:
                 node.there_are_lumped_stiffness = True
                 if not node in self.nodes_connected_to_springs:
                     self.nodes_connected_to_springs.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_stiffness = False
             # Checking complex single values    
@@ -1142,7 +1146,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_springs:
                     self.nodes_connected_to_springs.remove(node)
     
-    def add_damper_to_node(self, nodes, values):
+    def add_damper_to_node(self, nodes, data):
         """
         This method attributes structural lumped damping (damper) to a list of nodes.
 
@@ -1154,8 +1158,10 @@ class Preprocessor:
         values : complex or array
             Lumped damping. Complex valued input corresponds to a constant damping with respect to the frequency. Array valued input corresponds to a variable damping with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
+            node.lumped_dampings_table_names = table_names
             self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
@@ -1164,7 +1170,7 @@ class Preprocessor:
                 node.there_are_lumped_dampings = True
                 if not node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_dampings = False
             # Checking complex single values    
@@ -1761,7 +1767,7 @@ class Preprocessor:
         else:
             self.group_elements_with_length_correction[section] = [value, elements]
             
-    def set_acoustic_pressure_bc_by_node(self, nodes, value):
+    def set_acoustic_pressure_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic pressure boundary condition to a list of nodes.
 
@@ -1773,20 +1779,31 @@ class Preprocessor:
         values : complex or array
             Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.
         """
-        for node in slicer(self.nodes, nodes):
-            node.acoustic_pressure = value
-            if not node in self.nodes_with_acoustic_pressure:
-                self.nodes_with_acoustic_pressure.append(node)
-            if value is None:
-                if node in self.nodes_with_acoustic_pressure:
-                    self.nodes_with_acoustic_pressure.remove(node)
-            node.volume_velocity = None
-            if node in self.nodes_with_volume_velocity:
-                self.nodes_with_volume_velocity.remove(node)
-            
-            self.process_nodes_to_update_indexes_after_remesh(node)
+        try:
+            [value, table_name] = data
+            for node in slicer(self.nodes, nodes):
+                node.acoustic_pressure = value
+                node.acoustic_pressure_table_name = table_name
+                if not node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.append(node)
+                if value is None:
+                    if node in self.nodes_with_acoustic_pressure:
+                        self.nodes_with_acoustic_pressure.remove(node)
+                node.volume_velocity = None
+                node.volume_velocity_table = None
+                if node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.remove(node)
+                
+                self.process_nodes_to_update_indexes_after_remesh(node)
+                
+        except Exception as log_error:
+            title = "Error while setting acoustic pressure"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
 
-    def set_volume_velocity_bc_by_node(self, nodes, values, additional_info=None):
+
+    def set_volume_velocity_bc_by_node(self, nodes, data, additional_info=None):
         """
         This method attributes acoustic volume velocity load to a list of nodes.
 
@@ -1799,14 +1816,16 @@ class Preprocessor:
             Volume velocity. Complex valued input corresponds to a constant volume velocity load with respect to the frequency. Array valued input corresponds to a variable volume velocity load with respect to the frequency.
         """
         try:
+            [values, table_name] = data
             for node in slicer(self.nodes, nodes):
                 if node.volume_velocity is None or values is None:
                     node.volume_velocity = values
+                    node.volume_velocity_table_name = table_name
                 elif isinstance(node.volume_velocity, np.ndarray) and isinstance(values, np.ndarray):
                     if node.volume_velocity.shape == values.shape:
                         node.volume_velocity += values 
                     else:
-                        title = "ERROR WHILE SETTING VOLUME VELOCITY"
+                        title = "Error while setting volume velocity"
                         message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
                         message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
@@ -1815,26 +1834,28 @@ class Preprocessor:
                 node.compressor_connection_info = None        
                 if additional_info is not None:
                     node.compressor_connection_info = additional_info
-                if not node in self.nodes_with_volume_velocity:
+                if node not in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.append(node)
                 if values is None:
+                    self.volume_velocity_table_index = 0
                     if node in self.nodes_with_volume_velocity:
                         self.nodes_with_volume_velocity.remove(node)
                 elif isinstance(values, np.ndarray):
                     self.volume_velocity_table_index += 1 
                 node.acoustic_pressure = None
+                node.acoustic_pressure_table_name = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
                 
                 self.process_nodes_to_update_indexes_after_remesh(node)
 
         except Exception as error:
-            title = "ERROR WHILE SET VOLUME VELOCITY"
+            title = "Error while setting volume velocity"
             message = str(error)
             PrintMessageInput([title, message, window_title_1])
             return True  
 
-    def set_specific_impedance_bc_by_node(self, nodes, values):
+    def set_specific_impedance_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic lumped specific impedance to a list of nodes.
 
@@ -1848,19 +1869,28 @@ class Preprocessor:
 
             If None is attributed, then no specific impedance is considered.
         """
-        for node in slicer(self.nodes, nodes):
-            node.specific_impedance = values
-            node.radiation_impedance = None
-            node.radiation_impedance_type = None
-            if not node in self.nodes_with_specific_impedance:
-                self.nodes_with_specific_impedance.append(node)
-            if values is None:
-                if node in self.nodes_with_specific_impedance:
-                    self.nodes_with_specific_impedance.remove(node)
-            if node in self.nodes_with_radiation_impedance:
-                self.nodes_with_radiation_impedance.remove(node)
-            
-            self.process_nodes_to_update_indexes_after_remesh(node) 
+        try:
+            [values, table_name] = data
+            for node in slicer(self.nodes, nodes):
+                node.specific_impedance = values
+                node.specific_impedance_table_name = table_name
+                node.radiation_impedance = None
+                node.radiation_impedance_type = None
+                if not node in self.nodes_with_specific_impedance:
+                    self.nodes_with_specific_impedance.append(node)
+                if values is None:
+                    if node in self.nodes_with_specific_impedance:
+                        self.nodes_with_specific_impedance.remove(node)
+                if node in self.nodes_with_radiation_impedance:
+                    self.nodes_with_radiation_impedance.remove(node)
+                
+                self.process_nodes_to_update_indexes_after_remesh(node) 
+        except Exception as error:
+            title = "Error while setting specific impedance"
+            message = str(error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
+
 
     def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         """
@@ -2075,7 +2105,7 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node          
 
-    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, parameters, _stiffness=False, _damping=False):
+    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, data, _stiffness=False, _damping=False):
         """
         This method ???????
 
@@ -2101,13 +2131,14 @@ class Preprocessor:
         if not (_stiffness or _damping):
             return
 
+        [parameters, table_names] = data
         gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)        
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
         self.process_nodes_to_update_indexes_after_remesh(node1)
         self.process_nodes_to_update_indexes_after_remesh(node2)
-
+        
         pos_data = parameters
         neg_data = [-value if value is not None else None for value in parameters]
         mask = [False if value is None else True for value in parameters]
@@ -2117,15 +2148,15 @@ class Preprocessor:
         if True in check_tables:
             node1.loaded_table_for_elastic_link_stiffness = True
             node2.loaded_table_for_elastic_link_stiffness = True
-            node1.loaded_table_for_elastic_link_damping = True
-            node2.loaded_table_for_elastic_link_damping = True
-            value_labels = ["Table"]*len(check_tables)
+            node1.loaded_table_for_elastic_link_dampings = True
+            node2.loaded_table_for_elastic_link_dampings = True
+            value_labels = table_names
         else:
-            value_labels = parameters#np.array(parameters)#[mask]
+            value_labels = parameters
             node1.loaded_table_for_elastic_link_stiffness = False
             node2.loaded_table_for_elastic_link_stiffness = False
-            node1.loaded_table_for_elastic_link_damping = False
-            node2.loaded_table_for_elastic_link_damping = False
+            node1.loaded_table_for_elastic_link_dampings = False
+            node2.loaded_table_for_elastic_link_dampings = False
 
         indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
         indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
@@ -2145,12 +2176,13 @@ class Preprocessor:
             node2.there_are_elastic_nodal_link_stiffness = True
         
         if _damping:
-            self.nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
-            node1.elastic_nodal_link_damping[key] = [mask, value_labels]
-            node2.elastic_nodal_link_damping[key] = [mask, value_labels]
-            node1.there_are_elastic_nodal_link_damping = True
-            node2.there_are_elastic_nodal_link_damping = True
- 
+            self.nodes_with_elastic_link_dampings[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_dampings[key] = [mask, value_labels]
+            node2.elastic_nodal_link_dampings[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_dampings = True
+            node2.there_are_elastic_nodal_link_dampings = True
+
+
     def process_element_cross_sections_orientation_to_plot(self):
         """
         This method ???????
@@ -2500,8 +2532,8 @@ class Preprocessor:
         return min(output_indexes), max(output_indexes)
 
 
-    def get_model_checks(self):
-        return BeforeRun(self)
+    # def get_model_checks(self):
+    #     return BeforeRun(self)
                 
 
     def deformed_amplitude_control_in_expansion_joints(self):

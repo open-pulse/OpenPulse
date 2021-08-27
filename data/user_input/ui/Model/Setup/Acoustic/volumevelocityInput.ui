@@ -165,9 +165,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tab_single_values">
+     <widget class="QWidget" name="tab_constant_values">
       <attribute name="title">
-       <string>Single value</string>
+       <string>Constant value</string>
       </attribute>
       <widget class="QWidget" name="gridLayoutWidget">
        <property name="geometry">
@@ -419,7 +419,7 @@
         </item>
        </layout>
       </widget>
-      <widget class="QPushButton" name="pushButton_single_values_confirm">
+      <widget class="QPushButton" name="pushButton_constant_value_confirm">
        <property name="geometry">
         <rect>
          <x>118</x>
@@ -547,11 +547,14 @@
        <property name="font">
         <font>
          <family>Arial</family>
-         <pointsize>8</pointsize>
+         <pointsize>10</pointsize>
          <weight>50</weight>
          <italic>true</italic>
          <bold>false</bold>
         </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -673,7 +676,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="tab_remove">
       <attribute name="title">
        <string>Remove</string>
       </attribute>
@@ -708,24 +711,24 @@
         <set>Qt::AlignCenter</set>
        </property>
       </widget>
-      <widget class="QPushButton" name="pushButton_remove_bc_confirm_2">
+      <widget class="QPushButton" name="pushButton_remove_bc_confirm">
        <property name="geometry">
         <rect>
-         <x>138</x>
+         <x>214</x>
          <y>170</y>
-         <width>110</width>
+         <width>100</width>
          <height>30</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>110</width>
+         <width>100</width>
          <height>30</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>110</width>
+         <width>100</width>
          <height>30</height>
         </size>
        </property>
@@ -807,12 +810,52 @@
         </property>
        </column>
       </widget>
+      <widget class="QPushButton" name="pushButton_reset">
+       <property name="geometry">
+        <rect>
+         <x>72</x>
+         <y>170</y>
+         <width>100</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(125, 255, 245);</string>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QLineEdit" name="lineEdit_nodeID">
      <property name="geometry">
       <rect>
-       <x>120</x>
+       <x>150</x>
        <y>18</y>
        <width>170</width>
        <height>30</height>
@@ -852,44 +895,10 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_remove_bc_confirm">
-     <property name="geometry">
-      <rect>
-       <x>298</x>
-       <y>18</y>
-       <width>80</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Remove</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>26</x>
+       <x>56</x>
        <y>18</y>
        <width>90</width>
        <height>30</height>
@@ -930,7 +939,7 @@
   <tabstop>tabWidget_volume_velocity</tabstop>
   <tabstop>lineEdit_volume_velocity_real</tabstop>
   <tabstop>lineEdit_volume_velocity_imag</tabstop>
-  <tabstop>pushButton_single_values_confirm</tabstop>
+  <tabstop>pushButton_constant_value_confirm</tabstop>
   <tabstop>line_load_table_path</tabstop>
   <tabstop>toolButton_load_table</tabstop>
  </tabstops>

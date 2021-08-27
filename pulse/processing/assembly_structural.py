@@ -2,7 +2,6 @@ from time import time
 import numpy as np
 from scipy.sparse import csr_matrix
 
-from pulse.utils import timer, error
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
 from pulse.preprocessing.structural_element import ENTRIES_PER_ELEMENT, DOF_PER_ELEMENT
 
@@ -71,21 +70,21 @@ class AssemblyStructural:
         global_prescribed = []
         list_prescribed_dofs = []
         if self.frequencies is None:
-            cols = 1
+            number_frequencies = 1
         else:
-            cols = len(self.frequencies)
+            number_frequencies = len(self.frequencies)
         
         for node in self.preprocessor.nodes.values():
             if node.there_are_prescribed_dofs:
                 global_prescribed.extend(node.get_prescribed_dofs_bc_values())      
 
         try:    
-            aux_ones = np.ones(cols, dtype=complex)
+            aux_ones = np.ones(number_frequencies, dtype=complex)
             for value in global_prescribed:
                 if isinstance(value, complex):
                     list_prescribed_dofs.append(aux_ones*value)
                 elif isinstance(value, np.ndarray):
-                    list_prescribed_dofs.append(value)
+                    list_prescribed_dofs.append(value[0:number_frequencies])
             array_prescribed_values = np.array(list_prescribed_dofs)
         except Exception as log_error:
             print(str(log_error))
@@ -230,7 +229,7 @@ class AssemblyStructural:
             cols = 1
         else:
             cols = len(self.frequencies)
-
+        
         list_Kdata = []
         list_Mdata = []
         list_Cdata = []
@@ -242,7 +241,7 @@ class AssemblyStructural:
         self.nodes_with_lumped_masses = []
         self.nodes_connected_to_springs = []
         self.nodes_connected_to_dampers = []
-        self.nodes_with_nodal_elastic_links = []
+        # self.nodes_with_nodal_elastic_links = []
 
         flag_Clump = False
 
@@ -274,24 +273,26 @@ class AssemblyStructural:
                 j_indexes_C.append(position)
                 flag_Clump = True
         
-        for cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.values():
+        for key, cluster_data in self.preprocessor.nodes_with_elastic_link_stiffness.items():
+            node = self.preprocessor.nodes[int(key.split("-")[0])]
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_K.append(indexes_i[i])
                     j_indexes_K.append(indexes_j[i])
                     list_Kdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_stiffness, data[i]))
-
-        for cluster_data in self.preprocessor.nodes_with_elastic_link_damping.values():
+        
+        for key, cluster_data in self.preprocessor.nodes_with_elastic_link_dampings.items():
+            node = self.preprocessor.nodes[int(key.split("-")[0])]
             for indexes_i, indexes_j, data, in cluster_data:
                 for i in range(2):
                     i_indexes_C.append(indexes_i[i])
                     j_indexes_C.append(indexes_j[i])
-                    list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_damping, data[i]))
+                    list_Cdata.append(self.get_bc_array_for_all_frequencies(node.loaded_table_for_elastic_link_dampings, data[i]))
 
         data_Klump = np.array(list_Kdata).reshape(-1, cols)
         data_Mlump = np.array(list_Mdata).reshape(-1, cols)
         data_Clump = np.array(list_Cdata).reshape(-1, cols)
-        
+       
         i_indexes_K = np.array(i_indexes_K).flatten()
         i_indexes_M = np.array(i_indexes_M).flatten()
         i_indexes_C = np.array(i_indexes_C).flatten()
@@ -303,7 +304,7 @@ class AssemblyStructural:
         full_K = [csr_matrix((data_Klump[:,j], (i_indexes_K, j_indexes_K)), shape=[total_dof, total_dof]) for j in range(cols)]
         full_M = [csr_matrix((data_Mlump[:,j], (i_indexes_M, j_indexes_M)), shape=[total_dof, total_dof]) for j in range(cols)]
         full_C = [csr_matrix((data_Clump[:,j], (i_indexes_C, j_indexes_C)), shape=[total_dof, total_dof]) for j in range(cols)]
-
+                
         K_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_K]
         M_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_M]
         C_lump = [sparse_matrix[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for sparse_matrix in full_C]
@@ -387,7 +388,7 @@ class AssemblyStructural:
 
         return loads
     
-    def get_bc_array_for_all_frequencies(self, there_are_table, boundary_condition):
+    def get_bc_array_for_all_frequencies(self, loaded_table, boundary_condition):
         """
         This method perform the assembly process of the structural FEM force and moment loads.
 
@@ -406,14 +407,15 @@ class AssemblyStructural:
         array
             Loads vectors. Each column corresponds to a frequency of analysis.
         """
-       
-        if there_are_table:
-            list_arrays = [np.zeros_like(self.frequencies) if bc is None else bc for bc in boundary_condition]
+        if self.frequencies is None:
+           number_frequencies = 1
+        else:
+            number_frequencies = len(self.frequencies)
+
+        if loaded_table:
+            list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else bc[0:number_frequencies] for bc in boundary_condition]
             self.no_table = False
         else:
-            if self.frequencies is None:
-                frequencies = 1
-            else:
-                frequencies = self.frequencies
-            list_arrays = [np.zeros_like(frequencies) if bc is None else np.ones_like(frequencies)*bc for bc in boundary_condition]
+            list_arrays = [np.zeros(number_frequencies, dtype=float) if bc is None else np.ones(number_frequencies, dtype=float)*bc for bc in boundary_condition]
+
         return list_arrays

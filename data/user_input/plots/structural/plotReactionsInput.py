@@ -73,7 +73,7 @@ class PlotReactionsInput(QDialog):
         self.opv.setInputObject(self)
 
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         reactions = project.get_structural_reactions()
         self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
@@ -212,7 +212,7 @@ class PlotReactionsInput(QDialog):
         self.save_Real_Imaginary = self.radioButton_Real_Imaginary.isChecked()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     

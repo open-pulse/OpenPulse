@@ -194,16 +194,7 @@ class InputUi:
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
         
     def addMassSpringDamper(self):
-        read = MassSpringDamperInput(self.project, self.opv)
-        if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
-            return
-        if read.lumped_masses is not None:
-            print("[Set Mass] - defined at node(s) {}".format(read.nodes_typed))
-        if read.lumped_stiffness is not None:
-            print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
-        if read.lumped_dampings is not None:
-            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
-        # self.opv.transformPoints(read.nodes_typed)
+        MassSpringDamperInput(self.project, self.opv)
 
     def setcappedEnd(self):
         read = CappedEndInput(self.project, self.opv)
@@ -376,14 +367,17 @@ class InputUi:
             if self.analysisSetup():
                 return
 
-        self.before_run = self.project.preprocessor.get_model_checks()
+        self.before_run = self.project.get_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
 
         read = RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
         if read.complete:
-            self.before_run.check_all_acoustic_criteria()
+            if self.analysis_ID == 2:
+                self.before_run.check_modal_analysis_imported_data()
+            elif self.analysis_ID in [3,5,6]:
+                self.before_run.check_all_acoustic_criteria()
 
         
     def plotStructuralModeShapes(self):
@@ -494,10 +488,10 @@ class InputUi:
             return
 
     def structural_model_info(self):
-        StructuralModelInfoInput(self.project)
+        StructuralModelInfoInput(self.project, self.opv)
 
     def acoustic_model_info(self):
-        AcousticModelInfoInput(self.project)
+        AcousticModelInfoInput(self.project, self.opv)
 
 
     def _load_frequencies_from_table(self, _read):

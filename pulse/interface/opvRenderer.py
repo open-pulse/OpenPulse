@@ -289,14 +289,14 @@ class opvRenderer(vtkRendererBase):
                     if index in linked_nodes:            
                         text += self.structuralNodalInfo(values, labels, f'STIFFNESS ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_stiffness)
 
-            if node.there_are_elastic_nodal_link_damping:
+            if node.there_are_elastic_nodal_link_dampings:
                 index = node.external_index
                 labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
                 unit_labels = ['N.s/m', 'N.m.s/rad']
-                for key, [_, values] in node.elastic_nodal_link_damping.items():
+                for key, [_, values] in node.elastic_nodal_link_dampings.items():
                     linked_nodes = [int(node_id) for node_id in key.split('-')]
                     if index in linked_nodes:            
-                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
+                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_dampings)
  
             if node in self.project.preprocessor.nodes_with_acoustic_pressure:
                 value = node.acoustic_pressure

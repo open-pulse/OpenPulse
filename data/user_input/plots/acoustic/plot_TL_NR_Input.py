@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QMessageBox, QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QRadioButton, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QToolButton, QSpinBox
-from pulse.utils import error
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -69,7 +68,7 @@ class Plot_TL_NR_Input(QDialog):
 
         self.projec = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()
@@ -226,7 +225,7 @@ class Plot_TL_NR_Input(QDialog):
             self.plot()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     

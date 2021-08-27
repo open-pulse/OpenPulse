@@ -190,15 +190,13 @@ class SolutionStructural:
         if K==[] and M==[]:
             if self.preprocessor.stress_stiffening_enabled:
                 self.static_analysis_for_stress_stiffening([0,0,0,0])
-            if self.assembly.no_table:
-                # Kadd_lump = self.K + self.K_lump[0]
-                # Madd_lump = self.M + self.M_lump[0]
-                Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
-                Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
-            else:
-                #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
-                Kadd_lump = self.K
-                Madd_lump = self.M
+  
+            Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
+            Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
+            # else:
+            #     #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
+            #     Kadd_lump = self.K + self.K_exp_joint[0]
+            #     Madd_lump = self.M + self.M_exp_joint
         else:
             Kadd_lump = K
             Madd_lump = M

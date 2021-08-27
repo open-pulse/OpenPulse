@@ -158,7 +158,6 @@ class SetMeshPropertiesInput(QDialog):
         self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
                                                                             self.dict_non_mapped_subgroups_info_file,
                                                                             self.dict_list_elements_to_subgroups    )
-        # self.project.remove_file_or_folder_from_project_directory("elements_info.dat")
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()
         self.opv.opvAnalisysRenderer.plot()

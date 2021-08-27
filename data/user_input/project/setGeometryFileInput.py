@@ -117,7 +117,7 @@ class SetGeometryFileInput(QDialog):
             self.close()
 
     def search_new_geometry_file(self):
-        self.selected_geometry_path, _type = QFileDialog.getOpenFileName(None, 'Choose a valid geometry file', self.userPath, 'Iges Files (*.iges)')        
+        self.selected_geometry_path, _type = QFileDialog.getOpenFileName(None, 'Choose a valid geometry file', self.userPath, 'Files (*.iges; *.igs; *.step; *.stp)')        
         self.geometry_filename = os.path.basename(self.selected_geometry_path)
         self.lineEdit_new_geometry_file_path.setText(str(self.selected_geometry_path))  
 

@@ -10,8 +10,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt  
 
+from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -35,9 +37,12 @@ class CompressorModelInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.nodes = self.preprocessor.nodes
-        self.before_run = self.preprocessor.get_model_checks()    
+        self.before_run = project.get_model_checks()    
 
-        self.project_folder_path = project.file._project_path      
+        self.project_folder_path = project.file._project_path     
+        self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
+        self.acoustic_pressure_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_tables")  
+        
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -255,7 +260,7 @@ class CompressorModelInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_selected_node_ID.setText(text)
+        self.lineEdit_selected_node_ID.setText(text[:-2])
         if len(list_node_ids) == 2:
             self.lineEdit_suction_node_ID.setText(str(min(list_node_ids[-2:])))
             self.lineEdit_discharge_node_ID.setText(str(max(list_node_ids[-2:])))
@@ -264,7 +269,9 @@ class CompressorModelInput(QDialog):
             self.lineEdit_discharge_node_ID.setText("")
 
     def update(self):
-        self.writeNodes(self.opv.getListPickedPoints())
+        list_nodes = self.opv.getListPickedPoints()
+        if len(list_nodes) > 0:
+            self.writeNodes(list_nodes)
 
     def check_nodeID(self, lineEdit, export=False):
         
@@ -492,13 +499,10 @@ class CompressorModelInput(QDialog):
         f_min = frequencies[0]
         f_max = frequencies[-1]
         f_step = frequencies[1] - frequencies[0] 
-        
         self.project.set_frequencies(frequencies, f_min, f_max, f_step)
 
-        if "\\" in self.project_folder_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, basename)
-        elif "/" in self.project_folder_path:
-            self.new_load_path_table = "{}/{}".format(self.project_folder_path, basename)
+        self.project.create_folders_acoustic("compressor_excitation_tables")
+        self.new_load_path_table = get_new_path(self.acoustic_pressure_tables_folder_path, basename)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
@@ -506,9 +510,9 @@ class CompressorModelInput(QDialog):
         data = np.array([frequencies, real_values, imag_values, abs_values]).T
         np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
-    def get_table_name(self, label, _node):
+    def get_table_name(self, label):
         self.size = self.preprocessor.volume_velocity_table_index + 1
-        return 'table{}_compressor_excitation_{}.dat'.format( self.size, label)
+        return 'table{}_compressor_excitation_{}.dat'.format(self.size, label)
 
     def process_all_inputs(self):
         self.project.file.temp_table_name = None
@@ -520,28 +524,26 @@ class CompressorModelInput(QDialog):
 
         if self.connection_at_suction_and_discharge or self.connection_at_suction:
             freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
-            table_name = self.get_table_name('suction', self.suction_node_ID)
-            connection_type = 'suction'
+            table_name = self.get_table_name('suction')
             if self.project.set_volume_velocity_bc_by_node( [self.suction_node_ID], 
                                                             in_flow_rate, 
                                                             True, 
                                                             table_name=table_name, 
                                                             table_index=self.size, 
-                                                            additional_info=connection_type):
+                                                            additional_info='suction'):
                 return
             else:
                 self.save_table_values(freq, in_flow_rate, table_name)
                 
         if self.connection_at_suction_and_discharge or self.connection_at_discharge:  
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
-            table_name = self.get_table_name('discharge', self.discharge_node_ID)
-            connection_type = 'discharge'
+            table_name = self.get_table_name('discharge')
             if self.project.set_volume_velocity_bc_by_node( [self.discharge_node_ID], 
                                                             out_flow_rate, 
                                                             True, 
                                                             table_name=table_name, 
                                                             table_index=self.size, 
-                                                            additional_info=connection_type):
+                                                            additional_info='discharge'):
                 return
             else:
                 self.save_table_values(freq, out_flow_rate, table_name)
@@ -671,31 +673,31 @@ class CompressorModelInput(QDialog):
         self.compressor.number_points = N
         self.compressor.plot_crank_end_volume_vs_angle()
         return    
-
-    def double_confirm_action(self):
-        confirm_act = QMessageBox.question(
-            self,
-            "QUIT",
-            "Are you sure want to remove all compressor excitations?",
-            QMessageBox.No | QMessageBox.Yes)
-        
-        if confirm_act == QMessageBox.Yes:
-            return False
-        else:
-            return True
             
     def reset_all(self):
-        if self.double_confirm_action():
+        
+        title = f"Removal of all applied compressor excitations"
+        message = "Do you really want to remove all compressor excitations \napplied to the following nodes?\n\n"
+        for node in self.preprocessor.nodes_with_volume_velocity:
+            # if node.compressor_connection_info is not None:
+            message += f"{node.external_index}\n"
+        message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
+        message += "\nClose buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+        if read._doNotRun:
             return
-        self.get_dict_of_volume_velocity_from_file()
-        for node in self.dict_volume_velocity.keys():
-            self.node_ID_remove = int(node)
-            self.reset_node()
-        self.node_ID_remove = None
-        title = "RESET OF COMPRESSOR EXCITATION"
-        message = "All compressor excitations have been removed from the model."
-        PrintMessageInput([title, message, window_title2])
-        self.preprocessor.volume_velocity_table_index = 0
+
+        if read._continue:
+            self.get_dict_of_volume_velocity_from_file()
+            for node in self.dict_volume_velocity.keys():
+                self.node_ID_remove = int(node)
+                self.reset_node()
+            self.node_ID_remove = None
+            title = "RESET OF COMPRESSOR EXCITATION"
+            message = "All compressor excitations have been removed from the model."
+            PrintMessageInput([title, message, window_title2])
+            self.preprocessor.volume_velocity_table_index = 0
 
     def reset_node(self):
         self.get_dict_of_volume_velocity_from_file()
@@ -761,7 +763,7 @@ class CompressorModelInput(QDialog):
         self.get_dict_of_volume_velocity_from_file()
         for node_ID, tables_info in self.dict_volume_velocity.items():
             for _, table_str in tables_info:
-                table_name = str(table_str).replace("[", "").replace("]", "")        
+                table_name = table_str[1:-1]#str(table_str).replace("[", "").replace("]", "")        
                 new = QTreeWidgetItem([str(node_ID), table_name])
                 new.setTextAlignment(0, Qt.AlignCenter)
                 new.setTextAlignment(1, Qt.AlignCenter)
@@ -784,10 +786,7 @@ class CompressorModelInput(QDialog):
         self.lineEdit_table_name_info.setText(item.text(1))
 
     def get_path_of_selected_table(self):
-        if "\\" in self.project_folder_path:
-            self.path_of_selected_table = "{}\\{}".format(self.project_folder_path, self.selected_table)
-        elif "/" in self.project_folder_path:
-            self.path_of_selected_table = "{}/{}".format(self.project_folder_path, self.selected_table)
-
+        self.path_of_selected_table = get_new_path(self.project_folder_path, self.selected_table)
+        
     def force_to_close(self):
         self.close()

@@ -30,7 +30,7 @@ class BeamXaxisRotationInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         # self.typed_lines = []
         self.dict_entities = project.preprocessor.dict_tag_to_entity

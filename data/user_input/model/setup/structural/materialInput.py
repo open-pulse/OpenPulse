@@ -31,7 +31,7 @@ class MaterialInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.materialPath = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines

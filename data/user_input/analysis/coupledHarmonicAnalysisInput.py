@@ -33,13 +33,6 @@ class CoupledHarmonicAnalysisInput(QDialog):
             self.index = -1
             self.close()
 
-    def error(self, msg, title = "Error"):
-        msg_box = QMessageBox()
-        msg_box.setIcon(QMessageBox.Critical)
-        msg_box.setText(msg)
-        msg_box.setWindowTitle(title)
-        msg_box.exec_()
-
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
 

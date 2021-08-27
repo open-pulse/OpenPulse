@@ -34,7 +34,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks() 
+        self.before_run = project.get_model_checks() 
 
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
