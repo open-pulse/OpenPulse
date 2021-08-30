@@ -19,6 +19,7 @@ class TubeDeformedActor(TubeActor):
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
    
+        self.updateBff()
         cache = dict()
         counter = 0
         
