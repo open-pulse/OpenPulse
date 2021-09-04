@@ -1,15 +1,14 @@
 import os
 from os.path import basename
 import numpy as np
-from PyQt5.QtWidgets import QToolButton, QPushButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QRadioButton
-from pulse.utils import error
+from PyQt5.QtWidgets import QPushButton, QLineEdit, QDialog, QTabWidget, QWidget, QTreeWidgetItem, QTreeWidget, QRadioButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from shutil import copyfile
-from pulse.utils import error, remove_bc_from_file
+from pulse.utils import remove_bc_from_file
 
 class RadiationImpedanceInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -29,7 +28,7 @@ class RadiationImpedanceInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
@@ -75,7 +74,7 @@ class RadiationImpedanceInput(QDialog):
         self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
         self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
         
-        self.writeNodes(self.opv.getListPickedPoints())
+        self.update()
         self.load_nodes_info()
         self.exec_()
 
@@ -105,7 +104,7 @@ class RadiationImpedanceInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text)
+        self.lineEdit_nodeID.setText(text[:-2])
 
     def check_radiation_impedance_type(self):
 

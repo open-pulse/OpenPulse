@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from pulse.utils import error
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QTreeWidgetItem, QPushButton
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush

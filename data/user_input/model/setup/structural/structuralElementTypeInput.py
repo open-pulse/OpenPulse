@@ -28,9 +28,9 @@ class StructuralElementTypeInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
-        self.dict_entities = project.preprocessor.dict_tag_to_entity
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.index = 0
         self.element_type = 'pipe_1'
         self.complete = False
@@ -40,7 +40,6 @@ class StructuralElementTypeInput(QDialog):
         self.list_lines_to_update_cross_section = []
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
-        self.lineEdit_selected_ID.setDisabled(True)
         self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
         self.lineEdit_selected_group.setDisabled(True)
 
@@ -80,13 +79,7 @@ class StructuralElementTypeInput(QDialog):
         self.pushButton_get_information.setDisabled(True)
         # self.pushButton_remove.setDisabled(True)
 
-        if self.lines_id != []:
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
-        else:
-            self.lineEdit_selected_ID.setText("All lines")
-            self.radioButton_all.setChecked(True)
-
+        self.update()
         self.load_element_type_info()
         self.exec_()
     
@@ -122,20 +115,24 @@ class StructuralElementTypeInput(QDialog):
         if self.lines_id != []:
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
+            self.lineEdit_selected_ID.setDisabled(False)
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
+            self.lineEdit_selected_ID.setDisabled(True)
 
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
         self.lines_id  = self.opv.getListPickedEntities()
         if self.flagEntity:
+            self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:
                 self.write_ids(self.lines_id)
             else:
                 self.lineEdit_selected_ID.setText("")
         elif self.flagAll:
+            self.lineEdit_selected_ID.setDisabled(True)
             self.lineEdit_selected_ID.setText("All lines")
 
     def tabEvent_(self):
@@ -170,35 +167,38 @@ class StructuralElementTypeInput(QDialog):
         
         final_etype = self.element_type
         if self.lines_id == []:
-            tags = list(self.dict_entities.keys())
+            tags = list(self.dict_tag_to_entity.keys())
         else:
             tags = self.lines_id
             
         for tag in tags:
-            initial_etype = self.dict_entities[tag].structural_element_type
+            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             
-            if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+            if initial_etype in ['pipe_1', 'pipe_2', None] and final_etype in ['beam_1']:
                 self.update_cross_section = True
                 self.pipe_to_beam = True
                 self.list_lines_to_update_cross_section.append(tag)
 
-            elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+            elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1', 'pipe_2']:
                 self.update_cross_section = True
                 self.beam_to_pipe = True
                 self.list_lines_to_update_cross_section.append(tag)
 
         if self.update_cross_section:
             self.update_modified_cross_sections(tags)
-            title = "Change in element type detected"
-            message = f"The element type previously defined to {self.list_lines_to_update_cross_section} line(s) has been modified, therefore, it is necessary to update the cross-section(s) of this(ese) line(s) to continue."
-            PrintMessageInput([title, message, window_title2])
+            if initial_etype is not None:
+                title = "Change in element type detected"
+                message = f"The element type previously defined to the {self.list_lines_to_update_cross_section} line(s) \n"
+                message += "has been modified, therefore, it is necessary to update \n"
+                message += "the cross-section(s) of this(ese) line(s) to continue."
+                PrintMessageInput([title, message, window_title2])
             
     def update_modified_cross_sections(self, tags):
 
         final_etype = self.element_type
 
         for tag in tags:
-            initial_etype = self.dict_entities[tag].structural_element_type
+            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
                 self.project.set_cross_section_by_line(tag, None)
             elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
@@ -214,16 +214,17 @@ class StructuralElementTypeInput(QDialog):
             self.element_type = 'beam_1'
 
     def button_clicked(self):
-        self.check_element_type_changes()
         if self.flagEntity:
             lineEdit_lineID = self.lineEdit_selected_ID.text()
             self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit_lineID)
             if self.stop:
                 return
+            self.check_element_type_changes()
             for line in self.typed_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in the entities {}".format(self.typed_lines))
         elif self.flagAll:
+            self.check_element_type_changes()
             for line in self.project.preprocessor.all_lines:
                 self.project.set_structural_element_type_by_entity(line, self.element_type)
             print("[Set Element Type] - defined in all the entities")

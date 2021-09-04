@@ -42,7 +42,7 @@ class CrossSectionInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
@@ -298,20 +298,20 @@ class CrossSectionInput(QDialog):
             element_type = self.selection.element_type
         else:
             return
-        
-        if self.selection.cross_section is not None:
-            cross = self.selection.cross_section
-            self.section_label = cross.section_info["section_type_label"]
-            self.section_parameters = cross.section_info["section_parameters"]
-                    
-            if element_type in ['pipe_1', 'pipe_2']:
-                self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
-                            
-            elif element_type in ['beam_1']:
-                self.tabWidget_general.setCurrentWidget(self.tab_beam)
+        if self.selection.expansion_joint_parameters is None:
+            if self.selection.cross_section is not None:
+                cross = self.selection.cross_section
+                self.section_label = cross.section_info["section_type_label"]
+                self.section_parameters = cross.section_info["section_parameters"]
+                        
+                if element_type in ['pipe_1', 'pipe_2']:
+                    self.tabWidget_general.setCurrentWidget(self.tab_pipe)
+                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_straight_pipe_section)
+                                
+                elif element_type in ['beam_1']:
+                    self.tabWidget_general.setCurrentWidget(self.tab_beam)
 
-            self.update_section_entries()
+                self.update_section_entries()
 
         else:
 
@@ -681,17 +681,17 @@ class CrossSectionInput(QDialog):
             PrintMessageInput([title, message, window_title]) 
             return
         
-        elif abs(offset_y) > 0.2*(outerDiameter/2):
-            title = "INPUT CROSS-SECTION ERROR"
-            message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
-            PrintMessageInput([title, message, window_title]) 
-            return
+        # elif abs(offset_y) > 0.2*(outerDiameter/2):
+        #     title = "INPUT CROSS-SECTION ERROR"
+        #     message = f"The OFFSET_Y must be less or equals to 20{'%'} of the outer radius."
+        #     PrintMessageInput([title, message, window_title]) 
+        #     return
         
-        elif abs(offset_z) > 0.2*(outerDiameter/2):
-            title = "INPUT CROSS-SECTION ERROR"
-            message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
-            PrintMessageInput([title, message, window_title]) 
-            return
+        # elif abs(offset_z) > 0.2*(outerDiameter/2):
+        #     title = "INPUT CROSS-SECTION ERROR"
+        #     message = message = f"The OFFSET_Z must be less or equals to 20{'%'} of the outer radius."
+        #     PrintMessageInput([title, message, window_title]) 
+        #     return
             
         self.section_label = "Pipe section"
 
@@ -815,10 +815,11 @@ class CrossSectionInput(QDialog):
 
     def set_cross_sections(self):
         if self.flagEntity:
-            for line in self.lines_typed:
-                self.remove_line_from_list(line)
-                self.project.set_cross_section_by_line(line, self.cross_section)
-                self.project.set_structural_element_type_by_entity(line, self.element_type)
+            for line_id in self.lines_typed:
+                self.remove_line_from_list(line_id)
+                self.project.set_cross_section_by_line(line_id, self.cross_section)
+                self.project.set_structural_element_type_by_entity(line_id, self.element_type)
+                self.project._set_expansion_joint_to_selected_entity(line_id, None)
             print("[Set Cross-section] - defined at lines {}".format(self.lines_typed))
 
         elif self.flagElements:

@@ -13,14 +13,14 @@ class PerforatedPlate:
         self.thickness = thickness
         self.porosity = porosity
         self.linear_discharge_coefficient = kwargs.get("discharge_coefficient", 1)
-        self.nonlinear_effect = kwargs.get("nonlinear_effect", True)
+        self.nonlinear_effect = kwargs.get("nonlinear_effect", False)
         self.nonlinear_discharge_coefficient = kwargs.get("nonlinear_discharge_coefficient", 0.76)
         self.correction_factor = kwargs.get("correction_factor", 1)
         self.bias_effect = kwargs.get("bias_effect", True)
         self.bias_coefficient = kwargs.get("bias_coefficient", 1)
         self.type = kwargs.get("type", 0)
         self.dimensionless_impedance = kwargs.get("dimensionless_impedance", None)
-        self.dimensionless_path = None
+        self.dimensionless_impedance_table_name = None
 
     @property
     def foks_delta(self):

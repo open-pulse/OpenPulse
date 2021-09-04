@@ -140,7 +140,7 @@ class SolutionAcoustic:
             crit = 1
             self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
 
-            while count < 100 and crit > 1e-2:
+            while crit > 1e-2:
                 self.get_global_matrices()
 
                 for i in range(cols):
@@ -156,22 +156,22 @@ class SolutionAcoustic:
                     Crit = np.r_[Crit, relative_error(solution[first,:], self.solution_nm1[first,:]), relative_error(solution[last,:], self.solution_nm1[last,:]) ]
                 crit = np.max(Crit)
                 # TODO: create a plot showing the iteration convergence.
-                # print(crit) 
+                # print(count, '\t:' ,crit) 
                 
                 count += 1
                 self.solution_nm1 = solution
                 solution = np.zeros((rows, cols), dtype=complex)
 
-            if crit < 1e-2:
-                return self.solution_nm1
-            elif count > 100:
-                # TODO: print warning message
+                if crit < 1e-2:
+                    return self.solution_nm1
+                elif count > 100:
+                    # TODO: print warning message
 
-                # title = "ITERATIVE PROCESS HAS NOT CONVERGED"
-                # message = "The perforated plate solver has not converged."
-                # message += "\n\nActual relative error: {}\n".format(str(crit.shape).replace(",", ""))
-                # PrintMessageInput([title, message, "WARNING"])
-                return self.solution_nm1
+                    # title = "ITERATIVE PROCESS HAS NOT CONVERGED"
+                    # message = "The perforated plate solver has not converged."
+                    # message += "\n\nActual relative error: {}\n".format(str(crit.shape).replace(",", ""))
+                    # PrintMessageInput([title, message, "WARNING"])
+                    return self.solution_nm1
         else:
             for i in range(cols):
                 solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
@@ -179,8 +179,6 @@ class SolutionAcoustic:
             solution = self._reinsert_prescribed_dofs(solution)
 
             return solution
-
-        return solution
 
     def modal_analysis(self, modes=20, which='LM', sigma=0.01):
         """

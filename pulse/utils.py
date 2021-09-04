@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import Qt
 import configparser
 import numpy as np
+import os
 from scipy.spatial.transform import Rotation
 
 
@@ -430,26 +431,26 @@ def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
     return data_rot.T.reshape(-1,3,3)
 
 
-def error( msg, title = " ERROR "):
-    '''
-    PyQt5 error message.
+# def error( msg, title = " ERROR "):
+#     '''
+#     PyQt5 error message.
 
-    Parameters
-    ----------
-    msg: str
-        text to be displayed.
+#     Parameters
+#     ----------
+#     msg: str
+#         text to be displayed.
 
-    title: str
-        window title.
-    '''
+#     title: str
+#         window title.
+#     '''
 
-    msg_box = QMessageBox()
-    msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
-    # msg_box.setWindowModality(Qt.WindowModal)
-    msg_box.setIcon(QMessageBox.Critical)
-    msg_box.setText(msg)
-    msg_box.setWindowTitle(title)
-    msg_box.exec_()
+#     msg_box = QMessageBox()
+#     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
+#     # msg_box.setWindowModality(Qt.WindowModal)
+#     msg_box.setIcon(QMessageBox.Critical)
+#     msg_box.setText(msg)
+#     msg_box.setWindowTitle(title)
+#     msg_box.exec_()
 
 def info_messages(msg, title = " INFORMATION "):
     '''
@@ -472,32 +473,28 @@ def info_messages(msg, title = " INFORMATION "):
     msg_box.setWindowTitle(title)
     msg_box.exec_()
 
-def remove_bc_from_file(entries_typed, path, keys_to_remove, message):
+def remove_bc_from_file(nodes_typed, path, keys_to_remove, message):
     try:
-
         bc_removed = False
         config = configparser.ConfigParser()
         config.read(path)
-
-        for entry in entries_typed: 
-            entry_id = str(entry)
-
-            if entry_id in config.sections():
-                keys = list(config[entry_id].keys())
-
+        for node in nodes_typed: 
+            node_id = str(node)
+            if node_id in config.sections():
+                keys = config[node_id].keys()
                 for key_to_remove in keys_to_remove:
-                    if key_to_remove in keys:
-                        bc_removed = True
-                        config.remove_option(section=entry_id, option=key_to_remove)
-                        if list(config[entry_id].keys())==[]:
-                            config.remove_section(section=entry_id)
-           
+                    for key in keys:
+                        if key_to_remove in key:
+                            bc_removed = True
+                            config.remove_option(section=node_id, option=key)
+                            if list(config[node_id].keys())==[]:
+                                config.remove_section(section=node_id)
             if bc_removed:
                 with open(path, 'w') as config_file:
                     config.write(config_file)
 
         if message is not None and bc_removed:
-            PrintMessageInput(["Error while removing BC from file" ,message, "ERROR"])
+            PrintMessageInput(["Removal of selected boundary condition" , message, "WARNING"])
 
     except Exception as log_error:
         PrintMessageInput(["Error while removing BC from file" ,str(log_error), "ERROR"])
@@ -555,3 +552,25 @@ def get_new_path(path, name):
 def get_linear_distribution(x_initial, x_final, N):
     n = np.arange(N)/(N-1)
     return (x_final-x_initial)*n + x_initial
+
+def create_new_folder(path, folder_name):
+    folder_path = get_new_path(path, folder_name)
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
+    return folder_path
+
+def check_is_there_a_group_of_elements_inside_list_elements(input_list):
+    ord_list = np.sort(input_list)
+    _value = ord_list[0]
+    list_i = [_value]
+    list_of_lists = []
+    for value in ord_list[1:]:
+        if value == _value + 1:
+            list_i.append(value)
+        else:
+            temp_list = list_i.copy()
+            list_of_lists.append(temp_list)
+            list_i = [value]
+        _value = value
+    list_of_lists.append(list_i)
+    return list_of_lists

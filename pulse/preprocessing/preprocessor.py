@@ -6,6 +6,7 @@ from libs.gmsh import gmsh
 import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
+from pulse.preprocessing import structural_element
 
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -15,7 +16,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles
+from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles, check_is_there_a_group_of_elements_inside_list_elements
 
 window_title_1 = "ERROR"
 
@@ -30,6 +31,7 @@ class Preprocessor:
         """
         This method reset the class default values.
         """
+        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
         self.nodes = {}
         self.structural_elements = {}
         self.acoustic_elements = {}
@@ -37,14 +39,16 @@ class Preprocessor:
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
         self.elements_to_line = {}
+        self.elements_with_expansion_joint = []
+        self.number_expansion_joints_by_lines = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
         self.group_elements_with_perforated_plate = {}
         self.group_elements_with_stress_stiffening = {}
-        self.group_elements_with_expansion_joint = {}
+        self.group_elements_with_expansion_joints = {}
         self.group_lines_with_capped_end = {}        
         self.dict_lines_with_stress_stiffening = {}
-        self.dict_lines_with_expansion_joint = {}
+        self.dict_lines_with_expansion_joints = {}
         self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
         self.connectivity_matrix = []
@@ -71,10 +75,13 @@ class Preprocessor:
         self.dict_beam_xaxis_rotating_angle_to_lines = defaultdict(list)
 
         self.dict_coordinate_to_update_bc_after_remesh = {}
-        self.dict_old_to_new_extenal_indexes = {}
+        self.dict_element_info_to_update_indexes_in_entity_file = {}
+        self.dict_element_info_to_update_indexes_in_element_info_file = {}
+        self.dict_list_elements_to_subgroups = {}
+        self.dict_old_to_new_node_external_indexes = {}
 
-        self.dict_nodes_with_elastic_link_stiffness = {}
-        self.dict_nodes_with_elastic_link_damping = {}
+        self.nodes_with_elastic_link_stiffness = {}
+        self.nodes_with_elastic_link_dampings = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -82,13 +89,14 @@ class Preprocessor:
         self.element_type = "pipe_1" # defined as default
         self.all_lines = []
         self.flag_fluid_mass_effect = False
+        self.stress_stiffening_enabled = False
         self.group_index = 0
         self.volume_velocity_table_index = 0
-        self.DOFS_ELEMENT = DOF_PER_NODE_STRUCTURAL*NODES_PER_ELEMENT
+        
         self.beam_gdofs = None
         self.pipe_gdofs = None
 
-    def generate(self, path, element_size):
+    def generate(self, path, element_size, tolerance=1e-6):
         """
         This method evaluates the Lamé's first parameter `lambda`.
 
@@ -100,9 +108,10 @@ class Preprocessor:
         element_size : float
             Element size to be used to build the preprocessor.
         """
+        self.element_size = element_size
         self.reset_variables()
         self._initialize_gmsh(path)
-        self._set_gmsh_options(element_size)
+        self._set_gmsh_options(element_size, tolerance=tolerance)
         self._create_entities()
         self._map_lines_to_elements()
         self._finalize_gmsh()
@@ -119,9 +128,10 @@ class Preprocessor:
         
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
+        self.get_dict_nodes_to_element_indexes()
         self.get_list_edge_nodes(element_size)
-        self._get_principal_diagonal_structure_parallelepiped()
-        self.get_dict_line_to_nodes()
+        self.get_principal_diagonal_structure_parallelepiped()
+        # self.get_dict_line_to_nodes()
         
         # t0 = time()
         self.process_all_rotation_matrices()
@@ -382,15 +392,12 @@ class Preprocessor:
     def get_line_length(self, line_ID):
         first_element_ID = self.line_to_elements[line_ID][0]
         last_element_ID = self.line_to_elements[line_ID][-1]
-        # print(first_element_ID, last_element_ID)
 
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
-        # print(node1_first_element.external_index, node2_first_element.external_index)
 
         node1_last_element = self.structural_elements[last_element_ID].first_node
         node2_last_element = self.structural_elements[last_element_ID].last_node
-        # print(node1_last_element.external_index, node2_last_element.external_index)
 
         list_nodes = [  node1_first_element, node2_first_element, 
                         node1_last_element, node2_last_element  ]
@@ -521,7 +528,7 @@ class Preprocessor:
                                 stack.appendleft(node.external_index)
                                 break
                         
-                        #TODO: uncomment to rebegin from start or end nodes
+                        #TODO: uncomment to begin from start or end nodes
                         # for node in list_nodes:
                         #     if len(self.neighbors[node]) == 1:
                         #         stack.appendleft(node)   
@@ -529,28 +536,6 @@ class Preprocessor:
         # dt = time()-t0
         # print("Time to process the global matrices bandwidth reduction: ", dt)
 
-    def get_dict_line_to_nodes(self):
-        # t0 = time()
-        self.dict_line_to_nodes = {}
-        for line_ID, list_elements in self.line_to_elements.items():
-            # list_nodes = []
-            list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-            for i, _id in enumerate(list_elements):
-                element = self.structural_elements[_id]
-                first_node_id = element.first_node.external_index
-                last_node_id = element.last_node.external_index
-                if i==0:
-                    list_nodes[i] = first_node_id
-                list_nodes[i+1] = last_node_id
-                # if first_node_id not in list_nodes:
-                #     list_nodes.append(first_node_id)
-                # if last_node_id not in list_nodes:
-                #     list_nodes.append(last_node_id)
-            self.dict_line_to_nodes[line_ID] = list_nodes  
-            # if line_ID in [1,2,3]:
-            #     print(self.dict_line_to_nodes[line_ID])  
-        # dt = time() - t0
-        # print(f"Time to process : {dt}")
 
     def load_mesh(self, coordinates, connectivity):
         """
@@ -597,13 +582,25 @@ class Preprocessor:
 
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
-        self._get_principal_diagonal_structure_parallelepiped()
+        self.get_dict_nodes_to_element_indexes()
+        self.get_principal_diagonal_structure_parallelepiped()
         self.all_lines.append(1)
         self._map_lines_to_elements(mesh_loaded=True)
         self.process_all_rotation_matrices()
         self.create_dict_lines_to_rotation_angles()
         # self._create_dict_gdofs_to_external_indexes()
 
+    def get_dict_nodes_to_element_indexes(self):
+        """
+        This method updates the dictionary that maps the external node to the element index.
+        """
+        self.dict_first_node_to_element_index = defaultdict(list)
+        self.dict_last_node_to_element_index = defaultdict(list)
+        for index, element in self.structural_elements.items():
+            first_node_index = element.first_node.external_index
+            last_node_index = element.last_node.external_index
+            self.dict_first_node_to_element_index[first_node_index].append(index)
+            self.dict_last_node_to_element_index[last_node_index].append(index)
 
     def get_nodal_coordinates_matrix(self, reordering=True):
         """
@@ -659,9 +656,26 @@ class Preprocessor:
                 last  = element.last_node.external_index
                 connectivity[index,:] = index+1, first, last
         self.connectivity_matrix = connectivity.astype(int) 
-        
 
-    def _get_principal_diagonal_structure_parallelepiped(self):
+    def get_element_center_coordinates_matrix(self):
+        """
+        This method updates the center coordinates matrix attribute. 
+        
+        Element center coordinates matrix row structure:
+
+        [Element index, x-element_center_coordinate, y-element_center_coordinate, z-element_center_coordinate].
+
+        """
+        self.center_coordinates_matrix = np.zeros((len(self.structural_elements), 4))
+        for index, element in self.structural_elements.items():
+            self.center_coordinates_matrix[index-1, 0] = index
+            self.center_coordinates_matrix[index-1, 1:] = element.element_center_coordinates
+        
+    def get_principal_diagonal_structure_parallelepiped(self):
+        """
+        This method updates the principal structure diagonal parallelepiped attribute. 
+        
+        """
         nodal_coordinates = self.nodal_coordinates_matrix.copy()
         x_min, y_min, z_min = np.min(nodal_coordinates[:,1:], axis=0)
         x_max, y_max, z_max = np.max(nodal_coordinates[:,1:], axis=0)
@@ -821,7 +835,7 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
-    def set_acoustic_element_type_by_element(self, elements, element_type, hysteretic_damping=None, remove=False):
+    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, remove=False):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -830,11 +844,11 @@ class Preprocessor:
         elements : list
             Acoustic elements indexes.
             
-        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
-        hysteretic_damping : float, optional
-            Acoustic hysteretic damping coefficient. It must be attributed to the elements of type 'hysteretic'.
+        proportional_damping : float, optional
+            Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
         remove : boll, optional
@@ -843,7 +857,7 @@ class Preprocessor:
         """
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
-            element.hysteretic_damping = hysteretic_damping
+            element.proportional_damping = proportional_damping
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
@@ -935,7 +949,7 @@ class Preprocessor:
                     if self.dict_structural_element_type_to_lines[key] == []:
                         self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_line(self, line, element_type, hysteretic_damping=None, remove=False):
+    def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -944,11 +958,11 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['undamped', 'hysteretic', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
+        element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full']
             Acoustic element type to be attributed to the listed elements.
             
-        hysteretic_damping : float, optional
-            Acoustic hysteretic damping coefficient. It must be attributed to the elements of type 'hysteretic'.
+        proportional_damping : float, optional
+            Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
         remove : boll, optional
@@ -956,7 +970,7 @@ class Preprocessor:
             Default is False.
         """
         for elements in slicer(self.line_to_elements, line):
-            self.set_acoustic_element_type_by_element(elements, element_type, hysteretic_damping=hysteretic_damping)
+            self.set_acoustic_element_type_by_element(elements, element_type, proportional_damping=proportional_damping)
 
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
@@ -1016,7 +1030,7 @@ class Preprocessor:
         for element in slicer(self.structural_elements, elements):
             element.loaded_forces = loads
     
-    def set_structural_load_bc_by_node(self, nodes_id, values):
+    def set_structural_load_bc_by_node(self, nodes_id, data):
         """
         This method attributes structural force and moment loads to a list of nodes.
 
@@ -1028,10 +1042,12 @@ class Preprocessor:
         values : complex or array
             Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes_id):
             node.nodal_loads = values
-            node.prescribed_dofs = [None,None,None,None,None,None]
-            self.update_dict_coordinates_to_external_indexes(node)
+            node.nodal_loads_table_names = table_names            
+            node.prescribed_dofs = [None, None, None, None, None, None]
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1039,7 +1055,8 @@ class Preprocessor:
                 node.there_are_nodal_loads = True
                 if not node in self.nodes_with_nodal_loads:
                     self.nodes_with_nodal_loads.append(node)
-                return
+                continue
+                # return
             else:
                 node.loaded_table_for_nodal_loads = False
             # Checking complex single values    
@@ -1053,7 +1070,7 @@ class Preprocessor:
                 if node in self.nodes_with_nodal_loads:
                     self.nodes_with_nodal_loads.remove(node)
 
-    def add_mass_to_node(self, nodes, values):
+    def add_mass_to_node(self, nodes, data):
         """
         This method attributes structural lumped mass to a list of nodes.
 
@@ -1065,9 +1082,11 @@ class Preprocessor:
         values : complex or array
             Lumped mass. Complex valued input corresponds to a constant mass with respect to the frequency. Array valued input corresponds to a variable mass with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_masses = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            node.lumped_masses_table_names = table_names
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1075,7 +1094,7 @@ class Preprocessor:
                 node.there_are_lumped_masses = True
                 if not node in self.nodes_with_masses:
                     self.nodes_with_masses.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_masses = False
             # Checking complex single values    
@@ -1089,7 +1108,7 @@ class Preprocessor:
                 if node in self.nodes_with_masses:
                     self.nodes_with_masses.remove(node)
 
-    def add_spring_to_node(self, nodes, values):
+    def add_spring_to_node(self, nodes, data):
         """
         This method attributes structural lumped stiffness (spring) to a list of nodes.
 
@@ -1101,9 +1120,11 @@ class Preprocessor:
         values : complex or array
             Lumped stiffness. Complex valued input corresponds to a constant stiffness with respect to the frequency. Array valued input corresponds to a variable stiffness with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_stiffness = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            node.lumped_stiffness_table_names = table_names
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1111,7 +1132,7 @@ class Preprocessor:
                 node.there_are_lumped_stiffness = True
                 if not node in self.nodes_connected_to_springs:
                     self.nodes_connected_to_springs.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_stiffness = False
             # Checking complex single values    
@@ -1125,7 +1146,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_springs:
                     self.nodes_connected_to_springs.remove(node)
     
-    def add_damper_to_node(self, nodes, values):
+    def add_damper_to_node(self, nodes, data):
         """
         This method attributes structural lumped damping (damper) to a list of nodes.
 
@@ -1137,9 +1158,11 @@ class Preprocessor:
         values : complex or array
             Lumped damping. Complex valued input corresponds to a constant damping with respect to the frequency. Array valued input corresponds to a variable damping with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.lumped_dampings = values
-            self.update_dict_coordinates_to_external_indexes(node)
+            node.lumped_dampings_table_names = table_names
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1147,7 +1170,7 @@ class Preprocessor:
                 node.there_are_lumped_dampings = True
                 if not node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.append(node)
-                return
+                continue
             else:
                 node.loaded_table_for_lumped_dampings = False
             # Checking complex single values    
@@ -1161,7 +1184,7 @@ class Preprocessor:
                 if node in self.nodes_connected_to_dampers:
                     self.nodes_connected_to_dampers.remove(node)
 
-    def set_prescribed_dofs_bc_by_node(self, nodes, values):
+    def set_prescribed_dofs_bc_by_node(self, nodes, data):
         """
         This method attributes structural displacement and rotation boundary condition to a list of nodes.
 
@@ -1173,10 +1196,12 @@ class Preprocessor:
         values : complex or array
             Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.
         """
+        [values, table_names] = data
         for node in slicer(self.nodes, nodes):
             node.prescribed_dofs = values
+            node.prescribed_dofs_table_names = table_names
             node.nodal_loads = [None,None,None,None,None,None]
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
             # Checking imported tables 
             check_array = [isinstance(bc, np.ndarray) for bc in values]
             if True in check_array:
@@ -1186,7 +1211,8 @@ class Preprocessor:
                     self.nodes_with_constrained_dofs.append(node)
                 if not node in self.nodes_with_prescribed_dofs:
                     self.nodes_with_prescribed_dofs.append(node)
-                return
+                continue
+                # return
             else:
                 node.loaded_table_for_prescribed_dofs = False
             # Checking complex single values    
@@ -1437,7 +1463,7 @@ class Preprocessor:
     #         for line in self.all_lines:
     #             self.lines_with_capped_end.append(line)
 
-    def set_stress_stiffening_by_line(self, lines, parameters, remove=False):
+    def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """
         This method .
 
@@ -1456,14 +1482,14 @@ class Preprocessor:
         if isinstance(lines, int):
             lines = [lines]
         for elements in slicer(self.line_to_elements, lines):
-            self.set_stress_stiffening_by_elements(elements, parameters)
+            self.set_stress_stiffening_by_elements(elements, pressures)
         if lines == "all":
             self.group_elements_with_stress_stiffening = {}
             self.lines_with_stress_stiffening = []
             if not remove:
                 for line in self.all_lines:
                     self.lines_with_stress_stiffening.append(line)
-                    self.dict_lines_with_stress_stiffening[line] = parameters
+                    self.dict_lines_with_stress_stiffening[line] = pressures
         else:
             for line in lines:
                 if remove:
@@ -1473,9 +1499,9 @@ class Preprocessor:
                 else:
                     if line not in self.lines_with_stress_stiffening:
                         self.lines_with_stress_stiffening.append(line)
-                        self.dict_lines_with_stress_stiffening[line] = parameters
+                        self.dict_lines_with_stress_stiffening[line] = pressures
 
-    def set_stress_stiffening_by_elements(self, elements, parameters, section=None, remove=False):
+    def set_stress_stiffening_by_elements(self, elements, pressures, section=None, remove=False):
         """
         This method .
 
@@ -1495,21 +1521,26 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
+        self.stress_stiffening_enabled = True
+        
         for element in slicer(self.structural_elements, elements):
-            element.external_temperature = parameters[0]
-            element.internal_temperature = parameters[1]
-            element.external_pressure = parameters[2]
-            element.internal_pressure = parameters[3]
+            element.external_pressure = pressures[0]
+            element.internal_pressure = pressures[1]
             
             if section is not None:
                 if remove:
                     if section in self.group_elements_with_stress_stiffening.keys():
                         self.group_elements_with_stress_stiffening.pop(section) 
                 else:
-                    self.group_elements_with_stress_stiffening[section] = [parameters, elements]
+                    self.group_elements_with_stress_stiffening[section] = [pressures, elements]
 
 
-    def add_expansion_joint_by_elements(self, elements, parameters, section=None, remove=False):
+    def add_expansion_joint_by_elements(self, 
+                                        list_elements, 
+                                        parameters, 
+                                        remove=False, 
+                                        aux_line_id=None, 
+                                        reset_cross=True):
         """
         This method .
 
@@ -1529,42 +1560,67 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        # if isinstance(parameters, dict):
-                
-        #     joint_length = parameters["joint_length"]
-        #     effective_diameter = parameters["effective_diameter"]
-        #     joint_mass = parameters["joint_mass"]
-        #     axial_locking_criteria = parameters["axial_locking_criteria"]
-        #     rods_included = parameters["rods_included"]
-        #     axial_stiffness = parameters["axial_stiffness"]
-        #     transversal_stiffness = parameters["transversal_stiffness"]
-        #     torsional_stiffness = parameters["torsional_stiffness"]
-        #     angular_stiffness = parameters["angular_stiffness"]
-        
-        # elif isinstance(parameters, list):
+        if aux_line_id is not None:
+            elements_from_line = self.line_to_elements[aux_line_id]
+            temp_dict = self.group_elements_with_expansion_joints.copy()
+            for key, [_list_elements_ids, _] in temp_dict.items():
+                for element_id in _list_elements_ids:
+                    if element_id in elements_from_line:
+                        self.group_elements_with_expansion_joints.pop(key)
+                        break
 
-        [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
-        [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+        list_lines = []
+        for element_id in list_elements:
+            line_id = self.elements_to_line[element_id]
+            if line_id not in list_lines:
+                list_lines.append(line_id)
 
-        for element in slicer(self.structural_elements, elements):
-            element.joint_length = joint_length
-            element.joint_effective_diameter = effective_diameter
-            element.joint_mass = joint_mass
-            element.joint_axial_locking_criteria = axial_locking_criteria
-            element.joint_rods_included = rods_included
-            element.joint_axial_stiffness = axial_stiffness
-            element.joint_transversal_stiffness = transversal_stiffness
-            element.joint_torsional_stiffness = torsional_stiffness
-            element.joint_angular_stiffness = angular_stiffness
+        if remove:
+            for element in slicer(self.structural_elements, list_elements):
+                element.reset_expansion_joint_parameters()
+                if reset_cross:
+                    element.cross_section = None
+                if element in self.elements_with_expansion_joint:
+                    self.elements_with_expansion_joint.remove(element)
             
-            if section is not None:
-                if remove:
-                    if section in self.group_elements_with_expansion_joint.keys():
-                        self.group_elements_with_expansion_joint.pop(section) 
-                else:
-                    self.group_elements_with_expansion_joint[section] = [parameters, elements]
+            for line_id in list_lines:
+                if line_id in self.number_expansion_joints_by_lines.keys():
+                    self.number_expansion_joints_by_lines.pop(line_id)
 
-    def add_expansion_joint_by_line(self, line, parameters, remove=False):
+        else:
+
+            for line_id in list_lines:
+                if line_id in self.number_expansion_joints_by_lines.keys():
+                    self.number_expansion_joints_by_lines[line_id] += 1
+                else:
+                    self.number_expansion_joints_by_lines[line_id] = 1
+
+            [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
+            [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
+            list_stiffness_table_names = parameters[2]
+
+            for element in slicer(self.structural_elements, list_elements):
+                element.joint_length = joint_length
+                element.joint_effective_diameter = effective_diameter
+                element.joint_mass = joint_mass
+                element.joint_axial_locking_criteria = axial_locking_criteria
+                element.joint_rods_included = rods_included
+                element.joint_axial_stiffness = axial_stiffness
+                element.joint_transversal_stiffness = transversal_stiffness
+                element.joint_torsional_stiffness = torsional_stiffness
+                element.joint_angular_stiffness = angular_stiffness
+                element.joint_stiffness_table_names = list_stiffness_table_names
+                element.expansion_joint_parameters = parameters
+                if element not in self.elements_with_expansion_joint:
+                    self.elements_with_expansion_joint.append(element)
+                
+            if aux_line_id is None:
+                size = len(self.group_elements_with_expansion_joints)
+                key = f"group-{size+1}"
+                self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
+
+
+    def add_expansion_joint_by_line(self, line_id, parameters, remove=False):
         """
         This method .
 
@@ -1580,9 +1636,16 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        for elements in slicer(self.line_to_elements, line):
-            self.add_expansion_joint_by_elements(elements, parameters)
-        self.dict_lines_with_expansion_joint[line] = parameters
+        for elements in slicer(self.line_to_elements, line_id):
+            self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
+        if remove:
+            if line_id in list(self.dict_lines_with_expansion_joints.keys()):
+                self.dict_lines_with_expansion_joints.pop(line_id)
+            if line_id in self.number_expansion_joints_by_lines.keys():
+                self.number_expansion_joints_by_lines.pop(line_id)
+        else:
+            self.dict_lines_with_expansion_joints[line_id] = parameters
+            self.number_expansion_joints_by_lines[line_id] = 1
         
     def set_stress_intensification_by_element(self, elements, value):
         """
@@ -1704,7 +1767,7 @@ class Preprocessor:
         else:
             self.group_elements_with_length_correction[section] = [value, elements]
             
-    def set_acoustic_pressure_bc_by_node(self, nodes, value):
+    def set_acoustic_pressure_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic pressure boundary condition to a list of nodes.
 
@@ -1716,20 +1779,31 @@ class Preprocessor:
         values : complex or array
             Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.
         """
-        for node in slicer(self.nodes, nodes):
-            node.acoustic_pressure = value
-            if not node in self.nodes_with_acoustic_pressure:
-                self.nodes_with_acoustic_pressure.append(node)
-            if value is None:
-                if node in self.nodes_with_acoustic_pressure:
-                    self.nodes_with_acoustic_pressure.remove(node)
-            node.volume_velocity = None
-            if node in self.nodes_with_volume_velocity:
-                self.nodes_with_volume_velocity.remove(node)
-            
-            self.update_dict_coordinates_to_external_indexes(node)
+        try:
+            [value, table_name] = data
+            for node in slicer(self.nodes, nodes):
+                node.acoustic_pressure = value
+                node.acoustic_pressure_table_name = table_name
+                if not node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.append(node)
+                if value is None:
+                    if node in self.nodes_with_acoustic_pressure:
+                        self.nodes_with_acoustic_pressure.remove(node)
+                node.volume_velocity = None
+                node.volume_velocity_table = None
+                if node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.remove(node)
+                
+                self.process_nodes_to_update_indexes_after_remesh(node)
+                
+        except Exception as log_error:
+            title = "Error while setting acoustic pressure"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
 
-    def set_volume_velocity_bc_by_node(self, nodes, values, additional_info=None):
+
+    def set_volume_velocity_bc_by_node(self, nodes, data, additional_info=None):
         """
         This method attributes acoustic volume velocity load to a list of nodes.
 
@@ -1742,14 +1816,16 @@ class Preprocessor:
             Volume velocity. Complex valued input corresponds to a constant volume velocity load with respect to the frequency. Array valued input corresponds to a variable volume velocity load with respect to the frequency.
         """
         try:
+            [values, table_name] = data
             for node in slicer(self.nodes, nodes):
                 if node.volume_velocity is None or values is None:
                     node.volume_velocity = values
+                    node.volume_velocity_table_name = table_name
                 elif isinstance(node.volume_velocity, np.ndarray) and isinstance(values, np.ndarray):
                     if node.volume_velocity.shape == values.shape:
                         node.volume_velocity += values 
                     else:
-                        title = "ERROR WHILE SETTING VOLUME VELOCITY"
+                        title = "Error while setting volume velocity"
                         message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
                         message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
                         message += "New array length: {}".format(str(values.shape).replace(",", ""))
@@ -1758,26 +1834,28 @@ class Preprocessor:
                 node.compressor_connection_info = None        
                 if additional_info is not None:
                     node.compressor_connection_info = additional_info
-                if not node in self.nodes_with_volume_velocity:
+                if node not in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.append(node)
                 if values is None:
+                    self.volume_velocity_table_index = 0
                     if node in self.nodes_with_volume_velocity:
                         self.nodes_with_volume_velocity.remove(node)
                 elif isinstance(values, np.ndarray):
                     self.volume_velocity_table_index += 1 
                 node.acoustic_pressure = None
+                node.acoustic_pressure_table_name = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
                 
-                self.update_dict_coordinates_to_external_indexes(node)
+                self.process_nodes_to_update_indexes_after_remesh(node)
 
         except Exception as error:
-            title = "ERROR WHILE SET VOLUME VELOCITY"
+            title = "Error while setting volume velocity"
             message = str(error)
             PrintMessageInput([title, message, window_title_1])
             return True  
 
-    def set_specific_impedance_bc_by_node(self, nodes, values):
+    def set_specific_impedance_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic lumped specific impedance to a list of nodes.
 
@@ -1791,19 +1869,28 @@ class Preprocessor:
 
             If None is attributed, then no specific impedance is considered.
         """
-        for node in slicer(self.nodes, nodes):
-            node.specific_impedance = values
-            node.radiation_impedance = None
-            node.radiation_impedance_type = None
-            if not node in self.nodes_with_specific_impedance:
-                self.nodes_with_specific_impedance.append(node)
-            if values is None:
-                if node in self.nodes_with_specific_impedance:
-                    self.nodes_with_specific_impedance.remove(node)
-            if node in self.nodes_with_radiation_impedance:
-                self.nodes_with_radiation_impedance.remove(node)
-            
-            self.update_dict_coordinates_to_external_indexes(node) 
+        try:
+            [values, table_name] = data
+            for node in slicer(self.nodes, nodes):
+                node.specific_impedance = values
+                node.specific_impedance_table_name = table_name
+                node.radiation_impedance = None
+                node.radiation_impedance_type = None
+                if not node in self.nodes_with_specific_impedance:
+                    self.nodes_with_specific_impedance.append(node)
+                if values is None:
+                    if node in self.nodes_with_specific_impedance:
+                        self.nodes_with_specific_impedance.remove(node)
+                if node in self.nodes_with_radiation_impedance:
+                    self.nodes_with_radiation_impedance.remove(node)
+                
+                self.process_nodes_to_update_indexes_after_remesh(node) 
+        except Exception as error:
+            title = "Error while setting specific impedance"
+            message = str(error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
+
 
     def set_radiation_impedance_bc_by_node(self, nodes, impedance_type):
         """
@@ -1833,7 +1920,7 @@ class Preprocessor:
             if node in self.nodes_with_specific_impedance:
                 self.nodes_with_specific_impedance.remove(node)
 
-            self.update_dict_coordinates_to_external_indexes(node)
+            self.process_nodes_to_update_indexes_after_remesh(node)
 
     def get_radius(self):
         """
@@ -1859,31 +1946,29 @@ class Preprocessor:
                 self.radius[last] = radius
         return self.radius
 
-    def get_pipe_elements_global_dofs(self):
+
+    def get_pipe_and_expansion_joint_elements_global_dofs(self):
         """
-        This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. This method helps to exclude those degrees of freedom from acoustic analysis.
+        This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements. 
+        This method helps to exclude those degrees of freedom from acoustic analysis.
 
         Returns
         ----------
         list
             Acoustic global degrees of freedom associated to beam element.
         """
-        list_pipe_gdofs = []  
+        # list_pipe_gdofs = []  
+        pipe_gdofs = {}
         for element in self.structural_elements.values():
-            if element.element_type in ['pipe_1', 'pipe_2']:
-
+            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
-                
-                if gdofs_node_first not in list_pipe_gdofs:
-                    list_pipe_gdofs.append(gdofs_node_first)
-                
-                if gdofs_node_last not in list_pipe_gdofs:
-                    list_pipe_gdofs.append(gdofs_node_last)
+                pipe_gdofs[gdofs_node_first] = gdofs_node_first 
+                pipe_gdofs[gdofs_node_last] = gdofs_node_last 
+        return list(pipe_gdofs.keys())
 
-        return list_pipe_gdofs
 
-    def get_beam_and_pipe_elements_global_dofs(self):
+    def get_beam_and_non_beam_elements_global_dofs(self):
         """
         This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements. This method helps to keep only those degrees of freedom in acoustic analysis.
 
@@ -1892,74 +1977,13 @@ class Preprocessor:
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
-        self.pipe_gdofs = self.get_pipe_elements_global_dofs()
+        self.pipe_and_expansion_joint_gdofs = self.get_pipe_and_expansion_joint_elements_global_dofs()
         total_dof = DOF_PER_NODE_ACOUSTIC * len(self.nodes)
         all_indexes = np.arange(total_dof)
-        self.beam_gdofs = np.delete(all_indexes, list(self.pipe_gdofs))
-        return self.beam_gdofs, self.pipe_gdofs
+        self.beam_gdofs = np.delete(all_indexes, self.pipe_and_expansion_joint_gdofs)
+        return self.beam_gdofs, self.pipe_and_expansion_joint_gdofs
 
-    # def get_beam_nodes_and_indexes(self, list_beam_elements):
-    #     """
-    #     This method returns the global indexes of the nodes associated to structural beam elements.
-
-    #     Returns
-    #     ----------
-    #     list
-    #         Nodes global indexes associated to beam element.
-    #     """
-    #     list_beam_nodes = []
-    #     list_node_ids = []
-    #     # print(len(list_beam_elements))
-    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
-    #     # list(self.nodes_with_multiples_neighbors.keys())
-        
-    #     # for element in self.structural_elements.values():
-    #     for element in list_beam_elements:
-    #         # if element.element_type in ['beam_1']:
-            
-    #         node_first = element.first_node
-    #         node_last = element.last_node
-            
-    #         if node_first not in list_beam_nodes:
-    #             list_beam_nodes.append(node_first)
-    #             list_node_ids.append(node_first.global_index)
-            
-    #         if node_last not in list_beam_nodes:
-    #             list_beam_nodes.append(node_last)
-    #             list_node_ids.append(node_last.global_index)
-                        
-    #         if node_first in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'First node: {node_first.external_index}')
-    #             list_beam_nodes.remove(node_first)
-    #             list_node_ids.remove(node_first.global_index)
-
-    #         if node_last in self.nodes_connected_to_beam_and_pipe:
-    #             print(f'Last node: {node_last.external_index}')
-    #             list_beam_nodes.remove(node_last) 
-    #             list_node_ids.remove(node_last.global_index) 
-
-    #     print(len(list_node_ids))
-    #     return list_node_ids
-
-    # def get_nodes_connected_to_beam_and_pipe(self):
-    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
-    #     self.dict_node_to_multiple_element_types = defaultdict(list)
-    #     self.nodes_connected_to_beam_and_pipe = []
-    #     for element in self.structural_elements.values():#list_beam_elements:
-    #         first_node = element.first_node
-    #         last_node = element.last_node
-    #         if first_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
-    #         if last_node in list_nodes_with_multiples_neighbors:
-    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
-    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
-    #         if "beam_1" in element_types:
-    #             if ("pipe_1" or "pipe_2") in element_types:
-    #                 print(f"Node to remove: {node.external_index}")
-    #                 # print(element_types)
-    #                 self.nodes_connected_to_beam_and_pipe.append(node)
-    #     print(len(self.nodes_connected_to_beam_and_pipe))
-
+    
     def _process_beam_nodes_and_indexes(self):
         """
         This method ?????.
@@ -1969,43 +1993,48 @@ class Preprocessor:
         boll
             ?????
         """
-        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_pipe_elements_global_dofs()
+        self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
         if len(self.beam_gdofs) == self.number_nodes:
             return True
         else:
             return False
     
-    def get_pipe_elements(self):
+    def get_acoustic_elements(self):
         """
-        This method returns the indexes of the structural pipe elements.
+        This method returns a list of acoustic elements.
 
         Returns
         ----------
         list
-            Pipe elements indexes.
+            Acoustic elements list.
         """
-        list_elements = []
+        acoustic_elements = []
         dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
             if element.element_type not in ['beam_1']:
-                list_elements.append(dict_structural_to_acoustic_elements[element])
-        return list_elements   
+                acoustic_element = dict_structural_to_acoustic_elements[element]
+                acoustic_elements.append(acoustic_element)
+        return acoustic_elements   
     
-    # def get_beam_elements(self):
-    #     """
-    #     This method returns the a list of acoustic elements associated to structural beam elements.
+    def get_nodes_relative_to_acoustic_elements(self):
+        """
+        This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.
 
-    #     Returns
-    #     ----------
-    #     list
-    #         Acoustic elements objects.
-    #     """
-    #     list_elements = []
-    #     dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
-    #     for element in self.structural_elements.values():
-    #         if element.element_type in ['beam_1']:
-    #             list_elements.append(dict_structural_to_acoustic_elements[element])
-    #     return list_elements
+        Returns
+        ----------
+        list
+            Dictionary of nodes relative to the acoustic elements.
+        """
+        acoustic_elements = self.get_acoustic_elements()
+        acoustic_nodes = {}
+        
+        for element in acoustic_elements:
+            first_node = element.first_node.external_index
+            last_node = element.last_node.external_index
+            acoustic_nodes[first_node] = element.first_node
+            acoustic_nodes[last_node] = element.last_node
+
+        return acoustic_nodes  
 
     def get_beam_elements(self):
         """
@@ -2021,7 +2050,6 @@ class Preprocessor:
             if element.element_type in ['beam_1']:
                 list_elements.append(element)
         return list_elements
-
 
     def add_compressor_excitation(self, parameters):
         """
@@ -2077,7 +2105,7 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node          
 
-    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, parameters, _stiffness=False, _damping=False):
+    def add_elastic_nodal_link(self, nodeID_1, nodeID_2, data, _stiffness=False, _damping=False):
         """
         This method ???????
 
@@ -2103,13 +2131,14 @@ class Preprocessor:
         if not (_stiffness or _damping):
             return
 
+        [parameters, table_names] = data
         gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)        
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
-        self.update_dict_coordinates_to_external_indexes(node1)
-        self.update_dict_coordinates_to_external_indexes(node2)
-
+        self.process_nodes_to_update_indexes_after_remesh(node1)
+        self.process_nodes_to_update_indexes_after_remesh(node2)
+        
         pos_data = parameters
         neg_data = [-value if value is not None else None for value in parameters]
         mask = [False if value is None else True for value in parameters]
@@ -2118,14 +2147,16 @@ class Preprocessor:
 
         if True in check_tables:
             node1.loaded_table_for_elastic_link_stiffness = True
-            node2.loaded_table_for_elastic_link_damping = True
-            value_labels = ["Table"]*len(check_tables)#.count(True)
+            node2.loaded_table_for_elastic_link_stiffness = True
+            node1.loaded_table_for_elastic_link_dampings = True
+            node2.loaded_table_for_elastic_link_dampings = True
+            value_labels = table_names
         else:
-            value_labels = parameters#np.array(parameters)#[mask]
+            value_labels = parameters
             node1.loaded_table_for_elastic_link_stiffness = False
             node2.loaded_table_for_elastic_link_stiffness = False
-            node1.loaded_table_for_elastic_link_damping = False
-            node2.loaded_table_for_elastic_link_damping = False
+            node1.loaded_table_for_elastic_link_dampings = False
+            node2.loaded_table_for_elastic_link_dampings = False
 
         indexes_i = [ [ gdofs_node1, gdofs_node2 ], [ gdofs_node1, gdofs_node2 ] ] 
         indexes_j = [ [ gdofs_node1, gdofs_node1 ], [ gdofs_node2, gdofs_node2 ] ] 
@@ -2138,19 +2169,20 @@ class Preprocessor:
         key = "{}-{}".format(min_node_ID, max_node_ID)
         
         if _stiffness:
-            self.dict_nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            self.nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]
             node1.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node2.elastic_nodal_link_stiffness[key] = [mask, value_labels]
             node1.there_are_elastic_nodal_link_stiffness = True
             node2.there_are_elastic_nodal_link_stiffness = True
         
         if _damping:
-            self.dict_nodes_with_elastic_link_damping[key] = [element_matrix_info_node1, element_matrix_info_node2]
-            node1.elastic_nodal_link_damping[key] = [mask, value_labels]
-            node2.elastic_nodal_link_damping[key] = [mask, value_labels]
-            node1.there_are_elastic_nodal_link_damping = True
-            node2.there_are_elastic_nodal_link_damping = True
- 
+            self.nodes_with_elastic_link_dampings[key] = [element_matrix_info_node1, element_matrix_info_node2]
+            node1.elastic_nodal_link_dampings[key] = [mask, value_labels]
+            node2.elastic_nodal_link_dampings[key] = [mask, value_labels]
+            node1.there_are_elastic_nodal_link_dampings = True
+            node2.there_are_elastic_nodal_link_dampings = True
+
+
     def process_element_cross_sections_orientation_to_plot(self):
         """
         This method ???????
@@ -2243,8 +2275,10 @@ class Preprocessor:
         for line in self.all_lines:
             self.dict_lines_to_rotation_angles[line] = 0
 
-    def update_dict_coordinates_to_external_indexes(self, node):
-        # print(f"Node index: {node.external_index} - Coordinates: {node.coordinates}")
+    def process_nodes_to_update_indexes_after_remesh(self, node):
+        """
+        This method ...
+        """        
         str_coord = str(node.coordinates)
         self.dict_coordinate_to_update_bc_after_remesh[str_coord] = node.external_index
 
@@ -2260,21 +2294,358 @@ class Preprocessor:
             if coord in list_coordinates:
                 ind = list_coordinates.index(coord)
                 new_external_index = int(new_external_indexes[ind])
-                self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
-                # print(f"External index: {new_external_index}/{old_external_index} - Coordinates: {coord}")
+                self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
             else:
                 diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
                 mask = diff < tolerance
                 try:
                     new_external_index = int(coord_matrix[:,0][mask])
-                    self.dict_old_to_new_extenal_indexes[str(old_external_index)] = new_external_index
-                    # print(f"Coord not found: {coord} - {old_external_index}/{new_external_index} == {diff[mask]}")
-                except Exception as _err:
+                    self.dict_old_to_new_node_external_indexes[str(old_external_index)] = new_external_index
+                except:
                     self.dict_non_mapped_bcs[key] = old_external_index
         self.get_nodal_coordinates_matrix()
-        return self.dict_old_to_new_extenal_indexes, self.dict_non_mapped_bcs
+        return [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs]
 
 
-    def get_model_checks(self):
-        return BeforeRun(self)
+    def process_elements_to_update_indexes_after_remesh_in_entity_file(self, list_elements, reset_line=False, line_id=None, dict_map_cross={}, dict_map_expansion_joint={}):
+        """
+        This method ...
+        """
+        list_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+
+        if reset_line:
+            self.reset_list_elements_from_line(line_id, dict_map_cross, dict_map_expansion_joint)
+        else:
+            for subgroup_elements in list_groups_elements:
+                first_element_id = subgroup_elements[0]
+                last_element_id = subgroup_elements[-1]
+                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+                first_node_coordinates = self.nodes[start_node_id].coordinates
+                last_node_coordinates = self.nodes[end_node_id].coordinates
+                line_id = self.elements_to_line[first_element_id]
+                key = f"{first_element_id}-{last_element_id}||{line_id}"
+                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    subgroup_elements   ]
+
+
+    def reset_list_elements_from_line(self, line_id, dict_map_cross, dict_map_expansion_joint):
+        
+        if line_id is None:
+            return
+        if len(dict_map_cross) == 0:
+            return
+        if len(dict_map_expansion_joint) == 0:
+            return
+
+        temp_dict = self.dict_element_info_to_update_indexes_in_entity_file.copy()
+        for key in temp_dict.keys():
+            key_line_id = int(key.split("||")[1])
+            if line_id == key_line_id:
+                self.dict_element_info_to_update_indexes_in_entity_file.pop(key)
+        
+        list_group_elements = []
+        for key, list_elements_cross in dict_map_cross.items():
+            list_group_elements.append(list_elements_cross)
+        
+        for (_, list_elements_joint, _) in dict_map_expansion_joint.values():
+            list_group_elements.append(list_elements_joint)
+        
+        for _list_elements in list_group_elements:    
+            list_subgroups_elements = check_is_there_a_group_of_elements_inside_list_elements(_list_elements) 
+            for subgroup_elements in list_subgroups_elements:
+                first_element_id = subgroup_elements[0]
+                last_element_id = subgroup_elements[-1]
+                start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+                first_node_coordinates = self.nodes[start_node_id].coordinates
+                last_node_coordinates = self.nodes[end_node_id].coordinates
+                line_id = self.elements_to_line[first_element_id]
+                key = f"{first_element_id}-{last_element_id}||{line_id}"
+                self.dict_element_info_to_update_indexes_in_entity_file[key] = [    list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    subgroup_elements   ]
+
+
+    def process_elements_to_update_indexes_after_remesh_in_element_info_file(self, list_elements):
+        """
+        This method ...
+        """
+        input_groups_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
+        output_subgroups_elements = []
+        for input_group in input_groups_elements:
+            line_to_elements = defaultdict(list)
+            for element_id in input_group:
+                line = self.elements_to_line[element_id]
+                line_to_elements[line].append(element_id)
+            for line, elements in line_to_elements.items():
+                output_subgroups_elements.append(elements)
+        
+        self.dict_list_elements_to_subgroups[str(list_elements)] = output_subgroups_elements
+
+        for output_subgroup in output_subgroups_elements:
+       
+            first_element_id = output_subgroup[0]
+            last_element_id = output_subgroup[-1]
+            start_node_id, end_node_id = self.get_distantest_nodes_from_elements([first_element_id, last_element_id]) 
+            first_node_coordinates = self.nodes[start_node_id].coordinates
+            last_node_coordinates = self.nodes[end_node_id].coordinates
+
+            key = f"{first_element_id}-{last_element_id}"
+            
+            self.dict_element_info_to_update_indexes_in_element_info_file[key] = [  list(first_node_coordinates),
+                                                                                    list(last_node_coordinates),
+                                                                                    output_subgroup ]
+
+
+    def update_element_ids_after_remesh(self, dict_cache, tolerance=1e-8):
+        """
+        This method ...
+        """      
+        coord_matrix = self.nodal_coordinates_matrix_external
+        list_coordinates = coord_matrix[:,1:].tolist()
+        new_external_indexes = coord_matrix[:,0]
+        dict_old_to_new_list_of_elements = {}
+        dict_non_mapped_subgroups = {}
+        dict_subgroups_old_to_new_group_nodes = defaultdict(list)
+
+        for key, data in dict_cache.items():
+
+            [first_node_coord, last_node_coord, subgroup_elements] = data
+
+            if first_node_coord in list_coordinates:
+
+                ind = list_coordinates.index(first_node_coord)
+                new_external_index = int(new_external_indexes[ind])
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)          
+            
+            else:
+
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(first_node_coord), axis=1)
+                mask = diff < tolerance
                 
+                try:
+                    new_external_index = int(coord_matrix[:,0][mask])
+                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                except:
+                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
+                           
+            if last_node_coord in list_coordinates:
+
+                ind = list_coordinates.index(last_node_coord)
+                new_external_index = int(new_external_indexes[ind])
+                dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)           
+            
+            else:
+
+                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(last_node_coord), axis=1)
+                mask = diff < tolerance
+                
+                try:
+                    new_external_index = int(coord_matrix[:,0][mask])
+                    dict_subgroups_old_to_new_group_nodes[str(subgroup_elements)].append(new_external_index)
+                except:
+                    dict_non_mapped_subgroups[str(subgroup_elements)] = subgroup_elements
+            
+        for str_subgroup_elements, edge_nodes_from_group in dict_subgroups_old_to_new_group_nodes.items():
+            if str_subgroup_elements not in dict_non_mapped_subgroups.keys():
+                start_element_index, end_element_index = self.get_elements_inside_nodes_boundaries(edge_nodes_from_group)
+                new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
+                dict_old_to_new_list_of_elements[str_subgroup_elements] = new_list_elements
+
+        return dict_old_to_new_list_of_elements, dict_non_mapped_subgroups
+
+
+    def get_distantest_nodes_from_elements(self, list_elements):
+        """"This method returns the more distant nodes from selected elements
+        
+        """
+        if len(list_elements) == 1:
+            element_id = list_elements[0]
+            first_node_id = self.structural_elements[element_id].first_node.external_index
+            last_node_id = self.structural_elements[element_id].last_node.external_index
+
+        if len(list_elements) == 2:
+            [element_id1, element_id2] = list_elements
+            element_1 = self.structural_elements[element_id1]
+            element_2 = self.structural_elements[element_id2]
+            diff_1 = element_1.first_node.coordinates - element_2.last_node.coordinates
+            diff_2 = element_2.first_node.coordinates - element_1.last_node.coordinates
+            
+            if np.linalg.norm(diff_1) > np.linalg.norm(diff_2):
+                first_node_id = element_1.first_node.external_index
+                last_node_id = element_2.last_node.external_index 
+            else:
+                first_node_id = element_1.last_node.external_index
+                last_node_id = element_2.first_node.external_index
+
+        list_nodes = [first_node_id, last_node_id]
+        return min(list_nodes), max(list_nodes)
+
+
+    def get_elements_inside_nodes_boundaries(self, list_nodes):
+        
+        start_node, end_node = list_nodes
+        element_1_start_node = self.dict_first_node_to_element_index[start_node]
+        element_2_start_node = self.dict_last_node_to_element_index[start_node]
+        
+        if len(element_1_start_node) > 1 or len(element_2_start_node) > 1:
+            elements_start_node = element_1_start_node
+            for element_id in element_2_start_node:
+                elements_start_node.append(element_id)
+        elif element_1_start_node == []:
+            elements_start_node = element_2_start_node
+        elif element_2_start_node == []:
+            elements_start_node = element_1_start_node
+        else:
+            elements_start_node = [element_1_start_node[0], element_2_start_node[0]]
+        
+        element_1_end_node = self.dict_first_node_to_element_index[end_node]
+        element_2_end_node = self.dict_last_node_to_element_index[end_node]
+
+        if len(element_1_end_node) > 1 or len(element_2_end_node) > 1:
+            elements_end_node = element_1_end_node
+            for element_id in element_2_end_node:
+                elements_end_node.append(element_id)
+        elif element_1_end_node == []:
+            elements_end_node = element_2_end_node
+        elif element_2_end_node == []:
+            elements_end_node = element_1_end_node
+        else:
+            elements_end_node = [element_1_end_node[0], element_2_end_node[0]]
+                
+        first = True
+        for element_start in elements_start_node:
+            for element_end in elements_end_node:
+                
+                difference = self.structural_elements[element_start].element_center_coordinates - self.structural_elements[element_end].element_center_coordinates
+                distance = np.linalg.norm(difference)
+                
+                if first:
+                    first = False
+                    previous_distance = distance
+                    output_indexes = [element_start, element_end]
+                
+                if previous_distance > distance:
+                    previous_distance = distance
+                    output_indexes = [element_start, element_end]
+     
+        return min(output_indexes), max(output_indexes)
+
+
+    # def get_model_checks(self):
+    #     return BeforeRun(self)
+                
+
+    def deformed_amplitude_control_in_expansion_joints(self):
+        """This method evaluates the deformed amplitudes in expansion joints nodes
+        and reduces the amplitude through rescalling if higher levels are observed."""
+        for element in self.elements_with_expansion_joint:
+
+            results_lcs = element.element_results_lcs()
+            delta_yz = sum(results_lcs[1:3]**2)**(1/2)
+            
+            if delta_yz > 3*self.element_size:
+                value = element.joint_effective_diameter/6
+                # print(f"Element: {element.index} <==> delta_yz: {delta_yz}")
+                return True, value
+            
+            first_node = element.first_node
+            last_node = element.last_node
+            delta_x = abs(  (last_node.x + results_lcs[6]) - 
+                            (first_node.x + results_lcs[0]) )
+
+            if delta_x < self.element_size/3 or delta_x > 2*self.element_size: 
+                value = self.element_size/2
+                # print(f"Element: {element.index} <==> delta_yz: {delta_x}")
+                return True, value
+
+        return False, None
+
+
+    #TODO: remove the following methods if they are not necessary anymore
+
+    # def get_dict_line_to_nodes(self):
+    #     # t0 = time()
+    #     self.dict_line_to_nodes = {}
+    #     for line_ID, list_elements in self.line_to_elements.items():
+    #         # list_nodes = []
+    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+    #         for i, _id in enumerate(list_elements):
+    #             element = self.structural_elements[_id]
+    #             first_node_id = element.first_node.external_index
+    #             last_node_id = element.last_node.external_index
+    #             if i==0:
+    #                 list_nodes[i] = first_node_id
+    #             list_nodes[i+1] = last_node_id
+    #             # if first_node_id not in list_nodes:
+    #             #     list_nodes.append(first_node_id)
+    #             # if last_node_id not in list_nodes:
+    #             #     list_nodes.append(last_node_id)
+    #         self.dict_line_to_nodes[line_ID] = list_nodes  
+    #         # if line_ID in [1,2,3]:
+    #         #     print(self.dict_line_to_nodes[line_ID])  
+    #     # dt = time() - t0
+    #     # print(f"Time to process : {dt}")
+
+
+    # def get_beam_nodes_and_indexes(self, list_beam_elements):
+    #     """
+    #     This method returns the global indexes of the nodes associated to structural beam elements.
+
+    #     Returns
+    #     ----------
+    #     list
+    #         Nodes global indexes associated to beam element.
+    #     """
+    #     list_beam_nodes = []
+    #     list_node_ids = []
+    #     # print(len(list_beam_elements))
+    #     self.get_nodes_connected_to_beam_and_pipe()#list_beam_elements)
+    #     # list(self.nodes_with_multiples_neighbors.keys())
+        
+    #     # for element in self.structural_elements.values():
+    #     for element in list_beam_elements:
+    #         # if element.element_type in ['beam_1']:
+            
+    #         node_first = element.first_node
+    #         node_last = element.last_node
+            
+    #         if node_first not in list_beam_nodes:
+    #             list_beam_nodes.append(node_first)
+    #             list_node_ids.append(node_first.global_index)
+            
+    #         if node_last not in list_beam_nodes:
+    #             list_beam_nodes.append(node_last)
+    #             list_node_ids.append(node_last.global_index)
+                        
+    #         if node_first in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'First node: {node_first.external_index}')
+    #             list_beam_nodes.remove(node_first)
+    #             list_node_ids.remove(node_first.global_index)
+
+    #         if node_last in self.nodes_connected_to_beam_and_pipe:
+    #             print(f'Last node: {node_last.external_index}')
+    #             list_beam_nodes.remove(node_last) 
+    #             list_node_ids.remove(node_last.global_index) 
+
+    #     print(len(list_node_ids))
+    #     return list_node_ids
+
+    # def get_nodes_connected_to_beam_and_pipe(self):
+    #     list_nodes_with_multiples_neighbors = list(self.nodes_with_multiples_neighbors.keys())
+    #     self.dict_node_to_multiple_element_types = defaultdict(list)
+    #     self.nodes_connected_to_beam_and_pipe = []
+    #     for element in self.structural_elements.values():#list_beam_elements:
+    #         first_node = element.first_node
+    #         last_node = element.last_node
+    #         if first_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[first_node].append(element.element_type)
+    #         if last_node in list_nodes_with_multiples_neighbors:
+    #             self.dict_node_to_multiple_element_types[last_node].append(element.element_type)
+    #     for node, element_types in self.dict_node_to_multiple_element_types.items():
+    #         if "beam_1" in element_types:
+    #             if ("pipe_1" or "pipe_2") in element_types:
+    #                 print(f"Node to remove: {node.external_index}")
+    #                 # print(element_types)
+    #                 self.nodes_connected_to_beam_and_pipe.append(node)
+    #     print(len(self.nodes_connected_to_beam_and_pipe))

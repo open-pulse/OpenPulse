@@ -519,10 +519,10 @@ class RendererMesh(vtkRendererBase):
                 index = node.external_index
                 labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
                 unit_labels = ['N.s/m', 'N.m.s/rad']
-                for key, [_, values] in node.elastic_nodal_link_damping.items():
+                for key, [_, values] in node.elastic_nodal_link_dampings.items():
                     linked_nodes = [int(node_id) for node_id in key.split('-')]
                     if index in linked_nodes:            
-                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
+                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_dampings)
  
             if node in self.project.preprocessor.nodes_with_acoustic_pressure:
                 value = node.acoustic_pressure
@@ -583,7 +583,7 @@ class RendererMesh(vtkRendererBase):
                     unit = f'[{unit_labels[0]}]'
                 else:
                     unit = f'[{unit_labels[1]}]'
-                text += f'  {label} = {value} {unit} \n'
+            text += f'  {label} = {value} {unit} \n'
 
         return text
 
@@ -682,8 +682,8 @@ class RendererMesh(vtkRendererBase):
                 text += f'\nFluid: {fluid} \n'
             if acoustic_element.element_type is not None:
                 text += f'Acoustic element type: {acoustic_element.element_type} \n'
-            if acoustic_element.hysteretic_damping is not None:
-                text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+            if acoustic_element.proportional_damping is not None:
+                text += f'Proportional damping: {acoustic_element.proportional_damping} \n'             
 
         elif len(listSelected) > 1:
             text += f'{len(listSelected)} ELEMENTS IN SELECTION: \n'
@@ -717,8 +717,8 @@ class RendererMesh(vtkRendererBase):
                 print(str(log_error))
 
     def plotElasticLinks(self):
-        elastic_links_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness
-        elastic_links_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping
+        elastic_links_stiffness = self.project.preprocessor.nodes_with_elastic_link_stiffness
+        elastic_links_damping = self.project.preprocessor.nodes_with_elastic_link_dampings
         self.removeElasticLinks()
         for key, _ in elastic_links_stiffness.items():
             try:

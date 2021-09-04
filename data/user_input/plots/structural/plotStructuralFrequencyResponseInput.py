@@ -69,7 +69,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.projec = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
         self.nodes = self.preprocessor.nodes
         
         self.analysisMethod = analysisMethod
@@ -193,7 +193,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.DoubleDiff = self.radioButton_DoubleDiff.isChecked()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
@@ -222,7 +222,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         stop, self.node_ID = self.before_run.check_input_NodeID(lineEdit_nodeID, single_ID=True)
         if stop:
-            return
+            return True
 
         self.localDof = None
         if self.SingleDiff:
@@ -271,6 +271,8 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         if not export:
             self.plot()
+
+        return False
 
     def ExportResults(self):
         

@@ -1,11 +1,13 @@
 import os
 from os.path import basename
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget, QLabel
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import info_messages, remove_bc_from_file
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+
+from data.user_input.project.printMessageInput import PrintMessageInput
 
 class GetStartedInput(QDialog):
     def __init__(self, project, config, inputUi, *args, **kwargs):
@@ -80,7 +82,10 @@ class GetStartedInput(QDialog):
             self.close()
 
     def aboutProject(self):
-        pass
+        window_title = "OpenPulse" 
+        message_title = "Version information"
+        message = " OpenPulse Beta Version (August, 2021)"
+        PrintMessageInput([message_title, message, window_title])
 
     def loadRecentProject(self, dir):
         if self.inputUi.loadProject(self.config, path=dir):

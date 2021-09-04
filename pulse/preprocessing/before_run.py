@@ -6,13 +6,31 @@ window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 
 class BeforeRun:
-    def __init__(self, preprocessor, **kwargs):
-        self.preprocessor = preprocessor
-        self.nodes = preprocessor.nodes
-        self.structural_elements = preprocessor.structural_elements
-        self.acoustic_elements = preprocessor.acoustic_elements
-        self.dict_tag_to_entity = preprocessor.dict_tag_to_entity
+    def __init__(self, project, **kwargs):
+        self.project = project
+        self.preprocessor = project.preprocessor
+        self.nodes = project.preprocessor.nodes
+        self.structural_elements = project.preprocessor.structural_elements
+        self.acoustic_elements = project.preprocessor.acoustic_elements
+        self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
 
+    def check_modal_analysis_imported_data(self):
+        message = ""
+        title = "Modal analysis with imported data from tables"
+        if len(self.project.file.non_zero_frequency_info)==3:
+            [zero_frequency, f_min, table_name] = self.project.file.non_zero_frequency_info
+            if not zero_frequency:
+                message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
+                message += f"The first frequency point\n f={f_min}Hz from '{table_name}' file has been considered in the \ncurrent analysis, "
+                message += "however, it differs from the 0Hz value. Please, take \nthis information into account when checking the obtained results."
+
+        elif self.project.file.zero_frequency:    
+            message = "The current project setup has at least one loaded table of values for boundary conditions or external elements. "
+            message += "The first frequency point\n f=0Hz from imported files have been considered in the current analysis. \nPlease, "
+            message += "take this information into account when checking the obtained results."
+            
+        if message != "":
+            PrintMessageInput([title, message, window_title_2])
 
     def check_input_NodeID(self, lineEdit, single_ID=False):
         try:

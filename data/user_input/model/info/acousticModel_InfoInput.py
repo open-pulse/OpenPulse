@@ -2,7 +2,7 @@ import os
 from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget
-from pulse.utils import error, info_messages, remove_bc_from_file
+from pulse.utils import info_messages, remove_bc_from_file
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
@@ -12,7 +12,7 @@ import configparser
 from shutil import copyfile
 
 class AcousticModelInfoInput(QDialog):
-    def __init__(self, project, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Info/acousticModel_Info.ui', self)
 
@@ -20,7 +20,13 @@ class AcousticModelInfoInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.setWindowIcon(self.icon)
 
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
+        self.preprocessor = project.preprocessor
+        self.opv = opv
+        self.opv.setInputObject(self)
 
         self.lineEdit_number_nodes = self.findChild(QLineEdit, 'lineEdit_number_nodes')
         self.lineEdit_number_elements = self.findChild(QLineEdit, 'lineEdit_number_elements')
@@ -58,8 +64,10 @@ class AcousticModelInfoInput(QDialog):
             self.close()
 
     def project_info(self):
-        self.lineEdit_number_nodes.setText(str(len(self.project.preprocessor.nodes)))
-        self.lineEdit_number_elements.setText(str(len(self.project.preprocessor.structural_elements)))
+        self.acoustic_elements = self.preprocessor.get_acoustic_elements()
+        self.nodes = self.preprocessor.get_nodes_relative_to_acoustic_elements()
+        self.lineEdit_number_nodes.setText(str(len(self.nodes)))
+        self.lineEdit_number_elements.setText(str(len(self.acoustic_elements)))
         
     def text_label(self, value):
         text = ""

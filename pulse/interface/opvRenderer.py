@@ -198,7 +198,7 @@ class opvRenderer(vtkRendererBase):
             return 
 
         element = self.project.get_structural_elements()[ids[0]]
-        xyz = element.center_element_coordinates
+        xyz = element.element_center_coordinates
         r_xyz = element.section_rotation_xyz_undeformed
         size = [element.length] * 3 # [a] * 3 = [a, a, a]
 
@@ -289,14 +289,14 @@ class opvRenderer(vtkRendererBase):
                     if index in linked_nodes:            
                         text += self.structuralNodalInfo(values, labels, f'STIFFNESS ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_stiffness)
 
-            if node.there_are_elastic_nodal_link_damping:
+            if node.there_are_elastic_nodal_link_dampings:
                 index = node.external_index
                 labels = np.array(['cx', 'cy', 'cz', 'crx', 'cry', 'crz'])
                 unit_labels = ['N.s/m', 'N.m.s/rad']
-                for key, [_, values] in node.elastic_nodal_link_damping.items():
+                for key, [_, values] in node.elastic_nodal_link_dampings.items():
                     linked_nodes = [int(node_id) for node_id in key.split('-')]
                     if index in linked_nodes:            
-                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_damping)
+                        text += self.structuralNodalInfo(values, labels, f'DAMPING ELASTIC LINK: [{key}]', unit_labels, node.loaded_table_for_elastic_link_dampings)
  
             if node in self.project.preprocessor.nodes_with_acoustic_pressure:
                 value = node.acoustic_pressure
@@ -358,7 +358,7 @@ class opvRenderer(vtkRendererBase):
                     unit = f'[{unit_labels[0]}]'
                 else:
                     unit = f'[{unit_labels[1]}]'
-                text += f'  {label} = {value} {unit} \n'
+            text += f'  {label} = {value} {unit} \n'
 
         return text
 
@@ -466,8 +466,8 @@ class opvRenderer(vtkRendererBase):
                     text += f'\nFluid: {fluid_name} \n'                                
                 if acoustic_element.element_type is not None:
                     text += f'Acoustic element type: {acoustic_element_type} \n'
-                if acoustic_element.hysteretic_damping is not None:
-                    text += f'Hysteretic damping: {acoustic_element.hysteretic_damping} \n'             
+                if acoustic_element.proportional_damping is not None:
+                    text += f'Proportional damping: {acoustic_element.proportional_damping} \n'             
 
             elif "beam_1" in structural_element_type:
                 text += f'Area:  {area} [m²]\n'
@@ -524,10 +524,16 @@ class opvRenderer(vtkRendererBase):
                 offset_z = 'undefined'
                 insulation_thickness = 'undefined'
                 insulation_density = 'undefined'
-
-            if entity.tag in list(self.project.number_sections_by_line.keys()):
+  
+            if entity.tag in self.project.number_sections_by_line.keys():
 
                 number_cross_sections = self.project.number_sections_by_line[entity.tag]
+                if entity.tag in self.project.preprocessor.number_expansion_joints_by_lines.keys():
+                    number_expansion_joints = self.project.preprocessor.number_expansion_joints_by_lines[entity.tag]
+                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections & {number_expansion_joints} expansion joints)\n\n'
+                else:
+                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections)\n\n'              
+                text += f'Material:  {material_name}\n'
 
                 if structural_element_type in ['pipe_1', 'pipe_2']:
                 
@@ -538,16 +544,14 @@ class opvRenderer(vtkRendererBase):
                     insulation_thickness = 'multiples'
                     insulation_density = 'multiples'
 
-                    text = f'Line ID  {line_ids[0]} ({number_cross_sections} cross-sections)\n\n'              
-                    text += f'Material:  {material_name}\n'
                     text += f'Structural element type:  {structural_element_type}\n'
               
-                    if entity.fluid is not None:
-                        text += f'\nFluid: {fluid_name}' 
-                    if entity.acoustic_element_type is not None:
-                        text += f'\nAcoustic element type: {acoustic_element_type}'
-                    if entity.hysteretic_damping is not None:
-                        text += f'\nHysteretic damping: {entity.hysteretic_damping}'        
+                if entity.fluid is not None:
+                    text += f'\nFluid: {fluid_name}' 
+                if entity.acoustic_element_type is not None:
+                    text += f'\nAcoustic element type: {acoustic_element_type}'
+                if entity.proportional_damping is not None:
+                    text += f'\nProportional damping: {entity.proportional_damping}'        
 
             else:
 
@@ -599,8 +603,8 @@ class opvRenderer(vtkRendererBase):
                         if entity.acoustic_element_type is not None:
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
-                        if entity.hysteretic_damping is not None:
-                            text += f'\nHysteretic damping: {entity.hysteretic_damping}' 
+                        if entity.proportional_damping is not None:
+                            text += f'\nProportional damping: {entity.proportional_damping}' 
                 
                 if entity.expansion_joint_parameters is not None:
                     if entity.structural_element_type == 'expansion_joint':

@@ -1,17 +1,31 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QPushButton
-from pulse.utils import error
-from os.path import basename
+from locale import windows_locale
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTabWidget, QLabel, QPushButton
 from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
 import numpy as np
+
+from data.user_input.project.printMessageInput import PrintMessageInput
+
+window_title = "ERROR"
 
 class AnalysisSetupInput(QDialog):
     def __init__(self, project, f_min = 0, f_max = 0, f_step = 0):
         super().__init__()
-
+       
+        """
+        |--------------------------------------------------------------------|
+        |                    Analysis ID codification                        |
+        |--------------------------------------------------------------------|
+        |    0 - Structural - Harmonic analysis through direct method        |
+        |    1 - Structural - Harmonic analysis through mode superposition   |
+        |    2 - Structural - Modal analysis                                 |
+        |    3 - Acoustic - Harmonic analysis through direct method          |
+        |    4 - Acoustic - Modal analysis (convetional FE 1D)               |
+        |    5 - Coupled - Harmonic analysis through direct method           |
+        |    6 - Coupled - Harmonic analysis through mode superposition      |
+        |--------------------------------------------------------------------|
+        """
         self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1,6]:
@@ -67,18 +81,10 @@ class AnalysisSetupInput(QDialog):
         
         self.label_title.setText(title)
         self.label_subtitle.setText(subtitle)
+
+        self.update_frequency_setup_input_texts()
+        self.update_damping_input_texts()
         
-        if self.f_step != 0:
-            self.lineEdit_fmin.setText(str(self.f_min))
-            self.lineEdit_fmax.setText(str(self.f_max))
-            self.lineEdit_fstep.setText(str(self.f_step))
-
-        if True in [True if damp != 0 else False for damp in self.global_damping]:
-            self.lineEdit_av.setText(str(self.global_damping[0]))
-            self.lineEdit_bv.setText(str(self.global_damping[1]))
-            self.lineEdit_ah.setText(str(self.global_damping[2]))
-            self.lineEdit_bh.setText(str(self.global_damping[3]))
-
         self.exec_()
 
     def keyPressEvent(self, event):
@@ -90,86 +96,76 @@ class AnalysisSetupInput(QDialog):
     def tabEvent(self):
         self.currentTab = self.tabWidget.currentIndex()
 
+    def update_damping_input_texts(self):
+        if self.analysis_ID not in [2,3,4]:
+            if self.global_damping != [0,0,0,0]:
+                self.lineEdit_av.setText(str(self.global_damping[0]))
+                self.lineEdit_bv.setText(str(self.global_damping[1]))
+                self.lineEdit_ah.setText(str(self.global_damping[2]))
+                self.lineEdit_bh.setText(str(self.global_damping[3]))
+
+    def update_frequency_setup_input_texts(self):
+        if self.f_step != 0:
+            self.lineEdit_fmin.setText(str(self.f_min))
+            self.lineEdit_fmax.setText(str(self.f_max))
+            self.lineEdit_fstep.setText(str(self.f_step))
+
     def check_exit(self):
         input_fmin = input_fmax = input_fstep = 0
         if self.analysis_ID not in [2,4]:
-            #Verify Modes
+            
             if self.analysis_ID == 1:
-                if self.lineEdit_modes.text() == "":
-                    error("Insert a value (modes)")
-                    return
-                else:
-                    try:
-                        self.modes = int(self.lineEdit_modes.text())
-                    except Exception:
-                        error("Value error (modes)")
-                        return
+                self.modes = self.check_inputs(self.lineEdit_modes, "'number of modes'")
+                if self.stop:
+                    self.lineEdit_modes.setFocus()
+                    return True
 
-            if self.lineEdit_fmin.text() == "":
-                error("Insert a value (freq min)")
-                return
-            else:
-                try:
-                    if float(self.lineEdit_fmin.text())>=0:
-                        input_fmin = float(self.lineEdit_fmin.text())
-                except Exception:
-                    error("Value error (freq min)")
-                    return
+            input_fmin = self.check_inputs(self.lineEdit_fmin, "'minimum frequency'", zero_included=True, _float=True)
+            if self.stop:
+                self.lineEdit_fmin.setFocus()
+                return True
 
-            if self.lineEdit_fmax.text() == "":
-                error("Insert a value (freq max)")
-                return
-            else:
-                try:
-                    if float(self.lineEdit_fmax.text()) > float(self.lineEdit_fmin.text()) + float(self.lineEdit_fstep.text()):
-                        input_fmax = float(self.lineEdit_fmax.text())
-                except Exception:
-                    error("Value error (freq max)")
-                    return
+            input_fmax = self.check_inputs(self.lineEdit_fmax, "'maximum frequency'", _float=True)
+            if self.stop:
+                self.lineEdit_fmax.setFocus()
+                return True
 
-            if self.lineEdit_fstep.text() == "":
-                error("Insert a value (freq df)")
-                return
-            else:
-                try:
-                    input_fstep = float(self.lineEdit_fstep.text())
-                    if float(self.lineEdit_fstep.text())<=0 or float(self.lineEdit_fstep.text())>=float(self.lineEdit_fmax.text()):
-                            error(" The value assigned to f_step must be\n greater than 0 and less than f_max! ")
-                            return
-                except Exception:
-                    error("Value error (freq df)")
-                    return
+            input_fstep = self.check_inputs(self.lineEdit_fstep, "'frequency resolution (df)'", _float=True)
+            if self.stop:
+                self.lineEdit_fstep.setFocus()
+                return True
 
-        alpha_v = beta_v = alpha_h = beta_h = 0
+            if input_fmax < input_fmin + input_fstep:
+                title = "Invalid frequency setup"
+                message = "The maximum frequency (fmax) must be greater than \n"
+                message += "the sum between minimum frequency (fmin) and \n"
+                message += "frequency resolution (df)."
+                PrintMessageInput([title, message, window_title])
+                return True
+
+        alpha_v = beta_v = alpha_h = beta_h = 0.0
         
-        if self.analysis_ID in [0, 1, 2, 5, 6]:         
-            if self.lineEdit_av.text() != "":
-                try:
-                    alpha_v = float(self.lineEdit_av.text())
-                except Exception:
-                    error("Value error (alpha_v)")
-                    return
+        if self.analysis_ID in [0, 1, 5, 6]:    
 
-            if self.lineEdit_bv.text() != "":
-                try:
-                    beta_v = float(self.lineEdit_bv.text())
-                except Exception:
-                    error("Value error (beta_v)")
-                    return
+            alpha_v = self.check_inputs(self.lineEdit_av, "'proportional viscous damping (alpha_v)'", zero_included=True, _float=True)
+            if self.stop:
+                self.lineEdit_av.setFocus()
+                return True
 
-            if self.lineEdit_ah.text() != "":
-                try:
-                    alpha_h = float(self.lineEdit_ah.text())
-                except Exception:
-                    error("Value error (alpha_h)")
-                    return
+            self.check_inputs(self.lineEdit_bv, "'proportional viscous damping (beta_v)'", zero_included=True,  _float=True)
+            if self.stop:
+                self.lineEdit_bv.setFocus()
+                return True
 
-            if self.lineEdit_bh.text() != "":
-                try:
-                    beta_h = float(self.lineEdit_bh.text())
-                except Exception:
-                    error("Value error (beta_h)")
-                    return
+            alpha_h = self.check_inputs(self.lineEdit_ah, "'proportional hysteretic damping (alpha_h)'", zero_included=True, _float=True)
+            if self.stop:
+                self.lineEdit_ah.setFocus()
+                return True
+
+            self.check_inputs(self.lineEdit_bh, "'proportional hysteretic damping (beta_h)'", zero_included=True,  _float=True)
+            if self.stop:
+                self.lineEdit_bh.setFocus()
+                return True
 
         self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
 
@@ -180,7 +176,50 @@ class AnalysisSetupInput(QDialog):
         
         self.complete = True
         self.close()
+        return False
     
+    def check_inputs(self, lineEdit, label, only_positive=True, zero_included=False, _float=False):
+        self.stop = False
+        message = ""
+        title = "Invalid input to the analysis setup"
+        if lineEdit.text() != "":
+            try:
+
+                if _float:
+                    out = float(lineEdit.text())
+                else:
+                    out = int(lineEdit.text())
+
+                if only_positive:
+                    if zero_included:
+                        if out < 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nNote: zero value is allowed."
+                    else:
+                        if out <= 0:
+                            message = f"Insert a positive value to the {label}."
+                            message += "\n\nNote: zero value is not allowed."
+
+            except Exception as _err:
+                message = "Dear user, you have typed and invalid value at the \n"
+                message += f"{label} input field.\n\n"
+                message += str(_err)
+
+        else:
+
+            if zero_included:
+                return float(0)
+            else: 
+                message = f"Insert some value at the {label} input field."
+        
+        if message != "":
+            PrintMessageInput([title, message, window_title])                   
+            self.stop = True
+            return None
+        return out
+
     def check_run(self):
-        self.check_exit()
+        if self.check_exit():
+            return
         self.flag_run = True
+        

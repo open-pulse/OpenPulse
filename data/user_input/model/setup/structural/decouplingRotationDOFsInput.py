@@ -34,7 +34,7 @@ class DecouplingRotationDOFsInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks() 
+        self.before_run = project.get_model_checks() 
 
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements
@@ -194,7 +194,7 @@ class DecouplingRotationDOFsInput(QDialog):
         elif self.flag_last_node:
             self.selected_node_id = self.last_node
 
-        neighboor_elements = self.project.preprocessor.neighboor_elements_of_node(self.selected_node_id)
+        neighboor_elements = self.preprocessor.neighboor_elements_of_node(self.selected_node_id)
         if len(neighboor_elements)<3:
             message = "The decoupling of rotation dofs can only \nbe applied to the T connections." 
             title = "Incorrect Node ID selection"
@@ -208,13 +208,15 @@ class DecouplingRotationDOFsInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return 
         
-        if self.element.element_type in ['beam_1']:
+        if self.structural_elements[self.element_id].element_type in ['beam_1']:
             self.project.set_B2PX_rotation_decoupling(self.element_id, self.selected_node_id, self.rotations_mask)
             self.complete = True
             self.close()
         else:
             title = "INVALID DECOUPLING SETUP"
-            message = "The selected element have a {} formulation, you should have a \nBEAM_1 element type in selection to decouple the rotation dofs. \nTry to choose another element or change the element type formulation.".format(self.element.element_type.upper())
+            element_type = self.structural_elements[self.element_id]
+            message = f"The selected element have a '{element_type.upper()}' formulation, you should have a \n'BEAM_1' element type in selection"
+            message += " to decouple the rotation dofs. \nTry to choose another element or change the element type formulation."
             PrintMessageInput([title, message, window_title1])
             return
 

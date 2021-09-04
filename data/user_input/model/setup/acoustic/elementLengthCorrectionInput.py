@@ -29,13 +29,14 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()   
+        self.before_run = project.get_model_checks()   
 
         self.acoustic_elements = project.preprocessor.acoustic_elements
         self.dict_group_elements = project.preprocessor.group_elements_with_length_correction
         
         self.type_label = None
         self.dkey = None
+        self.log_removal = True
         self.elements_info_path = project.file._element_info_path
         self.dict_label = "ACOUSTIC ELEMENT LENGTH CORRECTION || {}"
 
@@ -135,14 +136,23 @@ class AcousticElementLengthCorrectionInput(QDialog):
         
         size = len(self.dict_group_elements)
         section = self.dict_label.format("Selection-{}".format(size+1))
+        dict_keys = self.preprocessor.group_elements_with_perforated_plate.keys()
+        if section in dict_keys:
+            index = 0
+            while section in dict_keys:
+                index += 1
+                section = self.dict_label.format(f"Selection-{index}")
 
         self.set_elements_to_correct(type_id, section, _print=True)
         self.replaced = False
+
         temp_dict = self.dict_group_elements.copy()
+        
         for key, values in temp_dict.items():
             if list(np.sort(self.elements_typed)) == list(np.sort(values[1])):
                 if self.replaced:
                     self.dkey = key
+                    self.log_removal = False
                     self.remove_element_length_correction_by_group()
                 else:
                     self.set_elements_to_correct(type_id, key)
@@ -166,6 +176,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
                         self.replaced = True
                     else:
                         self.dkey = key
+                        self.log_removal = False
                         self.remove_element_length_correction_by_group()
             self.dkey = None  
         self.close()         
@@ -204,12 +215,13 @@ class AcousticElementLengthCorrectionInput(QDialog):
         elif self.currentTab_remove == 1:
             self.check_remove_element_length_correction()
 
-    def remove_function(self, key, reset=False):
+    def remove_function(self, key):
         section = key
 
-        if not reset:
+        if self.log_removal:
             group_label = section.split(" || ")[1]
-            message = "The element length correction attributed to the {} group of elements have been removed.".format(group_label)
+            message = f"The element length correction attributed to the {group_label}\n"
+            message += "group of elements have been removed."
         else:
             message = None
 
@@ -219,6 +231,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
         
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)
         self.load_elements_info()
+        self.log_removal = True
 
     def remove_element_length_correction_by_group(self):
         if self.dkey is None:
@@ -233,10 +246,11 @@ class AcousticElementLengthCorrectionInput(QDialog):
         temp_dict_groups = self.dict_group_elements.copy()
         keys = temp_dict_groups.keys()
         for key in keys:
-            self.remove_function(key, reset=True)
+            self.log_removal = False
+            self.remove_function(key)
         window_title = "WARNING" 
         title = "INFO MESSAGE"
-        message = "The element length correction of \nall elements has been removed."
+        message = "The element length correction has been \nremoved from all elements."
         PrintMessageInput([title, message, window_title])
 
     def get_information_of_group(self):

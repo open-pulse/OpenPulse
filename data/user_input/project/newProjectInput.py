@@ -172,15 +172,15 @@ class NewProjectInput(QDialog):
         self.close()
 
     def import_geometry(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Iges Files (*.iges)')
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.iges; *.igs; *.step; *.stp)')
         self.lineEdit_import_geometry.setText(str(self.path))
 
     def import_cord(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.lineEdit_import_nodal_coordinates.setText(str(self.path))
 
     def import_conn(self):
-        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Dat Files (*.dat)')
+        self.path, _type = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.lineEdit_import_connectivity.setText(str(self.path))
 
     def createProject(self):

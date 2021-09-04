@@ -127,6 +127,7 @@ class InputUi:
 
     def set_mesh_properties(self):
         read = SetMeshPropertiesInput(self.project, self.opv)
+        return read.complete
 
     def setStructuralElementType(self):
         read = StructuralElementTypeInput(self.project, self.opv)
@@ -174,7 +175,8 @@ class InputUi:
         if read.prescribed_dofs is None:
             return
         if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)     
+            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)  
+            self.flag_imported_table = True   
         print("[Set Prescribed DOF] - defined at node(s) {}".format(read.nodes_typed))
 
     def setRotationDecoupling(self):
@@ -188,19 +190,11 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
         
     def addMassSpringDamper(self):
-        read = MassSpringDamperInput(self.project, self.opv)
-        if read.lumped_masses is None and read.lumped_stiffness is None and read.lumped_dampings is None:
-            return
-        if read.lumped_masses is not None:
-            print("[Set Mass] - defined at node(s) {}".format(read.nodes_typed))
-        if read.lumped_stiffness is not None:
-            print("[Set Spring] - defined at node(s) {}".format(read.nodes_typed))
-        if read.lumped_dampings is not None:
-            print("[Set Damper] - defined at node(s) {}".format(read.nodes_typed))
-        # self.opv.transformPoints(read.nodes_typed)
+        MassSpringDamperInput(self.project, self.opv)
 
     def setcappedEnd(self):
         read = CappedEndInput(self.project, self.opv)
@@ -235,6 +229,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         self.opv.updateRendererMesh()
         print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
 
@@ -244,6 +239,7 @@ class InputUi:
             return
         if read.imported_table:
             self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
+            self.flag_imported_table = True
         self.opv.updateRendererMesh()
         print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
 
@@ -371,14 +367,17 @@ class InputUi:
             if self.analysisSetup():
                 return
 
-        self.before_run = self.project.preprocessor.get_model_checks()
+        self.before_run = self.project.get_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
 
         read = RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
         if read.complete:
-            self.before_run.check_all_acoustic_criteria()
+            if self.analysis_ID == 2:
+                self.before_run.check_modal_analysis_imported_data()
+            elif self.analysis_ID in [3,5,6]:
+                self.before_run.check_all_acoustic_criteria()
 
         
     def plotStructuralModeShapes(self):
@@ -489,19 +488,19 @@ class InputUi:
             return
 
     def structural_model_info(self):
-        StructuralModelInfoInput(self.project)
+        StructuralModelInfoInput(self.project, self.opv)
 
     def acoustic_model_info(self):
-        AcousticModelInfoInput(self.project)
+        AcousticModelInfoInput(self.project, self.opv)
 
 
-    def _load_frequencies_from_table(self, obj):
-        self.project.file.f_min = obj.f_min
-        self.project.file.f_max = obj.f_max
-        self.project.file.f_step = obj.f_step
-        self.project.file.frequencies = obj.frequencies
-        self.project.file.temp_table_name = obj.imported_table_name  
-        return obj.frequencies 
+    def _load_frequencies_from_table(self, _read):
+        self.project.file.f_min = _read.f_min
+        self.project.file.f_max = _read.f_max
+        self.project.file.f_step = _read.f_step
+        self.project.file.frequencies = _read.frequencies
+        self.project.file.temp_table_name = _read.imported_table_name  
+        return _read.frequencies 
     
 
     def check_acoustic_bc_tables(self):

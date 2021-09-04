@@ -10,7 +10,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt  
 
-from pulse.preprocessing.compressor_model import CompressorModel
+from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title1 = "ERROR MESSAGE"
@@ -30,20 +30,27 @@ class ElasticNodalLinksInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.node_id = self.opv.getListPickedPoints()
+        # self.node_id = self.opv.getListPickedPoints()
+        # print(self.node_id)
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
         self.nodes = self.preprocessor.nodes
 
-        self.project_folder_path = project.project_folder_path 
+        self.imported_data_path = project.file._imported_data_folder_path 
+        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
+        self.elastic_links_tables_folder_path = get_new_path(self.structural_folder_path, "elastic_links_tables")
+        
         self.userPath = os.path.expanduser('~')       
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
         self.node_ID_remove = None
         self.ext_key = None
+
+        self.elastic_link_stiffness_inputs_from_node = False
+        self.elastic_link_dampings_inputs_from_node = False
         
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_first_node_ID = self.findChild(QLineEdit, 'lineEdit_first_node_ID')
@@ -56,6 +63,13 @@ class ElasticNodalLinksInput(QDialog):
         self.lineEdit_Kry = self.findChild(QLineEdit, 'lineEdit_Kry')
         self.lineEdit_Krz = self.findChild(QLineEdit, 'lineEdit_Krz')
 
+        self.list_lineEdit_constant_values_elastic_link_stiffness = [   self.lineEdit_Kx,
+                                                                        self.lineEdit_Ky,
+                                                                        self.lineEdit_Kz,
+                                                                        self.lineEdit_Krx,
+                                                                        self.lineEdit_Kry,
+                                                                        self.lineEdit_Krz   ]
+
         self.lineEdit_Cx = self.findChild(QLineEdit, 'lineEdit_Cx')
         self.lineEdit_Cy = self.findChild(QLineEdit, 'lineEdit_Cy')
         self.lineEdit_Cz = self.findChild(QLineEdit, 'lineEdit_Cz')
@@ -63,12 +77,26 @@ class ElasticNodalLinksInput(QDialog):
         self.lineEdit_Cry = self.findChild(QLineEdit, 'lineEdit_Cry')
         self.lineEdit_Crz = self.findChild(QLineEdit, 'lineEdit_Crz')
 
+        self.list_lineEdit_constant_values_elastic_link_dampings = [self.lineEdit_Cx,
+                                                                    self.lineEdit_Cy,
+                                                                    self.lineEdit_Cz,
+                                                                    self.lineEdit_Crx,
+                                                                    self.lineEdit_Cry,
+                                                                    self.lineEdit_Crz]
+
         self.lineEdit_path_table_Kx = self.findChild(QLineEdit, 'lineEdit_path_table_Kx')
         self.lineEdit_path_table_Ky = self.findChild(QLineEdit, 'lineEdit_path_table_Ky')
         self.lineEdit_path_table_Kz = self.findChild(QLineEdit, 'lineEdit_path_table_Kz')
         self.lineEdit_path_table_Krx = self.findChild(QLineEdit, 'lineEdit_path_table_Krx')
         self.lineEdit_path_table_Kry = self.findChild(QLineEdit, 'lineEdit_path_table_Kry')
         self.lineEdit_path_table_Krz = self.findChild(QLineEdit, 'lineEdit_path_table_Krz')
+
+        self.list_lineEdit_table_values_elastic_link_stiffness = [  self.lineEdit_path_table_Kx,
+                                                                    self.lineEdit_path_table_Ky,
+                                                                    self.lineEdit_path_table_Kz,
+                                                                    self.lineEdit_path_table_Krx,
+                                                                    self.lineEdit_path_table_Kry,
+                                                                    self.lineEdit_path_table_Krz  ]
 
         self.toolButton_load_Kx_table = self.findChild(QToolButton, 'toolButton_load_Kx_table')
         self.toolButton_load_Ky_table = self.findChild(QToolButton, 'toolButton_load_Ky_table')
@@ -104,6 +132,13 @@ class ElasticNodalLinksInput(QDialog):
         self.lineEdit_path_table_Crx = self.findChild(QLineEdit, 'lineEdit_path_table_Crx')
         self.lineEdit_path_table_Cry = self.findChild(QLineEdit, 'lineEdit_path_table_Cry')
         self.lineEdit_path_table_Crz = self.findChild(QLineEdit, 'lineEdit_path_table_Crz')
+
+        self.list_lineEdit_table_values_elastic_link_dampings = [   self.lineEdit_path_table_Cx,
+                                                                    self.lineEdit_path_table_Cy,
+                                                                    self.lineEdit_path_table_Cz,
+                                                                    self.lineEdit_path_table_Crx,
+                                                                    self.lineEdit_path_table_Cry,
+                                                                    self.lineEdit_path_table_Crz   ]
 
         self.toolButton_load_Cx_table = self.findChild(QToolButton, 'toolButton_load_Cx_table')
         self.toolButton_load_Cy_table = self.findChild(QToolButton, 'toolButton_load_Cy_table')
@@ -159,6 +194,16 @@ class ElasticNodalLinksInput(QDialog):
 
         self.tabWidget_inputs = self.findChild(QTabWidget, 'tabWidget_inputs')
         # self.tabWidget_inputs.currentChanged.connect(self.tabEvent)
+        self.tab_constant_values = self.tabWidget_inputs.findChild(QWidget, "tab_constant_values")
+        self.tab_table_values = self.tabWidget_inputs.findChild(QWidget, "tab_table_values")
+
+        self.tabWidget_constant_values = self.findChild(QTabWidget, 'tabWidget_single_values')   
+        self.tab_spring = self.tabWidget_constant_values.findChild(QWidget, 'tab_spring')
+        self.tab_damper = self.tabWidget_constant_values.findChild(QWidget, 'tab_damper')
+
+        self.tabWidget_table_values = self.findChild(QTabWidget, 'tabWidget_table_values')
+        self.tab_spring_table = self.tabWidget_table_values.findChild(QWidget, 'tab_spring_table')
+        self.tab_damper_table = self.tabWidget_table_values.findChild(QWidget, 'tab_damper_table')
 
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         # self.lineEdit_parameters_info = self.findChild(QLineEdit, 'lineEdit_parameters_info')
@@ -175,7 +220,7 @@ class ElasticNodalLinksInput(QDialog):
         self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(0, Qt.AlignCenter)
         self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(1, Qt.AlignCenter)
 
-        self.writeNodes(self.opv.getListPickedPoints())
+        self.update()
         self.load_elastic_links_stiffness_info()
         self.load_elastic_links_damping_info()
         self.exec_()
@@ -200,17 +245,14 @@ class ElasticNodalLinksInput(QDialog):
         text = ""
         for node in list_node_ids:
             text += "{}, ".format(node)
-        self.lineEdit_selected_node_ID.setText(text)
+        self.lineEdit_selected_node_ID.setText(text[:-2])
         if len(list_node_ids) == 2:
             self.lineEdit_first_node_ID.setText(str(min(list_node_ids[-2:])))
             self.lineEdit_last_node_ID.setText(str(max(list_node_ids[-2:])))
         elif len(list_node_ids) == 1:
             self.lineEdit_first_node_ID.setText(str(list_node_ids[-1]))
             self.lineEdit_last_node_ID.setText("")
-
-    def update(self):
-        self.writeNodes(self.opv.getListPickedPoints())
-             
+            
     def check_all_nodes(self):
         
         lineEdit_nodeID = self.lineEdit_first_node_ID.text()
@@ -345,10 +387,13 @@ class ElasticNodalLinksInput(QDialog):
     def constant_input_confirm(self):
         if self.check_all_inputs():
             return
+        table_names = [None, None, None, None, None, None]
         if self.parameters_K is not None:
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.parameters_K, False)
+            data = [self.parameters_K, table_names]
+            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, data, False)
         if self.parameters_C is not None:
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.parameters_C, False)
+            data = [self.parameters_C, table_names]
+            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, data, False)
         if (self.parameters_K or self.parameters_C) is not None:
             self.opv.updateRendererMesh()
             self.close()
@@ -362,7 +407,7 @@ class ElasticNodalLinksInput(QDialog):
         else:
             self.basename = ""
             window_label = 'Choose a table to import the {} nodal load'.format(text)
-            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
+            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
             lineEdit.setText(self.path_imported_table)
 
         if self.path_imported_table == "":
@@ -372,10 +417,8 @@ class ElasticNodalLinksInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
         
-        if "\\" in self.project_folder_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
-        elif "/" in self.project_folder_path:
-            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
+        self.project.create_folders_structural("elastic_links_tables")
+        self.new_load_path_table = get_new_path(self.elastic_links_tables_folder_path, self.basename)
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
@@ -509,15 +552,21 @@ class ElasticNodalLinksInput(QDialog):
 
         if sum([1 if bc is not None else 0 for bc in stiffness_parameters]) != 0:
             self.flag_stiffness_parameters = True
-            self.basenames = [self.basename_Kx, self.basename_Ky, self.basename_Kz, self.basename_Krx, self.basename_Kry, self.basename_Krz]
+            self.K_basenames = [self.basename_Kx, 
+                                self.basename_Ky, 
+                                self.basename_Kz, 
+                                self.basename_Krx, 
+                                self.basename_Kry, 
+                                self.basename_Krz]
             self.stiffness_parameters = stiffness_parameters
-            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, self.stiffness_parameters, True, table_name=self.basenames)
+            data = [stiffness_parameters, self.K_basenames]
+            self.project.add_elastic_nodal_link_stiffness(self.nodeID_1, self.nodeID_2, data, True)
             return False
         else:
             return True
 
     def check_table_for_elastic_link_damping(self):
-
+ 
         Cx = Cy = Cz = None
         if self.lineEdit_path_table_Cx.text() != "":
             if self.Cx_table is None:
@@ -563,12 +612,18 @@ class ElasticNodalLinksInput(QDialog):
                 Crz = self.Crz_table
                     
         damping_parameters = [Cx, Cy, Cz, Crx, Cry, Crz]
-
+ 
         if sum([1 if bc is not None else 0 for bc in damping_parameters]) != 0:
             self.flag_damping_parameters = True
-            self.basenames = [self.basename_Cx, self.basename_Cy, self.basename_Cz, self.basename_Crx, self.basename_Cry, self.basename_Crz]
+            self.C_basenames = [self.basename_Cx, 
+                                self.basename_Cy, 
+                                self.basename_Cz, 
+                                self.basename_Crx, 
+                                self.basename_Cry, 
+                                self.basename_Crz]
             self.damping_parameters = damping_parameters
-            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, self.damping_parameters, True, table_name=self.basenames)
+            data = [damping_parameters, self.C_basenames]
+            self.project.add_elastic_nodal_link_damping(self.nodeID_1, self.nodeID_2, data, True)
             return False
         else:
             return True
@@ -578,17 +633,19 @@ class ElasticNodalLinksInput(QDialog):
         if self.check_all_nodes():
             return True
 
-        if self.check_table_for_elastic_link_stiffness() and self.check_table_for_elastic_link_damping():
+        self.check_table_for_elastic_link_stiffness()
+        self.check_table_for_elastic_link_damping()
+        if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
             title = 'NONE TABLE SELECTED FOR STIFFNESS OR DAMPING'
             message = 'Please, define at least a table of values to the stiffness or damping before confirming the attribution.'
             PrintMessageInput([title, message, window_title1])
             return
 
-        if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
-            title = "ERROR"
-            message = "You must to add at least one external element before confirm the input!"
-            PrintMessageInput([title, message, window_title1])
-            return
+        # if not (self.flag_stiffness_parameters or self.flag_damping_parameters):
+        #     title = "ERROR"
+        #     message = "You must to add at least one external element before confirm the input!"
+        #     PrintMessageInput([title, message, window_title1])
+        #     return
         
         self.opv.updateRendererMesh()
         self.close()
@@ -626,7 +683,7 @@ class ElasticNodalLinksInput(QDialog):
         self.skip_treeWidget_row(self.treeWidget_nodal_links_stiffness)
         self.pushButton_remove_link_stiffness.setDisabled(False)
 
-        for key in self.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
+        for key in self.preprocessor.nodes_with_elastic_link_stiffness.keys():
             node_ids = [int(node) for node in key.split("-")]
             mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
             new = QTreeWidgetItem([key, str(self.text_label(mask, stiffness_labels))])
@@ -634,7 +691,7 @@ class ElasticNodalLinksInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
 
-        if len(self.preprocessor.dict_nodes_with_elastic_link_stiffness) == 0:
+        if len(self.preprocessor.nodes_with_elastic_link_stiffness) == 0:
             self.pushButton_remove_link_stiffness.setDisabled(True)
 
     def load_elastic_links_damping_info(self):
@@ -644,15 +701,15 @@ class ElasticNodalLinksInput(QDialog):
         self.skip_treeWidget_row(self.treeWidget_nodal_links_damping)
         self.pushButton_remove_link_damping.setDisabled(False)
 
-        for key in self.preprocessor.dict_nodes_with_elastic_link_damping.keys():
+        for key in self.preprocessor.nodes_with_elastic_link_dampings.keys():
             node_ids = [int(node) for node in key.split("-")]
-            mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_damping[key]
+            mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_dampings[key]
             new = QTreeWidgetItem([key, str(self.text_label(mask, damping_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_nodal_links_damping.addTopLevelItem(new)
 
-        if len(self.preprocessor.dict_nodes_with_elastic_link_damping) == 0:
+        if len(self.preprocessor.nodes_with_elastic_link_dampings) == 0:
             self.pushButton_remove_link_damping.setDisabled(True)
 
     def on_click_item(self, item):
@@ -676,7 +733,8 @@ class ElasticNodalLinksInput(QDialog):
     def remove_table_files(self, values):          
         for value in values:
             if value != 'None' and ".dat" in value:
-                self.get_path_of_selected_table(value)
+                self.path_of_selected_table = get_new_path(self.elastic_links_tables_folder_path, value)
+                # self.get_path_of_selected_table(value)
                 try:
                     os.remove(self.path_of_selected_table)
                 except:
@@ -733,8 +791,8 @@ class ElasticNodalLinksInput(QDialog):
 
         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
-            self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.pop(key)
+        if key in self.project.preprocessor.nodes_with_elastic_link_stiffness.keys():
+            self.project.preprocessor.nodes_with_elastic_link_stiffness.pop(key)
             for node_ID in node_IDs:
                 self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
             self.remove_elastic_link_stiffness_from_file(key)
@@ -759,10 +817,10 @@ class ElasticNodalLinksInput(QDialog):
 
         node_IDs = [int(nodeID) for nodeID in key.split("-")]
 
-        if key in self.project.preprocessor.dict_nodes_with_elastic_link_damping.keys():
-            self.project.preprocessor.dict_nodes_with_elastic_link_damping.pop(key)
+        if key in self.project.preprocessor.nodes_with_elastic_link_dampings.keys():
+            self.project.preprocessor.nodes_with_elastic_link_dampings.pop(key)
             for node_ID in node_IDs:
-                self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
+                self.nodes[node_ID].elastic_nodal_link_dampings.pop(key)
             self.remove_elastic_link_damping_from_file(key)
             self.load_elastic_links_damping_info()
             self.opv.updateRendererMesh()
@@ -775,8 +833,8 @@ class ElasticNodalLinksInput(QDialog):
     def reset_all(self):
         if self.double_confirm_action():
             return
-        temp_dict_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.copy()
-        temp_dict_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping.copy()
+        temp_dict_stiffness = self.project.preprocessor.nodes_with_elastic_link_stiffness.copy()
+        temp_dict_damping = self.project.preprocessor.nodes_with_elastic_link_dampings.copy()
         for key in temp_dict_stiffness.keys():
             self.ext_key = key
             self.remove_selected_link_stiffness()
@@ -800,14 +858,85 @@ class ElasticNodalLinksInput(QDialog):
         else:
             return True
 
-    def get_path_of_selected_table(self, selected_table):
-        if "\\" in self.project_folder_path:
-            self.path_of_selected_table = "{}\\{}".format(self.project_folder_path, selected_table)
-        elif "/" in self.project_folder_path:
-            self.path_of_selected_table = "{}/{}".format(self.project_folder_path, selected_table)
-
     def force_to_close(self):
         self.close()
+    
+    def reset_input_fields_stiffness(self, force_reset=False):
+        if self.elastic_link_stiffness_inputs_from_node or force_reset:
+            for lineEdit_constant_stiffness in self.list_lineEdit_constant_values_elastic_link_stiffness:    
+                lineEdit_constant_stiffness.setText("")
+            for lineEdit_table_stiffness in self.list_lineEdit_table_values_elastic_link_stiffness:
+                lineEdit_table_stiffness.setText("")
+            self.elastic_link_stiffness_inputs_from_node = False
+
+    def reset_input_fields_dampings(self, force_reset=False):
+        if self.elastic_link_dampings_inputs_from_node or force_reset:
+            for lineEdit_constant_dampings in self.list_lineEdit_constant_values_elastic_link_dampings:    
+                lineEdit_constant_dampings.setText("")
+            for lineEdit_table_dampings in self.list_lineEdit_table_values_elastic_link_dampings:
+                lineEdit_table_dampings.setText("")
+            self.elastic_link_dampings_inputs_from_node = False
+
+    def update(self):
+      
+        list_picked_nodes = self.opv.getListPickedPoints()
+        # if list_picked_nodes != []:
+        if len(list_picked_nodes) == 2:
+            # picked_node = list_picked_nodes[0]
+            first_node = min(list_picked_nodes)
+            last_node = max(list_picked_nodes)
+            key = f"{first_node}-{last_node}"
+            node = self.preprocessor.nodes[first_node]
+            self.writeNodes(self.opv.getListPickedPoints())
+        else:
+            return
+
+        #Elastic link stiffness
+        if node.there_are_elastic_nodal_link_stiffness:
+            self.reset_input_fields_stiffness(force_reset=True)
+            if key in node.elastic_nodal_link_stiffness.keys():
+                if node.loaded_table_for_elastic_link_stiffness:
+                    table_names = elastic_link_stiffness = node.elastic_nodal_link_stiffness[key][1]
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
+                    self.tabWidget_table_values.setCurrentWidget(self.tab_spring_table)
+                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_elastic_link_stiffness):
+                        if table_names[index] is not None:
+                            table_name = get_new_path(self.elastic_links_tables_folder_path, table_names[index])
+                            lineEdit_table.setText(table_name)
+                else:
+                    elastic_link_stiffness = node.elastic_nodal_link_stiffness[key][1]
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+                    self.tabWidget_constant_values.setCurrentWidget(self.tab_spring)
+                    for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_elastic_link_stiffness):
+                        if elastic_link_stiffness[index] is not None:
+                            lineEdit_constant.setText(str(elastic_link_stiffness[index]))
+                self.elastic_link_stiffness_inputs_from_node = True
+        else:
+            self.reset_input_fields_stiffness()
+
+        #Elastic link dampings
+        if node.there_are_elastic_nodal_link_dampings:
+            self.reset_input_fields_dampings(force_reset=True)
+            if key in node.elastic_nodal_link_dampings.keys():
+                if node.loaded_table_for_elastic_link_dampings:
+                    table_names = node.elastic_nodal_link_dampings[key][1]
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
+                    self.tabWidget_table_values.setCurrentWidget(self.tab_damper_table)
+                    for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_elastic_link_dampings):
+                        if table_names[index] is not None:
+                            table_name = get_new_path(self.elastic_links_tables_folder_path, table_names[index])
+                            lineEdit_table.setText(table_name)
+                else:
+                    elastic_link_dampings = node.elastic_nodal_link_dampings[key][1]
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+                    self.tabWidget_constant_values.setCurrentWidget(self.tab_damper)
+                    for index, lineEdit_constant in enumerate(self.list_lineEdit_constant_values_elastic_link_dampings):
+                        if elastic_link_dampings[index] is not None:
+                            lineEdit_constant.setText(str(elastic_link_dampings[index]))
+                self.elastic_link_dampings_inputs_from_node = True
+        else:
+            self.reset_input_fields_dampings()
+        
 
 class GetInformationOfGroup(QDialog):
     def __init__(self, project, selected_link, label, *args, **kwargs):
@@ -913,7 +1042,7 @@ class GetInformationOfGroup(QDialog):
         try:
 
             damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
-            mask_damping, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_damping[self.selected_link]
+            mask_damping, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_dampings[self.selected_link]
             output_damping_labels = damping_labels[mask_damping]
             values_damping = np.array(self.dict_elastic_link_damping[self.selected_link])[mask_damping]
             

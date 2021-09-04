@@ -1,5 +1,4 @@
-from distutils.log import error
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QRadioButton, QPushButton, QLabel
+from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic

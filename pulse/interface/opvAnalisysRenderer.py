@@ -22,6 +22,8 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         self._magnificationFactor = 1
         self._currentFrequency = 0
+        self.lastFrequency = None
+        self.scf = None
         self._currentPlot = None
         self.colorbar = None 
         self.scaleBar = None
@@ -60,6 +62,10 @@ class opvAnalisysRenderer(vtkRendererBase):
     def reset(self):
         self._renderer.RemoveAllViewProps()
         self._style.clear()
+
+    def setInUse(self, *args, **kwargs):
+        super().setInUse(*args, **kwargs)
+        self.pauseAnimation()
     
     def update(self):
         self.opv.updateDialogs()
@@ -70,15 +76,27 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createSlider()
         self._createColorBar()
         self._createScaleBar()
-
+    
     def showDisplacement(self, frequency, gain=1):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showDisplacement
-        self._currentFrequency = frequency
+        self._currentFrequency = frequency       
 
-        _, _, u_def, self._magnificationFactor = get_structural_response(preprocessor, solution, frequency, gain=gain)
+        # if self.lastFrequency is not None:
+        #     if self.lastFrequency != self._currentFrequency:
+        #         self.scf = None
+
+        _, _, u_def, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
+                                                                                solution, 
+                                                                                frequency, 
+                                                                                gain=gain,
+                                                                                new_scf=self.scf   )
+        # self.lastFrequency = frequency
+        # self.scf = scf
+        
         self.opvDeformedTubes.build()
+      
         # self.opvSymbols.build()
 
         colorTable = ColorTable(self.project, u_def)
@@ -96,12 +114,23 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showStressField(self, frequency, gain=1):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showStressField
         self._currentFrequency = frequency
 
-        _, _, _, self._magnificationFactor = get_structural_response(preprocessor, solution, frequency, gain=gain)
+        # if self.lastFrequency is not None:
+        #     if self.lastFrequency != self._currentFrequency:
+        #         self.scf = None
+
+        _, _, _, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
+                                                                            solution, 
+                                                                            frequency, 
+                                                                            gain=gain,
+                                                                            new_scf=self.scf   )
+        # self.lastFrequency = frequency
+        # self.scf = scf
+
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
@@ -119,7 +148,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.update()
 
     def showPressureField(self, frequency, real_part=True):
-        preprocessor = self.project.get_preprocess()
+        preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
         self._currentFrequency = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
@@ -214,7 +243,6 @@ class opvAnalisysRenderer(vtkRendererBase):
             return 
         
         self.playingAnimation = False
-        
         sliderValue = slider.GetRepresentation().GetValue()
         sliderValue = round(sliderValue, 1)
         slider.GetRepresentation().SetValue(sliderValue)
@@ -272,7 +300,7 @@ class opvAnalisysRenderer(vtkRendererBase):
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
             text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
-            text += "\nMagnification factor {:.2f}x\n".format(self._magnificationFactor)
+            text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
         self.createInfoText(text)
 

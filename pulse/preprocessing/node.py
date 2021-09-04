@@ -1,5 +1,4 @@
 import numpy as np
-from pulse.utils import error
 
 DOF_PER_NODE_STRUCTURAL = 6
 DOF_PER_NODE_ACOUSTIC = 1
@@ -40,23 +39,28 @@ class Node:
 
         # Structural boundary conditions and external lumped elements
         self.nodal_loads = [None, None, None, None, None, None]
+        self.nodal_loads_table_names = [None, None, None, None, None, None]
         self.there_are_nodal_loads = False
         self.loaded_table_for_nodal_loads = False
         
         self.prescribed_dofs = [None, None, None, None, None, None]
+        self.prescribed_dofs_table_names = [None, None, None, None, None, None]
         self.there_are_prescribed_dofs = False
         self.loaded_table_for_prescribed_dofs = False
         self.there_are_constrained_dofs = False
         
         self.lumped_masses = [None, None, None, None, None, None]
+        self.lumped_masses_table_names = [None, None, None, None, None, None]
         self.there_are_lumped_masses = False
         self.loaded_table_for_lumped_masses = False
 
         self.lumped_stiffness = [None, None, None, None, None, None]
+        self.lumped_stiffness_table_names = [None, None, None, None, None, None]
         self.there_are_lumped_stiffness = False
         self.loaded_table_for_lumped_stiffness = False
 
         self.lumped_dampings = [None, None, None, None, None, None]
+        self.lumped_dampings_table_names = [None, None, None, None, None, None]
         self.there_are_lumped_dampings = False
         self.loaded_table_for_lumped_dampings = False
         
@@ -64,14 +68,20 @@ class Node:
         self.there_are_elastic_nodal_link_stiffness = False
         self.loaded_table_for_elastic_link_stiffness = False
 
-        self.elastic_nodal_link_damping = {}
-        self.there_are_elastic_nodal_link_damping = False
-        self.loaded_table_for_elastic_link_damping = False
+        self.elastic_nodal_link_dampings = {}
+        self.there_are_elastic_nodal_link_dampings = False
+        self.loaded_table_for_elastic_link_dampings = False
 
         # Acoustic boundary conditions and specific impedance
         self.acoustic_pressure = None
+        self.acoustic_pressure_table_name = None
+
         self.volume_velocity = None
+        self.volume_velocity_table_name = None
+
         self.specific_impedance = None
+        self.specific_impedance_table_name = None
+
         self.radiation_impedance = None
         self.radiation_impedance_type = None
         
@@ -82,6 +92,7 @@ class Node:
         self.deformed_rotations_xyz_gcs = None
         self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
+        self.static_nodal_solution_gcs = None
 
     @property
     def coordinates(self):

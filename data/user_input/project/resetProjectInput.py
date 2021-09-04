@@ -13,7 +13,8 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 
 window_title = "WARNING"
 title = "Project resetting complete"
-message = "The current project setup and project data has been reset to default values."
+message = "The current project setup and project data\n"
+message += "has been reset to default values."
 
 class ResetProjectInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):

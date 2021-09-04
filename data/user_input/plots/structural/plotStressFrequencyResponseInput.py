@@ -1,3 +1,5 @@
+from time import process_time_ns
+from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtWidgets import QLineEdit, QDialog, QFileDialog, QWidget, QTreeWidget, QToolButton, QRadioButton, QMessageBox, QTreeWidgetItem, QTabWidget, QLabel, QCheckBox, QPushButton, QSpinBox
 from os.path import basename
 from PyQt5.QtGui import QIcon
@@ -10,8 +12,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from pulse.postprocessing.plot_structural_data import get_stress_spectrum_data
-
-from pulse.utils import error
 
 class SnaptoCursor(object):
     def __init__(self, ax, x, y, show_cursor):
@@ -48,6 +48,8 @@ class SnaptoCursor(object):
     
             self.ax.figure.canvas.draw_idle()
 
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
 
 class PlotStressFrequencyResponseInput(QDialog):
     def __init__(self, opv, project, analysisMethod, *args, **kwargs):
@@ -68,7 +70,7 @@ class PlotStressFrequencyResponseInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
 
         self.frequencies = project.frequencies
         self.damping = project.get_damping()
@@ -176,7 +178,9 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def reset_imported_data(self):
         self.imported_data = None
-        self.messages("The plot data has been reseted.")
+        title = "Information"
+        message = "The plot data has been reseted."
+        PrintMessageInput([title, message, window_title_2])
     
     def writeElements(self, list_elements_ids):
         text = ""
@@ -219,7 +223,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         msg_box.exec_()
 
     def choose_path_import_results(self):
-        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.dat; *.csv)')
+        self.import_path, _ = QFileDialog.getOpenFileName(None, 'Open file', self.userPath, 'Files (*.csv; *.dat; *.txt)')
         self.import_name = basename(self.import_path)
         self.lineEdit_ImportResultsPath.setText(str(self.import_path))
     
@@ -229,10 +233,13 @@ class PlotStressFrequencyResponseInput(QDialog):
             self.imported_data = np.loadtxt(self.import_path, delimiter=",", skiprows=skiprows)
             self.legend_imported = "imported data: "+ basename(self.import_path).split(".")[0]
             self.tabWidget_plot_results.setCurrentWidget(self.tab_plot)
-            self.messages("The results has been imported.")
-        except Exception as e:
-            message = [str(e) + " It is recommended to skip the header rows."] 
-            error(message[0], title="ERROR WHILE LOADING TABLE")
+            title = "Information"
+            message = "The results has been imported."
+            PrintMessageInput([title, message, window_title_2])
+        except Exception as log_error:
+            title = "Error while loading table"
+            message = str(log_error) + " It is recommended to skip the header rows."
+            PrintMessageInput([title, message, window_title_1])
             return
 
     def choose_path_export_results(self):
@@ -259,10 +266,14 @@ class PlotStressFrequencyResponseInput(QDialog):
             if self.save_path != "":
                 self.export_path_folder = self.save_path + "/"
             else:
-                error("Plese, choose a folder before trying export the results!")
+                title = "Empty folder input field detected"
+                message = "Plese, choose a folder before trying export the results!"
+                PrintMessageInput([title, message, window_title_2])
                 return
         else:
-            error("Inform a file name before trying export the results!")
+            title = "Empty file name input field"
+            message = "Inform a file name before trying export the results!"  
+            PrintMessageInput([title, message, window_title_2])
             return
         
         self.check(export=True)
@@ -278,7 +289,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             data_to_export = np.array([freq, np.real(response), np.imag(response)]).T        
             
         np.savetxt(self.export_path, data_to_export, delimiter=",", header=header)
-        self.messages("The results have been exported.")
+        title = "Information"
+        message = "The results have been exported."
+        PrintMessageInput([title, message, window_title_2])
 
     def get_stress_data(self):
         

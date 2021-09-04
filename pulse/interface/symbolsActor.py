@@ -133,7 +133,7 @@ class SymbolsActor(vtkActorBase):
         # create a set without useless repetitions 
         for node in self.nodes.values():
             stif = tuple(node.elastic_nodal_link_stiffness.keys())
-            damp = tuple(node.elastic_nodal_link_damping.keys())
+            damp = tuple(node.elastic_nodal_link_dampings.keys())
             if stif:
                 nodes = sorted(int(i) for i in stif[0].split('-'))
             elif damp:

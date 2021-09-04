@@ -5,13 +5,12 @@ from scipy.sparse.linalg import eigs, spsolve
 from pulse.processing.assembly_structural import AssemblyStructural
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-
 class SolutionStructural:
     """ This class creates a Structural Solution object from input data.
 
     Parameters
     ----------
-    mesh : Mesh object
+    preprocessor : Preprocessor object
         Structural finite element preprocessor.
 
     frequencies : array
@@ -31,6 +30,7 @@ class SolutionStructural:
         
         self.K_lump, self.M_lump, self.C_lump, self.Kr_lump, self.Mr_lump, self.Cr_lump, self.flag_Clump = self.assembly.get_lumped_matrices()
         self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices()
+        self.K_exp_joint, self.M_exp_joint, self.Kr_exp_joint, self.Mr_exp_joint = self.assembly.get_expansion_joint_global_matrices()
 
         self.nodes_connected_to_springs = self.assembly.nodes_connected_to_springs
         self.nodes_with_lumped_masses = self.assembly.nodes_with_lumped_masses
@@ -46,6 +46,10 @@ class SolutionStructural:
         self.warning_ModeSup_prescribedDOFs = ""
         self.warning_Modal_prescribedDOFs = ""
         self.solution = None
+        self.reset_stress_stiffening = False
+
+    def update_global_matrices(self):
+        self.K, self.M, self.Kr, self.Mr = self.assembly.get_global_matrices() 
 
     def _reinsert_prescribed_dofs(self, solution, modal_analysis=False):
         """
@@ -73,11 +77,11 @@ class SolutionStructural:
             if modal_analysis:
                 full_solution[self.prescribed_indexes, :] = np.zeros((len(self.prescribed_values),cols))
             else:
-                full_solution[self.prescribed_indexes, :] = self.array_prescribed_values
+                full_solution[self.prescribed_indexes, :] = self.array_prescribed_values[:, 0:cols]
         return full_solution
 
 
-    def get_combined_loads(self, global_damping):
+    def get_combined_loads(self, global_damping, static_analysis=False):
         """
         This method adds the effects of prescribed displacement and rotation into global loads vector.
 
@@ -94,7 +98,11 @@ class SolutionStructural:
         # t0 = time()
         alphaV, betaV, alphaH, betaH = global_damping
 
-        F = self.assembly.get_global_loads()
+        F = self.assembly.get_global_loads(static_analysis=static_analysis)
+
+        if static_analysis:
+            return F
+
         unprescribed_indexes = self.unprescribed_indexes
 
         rows = len(unprescribed_indexes)
@@ -108,16 +116,18 @@ class SolutionStructural:
             Cr_add_lump = complex(0)
             
             Kr = (self.Kr.toarray())[unprescribed_indexes, :]
-            Mr = (self.Mr.toarray())[unprescribed_indexes, :]
+            _Mr = (self.Mr.toarray())[unprescribed_indexes, :] + (self.Mr_exp_joint.toarray())[unprescribed_indexes, :]
             
             for i, freq in enumerate(self.frequencies):
                 
+                _Kr = Kr + (self.Kr_exp_joint[i].toarray())[unprescribed_indexes, :] 
+
                 Kr_lump_i = (self.Kr_lump[i].toarray())[unprescribed_indexes, :]
                 Mr_lump_i = (self.Mr_lump[i].toarray())[unprescribed_indexes, :]
                 Cr_lump_i = (self.Cr_lump[i].toarray())[unprescribed_indexes, :]
 
-                Kr_add = np.sum(Kr*self.array_prescribed_values[:,i], axis=1)
-                Mr_add = np.sum(Mr*self.array_prescribed_values[:,i], axis=1)
+                Kr_add = np.sum(_Kr*self.array_prescribed_values[:,i], axis=1)
+                Mr_add = np.sum(_Mr*self.array_prescribed_values[:,i], axis=1)
                 
                 if self.nodes_connected_to_springs != []:
                     Kr_add_lump = np.sum(Kr_lump_i*self.array_prescribed_values[:,i], axis=1)
@@ -178,13 +188,15 @@ class SolutionStructural:
         """
 
         if K==[] and M==[]:
-            if self.assembly.no_table:
-                Kadd_lump = self.K + self.K_lump[0]
-                Madd_lump = self.M + self.M_lump[0]
-            else:
-                #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
-                Kadd_lump = self.K
-                Madd_lump = self.M
+            if self.preprocessor.stress_stiffening_enabled:
+                self.static_analysis_for_stress_stiffening([0,0,0,0])
+  
+            Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
+            Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
+            # else:
+            #     #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.
+            #     Kadd_lump = self.K + self.K_exp_joint[0]
+            #     Madd_lump = self.M + self.M_exp_joint
         else:
             Kadd_lump = K
             Madd_lump = M
@@ -234,15 +246,23 @@ class SolutionStructural:
 
         rows = self.K.shape[0]
         cols = len(self.frequencies)
+
+        if self.preprocessor.stress_stiffening_enabled:
+            self.static_analysis_for_stress_stiffening(global_damping)
+
         solution = np.zeros((rows, cols), dtype=complex)
     
         for i, freq in enumerate(self.frequencies):
 
             omega = 2*np.pi*freq
             
-            F_K = (self.K + self.K_lump[i])
-            F_M =  (-(omega**2))*(self.M + self.M_lump[i])
-            F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
+            # F_K = (self.K + self.K_lump[i])
+            # F_M =  (-(omega**2))*(self.M + self.M_lump[i])
+            # F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
+
+            F_K = (self.K + self.K_exp_joint[i] + self.K_lump[i])
+            F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[i])
+            F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[i]) + ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
 
             F_Clump = 1j*omega*self.C_lump[i]
             
@@ -285,8 +305,12 @@ class SolutionStructural:
             return solution
         else:
             F = self.assembly.get_global_loads(loads_matrix3D=fastest)
-            Kadd_lump = self.K + self.K_lump[0]
-            Madd_lump = self.M + self.M_lump[0]
+            if self.preprocessor.stress_stiffening_enabled:
+                self.static_analysis_for_stress_stiffening(global_damping)
+            # Kadd_lump = self.K + self.K_lump[0]
+            # Madd_lump = self.M + self.M_lump[0]
+            Kadd_lump = self.K + self.K_exp_joint[0] + self.K_lump[0]
+            Madd_lump = self.M + self.M_exp_joint + self.M_lump[0]
 
         if not self.assembly.no_table:
             return
@@ -336,6 +360,55 @@ class SolutionStructural:
 
         return self.solution
 
+    def static_analysis_for_stress_stiffening(self, global_damping):
+        """
+        This method evaluates the static analysis through the direct method. This method is evaluated whenever stress stiffening effects are enabled.
+        Parameters
+        ----------
+        global_damping : list of floats.
+            Damping coefficients alpha viscous, beta viscous, alpha histeretic and beta histeretic.
+        Returns
+        ----------
+        ????
+            Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
+        """
+       
+        # t0 = time()
+        alphaV, betaV, alphaH, betaH = global_damping
+        F = self.get_combined_loads(global_damping, static_analysis=True)
+        # dt = time() - t0
+        # print("Time elapsed: {}[s]".format(dt))
+
+        rows = self.K.shape[0]
+        cols = 1
+        solution = np.zeros((rows, cols), dtype=complex)
+        
+        omega = 0
+
+        # F_K = (self.K + self.K_lump[0])
+        # F_M =  (-(omega**2))*(self.M + self.M_lump[0])
+        # F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)
+
+        F_K = (self.K + self.K_exp_joint[0] + self.K_lump[0])
+        F_M =  (-(omega**2))*(self.M + self.M_exp_joint + self.M_lump[0])
+        F_C = 1j*(( betaH + omega*betaV )*(self.K + self.K_exp_joint[0]) + ( alphaH + omega*alphaV )*(self.M + self.M_exp_joint))
+        
+        F_Clump = 1j*omega*self.C_lump[0]
+        
+        A = F_K + F_M + F_C + F_Clump
+
+        solution[:,0] = spsolve(A, F[:,0])
+
+        static_solution_all_dofs = self._reinsert_prescribed_dofs(solution)
+        self.update_nodal_solution_info(np.real(static_solution_all_dofs))
+        self.update_global_matrices()
+  
+    def update_nodal_solution_info(self, nodal_solution):
+        for node in self.preprocessor.nodes.values():  
+            global_indexes = node.global_dof
+            node.static_nodal_solution_gcs = nodal_solution[global_indexes, 0]
+        for element in self.preprocessor.structural_elements.values():
+            element.static_analysis_evaluated = True
 
     def get_reactions_at_fixed_nodes(self, global_damping_values=(0,0,0,0)):
         """
@@ -357,28 +430,49 @@ class SolutionStructural:
         if self.solution is not None:    
 
             if self.Kr == [] or self.Mr == []:
-                return
+                return None
 
             else:
 
+                rows = len(self.frequencies)
+                cols = len(self.prescribed_indexes)
+                _reactions = np.zeros((rows, cols), dtype=complex)
+
                 Ut = self.solution.T
                 Kr = self.Kr.toarray()
-                Mr = self.Mr.toarray()
-                rows = len(self.frequencies)
-
-                Ut_Kr = Ut@Kr
+                Mr = self.Mr.toarray() + self.Mr_exp_joint.toarray()
                 Ut_Mr = Ut@Mr
-            
-            omega = 2*np.pi*self.frequencies
-            omega = omega.reshape(rows,1)
-            F_K = Ut_Kr
-            F_M = -(omega**2)*Ut_Mr
-            F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr)
-            _reactions = F_K + F_M + F_C
 
-            for i, prescribed_index in enumerate(self.prescribed_indexes):
-                load_reactions[prescribed_index] =  _reactions[:,i]
-            return load_reactions
+                for j, freq in enumerate(self.frequencies):
+                    
+                    omega = 2*np.pi*freq
+                    # Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())
+
+                    # F_K = Ut_Kr[j,:]
+                    # F_M = -(omega**2)*Ut_Mr[j,:]
+                    # F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])
+
+                    Ut_Kr = Ut[j,:]@(Kr+self.Kr_exp_joint[j].toarray())
+                    F_K = Ut_Kr
+                    F_M = -(omega**2)*Ut_Mr[j,:]
+                    F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr[j,:])
+                    _reactions[j,:] = F_K + F_M + F_C
+                
+                # Mr = self.Mr.toarray()
+                # Ut_Kr = Ut@Kr
+                # Ut_Mr = Ut@Mr
+                
+                # omega = 2*np.pi*self.frequencies
+                # omega = omega.reshape(rows,1)
+                    
+                # F_K = Ut_Kr
+                # F_M = -(omega**2)*Ut_Mr
+                # F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr)
+                # _reactions = F_K + F_M + F_C
+
+                for i, prescribed_index in enumerate(self.prescribed_indexes):
+                    load_reactions[prescribed_index] =  _reactions[:,i]
+                return load_reactions
 
 
     def get_reactions_at_springs_and_dampers(self):

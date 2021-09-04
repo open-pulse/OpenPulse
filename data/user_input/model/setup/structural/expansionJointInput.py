@@ -14,10 +14,14 @@ import matplotlib.pyplot as plt
 from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.before_run import BeforeRun
+from pulse.utils import create_new_folder, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
 
-window_title1 = "ERROR MESSAGE"
-window_title2 = "WARNING MESSAGE"
+
+window_title_1 = "ERROR MESSAGE"
+window_title_2 = "WARNING MESSAGE"
 
 class ClickableLineEdit(QLineEdit):
     
@@ -64,14 +68,19 @@ class ExpansionJointInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = self.preprocessor.get_model_checks()
+        self.before_run = project.get_model_checks()
         self.nodes = self.project.preprocessor.nodes
         
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
 
-        self.project_folder_path = project.project_folder_path 
-        self.userPath = os.path.expanduser('~')       
+        self.userPath = os.path.expanduser('~')     
+        self.imported_data_path = project.file._imported_data_folder_path
+        self.structural_folder_path = self.project.file._structural_imported_data_folder_path
+        self.expansion_joints_tables_folder_path = get_new_path(self.structural_folder_path, "expansion_joints_tables")
+        
+        self._entity_path = self.project.file._entity_path
+        self._project_path = self.project.file._project_path
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
@@ -79,8 +88,11 @@ class ExpansionJointInput(QDialog):
         self.ext_key = None
 
         self.label_selected_id = self.findChild(QLabel, 'label_selected_id')
+        self.label_selected_id_2 = self.findChild(QLabel, 'label_selected_id_2')
         
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+        self.lineEdit_selected_info = self.findChild(QLineEdit, 'lineEdit_selected_info') 
+        
         self.lineEdit_effective_diameter = self.findChild(QLineEdit, 'lineEdit_effective_diameter')
         self.lineEdit_joint_mass = self.findChild(QLineEdit, 'lineEdit_joint_mass')
         self.lineEdit_joint_length = self.findChild(QLineEdit, 'lineEdit_joint_length')
@@ -95,6 +107,21 @@ class ExpansionJointInput(QDialog):
         self.lineEdit_path_table_transversal_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_transversal_stiffness')
         self.lineEdit_path_table_torsional_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_torsional_stiffness')
         self.lineEdit_path_table_angular_stiffness = self.findChild(QLineEdit, 'lineEdit_path_table_angular_stiffness')
+
+        self.list_lineEdit_initial_inputs = [   self.lineEdit_effective_diameter,
+                                                self.lineEdit_joint_mass,
+                                                self.lineEdit_joint_length,
+                                                self.lineEdit_axial_locking_criteria   ]
+
+        self.list_lineEdit_constant_stiffness = [   self.lineEdit_axial_stiffness,
+                                                    self.lineEdit_transversal_stiffness,
+                                                    self.lineEdit_torsional_stiffness,
+                                                    self.lineEdit_angular_stiffness    ]
+
+        self.list_lineEdit_table_paths = [  self.lineEdit_path_table_axial_stiffness,
+                                            self.lineEdit_path_table_transversal_stiffness,
+                                            self.lineEdit_path_table_torsional_stiffness,
+                                            self.lineEdit_path_table_angular_stiffness  ]
 
         self.toolButton_load_table_axial_stiffness = self.findChild(QToolButton, 'toolButton_load_table_axial_stiffness')
         self.toolButton_load_table_transversal_stiffness = self.findChild(QToolButton, 'toolButton_load_table_transversal_stiffness')
@@ -116,8 +143,7 @@ class ExpansionJointInput(QDialog):
         self.basename_Krx = None
         self.basename_Kryz = None
 
-        self.flag_stiffness_parameters = False
-        self.flag_damping_parameters = False
+        self.inputs_updated_by_entity = False
 
         self.radioButton_line_selection = self.findChild(QRadioButton, 'radioButton_line_selection')
         self.radioButton_node_selection = self.findChild(QRadioButton, 'radioButton_node_selection')
@@ -142,17 +168,19 @@ class ExpansionJointInput(QDialog):
         self.pushButton_table_input_confirm = self.findChild(QPushButton, 'pushButton_table_input_confirm')
         self.pushButton_table_input_confirm.clicked.connect(self.table_input_confirm)
 
-        # self.pushButton_remove_link_stiffness = self.findChild(QPushButton, 'pushButton_remove_link_stiffness')
-        # self.pushButton_remove_link_stiffness.clicked.connect(self.remove_selected_link_stiffness)
+        self.pushButton_remove_expansion_joint_by_line = self.findChild(QPushButton, 'pushButton_remove_expansion_joint_by_line')
+        self.pushButton_remove_expansion_joint_by_line.clicked.connect(self.remove_selected_expansion_joint_by_line)
+        self.pushButton_remove_expansion_joint_by_line.setDisabled(True)
 
-        # self.pushButton_remove_link_damping = self.findChild(QPushButton, 'pushButton_remove_link_damping')
-        # self.pushButton_remove_link_damping.clicked.connect(self.remove_selected_link_damping)
+        self.pushButton_remove_expansion_joint_by_elements = self.findChild(QPushButton, 'pushButton_remove_expansion_joint_by_elements')
+        self.pushButton_remove_expansion_joint_by_elements.clicked.connect(self.remove_selected_expansion_joint_by_group_elements)
+        self.pushButton_remove_expansion_joint_by_elements.setDisabled(True)
 
-        # self.pushButton_see_details_selected_link = self.findChild(QPushButton, 'pushButton_see_details_selected_link')
-        # self.pushButton_see_details_selected_link.clicked.connect(self.get_information)
+        self.pushButton_see_details_from_selection = self.findChild(QPushButton, 'pushButton_see_details_from_selection')
+        self.pushButton_see_details_from_selection.clicked.connect(self.get_information)
 
-        # self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
-        # self.pushButton_reset_all.clicked.connect(self.reset_all)
+        self.pushButton_reset_all = self.findChild(QPushButton, 'pushButton_reset_all')
+        self.pushButton_reset_all.clicked.connect(self.reset_all)
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.force_to_close)
@@ -162,38 +190,60 @@ class ExpansionJointInput(QDialog):
 
         # self.pushButton_get_length.clicked.connect(self.force_to_close)
 
-        # self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
-        # self.tabWidget_main.currentChanged.connect(self.tabEvent_selection_type)
-        # self.current_tab_selection_type = self.tabWidget_main.currentIndex()
-        # self.tab_setup = self.findChild(QWidget, "tab_setup")
-        # self.tab_remove = self.findChild(QWidget, "tab_remove")
-  
+        self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
+        self.tabWidget_main.currentChanged.connect(self.tabEvent_main)
+        self.current_tab_main = self.tabWidget_main.currentIndex()
+
+        self.tab_setup = self.findChild(QWidget, "tab_setup")
+        self.tab_remove = self.findChild(QWidget, "tab_remove")
+
+        self.tabWidget_inputs = self.findChild(QTabWidget, 'tabWidget_inputs')
+        self.tab_constant_values = self.findChild(QWidget, "tab_constant_values")
+        self.tab_table_values = self.findChild(QWidget, "tab_table_values")
+
         self.lineEdit_node_ID_info = self.findChild(QLineEdit, 'lineEdit_node_ID_info')
         # self.lineEdit_parameters_info = self.findChild(QLineEdit, 'lineEdit_parameters_info')
 
-        # self.treeWidget_nodal_links_stiffness = self.findChild(QTreeWidget, 'treeWidget_nodal_links_stiffness')
-        # self.treeWidget_nodal_links_stiffness.setColumnWidth(0, 120)
-        # self.treeWidget_nodal_links_stiffness.itemClicked.connect(self.on_click_item)
-        # self.treeWidget_nodal_links_stiffness.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        # self.treeWidget_nodal_links_stiffness.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        self.treeWidget_expansion_joint_by_lines = self.findChild(QTreeWidget, 'treeWidget_expansion_joint_by_lines')
+        self.treeWidget_expansion_joint_by_lines.itemClicked.connect(self.on_click_item)
 
-        # self.treeWidget_nodal_links_damping = self.findChild(QTreeWidget, 'treeWidget_nodal_links_damping')
-        # self.treeWidget_nodal_links_damping.setColumnWidth(0, 120)
-        # self.treeWidget_nodal_links_damping.itemClicked.connect(self.on_click_item)
-        # self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(0, Qt.AlignCenter)
-        # self.treeWidget_nodal_links_damping.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        self.treeWidget_expansion_joint_by_elements = self.findChild(QTreeWidget, 'treeWidget_expansion_joint_by_elements')
+        self.treeWidget_expansion_joint_by_elements.itemClicked.connect(self.on_click_item)
 
+        self.config_treeWidget_headers()
+        
         self.update()
-        # self.write_id(self.opv.getListPickedPoints())
-        # self.load_elastic_links_stiffness_info()
-        # self.load_elastic_links_damping_info()
+        self.load_expansion_joint_by_line_info()
+        self.load_expansion_joint_by_elements_info()
+        self.update_tabs()
         self.exec_()
-
-    # def mousePressEvent(self, event):
-    #     clicked = QtCore.pyqtSignal()
-    #     # self.lineEdit_axial_stiffness.clicked.emit()
-        # self.lineEdit_axial_stiffness.clicked.connect(self.print_message)
     
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            if self.tabWidget_inputs.currentIndex() == 0:
+                self.constant_input_confirm()
+            elif self.tabWidget_inputs.currentIndex() == 1: 
+                self.table_input_confirm() 
+        if event.key() == Qt.Key_Escape:
+            self.close()
+
+    def update_tabs(self):
+        size_1 = len(self.preprocessor.dict_lines_with_expansion_joints)
+        size_2 = len(self.preprocessor.group_elements_with_expansion_joints)
+        if size_1 + size_2 == 0:
+            self.tab_remove.setDisabled(True)
+            self.tabWidget_main.setCurrentWidget(self.tab_setup)
+        else:
+            self.tab_remove.setDisabled(False)
+
+    def config_treeWidget_headers(self):     
+        self.treeWidget_expansion_joint_by_lines.setColumnWidth(0, 80)
+        self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_expansion_joint_by_lines.headerItem().setTextAlignment(1, Qt.AlignCenter)
+        self.treeWidget_expansion_joint_by_elements.setColumnWidth(0, 80)
+        self.treeWidget_expansion_joint_by_elements.headerItem().setTextAlignment(0, Qt.AlignCenter)
+        self.treeWidget_expansion_joint_by_elements.headerItem().setTextAlignment(1, Qt.AlignCenter)
+
     def get_length(self):
         lineEdit_lineID = self.lineEdit_selected_ID.text()
         if lineEdit_lineID != "":
@@ -203,17 +253,8 @@ class ExpansionJointInput(QDialog):
                 self.lineEdit_joint_length.setText("")
                 self.lineEdit_selected_ID.setFocus()
                 return True  
-            length = self.preprocessor.get_line_length(self.line_id) 
-            self.lineEdit_joint_length.setText(str(round(length,8)))
-
-    def keyPressEvent(self, event):
-        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_inputs.currentIndex() == 0:
-                self.constant_input_confirm()
-            elif self.tabWidget_inputs.currentIndex() == 1: 
-                self.table_input_confirm() 
-        if event.key() == Qt.Key_Escape:
-            self.close()
+            joint_length = self.preprocessor.get_line_length(self.line_id) 
+            self.lineEdit_joint_length.setText(str(round(joint_length,6)))
 
     def write_id(self, selected_id):
         self.lineEdit_selected_ID.setText(str(selected_id[0]))
@@ -238,13 +279,13 @@ class ExpansionJointInput(QDialog):
             self.radioButton_element_selection.setChecked(True)
         self.load_input_fields()
         
-
     def update_get_length_button_visibility(self):
         if self.selection_by_line:
             self.pushButton_get_length.setVisible(True)
         else:
-            if self.line_id == []:
-                self.pushButton_get_length.setVisible(False)      
+            self.pushButton_get_length.setVisible(False)
+            if self.line_id != []:
+                self.lineEdit_selected_ID.setText("")      
 
     def update_selected_id(self):
         
@@ -266,20 +307,26 @@ class ExpansionJointInput(QDialog):
 
         self.previous_flag = self.selection_by_line
     
-    def update_selection_lineEdit_visibility(self):
+    def update_selection_lineEdit_visibility(self, state_has_changed=False):
+        if state_has_changed:
+            new_state = [self.selection_by_line,self.selection_by_node,self.selection_by_element] 
+            for i, label in enumerate(["Line ID:", "Node ID:", "Element ID:"]):
+                if new_state[i]:
+                    self.label_selected_id.setText(label)
+        else:
+            if self.line_id != []:
+                self.label_selected_id.setText("Line ID:")
+                self.lineEdit_selected_ID.setText("")
+                self.radioButton_line_selection.setChecked(True)
+            
+            elif self.node_id != []:
+                self.label_selected_id.setText("Node ID:")
+                self.radioButton_node_selection.setChecked(True)
 
-        if self.line_id != []:
-            self.label_selected_id.setText("Line ID:")
-            self.lineEdit_selected_ID.setText("")
-            self.radioButton_line_selection.setChecked(True)
-        
-        elif self.node_id != []:
-            self.label_selected_id.setText("Node ID:")
-            self.radioButton_node_selection.setChecked(True)
-
-        elif self.element_id != []:
-            self.label_selected_id.setText("Element ID:")
-            self.radioButton_element_selection.setChecked(True)
+            elif self.element_id != []:
+                self.label_selected_id.setText("Element ID:")
+                self.radioButton_element_selection.setChecked(True)
+            self.update_selection_flags()
 
     def update_selection_flags(self):
         self.selection_by_line = self.radioButton_line_selection.isChecked()
@@ -287,20 +334,28 @@ class ExpansionJointInput(QDialog):
         self.selection_by_element = self.radioButton_element_selection.isChecked()
         self.update_get_length_button_visibility()
 
-    def radioButtonEvent_selection_type(self):   
-
+    def radioButtonEvent_selection_type(self):  
+        current_state = [self.selection_by_line,self.selection_by_node,self.selection_by_element] 
         self.update_selection_flags()
+        new_state = [self.selection_by_line,self.selection_by_node,self.selection_by_element] 
+        if current_state == new_state:
+            state_has_changed = False
+        else:
+            state_has_changed = True
         self.update_selected_id()
-        self.update_selection_lineEdit_visibility()
+        self.update_selection_lineEdit_visibility(state_has_changed=state_has_changed)
 
         if self.line_id != []:
-            self.write_id(self.line_id)
+            if self.selection_by_line:
+                self.write_id(self.line_id)
             
         elif self.node_id != []:
-            self.write_id(self.node_id)
+            if self.selection_by_node:
+                self.write_id(self.node_id)
                     
         elif self.element_id != []:
-            self.write_id(self.element_id)     
+            if self.selection_by_element:
+                self.write_id(self.element_id)     
 
         else:
             self.lineEdit_selected_ID.setText("")       
@@ -308,8 +363,12 @@ class ExpansionJointInput(QDialog):
     def radioButtonEvent_rods(self):
         self.add_rods = self.radioButton_add_rods.isChecked()
 
-    def tabEvent_selection_type(self):
-        self.current_tab_selection_type = self.tabWidget_selection_type.currentIndex()
+    def tabEvent_main(self):
+        self.current_tab_main = self.tabWidget_main.currentIndex()
+        if self.current_tab_main == 0:
+            self.lineEdit_selected_info.setText("")
+        if self.current_tab_main == 1:
+            self.update_remove_buttons()
 
     def check_selection_type(self):
 
@@ -341,81 +400,83 @@ class ExpansionJointInput(QDialog):
         return False
 
     def reset_all_lineEdits(self):
-        self.lineEdit_joint_length.setText("")
-        self.lineEdit_effective_diameter.setText("")
-        self.lineEdit_joint_mass.setText("")
-        self.lineEdit_axial_locking_criteria.setText("")
-        self.lineEdit_axial_stiffness.setText("")
-        self.lineEdit_transversal_stiffness.setText("")
-        self.lineEdit_torsional_stiffness.setText("")
-        self.lineEdit_angular_stiffness.setText("")
+
+        for lineEdit_initial_input in self.list_lineEdit_initial_inputs:
+            lineEdit_initial_input.setText("")
+        
+        for lineEdit_constant_stiffness in self.list_lineEdit_constant_stiffness:
+            lineEdit_constant_stiffness.setText("")
+
+        for lineEdit_table_path in self.list_lineEdit_table_paths:
+            lineEdit_table_path.setText("")
 
     def load_input_fields(self):
-        if self.line_id == []:
-            self.reset_all_lineEdits()
-        else:    
+        if self.line_id != []: 
             entity = self.dict_tag_to_entity[self.line_id[0]]
             if entity.expansion_joint_parameters is None:
+                if self.inputs_updated_by_entity:
+                    self.reset_all_lineEdits()
+                    self.inputs_updated_by_entity = False
                 return
 
-            [read_parameters, read_stiffness]  = entity.expansion_joint_parameters
+            [read_parameters, read_stiffness, read_tables]  = entity.expansion_joint_parameters
           
-            # if isinstance(_parameters, list):
-            #     read_parameters = _parameters
-
             try:
+                self.reset_all_lineEdits()
                 self.lineEdit_joint_length.setText(str(read_parameters[0]))
                 self.lineEdit_effective_diameter.setText(str(read_parameters[1]))
                 self.lineEdit_joint_mass.setText(str(read_parameters[2]))
                 self.lineEdit_axial_locking_criteria.setText(str(read_parameters[3]))
+                
                 if read_parameters[4] == 1:
                     self.radioButton_add_rods.setChecked(True)
                 elif read_parameters[4] == 0:
-                    self.radioButton_add_rods.setChecked(False) 
+                    self.radioButton_not_add_rods.setChecked(True) 
                 
                 if isinstance(read_stiffness[0], np.ndarray):
-                    pass
+                    table_path_axial = get_new_path(self.expansion_joints_tables_folder_path, read_tables[0])
+                    self.lineEdit_path_table_axial_stiffness.setText(table_path_axial)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:
                     self.lineEdit_axial_stiffness.setText(str(read_stiffness[0]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[1], np.ndarray):
-                    pass
+                    table_path_transversal = get_new_path(self.expansion_joints_tables_folder_path, read_tables[1])
+                    self.lineEdit_path_table_transversal_stiffness.setText(table_path_transversal)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:    
                     self.lineEdit_transversal_stiffness.setText(str(read_stiffness[1]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[2], np.ndarray):
-                    pass
+                    table_path_torsional = get_new_path(self.expansion_joints_tables_folder_path, read_tables[2])
+                    self.lineEdit_path_table_torsional_stiffness.setText(table_path_torsional)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:                
                     self.lineEdit_torsional_stiffness.setText(str(read_stiffness[2]))
-                
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+
                 if isinstance(read_stiffness[3], np.ndarray):
-                    pass
+                    table_path_angular = get_new_path(self.expansion_joints_tables_folder_path, read_tables[3])
+                    self.lineEdit_path_table_angular_stiffness.setText(table_path_angular)
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_table_values)
                 else:
                     self.lineEdit_angular_stiffness.setText(str(read_stiffness[3]))
+                    self.tabWidget_inputs.setCurrentWidget(self.tab_constant_values)
+                
+                self.inputs_updated_by_entity = True
 
             except Exception as _log_error:
                 title = "Error while loading info from entity"
                 message = str(_log_error)
-                PrintMessageInput([title, message, window_title1])
-        pass
-
-    # def check_input_length(self):
-    #     try:
-
-    #         self.length = float(self.lineEdit_joint_length.text())
-            
-    #     except Exception as log_error:
-    #         title = "Invalid value to the joint length"
-    #         message = "An invalid value has been typed to the joint length."
-    #         message += "The input value must be a positive float number.\n\n"
-    #         message += f"{str(log_error)}"
-    #         PrintMessageInput([title, message, window_title1])
+                PrintMessageInput([title, message, window_title_1])
 
     def get_nodes_elements_according_joint_length(self):
         if self.selection_by_node:
-            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_node(self.nodeID, self.length)
+            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_node(self.nodeID, self.joint_length)
         elif self.selection_by_element:
-            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_element(self.elementID, self.length)
+            self.list_nodes, self.list_elements = self.preprocessor.get_neighbor_nodes_and_elements_by_element(self.elementID, self.joint_length)
 
     def check_input_parameters(self, lineEdit, label, _float=True):
         message = ""
@@ -440,7 +501,7 @@ class ExpansionJointInput(QDialog):
             message += "You should to enter a positive value to proceed."
             self.value = None
         if message != "":
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return True
         else:
             return False
@@ -476,7 +537,7 @@ class ExpansionJointInput(QDialog):
         else:
             self.axial_locking_criteria = self.value
 
-        self.add_rods_key = int(self.add_rods)
+        self.add_rods_key = float(self.add_rods)
         self.list_parameters =  [   self.joint_length,
                                     self.effective_diameter,  
                                     self.joint_mass, 
@@ -509,14 +570,6 @@ class ExpansionJointInput(QDialog):
         else:
             self.list_stiffness.append(self.value)
 
-        # list_stiffness_parameters = [Kx, Kyz, Krx, Kryz]
-                
-        # if len(list_stiffness_parameters) == 4:
-        #     for _value in list_stiffness_parameters:
-        #         self.list_parameters.append(_value)
-        #     return False
-        # else:
-        #     return True
 
     def constant_input_confirm(self):
         
@@ -526,49 +579,112 @@ class ExpansionJointInput(QDialog):
         if self.check_constant_values_to_stiffness():
             return
 
-        self.all_parameters = [self.list_parameters, self.list_stiffness]
-
-        # if self.list_parameters != []:
+        self.all_parameters = [self.list_parameters, self.list_stiffness, []]
             
         if self.selection_by_line:
 
             self.project.set_cross_section_by_line(self.lineID, None)
-
-            self.list_elements = self.project.preprocessor.line_to_elements[self.lineID]
+            self.list_elements = self.preprocessor.line_to_elements[self.lineID]
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
                                                                             self.effective_diameter )
-            
             self.project.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
-            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, False)
-            self.opv.updatePlots()
-            self.opv.changePlotToEntitiesWithCrossSection()
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
+
         else:
-            return
-            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, False)
+
+            self.get_nodes_elements_according_joint_length()
+            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
+            if self.lines_to_apply_cross_section != []:
+                read = CrossSectionInput(   self.project, 
+                                            self.opv, 
+                                            pipe_to_beam = False, 
+                                            beam_to_pipe = True, 
+                                            lines_to_update_cross_section = self.lines_to_apply_cross_section)
+                if not read.complete:
+                    return
+            self.check_expansion_joint_already_added_to_elements(self.list_elements)            
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters)
+
+        self.update_plots()
         self.close()
 
+    def get_list_of_lines_to_update_cross_section(self):
+        list_lines = []
+        for element_id in self.list_elements:
+            line_id = self.preprocessor.elements_to_line[element_id]
+            list_elements_from_line = self.preprocessor.line_to_elements[line_id]
+            for element_id_from_line in list_elements_from_line:
+                element = self.structural_elements[element_id_from_line]
+                if element.element_type in [None, "beam_1"] or element.cross_section in [None]:
+                    if line_id not in list_lines:
+                        list_lines.append(line_id)
+        return list_lines
 
-    # def get_parameters(self):
-    #     [   effective_diameter,
-    #         joint_length,
-    #         joint_mass,
-    #         axial_locking_criteria,
-    #         add_rods_key,  
-    #         axial_stiffness,
-    #         transversal_stiffness,
-    #         torsional_stiffness,
-    #         angular_stiffness   ] = self.list_parameters
+    def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
-    #     data =  {   "joint_length" : joint_length,   
-    #                 "effective_diameter" : effective_diameter, 
-    #                 "joint_mass" : joint_mass,
-    #                 "axial_locking_criteria" : axial_locking_criteria,
-    #                 "rods_included" : add_rods_key,
-    #                 "axial_stiffness" : axial_stiffness,
-    #                 "transversal_stiffness" : transversal_stiffness,
-    #                 "torsional_stiffness" : torsional_stiffness,
-    #                 "angular_stiffness" : angular_stiffness }
-    #     return data
+        line_elements = self.preprocessor.line_to_elements[line_id]
+        lower_id = list_elements[0] - 1
+        upper_id = list_elements[-1] + 1
+
+        cross = None
+        structural_element_type = None
+        
+        if lower_id in line_elements:
+            element = self.structural_elements[lower_id]
+            cross = element.cross_section
+            structural_element_type = element.element_type
+        
+        elif upper_id in line_elements:
+            element = self.structural_elements[upper_id]
+            cross = element.cross_section
+            structural_element_type = element.element_type
+        
+        return cross, structural_element_type
+
+    def check_expansion_joint_already_added_to_elements(self, list_elements_new):
+        changed = False
+        temp_dict = self.preprocessor.group_elements_with_expansion_joints.copy()
+        
+        for key, data in temp_dict.items():
+            [list_elements_current, _] = data
+            
+            outside = True
+            for id_current in list_elements_current:
+                if id_current in list_elements_new:
+                    line_id = self.preprocessor.elements_to_line[id_current]
+                    outside = False
+                    break
+                else:
+                    outside = True
+            
+            if not outside:
+                
+                cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements_current)
+                self.preprocessor.set_structural_element_type_by_element(list_elements_current, etype)
+                self.project.add_expansion_joint_by_elements(   list_elements_current, 
+                                                                None, 
+                                                                update_element_type=False, 
+                                                                reset_cross=False   )
+                self.project.set_cross_section_by_elements(list_elements_current, cross)
+                if key in self.preprocessor.group_elements_with_expansion_joints.keys():
+                    self.preprocessor.group_elements_with_expansion_joints.pop(key)
+                changed = True
+              
+        return changed
+       
+    def _get_list_of_values_from_string(self, input_string, are_values_int=True):
+        
+        input_string = input_string[1:-1].split(',')
+        list_values = []
+        
+        if are_values_int:
+            for value in input_string:
+                list_values.append(int(value))
+        else:
+            for value in input_string:
+                list_values.append(float(value))
+
+        return list_values
 
     def load_table(self, lineEdit, text, header, direct_load=False):
 
@@ -579,7 +695,7 @@ class ExpansionJointInput(QDialog):
         else:
             self.basename = ""
             window_label = 'Choose a table to import the {} nodal load'.format(text)
-            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.dat; *.csv)')
+            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
             lineEdit.setText(self.path_imported_table)
 
         if self.path_imported_table == "":
@@ -588,24 +704,23 @@ class ExpansionJointInput(QDialog):
         self.basename = os.path.basename(self.path_imported_table)
         if self.basename != "":
             self.imported_table_name = self.basename
-        
-        if "\\" in self.project_folder_path:
-            self.new_load_path_table = "{}\\{}".format(self.project_folder_path, self.basename)
-        elif "/" in self.project_folder_path:
-            self.new_load_path_table = "{}/{}".format(self.project_folder_path, self.basename)
 
+        self.project.create_folders_structural("expansion_joints_tables")
+
+        self.new_load_path_table = get_new_path(self.expansion_joints_tables_folder_path, self.basename)
+        
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         except Exception as err:
-            title = "ERROR WHILE LOADING {} TABLE".format(text)
+            title = "Error while loading {} table".format(text)
             message = str(err)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             
         if imported_file.shape[1]<2:
-            title = "ERROR WHILE LOADING {} TABLE".format(text)
+            title = "Error while loading {} table".format(text)
             message = "The imported table has insufficient number of columns. The spectrum"
             message += " data must have only two columns to the frequencies and values."
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
             return
     
         try:
@@ -623,9 +738,9 @@ class ExpansionJointInput(QDialog):
                 np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
 
         except Exception as err:
-            title = "ERROR WHILE LOADING {} TABLE".format(text)
+            title = "Error while loading {} table".format(text)
             message = str(err)
-            PrintMessageInput([title, message, window_title1])
+            PrintMessageInput([title, message, window_title_1])
 
         return self.imported_values, self.basename
 
@@ -652,57 +767,66 @@ class ExpansionJointInput(QDialog):
     def check_table_of_values(self):
 
         self.loaded_stiffness = None
-        
-        Kx = Kyz = Krx = Kryz = None
-        if self.lineEdit_path_table_axial_stiffness.text() != "":
-            if self.Kx_table is None:
-                label = "Axial stiffness"
-                header = f"{label} || Frequency [Hz], Value [N/m]"
-                lineEdit = self.lineEdit_path_table_axial_stiffness
-                Kx, self.basename_Kx = self.load_table(lineEdit, label, header, direct_load=True)
-            else:
-                Kx = self.Kx_table
+        try:
+            Kx = Kyz = Krx = Kryz = None
+            if self.lineEdit_path_table_axial_stiffness.text() != "":
+                if self.Kx_table is None:
+                    label = "Axial stiffness"
+                    header = f"{label} || Frequency [Hz], Value [N/m]"
+                    lineEdit = self.lineEdit_path_table_axial_stiffness
+                    Kx, self.basename_Kx = self.load_table(lineEdit, label, header, direct_load=True)
+                else:
+                    Kx = self.Kx_table
 
-        if self.lineEdit_path_table_transversal_stiffness.text() != "":
-            if self.Kyz_table is None:
-                label = "Transversal stiffness"
-                header = f"{label} || Frequency [Hz], Value [N/m]"
-                lineEdit = self.lineEdit_path_table_transversal_stiffness
-                Kyz, self.basename_Kyz = self.load_table(lineEdit, label, header, direct_load=True)
-            else:
-                Kyz = self.Kyz_table
+            if self.lineEdit_path_table_transversal_stiffness.text() != "":
+                if self.Kyz_table is None:
+                    label = "Transversal stiffness"
+                    header = f"{label} || Frequency [Hz], Value [N/m]"
+                    lineEdit = self.lineEdit_path_table_transversal_stiffness
+                    Kyz, self.basename_Kyz = self.load_table(lineEdit, label, header, direct_load=True)
+                else:
+                    Kyz = self.Kyz_table
 
-        if self.lineEdit_path_table_torsional_stiffness.text() != "":
-            if self.Krx_table is None:
-                label = "Torsional stiffness"
-                header = f"{label} || Frequency [Hz], Value [N.m/m]"
-                lineEdit = self.lineEdit_path_table_torsional_stiffness
-                Krx, self.basename_Krx = self.load_table(lineEdit, label, header, direct_load=True)
-            else:
-                Krx = self.Krx_table
+            if self.lineEdit_path_table_torsional_stiffness.text() != "":
+                if self.Krx_table is None:
+                    label = "Torsional stiffness"
+                    header = f"{label} || Frequency [Hz], Value [N.m/m]"
+                    lineEdit = self.lineEdit_path_table_torsional_stiffness
+                    Krx, self.basename_Krx = self.load_table(lineEdit, label, header, direct_load=True)
+                else:
+                    Krx = self.Krx_table
 
-        if self.lineEdit_path_table_angular_stiffness.text() != "":
-            if self.Kryz_table is None:
-                label = "Angular stiffness"
-                header = f"{label} || Frequency [Hz], Value [N.m/m]"
-                lineEdit = self.lineEdit_path_table_angular_stiffness
-                Kryz, self.basename_Kryz = self.load_table(lineEdit, label, header, direct_load=True)
-            else:
-                Kryz = self.Kryz_table
+            if self.lineEdit_path_table_angular_stiffness.text() != "":
+                if self.Kryz_table is None:
+                    label = "Angular stiffness"
+                    header = f"{label} || Frequency [Hz], Value [N.m/m]"
+                    lineEdit = self.lineEdit_path_table_angular_stiffness
+                    Kryz, self.basename_Kryz = self.load_table(lineEdit, label, header, direct_load=True)
+                else:
+                    Kryz = self.Kryz_table
 
-        self.labels = ["Axial stiffness", "Transversal stiffness", "Torsional stiffness", "Angular stiffness"]
+        except Exception as log_error:
+            title = "Error while loading stiffness table of values"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
+            return True
+
+        self.labels = [ "Axial stiffness", "Transversal stiffness", 
+                        "Torsional stiffness", "Angular stiffness"  ]
         self.loaded_stiffness_tables = [Kx, Kyz, Krx, Kryz]
 
-        if None in self.loaded_stiffness_tables:
-            list_labels = []
-            for index, value in enumerate(self.loaded_stiffness_tables):
-                if value is None:
-                    list_labels.append(self.labels[index])
-
-            title = 'NONE TABLE SELECTED FOR STIFFNESS'
-            message = f"Please, define at least one table of values to the:\n\n {list_labels} \n\n"
-            message += "before confirming the attribution."
-            PrintMessageInput([title, message, window_title1])
+        list_labels = []
+        for index, value in enumerate(self.loaded_stiffness_tables):
+            if isinstance(value, np.ndarray):
+                continue
+            elif value is None:
+                list_labels.append(self.labels[index])
+        
+        if list_labels != []:
+            title = 'None table selected to expansion joint stiffness'
+            message = "Please, define at least one table of values to the:\n\n"
+            message += f" {list_labels} \n\nbefore confirming the attribution."
+            PrintMessageInput([title, message, window_title_1])
             return True
         else:
             self.basenames = [  self.basename_Kx, self.basename_Kyz, 
@@ -718,357 +842,461 @@ class ExpansionJointInput(QDialog):
         if self.check_table_of_values():
             return
 
-        self.all_parameters = [self.list_parameters, self.list_stiffness]
+        self.all_parameters = [self.list_parameters, self.loaded_stiffness_tables, self.basenames]
+
         if self.selection_by_line:
-            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters, True, self.basenames)
-            self.opv.updatePlots()
-            self.opv.changePlotToEntitiesWithCrossSection()
+            
+            self.project.set_cross_section_by_line(self.lineID, None)
+            self.list_elements = self.preprocessor.line_to_elements[self.lineID]
+            list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
+                                                                            self.effective_diameter )
+            self.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
+            self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
+
         else:
-            return
-            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters, True, self.basenames)
+            
+            self.get_nodes_elements_according_joint_length()
+            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
+            if self.lines_to_apply_cross_section != []:
+                read = CrossSectionInput(   self.project, 
+                                            self.opv, 
+                                            pipe_to_beam = False, 
+                                            beam_to_pipe = True, 
+                                            lines_to_update_cross_section = self.lines_to_apply_cross_section)
+                if not read.complete:
+                    return
+            self.check_expansion_joint_already_added_to_elements(self.list_elements)
+            self.project.add_expansion_joint_by_elements(self.list_elements, self.all_parameters)
         
-        # self.opv.updateRendererMesh()
+        self.update_plots()  
         self.close()
 
-    def text_label(self, mask, load_labels):
-        
-        text = ""
-        temp = load_labels[mask]
-
-        if list(mask).count(True) == 6:
-            text = "[{}, {}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
-        elif list(mask).count(True) == 5:
-            text = "[{}, {}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3], temp[4])
-        elif list(mask).count(True) == 4:
-            text = "[{}, {}, {}, {}]".format(temp[0], temp[1], temp[2], temp[3])
-        elif list(mask).count(True) == 3:
-            text = "[{}, {}, {}]".format(temp[0], temp[1], temp[2])
-        elif list(mask).count(True) == 2:
-            text = "[{}, {}]".format(temp[0], temp[1])
-        elif list(mask).count(True) == 1:
-            text = "[{}]".format(temp[0])
-        return text
 
     def skip_treeWidget_row(self, treeWidget):
-        new = QTreeWidgetItem(["", "", ""])
+        new = QTreeWidgetItem(["", ""])
         new.setTextAlignment(0, Qt.AlignCenter)
         new.setTextAlignment(1, Qt.AlignCenter)
-        new.setTextAlignment(2, Qt.AlignCenter)
         treeWidget.addTopLevelItem(new)
+    
+    def _get_offset_from_string(self, offset):
+        offset = offset[1:-1].split(',')
+        offset_y = offset_z = 0.0
+        if len(offset) == 2:
+            if offset[0] != '0.0':
+                offset_y = float(offset[0])
+            if offset[1] != '0.0':
+                offset_z = float(offset[1])
+        return offset_y, offset_z
 
-    # def load_elastic_links_stiffness_info(self):
+    def load_expansion_joint_by_line_info(self):
+        self.treeWidget_expansion_joint_by_lines.clear()
+        for line_id, parameters in self.preprocessor.dict_lines_with_expansion_joints.items():
+           
+            if get_string_from_joint_paramters(parameters):
+                str_joint_data = f"{str(parameters[0])[1:-1]}, {'Table, Table, Table, Table'}"
+            else:
+                str_joint_data = f"{str(parameters[0])[1:-1]}, {str(parameters[1])[1:-1]}"
 
-    #     self.treeWidget_nodal_links_stiffness.clear()
-    #     stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz']) 
-    #     self.skip_treeWidget_row(self.treeWidget_nodal_links_stiffness)
-    #     self.pushButton_remove_link_stiffness.setDisabled(False)
+            new = QTreeWidgetItem([str(line_id), str_joint_data])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_expansion_joint_by_lines.addTopLevelItem(new)
 
-    #     for key in self.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
-    #         node_ids = [int(node) for node in key.split("-")]
-    #         mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_stiffness[key]
-    #         new = QTreeWidgetItem([key, str(self.text_label(mask, stiffness_labels))])
-    #         new.setTextAlignment(0, Qt.AlignCenter)
-    #         new.setTextAlignment(1, Qt.AlignCenter)
-    #         self.treeWidget_nodal_links_stiffness.addTopLevelItem(new)
+    def load_expansion_joint_by_elements_info(self):
+        self.treeWidget_expansion_joint_by_elements.clear()
+        for group_id, [_, parameters] in self.preprocessor.group_elements_with_expansion_joints.items():
+           
+            if get_string_from_joint_paramters(parameters):
+                str_joint_data = f"{str(parameters[0])[1:-1]}, {'Table, Table, Table, Table'}"
+            else:
+                str_joint_data = f"{str(parameters[0])[1:-1]}, {str(parameters[1])[1:-1]}"
 
-    #     if len(self.preprocessor.dict_nodes_with_elastic_link_stiffness) == 0:
-    #         self.pushButton_remove_link_stiffness.setDisabled(True)
+            new = QTreeWidgetItem([str(group_id), str_joint_data])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)
+            self.treeWidget_expansion_joint_by_elements.addTopLevelItem(new)
 
-    # def load_elastic_links_damping_info(self):
+    def update_remove_buttons(self):
 
-    #     self.treeWidget_nodal_links_damping.clear()
-    #     damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
-    #     self.skip_treeWidget_row(self.treeWidget_nodal_links_damping)
-    #     self.pushButton_remove_link_damping.setDisabled(False)
+        if len(self.preprocessor.dict_lines_with_expansion_joints) == 0:
+            self.pushButton_remove_expansion_joint_by_line.setDisabled(True)
+        else:
+            self.pushButton_remove_expansion_joint_by_line.setDisabled(False)
 
-    #     for key in self.preprocessor.dict_nodes_with_elastic_link_damping.keys():
-    #         node_ids = [int(node) for node in key.split("-")]
-    #         mask, _ = self.project.preprocessor.nodes[node_ids[0]].elastic_nodal_link_damping[key]
-    #         new = QTreeWidgetItem([key, str(self.text_label(mask, damping_labels))])
-    #         new.setTextAlignment(0, Qt.AlignCenter)
-    #         new.setTextAlignment(1, Qt.AlignCenter)
-    #         self.treeWidget_nodal_links_damping.addTopLevelItem(new)
+        if len(self.preprocessor.group_elements_with_expansion_joints) == 0:
+            self.pushButton_remove_expansion_joint_by_elements.setDisabled(True)
+        else:
+            self.pushButton_remove_expansion_joint_by_elements.setDisabled(False)
 
-    #     if len(self.preprocessor.dict_nodes_with_elastic_link_damping) == 0:
-    #         self.pushButton_remove_link_damping.setDisabled(True)
 
     def on_click_item(self, item):
-        self.lineEdit_node_ID_info.setText(item.text(0))
+        self.lineEdit_selected_info.setText(item.text(0))
+        selection = item.text(0)
+        if selection != "":
+            self.update_remove_buttons()
+            # self.pushButton_see_details_from_selection.setDisabled(True)
+            return
+  
+        # self.pushButton_see_details_from_selection.setDisabled(False)
+        # self.pushButton_remove_expansion_joint_by_line.setDisabled(False)
+        # self.pushButton_remove_expansion_joint_by_elements.setDisabled(False)
 
-    # def get_information(self):
-    #     try:
-    #         selected_link = self.lineEdit_node_ID_info.text()
-    #         if selected_link != "":        
-    #             GetInformationOfGroup(self.project, selected_link, "Lines")
-    #         else:
-    #             title = "UNSELECTED ELASTIC LINK"
-    #             message = "Please, select an elastic link in the list to get the information."
-    #             PrintMessageInput([title, message, window_title2])
+    def get_information(self):
+        try:
+            selection = self.lineEdit_selected_info.text()
+            if selection != "":        
+                GetInformationOfGroup(self.project, selection)
+            else:
+                title = "UNSELECTED EXPANSION JOINT"
+                message = "Please, select an expansion joint in the list to get the information."
+                PrintMessageInput([title, message, window_title_2])
                 
-    #     except Exception as e:
-    #         title = "ERROR WHILE GETTING INFORMATION OF SELECTED ELASTIC LINK"
-    #         message = str(e)
-    #         PrintMessageInput([title, message, window_title1])
+        except Exception as log_error:
+            title = "Error while getting information of expansion joint"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
 
-    # def remove_table_files(self, values):          
-    #     for value in values:
-    #         if value != 'None' and ".dat" in value:
-    #             self.get_path_of_selected_table(value)
-    #             try:
-    #                 os.remove(self.path_of_selected_table)
-    #             except:
-    #                 pass
 
-#     def remove_elastic_link_stiffness_from_file(self, section_key):
+    def remove_selected_expansion_joint_by_line(self):
+        if self.lineEdit_selected_info.text() == "":
+            title = "Empty selection in expansion joint"
+            message = "Please, select an expansion joint in the list\n before confirm the joint removal."
+            PrintMessageInput([title, message, window_title_2])
+            return
 
-#         path = self.project.file._node_structural_path
-#         config = configparser.ConfigParser()
-#         config.read(path)
-
-#         keys = list(config[section_key].keys())
-#         if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
-#             values_stiffness = config[section_key]["connecting stiffness"][1:-1].split(",")
-#             self.remove_table_files(values_stiffness)
-#             values_torsional_stiffness = config[section_key]["connecting torsional stiffness"][1:-1].split(",")
-#             self.remove_table_files(values_torsional_stiffness)
-#             config.remove_option(section=section_key, option="connecting stiffness")
-#             config.remove_option(section=section_key, option="connecting torsional stiffness")
-#             if len(list(config[section_key].keys())) == 0:
-#                 config.remove_section(section=section_key)
-#         with open(path, 'w') as config_file:
-#             config.write(config_file)
-
-#     def remove_elastic_link_damping_from_file(self, section_key):
-
-#         path = self.project.file._node_structural_path
-#         config = configparser.ConfigParser()
-#         config.read(path)        
-
-#         keys = list(config[section_key].keys())
-#         if "connecting damping" in keys and "connecting torsional damping" in keys:
-#             values_damping = config[section_key]["connecting damping"][1:-1].split(",")
-#             self.remove_table_files(values_damping)
-#             values_torsional_damping = config[section_key]["connecting torsional damping"][1:-1].split(",")
-#             self.remove_table_files(values_torsional_damping)
-#             config.remove_option(section=section_key, option="connecting damping")
-#             config.remove_option(section=section_key, option="connecting torsional damping")
-#             if len(list(config[section_key].keys())) == 0:
-#                 config.remove_section(section=section_key)    
-#         with open(path, 'w') as config_file:
-#             config.write(config_file)
-
-#     def remove_selected_link_stiffness(self):
-#         if self.ext_key is None:
-#             key = self.lineEdit_node_ID_info.text()
-#         else:
-#             key = self.ext_key
-#         if key == "":
-#             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
-#             message = "Please, select a stiffness elastic link in the list before confirm the link removal."
-#             PrintMessageInput([title, message, window_title2])
-#             return
-
-#         node_IDs = [int(nodeID) for nodeID in key.split("-")]
-
-#         if key in self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.keys():
-#             self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.pop(key)
-#             for node_ID in node_IDs:
-#                 self.nodes[node_ID].elastic_nodal_link_stiffness.pop(key)
-#             self.remove_elastic_link_stiffness_from_file(key)
-#             self.load_elastic_links_stiffness_info()
-#             self.opv.updateRendererMesh()
-#             self.lineEdit_node_ID_info.setText("")
-#         else:
-#             title = "REMOVAL OF ELASTIC NODAL LINKS - STIFFNESS"
-#             message = "The selected elastic link is invalid thus cannot be removed."
-#             PrintMessageInput([title, message, window_title1])
-
-#     def remove_selected_link_damping(self):
-#         if self.ext_key is None:
-#             key = self.lineEdit_node_ID_info.text()
-#         else:
-#             key = self.ext_key
-#         if key == "":
-#             title = "EMPTY SELECTION IN ELASTIC LINK REMOVAL"
-#             message = "Please, select a damping elastic link in the list before confirm the link removal."
-#             PrintMessageInput([title, message, window_title2])
-#             return
-
-#         node_IDs = [int(nodeID) for nodeID in key.split("-")]
-
-#         if key in self.project.preprocessor.dict_nodes_with_elastic_link_damping.keys():
-#             self.project.preprocessor.dict_nodes_with_elastic_link_damping.pop(key)
-#             for node_ID in node_IDs:
-#                 self.nodes[node_ID].elastic_nodal_link_damping.pop(key)
-#             self.remove_elastic_link_damping_from_file(key)
-#             self.load_elastic_links_damping_info()
-#             self.opv.updateRendererMesh()
-#             self.lineEdit_node_ID_info.setText("")
-#         else:
-#             title = "REMOVAL OF ELASTIC NODAL LINKS - DAMPING"
-#             message = "The selected elastic link are invalid thus cannot be removed."
-#             PrintMessageInput([title, message, window_title2])
-
-#     def reset_all(self):
-#         if self.double_confirm_action():
-#             return
-#         temp_dict_stiffness = self.project.preprocessor.dict_nodes_with_elastic_link_stiffness.copy()
-#         temp_dict_damping = self.project.preprocessor.dict_nodes_with_elastic_link_damping.copy()
-#         for key in temp_dict_stiffness.keys():
-#             self.ext_key = key
-#             self.remove_selected_link_stiffness()
-#         for key in temp_dict_damping.keys():
-#             self.ext_key = key
-#             self.remove_selected_link_damping()
-#         title = "RESET OF ELASTIC NODAL LINKS"
-#         message = "All elastic nodal links have been removed from the model."
-#         PrintMessageInput([title, message, window_title1])
-#         self.ext_key = None
-
-#     def double_confirm_action(self):
-#         confirm_act = QMessageBox.question(
-#             self,
-#             "QUIT",
-#             "Are you sure you want to remove all elastic links attributed to the structural model?",
-#             QMessageBox.No | QMessageBox.Yes)
+        line_id = int(self.lineEdit_selected_info.text())
         
-#         if confirm_act == QMessageBox.Yes:
-#             return False
-#         else:
-#             return True
+        title = "Removal of the expansion joint"
+        message = "Are you really sure you want to remove the expansion joint \n" 
+        message += f"added to the line {line_id}?\n\n\n"
+        message += "Press the Continue button to proceed with removal or press \n"
+        message += "Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
 
-#     def get_path_of_selected_table(self, selected_table):
-#         if "\\" in self.project_folder_path:
-#             self.path_of_selected_table = "{}\\{}".format(self.project_folder_path, selected_table)
-#         elif "/" in self.project_folder_path:
-#             self.path_of_selected_table = "{}/{}".format(self.project_folder_path, selected_table)
+        if read._doNotRun:
+            return
+        
+        if read._continue:
+            self.reset_all_lineEdits()
+            if line_id in list(self.preprocessor.dict_lines_with_expansion_joints.keys()):
+                self.remove_expansion_joint_by_line(line_id)
+                self.update_plots()
+            
+            title = "Removal of the expansion joint"
+            message = f"The expansion joint added to the line {line_id} \nhas been removed from the model."
+            PrintMessageInput([title, message, window_title_1])
+
+
+    def remove_selected_expansion_joint_by_group_elements(self):
+        if self.lineEdit_selected_info.text() == "":
+            title = "Empty selection in expansion joint"
+            message = "Please, select an expansion joint in the list\n before confirm the joint removal."
+            PrintMessageInput([title, message, window_title_2])
+            return
+
+        selected_group = self.lineEdit_selected_info.text()
+        title = "Removal of the expansion joint"
+        message = "Are you really sure you want to remove the expansion joint\n" 
+        message += f"added to the following group ?\n\n"
+        message += f"{selected_group}\n"
+        message += "\n\nPress the Continue button to proceed with removal or press \n"
+        message += "Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:
+            self.remove_expansion_joint_by_group_of_elements(selected_group)
+            self.update_plots()
+                
+        title = "Removal of the expansion joint"
+        message = f"The expansion joint added to the group {selected_group} \nhas been removed from the model."
+        PrintMessageInput([title, message, window_title_1])
+
+
+    def remove_expansion_joint_by_line(self, line_id):
+
+        self.remove_table_files_from_imported_data_folder_by_line(line_id)
+        self.project.add_expansion_joint_by_line(line_id, None) 
+
+
+    def remove_expansion_joint_by_group_of_elements(self, selected_group):
+
+        if selected_group in self.preprocessor.group_elements_with_expansion_joints.keys():
+            [list_elements, _] = self.preprocessor.group_elements_with_expansion_joints[selected_group]
+            list_lines = []
+            for element_id in list_elements:
+                line_id = self.preprocessor.elements_to_line[element_id]
+                if line_id not in list_lines:
+                    list_lines.append(line_id)
+
+        self.remove_table_files_from_imported_data_folder_by_elements(list_elements)
+        
+        for line_id in list_lines:
+
+            cross, etype = self.get_pipe_cross_section_from_neighbors(line_id, list_elements)
+            self.preprocessor.set_structural_element_type_by_element(list_elements, etype)
+            self.project.set_cross_section_by_elements(list_elements, cross)
+
+            self.project.add_expansion_joint_by_elements(   list_elements, 
+                                                            None,  
+                                                            update_element_type=False,
+                                                            reset_cross=False  )
+            
+            if selected_group in self.preprocessor.group_elements_with_expansion_joints.keys():
+                self.preprocessor.group_elements_with_expansion_joints.pop(selected_group)
+        
+
+    def reset_all(self):
+
+        title = "Remove all expansion joints added to the model"
+        message = "Are you really sure you want to remove all expansion joints from the model?\n\n\n"
+        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:
+
+            temp_dict_1 = self.preprocessor.dict_lines_with_expansion_joints.copy()
+            for line_id in temp_dict_1.keys():
+                self.remove_expansion_joint_by_line(line_id)
+            
+            temp_dict_2 = self.preprocessor.group_elements_with_expansion_joints.copy()
+            for group in temp_dict_2.keys(): 
+               self.remove_expansion_joint_by_group_of_elements(group)
+
+            self.update_plots()
+
+            title = "Removal of expansion joints"
+            message = "All expansion joints have been removed from the model."
+            PrintMessageInput([title, message, window_title_1])
+
+    def update_plots(self):
+        self.load_expansion_joint_by_line_info()
+        self.load_expansion_joint_by_elements_info()
+        self.update_remove_buttons()
+        self.update_tabs()
+        self.opv.opvRenderer.plot()
+        # self.opv.opvAnalisysRenderer.plot()
+        self.opv.changePlotToEntitiesWithCrossSection() 
+    
+    def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        list_table_names = []
+        list_joint_stiffness = []
+        for section in sections:
+            keys = list(config[section].keys())
+            if 'list of elements' in keys:
+                str_list_elements_from_file = config[section]['list of elements']
+                if str_list_elements_from_file == str(list_elements):
+                    if 'expansion joint stiffness' in keys:
+                        read_joint_stiffness = config[section]['expansion joint stiffness']
+                        list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
+                        cache_section = section
+        
+        if list_joint_stiffness == []:
+            return
+
+        for stiffness_value in list_joint_stiffness:
+            try:
+                float(stiffness_value)
+                return
+            except:
+                break
+        
+        list_table_multiple_joints = []
+        list_table_names = list_joint_stiffness
+        
+        for section in sections:
+            if section != cache_section:
+                keys = list(config[section].keys())
+                if 'expansion joint stiffness' in keys:
+                    read_table_names = config[section]['expansion joint stiffness']
+                    for table_name in list_table_names:
+                        if table_name in read_table_names:
+                            list_table_multiple_joints.append(table_name)
+        
+        if len(list_table_multiple_joints)==0:
+            self.confirm_table_file_removal(list_table_names)
+
+
+    def remove_table_files_from_imported_data_folder_by_line(self, line_id):
+
+        str_line_id = str(line_id)
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        list_table_names = []
+        list_joint_stiffness = []
+        if str_line_id in sections:
+            keys = list(config[str_line_id].keys())
+            if 'expansion joint stiffness' in keys:
+                read_joint_stiffness = config[str_line_id]['expansion joint stiffness']
+                list_joint_stiffness = read_joint_stiffness[1:-1].replace(" ","").split(',')
+                cache_section = str_line_id
+        
+        if list_joint_stiffness == []:
+            return
+
+        for stiffness_value in list_joint_stiffness:
+            try:
+                float(stiffness_value)
+                return
+            except:
+                break
+        
+        list_table_multiple_joints = []
+        list_table_names = list_joint_stiffness
+        
+        for section in sections:
+            if section != cache_section:
+                keys = list(config[section].keys())
+                if 'expansion joint stiffness' in keys:
+                    read_table_names = config[section]['expansion joint stiffness']
+                    for table_name in list_table_names:
+                        if table_name in read_table_names:
+                            list_table_multiple_joints.append(table_name)
+        
+        if len(list_table_multiple_joints)==0:
+            self.confirm_table_file_removal(list_table_names)
+
+
+    def confirm_table_file_removal(self, list_tables):
+
+        title = "Removal of imported table files"
+        message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
+        for table in list_tables:
+            message += f"{table}\n"
+        message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message)
+
+        if read._doNotRun:
+            return
+
+        if read._continue:
+            for table_name in list_tables:
+                self.project.remove_structural_table_files_from_folder(table_name, folder_name="expansion_joints_tables")
+            self.project.remove_structural_empty_folders(folder_name="expansion_joints_tables")             
+        
+    def force_to_close(self):
+        self.close()
+
+class GetInformationOfGroup(QDialog):
+    def __init__(self, project, selection, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        uic.loadUi('data/user_input/ui/Model/Info/getExpansionJointInformationInput.ui', self)
+
+        icons_path = 'data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
+
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
+        self.project = project
+        self.selection = selection
+        self.preprocessor = project.preprocessor
+        self._entity_path = self.project.file._entity_path
+
+        self.title_label = self.findChild(QLabel, 'title_label')
+        self.title_label.setText('Information of selected expansion joint')
+        self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
+
+        self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
+        self.pushButton_close.clicked.connect(self.force_to_close)
+        
+        self.update_header_labels()
+        self.update_treeWidget_joint_parameters_info()
+        self.exec_()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.close()
+        elif event.key() == Qt.Key_Enter:
+            self.close()
+
+    def update_treeWidget_header(self):
+        column_widths = [80, 602]
+        for i, width in enumerate(column_widths):
+            self.treeWidget_group_info.headerItem().setText(i, self.header_labels[i])
+            self.treeWidget_group_info.setColumnWidth(i, width)
+            self.treeWidget_group_info.headerItem().setTextAlignment(i, Qt.AlignCenter)
+
+    def update_header_labels(self):
+        if "group" in self.selection:
+            if self.selection in self.preprocessor.group_elements_with_expansion_joints.keys():
+                self.header_labels = ["Element ID", "Joint parameters [length, effective_diameter, mass, axial locking ε, rods, kx, kyz, krx, kryz]"]
+                self.update_treeWidget_header()   
+        else:    
+            if int(self.selection) in self.preprocessor.dict_lines_with_expansion_joints.keys():
+                self.header_labels = ["Line ID", "Joint parameters [length, effective_diameter, mass, axial locking ε, rods, kx, kyz, krx, kryz]"]
+                self.update_treeWidget_header()   
+    
+    def skip_treeWidget_row(self):
+        new = QTreeWidgetItem(["", ""])
+        for i in range(len(self.header_labels)):
+            new.setTextAlignment(i, Qt.AlignCenter)
+        self.treeWidget_group_info.addTopLevelItem(new)
+
+    def update_treeWidget_joint_parameters_info(self):
+
+        self.treeWidget_group_info.clear()
+
+        if "group" in  self.selection:
+            if self.selection in self.preprocessor.group_elements_with_expansion_joints.keys():
+                data = self.preprocessor.group_elements_with_expansion_joints[self.selection]
+                [list_elements, all_joint_parameters] = data
+                [joint_parameters, joint_stiffness, table_names] = all_joint_parameters
+                
+                str_joint_parameters = str(joint_parameters)
+                if get_string_from_joint_paramters(all_joint_parameters):
+                    str_table_names = f"{table_names[0]}, {table_names[1]}, {table_names[2]}, {table_names[3]}"
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_table_names}"
+                else:
+                    str_joint_stiffness = str(joint_stiffness)
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_joint_stiffness[1:-1]}"
+                
+                for element_id in list_elements:
+                    new = QTreeWidgetItem([str(element_id), str_joint_data])
+                    for i in range(len(self.header_labels)):
+                        new.setTextAlignment(i, Qt.AlignCenter)
+                    self.treeWidget_group_info.addTopLevelItem(new)
+                
+        else:
+
+            if int(self.selection) in self.preprocessor.dict_lines_with_expansion_joints.keys():
+                all_joint_parameters = self.preprocessor.dict_lines_with_expansion_joints[int(self.selection)]
+                [joint_parameters, joint_stiffness, table_names] = all_joint_parameters
+
+                str_joint_parameters = str(joint_parameters)
+                if get_string_from_joint_paramters(all_joint_parameters):
+                    str_table_names = f"{table_names[0]}, {table_names[1]}, {table_names[2]}, {table_names[3]}"
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_table_names}"
+                else:
+                    str_joint_stiffness = str(joint_stiffness)
+                    str_joint_data = f"{str_joint_parameters[1:-1]}, {str_joint_stiffness[1:-1]}"
+
+                new = QTreeWidgetItem([self.selection, str_joint_data])
+                for i in range(len(self.header_labels)):
+                    new.setTextAlignment(i, Qt.AlignCenter)
+                self.treeWidget_group_info.addTopLevelItem(new)
+
 
     def force_to_close(self):
         self.close()
 
-# class GetInformationOfGroup(QDialog):
-#     def __init__(self, project, selected_link, label, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-
-#         icons_path = 'data\\icons\\'
-#         self.icon = QIcon(icons_path + 'pulse.png')
-#         self.setWindowIcon(self.icon)
-#         self.setWindowFlags(Qt.WindowStaysOnTopHint)
-#         self.setWindowModality(Qt.WindowModal)
-
-#         uic.loadUi('data/user_input/ui/Model/Info/getGroupInformationInput.ui', self)
-
-#         self.label = label
-#         self.selected_link = selected_link
-#         self.node_IDs = [int(node) for node in selected_link.split("-")]
-
-#         self.project = project
-#         self.nodes = project.preprocessor.nodes
-#         self.dict_elastic_link_stiffness = {}
-#         self.dict_elastic_link_damping = {}
-
-#         self.title_label = self.findChild(QLabel, 'title_label')
-#         self.title_label.setText('INFORMATION OF SELECTED ELASTIC LINK')
-
-#         self.treeWidget_group_info = self.findChild(QTreeWidget, 'treeWidget_group_info')
-#         self.treeWidget_group_info.headerItem().setText(0, "Linked nodes")
-#         self.treeWidget_group_info.headerItem().setText(1, "Parameter")
-#         self.treeWidget_group_info.headerItem().setText(2, "Value")
-#         self.treeWidget_group_info.setColumnWidth(0, 100)
-#         self.treeWidget_group_info.setColumnWidth(1, 90)
-#         self.treeWidget_group_info.setColumnWidth(2, 120)
-#         self.treeWidget_group_info.headerItem().setTextAlignment(0, Qt.AlignCenter)
-#         self.treeWidget_group_info.headerItem().setTextAlignment(1, Qt.AlignCenter)
-#         self.treeWidget_group_info.headerItem().setTextAlignment(2, Qt.AlignCenter)
-        
-#         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
-#         self.pushButton_close.clicked.connect(self.force_to_close)
-        
-#         self.load_file_info()
-#         self.update_treeWidget_info()
-#         self.exec_()
-
-#     def keyPressEvent(self, event):
-#         if event.key() == Qt.Key_Escape:
-#             self.close()
-#         elif event.key() == Qt.Key_Enter:
-#             self.close()
-
-#     def update_dict(self):
-#         self.dict_lines_parameters = self.project.preprocessor.dict_lines_with_stress_stiffening
-#         self.dict_elements_parameters = self.project.preprocessor.group_elements_with_stress_stiffening
-
-#     def load_file_info(self):
-
-#         config = configparser.ConfigParser()
-#         config.read(self.project.file._node_structural_path)
-
-#         for str_node in config.sections():
-
-#             keys = list(config[str_node].keys())
-
-#             if "connecting stiffness" in keys and "connecting torsional stiffness" in keys:
-#                 connecting_stiffness = config[str_node]['connecting stiffness'][1:-1].split(',')
-#                 connecting_torsional_stiffness = config[str_node]['connecting torsional stiffness'][1:-1].split(',')
-#                 out_stiffness = [value for _list in [connecting_stiffness, connecting_torsional_stiffness] for value in _list]
-#                 self.dict_elastic_link_stiffness[str_node] = out_stiffness
-        
-#             if "connecting damping" in keys and "connecting torsional damping" in keys:
-#                 connecting_damping = config[str_node]['connecting damping'][1:-1].split(',')
-#                 connecting_torsional_damping = config[str_node]['connecting torsional damping'][1:-1].split(',')
-#                 out_damping = [value for _list in [connecting_damping, connecting_torsional_damping] for value in _list]
-#                 self.dict_elastic_link_damping[str_node] = out_damping          
-    
-#     def skip_treeWidget_row(self):
-#         new = QTreeWidgetItem(["", "", ""])
-#         new.setTextAlignment(0, Qt.AlignCenter)
-#         new.setTextAlignment(1, Qt.AlignCenter)
-#         new.setTextAlignment(2, Qt.AlignCenter)
-#         self.treeWidget_group_info.addTopLevelItem(new)
-
-#     def update_treeWidget_info(self):
-
-#         self.treeWidget_group_info.clear()
-        
-#         try:
-
-#             mask_stiffness, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_stiffness[self.selected_link]
-#             stiffness_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])
-#             output_stiffness_labels = stiffness_labels[mask_stiffness]
-#             values_stiffness = np.array(self.dict_elastic_link_stiffness[self.selected_link])[mask_stiffness]        
-            
-#             self.skip_treeWidget_row()
-#             for i, value in enumerate(values_stiffness):
-#                 new = QTreeWidgetItem([str(self.selected_link), output_stiffness_labels[i], value])
-#                 new.setTextAlignment(0, Qt.AlignCenter)
-#                 new.setTextAlignment(1, Qt.AlignCenter)
-#                 new.setTextAlignment(2, Qt.AlignCenter)
-#                 self.treeWidget_group_info.addTopLevelItem(new)
-#         except:
-#             pass
-
-#         try:
-
-#             damping_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz']) 
-#             mask_damping, _ = self.nodes[self.node_IDs[0]].elastic_nodal_link_damping[self.selected_link]
-#             output_damping_labels = damping_labels[mask_damping]
-#             values_damping = np.array(self.dict_elastic_link_damping[self.selected_link])[mask_damping]
-            
-#             self.skip_treeWidget_row()
-#             for i, value in enumerate(values_damping):
-#                 new = QTreeWidgetItem([str(self.selected_link), output_damping_labels[i], value])
-#                 new.setTextAlignment(0, Qt.AlignCenter)
-#                 new.setTextAlignment(1, Qt.AlignCenter)
-#                 new.setTextAlignment(2, Qt.AlignCenter)
-#                 self.treeWidget_group_info.addTopLevelItem(new)
-#         except:
-#             pass
-
-#     def force_to_close(self):
-#         self.close()
-
 
 def get_list_cross_sections_to_plot_expansion_joint(list_elements, effective_diameter):
+
+    """"This auxiliary function returns a list of CrossSection relative to the expansion joints."""
 
     list_cross_sections = []
     flanges_elements = [    list_elements[0],
@@ -1091,5 +1319,11 @@ def get_list_cross_sections_to_plot_expansion_joint(list_elements, effective_dia
                                     effective_diameter ]
 
         list_cross_sections.append(CrossSection(expansion_joint_info=expansion_joint_info))
-    return list_cross_sections
-    
+    return list_cross_sections 
+
+def get_string_from_joint_paramters(parameters):
+    for parameter in parameters:
+        for value in parameter:
+            if isinstance(value, np.ndarray):
+                return True
+    return False
