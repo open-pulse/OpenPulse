@@ -280,6 +280,36 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
+        # Camera
+        self.cameraTop_action = QAction('&Camera Top', self)
+        self.cameraTop_action.setShortcut('Ctrl+Shift+1')
+        self.cameraTop_action.triggered.connect(self.cameraTop_call)
+
+        self.cameraBottom_action = QAction('&Camera Bottom', self)
+        self.cameraBottom_action.setShortcut('Ctrl+Shift+2')
+        self.cameraBottom_action.triggered.connect(self.cameraBottom_call)
+
+        self.cameraLeft_action = QAction('&Camera Left', self)
+        self.cameraLeft_action.setShortcut('Ctrl+Shift+3')
+        self.cameraLeft_action.triggered.connect(self.cameraLeft_call)
+
+        self.cameraRight_action = QAction('&Camera Right', self)
+        self.cameraRight_action.setShortcut('Ctrl+Shift+4')
+        self.cameraRight_action.triggered.connect(self.cameraRight_call)
+
+        self.cameraFront_action = QAction('&Camera Front', self)
+        self.cameraFront_action.setShortcut('Ctrl+Shift+5')
+        self.cameraFront_action.triggered.connect(self.cameraFront_call)
+
+        self.cameraBack_action = QAction('&Camera Back', self)
+        self.cameraBack_action.setShortcut('Ctrl+Shift+6')
+        self.cameraBack_action.triggered.connect(self.cameraBack_call)
+
+        self.cameraOrth_action = QAction('&Camera Orth', self)
+        self.cameraOrth_action.setShortcut('Ctrl+Shift+7')
+        self.cameraOrth_action.triggered.connect(self.cameraOrth_call)
+
+
     def _createRecentProjectsActions(self):
         self.importRecent_action = {}
         for value in self.config.recentProjects:
@@ -365,6 +395,15 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
+    
+    def _loadCameraMenu(self):
+        self.cameraMenu.addAction(self.cameraTop_action)
+        self.cameraMenu.addAction(self.cameraBottom_action)
+        self.cameraMenu.addAction(self.cameraLeft_action)
+        self.cameraMenu.addAction(self.cameraRight_action)
+        self.cameraMenu.addAction(self.cameraFront_action)
+        self.cameraMenu.addAction(self.cameraBack_action)
+        self.cameraMenu.addAction(self.cameraOrth_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -380,6 +419,7 @@ class MainWindow(QMainWindow):
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
+        self.cameraMenu = menuBar.addMenu('&Camera')
         self.helpMenu = menuBar.addMenu("&Help")
 
         self._loadProjectMenu()
@@ -388,6 +428,7 @@ class MainWindow(QMainWindow):
         self._loadModelInfoMenu()
         self._loadAnalysisMenu()
         self._loadResultsViewerMenu()
+        self._loadCameraMenu()
         self._loadHelpMenu()
 
     def set_enable_menuBar(self, _bool):
@@ -464,6 +505,27 @@ class MainWindow(QMainWindow):
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')
         if path != "":
             self.getOPVWidget().savePNG(path)
+
+    def cameraOrth_call(self):
+        self.opv_widget.setCameraView(0)
+
+    def cameraTop_call(self):
+        self.opv_widget.setCameraView(1)
+    
+    def cameraBottom_call(self):
+        self.opv_widget.setCameraView(2)
+
+    def cameraLeft_call(self):
+        self.opv_widget.setCameraView(3)
+    
+    def cameraRight_call(self):
+        self.opv_widget.setCameraView(4)
+    
+    def cameraFront_call(self):
+        self.opv_widget.setCameraView(5)
+    
+    def cameraBack_call(self):
+        self.opv_widget.setCameraView(6)
 
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()

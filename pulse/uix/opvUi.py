@@ -140,18 +140,18 @@ class OPVUi(QVTKRenderWindowInteractor):
         x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
         vx, vy, vz = (0,1,0)
 
-        UP    = 0
-        DOWN  = 1
-        LEFT  = 2 
-        RIGHT = 3
-        FRONT = 4
-        BACK  = 5
-        ORTHOGONAL = 6
+        ORTH   = 0
+        TOP    = 1
+        BOTTOM = 2
+        LEFT   = 3 
+        RIGHT  = 4
+        FRONT  = 5
+        BACK   = 6
 
-        if view == UP:
+        if view == TOP:
             y += 1
             vx, vy, vz = (0,0,-1)
-        elif view == DOWN:
+        elif view == BOTTOM:
             y -= 1
             vx, vy, vz = (0,0,1)
         elif view == LEFT:
@@ -162,15 +162,18 @@ class OPVUi(QVTKRenderWindowInteractor):
             z += 1
         elif view == BACK:
             z -= 1 
+        elif view == ORTH:
+            x -= 1
+            y -= 1
+            z -= 1
         else:
-            x += 1
-            y += 1
-            z += 1
-        
+            return
+
         self.opvRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
         self.opvRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
         self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
         self.opvRenderer._renderer.ResetCamera()
+        self.opvRenderer.update()
 
 
     # def updateDialogs(self):
