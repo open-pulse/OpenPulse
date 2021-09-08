@@ -31,7 +31,7 @@ pip install -r requirements.txt
 ```
 
 - **Run OpenPulse**.
-In the same folder, enter the following command in the terminal:
+In the same folder, enter the following command in the terminal (preferably, **use PowerShell as administrator**):
 ```
 python pulse.py
 ```
