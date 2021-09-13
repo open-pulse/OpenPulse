@@ -29,7 +29,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.scaleBar = None
 
         self.playingAnimation = False
-        self.dx = 0.1
+        self.animationTimer = 0
+        self.dt = 0.05
 
         # just ignore it 
         self.nodesBounds = dict()
@@ -43,6 +44,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider = None
         self._createSlider()
         self._createPlayer()
+        self._animationFrames = dict()
 
     def plot(self):
         self.reset()
@@ -76,29 +78,56 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createSlider()
         self._createColorBar()
         self._createScaleBar()
+
+    def _cacheFrames(self):
+        for i in range(-10, 11):
+            val = round(i/10, 1)
+            self._currentPlot(self._currentFrequency, val)
+            cached = vtk.vtkPolyData()
+            cached.DeepCopy(self.opvDeformedTubes._data)
+            self._animationFrames[val] = cached
     
-    def showDisplacement(self, frequency, gain=1):
+    def _plotCached(self, gain):
+        cached = self._animationFrames[round(gain, 1)]
+        self.opvDeformedTubes._data.DeepCopy(cached)
+        self.updateInfoText()
+        self.update_min_max_stresses_text()
+        self.opv.update()
+        self._renderer.ResetCameraClippingRange()
+        self.update()
+    
+    def showDisplacement(self, frequency):
+        self._currentPlot = self.computeDisplacement
+        self._currentFrequency = frequency    
+        self._animationFrames.clear()
+        self._cacheFrames()
+        self._plotCached(1)
+    
+    def showStressField(self, frequency):
+        self._currentPlot = self.computeStressField
+        self._currentFrequency = frequency    
+        self._animationFrames.clear()
+        self._cacheFrames()
+        self._plotCached(1)
+    
+    def showPressureField(self, frequency, real_part=True):
+        self.computePressureField(frequency, real_part=True)
+        self.updateInfoText()
+        self.update_min_max_stresses_text()
+        self._renderer.ResetCameraClippingRange()
+        self.opv.update()
+        self.update()
+    
+    def computeDisplacement(self, frequency, gain=1):
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
-        self._currentPlot = self.showDisplacement
-        self._currentFrequency = frequency       
-
-        # if self.lastFrequency is not None:
-        #     if self.lastFrequency != self._currentFrequency:
-        #         self.scf = None
-
         _, _, u_def, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
                                                                                 solution, 
                                                                                 frequency, 
                                                                                 gain=gain,
                                                                                 new_scf=self.scf   )
-        # self.lastFrequency = frequency
-        # self.scf = scf
         
         self.opvDeformedTubes.build()
-      
-        # self.opvSymbols.build()
-
         colorTable = ColorTable(self.project, u_def)
         self.opvDeformedTubes.setColorTable(colorTable)
         self.colorbar.SetLookupTable(colorTable)
@@ -107,30 +136,17 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
 
-        self.updateInfoText()
-        self.update_min_max_stresses_text()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
-
-    def showStressField(self, frequency, gain=1):
+    def computeStressField(self, frequency, gain=1):
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
         self._currentPlot = self.showStressField
         self._currentFrequency = frequency
-
-        # if self.lastFrequency is not None:
-        #     if self.lastFrequency != self._currentFrequency:
-        #         self.scf = None
 
         _, _, _, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
                                                                             solution, 
                                                                             frequency, 
                                                                             gain=gain,
                                                                             new_scf=self.scf   )
-        # self.lastFrequency = frequency
-        # self.scf = scf
-
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
@@ -141,13 +157,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
 
-        self.updateInfoText()
-        self.update_min_max_stresses_text()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
-
-    def showPressureField(self, frequency, real_part=True):
+    def computePressureField(self, frequency, real_part=True):
         preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
         self._currentFrequency = frequency
@@ -163,12 +173,6 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.SetEnabled(False)
         self.opvDeformedTubes.getActor().SetVisibility(False)
         self.opvPressureTubes.getActor().SetVisibility(True)
-
-        self.updateInfoText()
-        self.update_min_max_stresses_text()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
 
     def _createSlider(self):
         self.slider = vtk.vtkSliderWidget()
@@ -203,12 +207,14 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _createPlayer(self):
-        self.opv.CreateRepeatingTimer(int(self.dx * 1000))
+        self.opv.Initialize()
+        self.opv.CreateRepeatingTimer(1000 * 100)
         self.opv.AddObserver('TimerEvent', self._animationCallback)
 
     def playAnimation(self):
+        self.animationTimer = self.slider.GetRepresentation().GetValue()
         self.playingAnimation = True
-
+        
     def pauseAnimation(self):
         self.playingAnimation = False
 
@@ -221,22 +227,19 @@ class opvAnalisysRenderer(vtkRendererBase):
 
         if not self.playingAnimation:
             return
+        
+        self.animationTimer += self.dt
 
-        sliderValue = self.slider.GetRepresentation().GetValue()
+        if self.animationTimer <= -1:
+            self.dt = -self.dt 
+            self.animationTimer = -1
 
-        if sliderValue <= -1:
-            self.dx = -self.dx 
-            sliderValue = -1
+        elif self.animationTimer >= 1:
+            self.dt = -self.dt
+            self.animationTimer = 1
 
-        elif sliderValue >= 1:
-            self.dx = -self.dx
-            sliderValue = 1
-
-        sliderValue += self.dx
-
-        self.slider.GetRepresentation().SetValue(sliderValue)
-        self._currentPlot(self._currentFrequency, sliderValue)
-        self.update()
+        self.slider.GetRepresentation().SetValue(round(self.animationTimer, 1))
+        self._plotCached(self.animationTimer)
 
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
@@ -244,11 +247,9 @@ class opvAnalisysRenderer(vtkRendererBase):
         
         self.playingAnimation = False
         sliderValue = slider.GetRepresentation().GetValue()
-        sliderValue = round(sliderValue, 1)
-        slider.GetRepresentation().SetValue(sliderValue)
-        
-        # call the last plot function related to the slider
-        self._currentPlot(self._currentFrequency, sliderValue)
+        slider.GetRepresentation().SetValue(round(sliderValue, 1))
+        self._plotCached(sliderValue)
+
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()

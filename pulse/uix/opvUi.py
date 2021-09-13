@@ -116,9 +116,9 @@ class OPVUi(QVTKRenderWindowInteractor):
         if pressure_field_plot:
             self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
         elif stress_field_plot:
-            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
+            self.opvAnalisysRenderer.showStressField(frequency_indice)
         else:
-            self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
+            self.opvAnalisysRenderer.showDisplacement(frequency_indice)
         
         self._updateAxes()
 
