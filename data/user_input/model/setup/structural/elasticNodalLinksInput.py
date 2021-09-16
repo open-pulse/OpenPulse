@@ -399,8 +399,6 @@ class ElasticNodalLinksInput(QDialog):
             self.close()
 
     def load_table(self, lineEdit, text, header, direct_load=False):
-
-        self.project.file.temp_table_name = None
         
         if direct_load:
             self.path_imported_table = lineEdit.text()
@@ -442,7 +440,6 @@ class ElasticNodalLinksInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-                self.imported_table = True
                
                 data = np.array([self.frequencies, self.imported_values, np.zeros_like(self.frequencies)]).T
                 np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)

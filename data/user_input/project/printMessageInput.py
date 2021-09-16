@@ -19,6 +19,7 @@ class PrintMessageInput(QDialog):
 
         self.Label_title = self.findChild(QLabel, 'Label_title')
         self.Label_message = self.findChild(QLabel, 'Label_message')
+        # self.lineEdit_message = self.findChild(QLineEdit, 'lineEdit_message')
        
         self.create_font_title()
         self.create_font_message()
@@ -30,8 +31,9 @@ class PrintMessageInput(QDialog):
         self.pushButton_close.clicked.connect(self.message_close)
 
         self.text_info = text_info
+        message = self.preprocess_big_strings(self.text_info[1])
         self.Label_title.setText(text_info[0])
-        self.Label_message.setText(text_info[1])
+        self.Label_message.setText(message)
         
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
@@ -56,3 +58,16 @@ class PrintMessageInput(QDialog):
         self.font_message.setBold(True)
         self.font_message.setItalic(False)
         self.font_message.setWeight(75) 
+    
+    def preprocess_big_strings(self, text):
+        message = ""
+        list_words = text.split(" ")
+        for word in list_words: 
+            if len(word) > 60:
+                while len(word) > 60:
+                    message += word[0:60] + " "
+                    word = word[60:]
+                message += word + " "
+            else:
+                message += word + " "
+        return message

@@ -74,7 +74,7 @@ nodes_prescribed_load = [27,230] # Which node has some nodal load prescribed.
 local_dofs_prescribed_load  = [[1],[2]] # What are the local degree of freedom with external load.
 prescribed_load_values      = [[1],[1]] # Whats are the prescribed values for external nodal load
 
-# nodal respose (node, dof_corrected)
+# nodal response (node, dof_corrected)
 nodes_response = [27] # Desired nodal response.
 local_dofs_response  = [[1]] # Get the response at the following degree of freedom
 

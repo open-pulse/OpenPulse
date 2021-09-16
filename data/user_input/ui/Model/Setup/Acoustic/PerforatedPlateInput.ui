@@ -3195,8 +3195,8 @@ perfurated plate:</string>
       <widget class="QPushButton" name="pushButton_remove">
        <property name="geometry">
         <rect>
-         <x>140</x>
-         <y>330</y>
+         <x>216</x>
+         <y>328</y>
          <width>92</width>
          <height>30</height>
         </rect>
@@ -3260,13 +3260,53 @@ perfurated plate:</string>
         <string>See details</string>
        </property>
       </widget>
+      <widget class="QPushButton" name="pushButton_reset">
+       <property name="geometry">
+        <rect>
+         <x>68</x>
+         <y>328</y>
+         <width>92</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>92</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>92</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(125, 255, 245);</string>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
      </widget>
     </widget>
     <widget class="QLineEdit" name="lineEdit_elementID">
      <property name="geometry">
       <rect>
-       <x>130</x>
-       <y>10</y>
+       <x>170</x>
+       <y>14</y>
        <width>170</width>
        <height>30</height>
       </rect>
@@ -3305,51 +3345,11 @@ perfurated plate:</string>
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_reset">
-     <property name="geometry">
-      <rect>
-       <x>308</x>
-       <y>10</y>
-       <width>80</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>80</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>80</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: rgb(125, 255, 245);</string>
-     </property>
-     <property name="text">
-      <string>Reset</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_selection">
      <property name="geometry">
       <rect>
-       <x>12</x>
-       <y>12</y>
+       <x>52</x>
+       <y>16</y>
        <width>113</width>
        <height>26</height>
       </rect>

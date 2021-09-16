@@ -103,7 +103,7 @@ class RadiationImpedanceInput(QDialog):
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
-            text += "{}, ".format(node)
+            text += f"{node}, "
         self.lineEdit_nodeID.setText(text[:-2])
 
     def check_radiation_impedance_type(self):
@@ -121,9 +121,12 @@ class RadiationImpedanceInput(QDialog):
             elif self.flag_flanged:
                 type_id = 2
             self.radiation_impedance = type_id
-            self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
+            data = [type_id, None]
+            self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, data)
             self.transform_points(self.nodes_typed)
+            self.opv.updateRendererMesh()
             self.close()
+            print(f"[Set Radiation Impedance] - defined at node(s) {self.nodes_typed}")
         except:
             return
 
@@ -155,11 +158,12 @@ class RadiationImpedanceInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
-        self.treeWidget_radiation_impedance.clear()
+        self.opv.updateRendererMesh()
         self.load_nodes_info()
         # self.close()
 
     def load_nodes_info(self):
+        self.treeWidget_radiation_impedance.clear()
         for node in self.project.preprocessor.nodes_with_radiation_impedance:
             if node.radiation_impedance_type == 0:
                 text = "Anechoic"
@@ -173,4 +177,14 @@ class RadiationImpedanceInput(QDialog):
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
     
     def update(self):
+        list_picked_nodes = self.opv.getListPickedPoints()
+        if list_picked_nodes != []:
+            picked_node = list_picked_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+            if node.radiation_impedance_type == 0:
+                self.radioButton_anechoic.setChecked(True)
+            if node.radiation_impedance_type == 1:
+                self.radioButton_unflanged.setChecked(True)
+            if node.radiation_impedance_type == 2:
+                self.radioButton_flanged.setChecked(True)                
         self.writeNodes(self.opv.getListPickedPoints())

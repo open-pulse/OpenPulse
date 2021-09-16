@@ -9,6 +9,7 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
 from os.path import expanduser, basename, exists, dirname
@@ -479,16 +480,28 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
 
     def closeEvent(self, event):
-        close = QMessageBox.question(
-            self,
-            "QUIT",
-            "Are you sure you want to stop process?",
-            QMessageBox.No | QMessageBox.Yes)
-               
-        if close == QMessageBox.Yes:
-            sys.exit()
-        else:
+        title = "OpenPulse stop execution requested"
+        message = "Do you really want to stop the OpenPulse processing and close \nthe current project setup?\n\n\n"
+        message += "Note: The current project setup progress has already \nbeen saved in the project files."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label="No", rightButton_label="Yes")
+
+        if read._stop:
             event.ignore()
+            return
+
+        if read._continue:
+            sys.exit()
+          
+        # close = QMessageBox.question(
+        #     self,
+        #     "QUIT",
+        #     "Are you sure you want to stop process?",
+        #     QMessageBox.No | QMessageBox.Yes)
+               
+        # if close == QMessageBox.Yes:
+        #     sys.exit()
+        # else:
+        #     event.ignore()
 
     def getInputWidget(self):
         return self.inputWidget

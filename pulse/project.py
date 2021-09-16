@@ -38,6 +38,7 @@ class Project:
         self.f_min = 0
         self.f_max = 0
         self.f_step = 0
+        self.list_frequencies = []
         self.natural_frequencies_structural = []
         self.solution_structural = None
         self.solution_acoustic = None
@@ -114,8 +115,8 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
-        if self.file.temp_table_name is not None:
-            self.load_frequencies_from_table()
+        # if self.file.temp_table_name is not None:
+        #     self.load_frequencies_from_table()
 
     def update_node_ids_in_file_after_remesh(self, dict_old_to_new_node_external_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_node_external_indexes)
@@ -309,7 +310,15 @@ class Project:
             self.load_length_correction_by_elements(value[0], value[1], key)
 
         for key, value in dict_element_perforated_plate.items():
-            self.load_perforated_plate_by_elements(value[0], value[1], key)
+            frequency_setup_pass = True
+            table_name = value[1].dimensionless_impedance_table_name
+            print("table_name: ", table_name)
+            if table_name is not None:
+                if self.change_project_frequency_setup(table_name, value[2]):
+                    frequency_setup_pass = False
+                    break
+            if frequency_setup_pass:
+                self.load_perforated_plate_by_elements(value[0], value[1], key)
 
         # Material to the entities
         for key, mat in dict_materials.items():
@@ -350,14 +359,31 @@ class Project:
 
         # Expansion Joint to the entities
         for key, joint_data in dict_expansion_joint.items():
+            frequency_setup_pass = True
             if "-" in key:
                 parameters = joint_data[1]
-                for list_elements in joint_data[0]:
-                    self.load_expansion_joint_by_elements(list_elements, parameters)
+                joint_tables = joint_data[1][2]
+                joint_list_freq = joint_data[1][3]
+                if joint_data[1][1] is not None:
+                    for i, joint_freq in enumerate(joint_list_freq):
+                        if self.change_project_frequency_setup(joint_tables[i], joint_freq):
+                            frequency_setup_pass = False
+                            break
+                if frequency_setup_pass:
+                    for list_elements in joint_data[0]:
+                        self.load_expansion_joint_by_elements(list_elements, parameters[:-1])
             else:
-                line_id = int(key)
-                self.load_expansion_joint_by_line(line_id, joint_data)
-        
+                joint_tables = joint_data[2]
+                joint_list_freq = joint_data[3]
+                if joint_data[1] is not None:
+                    for i, joint_freq in enumerate(joint_list_freq):
+                        if self.change_project_frequency_setup(joint_tables[i], joint_freq):
+                            frequency_setup_pass = False
+                            break
+                    if frequency_setup_pass:
+                        line_id = int(key)
+                        self.load_expansion_joint_by_line(line_id, joint_data[:-1])
+            
         # Stress Stiffening to the entities and elements
         for key, parameters in dict_stress_stiffening.items():
             if "STRESS STIFFENING" in str(key):
@@ -491,7 +517,8 @@ class Project:
                     if update_line:
                         _cross_section = elements[element_id].cross_section
                         self.set_cross_section_by_line(line_id, _cross_section)
-                        self.number_sections_by_line.pop(line_id)
+                        if line_id in self.number_sections_by_line.keys():
+                            self.number_sections_by_line.pop(line_id)
                     else:
                         self.file.add_multiple_expansion_joints_in_file(line_id, 
                                                                         {}, 
@@ -557,7 +584,8 @@ class Project:
                     self.set_structural_element_type_by_entity(line_id, _element_type)
                     _cross_section = elements[element_id].cross_section
                     self.set_cross_section_by_line(line_id, _cross_section)
-                    self.number_sections_by_line.pop(line_id)
+                    if line_id in self.number_sections_by_line.keys():
+                        self.number_sections_by_line.pop(line_id)
                     single_cross = True 
         else:
             self.number_sections_by_line[line_id] = count_sections
@@ -576,77 +604,156 @@ class Project:
 
         title = "ERROR WHILE LOADING STRUCTURAL DATA"
         
-        for key, [prescribed_dofs, dofs_tables] in prescribed_dofs.items():
+        for key, [prescribed_dofs, dofs_tables, dofs_list_freq] in prescribed_dofs.items():
+            frequency_setup_pass = True
             if isinstance(prescribed_dofs, list):
                 try:
-                    self.load_prescribed_dofs_bc_by_node(key, [prescribed_dofs, dofs_tables])
+                    for i, dofs_freq in enumerate(dofs_list_freq):
+                        if dofs_freq is not None:
+                            if self.change_project_frequency_setup(dofs_tables[i], dofs_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_prescribed_dofs_bc_by_node(key, [prescribed_dofs, dofs_tables])
                 except Exception:
                     message = "There is some error while loading prescribed dofs data." 
                     PrintMessageInput([title, message, window_title])
 
-        for key, [nodal_loads, nodal_loads_tables] in external_loads.items():
+        for key, [nodal_loads, nodal_loads_tables, nodal_loads_list_freq] in external_loads.items():
+            frequency_setup_pass = True
             if isinstance(nodal_loads, list):
                 try:
-                    self.load_structural_loads_by_node(key, [nodal_loads, nodal_loads_tables])
+                    for i, nodal_loads_freq in enumerate(nodal_loads_list_freq):
+                        if nodal_loads_freq is not None:
+                            if self.change_project_frequency_setup(nodal_loads_tables[i], nodal_loads_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_structural_loads_by_node(key, [nodal_loads, nodal_loads_tables])
                 except Exception:
                     message = "There is some error while loading nodal loads data." 
                     PrintMessageInput([title, message, window_title])
 
-        for key, [lumped_inertia, lumped_inertia_tables] in mass.items():
+        for key, [lumped_inertia, lumped_inertia_tables, lumped_inertia_list_freq] in mass.items():
+            frequency_setup_pass = True
             if isinstance(lumped_inertia, list):
                 try:
-                    self.load_mass_by_node(key, [lumped_inertia, lumped_inertia_tables])
+                    for i, lumped_inertia_freq in enumerate(lumped_inertia_list_freq):
+                        if lumped_inertia_freq is not None:
+                            if self.change_project_frequency_setup(lumped_inertia_tables[i], lumped_inertia_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_mass_by_node(key, [lumped_inertia, lumped_inertia_tables])
                 except Exception:
                     message = "There is some error while loading lumped masses/moments of inertia data."
                     PrintMessageInput([title, message, window_title])
                 
-        for key, [lumped_stiffness, lumped_stiffness_tables] in spring.items():
+        for key, [lumped_stiffness, lumped_stiffness_tables, lumped_stiffness_list_freq] in spring.items():
+            frequency_setup_pass = True
             if isinstance(lumped_stiffness, list):
                 try:
-                    self.load_spring_by_node(key, [lumped_stiffness, lumped_stiffness_tables])
+                    for i, lumped_stiffness_freq in enumerate(lumped_stiffness_list_freq):
+                        if lumped_stiffness_freq is not None:
+                            if self.change_project_frequency_setup(lumped_stiffness_tables[i], lumped_stiffness_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_spring_by_node(key, [lumped_stiffness, lumped_stiffness_tables])
                 except Exception:
                     message = "There is some error while loading lumped stiffness data." 
                     PrintMessageInput([title, message, window_title])  
 
-        for key, [lumped_dampings, lumped_damping_tables] in damper.items():
+        for key, [lumped_dampings, lumped_damping_tables, lumped_damping_list_freq] in damper.items():
+            frequency_setup_pass = True
             if isinstance(lumped_dampings, list):
                 try:
-                    self.load_damper_by_node(key, [lumped_dampings, lumped_damping_tables])
+                    for i, lumped_damping_freq in enumerate(lumped_damping_list_freq):
+                        if lumped_damping_freq is not None:
+                            if self.change_project_frequency_setup(lumped_damping_tables[i], lumped_damping_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_damper_by_node(key, [lumped_dampings, lumped_damping_tables])
                 except Exception:
                     message = "There is some error while loading lumped damping data." 
                     PrintMessageInput([title, message, window_title]) 
 
-        for key, [stiffness_data, elastic_link_stiffness_tables] in elastic_link_stiffness.items():
+        for key, [stiffness_data, elastic_link_stiffness_tables, connecting_stiffness_list_freq] in elastic_link_stiffness.items():
+            frequency_setup_pass = True
             if isinstance(stiffness_data, list):
                 nodes = [int(node) for node in key.split("-")]
                 try:
-                    self.load_elastic_nodal_link_stiffness(nodes, [stiffness_data, elastic_link_stiffness_tables])
+                    for i, connecting_stiffness_freq in enumerate(connecting_stiffness_list_freq):
+                        if connecting_stiffness_freq is not None:
+                            if self.change_project_frequency_setup(elastic_link_stiffness_tables[i], connecting_stiffness_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_elastic_nodal_link_stiffness(nodes, [stiffness_data, elastic_link_stiffness_tables])
                 except Exception:
                     message = "There is some error while loading elastic nodal link stiffness data." 
                     PrintMessageInput([title, message, window_title]) 
 
-        for key, [damping_data, elastic_link_damping_tables] in elastic_link_damping.items():
+        for key, [damping_data, elastic_link_damping_tables, connecting_damping_list_freq] in elastic_link_damping.items():
+            frequency_setup_pass = True
             if isinstance(damping_data, list):
                 nodes = [int(node) for node in key.split("-")]
                 try:
-                    self.load_elastic_nodal_link_damping(nodes, [damping_data, elastic_link_damping_tables])
+                    for i, connecting_damping_freq in enumerate(connecting_damping_list_freq):
+                        if connecting_damping_freq is not None:
+                            if self.change_project_frequency_setup(elastic_link_damping_tables[i], connecting_damping_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        self.load_elastic_nodal_link_damping(nodes, [damping_data, elastic_link_damping_tables])
                 except Exception as _log_error:
-                    print(_log_error)
                     message = "There is some error while loading elastic nodal link damping data." 
+                    message += f"\n\n{str(_log_error)}"
                     PrintMessageInput([title, message, window_title]) 
 
     def load_acoustic_bc_file(self):
-        pressure, volume_velocity, specific_impedance, radiation_impedance = self.file.get_dict_of_acoustic_bc_from_file()
-        for key, [ActPres, ActPres_table_name] in pressure.items():
+
+        [   pressure, 
+            volume_velocity, 
+            specific_impedance, 
+            radiation_impedance, 
+            compressor_excitation   ] = self.file.get_dict_of_acoustic_bc_from_file()
+
+        for key, [ActPres, ActPres_table_name, ActPres_freq] in pressure.items():
+            if ActPres_table_name is not None:
+                if self.change_project_frequency_setup(ActPres_table_name, ActPres_freq):
+                    continue
             if ActPres is not None:
                 self.load_acoustic_pressure_bc_by_node(key, [ActPres, ActPres_table_name])
-        for key, data in volume_velocity.items():
-            for VelVol, VelVol_table_name, additional_info in data:
-                if VelVol is not None:
-                    self.load_volume_velocity_bc_by_node(key, [VelVol, VelVol_table_name], additional_info=additional_info)
-        for key, [SpecImp, SpecImp_table_name] in specific_impedance.items():
+            
+        for key, [VelVol, VelVol_table_name, VelVol_freq] in volume_velocity.items():
+            if VelVol_table_name is not None:
+                if self.change_project_frequency_setup(VelVol_table_name, VelVol_freq):
+                    continue  
+            if VelVol is not None:
+                self.load_volume_velocity_bc_by_node(key, [VelVol, VelVol_table_name])
+  
+        for key, data in compressor_excitation.items():
+            for [CompExcit, CompExcit_table_name, connection_info, CompExcit_freq] in data:
+                if CompExcit_table_name is not None:
+                    if self.change_project_frequency_setup(CompExcit_table_name, CompExcit_freq):
+                        continue 
+                if CompExcit is not None:
+                    self.load_compressor_excitation_bc_by_node(key, [CompExcit, CompExcit_table_name], connection_info)  
+            
+        # for key, data in volume_velocity.items():
+        #     for VelVol, VelVol_table_name, connection_info in data:
+        #         if VelVol is not None:
+        #             self.load_volume_velocity_bc_by_node(key, [VelVol, VelVol_table_name], connection_info=connection_info)
+
+        for key, [SpecImp, SpecImp_table_name, SpecImp_freq] in specific_impedance.items():
+            if SpecImp_table_name is not None:
+                if self.change_project_frequency_setup(SpecImp_table_name, SpecImp_freq):
+                    continue 
             if SpecImp is not None:
                 self.load_specific_impedance_bc_by_node(key, [SpecImp, SpecImp_table_name])
+
         for key, RadImp in radiation_impedance.items():
             if RadImp is not None:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
@@ -657,6 +764,35 @@ class Project:
     def load_frequencies_from_table(self):
         self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
         self.frequencies = self.file.frequencies 
+
+    def change_project_frequency_setup(self, table_name, frequencies):
+        # print(table_name)
+        if isinstance(frequencies, np.ndarray):
+            frequencies = list(frequencies)
+        updated = False
+        if self.list_frequencies == []:
+            updated = True
+            self.list_frequencies = frequencies
+        if self.list_frequencies == frequencies:
+            if updated:
+                # print(self.f_min, self.f_max, self.f_step)
+                self.frequencies = frequencies
+                self.f_min = self.frequencies[0]
+                self.f_max = self.frequencies[-1]
+                self.f_step = self.frequencies[1] - self.frequencies[0] 
+                self.file.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
+            return False
+        else:
+            title = "Project frequency setup cannot be modified"
+            message = f"The following imported table of values has a frequency setup\n"
+            message += "different from the others already imported ones. The current\n"
+            message += "project frequency setup is not going to be modified."
+            message += f"\n\n{table_name}"
+            PrintMessageInput([title, message, window_title])
+            return True
+
+    def get_frequency_setup(self):
+        return self.f_min, self.f_max, self.f_step
 
     def set_material(self, material):
         self.preprocessor.set_material_by_element('all', material)
@@ -765,6 +901,7 @@ class Project:
                 self.preprocessor.dict_elements_with_B2PX_rotation_decoupling.pop(key)
                 self.preprocessor.dict_B2PX_rotation_decoupling.pop(key)
 
+
     def reset_B2PX_totation_decoupling(self):
         N = self.preprocessor.DOFS_ELEMENT
         mat_reset = np.ones((N,N), dtype=int)
@@ -778,7 +915,7 @@ class Project:
         self.file.modify_B2PX_rotation_decoupling_in_file([], [], [], [], reset=True)
 
 
-    def set_loads_by_node(self, node_id, data, imported_table):
+    def set_nodal_loads_by_node(self, node_id, data, imported_table):
         [values, table_names] = data
         self.preprocessor.set_structural_load_bc_by_node(node_id, data)
         labels = ["forces", "moments"]
@@ -1174,34 +1311,42 @@ class Project:
             self.file.add_fluid_in_file(line, fluid.identifier)
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, data, imported_table):
-        self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data) 
         label = ["acoustic pressure"] 
         for node_id in node_ids:
+            if self.preprocessor.set_acoustic_pressure_bc_by_node(node_ids, data) :
+                return
             self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label) 
     
-    def set_volume_velocity_bc_by_node(self, node_ids, data, imported_table, table_index=None, additional_info=None):
-        if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data, additional_info=additional_info):
-            return True
-        if table_index is None:
-            label = ["volume velocity"]
-        else:
-            label = [f"volume velocity - {table_index}"]
+    def set_volume_velocity_bc_by_node(self, node_ids, data, imported_table):
+        label = ["volume velocity"] 
         for node_id in node_ids:
+            if self.preprocessor.set_volume_velocity_bc_by_node(node_ids, data):
+                return True
             self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)
         return False    
     
     def set_specific_impedance_bc_by_node(self, node_ids, data, imported_table):
+        label = ["specific impedance"] 
         for node_id in node_ids: 
-            self.preprocessor.set_specific_impedance_bc_by_node(node_id, data) 
-            label = ["specific impedance"] 
+            if self.preprocessor.set_specific_impedance_bc_by_node(node_id, data):
+                return 
             self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
 
     def set_radiation_impedance_bc_by_node(self, node_ids, values, imported_table = None):
+        label = ["radiation impedance"] 
         for node_id in node_ids:    
-            self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values) 
-            label = ["radiation impedance"] 
+            if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
+                return
             self.file.add_acoustic_bc_in_file([node_id], values, imported_table, label) 
     
+    def set_compressor_excitation_bc_by_node(self, node_ids, data, table_index, connection_info):
+        label = [f"compressor excitation - {table_index}"]
+        for node_id in node_ids:
+            if self.preprocessor.set_compressor_excitation_bc_by_node([node_id], data, connection_info):
+                return True
+            self.file.add_acoustic_bc_in_file([node_id], data, True, label)
+        return False 
+
     def set_element_length_correction_by_elements(self, elements, value, section):
         # label = ["acoustic element length correction"] 
         self.preprocessor.set_length_correction_by_element(elements, value, section)
@@ -1239,14 +1384,20 @@ class Project:
     def load_acoustic_pressure_bc_by_node(self, node_id, data):
         self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, data)
 
-    def load_volume_velocity_bc_by_node(self, node_id, data, additional_info=None):
-        self.preprocessor.set_volume_velocity_bc_by_node(node_id, data, additional_info=additional_info)
+    # def load_volume_velocity_bc_by_node(self, node_id, data, connection_info=None):
+    #     self.preprocessor.set_volume_velocity_bc_by_node(node_id, data, connection_info=connection_info)
+
+    def load_volume_velocity_bc_by_node(self, node_id, data):
+        self.preprocessor.set_volume_velocity_bc_by_node(node_id, data)
 
     def load_specific_impedance_bc_by_node(self, node_id, data):
         self.preprocessor.set_specific_impedance_bc_by_node(node_id, data)
 
     def load_radiation_impedance_bc_by_node(self, node_id, value):
         self.preprocessor.set_radiation_impedance_bc_by_node(node_id, value)
+
+    def load_compressor_excitation_bc_by_node(self, node_id, data, connection_info):
+        self.preprocessor.set_compressor_excitation_bc_by_node(node_id, data, connection_info)
 
     def load_length_correction_by_elements(self, list_elements, value, key):
         self.preprocessor.set_length_correction_by_element(list_elements, value, key)

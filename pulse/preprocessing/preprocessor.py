@@ -49,6 +49,7 @@ class Preprocessor:
         self.group_lines_with_capped_end = {}        
         self.dict_lines_with_stress_stiffening = {}
         self.dict_lines_with_expansion_joints = {}
+        self.expansion_joint_table_indexes = defaultdict(list)
         self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
         self.connectivity_matrix = []
@@ -62,6 +63,7 @@ class Preprocessor:
         self.pair_of_nodes_with_elastic_nodal_links = []
         self.nodes_with_acoustic_pressure = []
         self.nodes_with_volume_velocity = []
+        self.nodes_with_compressor_excitation = []
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
@@ -91,7 +93,7 @@ class Preprocessor:
         self.flag_fluid_mass_effect = False
         self.stress_stiffening_enabled = False
         self.group_index = 0
-        self.volume_velocity_table_index = 0
+        # self.compressor_excitation_table_indexes = []
         
         self.beam_gdofs = None
         self.pipe_gdofs = None
@@ -1577,6 +1579,18 @@ class Preprocessor:
 
         if remove:
             for element in slicer(self.structural_elements, list_elements):
+                for line_id in list_lines:
+                    if line_id in self.expansion_joint_table_indexes.keys(): 
+                        self.expansion_joint_table_indexes.pop(line_id)
+                # if element.joint_stiffness_table_names != []:
+                #     first_table_name = element.joint_stiffness_table_names[0]
+                #     for ext in [".csv", ".dat", ".txt"]:
+                #         if ext in first_table_name:
+                #             first_table_name = first_table_name.split(ext)[0]
+                #             break
+                #     table_index = int(first_table_name.split("_table#")[1])
+                #     if table_index in self.expansion_joint_table_indexes.keys(): 
+                #         self.expansion_joint_table_indexes.pop(table_index)
                 element.reset_expansion_joint_parameters()
                 if reset_cross:
                     element.cross_section = None
@@ -1613,7 +1627,20 @@ class Preprocessor:
                 element.expansion_joint_parameters = parameters
                 if element not in self.elements_with_expansion_joint:
                     self.elements_with_expansion_joint.append(element)
-                
+
+            if list_stiffness_table_names != []:
+                first_table_name = list_stiffness_table_names[0]
+                for ext in [".csv", ".dat", ".txt"]:
+                    if ext in first_table_name:
+                        first_table_name = first_table_name.split(ext)[0]
+                        break
+                table_index = int(first_table_name.split("_table#")[1])
+                stiffness_labels = ["axial stiffness", "transversal_stiffness",
+                                    "torsional stiffness", "angular stiffness"]
+                if table_index not in self.expansion_joint_table_indexes.keys():
+                    self.expansion_joint_table_indexes[table_index] = stiffness_labels
+                # print(f"list ids: {list_stiffness_table_names}")
+        
             if aux_line_id is None:
                 size = len(self.group_elements_with_expansion_joints)
                 key = f"group-{size+1}"
@@ -1789,12 +1816,18 @@ class Preprocessor:
                 if value is None:
                     if node in self.nodes_with_acoustic_pressure:
                         self.nodes_with_acoustic_pressure.remove(node)
+                
                 node.volume_velocity = None
                 node.volume_velocity_table = None
                 if node in self.nodes_with_volume_velocity:
                     self.nodes_with_volume_velocity.remove(node)
+                node.compressor_excitation_table_names = []
+                node.dict_index_to_compressor_connection_info = {}
+                if node in self.nodes_with_compressor_excitation:
+                    self.nodes_with_compressor_excitation.remove(node)
                 
                 self.process_nodes_to_update_indexes_after_remesh(node)
+            return False
                 
         except Exception as log_error:
             title = "Error while setting acoustic pressure"
@@ -1803,7 +1836,7 @@ class Preprocessor:
             return True  
 
 
-    def set_volume_velocity_bc_by_node(self, nodes, data, additional_info=None):
+    def set_volume_velocity_bc_by_node(self, nodes, data):
         """
         This method attributes acoustic volume velocity load to a list of nodes.
 
@@ -1818,39 +1851,110 @@ class Preprocessor:
         try:
             [values, table_name] = data
             for node in slicer(self.nodes, nodes):
-                if node.volume_velocity is None or values is None:
-                    node.volume_velocity = values
-                    node.volume_velocity_table_name = table_name
-                elif isinstance(node.volume_velocity, np.ndarray) and isinstance(values, np.ndarray):
-                    if node.volume_velocity.shape == values.shape:
-                        node.volume_velocity += values 
-                    else:
-                        title = "Error while setting volume velocity"
-                        message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
-                        message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
-                        message += "New array length: {}".format(str(values.shape).replace(",", ""))
-                        PrintMessageInput([title, message, window_title_1])
-                        return True 
-                node.compressor_connection_info = None        
-                if additional_info is not None:
-                    node.compressor_connection_info = additional_info
-                if node not in self.nodes_with_volume_velocity:
-                    self.nodes_with_volume_velocity.append(node)
+                node.volume_velocity = values
+                node.volume_velocity_table_name = table_name
+
                 if values is None:
-                    self.volume_velocity_table_index = 0
                     if node in self.nodes_with_volume_velocity:
                         self.nodes_with_volume_velocity.remove(node)
-                elif isinstance(values, np.ndarray):
-                    self.volume_velocity_table_index += 1 
+                else:
+                    if node not in self.nodes_with_volume_velocity:
+                        self.nodes_with_volume_velocity.append(node)
+
+                node.compressor_excitation_table_names = []
+                node.compressor_excitation_table_indexes = []
+                node.dict_index_to_compressor_connection_info = {}
+                
+                if node in self.nodes_with_compressor_excitation:
+                    self.nodes_with_compressor_excitation.remove(node)
+
                 node.acoustic_pressure = None
                 node.acoustic_pressure_table_name = None
                 if node in self.nodes_with_acoustic_pressure:
                     self.nodes_with_acoustic_pressure.remove(node)
                 
                 self.process_nodes_to_update_indexes_after_remesh(node)
+            return False
 
         except Exception as error:
             title = "Error while setting volume velocity"
+            message = str(error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
+
+    def set_compressor_excitation_bc_by_node(self, nodes, data, connection_info=""):
+        """
+        This method attributes compressor excitation in the form of volume velocity source to a list of nodes.
+
+        Parameters
+        ----------
+        nodes : list
+            Nodes external indexes.
+            
+        values : complex or array
+            Volume velocity. Array valued input corresponds to a variable volume velocity load with respect to the frequency.
+        """
+        try:
+            [values, table_name] = data
+
+            if table_name is not None:
+                prefix = table_name.split("_node")[0]
+                str_table_index = prefix.split("table")[1]
+                table_index = int(str_table_index)
+
+            for node in slicer(self.nodes, nodes):
+
+                if values is None:
+                    node.volume_velocity = None
+                    node.volume_velocity_table_name = None
+                    node.compressor_excitation_table_names = []
+                    node.dict_index_to_compressor_connection_info = {}
+                    node.compressor_excitation_table_indexes = []
+                    if node in self.nodes_with_compressor_excitation:
+                        self.nodes_with_compressor_excitation.remove(node)
+                
+                elif node.volume_velocity is None or isinstance(node.volume_velocity, complex):
+                    node.volume_velocity = values
+                    node.compressor_excitation_table_names = [table_name]  
+                    node.dict_index_to_compressor_connection_info[table_index] = connection_info                   
+
+                elif isinstance(node.volume_velocity, np.ndarray):                        
+                    if node.volume_velocity_table_name is not None:
+                        node.volume_velocity_table_name = None 
+                        node.volume_velocity = values
+                        node.compressor_excitation_table_names = [table_name] 
+                    else:
+                        if node.volume_velocity.shape == values.shape:
+                            node.volume_velocity += values 
+                        else:
+                            title = "Error while setting compressor excitation"
+                            message = "The arrays lengths mismatch. It is recommended to check the frequency setup before continue."
+                            message += "\n\nActual array length: {}\n".format(str(node.volume_velocity.shape).replace(",", ""))
+                            message += "New array length: {}".format(str(values.shape).replace(",", ""))
+                            PrintMessageInput([title, message, window_title_1])
+                            return True
+
+                if values is not None: 
+                    node.dict_index_to_compressor_connection_info[table_index] = connection_info
+                    if table_index not in node.compressor_excitation_table_indexes:
+                        node.compressor_excitation_table_indexes.append(table_index)
+                    if table_name not in node.compressor_excitation_table_names:
+                        node.compressor_excitation_table_names.append(table_name)
+                    if node not in self.nodes_with_compressor_excitation:
+                        self.nodes_with_compressor_excitation.append(node)   
+                                     
+                if node in self.nodes_with_volume_velocity:
+                    self.nodes_with_volume_velocity.remove(node)
+                
+                node.acoustic_pressure = None
+                node.acoustic_pressure_table_name = None
+                if node in self.nodes_with_acoustic_pressure:
+                    self.nodes_with_acoustic_pressure.remove(node)
+                self.process_nodes_to_update_indexes_after_remesh(node)
+            return False
+
+        except Exception as error:
+            title = "Error while setting compressor excitation"
             message = str(error)
             PrintMessageInput([title, message, window_title_1])
             return True  
@@ -1885,6 +1989,8 @@ class Preprocessor:
                     self.nodes_with_radiation_impedance.remove(node)
                 
                 self.process_nodes_to_update_indexes_after_remesh(node) 
+            return False
+
         except Exception as error:
             title = "Error while setting specific impedance"
             message = str(error)
@@ -1909,18 +2015,26 @@ class Preprocessor:
 
             If None is attributed, then no radiation impedance is considered.
         """
-        for node in slicer(self.nodes, nodes):
-            node.radiation_impedance_type = impedance_type
-            node.specific_impedance = None
-            if not node in self.nodes_with_radiation_impedance:
-                self.nodes_with_radiation_impedance.append(node)
-            if impedance_type is None:
-                if node in self.nodes_with_radiation_impedance:
-                    self.nodes_with_radiation_impedance.remove(node)
-            if node in self.nodes_with_specific_impedance:
-                self.nodes_with_specific_impedance.remove(node)
+        try:
+            for node in slicer(self.nodes, nodes):
+                node.radiation_impedance_type = impedance_type
+                node.specific_impedance = None
+                if not node in self.nodes_with_radiation_impedance:
+                    self.nodes_with_radiation_impedance.append(node)
+                if impedance_type is None:
+                    if node in self.nodes_with_radiation_impedance:
+                        self.nodes_with_radiation_impedance.remove(node)
+                if node in self.nodes_with_specific_impedance:
+                    self.nodes_with_specific_impedance.remove(node)
 
-            self.process_nodes_to_update_indexes_after_remesh(node)
+                self.process_nodes_to_update_indexes_after_remesh(node)
+            return False
+
+        except Exception as log_error:
+            title = "Error while setting radiation impedance"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
+            return True  
 
     def get_radius(self):
         """

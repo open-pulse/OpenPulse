@@ -36,7 +36,7 @@ class MassSpringDamperInput(QDialog):
         
         self.structural_bc_info_path = project.file._node_structural_path
         self.structural_folder_path = self.project.file._structural_imported_data_folder_path
-        self.lumped_elements_tables_folder_path = get_new_path(self.structural_folder_path, "lumped_elements_tables")
+        self.lumped_elements_files_folder_path = get_new_path(self.structural_folder_path, "lumped_elements_files")
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""
@@ -45,7 +45,6 @@ class MassSpringDamperInput(QDialog):
         self.nodes = self.preprocessor.nodes
         self.loads = None
         self.nodes_typed = []
-        self.imported_table = False
 
         self.lumped_masses = None
         self.lumped_stiffness = None
@@ -451,7 +450,8 @@ class MassSpringDamperInput(QDialog):
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
             window_title ="ERROR"
             title = "Additional inputs required"
-            message = "You must to inform at least one external element to confirm the input!"
+            message = "You must inform at least one external element\n"
+            message += "before confirming the input!"
             PrintMessageInput([title, message, window_title]) 
             return
         
@@ -466,9 +466,7 @@ class MassSpringDamperInput(QDialog):
         self.close()
 
     def load_table(self, lineEdit, text, header, direct_load=False):
-        
-        self.project.file.temp_table_name = None
-        
+                
         if direct_load:
             self.path_imported_table = lineEdit.text()
         else:
@@ -484,8 +482,8 @@ class MassSpringDamperInput(QDialog):
         if self.basename != "":
             self.imported_table_name = self.basename
 
-        self.project.create_folders_structural("lumped_elements_tables")
-        self.new_load_path_table = get_new_path(self.lumped_elements_tables_folder_path, self.basename)
+        self.project.create_folders_structural("lumped_elements_files")
+        self.new_load_path_table = get_new_path(self.lumped_elements_files_folder_path, self.basename)
 
         try:                
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
@@ -511,8 +509,7 @@ class MassSpringDamperInput(QDialog):
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0] 
-                self.imported_table = True
+                self.f_step = self.frequencies[1] - self.frequencies[0]
                
                 _values = self.imported_values
                 data = np.array([self.frequencies, _values, np.zeros_like(self.frequencies)]).T
@@ -783,7 +780,8 @@ class MassSpringDamperInput(QDialog):
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
             window_title ="ERROR"
             title = "Additional inputs required"
-            message = "You must to inform at least one external element to confirm the input!"
+            message = "You must inform at least one external element\n" 
+            message += "table path before confirming the input!"
             PrintMessageInput([title, message, window_title]) 
             return
 
@@ -869,15 +867,15 @@ class MassSpringDamperInput(QDialog):
         for _table_name in _list_table_names:
             message += f"{_table_name}\n"
         message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message)
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
 
         if read._doNotRun:
             return
 
         if read._continue:
             for _table_name in _list_table_names:
-                self.project.remove_structural_table_files_from_folder(_table_name, folder_name="lumped_elements_tables")
-            # self.project.remove_structural_empty_folders(folder_name="lumped_elements_tables")   
+                self.project.remove_structural_table_files_from_folder(_table_name, folder_name="lumped_elements_files")
+            # self.project.remove_structural_empty_folders(folder_name="lumped_elements_files")   
 
 
     def text_label(self, mask, load_labels):
@@ -975,7 +973,7 @@ class MassSpringDamperInput(QDialog):
                     self.tabWidget_table_values.setCurrentWidget(self.tab_mass_table)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_masses):
                         if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_tables_folder_path, table_names[index])
+                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     lumped_masses = node.lumped_masses
@@ -997,7 +995,7 @@ class MassSpringDamperInput(QDialog):
                     self.tabWidget_table_values.setCurrentWidget(self.tab_spring_table)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_stiffness):
                         if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_tables_folder_path, table_names[index])
+                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     lumped_stiffness = node.lumped_stiffness
@@ -1019,7 +1017,7 @@ class MassSpringDamperInput(QDialog):
                     self.tabWidget_table_values.setCurrentWidget(self.tab_damper_table)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values_lumped_dampings):
                         if table_names[index] is not None:
-                            table_name = get_new_path(self.lumped_elements_tables_folder_path, table_names[index])
+                            table_name = get_new_path(self.lumped_elements_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     lumped_dampings = node.lumped_dampings

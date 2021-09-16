@@ -4034,7 +4034,7 @@ at suction</string>
      <widget class="QPushButton" name="pushButton_remove_table">
       <property name="geometry">
        <rect>
-        <x>70</x>
+        <x>64</x>
         <y>428</y>
         <width>150</width>
         <height>30</height>
@@ -4068,9 +4068,9 @@ at suction</string>
      <widget class="QTreeWidget" name="treeWidget_compressor_excitation">
       <property name="geometry">
        <rect>
-        <x>14</x>
+        <x>4</x>
         <y>150</y>
-        <width>461</width>
+        <width>481</width>
         <height>317</height>
        </rect>
       </property>
@@ -4565,7 +4565,7 @@ color: rgb(0, 0, 0);</string>
      <widget class="QPushButton" name="pushButton_reset_node">
       <property name="geometry">
        <rect>
-        <x>270</x>
+        <x>276</x>
         <y>428</y>
         <width>150</width>
         <height>30</height>

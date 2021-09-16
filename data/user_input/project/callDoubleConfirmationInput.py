@@ -15,6 +15,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        self.window_title = kwargs.get('window_title', 'OpenPulse Beta Version (August, 2021)')
+
         # self.setWindowFlag(Qt.WindowCloseButtonHint, False)
         # self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         # self.setWindowFlag(Qt.WindowMinMaxButtonsHint, False)
@@ -30,6 +32,7 @@ class CallDoubleConfirmationInput(QDialog):
 
         self.QLabel_message = self.findChild(QLabel, 'QLabel_message')
         self.QLabel_title = self.findChild(QLabel, 'QLabel_title')
+        self.setWindowTitle(self.window_title)
 
         self.QLabel_title.setText(title)
         self.QLabel_message.setText(message)

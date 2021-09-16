@@ -452,26 +452,28 @@ def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
 #     msg_box.setWindowTitle(title)
 #     msg_box.exec_()
 
-def info_messages(msg, title = " INFORMATION "):
-    '''
-    PyQt5 info message.
 
-    Parameters
-    ----------
-    msg: str
-        text to be displayed.
+# def info_messages(msg, title = " INFORMATION "):
+#     '''
+#     PyQt5 info message.
 
-    title: str
-        window title.
-    '''
+#     Parameters
+#     ----------
+#     msg: str
+#         text to be displayed.
 
-    msg_box = QMessageBox()
-    msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
-    # msg_box.setWindowModality(Qt.WindowModal)
-    msg_box.setIcon(QMessageBox.Information)
-    msg_box.setText(msg)
-    msg_box.setWindowTitle(title)
-    msg_box.exec_()
+#     title: str
+#         window title.
+#     '''
+
+#     msg_box = QMessageBox()
+#     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
+#     # msg_box.setWindowModality(Qt.WindowModal)
+#     msg_box.setIcon(QMessageBox.Information)
+#     msg_box.setText(msg)
+#     msg_box.setWindowTitle(title)
+#     msg_box.exec_()
+
 
 def remove_bc_from_file(nodes_typed, path, keys_to_remove, message):
     try:

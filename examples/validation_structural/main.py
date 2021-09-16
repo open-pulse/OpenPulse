@@ -79,30 +79,30 @@ run=1
 if load_file==1:   
 
     if run==1:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 435 # Desired node to get response.
         local_dof_response  = 0 # Get the response at the following degree of freedom
     if run==2:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 185 # Desired node to get response.
         local_dof_response  = 1 # Get the response at the following degree of freedom
     if run==3:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 709 # Desired node to get response.
         local_dof_response  = 2 # Get the response at the following degree of freedom
 
 elif load_file==2:
 
     if run==1:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 436 # Desired node to get response.
         local_dof_response  = 0 # Get the response at the following degree of freedom
     if run==2:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 187 # Desired node to get response.
         local_dof_response  = 1 # Get the response at the following degree of freedom
     if run==3:
-        # nodal respose (node, dof_corrected)
+        # nodal response (node, dof_corrected)
         node_response = 711 # Desired node to get response.
         local_dof_response  = 2 # Get the response at the following degree of freedom
 

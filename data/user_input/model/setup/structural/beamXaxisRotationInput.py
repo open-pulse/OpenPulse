@@ -250,7 +250,7 @@ class BeamXaxisRotationInput(QDialog):
         title = "Remove all x-axis rotations attributed to the model"
         message = "Are you really sure you want to remove all x-axis rotations associated to beam elements?\n\n\n"
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message)
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
         if read._doNotRun:
             return
         if read._continue:

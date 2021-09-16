@@ -1,5 +1,4 @@
 import os
-from os.path import basename
 import numpy as np
 from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox
 from os.path import basename
@@ -7,8 +6,6 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
-import configparser
-from shutil import copyfile
 
 from pulse.utils import remove_bc_from_file, get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -39,14 +36,19 @@ class LoadsInput(QDialog):
         self.imported_table_name = ""
         self.structural_bc_info_path = project.file._node_structural_path
         self.structural_folder_path = self.project.file._structural_imported_data_folder_path
-        self.nodal_loads_tables_folder_path = get_new_path(self.structural_folder_path, "nodal_loads_tables")
+        self.nodal_loads_files_folder_path = get_new_path(self.structural_folder_path, "nodal_loads_files")
 
         self.nodes = project.preprocessor.nodes
         self.loads = None
         self.nodes_typed = []
-        self.imported_table = False
         self.inputs_from_node = False
+        self.copy_path = False
+        self.basenames = []
+        self.list_Nones = [None, None, None, None, None, None]
 
+        self.stop = False
+        self.list_frequencies = []
+        
         self.lineEdit_nodeID = self.findChild(QLineEdit, 'lineEdit_nodeID')
 
         self.lineEdit_real_Fx = self.findChild(QLineEdit, 'lineEdit_real_Fx')
@@ -105,12 +107,19 @@ class LoadsInput(QDialog):
         self.My_table = None
         self.Mz_table = None
 
-        self.basename_Fx = None
-        self.basename_Fy = None
-        self.basename_Fz = None
-        self.basename_Mx = None
-        self.basename_My = None
-        self.basename_Mz = None
+        self.Fx_filename = None
+        self.Fy_filename = None
+        self.Fz_filename = None
+        self.Mx_filename = None
+        self.My_filename = None
+        self.Mz_filename = None
+
+        self.Fx_basename = None
+        self.Fy_basename = None
+        self.Fz_basename = None
+        self.Mx_basename = None
+        self.My_basename = None
+        self.Mz_basename = None
 
         self.tabWidget_nodal_loads = self.findChild(QTabWidget, "tabWidget_nodal_loads")
         self.tab_constant_values = self.tabWidget_nodal_loads.findChild(QWidget, "tab_constant_values")
@@ -146,12 +155,6 @@ class LoadsInput(QDialog):
                 self.check_table_values()
         elif event.key() == Qt.Key_Escape:
             self.close()
-
-    def writeNodes(self, list_node_ids):
-        text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
-        self.lineEdit_nodeID.setText(text[:-2])
 
     def check_complex_entries(self, lineEdit_real, lineEdit_imag, label):
 
@@ -192,6 +195,7 @@ class LoadsInput(QDialog):
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
+            self.lineEdit_nodeID.setFocus()
             return
 
         Fx = self.check_complex_entries(self.lineEdit_real_Fx, self.lineEdit_imag_Fx, "Fx")
@@ -217,98 +221,144 @@ class LoadsInput(QDialog):
         
         if loads.count(None) != 6:
             self.loads = loads
-            table_names = [None, None, None, None, None, None]
+            table_names = self.list_Nones
             data = [self.loads, table_names]
-            self.project.set_loads_by_node(self.nodes_typed, data, False)
+            self.remove_all_table_files_from_nodes(self.nodes_typed)
+            self.project.set_nodal_loads_by_node(self.nodes_typed, data, False)
+            print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}")    
             self.transform_points(self.nodes_typed)
             self.close()
         else:    
             window_title ="ERROR"
             title = "Additional inputs required"
-            message = "You must to inform at least one nodal load to confirm the input!"
+            message = "You must to inform at least one nodal load\n" 
+            message += "before confirming the input!"
             PrintMessageInput([title, message, window_title]) 
             
-    def load_table(self, lineEdit, text, header):
-        
-        self.basename = ""
-        window_label = 'Choose a table to import the {} nodal load'.format(text)
-        self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
-
-        if self.path_imported_table == "":
-            return "", ""
-
-        self.basename = os.path.basename(self.path_imported_table)
-        lineEdit.setText(self.path_imported_table)
-        if self.basename != "":
-            self.imported_table_name = self.basename
-        
-        self.project.create_folders_structural("nodal_loads_tables")
-        self.new_load_path_table = get_new_path(self.nodal_loads_tables_folder_path, self.basename)
-
-        try:                
-            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
-        except Exception as log_error:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
-            PrintMessageInput([title, message, window_title])
-            return
-
-        if imported_file.shape[1]<2:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = "The imported table has insufficient number of columns. The spectrum \n"
-            message += "data must have frequencies, real and imaginary columns."
-            PrintMessageInput([title, message, window_title])
-            return
-    
+    def load_table(self, lineEdit, label):
+        window_title = "ERROR"
+        title = "Error reached while loading table"
         try:
-            self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-            if imported_file.shape[1]>2:
+            if lineEdit.text() == "" or not self.copy_path:
 
+                self.basename = ""
+                self.imported_filename = ""
+                window_label = f"Choose a table to import the '{label}' nodal load"
+                self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
+
+                if self.path_imported_table == "":
+                    return None, None
+
+                self.basename = os.path.basename(self.path_imported_table)
+                lineEdit.setText(self.path_imported_table)
+                
+                for format in [".csv", ".dat", ".txt"]:
+                    if format in self.basename:
+                        self.imported_filename = self.basename.split(format)[0]
+                
+            else:
+
+                self.path_imported_table = lineEdit.text()
+                self.basename = os.path.basename(self.path_imported_table)
+                for format in [".csv", ".dat", ".txt"]:
+                    if format in self.basename:
+                        first_string = self.basename.split(format)[0]
+                        self.imported_filename = first_string.split(f"_{label}_node")[0]
+               
+            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+
+            if imported_file.shape[1]<2:
+                message = "The imported table has insufficient number of columns. The spectrum \n"
+                message += "data must have frequencies, real and imaginary columns."
+                PrintMessageInput([title, message, window_title])
+                lineEdit.setFocus()
+                return None, None
+        
+            self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
+            
+            if imported_file.shape[1]>2:
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
-                self.f_step = self.frequencies[1] - self.frequencies[0] 
-                self.imported_table = True
+                self.f_step = self.frequencies[1] - self.frequencies[0]
 
-                real_values = np.real(self.imported_values)
-                imag_values = np.imag(self.imported_values)
-                abs_values = np.abs(self.imported_values)
-                data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
-                np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
+                if self.list_frequencies == []:
+                    self.list_frequencies = list(self.frequencies)
+                else:
+                    if self.list_frequencies == list(self.frequencies):
+                        if self.project.change_project_frequency_setup(label, self.list_frequencies):
+                            self.stop = True
+                        else:
+                            self.stop = False
+                    else:
+                        self.stop = True
 
         except Exception as log_error:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
+            message = str(log_error)
             PrintMessageInput([title, message, window_title])
-
-        return self.imported_values, self.basename
+            lineEdit.setFocus()
+            return None, None
+        
+        return self.imported_values, self.imported_filename
 
     def load_Fx_table(self):
-        header = "Fx || Frequency [Hz], real[N], imaginary[N], absolute[N]"
-        self.Fx_table, self.basename_Fx = self.load_table(self.lineEdit_path_table_Fx, "Fx", header)
+        self.Fx_table, self.Fx_filename = self.load_table(self.lineEdit_path_table_Fx, "Fx")
+        if self.stop:
+            self.stop = False
+            self.Fx_table, self.Fx_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_Fx, "Fx")
 
     def load_Fy_table(self):
-        header = "Fy || Frequency [Hz], real[N], imaginary[N], absolute[N]"
-        self.Fy_table, self.basename_Fy = self.load_table(self.lineEdit_path_table_Fy, "Fy", header)
+        self.Fy_table, self.Fy_filename = self.load_table(self.lineEdit_path_table_Fy, "Fy")
+        if self.stop:
+            self.stop = False
+            self.Fy_table, self.Fy_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_Fy, "Fy")
 
     def load_Fz_table(self):
-        header = "Fz || Frequency [Hz], real[N], imaginary[N], absolute[N]"
-        self.Fz_table, self.basename_Fz = self.load_table(self.lineEdit_path_table_Fz, "Fz", header)
+        self.Fz_table, self.Fz_filename = self.load_table(self.lineEdit_path_table_Fz, "Fz")
+        if self.stop:
+            self.stop = False
+            self.Fz_table, self.Fz_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_Fz, "Fz")
 
     def load_Mx_table(self):
-        header = "Mx || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
-        self.Mx_table, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx", header)
+        self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx")
+        if self.stop:
+            self.stop = False
+            self.Mx_table, self.Mx_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_Mx, "Mx")
 
     def load_My_table(self):
-        header = "My || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
-        self.My_table, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My", header)
+        self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My")
+        if self.stop:
+            self.stop = False
+            self.My_table, self.My_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_My, "My")
 
     def load_Mz_table(self):
-        header = "Mz || Frequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
-        self.Mz_table, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz", header)
+        self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz")
+        if self.stop:
+            self.stop = False
+            self.Mz_table, self.Mz_filename = None, None
+            self.tables_frequency_setup_message(self.lineEdit_path_table_Mz, "Mz")
+
+    def save_tables_files(self, node_id, values, filename, dof_label):
+
+        real_values = np.real(values)
+        imag_values = np.imag(values)
+        abs_values = np.abs(values)
+        data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
+        self.project.create_folders_structural("nodal_loads_files")
+
+        header = f"OpenPulse - imported table for Nodal load {dof_label.capitalize()} @ node {node_id} \n"
+        header += "Frequency [Hz], real[N], imaginary[N], absolute[N]"
+        basename = filename + f"_{dof_label}_node{node_id}.dat"
+    
+        new_path_table = get_new_path(self.nodal_loads_files_folder_path, basename)
+        np.savetxt(new_path_table, data, delimiter=",", header=header)
+
+        return values, basename
 
     def check_table_values(self):
 
@@ -316,40 +366,88 @@ class LoadsInput(QDialog):
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
+        list_table_names = self.get_table_names_from_selected_nodes(self.nodes_typed)
 
-        Fx = Fy = Fz = None
-        if self.lineEdit_path_table_Fx != "":
-            if self.Fx_table is not None:
-                Fx = self.Fx_table
-        if self.lineEdit_path_table_Fy != "":
-            if self.Fy_table is not None:
-                Fy = self.Fy_table
-        if self.lineEdit_path_table_Fz != "":
-            if self.Fz_table is not None:
-                Fz = self.Fz_table
+        for node_id in self.nodes_typed:
+            Fx = Fy = Fz = None
+            self.copy_path = False
+            if self.lineEdit_path_table_Fx.text() != "":
+                if self.Fx_filename is None:
+                    self.copy_path = True
+                    self.load_Fx_table()
+                if self.Fx_table is not None:
+                    Fx, self.Fx_basename = self.save_tables_files(node_id, self.Fx_table, self.Fx_filename, "fx")
+            self.copy_path = False
+            if self.lineEdit_path_table_Fy.text() != "":
+                if self.Fy_filename is None:
+                    self.copy_path = True
+                    self.load_Fy_table()
+                if self.Fy_table is not None:
+                    Fy, self.Fy_basename = self.save_tables_files(node_id, self.Fy_table, self.Fy_filename, "fy")
+            self.copy_path = False
+            if self.lineEdit_path_table_Fz.text() != "":
+                if self.Fz_filename is None:
+                    self.copy_path = True
+                    self.load_Fz_table()           
+                if self.Fz_table is not None:
+                    Fz, self.Fz_basename = self.save_tables_files(node_id, self.Fz_table, self.Fz_filename, "fz")
+            self.copy_path = False
+            Mx = My = Mz = None
+            if self.lineEdit_path_table_Mx.text() != "":
+                if self.Mx_filename is None:
+                    self.copy_path = True
+                    self.load_Mx_table()            
+                if self.Mx_table is not None:
+                    Mx, self.Mx_basename = self.save_tables_files(node_id, self.Mx_table, self.Mx_filename, "mx")
+            self.copy_path = False
+            if self.lineEdit_path_table_My.text() != "":
+                if self.My_filename is None:
+                    self.copy_path = True
+                    self.load_My_table()             
+                if self.My_table is not None:
+                    My, self.My_basename = self.save_tables_files(node_id, self.My_table, self.My_filename, "my")
+            self.copy_path = False
+            if self.lineEdit_path_table_Mz.text() != "":
+                if self.Mz_filename is None:
+                    self.copy_path = True
+                    self.load_Mz_table()              
+                if self.Mz_table is not None:
+                    Mz, self.Mz_basename = self.save_tables_files(node_id, self.Mz_table, self.Mz_filename, "mz")
 
-        Mx = My = Mz = None
-        if self.lineEdit_path_table_Mx != "":
-            if self.Mx_table is not None:
-                Mx = self.Mx_table
-        if self.lineEdit_path_table_My != "":
-            if self.My_table is not None:
-                My = self.My_table
-        if self.lineEdit_path_table_Mz != "":
-            if self.Mz_table is not None:
-                Mz = self.Mz_table
+            self.basenames = [  self.Fx_basename, self.Fy_basename, self.Fz_basename, 
+                                self.Mx_basename, self.My_basename, self.Mz_basename  ]
+            self.loads = [Fx, Fy, Fz, Mx, My, Mz]
+            data = [self.loads, self.basenames]
+                        
+            if self.basenames == self.list_Nones:
+                window_title ="ERROR"
+                title = "Additional inputs required"
+                message = "You must inform at least one nodal load\n"
+                message += "table path before confirming the input!"
+                PrintMessageInput([title, message, window_title]) 
+                return 
 
-        self.basenames = [  self.basename_Fx, 
-                            self.basename_Fy, 
-                            self.basename_Fz, 
-                            self.basename_Mx, 
-                            self.basename_My, 
-                            self.basename_Mz  ]
-        self.loads = [Fx, Fy, Fz, Mx, My, Mz]
-        data = [self.loads, self.basenames]
-        self.project.set_loads_by_node(self.nodes_typed, data, True)
+            for basename in self.basenames:
+                if basename in list_table_names:
+                    list_table_names.remove(basename)
+
+            self.project.set_nodal_loads_by_node([node_id], data, True)
+
+        self.process_table_file_removal(list_table_names)
+        print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}") 
         self.transform_points(self.nodes_typed)
         self.close()
+
+    def tables_frequency_setup_message(self, lineEdit, label):
+        window_title = "ERROR"
+        title = f"Invalid frequency setup of the '{label}' imported table"
+        message = f"The frequency setup from '{label}' selected table mismatches\n"
+        message += f"the frequency setup from previously imported tables.\n"
+        message += f"All imported tables must have the same frequency\n"
+        message += f"setup to avoid errors in the model processing."
+        PrintMessageInput([title, message, window_title])
+        lineEdit.setText("")
+        lineEdit.setFocus()
 
     def text_label(self, mask):
         
@@ -393,42 +491,33 @@ class LoadsInput(QDialog):
         if self.stop:
             return
         key_strings = ["forces", "moments"]
-        message = "The nodal loads attributed to the {} node(s) have been removed.".format(self.nodes_typed)
+        message = f"The nodal loads attributed to the {self.nodes_typed} node(s) have been removed."
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
-        self.remove_nodal_loads_table_files()
-        self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, [None, None, None, None, None, None])
+        self.remove_all_table_files_from_nodes(self.nodes_typed)
+        data = [self.list_Nones, self.list_Nones]
+        self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
         self.transform_points(self.nodes_typed)
         self.load_nodes_info()
         self.close()
 
-    def remove_nodal_loads_table_files(self):
-        for node_typed in self.nodes_typed:
-            node = self.preprocessor.nodes[node_typed]
+    def get_table_names_from_selected_nodes(self, list_node_ids):
+        table_names_from_nodes = []
+        for node_id in list_node_ids:
+            node = self.preprocessor.nodes[node_id]
             if node.loaded_table_for_nodal_loads:
-                list_table_names = node.nodal_loads_table_names
-                self.confirm_table_file_removal(list_table_names, "Nodal loads")
+                for table_name in node.nodal_loads_table_names:
+                    if table_name is not None:
+                        if table_name not in table_names_from_nodes:
+                            table_names_from_nodes.append(table_name)
+        return table_names_from_nodes
+    
+    def remove_all_table_files_from_nodes(self, list_node_ids):
+        list_table_names = self.get_table_names_from_selected_nodes(list_node_ids)
+        self.process_table_file_removal(list_table_names)
 
-    def confirm_table_file_removal(self, list_table_names, label):
-        _list_table_names = []
+    def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:
-            if table_name is not None:
-                if table_name not in _list_table_names:
-                    _list_table_names.append(table_name)
-
-        title = f"{label} - removal of imported table files"
-        message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
-        for _table_name in _list_table_names:
-            message += f"{_table_name}\n"
-        message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message)
-
-        if read._doNotRun:
-            return
-
-        if read._continue:
-            for _table_name in _list_table_names:
-                self.project.remove_structural_table_files_from_folder(_table_name, folder_name="nodal_loads_tables")
-            # self.project.remove_structural_empty_folders(folder_name="lumped_elements_tables")   
+            self.project.remove_structural_table_files_from_folder(table_name, folder_name="nodal_loads_files")
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
@@ -451,7 +540,7 @@ class LoadsInput(QDialog):
                     self.tabWidget_nodal_loads.setCurrentWidget(self.tab_table_values)
                     for index, lineEdit_table in enumerate(self.list_lineEdit_table_values):
                         if table_names[index] is not None:
-                            table_name = get_new_path(self.nodal_loads_tables_folder_path, table_names[index])
+                            table_name = get_new_path(self.nodal_loads_files_folder_path, table_names[index])
                             lineEdit_table.setText(table_name)
                 else:
                     nodal_loads = node.nodal_loads
@@ -464,3 +553,9 @@ class LoadsInput(QDialog):
             else:
                 self.reset_input_fields()
             self.writeNodes(self.opv.getListPickedPoints())
+    
+    def writeNodes(self, list_node_ids):
+        text = ""
+        for node in list_node_ids:
+            text += f"{node}, "
+        self.lineEdit_nodeID.setText(text[:-2])

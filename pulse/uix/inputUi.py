@@ -81,7 +81,7 @@ class InputUi:
         self.prescribed_dofs_frequencies = None
         self.project.none_project_action = False
         self.setup_analysis_complete = False
-        self.flag_imported_table = False
+        # self.flag_imported_table = False
 
     def beforeInput(self):
         try:
@@ -171,27 +171,15 @@ class InputUi:
         BeamXaxisRotationInput(self.project, self.opv)
 
     def setDOF(self):
-        read = DOFInput(self.project, self.opv)
-        if read.prescribed_dofs is None:
-            return
-        if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)  
-            self.flag_imported_table = True   
-        print("[Set Prescribed DOF] - defined at node(s) {}".format(read.nodes_typed))
-
+        DOFInput(self.project, self.opv)   
+        
     def setRotationDecoupling(self):
         read = DecouplingRotationDOFsInput(self.project, self.opv)  
         if read.complete:
             print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
     def setNodalLoads(self):
-        read = LoadsInput(self.project, self.opv)
-        if read.loads is None:
-            return
-        if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
-            self.flag_imported_table = True
-        print("[Set Nodal Load] - defined at node(s) {}".format(read.nodes_typed))
+        LoadsInput(self.project, self.opv)
         
     def addMassSpringDamper(self):
         MassSpringDamperInput(self.project, self.opv)
@@ -224,58 +212,26 @@ class InputUi:
             return
 
     def setAcousticPressure(self):
-        read = AcousticPressureInput(self.project, self.opv)
-        if read.acoustic_pressure is None:
-            return
-        if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
-            self.flag_imported_table = True
-        self.opv.updateRendererMesh()
-        print("[Set Acoustic Pressure] - defined at node(s) {}".format(read.nodes_typed))
-
+        AcousticPressureInput(self.project, self.opv)
+    
     def setVolumeVelocity(self):
-        read = VolumeVelocityInput(self.project, self.opv)
-        if read.volume_velocity is None:
-            return
-        if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
-            self.flag_imported_table = True
-        self.opv.updateRendererMesh()
-        print("[Set Volume Velocity Source] - defined at node(s) {}".format(read.nodes_typed))
+        VolumeVelocityInput(self.project, self.opv)
 
     def setSpecificImpedance(self):
-        read = SpecificImpedanceInput(self.project, self.opv)
-        if read.specific_impedance is None:
-            return
-        if read.imported_table:
-            self.prescribed_dofs_frequencies = self._load_frequencies_from_table(read)
-            self.flag_imported_table = True
-        self.opv.updateRendererMesh()
-        print("[Set Specific Impedance] - defined at node(s) {}".format(read.nodes_typed))
+        SpecificImpedanceInput(self.project, self.opv)
     
     def set_radiation_impedance(self):
-        read = RadiationImpedanceInput(self.project, self.opv)
-
-        if read.radiation_impedance is None:
-            return
-        else:
-            self.project.set_radiation_impedance_bc_by_node(read.nodes_typed, read.radiation_impedance)
-            self.opv.updateRendererMesh()
-            print("[Set Radiation Impedance] - defined at node(s) {}".format(read.nodes_typed))
+        RadiationImpedanceInput(self.project, self.opv)
 
     def add_perforated_plate(self):
-        read = PerforatedPlateInput(self.project, self.opv)
-        if read.type_label is None:
-            return
+        PerforatedPlateInput(self.project, self.opv)
 
     def set_acoustic_element_length_correction(self):
-        read = AcousticElementLengthCorrectionInput(self.project, self.opv)
-        if read.type_label is None:
-            return
+        AcousticElementLengthCorrectionInput(self.project, self.opv)
 
     def add_compressor_excitation(self):
         CompressorModelInput(self.project, self.opv)
-        self.opv.updateRendererMesh()
+        # self.opv.updateRendererMesh()
         return                                 
 
     def analysisTypeInput(self):
@@ -309,23 +265,26 @@ class InputUi:
     def analysisSetup(self):
 
         if self.project.analysis_ID in [None, 2, 4]:
-            return
+            return False
         if self.project.file._project_name == "":
-            return
+            return False
 
         #TODO: simplify the structure below
-        if self.project.file.temp_table_name is None:
-            self.project.load_analysis_file()
-            self.f_min, self.f_max, self.f_step = self.project.f_min, self.project.f_max, self.project.f_step 
-        else:
-            self.project.load_frequencies_from_table()
-            self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
+        # if self.project.file.temp_table_name is None:
+        self.project.load_analysis_file()
+        self.f_min, self.f_max, self.f_step = self.project.get_frequency_setup() 
+        # else:
+        #     self.project.load_frequencies_from_table()
+        #     self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
 
         self.global_damping = self.project.global_damping    
-        read = AnalysisSetupInput(self.project, f_min = self.f_min, f_max = self.f_max, f_step = self.f_step)
+        read = AnalysisSetupInput(self.project, f_min=self.f_min, f_max=self.f_max, f_step=self.f_step)
 
-        if not read.complete and self.project.setup_analysis_complete:
-            return
+        if not read.complete:
+            return False
+
+        if self.project.setup_analysis_complete:
+            return False
 
         self.frequencies = read.frequencies
         self.f_min = read.f_min
@@ -334,14 +293,14 @@ class InputUi:
         self.global_damping = read.global_damping
         self.setup_analysis_complete = read.complete
 
-        if not read.complete:
+        if read.complete:
+            self.project.setup_analysis_complete = True
+        else:
             self.project.setup_analysis_complete = False
             return False
-        else:
-            self.project.setup_analysis_complete = True
-
+        
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-        self.flag_imported_table = False
+        # self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
             self.project.set_modes_sigma(read.modes)
@@ -363,9 +322,9 @@ class InputUi:
             PrintMessageInput([title, message, window_title_1])
             return
 
-        if self.flag_imported_table:
-            if self.analysisSetup():
-                return
+        # if self.flag_imported_table:
+        #     if self.analysisSetup():
+        #         return
 
         self.before_run = self.project.get_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
@@ -494,13 +453,13 @@ class InputUi:
         AcousticModelInfoInput(self.project, self.opv)
 
 
-    def _load_frequencies_from_table(self, _read):
-        self.project.file.f_min = _read.f_min
-        self.project.file.f_max = _read.f_max
-        self.project.file.f_step = _read.f_step
-        self.project.file.frequencies = _read.frequencies
-        self.project.file.temp_table_name = _read.imported_table_name  
-        return _read.frequencies 
+    # def _load_frequencies_from_table(self, _read):
+    #     self.project.file.f_min = _read.f_min
+    #     self.project.file.f_max = _read.f_max
+    #     self.project.file.f_step = _read.f_step
+    #     self.project.file.frequencies = _read.frequencies
+    #     # self.project.file.temp_table_name = _read.imported_table_name  
+    #     # return _read.frequencies 
     
 
     def check_acoustic_bc_tables(self):

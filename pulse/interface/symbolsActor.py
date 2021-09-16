@@ -375,7 +375,7 @@ class SymbolsActor(vtkActorBase):
         col = (255,10,10)
         symbols = []
 
-        if (node.volume_velocity is not None) and (node.compressor_connection_info is None):
+        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
 
@@ -430,7 +430,7 @@ class SymbolsActor(vtkActorBase):
         col = (255,10,10)
         symbols = []
 
-        if (node.volume_velocity is not None) and (node.compressor_connection_info is not None):
+        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
             symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
         return symbols
     
