@@ -182,20 +182,20 @@ class VolumeVelocityInput(QDialog):
                 self.path_imported_table = lineEdit.text()
                 
             else:
-                self.basename = ""
+                # self.basename = ""
                 window_label = 'Choose a table to import the volume velocity'
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
             if self.path_imported_table == "":
                 return None, None
 
-            self.basename = os.path.basename(self.path_imported_table)
+            self.imported_filename = os.path.basename(self.path_imported_table)
             lineEdit.setText(self.path_imported_table)
            
-            for _format in [".csv", ".dat", ".txt"]:
-                if _format in self.basename:
-                    first_string = self.basename.split(_format)[0]
-                    self.imported_filename = first_string.split(f"_node")[0]
+            # for _format in [".csv", ".dat", ".txt"]:
+            #     if _format in self.basename:
+            #         first_string = self.basename.split(_format)[0]
+            #         self.imported_filename = first_string.split(f"_node")[0]
             
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
 
@@ -243,7 +243,8 @@ class VolumeVelocityInput(QDialog):
             data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
 
             header = f"OpenPulse - imported table for volume velocity @ node {node_id} \n"
-            header += "Frequency [Hz], real[m³/s], imaginary[m³/s], absolute[m³/s]"
+            header += f"\nSource filename: {filename}\n"
+            header += "\nFrequency [Hz], real[m³/s], imaginary[m³/s], absolute[m³/s]"
             basename = filename + f"_node{node_id}.dat"
             
             new_path_table = get_new_path(self.volume_velocity_tables_folder_path, basename)

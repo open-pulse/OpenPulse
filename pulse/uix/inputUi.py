@@ -150,8 +150,7 @@ class InputUi:
                                 
         if mat.material is None:
             return
-
-            
+         
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
         read = CrossSectionInput(   self.project, 
                                     self.opv, 
@@ -185,17 +184,13 @@ class InputUi:
         MassSpringDamperInput(self.project, self.opv)
 
     def setcappedEnd(self):
-        read = CappedEndInput(self.project, self.opv)
-        if not read.complete:
-            return
+        CappedEndInput(self.project, self.opv)
 
     def set_stress_stress_stiffening(self):
         StressStiffeningInput(self.project, self.opv)
-        return
 
     def add_elastic_nodal_links(self):
         ElasticNodalLinksInput(self.project, self.opv)
-        return
     
     def add_expansion_joint(self):
         ExpansionJointInput(self.project, self.opv)

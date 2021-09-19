@@ -49,6 +49,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.pushButton_leftButton.setText(self.leftButton_label)
         self.pushButton_leftButton.clicked.connect(self.force_to_close)
         self._doNotRun = True
+        self._stop = True
         self.exec_()
 
     def confirm_action(self):

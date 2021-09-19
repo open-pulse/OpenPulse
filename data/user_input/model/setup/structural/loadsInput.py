@@ -42,7 +42,6 @@ class LoadsInput(QDialog):
         self.loads = None
         self.nodes_typed = []
         self.inputs_from_node = False
-        self.copy_path = False
         self.basenames = []
         self.list_Nones = [None, None, None, None, None, None]
 
@@ -235,115 +234,108 @@ class LoadsInput(QDialog):
             message += "before confirming the input!"
             PrintMessageInput([title, message, window_title]) 
             
-    def load_table(self, lineEdit, label):
+    def load_table(self, lineEdit, load_label, direct_load=False):
         window_title = "ERROR"
         title = "Error reached while loading table"
         try:
-            if lineEdit.text() == "" or not self.copy_path:
+            if direct_load:
+                self.path_imported_table = lineEdit.text()
 
-                self.basename = ""
-                self.imported_filename = ""
-                window_label = f"Choose a table to import the '{label}' nodal load"
+            else:
+                # self.basename = ""
+                window_label = 'Choose a table to import the {} nodal load'.format(load_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
-                if self.path_imported_table == "":
-                    return None, None
-
-                self.basename = os.path.basename(self.path_imported_table)
-                lineEdit.setText(self.path_imported_table)
-                
-                for format in [".csv", ".dat", ".txt"]:
-                    if format in self.basename:
-                        self.imported_filename = self.basename.split(format)[0]
-                
-            else:
-
-                self.path_imported_table = lineEdit.text()
-                self.basename = os.path.basename(self.path_imported_table)
-                for format in [".csv", ".dat", ".txt"]:
-                    if format in self.basename:
-                        first_string = self.basename.split(format)[0]
-                        self.imported_filename = first_string.split(f"_{label}_node")[0]
-               
+            if self.path_imported_table == "":
+                return None, None
+            
+            self.imported_filename  = os.path.basename(self.path_imported_table)
+            lineEdit.setText(self.path_imported_table)
+            # _load_label = load_label.lower().replace(" ", "_")
+            # for ext_format in [".csv", ".dat", ".txt"]:
+            #     if ext_format in self.basename:
+            #         prefix_string = self.basename.split(ext_format)[0]
+            #         self.imported_filename = prefix_string.split(f"_{_load_label}_node_")[0]
+            
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
-
+        
             if imported_file.shape[1]<2:
                 message = "The imported table has insufficient number of columns. The spectrum \n"
                 message += "data must have frequencies, real and imaginary columns."
                 PrintMessageInput([title, message, window_title])
                 lineEdit.setFocus()
                 return None, None
-        
+
             self.imported_values = imported_file[:,1] + 1j*imported_file[:,2]
-            
+
             if imported_file.shape[1]>2:
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0]
 
-                if self.list_frequencies == []:
-                    self.list_frequencies = list(self.frequencies)
+                if self.project.change_project_frequency_setup(load_label, list(self.frequencies)):
+                    self.stop = True
+                    return None, None
                 else:
-                    if self.list_frequencies == list(self.frequencies):
-                        if self.project.change_project_frequency_setup(label, self.list_frequencies):
-                            self.stop = True
-                        else:
-                            self.stop = False
-                    else:
-                        self.stop = True
+                    self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+                    self.stop = False
+            
+            return self.imported_values, self.imported_filename
 
         except Exception as log_error:
             message = str(log_error)
             PrintMessageInput([title, message, window_title])
             lineEdit.setFocus()
             return None, None
-        
-        return self.imported_values, self.imported_filename
 
     def load_Fx_table(self):
         self.Fx_table, self.Fx_filename = self.load_table(self.lineEdit_path_table_Fx, "Fx")
         if self.stop:
             self.stop = False
-            self.Fx_table, self.Fx_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_Fx, "Fx")
+            self.ux_table, self.ux_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Fx)
 
     def load_Fy_table(self):
         self.Fy_table, self.Fy_filename = self.load_table(self.lineEdit_path_table_Fy, "Fy")
         if self.stop:
             self.stop = False
             self.Fy_table, self.Fy_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_Fy, "Fy")
+            self.lineEdit_reset(self.lineEdit_path_table_Fy)
 
     def load_Fz_table(self):
         self.Fz_table, self.Fz_filename = self.load_table(self.lineEdit_path_table_Fz, "Fz")
         if self.stop:
             self.stop = False
             self.Fz_table, self.Fz_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_Fz, "Fz")
+            self.lineEdit_reset(self.lineEdit_path_table_Fz)
 
     def load_Mx_table(self):
         self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx")
         if self.stop:
             self.stop = False
             self.Mx_table, self.Mx_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_Mx, "Mx")
+            self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
         self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My")
         if self.stop:
             self.stop = False
             self.My_table, self.My_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_My, "My")
+            self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
         self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz")
         if self.stop:
             self.stop = False
             self.Mz_table, self.Mz_filename = None, None
-            self.tables_frequency_setup_message(self.lineEdit_path_table_Mz, "Mz")
+            self.lineEdit_reset(self.lineEdit_path_table_Mz)
 
-    def save_tables_files(self, node_id, values, filename, dof_label):
+    def lineEdit_reset(self, lineEdit):
+        lineEdit.setText("")
+        lineEdit.setFocus()
+
+    def save_tables_files(self, node_id, values, filename, load_label):
 
         real_values = np.real(values)
         imag_values = np.imag(values)
@@ -351,9 +343,16 @@ class LoadsInput(QDialog):
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
         self.project.create_folders_structural("nodal_loads_files")
 
-        header = f"OpenPulse - imported table for Nodal load {dof_label.capitalize()} @ node {node_id} \n"
-        header += "Frequency [Hz], real[N], imaginary[N], absolute[N]"
-        basename = filename + f"_{dof_label}_node{node_id}.dat"
+        header = f"OpenPulse - imported table for Nodal load {load_label} @ node {node_id} \n"
+        header += f"\nSource filename: {filename}\n"
+
+        if load_label in ["Fx", "Fy", "Fz"]:
+            header += "\nFrequency [Hz], real[N], imaginary[N], absolute[N]"
+        else:
+            header += "\nFrequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
+        
+        basename = f"nodal_load_{load_label}_node_{node_id}.dat"    
+        # basename = filename + f"_{load_label}_node_{node_id}.dat"
     
         new_path_table = get_new_path(self.nodal_loads_files_folder_path, basename)
         np.savetxt(new_path_table, data, delimiter=",", header=header)
@@ -370,49 +369,49 @@ class LoadsInput(QDialog):
 
         for node_id in self.nodes_typed:
             Fx = Fy = Fz = None
-            self.copy_path = False
+            
             if self.lineEdit_path_table_Fx.text() != "":
-                if self.Fx_filename is None:
-                    self.copy_path = True
-                    self.load_Fx_table()
+                if self.Fx_table is None:
+                    if self.Fx_filename is None:
+                        self.Fx_table, self.Fx_filename = self.load_table(self.lineEdit_path_table_Fx, "Fx", direct_load=True)
                 if self.Fx_table is not None:
-                    Fx, self.Fx_basename = self.save_tables_files(node_id, self.Fx_table, self.Fx_filename, "fx")
-            self.copy_path = False
+                    Fx, self.Fx_basename = self.save_tables_files(node_id, self.Fx_table, self.Fx_filename, "Fx")
+            
             if self.lineEdit_path_table_Fy.text() != "":
-                if self.Fy_filename is None:
-                    self.copy_path = True
-                    self.load_Fy_table()
+                if self.Fy_table is None:
+                    if self.Fy_filename is None:
+                        self.Fy_table, self.Fy_filename = self.load_table(self.lineEdit_path_table_Fy, "Fy", direct_load=True)
                 if self.Fy_table is not None:
-                    Fy, self.Fy_basename = self.save_tables_files(node_id, self.Fy_table, self.Fy_filename, "fy")
-            self.copy_path = False
+                    Fy, self.Fy_basename = self.save_tables_files(node_id, self.Fy_table, self.Fy_filename, "Fy")
+            
             if self.lineEdit_path_table_Fz.text() != "":
-                if self.Fz_filename is None:
-                    self.copy_path = True
-                    self.load_Fz_table()           
+                if self.Fz_table is None:
+                    if self.Fz_filename is None:
+                        self.Fz_table, self.Fz_filename = self.load_table(self.lineEdit_path_table_Fz, "Fz", direct_load=True)           
                 if self.Fz_table is not None:
-                    Fz, self.Fz_basename = self.save_tables_files(node_id, self.Fz_table, self.Fz_filename, "fz")
-            self.copy_path = False
+                    Fz, self.Fz_basename = self.save_tables_files(node_id, self.Fz_table, self.Fz_filename, "Fz")
+            
             Mx = My = Mz = None
             if self.lineEdit_path_table_Mx.text() != "":
-                if self.Mx_filename is None:
-                    self.copy_path = True
-                    self.load_Mx_table()            
+                if self.Mx_table is None:
+                    if self.Mx_filename is None:
+                        self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx", direct_load=True)            
                 if self.Mx_table is not None:
-                    Mx, self.Mx_basename = self.save_tables_files(node_id, self.Mx_table, self.Mx_filename, "mx")
-            self.copy_path = False
+                    Mx, self.Mx_basename = self.save_tables_files(node_id, self.Mx_table, self.Mx_filename, "Mx")
+            
             if self.lineEdit_path_table_My.text() != "":
-                if self.My_filename is None:
-                    self.copy_path = True
-                    self.load_My_table()             
+                if self.My_table is None:
+                    if self.My_filename is None:
+                        self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My", direct_load=True)             
                 if self.My_table is not None:
-                    My, self.My_basename = self.save_tables_files(node_id, self.My_table, self.My_filename, "my")
-            self.copy_path = False
+                    My, self.My_basename = self.save_tables_files(node_id, self.My_table, self.My_filename, "My")
+            
             if self.lineEdit_path_table_Mz.text() != "":
-                if self.Mz_filename is None:
-                    self.copy_path = True
-                    self.load_Mz_table()              
+                if self.Mz_table is None:
+                    if self.Mz_filename is None:
+                        self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz", direct_load=True)              
                 if self.Mz_table is not None:
-                    Mz, self.Mz_basename = self.save_tables_files(node_id, self.Mz_table, self.Mz_filename, "mz")
+                    Mz, self.Mz_basename = self.save_tables_files(node_id, self.Mz_table, self.Mz_filename, "Mz")
 
             self.basenames = [  self.Fx_basename, self.Fy_basename, self.Fz_basename, 
                                 self.Mx_basename, self.My_basename, self.Mz_basename  ]
@@ -437,17 +436,6 @@ class LoadsInput(QDialog):
         print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}") 
         self.transform_points(self.nodes_typed)
         self.close()
-
-    def tables_frequency_setup_message(self, lineEdit, label):
-        window_title = "ERROR"
-        title = f"Invalid frequency setup of the '{label}' imported table"
-        message = f"The frequency setup from '{label}' selected table mismatches\n"
-        message += f"the frequency setup from previously imported tables.\n"
-        message += f"All imported tables must have the same frequency\n"
-        message += f"setup to avoid errors in the model processing."
-        PrintMessageInput([title, message, window_title])
-        lineEdit.setText("")
-        lineEdit.setFocus()
 
     def text_label(self, mask):
         
@@ -486,12 +474,13 @@ class LoadsInput(QDialog):
         self.check_remove_bc_from_node()
 
     def check_remove_bc_from_node(self):
+        self.basenames = []
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
         key_strings = ["forces", "moments"]
-        message = f"The nodal loads attributed to the {self.nodes_typed} node(s) have been removed."
+        message = f"The nodal load(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.remove_all_table_files_from_nodes(self.nodes_typed)
         data = [self.list_Nones, self.list_Nones]
@@ -559,3 +548,14 @@ class LoadsInput(QDialog):
         for node in list_node_ids:
             text += f"{node}, "
         self.lineEdit_nodeID.setText(text[:-2])
+
+    # def tables_frequency_setup_message(self, lineEdit, label):
+    #     window_title = "ERROR"
+    #     title = f"Invalid frequency setup of the '{label}' imported table"
+    #     message = f"The frequency setup from '{label}' selected table mismatches\n"
+    #     message += f"the frequency setup from previously imported tables.\n"
+    #     message += f"All imported tables must have the same frequency\n"
+    #     message += f"setup to avoid errors in the model processing."
+    #     PrintMessageInput([title, message, window_title])
+    #     lineEdit.setText("")
+    #     lineEdit.setFocus()

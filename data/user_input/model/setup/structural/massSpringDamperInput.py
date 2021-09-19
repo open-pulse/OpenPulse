@@ -49,6 +49,7 @@ class MassSpringDamperInput(QDialog):
         self.lumped_masses = None
         self.lumped_stiffness = None
         self.lumped_dampings = None
+        self.list_Nones = [None, None, None, None, None, None]
         self.lumped_masses_inputs_from_node = False
         self.lumped_stiffness_inputs_from_node = False
         self.lumped_dampings_inputs_from_node = False
@@ -133,12 +134,19 @@ class MassSpringDamperInput(QDialog):
         self.Jy_table = None
         self.Jz_table = None
 
-        self.basename_Mx = None
-        self.basename_My = None
-        self.basename_Mz = None
-        self.basename_Jx = None
-        self.basename_Jy = None
-        self.basename_Jz = None
+        self.Mx_filename = None
+        self.My_filename = None
+        self.Mz_filename = None
+        self.Jx_filename = None
+        self.Jy_filename = None
+        self.Jz_filename = None
+
+        self.Mx_basename = None
+        self.My_basename = None
+        self.Mz_basename = None
+        self.Jx_basename = None
+        self.Jy_basename = None
+        self.Jz_basename = None
 
         self.lineEdit_path_table_Kx = self.findChild(QLineEdit, 'lineEdit_path_table_Kx')
         self.lineEdit_path_table_Ky = self.findChild(QLineEdit, 'lineEdit_path_table_Ky')
@@ -175,12 +183,19 @@ class MassSpringDamperInput(QDialog):
         self.Kry_table = None
         self.Krz_table = None
 
-        self.basename_Kx = None
-        self.basename_Ky = None
-        self.basename_Kz = None
-        self.basename_Krx = None
-        self.basename_Kry = None
-        self.basename_Krz = None
+        self.Kx_filename = None
+        self.Ky_filename = None
+        self.Kz_filename = None
+        self.Krx_filename = None
+        self.Kry_filename = None
+        self.Krz_filename = None
+
+        self.Kx_basename = None
+        self.Ky_basename = None
+        self.Kz_basename = None
+        self.Krx_basename = None
+        self.Kry_basename = None
+        self.Krz_basename = None
 
         self.lineEdit_path_table_Cx = self.findChild(QLineEdit, 'lineEdit_path_table_Cx')
         self.lineEdit_path_table_Cy = self.findChild(QLineEdit, 'lineEdit_path_table_Cy')
@@ -217,12 +232,19 @@ class MassSpringDamperInput(QDialog):
         self.Cry_table = None
         self.Crz_table = None
 
-        self.basename_Cx = None
-        self.basename_Cy = None
-        self.basename_Cz = None
-        self.basename_Crx = None
-        self.basename_Cry = None
-        self.basename_Crz = None
+        self.Cx_filename = None
+        self.Cy_filename = None
+        self.Cz_filename = None
+        self.Crx_filename = None
+        self.Cry_filename = None
+        self.Crz_filename = None
+
+        self.Cx_basename = None
+        self.Cy_basename = None
+        self.Cz_basename = None
+        self.Crx_basename = None
+        self.Cry_basename = None
+        self.Crz_basename = None
 
         self.flag_lumped_masses = False
         self.flag_lumped_stiffness = False
@@ -361,6 +383,7 @@ class MassSpringDamperInput(QDialog):
             self.lumped_masses = lumped_masses
             table_names = [None, None, None, None, None, None]
             data = [lumped_masses, table_names]
+            self.remove_masses_table_files()
             self.project.add_lumped_masses_by_node(self.nodes_typed, data, False)
         
     def check_constant_values_lumped_stiffness(self):
@@ -396,6 +419,7 @@ class MassSpringDamperInput(QDialog):
             self.lumped_stiffness = lumped_stiffness
             table_names = [None, None, None, None, None, None]
             data = [lumped_stiffness, table_names]
+            self.remove_stiffness_table_files()
             self.project.add_lumped_stiffness_by_node(self.nodes_typed, data, False)
  
     def check_constant_values_lumped_dampings(self):
@@ -431,6 +455,7 @@ class MassSpringDamperInput(QDialog):
             self.lumped_dampings = lumped_dampings
             table_names = [None, None, None, None, None, None]
             data = [lumped_dampings, table_names]
+            self.remove_damping_table_files()
             self.project.add_lumped_dampings_by_node(self.nodes_typed, data, False)
 
     def check_all_constant_values_inputs(self):
@@ -446,7 +471,7 @@ class MassSpringDamperInput(QDialog):
         self.check_constant_values_lumped_dampings()
         if self.stop:
             return
-
+            
         if not (self.flag_lumped_masses or self.flag_lumped_stiffness or self.flag_lumped_dampings):
             window_title ="ERROR"
             title = "Additional inputs required"
@@ -465,191 +490,295 @@ class MassSpringDamperInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.close()
 
-    def load_table(self, lineEdit, text, header, direct_load=False):
-                
-        if direct_load:
-            self.path_imported_table = lineEdit.text()
-        else:
-            self.basename = ""
-            window_label = 'Choose a table to import the {} nodal load'.format(text)
-            self.path_imported_table, _type = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
-            lineEdit.setText(self.path_imported_table)
-
-        if self.path_imported_table == "":
-            return "", ""
-        
-        self.basename = os.path.basename(self.path_imported_table)
-        if self.basename != "":
-            self.imported_table_name = self.basename
-
-        self.project.create_folders_structural("lumped_elements_files")
-        self.new_load_path_table = get_new_path(self.lumped_elements_files_folder_path, self.basename)
-
-        try:                
-            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
-        except Exception as log_error:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
-            PrintMessageInput([title, message, window_title])
-            return
-
-        if imported_file.shape[1]<2:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = "The imported table has insufficient number of columns. The spectrum \n"
-            message += "data must have frequencies, real and imaginary columns."
-            PrintMessageInput([title, message, window_title])
-            return
-    
+    def load_table(self, lineEdit, _label, direct_load=False):
+        window_title = "ERROR"
+        title = "Error reached while loading table"
         try:
-            self.imported_values = imported_file[:,1]
-            if imported_file.shape[1]>=2:
+            if direct_load:
+                self.path_imported_table = lineEdit.text()
 
+            else:
+                self.basename = ""
+                window_label = 'Choose a table to import the {} nodal load'.format(_label)
+                self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
+
+            if self.path_imported_table == "":
+                return None, None
+            
+            self.basename = os.path.basename(self.path_imported_table)
+            lineEdit.setText(self.path_imported_table)
+          
+            for ext_format in [".csv", ".dat", ".txt"]:
+                if ext_format in self.basename:
+                    prefix_string = self.basename.split(ext_format)[0]
+                    self.imported_filename = prefix_string.split(f"_{_label}_node_")[0]
+                        
+            imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
+        
+            if imported_file.shape[1]<2:
+                message = "The imported table has insufficient number of columns. The imported \n"
+                message += "data must have two columns of values."
+                PrintMessageInput([title, message, window_title])
+                lineEdit.setFocus()
+                return None, None
+
+            if imported_file.shape[1]>=2:
+                self.imported_values = imported_file[:,1]
                 self.frequencies = imported_file[:,0]
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0]
-               
-                _values = self.imported_values
-                data = np.array([self.frequencies, _values, np.zeros_like(self.frequencies)]).T
-                np.savetxt(self.new_load_path_table, data, delimiter=",", header=header)
+
+                if self.project.change_project_frequency_setup(_label, list(self.frequencies)):
+                    self.stop = True
+                    return None, None
+                else:
+                    self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+                    self.stop = False
+            
+                return self.imported_values, self.imported_filename
 
         except Exception as log_error:
-            window_title ="ERROR"
-            title = "Error reached while loading table"
-            message = f" {str(log_error)} \n\nIt is recommended to skip the header rows."
+            message = str(log_error)
             PrintMessageInput([title, message, window_title])
-
-        return self.imported_values, self.basename
+            lineEdit.setFocus()
+            return None, None
 
     def load_Mx_table(self):
-        header = "Mx || Frequency [Hz], value[kg]"
-        self.Mx_table, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx", header)
+        self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx")
+        if self.stop:
+            self.stop = False
+            self.Mx_table, self.Mx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Mx)
 
     def load_My_table(self):
-        header = "My || Frequency [Hz], value[kg]"
-        self.My_table, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My", header)
+        self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My")
+        if self.stop:
+            self.stop = False
+            self.My_table, self.My_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_My)
 
     def load_Mz_table(self):
-        header = "Mz || Frequency [Hz], value[kg]"
-        self.Mz_table, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz", header)
+        self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz")
+        if self.stop:
+            self.stop = False
+            self.Mz_table, self.Mz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Mz)
     
     def load_Jx_table(self):
-        header = "Jx || Frequency [Hz], value[kg.m²]"
-        self.Jx_table, self.basename_Jx = self.load_table(self.lineEdit_path_table_Jx, "Fx", header)
-    
+        self.Jx_table, self.Jx_filename = self.load_table(self.lineEdit_path_table_Jx, "Jx")
+        if self.stop:
+            self.stop = False
+            self.Jx_table, self.Jx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Jx)
+
     def load_Jy_table(self):
-        header = "Jy || Frequency [Hz], value[kg.m²]"
-        self.Jy_table, self.basename_Jy = self.load_table(self.lineEdit_path_table_Jy, "Jy", header)
+        self.Jy_table, self.Jy_filename = self.load_table(self.lineEdit_path_table_Jy, "Jy")
+        if self.stop:
+            self.stop = False
+            self.Jy_table, self.Jy_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Jy)
 
     def load_Jz_table(self):
-        header = "Jz || Frequency [Hz], value[kg.m²]"
-        self.Jz_table, self.basename_Jz = self.load_table(self.lineEdit_path_table_Jz, "Jz", header)
+        self.Jz_table, self.Jz_filename = self.load_table(self.lineEdit_path_table_Jz, "Jz")
+        if self.stop:
+            self.stop = False
+            self.Jz_table, self.Jz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Jz)
 
     def load_Kx_table(self):
-        header = "Kx || Frequency [Hz], value[N/m]"
-        self.Kx_table, self.basename_Kx = self.load_table(self.lineEdit_path_table_Kx, "Kx", header)
+        self.Kx_table, self.Kx_filename = self.load_table(self.lineEdit_path_table_Kx, "Kx")
+        if self.stop:
+            self.stop = False
+            self.Kx_table, self.Kx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Kx)
 
     def load_Ky_table(self):
-        header = "Ky || Frequency [Hz], value[N/m]"
-        self.Ky_table, self.basename_Ky = self.load_table(self.lineEdit_path_table_Ky, "Ky", header)
+        self.Ky_table, self.Ky_filename = self.load_table(self.lineEdit_path_table_Ky, "Ky")
+        if self.stop:
+            self.stop = False
+            self.Ky_table, self.Ky_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Ky)
 
     def load_Kz_table(self):
-        header = "Kz || Frequency [Hz], value[N/m]"
-        self.Kz_table, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header)
+        self.Kz_table, self.Kz_filename = self.load_table(self.lineEdit_path_table_Kz, "Kz")
+        if self.stop:
+            self.stop = False
+            self.Kz_table, self.Kz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Kz)
 
     def load_Krx_table(self):
-        header = "Krx || Frequency [Hz], value[N.m/rad]"
-        self.Krx_table, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header)
+        self.Krx_table, self.Krx_filename = self.load_table(self.lineEdit_path_table_Krx, "Krx")
+        if self.stop:
+            self.stop = False
+            self.Krx_table, self.Krx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Krx)
 
     def load_Kry_table(self):
-        header = "Kry || Frequency [Hz], value[N.m/rad]"
-        self.Kry_table, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header)
+        self.Kry_table, self.Kry_filename = self.load_table(self.lineEdit_path_table_Kry, "Kry")
+        if self.stop:
+            self.stop = False
+            self.Kry_table, self.Kry_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Kry)
 
     def load_Krz_table(self):
-        header = "Krz || Frequency [Hz], value[N.m/rad]"
-        self.Krz_table, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header)
+        self.Krz_table, self.Krz_filename = self.load_table(self.lineEdit_path_table_Krz, "Krz")
+        if self.stop:
+            self.stop = False
+            self.Krz_table, self.Krz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Krz)
 
     def load_Cx_table(self):
-        header = "Cx || Frequency [Hz], value[N.s/m]"
-        self.Cx_table, self.basename_Cx = self.load_table(self.lineEdit_path_table_Cx, "Cx", header)
+        self.Cx_table, self.Cx_filename = self.load_table(self.lineEdit_path_table_Cx, "Cx")
+        if self.stop:
+            self.stop = False
+            self.Cx_table, self.Cx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Cx)
 
     def load_Cy_table(self):
-        header = "Cy || Frequency [Hz], value[N.s/m]"
-        self.Cy_table, self.basename_Cy = self.load_table(self.lineEdit_path_table_Cy, "Cy", header)
+        self.Cy_table, self.Cy_filename = self.load_table(self.lineEdit_path_table_Cy, "Cy")
+        if self.stop:
+            self.stop = False
+            self.Cy_table, self.Cy_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Cy)
 
     def load_Cz_table(self):
-        header = "Cz || Frequency [Hz], value[N.s/m]"
-        self.Cz_table, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header)
+        self.Cz_table, self.Cz_filename = self.load_table(self.lineEdit_path_table_Cz, "Cz")
+        if self.stop:
+            self.stop = False
+            self.Cz_table, self.Cz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Cz)
 
     def load_Crx_table(self):
-        header = "Crx || Frequency [Hz], value[N.m/rad/s]"
-        self.Crx_table, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header)
+        self.Crx_table, self.Crx_filename = self.load_table(self.lineEdit_path_table_Crx, "Crx")
+        if self.stop:
+            self.stop = False
+            self.Crx_table, self.Crx_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Crx)
 
     def load_Cry_table(self):
-        header = "Cry || Frequency [Hz], value[N.m/rad/s]"
-        self.Cry_table, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header)
+        self.Cry_table, self.Cry_filename = self.load_table(self.lineEdit_path_table_Cry, "Cry")
+        if self.stop:
+            self.stop = False
+            self.Cry_table, self.Cry_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Cry)
 
     def load_Crz_table(self):
-        header = "Crz || Frequency [Hz], value[N.m/rad/s]"
-        self.Crz_table, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header)
+        self.Crz_table, self.Crz_filename = self.load_table(self.lineEdit_path_table_Crz, "Crz")
+        if self.stop:
+            self.stop = False
+            self.Crz_table, self.Crz_filename = None, None
+            self.lineEdit_reset(self.lineEdit_path_table_Crz)
       
+    def lineEdit_reset(self, lineEdit):
+        lineEdit.setText("")
+        lineEdit.setFocus()
+
+    def save_tables_files(self, node_id, values, filename, _label, unit_label):
+
+        real_values = np.real(values)
+        data = np.array([self.frequencies, real_values]).T
+        self.project.create_folders_structural("lumped_elements_files")
+
+        if _label in ["Kx", "Ky", "Kz", "Krx", "Kry", "Krz"]:
+            header = f"OpenPulse - imported table for {_label} lumped stiffness @ node {node_id}\n "
+            lumped_label = "lumped_stiffness"
+
+        if _label in ["Cx", "Cy", "Cz", "Crx", "Cry", "Crz"]:
+            header = f"OpenPulse - imported table for {_label} lumped damping @ node {node_id}\n "
+            lumped_label = "lumped_damping"
+
+        if _label in ["Mx", "My", "Mz"]:
+            header = f"OpenPulse - imported table for {_label} lumped mass @ node {node_id}\n "
+            lumped_label = "lumped_mass"
+
+        if _label in ["Jx", "Jy", "Jz"]:
+            header = f"OpenPulse - imported table for {_label} lumped moment of inertia @ node {node_id}\n "
+            lumped_label = "lumped_moment_of_inertia"
+
+        header += f"\nSource filename: {filename}\n"
+        header += f"\nFrequency [Hz], values[{unit_label}]"
+        # basename = filename + f"_{_label}_node_{node_id}.dat"
+        basename = f"{lumped_label}_{_label}_node_{node_id}.dat"
+    
+        new_path_table = get_new_path(self.lumped_elements_files_folder_path, basename)
+        np.savetxt(new_path_table, data, delimiter=",", header=header)
+
+        return values, basename
+
     def check_table_values_lumped_masses(self):
 
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
+       
+        for node_id in self.nodes_typed:
+            Mx = My = Mz = None
+            if self.lineEdit_path_table_Mx.text() != "":
+                if self.Mx_table is None:
+                    if self.Mx_filename is None:
+                        self.Mx_table, self.Mx_filename = self.load_table(self.lineEdit_path_table_Mx, "Mx", direct_load=True)
+                if self.Mx_table is not None:
+                    Mx, self.Mx_basename = self.save_tables_files(node_id, self.Mx_table, self.Mx_filename, "Mx", "N")
+            
+            if self.lineEdit_path_table_My.text() != "":
+                if self.My_table is None:
+                    if self.My_filename is None:
+                        self.My_table, self.My_filename = self.load_table(self.lineEdit_path_table_My, "My", direct_load=True)
+                if self.My_table is not None:
+                    My, self.My_basename = self.save_tables_files(node_id, self.My_table, self.My_filename, "My", "N")
+            
+            if self.lineEdit_path_table_Mz.text() != "":
+                if self.Mz_table is None:
+                    if self.Mz_filename is None:
+                        self.Mz_table, self.Mz_filename = self.load_table(self.lineEdit_path_table_Mz, "Mz", direct_load=True)
+                if self.Mz_table is not None:
+                    Mz, self.Mz_basename = self.save_tables_files(node_id, self.Mz_table, self.Mz_filename, "Mz", "N")
+            
+            Jx = Jy = Jz = None
+            if self.lineEdit_path_table_Jx.text() != "":
+                if self.Jx_table is None:
+                    if self.Jx_filename is None:
+                        self.Jx_table, self.Jx_filename = self.load_table(self.lineEdit_path_table_Jx, "Jx", direct_load=True)
+                if self.Jx_table is not None:
+                    Jx, self.Jx_basename = self.save_tables_files(node_id, self.Jx_table, self.Jx_filename, "Jx", "kg.m²")
+                    
+            if self.lineEdit_path_table_Jy.text() != "":
+                if self.Jy_table is None:
+                    if self.Jy_filename is None:
+                        self.Jy_table, self.Jy_filename = self.load_table(self.lineEdit_path_table_Jy, "Jy", direct_load=True)
+                if self.Jy_table is not None:
+                    Jy, self.Jy_basename = self.save_tables_files(node_id, self.Jy_table, self.Jy_filename, "Jy", "kg.m²")
+            
+            if self.lineEdit_path_table_Jz.text() != "":
+                if self.Jz_table is None:
+                    if self.Jz_filename is None:
+                        self.Jz_table, self.Jz_filename = self.load_table(self.lineEdit_path_table_Jz, "Jz", direct_load=True)
+                if self.Jz_table is not None:
+                    Jz, self.Jz_basename = self.save_tables_files(node_id, self.Jz_table, self.Jz_filename, "Jz", "kg.m²")
 
-        Mx = My = Mz = None
-        if self.lineEdit_path_table_Mx.text() != "":
-            if self.Mx_table is None:
-                header = "Mx || Frequency [Hz], value[kg]"
-                Mx, self.basename_Mx = self.load_table(self.lineEdit_path_table_Mx, "Mx", header, direct_load=True)
-            else:
-                Mx = self.Mx_table
-        if self.lineEdit_path_table_My.text() != "":
-            if self.My_table is None:
-                header = "My || Frequency [Hz], value[kg]"
-                My, self.basename_My = self.load_table(self.lineEdit_path_table_My, "My", header, direct_load=True)
-            else:
-                My = self.My_table
-        if self.lineEdit_path_table_Mz.text() != "":
-            if self.Mz_table is None:
-                header = "Mz || Frequency [Hz], value[kg]"
-                Mz, self.basename_Mz = self.load_table(self.lineEdit_path_table_Mz, "Mz", header, direct_load=True)
-            else:
-                Mz = self.Mz_table
+            lumped_masses = [Mx, My, Mz, Jx, Jy, Jz]
 
-        Jx = Jy = Jz = None
-        if self.lineEdit_path_table_Jx.text() != "":
-            if self.Jx_table is None:
-                header = "Jx || Frequency [Hz], value[kg.m²]"
-                Jx, self.basename_Jx = self.load_table(self.lineEdit_path_table_Jx, "Jx", header, direct_load=True)
-            else:
-                Jx = self.Jx_table
-        if self.lineEdit_path_table_Jy.text() != "":
-            if self.Jy_table is None:
-                header = "Jy || Frequency [Hz], value[kg.m²]"
-                Jy, self.basename_Jy = self.load_table(self.lineEdit_path_table_Jy, "Jy", header, direct_load=True)
-            else:
-                Jy = self.Jy_table
-        if self.lineEdit_path_table_Jz.text() != "":
-            if self.Jz_table is None:
-                header = "Jz || Frequency [Hz], value[kg.m²]"
-                Jz, self.basename_Jz = self.load_table(self.lineEdit_path_table_Jz, "Jz", header, direct_load=True)
-            else:
-                Jz = self.Jz_table
-        
-        lumped_masses = [Mx, My, Mz, Jx, Jy, Jz]
+            if sum([0 if bc is None else 1 for bc in lumped_masses]) != 0:
 
-        if sum([1 if bc is not None else 0 for bc in lumped_masses]) != 0:
-            self.flag_lumped_masses = True
-            self.basenames = [self.basename_Mx, self.basename_My, self.basename_Mz, self.basename_Jx, self.basename_Jy, self.basename_Jz]
-            self.lumped_masses = lumped_masses
-            data = [lumped_masses, self.basenames]
-            self.project.add_lumped_masses_by_node(self.nodes_typed, data, True)
+                self.flag_lumped_masses = True
+                self.basenames = [  self.Mx_basename, self.My_basename, self.Mz_basename, 
+                                    self.Jx_basename, self.Jy_basename, self.Jz_basename  ]
+                self.lumped_masses = lumped_masses
+                data = [lumped_masses, self.basenames]
+
+                node = self.preprocessor.nodes[node_id]
+                if node.loaded_table_for_lumped_masses:
+                    if node.lumped_masses_table_names != self.list_Nones:
+                        list_table_names = node.lumped_masses_table_names
+                        for basename in self.basenames:
+                            if basename in list_table_names:
+                                list_table_names.remove(basename)
+                        self.process_table_file_removal(list_table_names)
+
+                self.project.add_lumped_masses_by_node(self.nodes_typed, data, True)
+                
 
     def check_table_values_lumped_stiffness(self):
 
@@ -658,53 +787,70 @@ class MassSpringDamperInput(QDialog):
         if self.stop:
             return
 
-        Kx = Ky = Kz = None
-        if self.lineEdit_path_table_Kx.text() != "":
-            if self.Kx_table is None:
-                header = "Kx || Frequency [Hz], value[N/m]"
-                Kx, self.basename_Kx = self.load_table(self.lineEdit_path_table_Kx, "Kx", header, direct_load=True)
-            else:
-                Kx = self.Kx_table
-        if self.lineEdit_path_table_Ky.text() != "":
-            if self.Ky_table is None:
-                header = "Ky || Frequency [Hz], value[N/m]"
-                Ky, self.basename_Ky = self.load_table(self.lineEdit_path_table_Ky, "Ky", header, direct_load=True)
-            else:
-                Ky = self.Ky_table
-        if self.lineEdit_path_table_Kz.text() != "":
-            if self.Kz_table is None:
-                header = "Kz || Frequency [Hz], value[N/m]"
-                Kz, self.basename_Kz = self.load_table(self.lineEdit_path_table_Kz, "Kz", header, direct_load=True)
-            else:
-                Kz = self.Kz_table
+        for node_id in self.nodes_typed:
+            Kx = Ky = Kz = None
+            if self.lineEdit_path_table_Kx.text() != "":
+                if self.Kx_table is None:
+                    if self.Kx_filename is None:
+                        self.Kx_table, self.Kx_filename = self.load_table(self.lineEdit_path_table_Kx, "Kx", direct_load=True)
+                if self.Kx_table is not None:
+                    Kx, self.Kx_basename = self.save_tables_files(node_id, self.Kx_table, self.Kx_filename, "Kx", "N/m")
 
-        Krx = Kry = Krz = None
-        if self.lineEdit_path_table_Krx.text() != "":
-            if self.Krx_table is None:
-                header = "Krx || Frequency [Hz], value[N.m/rad]"
-                Krx, self.basename_Krx = self.load_table(self.lineEdit_path_table_Krx, "Krx", header, direct_load=True)
-            else:
-                Krx = self.Krx_table
-        if self.lineEdit_path_table_Kry.text() != "":
-            if self.Kry_table is None:
-                header = "Kry || Frequency [Hz], value[N.m/rad]"
-                Kry, self.basename_Kry = self.load_table(self.lineEdit_path_table_Kry, "Kry", header, direct_load=True)
-            else:
-                Kry = self.Kry_table
-        if self.lineEdit_path_table_Krz.text() != "":
-            if self.Krz_table is None:
-                header = "Krz || Frequency [Hz], value[N.m/rad]"
-                Krz, self.basename_Krz = self.load_table(self.lineEdit_path_table_Krz, "Krz", header, direct_load=True)
-            else:
-                Krz = self.Krz_table
+            if self.lineEdit_path_table_Ky.text() != "":
+                if self.Ky_table is None:
+                    if self.Ky_filename is None:
+                        self.Ky_table, self.Ky_filename = self.load_table(self.lineEdit_path_table_Ky, "Ky", direct_load=True)
+                if self.Ky_table is not None:
+                    Ky, self.Ky_basename = self.save_tables_files(node_id, self.Ky_table, self.Ky_filename, "Ky", "N/m")
+
+            if self.lineEdit_path_table_Kz.text() != "":
+                if self.Kz_table is None:
+                    if self.Kz_filename is None:
+                        self.Kz_table, self.Kz_filename = self.load_table(self.lineEdit_path_table_Kz, "Kz", direct_load=True)
+                if self.Kz_table is not None:
+                    Kz, self.Kz_basename = self.save_tables_files(node_id, self.Kz_table, self.Kz_filename, "Kz", "N/m")
+
+            Krx = Kry = Krz = None
+            if self.lineEdit_path_table_Krx.text() != "":
+                if self.Krx_table is None:
+                    if self.Krx_filename is None:
+                        self.Krx_table, self.Krx_filename = self.load_table(self.lineEdit_path_table_Krx, "Krx", direct_load=True)
+                if self.Krx_table is not None:
+                    Krx, self.Krx_basename = self.save_tables_files(node_id, self.Krx_table, self.Krx_filename, "Krx", "N.m/rad")
+
+            if self.lineEdit_path_table_Kry.text() != "":
+                if self.Kry_table is None:
+                    if self.Kry_filename is None:
+                        self.Kry_table, self.Kry_filename = self.load_table(self.lineEdit_path_table_Kry, "Kry", direct_load=True)
+                if self.Kry_table is not None:
+                    Kry, self.Kry_basename = self.save_tables_files(node_id, self.Kry_table, self.Kry_filename, "Kry", "N.m/rad")
+
+            if self.lineEdit_path_table_Krz.text() != "":
+                if self.Krz_table is None:
+                    if self.Krz_filename is None:
+                        self.Krz_table, self.Krz_filename = self.load_table(self.lineEdit_path_table_Krz, "Krz", direct_load=True)
+                if self.Krz_table is not None:
+                    Krz, self.Krz_basename = self.save_tables_files(node_id, self.Krz_table, self.Krz_filename, "Krz", "N.m/rad")
         
         lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
 
-        if sum([1 if bc is not None else 0 for bc in lumped_stiffness]) != 0:
+        if sum([0 if bc is None else 1 for bc in lumped_stiffness]) != 0:
+
             self.flag_lumped_stiffness = True
-            self.basenames = [self.basename_Kx, self.basename_Ky, self.basename_Kz, self.basename_Krx, self.basename_Kry, self.basename_Krz]
+            self.basenames = [  self.Kx_basename, self.Ky_basename, self.Kz_basename, 
+                                self.Krx_basename, self.Kry_basename, self.Krz_basename  ]
             self.lumped_stiffness = lumped_stiffness
             data = [lumped_stiffness, self.basenames]
+
+            node = self.preprocessor.nodes[node_id]
+            if node.loaded_table_for_lumped_stiffness:
+                if node.lumped_stiffness_table_names != self.list_Nones:
+                    list_table_names = node.lumped_stiffness_table_names
+                    for basename in self.basenames:
+                        if basename in list_table_names:
+                            list_table_names.remove(basename)
+                    self.process_table_file_removal(list_table_names)
+
             self.project.add_lumped_stiffness_by_node(self.nodes_typed, data, True)
 
     def check_table_values_lumped_dampings(self):
@@ -714,53 +860,70 @@ class MassSpringDamperInput(QDialog):
         if self.stop:
             return
 
-        Cx = Cy = Cz = None
-        if self.lineEdit_path_table_Cx.text() != "":
-            if self.Cx_table is None:
-                header = "Cx || Frequency [Hz], value[N.s/m]"
-                Cx, self.basename_Cx = self.load_table(self.lineEdit_path_table_Cx, "Cx", header, direct_load=True)
-            else:
-                Cx = self.Cx_table
-        if self.lineEdit_path_table_Cy.text() != "":
-            if self.Cy_table is None:
-                header = "Cy || Frequency [Hz], value[N.s/m]"
-                Cy, self.basename_Cy = self.load_table(self.lineEdit_path_table_Cy, "Cy", header, direct_load=True)
-            else:
-                Cy = self.Cy_table
-        if self.lineEdit_path_table_Cz.text() != "":
-            if self.Cz_table is None:
-                header = "Cz || Frequency [Hz], value[N.s/m]"
-                Cz, self.basename_Cz = self.load_table(self.lineEdit_path_table_Cz, "Cz", header, direct_load=True)
-            else:
-                Cz = self.Cz_table
+        for node_id in self.nodes_typed:
+            Cx = Cy = Cz = None
+            if self.lineEdit_path_table_Cx.text() != "":
+                if self.Cx_table is None:
+                    if self.Cx_filename is None:
+                        self.Cx_table, self.Cx_filename = self.load_table(self.lineEdit_path_table_Cx, "Cx", direct_load=True)
+                if self.Cx_table is not None:
+                    Cx, self.Cx_basename = self.save_tables_files(node_id, self.Cx_table, self.Cx_filename, "Cx", "N.s/m")
 
-        Crx = Cry = Crz = None
-        if self.lineEdit_path_table_Crx.text() != "":
-            if self.Crx_table is None:
-                header = "Crx || Frequency [Hz], value[N.m/rad/s]"
-                Crx, self.basename_Crx = self.load_table(self.lineEdit_path_table_Crx, "Crx", header, direct_load=True)
-            else:
-                Crx = self.Crx_table
-        if self.lineEdit_path_table_Cry.text() != "":
-            if self.Cry_table is None:
-                header = "Cry || Frequency [Hz], value[N.m/rad/s]"
-                Cry, self.basename_Cry = self.load_table(self.lineEdit_path_table_Cry, "Cry", header, direct_load=True)
-            else:
-                Cry = self.Cry_table
-        if self.lineEdit_path_table_Crz.text() != "":
-            if self.Crz_table is None:
-                header = "Crz || Frequency [Hz], value[N.m/rad/s]"
-                Crz, self.basename_Crz = self.load_table(self.lineEdit_path_table_Crz, "Crz", header, direct_load=True)
-            else:
-                Crz = self.Crz_table
+            if self.lineEdit_path_table_Cy.text() != "":
+                if self.Cy_table is None:
+                    if self.Cy_filename is None:
+                        self.Cy_table, self.Cy_filename = self.load_table(self.lineEdit_path_table_Cy, "Cy", direct_load=True)
+                if self.Cy_table is not None:
+                    Cy, self.Cy_basename = self.save_tables_files(node_id, self.Cy_table, self.Cy_filename, "Cy", "N.s/m")
+
+            if self.lineEdit_path_table_Cz.text() != "":
+                if self.Cz_table is None:
+                    if self.Cz_filename is None:
+                        self.Cz_table, self.Cz_filename = self.load_table(self.lineEdit_path_table_Cz, "Cz", direct_load=True)
+                if self.Cz_table is not None:
+                    Cz, self.Cz_basename = self.save_tables_files(node_id, self.Cz_table, self.Cz_filename, "Cz", "N.s/m")
+
+            Crx = Cry = Crz = None
+            if self.lineEdit_path_table_Crx.text() != "":
+                if self.Crx_table is None:
+                    if self.Crx_filename is None:
+                        self.Crx_table, self.Crx_filename = self.load_table(self.lineEdit_path_table_Crx, "Crx", direct_load=True)
+                if self.Crx_table is not None:
+                    Crx, self.Crx_basename = self.save_tables_files(node_id, self.Crx_table, self.Crx_filename, "Crx", "N.m/rad/s")
+
+            if self.lineEdit_path_table_Cry.text() != "":
+                if self.Cry_table is None:
+                    if self.Cry_filename is None:
+                        self.Cry_table, self.Cry_filename = self.load_table(self.lineEdit_path_table_Cry, "Cry", direct_load=True)
+                if self.Cry_table is not None:
+                    Cry, self.Cry_basename = self.save_tables_files(node_id, self.Cry_table, self.Cry_filename, "Cry", "N.m/rad/s")
+
+            if self.lineEdit_path_table_Crz.text() != "":
+                if self.Crz_table is None:
+                    if self.Crz_filename is None:
+                        self.Crz_table, self.Crz_filename = self.load_table(self.lineEdit_path_table_Crz, "Crz", direct_load=True)
+                if self.Crz_table is not None:
+                    Crz, self.Crz_basename = self.save_tables_files(node_id, self.Crz_table, self.Crz_filename, "Crz", "N.m/rad/s")
             
         lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]
 
-        if sum([1 if bc is not None else 0 for bc in lumped_dampings]) != 0:
+        if sum([0 if bc is None else 1 for bc in lumped_dampings]) != 0:
+            
             self.flag_lumped_dampings = True
-            self.basenames = [self.basename_Cx, self.basename_Cy, self.basename_Cz, self.basename_Crx, self.basename_Cry, self.basename_Crz]
+            self.basenames = [  self.Cx_basename, self.Cy_basename, self.Cz_basename, 
+                                self.Crx_basename, self.Cry_basename, self.Crz_basename  ]
             self.lumped_dampings = lumped_dampings
             data = [lumped_dampings, self.basenames]
+
+            node = self.preprocessor.nodes[node_id]
+            if node.loaded_table_for_lumped_dampings:
+                if node.lumped_dampings_table_names != self.list_Nones:
+                    list_table_names = node.lumped_dampings_table_names
+                    for basename in self.basenames:
+                        if basename in list_table_names:
+                            list_table_names.remove(basename)
+                    self.process_table_file_removal(list_table_names)
+
             self.project.add_lumped_dampings_by_node(self.nodes_typed, data, True)
 
     def check_all_table_values_inputs(self):
@@ -795,6 +958,10 @@ class MassSpringDamperInput(QDialog):
         self.transform_points(self.nodes_typed)
         self.close()      
 
+    def process_table_file_removal(self, list_table_names):
+        for table_name in list_table_names:
+            self.project.remove_structural_table_files_from_folder(table_name, folder_name="lumped_elements_files")
+
     def check_remove_bc_from_node(self):
 
         list_reset = [None, None, None, None, None, None]
@@ -811,24 +978,28 @@ class MassSpringDamperInput(QDialog):
 
         if (self.remove_mass and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==2:    
             key_strings = ["masses", "moments of inertia"]
-            message = "The masses and moments of inertia attributed to the \n\n{}\n\n node(s) have been removed.".format(self.nodes_typed)
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+            message = "The masses and moments of inertia attributed to the \n\n"
+            message += f"{self.nodes_typed}\n\n node(s) have been removed."
+            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
             self.remove_masses_table_files()
-            self.project.preprocessor.add_mass_to_node(self.nodes_typed, data)
+            self.preprocessor.add_mass_to_node(self.nodes_typed, data)
    
         if (self.remove_spring and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==1:   
             key_strings = ["spring stiffness", "torsional spring stiffness"]
-            message = "The stiffness (translational and tosional) attributed to the \n\n{}\n\n node(s) have been removed.".format(self.nodes_typed)
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+            message = "The stiffness (translational and tosional) attributed to the \n\n"
+            message += f"{self.nodes_typed}\n\n node(s) have been removed."
+            print("enter: ", self.nodes_typed, self.structural_bc_info_path)
+            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
             self.remove_stiffness_table_files()
-            self.project.preprocessor.add_spring_to_node(self.nodes_typed, data)
+            self.preprocessor.add_spring_to_node(self.nodes_typed, data)
             
         if (self.remove_damper and self.tabWidget_remove.currentIndex()==0) or self.tabWidget_remove.currentIndex()==3: 
             key_strings = ["damping coefficients", "torsional damping coefficients"]
-            message = "The dampings (translational and tosional) attributed to the \n\n{}\n\n node(s) have been removed.".format(self.nodes_typed)
-            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+            message = "The dampings (translational and tosional) attributed to the \n\n"
+            message += f"{self.nodes_typed}\n\n node(s) have been removed."
+            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
             self.remove_damping_table_files()
-            self.project.preprocessor.add_damper_to_node(self.nodes_typed, data)
+            self.preprocessor.add_damper_to_node(self.nodes_typed, data)
 
         self.load_nodes_info()
         self.transform_points(self.nodes_typed)
@@ -839,44 +1010,31 @@ class MassSpringDamperInput(QDialog):
             node = self.preprocessor.nodes[node_typed]
             if node.loaded_table_for_lumped_masses:
                 list_table_names = node.lumped_masses_table_names
-                self.confirm_table_file_removal(list_table_names, "Spring stiffness")
+                self.process_table_file_removal(list_table_names)
 
     def remove_stiffness_table_files(self):
         for node_typed in self.nodes_typed:
             node = self.preprocessor.nodes[node_typed]
             if node.loaded_table_for_lumped_stiffness:
                 list_table_names = node.lumped_stiffness_table_names
-                self.confirm_table_file_removal(list_table_names, "Masses/Moments of inertia")
+                self.process_table_file_removal(list_table_names)
     
     def remove_damping_table_files(self):
         for node_typed in self.nodes_typed:
             node = self.preprocessor.nodes[node_typed]
             if node.loaded_table_for_lumped_dampings:
                 list_table_names = node.lumped_dampings_table_names
-                self.confirm_table_file_removal(list_table_names, "Damping coefficients")    
+                self.process_table_file_removal(list_table_names)    
 
-    def confirm_table_file_removal(self, list_table_names, label):
+    def process_table_file_removal(self, list_table_names):
         _list_table_names = []
         for table_name in list_table_names:
             if table_name is not None:
                 if table_name not in _list_table_names:
                     _list_table_names.append(table_name)
 
-        title = f"{label} - removal of imported table files"
-        message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
         for _table_name in _list_table_names:
-            message += f"{_table_name}\n"
-        message += "\n\nPress the Continue button to proceed with removal or press Cancel or \nClose buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
-
-        if read._doNotRun:
-            return
-
-        if read._continue:
-            for _table_name in _list_table_names:
-                self.project.remove_structural_table_files_from_folder(_table_name, folder_name="lumped_elements_files")
-            # self.project.remove_structural_empty_folders(folder_name="lumped_elements_files")   
-
+            self.project.remove_structural_table_files_from_folder(_table_name, folder_name="lumped_elements_files")
 
     def text_label(self, mask, load_labels):
         
@@ -901,7 +1059,7 @@ class MassSpringDamperInput(QDialog):
 
         self.treeWidget_springs.clear()
         load_labels = np.array(['k_x','k_y','k_z','k_rx','k_ry','k_rz'])        
-        for node in self.project.preprocessor.nodes_connected_to_springs:
+        for node in self.preprocessor.nodes_connected_to_springs:
             lumped_stiffness_mask = [False if bc is None else True for bc in node.lumped_stiffness]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_stiffness_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -910,7 +1068,7 @@ class MassSpringDamperInput(QDialog):
 
         self.treeWidget_dampers.clear()
         load_labels = np.array(['c_x','c_y','c_z','c_rx','c_ry','c_rz'])
-        for node in self.project.preprocessor.nodes_connected_to_dampers:
+        for node in self.preprocessor.nodes_connected_to_dampers:
             lumped_dampings_mask = [False if bc is None else True for bc in node.lumped_dampings]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_dampings_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)
@@ -919,7 +1077,7 @@ class MassSpringDamperInput(QDialog):
 
         self.treeWidget_masses.clear()
         load_labels = np.array(['m_x','m_y','m_z','Jx','Jy','Jz'])
-        for node in self.project.preprocessor.nodes_with_masses:
+        for node in self.preprocessor.nodes_with_masses:
             lumped_masses_mask = [False if bc is None else True for bc in node.lumped_masses]
             new = QTreeWidgetItem([str(node.external_index), str(self.text_label(lumped_masses_mask, load_labels))])
             new.setTextAlignment(0, Qt.AlignCenter)

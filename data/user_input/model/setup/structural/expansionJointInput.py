@@ -740,20 +740,21 @@ class ExpansionJointInput(QDialog):
                 self.path_imported_table = lineEdit.text()
                 
             else:
-                self.basename = ""
+                # self.basename = ""
                 window_label = 'Choose a table to import the {} nodal load'.format(stiffness_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
             if self.path_imported_table == "":
                 return None, None
 
-            self.basename = os.path.basename(self.path_imported_table)
+            self.imported_filename = os.path.basename(self.path_imported_table)
             lineEdit.setText(self.path_imported_table)
-            _stiffness_label = stiffness_label.lower().replace(" ", "_")
-            for _format in [".csv", ".dat", ".txt"]:
-                if _format in self.basename:
-                    prefix_string = self.basename.split(_format)[0]
-                    self.imported_filename = prefix_string.split(f"_{_stiffness_label}_line_")[0]
+            
+            # _stiffness_label = stiffness_label.lower().replace(" ", "_")
+            # for _format in [".csv", ".dat", ".txt"]:
+            #     if _format in self.basename:
+            #         prefix_string = self.basename.split(_format)[0]
+            #         self.imported_filename = prefix_string.split(f"_{_stiffness_label}_line_")[0]
             
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
                 
@@ -820,16 +821,6 @@ class ExpansionJointInput(QDialog):
             self.Kryz_table, self.Kryz_filename = None, None
             self.lineEdit_reset(self.lineEdit_path_table_angular_stiffness)
 
-    # def tables_frequency_setup_message(self, lineEdit, stiffness_label):
-    #     title = f"Invalid frequency setup of the '{stiffness_label}' imported table"
-    #     message = f"The frequency setup from '{stiffness_label}' selected table mismatches\n"
-    #     message += f"the frequency setup from previously imported tables.\n"
-    #     message += f"All imported tables must have the same frequency\n"
-    #     message += f"setup to avoid errors in the model processing."
-    #     PrintMessageInput([title, message, window_title_1])
-    #     lineEdit.setText("")
-    #     lineEdit.setFocus()
-
     def lineEdit_reset(self, lineEdit):
         lineEdit.setText("")
         lineEdit.setFocus()
@@ -841,15 +832,18 @@ class ExpansionJointInput(QDialog):
         abs_values = np.abs(values)
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
         self.project.create_folders_structural("expansion_joints_files")
-
-        header = f"OpenPulse - imported table for Expansion joint {stiffness_label}\n"
-        if linear:
-            header += "Frequency [Hz], real[N/m], imaginary[N/m], absolute[N/m]"
-        else:
-            header += "Frequency [Hz], real[N.m/rad], imaginary[N.m/rad], absolute[N.m/rad]"
-
         line_id, table_index = self.get_line_and_table_index()
-        basename = filename + f"_{stiffness_label}_line_{line_id}_table#{table_index}.dat" 
+
+        header = f"OpenPulse - imported table for Expansion joint {stiffness_label} @ line {line_id} - table #{table_index}\n"     
+        header += f"\nSource filename: {filename}\n"
+        
+        if linear:
+            header += "\nFrequency [Hz], real[N/m], imaginary[N/m], absolute[N/m]"
+        else:
+            header += "\nFrequency [Hz], real[N.m/rad], imaginary[N.m/rad], absolute[N.m/rad]"
+
+        basename = f"expansion_joint_{stiffness_label}_line_{line_id}_table#{table_index}.dat" 
+        # basename = filename + f"_{stiffness_label}_line_{line_id}_table#{table_index}.dat" 
         
         if basename in self.list_table_names_from_selection:
             self.list_table_names_from_selection.remove(basename)
@@ -1041,12 +1035,6 @@ class ExpansionJointInput(QDialog):
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:
-            # for _format in [".csv", ".dat", ".txt"]:
-            #     if _format in table_name:
-            #         prefix_string = table_name.split(_format)[0]
-            #         table_index = int(prefix_string.split("_table#")[1])
-            #         if table_index in self.preprocessor.expansion_joint_table_indexes.keys():
-            #             self.preprocessor.expansion_joint_table_indexes.pop(table_index)
             self.project.remove_structural_table_files_from_folder(table_name, folder_name="expansion_joints_files")
 
     def remove_all_table_files_from_nodes(self, list_node_ids):
@@ -1236,8 +1224,8 @@ class ExpansionJointInput(QDialog):
         message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
 
-        if read._doNotRun:
-            return
+        # if read._doNotRun:
+        #     return
 
         if read._continue:
 
@@ -1511,3 +1499,23 @@ def get_string_from_joint_paramters(parameters):
             if isinstance(value, np.ndarray):
                 return True
     return False
+
+    # def tables_frequency_setup_message(self, lineEdit, stiffness_label):
+    #     title = f"Invalid frequency setup of the '{stiffness_label}' imported table"
+    #     message = f"The frequency setup from '{stiffness_label}' selected table mismatches\n"
+    #     message += f"the frequency setup from previously imported tables.\n"
+    #     message += f"All imported tables must have the same frequency\n"
+    #     message += f"setup to avoid errors in the model processing."
+    #     PrintMessageInput([title, message, window_title_1])
+    #     lineEdit.setText("")
+    #     lineEdit.setFocus()
+
+    # def process_table_file_removal(self, list_table_names):
+    #     for table_name in list_table_names:
+    #         for _format in [".csv", ".dat", ".txt"]:
+    #             if _format in table_name:
+    #                 prefix_string = table_name.split(_format)[0]
+    #                 table_index = int(prefix_string.split("_table#")[1])
+    #                 if table_index in self.preprocessor.expansion_joint_table_indexes.keys():
+    #                     self.preprocessor.expansion_joint_table_indexes.pop(table_index)
+    #         self.project.remove_structural_table_files_from_folder(table_name, folder_name="expansion_joints_files")

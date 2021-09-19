@@ -1132,7 +1132,7 @@ class ProjectFile:
                 connecting_stiffness = node_structural_list[str(node)]['connecting stiffness']
                 connecting_torsional_stiffness = node_structural_list[str(node)]['connecting torsional stiffness']
                 labels = [["k_x","k_y","k_z"],["k_rx","k_ry","k_rz"]]
-                folder_table_name = "elastic_links_tables"
+                folder_table_name = "elastic_links_files"
                 connecting_stiffness, connecting_stiffness_table_names, connecting_stiffness_freq = self._get_structural_bc_from_string(connecting_stiffness, 
                                                                                                                                         connecting_torsional_stiffness, 
                                                                                                                                         labels,
@@ -1146,7 +1146,7 @@ class ProjectFile:
                 connecting_damping = node_structural_list[str(node)]['connecting damping']
                 connecting_torsional_damping = node_structural_list[str(node)]['connecting torsional damping']
                 labels = [["c_x","c_y","c_z"],["c_rx","c_ry","c_rz"]]
-                folder_table_name = "elastic_links_tables"
+                folder_table_name = "elastic_links_files"
                 connecting_damping, connecting_damping_table_names, connecting_damping_freq = self._get_structural_bc_from_string(  connecting_damping, 
                                                                                                                                     connecting_torsional_damping, 
                                                                                                                                     labels, 

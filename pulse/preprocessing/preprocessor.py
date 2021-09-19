@@ -2245,8 +2245,50 @@ class Preprocessor:
         if not (_stiffness or _damping):
             return
 
+        gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)     
+        min_node_ID = min(node1.external_index, node2.external_index)
+        max_node_ID = max(node1.external_index, node2.external_index)
+        key = "{}-{}".format(min_node_ID, max_node_ID)
+        
+        if data is None:
+            for node in [node1, node2]:
+
+                if _stiffness:
+                    count_stiffness = 0
+                    if key in node.elastic_nodal_link_stiffness.keys():
+                        node.elastic_nodal_link_stiffness.pop(key)
+                    for _key in node.elastic_nodal_link_stiffness.keys():
+                        str_nodes = _key.split("-")
+                        node_ids = [int(str_node) for str_node in str_nodes]
+                        if node in node_ids:
+                            count_stiffness += 1
+                    if count_stiffness == 0:
+                        node.loaded_table_for_elastic_link_stiffness = False
+                
+                if _damping:
+                    count_damping = 0
+                    if key in node.elastic_nodal_link_dampings.keys():
+                        node.elastic_nodal_link_dampings.pop(key)
+                    for _key in node.elastic_nodal_link_dampings.keys():
+                        str_nodes = _key.split("-")
+                        node_ids = [int(str_node) for str_node in str_nodes]
+                        if node in node_ids:
+                            count_damping += 1
+                    if count_damping == 0:
+                        node.loaded_table_for_elastic_link_stiffness = False
+                    
+            if _stiffness:
+                if key in self.nodes_with_elastic_link_stiffness.keys():
+                    self.nodes_with_elastic_link_stiffness.pop(key)
+            
+            if _damping:
+                if key in self.nodes_with_elastic_link_dampings.keys():
+                    self.nodes_with_elastic_link_dampings.pop(key)
+           
+            return
+
         [parameters, table_names] = data
-        gdofs, node1, node2 = self.get_gdofs_from_nodes(nodeID_1, nodeID_2)        
+               
         gdofs_node1 = gdofs[:DOF_PER_NODE_STRUCTURAL]
         gdofs_node2 = gdofs[DOF_PER_NODE_STRUCTURAL:]
 
@@ -2277,10 +2319,6 @@ class Preprocessor:
         out_data = [ [ pos_data, neg_data ], [ neg_data, pos_data ] ]
         element_matrix_info_node1 = [ indexes_i[0], indexes_j[0], out_data[0] ] 
         element_matrix_info_node2 = [ indexes_i[1], indexes_j[1], out_data[1] ] 
-
-        min_node_ID = min(node1.external_index, node2.external_index)
-        max_node_ID = max(node1.external_index, node2.external_index)
-        key = "{}-{}".format(min_node_ID, max_node_ID)
         
         if _stiffness:
             self.nodes_with_elastic_link_stiffness[key] = [element_matrix_info_node1, element_matrix_info_node2]

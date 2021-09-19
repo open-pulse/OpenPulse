@@ -328,13 +328,13 @@ class PerforatedPlateInput(QDialog):
             if self.path_imported_table == "":
                 return
 
-            imported_basename = os.path.basename(self.path_imported_table)
+            self.imported_filename = os.path.basename(self.path_imported_table)
             self.lineEdit_load_table_path.setText(self.path_imported_table)
 
-            for ext_format in [".csv", ".dat", ".txt"]:
-                if ext_format in imported_basename:
-                    first_string = imported_basename.split(ext_format)[0]
-                    self.imported_filename = first_string.split(f"_table#")[0]
+            # for ext_format in [".csv", ".dat", ".txt"]:
+            #     if ext_format in imported_basename:
+            #         first_string = imported_basename.split(ext_format)[0]
+            #         self.imported_filename = first_string.split(f"_table#")[0]
 
         except Exception as log_error:
             title = "Error while loading dimensionless impedance table file"
@@ -396,12 +396,15 @@ class PerforatedPlateInput(QDialog):
             data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
 
             header = f"OpenPulse - imported table for dimensionless impedance @ elements {self.elements_typed}\n"
-            header += "Frequency [Hz], real[-], imaginary[-], absolute[-]"
+            header += f"\nSource filename: {filename}\n"
+            header += "\nFrequency [Hz], real[-], imaginary[-], absolute[-]"
             table_index = len(self.preprocessor.group_elements_with_perforated_plate) + 1
             if ext_index is None:
-                self.basename = filename + f"_table#{table_index}.dat"
+                # self.basename = filename + f"_table#{table_index}.dat"
+                self.basename = f"perforated_plate_dimensionless_impedance_table#{table_index}.dat"
             else:
-                self.basename = filename + f"_table#{ext_index}.dat"
+                # self.basename = filename + f"_table#{ext_index}.dat"
+                self.basename = f"perforated_plate_dimensionless_impedance_table#{ext_index}.dat"
             self.new_path_table = get_new_path(self.perforated_plate_tables_folder_path, self.basename)
             np.savetxt(self.new_path_table, data, delimiter=",", header=header)
             return False

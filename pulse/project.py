@@ -193,11 +193,12 @@ class Project:
 
     def remove_structural_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
         _folder_path = get_new_path(self.file._structural_imported_data_folder_path, folder_name)
-        list_filenames = os.listdir(_folder_path).copy()
-        if filename in list_filenames:
-            file_path = get_new_path(_folder_path, filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+        if os.path.exists(_folder_path):
+            list_filenames = os.listdir(_folder_path).copy()
+            if filename in list_filenames:
+                file_path = get_new_path(_folder_path, filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
 
         if remove_empty_files:
             if os.path.exists(_folder_path):
