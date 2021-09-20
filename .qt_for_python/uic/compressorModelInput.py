@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\compressorModelInput.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp3\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\compressorModelInput.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #
@@ -1485,7 +1485,7 @@ class Ui_Dialog(object):
         self.label_29.setAlignment(QtCore.Qt.AlignCenter)
         self.label_29.setObjectName("label_29")
         self.pushButton_remove_table = QtWidgets.QPushButton(self.tab_remove)
-        self.pushButton_remove_table.setGeometry(QtCore.QRect(70, 428, 150, 30))
+        self.pushButton_remove_table.setGeometry(QtCore.QRect(64, 428, 150, 30))
         self.pushButton_remove_table.setMinimumSize(QtCore.QSize(150, 30))
         self.pushButton_remove_table.setMaximumSize(QtCore.QSize(150, 30))
         font = QtGui.QFont()
@@ -1497,7 +1497,7 @@ class Ui_Dialog(object):
         self.pushButton_remove_table.setFont(font)
         self.pushButton_remove_table.setObjectName("pushButton_remove_table")
         self.treeWidget_compressor_excitation = QtWidgets.QTreeWidget(self.tab_remove)
-        self.treeWidget_compressor_excitation.setGeometry(QtCore.QRect(14, 150, 461, 317))
+        self.treeWidget_compressor_excitation.setGeometry(QtCore.QRect(4, 150, 481, 317))
         self.treeWidget_compressor_excitation.setMinimumSize(QtCore.QSize(0, 0))
         self.treeWidget_compressor_excitation.setMaximumSize(QtCore.QSize(1000, 1000))
         font = QtGui.QFont()
@@ -1679,7 +1679,7 @@ class Ui_Dialog(object):
         self.lineEdit_table_name_info.setAlignment(QtCore.Qt.AlignCenter)
         self.lineEdit_table_name_info.setObjectName("lineEdit_table_name_info")
         self.pushButton_reset_node = QtWidgets.QPushButton(self.tab_remove)
-        self.pushButton_reset_node.setGeometry(QtCore.QRect(270, 428, 150, 30))
+        self.pushButton_reset_node.setGeometry(QtCore.QRect(276, 428, 150, 30))
         self.pushButton_reset_node.setMinimumSize(QtCore.QSize(150, 30))
         self.pushButton_reset_node.setMaximumSize(QtCore.QSize(150, 30))
         font = QtGui.QFont()
