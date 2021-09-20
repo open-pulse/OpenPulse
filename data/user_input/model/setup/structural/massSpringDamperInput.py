@@ -496,22 +496,20 @@ class MassSpringDamperInput(QDialog):
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
-
             else:
-                self.basename = ""
                 window_label = 'Choose a table to import the {} nodal load'.format(_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
             if self.path_imported_table == "":
                 return None, None
             
-            self.basename = os.path.basename(self.path_imported_table)
+            self.imported_filename = os.path.basename(self.path_imported_table)
             lineEdit.setText(self.path_imported_table)
           
-            for ext_format in [".csv", ".dat", ".txt"]:
-                if ext_format in self.basename:
-                    prefix_string = self.basename.split(ext_format)[0]
-                    self.imported_filename = prefix_string.split(f"_{_label}_node_")[0]
+            # for ext_format in [".csv", ".dat", ".txt"]:
+            #     if ext_format in self.basename:
+            #         prefix_string = self.basename.split(ext_format)[0]
+            #         self.imported_filename = prefix_string.split(f"_{_label}_node_")[0]
                         
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
@@ -698,7 +696,7 @@ class MassSpringDamperInput(QDialog):
 
         header += f"\nSource filename: {filename}\n"
         header += f"\nFrequency [Hz], values[{unit_label}]"
-        # basename = filename + f"_{_label}_node_{node_id}.dat"
+
         basename = f"{lumped_label}_{_label}_node_{node_id}.dat"
     
         new_path_table = get_new_path(self.lumped_elements_files_folder_path, basename)
@@ -765,6 +763,7 @@ class MassSpringDamperInput(QDialog):
                 self.flag_lumped_masses = True
                 self.basenames = [  self.Mx_basename, self.My_basename, self.Mz_basename, 
                                     self.Jx_basename, self.Jy_basename, self.Jz_basename  ]
+
                 self.lumped_masses = lumped_masses
                 data = [lumped_masses, self.basenames]
 
@@ -777,7 +776,7 @@ class MassSpringDamperInput(QDialog):
                                 list_table_names.remove(basename)
                         self.process_table_file_removal(list_table_names)
 
-                self.project.add_lumped_masses_by_node(self.nodes_typed, data, True)
+                self.project.add_lumped_masses_by_node([node_id], data, True)
                 
 
     def check_table_values_lumped_stiffness(self):
@@ -832,26 +831,27 @@ class MassSpringDamperInput(QDialog):
                 if self.Krz_table is not None:
                     Krz, self.Krz_basename = self.save_tables_files(node_id, self.Krz_table, self.Krz_filename, "Krz", "N.m/rad")
         
-        lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
+            lumped_stiffness = [Kx, Ky, Kz, Krx, Kry, Krz]
 
-        if sum([0 if bc is None else 1 for bc in lumped_stiffness]) != 0:
+            if sum([0 if bc is None else 1 for bc in lumped_stiffness]) != 0:
 
-            self.flag_lumped_stiffness = True
-            self.basenames = [  self.Kx_basename, self.Ky_basename, self.Kz_basename, 
-                                self.Krx_basename, self.Kry_basename, self.Krz_basename  ]
-            self.lumped_stiffness = lumped_stiffness
-            data = [lumped_stiffness, self.basenames]
+                self.flag_lumped_stiffness = True
+                self.basenames = [  self.Kx_basename, self.Ky_basename, self.Kz_basename, 
+                                    self.Krx_basename, self.Kry_basename, self.Krz_basename  ]
+                
+                self.lumped_stiffness = lumped_stiffness
+                data = [lumped_stiffness, self.basenames]
 
-            node = self.preprocessor.nodes[node_id]
-            if node.loaded_table_for_lumped_stiffness:
-                if node.lumped_stiffness_table_names != self.list_Nones:
-                    list_table_names = node.lumped_stiffness_table_names
-                    for basename in self.basenames:
-                        if basename in list_table_names:
-                            list_table_names.remove(basename)
-                    self.process_table_file_removal(list_table_names)
+                node = self.preprocessor.nodes[node_id]
+                if node.loaded_table_for_lumped_stiffness:
+                    if node.lumped_stiffness_table_names != self.list_Nones:
+                        list_table_names = node.lumped_stiffness_table_names
+                        for basename in self.basenames:
+                            if basename in list_table_names:
+                                list_table_names.remove(basename)
+                        self.process_table_file_removal(list_table_names)
 
-            self.project.add_lumped_stiffness_by_node(self.nodes_typed, data, True)
+                self.project.add_lumped_stiffness_by_node([node_id], data, True)
 
     def check_table_values_lumped_dampings(self):
 
@@ -905,26 +905,27 @@ class MassSpringDamperInput(QDialog):
                 if self.Crz_table is not None:
                     Crz, self.Crz_basename = self.save_tables_files(node_id, self.Crz_table, self.Crz_filename, "Crz", "N.m/rad/s")
             
-        lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]
+            lumped_dampings = [Cx, Cy, Cz, Crx, Cry, Crz]
 
-        if sum([0 if bc is None else 1 for bc in lumped_dampings]) != 0:
-            
-            self.flag_lumped_dampings = True
-            self.basenames = [  self.Cx_basename, self.Cy_basename, self.Cz_basename, 
-                                self.Crx_basename, self.Cry_basename, self.Crz_basename  ]
-            self.lumped_dampings = lumped_dampings
-            data = [lumped_dampings, self.basenames]
+            if sum([0 if bc is None else 1 for bc in lumped_dampings]) != 0:
+                
+                self.flag_lumped_dampings = True
+                self.basenames = [  self.Cx_basename, self.Cy_basename, self.Cz_basename, 
+                                    self.Crx_basename, self.Cry_basename, self.Crz_basename  ]
+                
+                self.lumped_dampings = lumped_dampings
+                data = [lumped_dampings, self.basenames]
 
-            node = self.preprocessor.nodes[node_id]
-            if node.loaded_table_for_lumped_dampings:
-                if node.lumped_dampings_table_names != self.list_Nones:
-                    list_table_names = node.lumped_dampings_table_names
-                    for basename in self.basenames:
-                        if basename in list_table_names:
-                            list_table_names.remove(basename)
-                    self.process_table_file_removal(list_table_names)
+                node = self.preprocessor.nodes[node_id]
+                if node.loaded_table_for_lumped_dampings:
+                    if node.lumped_dampings_table_names != self.list_Nones:
+                        list_table_names = node.lumped_dampings_table_names
+                        for basename in self.basenames:
+                            if basename in list_table_names:
+                                list_table_names.remove(basename)
+                        self.process_table_file_removal(list_table_names)
 
-            self.project.add_lumped_dampings_by_node(self.nodes_typed, data, True)
+                self.project.add_lumped_dampings_by_node([node_id], data, True)
 
     def check_all_table_values_inputs(self):
 
@@ -988,7 +989,6 @@ class MassSpringDamperInput(QDialog):
             key_strings = ["spring stiffness", "torsional spring stiffness"]
             message = "The stiffness (translational and tosional) attributed to the \n\n"
             message += f"{self.nodes_typed}\n\n node(s) have been removed."
-            print("enter: ", self.nodes_typed, self.structural_bc_info_path)
             remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message, equals_keys=True)
             self.remove_stiffness_table_files()
             self.preprocessor.add_spring_to_node(self.nodes_typed, data)

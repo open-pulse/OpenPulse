@@ -180,22 +180,15 @@ class VolumeVelocityInput(QDialog):
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
-                
             else:
-                # self.basename = ""
                 window_label = 'Choose a table to import the volume velocity'
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
             if self.path_imported_table == "":
                 return None, None
 
-            self.imported_filename = os.path.basename(self.path_imported_table)
+            imported_filename = os.path.basename(self.path_imported_table)
             lineEdit.setText(self.path_imported_table)
-           
-            # for _format in [".csv", ".dat", ".txt"]:
-            #     if _format in self.basename:
-            #         first_string = self.basename.split(_format)[0]
-            #         self.imported_filename = first_string.split(f"_node")[0]
             
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
 
@@ -205,7 +198,7 @@ class VolumeVelocityInput(QDialog):
                 PrintMessageInput([title, message, window_title_1])
                 return None, None
         
-            self.imported_values = imported_file[:,1]
+            imported_values = imported_file[:,1]
 
             if imported_file.shape[1]>=2:
 
@@ -220,7 +213,7 @@ class VolumeVelocityInput(QDialog):
                 else:
                     self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
 
-            return self.imported_values, self.imported_filename
+            return imported_values, imported_filename
 
         except Exception as log_error:
             message = str(log_error)
@@ -245,7 +238,7 @@ class VolumeVelocityInput(QDialog):
             header = f"OpenPulse - imported table for volume velocity @ node {node_id} \n"
             header += f"\nSource filename: {filename}\n"
             header += "\nFrequency [Hz], real[m³/s], imaginary[m³/s], absolute[m³/s]"
-            basename = filename + f"_node{node_id}.dat"
+            basename = f"volume_velocity_node_{node_id}.dat"
             
             new_path_table = get_new_path(self.volume_velocity_tables_folder_path, basename)
             np.savetxt(new_path_table, data, delimiter=",", header=header)
@@ -355,7 +348,7 @@ class VolumeVelocityInput(QDialog):
         if len(self.preprocessor.nodes_with_volume_velocity)>0:
  
             title = f"Resetting of all applied volume velocities"
-            message = "Do you really want to remove the volume velocities \napplied to the following nodes?\n\n"
+            message = "Do you really want to remove the volume velocity(ies) \napplied to the following node(s)?\n\n"
             for node in self.preprocessor.nodes_with_volume_velocity:
                 message += f"{node.external_index}\n"
             message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "

@@ -166,8 +166,8 @@ class DOFInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
-        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
-        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_reset.clicked.connect(self.reset_all)
 
         self.update()
         self.load_nodes_info()
@@ -306,9 +306,7 @@ class DOFInput(QDialog):
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
-
             else:
-                # self.basename = ""
                 window_label = 'Choose a table to import the {} nodal load'.format(dof_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
@@ -357,7 +355,7 @@ class DOFInput(QDialog):
 
     def process_integration_and_save_table_files(self, node_id, values, filename, dof_label, linear=False, angular=False):
         if self.frequencies[0]==0:
-            self.frequencies[0] = float(1e-4)
+            self.frequencies[0] = float(1e-6)
         if linear:    
             if self.linear_disp:
                 values = values
@@ -391,6 +389,9 @@ class DOFInput(QDialog):
                 header += f"\nSource filename: {filename}\n"
                 header += "\nFrequency [Hz], real[rad/s²], imaginary[rad/s²], absolute[rad/s²]"
         
+        if self.frequencies[0] == float(1e-6):
+            self.frequencies[0] = 0
+        
         real_values = np.real(values)
         imag_values = np.imag(values)
         abs_values = np.abs(values)
@@ -398,7 +399,7 @@ class DOFInput(QDialog):
         self.project.create_folders_structural("prescribed_dofs_files")
         
         basename = f"prescribed_dof_{dof_label}_node_{node_id}.dat"
-        # basename = filename + f"_{dof_label}_node_{node_id}.dat"
+
         header = header.format(dof_label.capitalize(), node_id)
         new_path_table = get_new_path(self.prescribed_dofs_files_folder_path, basename)
         np.savetxt(new_path_table, data, delimiter=",", header=header)
@@ -541,9 +542,9 @@ class DOFInput(QDialog):
                 if basename in list_table_names:
                     list_table_names.remove(basename)
            
-            self.project.set_prescribed_dofs_bc_by_node([node_id], data, self.imported_table)
+            self.project.set_prescribed_dofs_bc_by_node([node_id], data, True)
 
-        self.process_table_file_removal(list_table_names, "Prescribed dofs")
+        self.process_table_file_removal(list_table_names)
         print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
         self.transform_points(self.nodes_typed)
         self.close()
@@ -591,7 +592,10 @@ class DOFInput(QDialog):
         if self.stop:
             return
         key_strings = ["displacements", "rotations"]
-        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) have been removed."
+        if self.print_message:
+            message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) \nhave been removed."
+        else:
+            message = None
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.remove_all_table_files_from_nodes(self.nodes_typed)
         data = [self.list_Nones, self.list_Nones]
@@ -614,6 +618,28 @@ class DOFInput(QDialog):
     def remove_all_table_files_from_nodes(self, list_node_ids):
         list_table_names = self.get_list_tables_names_from_selected_nodes(list_node_ids)
         self.process_table_file_removal(list_table_names)
+
+    def reset_all(self):
+
+        title = "Remove all prescribed dofs from structural model"
+        message = "Do you really want to remove all prescribed dofs from the structural model?\n\n\n"
+        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+        if read._continue:
+            self.basenames = []
+            temp_list_nodes = self.preprocessor.nodes_with_prescribed_dofs.copy()
+            self.nodes_typed = [node.external_index for node in temp_list_nodes]
+
+            key_strings = ["displacements", "rotations"]
+            message = None
+            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+            self.remove_all_table_files_from_nodes(self.nodes_typed)
+            data = [self.list_Nones, self.list_Nones]
+            self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
+
+            self.load_nodes_info()
+            self.close()
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:

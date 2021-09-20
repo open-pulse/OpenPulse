@@ -25,40 +25,6 @@
   <property name="windowTitle">
    <string>Set: radiation impedance</string>
   </property>
-  <widget class="QPushButton" name="pushButton_remove_bc_confirm">
-   <property name="geometry">
-    <rect>
-     <x>318</x>
-     <y>58</y>
-     <width>80</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>80</width>
-     <height>30</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>80</width>
-     <height>30</height>
-    </size>
-   </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>12</pointsize>
-     <weight>75</weight>
-     <italic>true</italic>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Remove</string>
-   </property>
-  </widget>
   <widget class="QLineEdit" name="lineEdit_nodeID">
    <property name="geometry">
     <rect>
@@ -457,40 +423,6 @@
       </property>
      </column>
     </widget>
-    <widget class="QPushButton" name="pushButton_remove_bc_confirm_2">
-     <property name="geometry">
-      <rect>
-       <x>118</x>
-       <y>172</y>
-       <width>150</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>150</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>150</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>12</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Remove</string>
-     </property>
-    </widget>
     <widget class="QLabel" name="label_29">
      <property name="geometry">
       <rect>
@@ -534,6 +466,80 @@
       <set>Qt::AlignCenter</set>
      </property>
     </widget>
+    <widget class="QPushButton" name="pushButton_reset">
+     <property name="geometry">
+      <rect>
+       <x>72</x>
+       <y>172</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(125, 255, 245);</string>
+     </property>
+     <property name="text">
+      <string>Reset</string>
+     </property>
+     <property name="flat">
+      <bool>false</bool>
+     </property>
+    </widget>
+    <widget class="QPushButton" name="pushButton_remove_bc_confirm">
+     <property name="geometry">
+      <rect>
+       <x>214</x>
+       <y>172</y>
+       <width>100</width>
+       <height>30</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>100</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>100</width>
+       <height>30</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>12</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>Remove</string>
+     </property>
+    </widget>
    </widget>
   </widget>
   <widget class="QFrame" name="frame_2">
@@ -568,7 +574,6 @@
    </property>
   </widget>
   <zorder>frame_2</zorder>
-  <zorder>pushButton_remove_bc_confirm</zorder>
   <zorder>lineEdit_nodeID</zorder>
   <zorder>frame</zorder>
   <zorder>label_2</zorder>

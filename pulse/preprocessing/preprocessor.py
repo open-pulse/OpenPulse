@@ -2028,6 +2028,7 @@ class Preprocessor:
                     self.nodes_with_specific_impedance.remove(node)
 
                 self.process_nodes_to_update_indexes_after_remesh(node)
+                
             return False
 
         except Exception as log_error:

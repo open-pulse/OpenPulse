@@ -313,7 +313,6 @@ class Project:
         for key, value in dict_element_perforated_plate.items():
             frequency_setup_pass = True
             table_name = value[1].dimensionless_impedance_table_name
-            print("table_name: ", table_name)
             if table_name is not None:
                 if self.change_project_frequency_setup(table_name, value[2]):
                     frequency_setup_pass = False
@@ -1333,12 +1332,12 @@ class Project:
                 return 
             self.file.add_acoustic_bc_in_file([node_id], data, imported_table, label)   
 
-    def set_radiation_impedance_bc_by_node(self, node_ids, values, imported_table = None):
+    def set_radiation_impedance_bc_by_node(self, node_ids, values):
         label = ["radiation impedance"] 
         for node_id in node_ids:    
             if self.preprocessor.set_radiation_impedance_bc_by_node(node_id, values):
                 return
-            self.file.add_acoustic_bc_in_file([node_id], values, imported_table, label) 
+            self.file.add_acoustic_bc_in_file([node_id], [values, None], False, label) 
     
     def set_compressor_excitation_bc_by_node(self, node_ids, data, table_index, connection_info):
         label = [f"compressor excitation - {table_index}"]

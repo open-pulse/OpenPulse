@@ -319,7 +319,6 @@ class PerforatedPlateInput(QDialog):
         self.table_to_save = False
         try:
             if self.lineEdit_load_table_path.text() == "" or button_pressed:
-                imported_basename = ""
                 window_label = 'Choose a table to import the dimensionless impedance'
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
             else:

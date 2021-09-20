@@ -738,9 +738,7 @@ class ExpansionJointInput(QDialog):
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
-                
             else:
-                # self.basename = ""
                 window_label = 'Choose a table to import the {} nodal load'.format(stiffness_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 

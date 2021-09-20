@@ -139,8 +139,8 @@ class LoadsInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
-        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
-        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_reset.clicked.connect(self.reset_all)
 
         self.update()
         self.load_nodes_info()
@@ -240,9 +240,7 @@ class LoadsInput(QDialog):
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
-
             else:
-                # self.basename = ""
                 window_label = 'Choose a table to import the {} nodal load'.format(load_label)
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
@@ -343,16 +341,16 @@ class LoadsInput(QDialog):
         data = np.array([self.frequencies, real_values, imag_values, abs_values]).T
         self.project.create_folders_structural("nodal_loads_files")
 
-        header = f"OpenPulse - imported table for Nodal load {load_label} @ node {node_id} \n"
-        header += f"\nSource filename: {filename}\n"
-
         if load_label in ["Fx", "Fy", "Fz"]:
+            header = f"OpenPulse - imported table for {load_label} nodal force @ node {node_id} \n"
+            header += f"\nSource filename: {filename}\n"
             header += "\nFrequency [Hz], real[N], imaginary[N], absolute[N]"
         else:
+            header = f"OpenPulse - imported table for {load_label} nodal moment @ node {node_id} \n"
+            header += f"\nSource filename: {filename}\n"
             header += "\nFrequency [Hz], real[N.m], imaginary[N.m], absolute[N.m]"
         
-        basename = f"nodal_load_{load_label}_node_{node_id}.dat"    
-        # basename = filename + f"_{load_label}_node_{node_id}.dat"
+        basename = f"nodal_load_{load_label}_node_{node_id}.dat"
     
         new_path_table = get_new_path(self.nodal_loads_files_folder_path, basename)
         np.savetxt(new_path_table, data, delimiter=",", header=header)
@@ -502,11 +500,33 @@ class LoadsInput(QDialog):
     
     def remove_all_table_files_from_nodes(self, list_node_ids):
         list_table_names = self.get_table_names_from_selected_nodes(list_node_ids)
-        self.process_table_file_removal(list_table_names)
+        self.process_table_file_removal(list_table_names)    
 
     def process_table_file_removal(self, list_table_names):
         for table_name in list_table_names:
             self.project.remove_structural_table_files_from_folder(table_name, folder_name="nodal_loads_files")
+
+    def reset_all(self):
+
+        title = "Remove all nodal loads from the structural model"
+        message = "Do you really want to remove all nodal loads from the structural model?\n\n\n"
+        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+        if read._continue:
+            self.basenames = []
+            temp_list_nodes = self.preprocessor.nodes_with_nodal_loads.copy()
+            self.nodes_typed = [node.external_index for node in temp_list_nodes]
+
+            key_strings = ["forces", "moments"]
+            message = None
+            remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
+            self.remove_all_table_files_from_nodes(self.nodes_typed)
+            data = [self.list_Nones, self.list_Nones]
+            self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
+
+            self.load_nodes_info()
+            self.close()
 
     def reset_input_fields(self, force_reset=False):
         if self.inputs_from_node or force_reset:
