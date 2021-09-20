@@ -33,8 +33,6 @@ class SnaptoCursor(object):
             self.vl = self.ax.axvline(x=x[0], color='k', alpha=0.3, label='_nolegend_')  # the vertical line
             self.hl = self.ax.axhline(y=y[0], color='k', alpha=0.3, label='_nolegend_')  # the horizontal line 
             self.marker, = ax.plot(x[0], y[0], markersize=4, marker="s", color=[0,0,0], zorder=3)
-            # self.marker.set_label("x: %1.2f // y: %4.2e" % (self.x[0], self.y[0]))
-            # plt.legend(handles=[self.marker], loc='lower left', title=r'$\bf{Cursor}$ $\bf{coordinates:}$')
 
     def mouse_move(self, event):
         if self.show_cursor:   
@@ -132,12 +130,20 @@ class PerforatedPlateInput(QDialog):
         self.checkBox_nonlinear.toggled.connect(self.checkBoxEvent_nonlinear)
         self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
         self.lineEdit_nonlinDischarge = self.findChild(QLineEdit, 'lineEdit_nonlinDischarge')
+        self.label_nonlinDischarge = self.findChild(QLabel, 'label_nonlinDischarge')
         self.lineEdit_correction = self.findChild(QLineEdit, 'lineEdit_correction')
+        self.label_correction = self.findChild(QLabel, 'label_correction')
         
         self.checkBox_bias = self.findChild(QCheckBox, 'checkBox_bias')
         self.checkBox_bias.toggled.connect(self.checkBoxEvent_bias)
         self.checkBoxEvent_bias()
         self.lineEdit_bias = self.findChild(QLineEdit, 'lineEdit_bias')
+        self.label_bias = self.findChild(QLabel, 'label_bias')
+
+        self.checkBox_dimensionless = self.findChild(QCheckBox, 'checkBox_dimensionless')
+        self.checkBox_dimensionless.toggled.connect(self.checkBoxEvent_dimensionless)
+        self.flag_dimensionless = self.checkBox_dimensionless.isChecked()
+        self.label_dimensionless = self.findChild(QLabel, 'label_dimensionless')
 
         # User defined tab
         self.tabWidget_dimensionless = self.findChild(QTabWidget, "tabWidget_dimensionless")
@@ -213,24 +219,56 @@ class PerforatedPlateInput(QDialog):
         self.currentTab_ = self.tabWidget_perforated_plate.currentIndex()
         if self.currentTab_ == 0:
             self.write_ids(self.elements_id)
-        elif self.currentTab_ in [1,2]: 
-            self.lineEdit_elementID.setText("")
+            self.label_selection.setText("Elements IDs")
+        elif self.currentTab_ == 1: 
+            self.label_selection.setText("Group")
+            items = self.treeWidget_perforated_plate_plot.selectedItems()
+            if items == []:
+                self.lineEdit_elementID.setText('')
+            else:
+                self.on_click_item(items[0])
+        elif self.currentTab_ == 2: 
+            self.label_selection.setText("Group")
+            items = self.treeWidget_perforated_plate_remove.selectedItems()
+            if items == []:
+                self.lineEdit_elementID.setText('')
+            else:
+                self.on_click_item(items[0])
     
     def checkBoxEvent_nonlinear(self):
         self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
         if self.flag_nonlinear:
             self.lineEdit_nonlinDischarge.setDisabled(False)
+            self.label_nonlinDischarge.setDisabled(False)
             self.lineEdit_correction.setDisabled(False)
+            self.label_correction.setDisabled(False)
         else:
             self.lineEdit_nonlinDischarge.setDisabled(True)
+            self.label_nonlinDischarge.setDisabled(True)
             self.lineEdit_correction.setDisabled(True)
+            self.label_correction.setDisabled(True)
 
     def checkBoxEvent_bias(self):
         self.flag_bias = self.checkBox_bias.isChecked()
         if self.flag_bias:
             self.lineEdit_bias.setDisabled(False)
+            self.label_bias.setDisabled(False)
         else:
             self.lineEdit_bias.setDisabled(True)
+            self.label_bias.setDisabled(True)
+
+    def checkBoxEvent_dimensionless(self):
+        self.flag_dimensionless = self.checkBox_dimensionless.isChecked()
+        if self.flag_dimensionless:
+            self.tabWidget_dimensionless.setDisabled(False)
+            self.label_dimensionless.setDisabled(False)
+            self.lineEdit_load_table_path.setDisabled(False)
+            self.toolButton_load_table.setDisabled(False)
+        else:
+            self.tabWidget_dimensionless.setDisabled(True)
+            self.label_dimensionless.setDisabled(True)
+            self.lineEdit_load_table_path.setDisabled(True)
+            self.toolButton_load_table.setDisabled(True)
  
     def radioButtonEvent_setup(self):
         self.flag_OpenPulse = self.radioButton_OpenPulse.isChecked()
@@ -238,19 +276,28 @@ class PerforatedPlateInput(QDialog):
 
         if self.flag_OpenPulse:
             self.checkBox_nonlinear.setDisabled(False)
-            self.lineEdit_nonlinDischarge.setDisabled(False)
-            self.lineEdit_correction.setDisabled(False)
+            self.checkBoxEvent_nonlinear()
 
             self.checkBox_bias.setDisabled(False)
-            self.lineEdit_bias.setDisabled(False)
+            self.checkBoxEvent_bias()
+
+            self.checkBox_dimensionless.setDisabled(False)
+            self.checkBoxEvent_dimensionless()
             self.dict_inputs['type'] = 0
         elif self.flag_melling:
             self.checkBox_nonlinear.setDisabled(True)
             self.lineEdit_nonlinDischarge.setDisabled(True)
             self.lineEdit_correction.setDisabled(True)
+            self.label_nonlinDischarge.setDisabled(True)
+            self.label_correction.setDisabled(True)
 
             self.checkBox_bias.setDisabled(True)
             self.lineEdit_bias.setDisabled(True)
+            self.label_bias.setDisabled(True)
+
+            self.checkBox_dimensionless.setDisabled(True)
+            self.tabWidget_dimensionless.setDisabled(True)
+
             self.dict_inputs['type'] = 1
 
     def check_input_parameters(self, string, label, not_None = False):
@@ -833,8 +880,8 @@ class PerforatedPlateInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_perforated_plate_plot.addTopLevelItem(new)  
             
-        self.treeWidget_perforated_plate_plot.header().setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
-        self.treeWidget_perforated_plate_plot.setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_plot.header().setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_plot.setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
 
         self.treeWidget_perforated_plate_remove.clear()
         for section, value in self.dict_group_elements.items():
@@ -845,8 +892,8 @@ class PerforatedPlateInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)  
             self.treeWidget_perforated_plate_remove.addTopLevelItem(new)  
 
-        self.treeWidget_perforated_plate_remove.header().setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
-        self.treeWidget_perforated_plate_remove.setStyleSheet('font: bold 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_remove.header().setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_perforated_plate_remove.setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
         self.update_tabs_visibility()
 
     def get_information_of_group(self):
@@ -942,8 +989,10 @@ class PerforatedPlateInput(QDialog):
         if len(self.preprocessor.group_elements_with_perforated_plate) == 0:
             self.tabWidget_perforated_plate.setCurrentWidget(self.tab_setup)
             self.tab_remove.setDisabled(True)
+            self.tab_preview.setDisabled(True)
         else:
             self.tab_remove.setDisabled(False)
+            self.tab_preview.setDisabled(False)
 
         
 class GetInformationOfGroup(QDialog):
