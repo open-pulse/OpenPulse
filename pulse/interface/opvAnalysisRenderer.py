@@ -1,3 +1,4 @@
+from data.user_input.project.printMessageInput import PrintMessageInput
 import vtk
 import numpy as np
 
@@ -10,6 +11,7 @@ from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+from threading import Thread
 
 
 class opvAnalysisRenderer(vtkRendererBase):
@@ -80,7 +82,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._createColorBar()
         self._createScaleBar()
 
-    def _cacheFrames(self, single_frame=True, value=1):
+    def _cacheFrames(self, single_frame=False, value=1):
         if single_frame:
             vals = [value]
         else:
@@ -104,14 +106,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._currentPlot = self.computeDisplacement
         self._currentFrequencyIndex = frequency_index   
         self._animationFrames.clear()
-        self._cacheFrames()
+        self._cacheFrames(single_frame=True)
         self._plotCached(1)
 
     def showStressField(self, frequency_index):
         self._currentPlot = self.computeStressField
         self._currentFrequencyIndex = frequency_index    
         self._animationFrames.clear()
-        self._cacheFrames()
+        self._cacheFrames(single_frame=True)
         self._plotCached(1)
 
     def showPressureField(self, frequency_index, real_part=True):
@@ -226,9 +228,16 @@ class opvAnalysisRenderer(vtkRendererBase):
             if self.playingAnimation:
                 if self._cacheFrequencyIndex != self._currentFrequencyIndex:
                     self._animationFrames.clear()
-                    self._cacheFrames(single_frame=False)
+                    #TODO: print the log message while the calculation is in progress then close it automatically after all
+                    self.printLogMessage()
+                    # self._cacheFrames()
                     self._cacheFrequencyIndex = self._currentFrequencyIndex
     
+    def printLogMessage(self):
+        title = "Processing in progress"
+        message = "The animation frames calculation in progress." 
+        PrintMessageInput([title, message, "OpenPulse"], opvAnalysisRenderer=self)
+
     def _animationCallback(self, caller, event):
         if self._currentPlot is None:
             return 
@@ -256,7 +265,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.playingAnimation = False
         sliderValue = slider.GetRepresentation().GetValue()
         slider.GetRepresentation().SetValue(round(sliderValue, 1))
-        self._cacheFrames(value=round(sliderValue, 1))
+        self._cacheFrames(single_frame=True, value=round(sliderValue, 1))
         self._plotCached(sliderValue)
 
     def _createColorBar(self):

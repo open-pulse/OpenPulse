@@ -169,7 +169,7 @@ class LoadsInput(QDialog):
                 self.stop = True
                 return
         else:
-            _real = None
+            _real = 0
 
         if lineEdit_imag.text() != "":
             try:
@@ -182,7 +182,7 @@ class LoadsInput(QDialog):
                 self.stop = True
                 return
         else:
-            _imag = None
+            _imag = 0
         
         if _real == 0 and _imag == 0:
             return None

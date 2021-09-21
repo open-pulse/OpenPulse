@@ -80,7 +80,6 @@ class InputUi:
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
         self.project.none_project_action = False
-        # self.setup_analysis_complete = False
 
     def beforeInput(self):
         try:
@@ -229,8 +228,13 @@ class InputUi:
     def analysisTypeInput(self):
 
         read = AnalysisTypeInput()
+
+        if not read.complete:
+            return
+
         if read.method_ID == -1:
             return
+
         self.analysis_ID = read.analysis_ID
         self.analysis_type_label = read.analysis_type_label
         self.analysis_method_label = read.analysis_method_label
@@ -238,23 +242,18 @@ class InputUi:
         if self.analysis_ID is None:
             self.project.analysis_ID = None
             return
-
+               
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
-        # self.project.set_acoustic_solution(None)
-        # self.project.set_structural_solution(None)
+        self.project.set_acoustic_solution(None)
+        self.project.set_structural_solution(None)
 
         if self.analysis_ID in [2,4]:
-            if not read.complete:
-                return
-            else:
-                self.project.update_project_analysis_setup_state(True)
-                # self.setup_analysis_complete = True
-                self.runAnalysis()
+            self.project.update_project_analysis_setup_state(True)
+            self.runAnalysis()
         else:
-            # self.setup_analysis_complete = False
             self.analysisSetup()
-        
+                    
     def analysisSetup(self):
 
         if self.project.analysis_ID in [None, 2, 4]:
@@ -268,16 +267,16 @@ class InputUi:
 
         read = AnalysisSetupInput(self.project, f_min=self.f_min, f_max=self.f_max, f_step=self.f_step)
         
+        self.project.update_project_analysis_setup_state(read.complete)
+
         if not read.complete:
             return False
-
-        self.project.update_project_analysis_setup_state(read.complete)
+        
         self.frequencies = read.frequencies
         self.f_min = read.f_min
         self.f_max = read.f_max
         self.f_step = read.f_step
         self.global_damping = read.global_damping
-        # self.setup_analysis_complete = read.complete
         
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
 

@@ -71,6 +71,7 @@ class AnalysisTypeInput(QDialog):
         else:
             self.analysis_ID = 1
             self.analysis_method_label = "Mode Superposition Method"
+        self.complete = True
         self.close()
 
     def harmonic_acoustic(self):
@@ -84,6 +85,7 @@ class AnalysisTypeInput(QDialog):
         else:
             return
         #     self.method_text = "Mode Superposition"
+        self.complete = True
         self.close()
 
     def harmonic_coupled(self):
@@ -96,6 +98,7 @@ class AnalysisTypeInput(QDialog):
         else:
             self.analysis_ID = 6
             self.analysis_method_label = "Mode Superposition Method"
+        self.complete = True
         self.close()
 
     def modal_structural(self):
