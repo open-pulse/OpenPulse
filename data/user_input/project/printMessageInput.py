@@ -28,9 +28,9 @@ class PrintMessageInput(QDialog):
             self.pushButton_close.setVisible(True)
             self.create_font_title()
             self.create_font_message()
-            self.Label_title.setFont(self.font_title)
-            self.Label_message.setFont(self.font_message)
-            self.Label_message.setWordWrap(True)
+            self._label_title.setFont(self.font_title)
+            self._label_message.setFont(self.font_message)
+            self._label_message.setWordWrap(True)
         else:
             self.close()
             self.pushButton_close.setVisible(False)
