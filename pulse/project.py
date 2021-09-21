@@ -40,6 +40,7 @@ class Project:
         self.f_step = 0
         self.list_frequencies = []
         self.natural_frequencies_structural = []
+        self.imported_table_frequency_setup = False
         self.solution_structural = None
         self.solution_acoustic = None
         self.flag_set_material = False
@@ -67,6 +68,23 @@ class Project:
         self.min_stress = ""
         self.max_stress = ""
         self.stress_label = ""
+
+    def update_project_analysis_setup_state(self, _bool):
+        self.setup_analysis_complete = _bool
+
+    def check_if_are_there_tables_in_model(self):
+        if os.path.exists(self.file._structural_imported_data_folder_path):
+            return True
+        if os.path.exists(self.file._acoustic_imported_data_folder_path):
+            return True
+        return False
+        # list_structural_table_names = os.listdir(self.file._structural_imported_data_folder_path).copy()
+        # if len(list_structural_table_names) > 0:
+        #     return True
+        # list_acoustic_table_names = os.listdir(self.file._acoustic_imported_data_folder_path).copy()
+        # if len(list_acoustic_table_names) > 0:
+        #     return True 
+        # return False       
 
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
@@ -115,8 +133,6 @@ class Project:
         self.load_acoustic_bc_file()
         self.load_entity_file()
         self.load_analysis_file()
-        # if self.file.temp_table_name is not None:
-        #     self.load_frequencies_from_table()
 
     def update_node_ids_in_file_after_remesh(self, dict_old_to_new_node_external_indexes):
         self.file.modify_node_ids_in_acoustic_bc_file(dict_old_to_new_node_external_indexes)
@@ -781,6 +797,7 @@ class Project:
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                 self.file.add_frequency_in_file(self.f_min, self.f_max, self.f_step)
+                self.imported_table_frequency_setup = True
             return False
         else:
             title = "Project frequency setup cannot be modified"
@@ -1205,8 +1222,8 @@ class Project:
     def get_structural_element(self, element_id):
         return self.preprocessor.structural_elements[element_id]
 
-    # def get_acoustic_elements(self):
-    #     return self.preprocessor.acoustic_elements    
+    def get_acoustic_elements(self):
+        return self.preprocessor.acoustic_elements 
 
     def get_acoustic_element(self, element_id):
         return self.preprocessor.acoustic_elements[element_id]

@@ -745,15 +745,9 @@ class ExpansionJointInput(QDialog):
             if self.path_imported_table == "":
                 return None, None
 
-            self.imported_filename = os.path.basename(self.path_imported_table)
+            imported_filename = os.path.basename(self.path_imported_table)
             lineEdit.setText(self.path_imported_table)
-            
-            # _stiffness_label = stiffness_label.lower().replace(" ", "_")
-            # for _format in [".csv", ".dat", ".txt"]:
-            #     if _format in self.basename:
-            #         prefix_string = self.basename.split(_format)[0]
-            #         self.imported_filename = prefix_string.split(f"_{_stiffness_label}_line_")[0]
-            
+                        
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
                 
             if imported_file.shape[1]<2:
@@ -763,7 +757,7 @@ class ExpansionJointInput(QDialog):
                 PrintMessageInput([title, message, window_title_1])
                 return None, None
         
-            self.imported_values = imported_file[:,1]
+            imported_values = imported_file[:,1]
 
             if imported_file.shape[1]>=2:
 
@@ -779,7 +773,7 @@ class ExpansionJointInput(QDialog):
                     self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
                     self.stop = False
 
-            return self.imported_values, self.imported_filename
+            return imported_values, imported_filename
 
         except Exception as log_error:
             message = str(log_error)
@@ -841,7 +835,6 @@ class ExpansionJointInput(QDialog):
             header += "\nFrequency [Hz], real[N.m/rad], imaginary[N.m/rad], absolute[N.m/rad]"
 
         basename = f"expansion_joint_{stiffness_label}_line_{line_id}_table#{table_index}.dat" 
-        # basename = filename + f"_{stiffness_label}_line_{line_id}_table#{table_index}.dat" 
         
         if basename in self.list_table_names_from_selection:
             self.list_table_names_from_selection.remove(basename)
@@ -1247,7 +1240,7 @@ class ExpansionJointInput(QDialog):
         self.update_remove_buttons()
         self.update_tabs()
         self.opv.opvRenderer.plot()
-        # self.opv.opvAnalisysRenderer.plot()
+        # self.opv.opvAnalysisRenderer.plot()
         self.opv.changePlotToEntitiesWithCrossSection() 
     
     def remove_table_files_from_imported_data_folder_by_elements(self, list_elements):

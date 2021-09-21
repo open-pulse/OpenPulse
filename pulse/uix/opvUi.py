@@ -10,7 +10,7 @@ import vtk
 # from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
 # from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer
-from pulse.interface.opvAnalisysRenderer import opvAnalisysRenderer
+from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -27,21 +27,21 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities_with_cross_section = False
 
         self.opvRenderer = opvRenderer(self.project, self)
-        self.opvAnalisysRenderer = opvAnalisysRenderer(self.project, self)
+        self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
 
         self._createAxes()        
 
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
-        self.GetRenderWindow().RemoveRenderer(self.opvAnalisysRenderer.getRenderer())
+        self.GetRenderWindow().RemoveRenderer(self.opvAnalysisRenderer.getRenderer())
 
     def clearRendereresUse(self):
         self.opvRenderer.setInUse(False)
-        self.opvAnalisysRenderer.setInUse(False)
+        self.opvAnalysisRenderer.setInUse(False)
 
     def updatePlots(self):
         self.opvRenderer.plot()
-        self.opvAnalisysRenderer.plot()
+        self.opvAnalysisRenderer.plot()
     
     def changePlotToEntities(self):
 
@@ -110,15 +110,15 @@ class OPVUi(QVTKRenderWindowInteractor):
         # i will just continue my code from here and we organize all 
         # these in the future.
 
-        self.setRenderer(self.opvAnalisysRenderer)
-        self.opvAnalisysRenderer.updateHud()
+        self.setRenderer(self.opvAnalysisRenderer)
+        self.opvAnalysisRenderer.updateHud()
 
         if pressure_field_plot:
-            self.opvAnalisysRenderer.showPressureField(frequency_indice, real_part)
+            self.opvAnalysisRenderer.showPressureField(frequency_indice, real_part)
         elif stress_field_plot:
-            self.opvAnalisysRenderer.showStressField(frequency_indice, gain=1)
+            self.opvAnalysisRenderer.showStressField(frequency_indice)
         else:
-            self.opvAnalisysRenderer.showDisplacement(frequency_indice, gain=1)
+            self.opvAnalysisRenderer.showDisplacement(frequency_indice)
         
         self._updateAxes()
 
@@ -135,6 +135,46 @@ class OPVUi(QVTKRenderWindowInteractor):
         renderer.setInUse(True)
         self.SetInteractorStyle(renderer.getStyle())
         self.GetRenderWindow().AddRenderer(renderer.getRenderer())
+
+
+    def setCameraView(self, view=6):
+        x,y,z = self.opvRenderer._renderer.GetActiveCamera().GetFocalPoint()
+        vx, vy, vz = (0,1,0)
+
+        ORTH   = 0
+        TOP    = 1
+        BOTTOM = 2
+        LEFT   = 3 
+        RIGHT  = 4
+        FRONT  = 5
+        BACK   = 6
+
+        if view == TOP:
+            y += 1
+            vx, vy, vz = (0,0,-1)
+        elif view == BOTTOM:
+            y -= 1
+            vx, vy, vz = (0,0,1)
+        elif view == LEFT:
+            x -= 1
+        elif view == RIGHT:
+            x += 1
+        elif view == FRONT:
+            z += 1
+        elif view == BACK:
+            z -= 1 
+        elif view == ORTH:
+            x -= 1
+            y -= 1
+            z -= 1
+        else:
+            return
+
+        self.opvRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
+        self.opvRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
+        self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
+        self.opvRenderer._renderer.ResetCamera()
+        self.opvRenderer.update()
 
     # def updateDialogs(self):
     #     pass

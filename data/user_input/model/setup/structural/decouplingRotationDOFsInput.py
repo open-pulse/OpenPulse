@@ -210,6 +210,7 @@ class DecouplingRotationDOFsInput(QDialog):
         
         if self.structural_elements[self.element_id].element_type in ['beam_1']:
             self.project.set_B2PX_rotation_decoupling(self.element_id, self.selected_node_id, self.rotations_mask)
+            print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(self.element_id, self.selected_node_id))
             self.complete = True
             self.close()
         else:

@@ -80,8 +80,7 @@ class InputUi:
         self.nodal_loads_frequencies = None
         self.prescribed_dofs_frequencies = None
         self.project.none_project_action = False
-        self.setup_analysis_complete = False
-        # self.flag_imported_table = False
+        # self.setup_analysis_complete = False
 
     def beforeInput(self):
         try:
@@ -174,8 +173,6 @@ class InputUi:
         
     def setRotationDecoupling(self):
         read = DecouplingRotationDOFsInput(self.project, self.opv)  
-        if read.complete:
-            print("[Set Rotation Decoupling] - defined at element {} and at node {}".format(read.element_id, read.selected_node_id))
 
     def setNodalLoads(self):
         LoadsInput(self.project, self.opv)
@@ -244,17 +241,18 @@ class InputUi:
 
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
-        self.project.set_acoustic_solution(None)
-        self.project.set_structural_solution(None)
+        # self.project.set_acoustic_solution(None)
+        # self.project.set_structural_solution(None)
 
         if self.analysis_ID in [2,4]:
             if not read.complete:
                 return
             else:
-                self.setup_analysis_complete = True
+                self.project.update_project_analysis_setup_state(True)
+                # self.setup_analysis_complete = True
                 self.runAnalysis()
         else:
-            self.setup_analysis_complete = False
+            # self.setup_analysis_complete = False
             self.analysisSetup()
         
     def analysisSetup(self):
@@ -264,45 +262,31 @@ class InputUi:
         if self.project.file._project_name == "":
             return False
 
-        #TODO: simplify the structure below
-        # if self.project.file.temp_table_name is None:
         self.project.load_analysis_file()
         self.f_min, self.f_max, self.f_step = self.project.get_frequency_setup() 
-        # else:
-        #     self.project.load_frequencies_from_table()
-        #     self.f_min, self.f_max, self.f_step = self.project.file.f_min, self.project.file.f_max, self.project.file.f_step
+        self.global_damping = self.project.global_damping  
 
-        self.global_damping = self.project.global_damping    
         read = AnalysisSetupInput(self.project, f_min=self.f_min, f_max=self.f_max, f_step=self.f_step)
-
+        
         if not read.complete:
             return False
 
-        if self.project.setup_analysis_complete:
-            return False
-
+        self.project.update_project_analysis_setup_state(read.complete)
         self.frequencies = read.frequencies
         self.f_min = read.f_min
         self.f_max = read.f_max
         self.f_step = read.f_step
         self.global_damping = read.global_damping
-        self.setup_analysis_complete = read.complete
-
-        if read.complete:
-            self.project.setup_analysis_complete = True
-        else:
-            self.project.setup_analysis_complete = False
-            return False
+        # self.setup_analysis_complete = read.complete
         
         self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
-        # self.flag_imported_table = False
 
         if not self.analysis_ID in [3,4]:
             self.project.set_modes_sigma(read.modes)
             self.project.set_damping(self.global_damping)
         # else:
         #     return False
-
+       
         if read.flag_run:
             self.runAnalysis()
         return True
@@ -310,16 +294,12 @@ class InputUi:
     def runAnalysis(self):
 
         # t0 = time()
-        if self.analysis_ID is None or not self.setup_analysis_complete:
+        if self.analysis_ID is None or not self.project.setup_analysis_complete:
             
             title = "INCOMPLETE SETUP ANALYSIS" 
             message = "Please, it is necessary to choose an analysis type and \nsetup it before trying to solve the model."
             PrintMessageInput([title, message, window_title_1])
             return
-
-        # if self.flag_imported_table:
-        #     if self.analysisSetup():
-        #         return
 
         self.before_run = self.project.get_model_checks()
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
@@ -332,7 +312,6 @@ class InputUi:
                 self.before_run.check_modal_analysis_imported_data()
             elif self.analysis_ID in [3,5,6]:
                 self.before_run.check_all_acoustic_criteria()
-
         
     def plotStructuralModeShapes(self):
             self.project.set_min_max_type_stresses("", "", "")
@@ -446,55 +425,6 @@ class InputUi:
 
     def acoustic_model_info(self):
         AcousticModelInfoInput(self.project, self.opv)
-
-
-    # def _load_frequencies_from_table(self, _read):
-    #     self.project.file.f_min = _read.f_min
-    #     self.project.file.f_max = _read.f_max
-    #     self.project.file.f_step = _read.f_step
-    #     self.project.file.frequencies = _read.frequencies
-    #     # self.project.file.temp_table_name = _read.imported_table_name  
-    #     # return _read.frequencies 
-    
-
-    def check_acoustic_bc_tables(self):
-
-        title = "Error while checking tables"
-
-        if self.acoustic_pressure_frequencies is not None:
-            if self.volume_velocity_frequencies is not None:
-                if self.specific_impedance_frequencies is not None:
-                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        message = "Check frequency setup of all imported tables."
-                        PrintMessageInput([title, message, window_title_1])
-                        return
-                else:
-                    if self.acoustic_pressure_frequencies==self.volume_velocity_frequencies:
-                        pass
-                    else:
-                        message = "Check frequency setup of imported tables (Acoustic Pressure and Volume Velocity)."
-                        PrintMessageInput([title, message, window_title_1])
-                        return    
-            else:
-                if self.specific_impedance_frequencies is not None:
-                    if self.acoustic_pressure_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        message = "Check frequency setup of imported tables (Acoustic Pressure and Specific Impedance)."
-                        PrintMessageInput([title, message, window_title_1])
-                        return
-        else:
-            if self.volume_velocity_frequencies is not None:
-                if self.specific_impedance_frequencies is not None:
-                    if self.volume_velocity_frequencies==self.specific_impedance_frequencies:
-                        pass
-                    else:
-                        message = "Check frequency setup of imported tables (Volume Velocity and Specific Impedance)."
-                        PrintMessageInput([title, message, window_title_1])
-                        return
- 
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
