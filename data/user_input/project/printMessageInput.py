@@ -21,8 +21,8 @@ class PrintMessageInput(QDialog):
         if opv is not None:
             opv.setInputObject(self)
 
-        self.Label_title = self.findChild(QLabel, '_label_title')
-        self.Label_message = self.findChild(QLabel, '_label_message')
+        self._label_title = self.findChild(QLabel, '_label_title')
+        self._label_message = self.findChild(QLabel, '_label_message')
         
         if opvAnalysisRenderer is None:
             self.pushButton_close.setVisible(True)
@@ -39,8 +39,8 @@ class PrintMessageInput(QDialog):
 
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
-        self.Label_title.setText(text_info[0])
-        self.Label_message.setText(message)
+        self._label_title.setText(text_info[0])
+        self._label_message.setText(message)
         
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
@@ -78,8 +78,8 @@ class PrintMessageInput(QDialog):
         # font.setItalic(True)
         font.setFamily("Arial")
         # font.setWeight(60)
-        self.label_message.setFont(font)
-        self.label_message.setStyleSheet("color:blue")
+        self._label_message.setFont(font)
+        self._label_message.setStyleSheet("color:blue")
 
     def config_title_font(self):
         font = QFont()
@@ -88,8 +88,8 @@ class PrintMessageInput(QDialog):
         font.setItalic(True)
         font.setFamily("Arial")
         # font.setWeight(60)
-        self.label_title.setFont(font)
-        self.label_title.setStyleSheet("color:black")
+        self._label_title.setFont(font)
+        self._label_title.setStyleSheet("color:black")
     
     def preprocess_big_strings(self, text):
         message = ""
