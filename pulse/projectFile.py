@@ -39,7 +39,6 @@ class ProjectFile:
         self._node_acoustic_path = ""
         self._element_info_path = ""
         self._analysis_path = ""
-        # self.temp_table_name = None
         self.element_type_is_structural = False
 
     def reset_frequency_setup(self):
@@ -1271,6 +1270,7 @@ class ProjectFile:
         read_value = str_value[1:-1]
         output = None
         table_name = None
+        self.frequencies = None
 
         if read_value != 'None':
             try:
@@ -1289,7 +1289,7 @@ class ProjectFile:
                     self.f_min = self.frequencies[0]
                     self.f_max = self.frequencies[-1]
                     self.f_step = self.frequencies[1] - self.frequencies[0]
-                    # self.temp_table_name = read_value
+                    
                     if self.f_min != 0:
                         self.non_zero_frequency_info = [False, self.f_min, read_value]
                     else:
@@ -1344,10 +1344,10 @@ class ProjectFile:
         read = input_string[1:-1].replace(" ","").split(',')
         N = len(read)
         output = [None, None, None, None]
-        list_table_names = []
+        list_table_names = [None, None, None, None]
         list_frequencies = [None, None, None, None]
 
-        if len(read)==4:
+        if N==4:
             for i in range(N):
                 try:
                     output[i] = float(read[i])
@@ -1366,8 +1366,8 @@ class ProjectFile:
                         self.f_min = self.frequencies[0]
                         self.f_max = self.frequencies[-1]
                         self.f_step = self.frequencies[1] - self.frequencies[0]
-                        # self.temp_table_name = read[i]
-                        list_table_names.append(read[i])
+                        list_table_names[i] = read[i]
+
                         if self.f_min != 0:
                             self.non_zero_frequency_info = [False, self.f_min, read[i]]
                         else:
@@ -1377,7 +1377,6 @@ class ProjectFile:
                     except Exception as log_error:
                         title = f"Expansion joint: error while loading {labels[i]} table of values"
                         message = str(log_error)
-                        message += " AquieudeveriaescreverumamensagemconsideravelementelongaparatestaraestruturadepularlinhasautomáticasAparentementeafuncaopareceestarcorretamaisaindafaltaverificarmaiscasosporgarantiamesmo."
                         PrintMessageInput([title, message, window_title])
                         return None, None, None
         return output, list_table_names, list_frequencies
@@ -1411,7 +1410,6 @@ class ProjectFile:
             self.f_min = self.frequencies[0]
             self.f_max = self.frequencies[-1]
             self.f_step = self.frequencies[1] - self.frequencies[0]
-            # self.temp_table_name = table_name
             
             if self.f_min != 0:
                 self.non_zero_frequency_info = [False, self.f_min, table_name]

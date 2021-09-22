@@ -389,11 +389,11 @@ class Project:
                     for list_elements in joint_data[0]:
                         self.load_expansion_joint_by_elements(list_elements, parameters[:-1])
             else:
-                joint_tables = joint_data[2]
+                joint_table_names = joint_data[2]
                 joint_list_freq = joint_data[3]
                 if joint_data[1] is not None:
                     for i, joint_freq in enumerate(joint_list_freq):
-                        if self.change_project_frequency_setup(joint_tables[i], joint_freq):
+                        if self.change_project_frequency_setup(joint_table_names[i], joint_freq):
                             frequency_setup_pass = False
                             break
                     if frequency_setup_pass:
@@ -782,7 +782,8 @@ class Project:
         self.frequencies = self.file.frequencies 
 
     def change_project_frequency_setup(self, table_name, frequencies):
-        # print(table_name)
+        if frequencies is None:
+            return False
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
         updated = False
@@ -791,7 +792,6 @@ class Project:
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:
             if updated:
-                # print(self.f_min, self.f_max, self.f_step)
                 self.frequencies = frequencies
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]

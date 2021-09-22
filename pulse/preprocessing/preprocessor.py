@@ -1631,7 +1631,7 @@ class Preprocessor:
                 if element not in self.elements_with_expansion_joint:
                     self.elements_with_expansion_joint.append(element)
 
-            if list_stiffness_table_names != []:
+            if list_stiffness_table_names.count(None) != 4:
                 first_table_name = list_stiffness_table_names[0]
                 for ext in [".csv", ".dat", ".txt"]:
                     if ext in first_table_name:
@@ -1642,7 +1642,6 @@ class Preprocessor:
                                     "torsional stiffness", "angular stiffness"]
                 if table_index not in self.expansion_joint_table_indexes.keys():
                     self.expansion_joint_table_indexes[table_index] = stiffness_labels
-                # print(f"list ids: {list_stiffness_table_names}")
         
             if aux_line_id is None:
                 size = len(self.group_elements_with_expansion_joints)
