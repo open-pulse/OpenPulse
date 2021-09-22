@@ -282,31 +282,31 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
         # Camera
-        self.cameraTop_action = QAction('&Camera Top', self)
+        self.cameraTop_action = QAction('&Top View', self)
         self.cameraTop_action.setShortcut('Ctrl+Shift+1')
         self.cameraTop_action.triggered.connect(self.cameraTop_call)
 
-        self.cameraBottom_action = QAction('&Camera Bottom', self)
+        self.cameraBottom_action = QAction('&Bottom View', self)
         self.cameraBottom_action.setShortcut('Ctrl+Shift+2')
         self.cameraBottom_action.triggered.connect(self.cameraBottom_call)
 
-        self.cameraLeft_action = QAction('&Camera Left', self)
+        self.cameraLeft_action = QAction('&Left View', self)
         self.cameraLeft_action.setShortcut('Ctrl+Shift+3')
         self.cameraLeft_action.triggered.connect(self.cameraLeft_call)
 
-        self.cameraRight_action = QAction('&Camera Right', self)
+        self.cameraRight_action = QAction('&Right View', self)
         self.cameraRight_action.setShortcut('Ctrl+Shift+4')
         self.cameraRight_action.triggered.connect(self.cameraRight_call)
 
-        self.cameraFront_action = QAction('&Camera Front', self)
+        self.cameraFront_action = QAction('&Front View', self)
         self.cameraFront_action.setShortcut('Ctrl+Shift+5')
         self.cameraFront_action.triggered.connect(self.cameraFront_call)
 
-        self.cameraBack_action = QAction('&Camera Back', self)
+        self.cameraBack_action = QAction('&Back View', self)
         self.cameraBack_action.setShortcut('Ctrl+Shift+6')
         self.cameraBack_action.triggered.connect(self.cameraBack_call)
 
-        self.cameraOrth_action = QAction('&Camera Orth', self)
+        self.cameraOrth_action = QAction('&Isometric View', self)
         self.cameraOrth_action.setShortcut('Ctrl+Shift+7')
         self.cameraOrth_action.triggered.connect(self.cameraOrth_call)
 
@@ -420,7 +420,7 @@ class MainWindow(QMainWindow):
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
-        self.cameraMenu = menuBar.addMenu('&Camera')
+        self.cameraMenu = menuBar.addMenu('&Views')
         self.helpMenu = menuBar.addMenu("&Help")
 
         self._loadProjectMenu()
