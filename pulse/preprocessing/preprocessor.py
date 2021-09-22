@@ -423,10 +423,13 @@ class Preprocessor:
         This method updates the structural elements neighbors dictionary. The dictionary's keys and values are nodes objects.
         """
         self.neighbors = defaultdict(list)
+        self.elements_connected_to_node = defaultdict(list)
         # self.nodes_with_multiples_neighbors = {}
         for element in self.structural_elements.values():
             self.neighbors[element.first_node].append(element.last_node)
             self.neighbors[element.last_node].append(element.first_node)
+            self.elements_connected_to_node[element.first_node].append(element)
+            self.elements_connected_to_node[element.last_node].append(element)
             # if len(self.neighbors[element.first_node]) > 2:
             #     self.nodes_with_multiples_neighbors[element.first_node] = self.neighbors[element.first_node]
             # if len(self.neighbors[element.last_node]) > 2:
@@ -2218,7 +2221,41 @@ class Preprocessor:
         else:
             first_node = node_2
             last_node = node_1
-        return reord_gdofs, first_node, last_node          
+        return reord_gdofs, first_node, last_node       
+
+
+    def get_nodes_and_elements_with_expansion(self, ratio=10):
+        title = "Incomplete model setup"
+        message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' or 'pipe_2' elements"
+        message += "before continue"
+        self.nodes_with_cross_section_transition = {}
+        for node, neigh_elements in self.elements_connected_to_node.items():
+            check_complete = False
+            if len(neigh_elements) == 2:
+
+                if neigh_elements[0].element_type in ["pipe_1", "pipe_2"]:
+                    if neigh_elements[0].cross_section is None:
+                        PrintMessageInput([title, message, window_title_1])
+                        return
+                    else:
+                        check_complete = True
+                        diameter_first = neigh_elements[0].cross_section.outer_diameter
+                        
+                if neigh_elements[1].element_type in ["pipe_1", "pipe_2"]:
+                    if neigh_elements[1].cross_section is None:
+                        PrintMessageInput([title, message, window_title_1])
+                        return
+                    else:
+                        check_complete = True
+                        diameter_last = neigh_elements[1].cross_section.outer_diameter
+                
+                if check_complete:
+                    diameters = [diameter_first, diameter_last]
+                    diameters_ratio = max(diameters)/min(diameters)
+                    if diameters_ratio > 2:
+                        self.nodes_with_cross_section_transition[node] = neigh_elements
+                        print(node.external_index, diameters_ratio)
+
 
     def add_elastic_nodal_link(self, nodeID_1, nodeID_2, data, _stiffness=False, _damping=False):
         """

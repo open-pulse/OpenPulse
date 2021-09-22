@@ -43,6 +43,7 @@ class CrossSectionInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_model_checks()
+        # self.preprocessor.get_nodes_and_elements_with_expansion()
 
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity

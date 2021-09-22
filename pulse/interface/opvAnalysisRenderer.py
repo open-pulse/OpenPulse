@@ -229,8 +229,8 @@ class opvAnalysisRenderer(vtkRendererBase):
                 if self._cacheFrequencyIndex != self._currentFrequencyIndex:
                     self._animationFrames.clear()
                     #TODO: print the log message while the calculation is in progress then close it automatically after all
-                    self.printLogMessage()
-                    # self._cacheFrames()
+                    # self.printLogMessage()
+                    self._cacheFrames()
                     self._cacheFrequencyIndex = self._currentFrequencyIndex
     
     def printLogMessage(self):
