@@ -10,6 +10,12 @@ import configparser
 from shutil import copyfile
 from pulse.utils import remove_bc_from_file
 
+from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
+
 class RadiationImpedanceInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -71,8 +77,8 @@ class RadiationImpedanceInput(QDialog):
         self.pushButton_remove_bc_confirm = self.findChild(QPushButton, 'pushButton_remove_bc_confirm')
         self.pushButton_remove_bc_confirm.clicked.connect(self.check_remove_bc_from_node)
 
-        self.pushButton_remove_bc_confirm_2 = self.findChild(QPushButton, 'pushButton_remove_bc_confirm_2')
-        self.pushButton_remove_bc_confirm_2.clicked.connect(self.check_remove_bc_from_node)
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_reset.clicked.connect(self.check_reset)
         
         self.update()
         self.load_nodes_info()
@@ -103,7 +109,7 @@ class RadiationImpedanceInput(QDialog):
     def writeNodes(self, list_node_ids):
         text = ""
         for node in list_node_ids:
-            text += "{}, ".format(node)
+            text += f"{node}, "
         self.lineEdit_nodeID.setText(text[:-2])
 
     def check_radiation_impedance_type(self):
@@ -122,8 +128,11 @@ class RadiationImpedanceInput(QDialog):
                 type_id = 2
             self.radiation_impedance = type_id
             self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
+            
             self.transform_points(self.nodes_typed)
+            self.opv.updateRendererMesh()
             self.close()
+            print(f"[Set Radiation Impedance] - defined at node(s) {self.nodes_typed}")
         except:
             return
 
@@ -155,11 +164,40 @@ class RadiationImpedanceInput(QDialog):
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.transform_points(self.nodes_typed)
-        self.treeWidget_radiation_impedance.clear()
+        self.opv.updateRendererMesh()
         self.load_nodes_info()
         # self.close()
 
+    def check_reset(self):
+        if len(self.preprocessor.nodes_with_radiation_impedance)>0:
+            
+            title = f"Removal of all applied radiation impedances"
+            message = "Do you really want to remove the radiation impedance(s) \napplied to the following node(s)?\n\n"
+            for node in self.preprocessor.nodes_with_radiation_impedance:
+                message += f"{node.external_index}\n"
+            message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
+            message += "\nClose buttons to abort the current operation."
+            read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+            _nodes_with_radiation_impedance = self.preprocessor.nodes_with_radiation_impedance.copy()
+            if read._continue:
+                for node in _nodes_with_radiation_impedance:
+                    node_id = node.external_index
+                    key_strings = ["radiation impedance"]
+                    remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
+                    self.preprocessor.set_radiation_impedance_bc_by_node(node_id, None)
+                self.transform_points(self.nodes_typed)
+                
+                title = "Radiation impedance resetting process complete"
+                message = "All radiation impedances applied to the acoustic\n" 
+                message += "model have been removed from the model."
+                PrintMessageInput([title, message, window_title_2])
+
+                self.opv.updateRendererMesh()
+                self.close()
+
     def load_nodes_info(self):
+        self.treeWidget_radiation_impedance.clear()
         for node in self.project.preprocessor.nodes_with_radiation_impedance:
             if node.radiation_impedance_type == 0:
                 text = "Anechoic"
@@ -173,4 +211,14 @@ class RadiationImpedanceInput(QDialog):
             self.treeWidget_radiation_impedance.addTopLevelItem(new)
     
     def update(self):
+        list_picked_nodes = self.opv.getListPickedPoints()
+        if list_picked_nodes != []:
+            picked_node = list_picked_nodes[0]
+            node = self.preprocessor.nodes[picked_node]
+            if node.radiation_impedance_type == 0:
+                self.radioButton_anechoic.setChecked(True)
+            if node.radiation_impedance_type == 1:
+                self.radioButton_unflanged.setChecked(True)
+            if node.radiation_impedance_type == 2:
+                self.radioButton_flanged.setChecked(True)                
         self.writeNodes(self.opv.getListPickedPoints())

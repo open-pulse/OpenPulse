@@ -308,12 +308,27 @@ class opvRenderer(vtkRendererBase):
                 value = node.volume_velocity
                 label = 'Q'
                 unit_label = '[m³/s]'
-                if node.compressor_connection_info is None:
-                    text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+                text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+
+            if node in self.project.preprocessor.nodes_with_compressor_excitation:
+                value = node.volume_velocity
+                label = 'Q'
+                unit_label = '[m³/s]'
+
+                values_connection_info = list(node.dict_index_to_compressor_connection_info.values())         
+                if len(values_connection_info) == 1:
+                    connection_type = f'  Connection type: {values_connection_info[0]} \n'
                 else:
-                    connection_type = f'  Connection type: {node.compressor_connection_info} \n'
-                    bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
-                    text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
+                    if 'discharge' in values_connection_info and 'suction' in values_connection_info:
+                        connection_type = f"  Connections types: discharge ({values_connection_info.count('discharge')}x) & "
+                        connection_type += f"suction ({values_connection_info.count('suction')}x) \n"
+                    elif 'discharge' in values_connection_info:
+                        connection_type = f"  Connections types: discharge ({values_connection_info.count('discharge')}x) \n"
+                    elif 'suction' in values_connection_info:
+                        connection_type = f"  Connections types: suction ({values_connection_info.count('suction')}x) \n"    
+                        
+                bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
+                text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
             
             if node in self.project.preprocessor.nodes_with_specific_impedance:
                 value = node.specific_impedance

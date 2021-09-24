@@ -1713,45 +1713,11 @@
       <attribute name="title">
        <string>Remove</string>
       </attribute>
-      <widget class="QPushButton" name="pushButton_remove_bc_confirm_2">
-       <property name="geometry">
-        <rect>
-         <x>108</x>
-         <y>256</y>
-         <width>150</width>
-         <height>30</height>
-        </rect>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>150</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>150</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <family>Arial</family>
-         <pointsize>12</pointsize>
-         <weight>75</weight>
-         <italic>true</italic>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="text">
-        <string>Remove</string>
-       </property>
-      </widget>
       <widget class="QLabel" name="label_29">
        <property name="geometry">
         <rect>
          <x>32</x>
-         <y>20</y>
+         <y>14</y>
          <width>305</width>
          <height>27</height>
         </rect>
@@ -1782,21 +1748,21 @@
        <property name="geometry">
         <rect>
          <x>44</x>
-         <y>70</y>
+         <y>56</y>
          <width>280</width>
-         <height>170</height>
+         <height>190</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
          <width>280</width>
-         <height>170</height>
+         <height>190</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>280</width>
-         <height>170</height>
+         <height>190</height>
         </size>
        </property>
        <property name="font">
@@ -1843,46 +1809,83 @@
         </property>
        </column>
       </widget>
+      <widget class="QPushButton" name="pushButton_remove_bc_confirm">
+       <property name="geometry">
+        <rect>
+         <x>198</x>
+         <y>260</y>
+         <width>92</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_reset">
+       <property name="geometry">
+        <rect>
+         <x>68</x>
+         <y>260</y>
+         <width>92</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(85, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string>Reset</string>
+       </property>
+      </widget>
      </widget>
-    </widget>
-    <widget class="QPushButton" name="pushButton_remove_bc_confirm">
-     <property name="geometry">
-      <rect>
-       <x>296</x>
-       <y>14</y>
-       <width>75</width>
-       <height>30</height>
-      </rect>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>75</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>75</width>
-       <height>30</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="text">
-      <string>Remove</string>
-     </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_nodeID">
      <property name="geometry">
       <rect>
-       <x>116</x>
+       <x>138</x>
        <y>14</y>
        <width>170</width>
        <height>30</height>
@@ -1925,7 +1928,7 @@
     <widget class="QLabel" name="label_2">
      <property name="geometry">
       <rect>
-       <x>24</x>
+       <x>46</x>
        <y>14</y>
        <width>85</width>
        <height>30</height>

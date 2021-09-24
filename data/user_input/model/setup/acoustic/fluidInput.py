@@ -8,10 +8,10 @@ from time import time
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
-
 
 def getColorRGB(color):
     temp = color[1:-1]
@@ -691,18 +691,6 @@ class FluidInput(QDialog):
         self.clicked_item = item
         self.confirm_fluid_attribution()
     
-    def double_confirm_action(self):
-        confirm_act = QMessageBox.question(
-            self,
-            "QUIT",
-            "Are you sure you want to reset to default fluids library?",
-            QMessageBox.No | QMessageBox.Yes)
-        
-        if confirm_act == QMessageBox.Yes:
-            return False
-        else:
-            return True
-
     def confirm_fluid_removal(self):
         self.adding = False
         self.editing = False
@@ -738,14 +726,22 @@ class FluidInput(QDialog):
             PrintMessageInput([title, message, window_title1])
 
     def reset_library_to_default(self):
-        if self.double_confirm_action():
+
+        title = "Remove all nodal elastic links added to the model"
+        message = "Do you really want to reset the fluid library to default values?\n\n\n"
+        message += "Press the Continue button to proceed with resetting or press Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+        if read._doNotRun:
             return
-        default_fluid_library(self.fluid_path)
-        self.treeWidget_fluids.clear()
-        self.loadList()
-        self.reset_add_texts()
-        self.reset_edit_texts() 
-        self.reset_remove_texts() 
+
+        if read._continue:
+            default_fluid_library(self.fluid_path)
+            self.treeWidget_fluids.clear()
+            self.loadList()
+            self.reset_add_texts()
+            self.reset_edit_texts() 
+            self.reset_remove_texts() 
     
     def reset_add_texts(self):
         self.lineEdit_name.setText("")

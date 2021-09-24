@@ -9,6 +9,7 @@ from pulse.uix.inputUi import InputUi
 from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 import sys
 from os.path import expanduser, basename, exists, dirname
@@ -233,7 +234,7 @@ class MainWindow(QMainWindow):
         self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
         self.playPauseAnimaton_action.setShortcut('Space')
         self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
-        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalisysRenderer.tooglePlayPauseAnimation)
+        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
 
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
@@ -279,6 +280,36 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setShortcut('Ctrl+V')
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
+
+        # Camera
+        self.cameraTop_action = QAction('&Top View', self)
+        self.cameraTop_action.setShortcut('Ctrl+Shift+1')
+        self.cameraTop_action.triggered.connect(self.cameraTop_call)
+
+        self.cameraBottom_action = QAction('&Bottom View', self)
+        self.cameraBottom_action.setShortcut('Ctrl+Shift+2')
+        self.cameraBottom_action.triggered.connect(self.cameraBottom_call)
+
+        self.cameraLeft_action = QAction('&Left View', self)
+        self.cameraLeft_action.setShortcut('Ctrl+Shift+3')
+        self.cameraLeft_action.triggered.connect(self.cameraLeft_call)
+
+        self.cameraRight_action = QAction('&Right View', self)
+        self.cameraRight_action.setShortcut('Ctrl+Shift+4')
+        self.cameraRight_action.triggered.connect(self.cameraRight_call)
+
+        self.cameraFront_action = QAction('&Front View', self)
+        self.cameraFront_action.setShortcut('Ctrl+Shift+5')
+        self.cameraFront_action.triggered.connect(self.cameraFront_call)
+
+        self.cameraBack_action = QAction('&Back View', self)
+        self.cameraBack_action.setShortcut('Ctrl+Shift+6')
+        self.cameraBack_action.triggered.connect(self.cameraBack_call)
+
+        self.cameraOrth_action = QAction('&Isometric View', self)
+        self.cameraOrth_action.setShortcut('Ctrl+Shift+7')
+        self.cameraOrth_action.triggered.connect(self.cameraOrth_call)
+
 
     def _createRecentProjectsActions(self):
         self.importRecent_action = {}
@@ -365,6 +396,15 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
+    
+    def _loadCameraMenu(self):
+        self.cameraMenu.addAction(self.cameraTop_action)
+        self.cameraMenu.addAction(self.cameraBottom_action)
+        self.cameraMenu.addAction(self.cameraLeft_action)
+        self.cameraMenu.addAction(self.cameraRight_action)
+        self.cameraMenu.addAction(self.cameraFront_action)
+        self.cameraMenu.addAction(self.cameraBack_action)
+        self.cameraMenu.addAction(self.cameraOrth_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -380,6 +420,7 @@ class MainWindow(QMainWindow):
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
+        self.cameraMenu = menuBar.addMenu('&Views')
         self.helpMenu = menuBar.addMenu("&Help")
 
         self._loadProjectMenu()
@@ -388,6 +429,7 @@ class MainWindow(QMainWindow):
         self._loadModelInfoMenu()
         self._loadAnalysisMenu()
         self._loadResultsViewerMenu()
+        self._loadCameraMenu()
         self._loadHelpMenu()
 
     def set_enable_menuBar(self, _bool):
@@ -465,6 +507,27 @@ class MainWindow(QMainWindow):
         if path != "":
             self.getOPVWidget().savePNG(path)
 
+    def cameraOrth_call(self):
+        self.opv_widget.setCameraView(0)
+
+    def cameraTop_call(self):
+        self.opv_widget.setCameraView(1)
+
+    def cameraBottom_call(self):
+        self.opv_widget.setCameraView(2)
+
+    def cameraLeft_call(self):
+        self.opv_widget.setCameraView(3)
+
+    def cameraRight_call(self):
+        self.opv_widget.setCameraView(4)
+
+    def cameraFront_call(self):
+        self.opv_widget.setCameraView(5)
+
+    def cameraBack_call(self):
+        self.opv_widget.setCameraView(6)
+
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()
 
@@ -479,16 +542,28 @@ class MainWindow(QMainWindow):
         self.plot_entities_with_cross_section()
 
     def closeEvent(self, event):
-        close = QMessageBox.question(
-            self,
-            "QUIT",
-            "Are you sure you want to stop process?",
-            QMessageBox.No | QMessageBox.Yes)
-               
-        if close == QMessageBox.Yes:
-            sys.exit()
-        else:
+        title = "OpenPulse stop execution requested"
+        message = "Do you really want to stop the OpenPulse processing and close \nthe current project setup?\n\n\n"
+        message += "Note: The current project setup progress has already \nbeen saved in the project files."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label="No", rightButton_label="Yes")
+
+        if read._stop:
             event.ignore()
+            return
+
+        if read._continue:
+            sys.exit()
+          
+        # close = QMessageBox.question(
+        #     self,
+        #     "QUIT",
+        #     "Are you sure you want to stop process?",
+        #     QMessageBox.No | QMessageBox.Yes)
+               
+        # if close == QMessageBox.Yes:
+        #     sys.exit()
+        # else:
+        #     event.ignore()
 
     def getInputWidget(self):
         return self.inputWidget

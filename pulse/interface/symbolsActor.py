@@ -27,8 +27,8 @@ class SymbolsActor(vtkActorBase):
     RADIATION_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/radiationImpedance.obj')
     LUMPED_MASS_SYMBOL = loadSymbol('data/symbols/lumpedMass.obj')
     COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
+    PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforatedPlate.obj')
     
-
     def __init__(self, nodes, project, deformed=False):
         super().__init__()
         
@@ -48,8 +48,12 @@ class SymbolsActor(vtkActorBase):
         self._loadSources()
         
         for node in self.nodes.values():
-            for symbol in self._getAllSymbols(node):
-                self._createSymbol(symbol)        
+            for symbol in self._getNodeSymbols(node):
+                self._createSymbol(symbol)    
+
+        for element in self.project.get_structural_elements().values():
+            for symbol in self._getElementSymbols(element):
+                self._createSymbol(symbol)    
 
     def map(self):
         self._mapper.SetInputData(self._data)
@@ -99,6 +103,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetSourceData(10, self.RADIATION_IMPEDANCE_SYMBOL)
         self._mapper.SetSourceData(11, self.LUMPED_MASS_SYMBOL)
         self._mapper.SetSourceData(12, self.COMPRESSOR_SYMBOL)
+        self._mapper.SetSourceData(13, self.PERFORATED_PLATE_SYMBOL)
     
     def _createSymbol(self, symbol):
         self._sources.InsertNextTuple1(symbol.source)
@@ -106,7 +111,7 @@ class SymbolsActor(vtkActorBase):
         self._rotations.InsertNextTuple(symbol.rotation)
         self._colors.InsertNextTuple(symbol.color)
 
-    def _getAllSymbols(self, node):
+    def _getNodeSymbols(self, node):
         # HERE YOU CALL THE FUNCTIONS CREATED
         symbols = []
         symbols.extend(self._getPrescribedPositionSymbols(node))
@@ -123,6 +128,11 @@ class SymbolsActor(vtkActorBase):
         symbols.extend(self._getCompressor(node))
         return symbols
     
+    def _getElementSymbols(self, element):
+        symbols = []
+        symbols.extend(self._getPerforatedPlate(element))
+        return symbols
+
     def _createNodalLinks(self):
         # temporary structure to plot elastic links 
 
@@ -173,7 +183,7 @@ class SymbolsActor(vtkActorBase):
     def _getPrescribedPositionSymbols(self, node):
         offset = 0 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 1
+        src = 1
         col = (0,255,0)
 
         symbols = []
@@ -186,7 +196,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x-offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -194,7 +204,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -202,14 +212,14 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
 
     def _getPrescribedRotationSymbols(self, node):
         offset = 0 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 2
+        src = 2
         col = (0,200,200)
 
         symbols = []
@@ -222,7 +232,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -230,7 +240,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -238,14 +248,14 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
 
     def _getNodalLoadPosition(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 3
+        src = 3
         col = (255,0,0)
 
         symbols = []
@@ -258,7 +268,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -266,7 +276,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -274,14 +284,14 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,90,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
     
     def _getNodalLoadRotation(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 4
+        src = 4
         col = (0,0,255)
 
         symbols = []
@@ -294,7 +304,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -302,7 +312,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -310,14 +320,14 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
     
     def _getDamper(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 5
+        src = 5
         col = (255,0,100)
 
         symbols = []
@@ -327,24 +337,24 @@ class SymbolsActor(vtkActorBase):
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
             rot = (0,0,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
     
     def _getSpring(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        sor = 6
+        src = 6
         col = (242,121,0)
 
         symbols = []
@@ -354,86 +364,99 @@ class SymbolsActor(vtkActorBase):
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (0,0,90)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
             rot = (0,0,180)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (-90,0,0)
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         
         return symbols
 
     def _getVolumeVelocity(self, node):
-        sor = 7
+        src = 7
         pos = node.coordinates
         rot = (0,0,0)
         col = (255,10,10)
         symbols = []
 
-        if (node.volume_velocity is not None) and (node.compressor_connection_info is None):
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
 
     def _getAcousticPressure(self, node):
-        sor = 8
+        src = 8
         pos = node.coordinates
         rot = (0,0,0)
         col = (150,0,210) #violet
         symbols = []
 
         if node.acoustic_pressure is not None:
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
 
     def _getSpecificImpedance(self, node):
-        sor = 9
+        src = 9
         pos = node.coordinates
         rot = (0,0,0)
         col = (100,255,100)
         symbols = []
 
         if node.specific_impedance is not None:
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
     
     def _getRadiationImpedance(self, node):
-        sor = 10
+        src = 10
         pos = node.coordinates
         rot = (0,0,0)
         col = (224,0,75)
         symbols = []
 
         if node.radiation_impedance_type in [0,1,2]:
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
 
     def _getLumpedMass(self, node):
-        sor = 11
+        src = 11
         pos = node.coordinates
         rot = (0,0,0)
         col = (7,156,231)
         symbols = []
 
         if any(node.lumped_masses):
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
     
     def _getCompressor(self, node):
-        sor = 12
+        src = 12
         pos = node.coordinates
         rot = (0,0,0)
         col = (255,10,10)
         symbols = []
 
-        if (node.volume_velocity is not None) and (node.compressor_connection_info is not None):
-            symbols.append(Symbol(source=sor, position=pos, rotation=rot, color=col))
+        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
         return symbols
     
+    def _getPerforatedPlate(self, element):
+        acoustic = self.project.get_acoustic_element(element.index)
+
+        src = 13
+        pos = element.element_center_coordinates
+        rot = element.section_rotation_xyz_undeformed
+        col = (255,0,0)
+        symbols = []
+
+        if (acoustic.perforated_plate is not None):
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, color=col))
+        return symbols
+
     def _getCoords(self, node):
         if self.deformed:
             return node.deformed_coordinates

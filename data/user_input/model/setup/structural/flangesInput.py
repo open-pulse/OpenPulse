@@ -47,7 +47,7 @@ class ClickableLineEdit(QLineEdit):
     def mousePressEvent(self, event):
         self.clicked.emit()
 
-class ExpansionJointInput(QDialog):
+class FlangesInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/expansionJointInput.ui', self)

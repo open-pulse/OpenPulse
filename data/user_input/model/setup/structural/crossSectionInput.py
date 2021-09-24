@@ -43,6 +43,7 @@ class CrossSectionInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_model_checks()
+        # self.preprocessor.get_nodes_and_elements_with_expansion()
 
         self.structural_elements = self.project.preprocessor.structural_elements
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
@@ -50,6 +51,7 @@ class CrossSectionInput(QDialog):
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
         self.lines_to_update_cross_section = lines_to_update_cross_section
+        self.remove_expansion_joint_tables_files = True
 
         self.section_type = None
         self.section_parameters = None
@@ -815,6 +817,8 @@ class CrossSectionInput(QDialog):
 
     def set_cross_sections(self):
         if self.flagEntity:
+            if self.remove_expansion_joint_tables_files:
+                self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
                 self.remove_line_from_list(line_id)
                 self.project.set_cross_section_by_line(line_id, self.cross_section)
@@ -830,6 +834,8 @@ class CrossSectionInput(QDialog):
                 print("[Set Cross-section] - defined at {} selected elements".format(len(self.elements_typed)))
 
         else:
+            if self.remove_expansion_joint_tables_files:
+                self.process_expansion_joint_table_files_removal(self.preprocessor.all_lines)
             self.project.set_cross_section_to_all(self.cross_section)
             self.project.set_structural_element_type_to_all(self.element_type)
             print("[Set Cross-section] - defined at all lines") 
@@ -837,6 +843,26 @@ class CrossSectionInput(QDialog):
     def confirm_beam(self):
         self.element_type = 'beam_1'
         self.check_beam()
+
+    def process_expansion_joint_table_files_removal(self, list_line_ids):
+
+        config = configparser.ConfigParser()
+        config.read(self.project.file._entity_path)
+        sections = config.sections()
+
+        for section in sections:
+            if "-" in section:
+                line_id = int(section.split("-")[0])
+            else:
+                line_id = int(section)
+
+            if line_id in list_line_ids:
+                if "expansion joint stiffness" in config[section].keys():
+                    str_joint_stiffness = config[section]['expansion joint stiffness']
+                    _, joint_table_names, _ = self.project.file._get_expansion_joint_stiffness_from_string(str_joint_stiffness)
+                    if joint_table_names is not None:
+                        for table_name in joint_table_names:
+                            self.project.remove_structural_table_files_from_folder(table_name, "expansion_joints_files")
 
     def check_beam_inputs_common_sections(self, plot=False):
 

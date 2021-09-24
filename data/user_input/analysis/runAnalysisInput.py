@@ -205,8 +205,6 @@ class RunAnalysisInput(QDialog):
         if message != "":
             PrintMessageInput([title, message, window_title_2])
 
-
-
     def config_title_font(self):
         font = QFont()
         font.setPointSize(19)

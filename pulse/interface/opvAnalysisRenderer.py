@@ -1,3 +1,4 @@
+from data.user_input.project.printMessageInput import PrintMessageInput
 import vtk
 import numpy as np
 
@@ -10,9 +11,10 @@ from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+from threading import Thread
 
 
-class opvAnalisysRenderer(vtkRendererBase):
+class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
         super().__init__(vtkMeshClicker(self))
 
@@ -21,7 +23,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.setUsePicker(False)
 
         self._magnificationFactor = 1
-        self._currentFrequency = 0
+        self._currentFrequencyIndex = 0
+        self._cacheFrequencyIndex = None
         self.lastFrequency = None
         self.scf = None
         self._currentPlot = None
@@ -29,7 +32,8 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.scaleBar = None
 
         self.playingAnimation = False
-        self.dx = 0.1
+        self.animationTimer = 0
+        self.dt = 0.05
 
         # just ignore it 
         self.nodesBounds = dict()
@@ -43,6 +47,7 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider = None
         self._createSlider()
         self._createPlayer()
+        self._animationFrames = dict()
 
     def plot(self):
         self.reset()
@@ -76,61 +81,75 @@ class opvAnalisysRenderer(vtkRendererBase):
         self._createSlider()
         self._createColorBar()
         self._createScaleBar()
-    
-    def showDisplacement(self, frequency, gain=1):
-        preprocessor = self.project.preprocessor
-        solution = self.project.get_structural_solution()
-        self._currentPlot = self.showDisplacement
-        self._currentFrequency = frequency       
 
-        # if self.lastFrequency is not None:
-        #     if self.lastFrequency != self._currentFrequency:
-        #         self.scf = None
+    def _cacheFrames(self, single_frame=False, value=1):
+        if single_frame:
+            vals = [value]
+        else:
+            vals = [round(i/10, 1) for i in range(-10, 11)]  
+        for val in vals:
+            self._currentPlot(self._currentFrequencyIndex, val)
+            cached = vtk.vtkPolyData()
+            cached.DeepCopy(self.opvDeformedTubes._data)
+            self._animationFrames[val] = cached
 
-        _, _, u_def, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
-                                                                                solution, 
-                                                                                frequency, 
-                                                                                gain=gain,
-                                                                                new_scf=self.scf   )
-        # self.lastFrequency = frequency
-        # self.scf = scf
-        
-        self.opvDeformedTubes.build()
-      
-        # self.opvSymbols.build()
+    def _plotCached(self, gain):
+        cached = self._animationFrames[round(gain, 1)]
+        self.opvDeformedTubes._data.DeepCopy(cached)
+        self.updateInfoText()
+        self.update_min_max_stresses_text()
+        self.opv.update()
+        self._renderer.ResetCameraClippingRange()
+        self.update()
 
-        colorTable = ColorTable(self.project, u_def)
-        self.opvDeformedTubes.setColorTable(colorTable)
-        self.colorbar.SetLookupTable(colorTable)
-        
-        self.slider.SetEnabled(True)
-        self.opvDeformedTubes.getActor().SetVisibility(True)
-        self.opvPressureTubes.getActor().SetVisibility(False)
+    def showDisplacement(self, frequency_index):
+        self._currentPlot = self.computeDisplacement
+        self._currentFrequencyIndex = frequency_index   
+        self._animationFrames.clear()
+        self._cacheFrames(single_frame=True)
+        self._plotCached(1)
 
+    def showStressField(self, frequency_index):
+        self._currentPlot = self.computeStressField
+        self._currentFrequencyIndex = frequency_index    
+        self._animationFrames.clear()
+        self._cacheFrames(single_frame=True)
+        self._plotCached(1)
+
+    def showPressureField(self, frequency_index, real_part=True):
+        self.computePressureField(frequency_index, real_part=True)
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self._renderer.ResetCameraClippingRange()
         self.opv.update()
         self.update()
 
-    def showStressField(self, frequency, gain=1):
+    def computeDisplacement(self, frequency, gain=1):
+        preprocessor = self.project.preprocessor
+        solution = self.project.get_structural_solution()    
+        _, _, u_def, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
+                                                                                solution, 
+                                                                                frequency, 
+                                                                                gain=gain,
+                                                                                new_scf=self.scf   )
+        self.opvDeformedTubes.build()
+
+        colorTable = ColorTable(self.project, u_def)
+        self.opvDeformedTubes.setColorTable(colorTable)
+        self.colorbar.SetLookupTable(colorTable)
+
+        self.slider.SetEnabled(True)
+        self.opvDeformedTubes.getActor().SetVisibility(True)
+        self.opvPressureTubes.getActor().SetVisibility(False)
+
+    def computeStressField(self, frequency, gain=1):
         preprocessor = self.project.preprocessor
         solution = self.project.get_structural_solution()
-        self._currentPlot = self.showStressField
-        self._currentFrequency = frequency
-
-        # if self.lastFrequency is not None:
-        #     if self.lastFrequency != self._currentFrequency:
-        #         self.scf = None
-
         _, _, _, self._magnificationFactor, scf = get_structural_response(  preprocessor, 
                                                                             solution, 
                                                                             frequency, 
                                                                             gain=gain,
                                                                             new_scf=self.scf   )
-        # self.lastFrequency = frequency
-        # self.scf = scf
-
         self.opvDeformedTubes.build()
 
         colorTable = ColorTable(self.project, self.project.stresses_values_for_color_table, stress_field_plot=True)
@@ -141,16 +160,11 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
 
-        self.updateInfoText()
-        self.update_min_max_stresses_text()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
+    def computePressureField(self, frequency, real_part=True):
 
-    def showPressureField(self, frequency, real_part=True):
         preprocessor = self.project.preprocessor
         solution = self.project.get_acoustic_solution()
-        self._currentFrequency = frequency
+        self._currentFrequencyIndex = frequency
         self._colorScalling = 'real part' if real_part else 'absolute'
 
         *args, pressure_field_data = get_acoustic_response(preprocessor, solution, frequency, real_part)
@@ -163,12 +177,6 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.SetEnabled(False)
         self.opvDeformedTubes.getActor().SetVisibility(False)
         self.opvPressureTubes.getActor().SetVisibility(True)
-
-        self.updateInfoText()
-        self.update_min_max_stresses_text()
-        self._renderer.ResetCameraClippingRange()
-        self.opv.update()
-        self.update()
 
     def _createSlider(self):
         self.slider = vtk.vtkSliderWidget()
@@ -203,17 +211,32 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
 
     def _createPlayer(self):
-        self.opv.CreateRepeatingTimer(int(self.dx * 1000))
+        self.opv.Initialize()
+        self.opv.CreateRepeatingTimer(1000 * 100)
         self.opv.AddObserver('TimerEvent', self._animationCallback)
 
     def playAnimation(self):
+        self.animationTimer = self.slider.GetRepresentation().GetValue()
         self.playingAnimation = True
 
     def pauseAnimation(self):
         self.playingAnimation = False
 
     def tooglePlayPauseAnimation(self):
-        self.playingAnimation = not self.playingAnimation
+        if self.project.analysis_ID not in [3,4] and not self.project.plot_pressure_field:
+            self.playingAnimation = not self.playingAnimation
+            if self.playingAnimation:
+                if self._cacheFrequencyIndex != self._currentFrequencyIndex:
+                    self._animationFrames.clear()
+                    #TODO: print the log message while the calculation is in progress then close it automatically after all
+                    # self.printLogMessage()
+                    self._cacheFrames()
+                    self._cacheFrequencyIndex = self._currentFrequencyIndex
+    
+    def printLogMessage(self):
+        title = "Processing in progress"
+        message = "The animation frames calculation in progress." 
+        PrintMessageInput([title, message, "OpenPulse"], opvAnalysisRenderer=self)
 
     def _animationCallback(self, caller, event):
         if self._currentPlot is None:
@@ -222,21 +245,18 @@ class opvAnalisysRenderer(vtkRendererBase):
         if not self.playingAnimation:
             return
 
-        sliderValue = self.slider.GetRepresentation().GetValue()
+        self.animationTimer += self.dt
 
-        if sliderValue <= -1:
-            self.dx = -self.dx 
-            sliderValue = -1
+        if self.animationTimer <= -1:
+            self.dt = -self.dt 
+            self.animationTimer = -1
+        
+        elif self.animationTimer >= 1:
+            self.dt = -self.dt
+            self.animationTimer = 1
 
-        elif sliderValue >= 1:
-            self.dx = -self.dx
-            sliderValue = 1
-
-        sliderValue += self.dx
-
-        self.slider.GetRepresentation().SetValue(sliderValue)
-        self._currentPlot(self._currentFrequency, sliderValue)
-        self.update()
+        self.slider.GetRepresentation().SetValue(round(self.animationTimer, 1))
+        self._plotCached(self.animationTimer)
 
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
@@ -244,11 +264,9 @@ class opvAnalisysRenderer(vtkRendererBase):
         
         self.playingAnimation = False
         sliderValue = slider.GetRepresentation().GetValue()
-        sliderValue = round(sliderValue, 1)
-        slider.GetRepresentation().SetValue(sliderValue)
-        
-        # call the last plot function related to the slider
-        self._currentPlot(self._currentFrequency, sliderValue)
+        slider.GetRepresentation().SetValue(round(sliderValue, 1))
+        self._cacheFrames(single_frame=True, value=round(sliderValue, 1))
+        self._plotCached(sliderValue)
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()
@@ -280,24 +298,23 @@ class opvAnalisysRenderer(vtkRendererBase):
         self.scaleBar.AllAxesOff()
         self._renderer.AddActor(self.scaleBar)
 
-
     # info text
     def updateInfoText(self, *args, **kwargs):
-        mode = self._currentFrequency + 1
+        mode = self._currentFrequencyIndex + 1
         magnif = abs(self.slider.GetRepresentation().GetValue())
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
             text += self.project.analysis_method_label + "\n"
-            text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
+            text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
         elif self.project.analysis_ID == 2:
             frequencies = self.project.get_structural_natural_frequencies()
             text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
         elif self.project.analysis_ID == 4:
             frequencies = self.project.get_acoustic_natural_frequencies()
             text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequency])
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
             text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)

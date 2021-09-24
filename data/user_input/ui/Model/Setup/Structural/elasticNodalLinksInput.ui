@@ -95,7 +95,7 @@
    <property name="frameShadow">
     <enum>QFrame::Plain</enum>
    </property>
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabWidget_general">
     <property name="geometry">
      <rect>
       <x>10</x>
@@ -900,9 +900,9 @@ background-color: rgb(255, 255, 255);</string>
          <widget class="QWidget" name="gridLayoutWidget_6">
           <property name="geometry">
            <rect>
-            <x>38</x>
+            <x>22</x>
             <y>10</y>
-            <width>267</width>
+            <width>296</width>
             <height>203</height>
            </rect>
           </property>
@@ -1152,13 +1152,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1189,13 +1189,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1226,13 +1226,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1399,13 +1399,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1470,13 +1470,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1504,13 +1504,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1544,9 +1544,9 @@ background-color: rgb(255, 255, 255);</string>
          <widget class="QWidget" name="gridLayoutWidget_8">
           <property name="geometry">
            <rect>
-            <x>38</x>
+            <x>22</x>
             <y>10</y>
-            <width>267</width>
+            <width>296</width>
             <height>205</height>
            </rect>
           </property>
@@ -1703,13 +1703,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1740,13 +1740,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1777,13 +1777,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1919,13 +1919,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -1990,13 +1990,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -2024,13 +2024,13 @@ background-color: rgb(255, 255, 255);</string>
              </property>
              <property name="minimumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>100</width>
+               <width>140</width>
                <height>26</height>
               </size>
              </property>
@@ -4105,7 +4105,7 @@ color: rgb(0, 0, 0);</string>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>tabWidget_general</tabstop>
   <tabstop>tabWidget_inputs</tabstop>
   <tabstop>tabWidget_single_values</tabstop>
   <tabstop>lineEdit_Kx</tabstop>

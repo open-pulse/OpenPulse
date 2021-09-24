@@ -534,13 +534,16 @@ class RendererMesh(vtkRendererBase):
                 value = node.volume_velocity
                 label = 'Q'
                 unit_label = '[m³/s]'
-                if node.compressor_connection_info is None:
-                    text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
-                else:
-                    connection_type = f'  Connection type: {node.compressor_connection_info} \n'
-                    bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
-                    text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
-            
+                text += self.acousticNodalInfo(value, label, 'VOLUME VELOCITY', unit_label)
+
+            if node in self.project.preprocessor.nodes_with_compressor_excitation:
+                str_connection = ""
+                for _connection in node.dict_index_to_compressor_connection_info.values():
+                    str_connection =+ f"{_connection}, "
+                connection_type = f'  Connection(s) type(s): {str_connection[:-2]} \n'
+                bc_label = 'VOLUME VELOCITY - COMPRESSOR EXCITATION'
+                text += self.acousticNodalInfo(value, label, bc_label, unit_label, aditional_info=connection_type)
+
             if node in self.project.preprocessor.nodes_with_specific_impedance:
                 value = node.specific_impedance
                 label = 'Zs'

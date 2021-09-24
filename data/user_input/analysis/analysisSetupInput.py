@@ -26,6 +26,8 @@ class AnalysisSetupInput(QDialog):
         |    6 - Coupled - Harmonic analysis through mode superposition      |
         |--------------------------------------------------------------------|
         """
+
+        self.project = project
         self.analysis_ID = project.analysis_ID
 
         if self.analysis_ID in [1,6]:
@@ -109,6 +111,10 @@ class AnalysisSetupInput(QDialog):
             self.lineEdit_fmin.setText(str(self.f_min))
             self.lineEdit_fmax.setText(str(self.f_max))
             self.lineEdit_fstep.setText(str(self.f_step))
+            if self.project.check_if_are_there_tables_in_model():
+                self.lineEdit_fmin.setDisabled(True)
+                self.lineEdit_fmax.setDisabled(True)
+                self.lineEdit_fstep.setDisabled(True)
 
     def check_exit(self):
         input_fmin = input_fmax = input_fstep = 0

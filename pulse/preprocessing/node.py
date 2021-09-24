@@ -84,9 +84,10 @@ class Node:
 
         self.radiation_impedance = None
         self.radiation_impedance_type = None
-        
-        self.compressor_connection_info = None
-        self.volume_velocity_table_index = 0
+
+        self.compressor_excitation_table_names = []
+        self.dict_index_to_compressor_connection_info = {}
+        self.compressor_excitation_table_indexes = []
         
         self.deformed_coordinates = None
         self.deformed_rotations_xyz_gcs = None
@@ -382,6 +383,8 @@ class Node:
         set_prescribed_volume_velocity : Attributes the node's acoustic volume velocity boundary condition.
         """
         if isinstance(self.volume_velocity, np.ndarray):
+            # print(frequencies)
+            print(len(self.volume_velocity), len(frequencies))
             if len(self.volume_velocity) == len(frequencies):
                 return self.volume_velocity
             else:

@@ -452,43 +452,50 @@ def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
 #     msg_box.setWindowTitle(title)
 #     msg_box.exec_()
 
-def info_messages(msg, title = " INFORMATION "):
-    '''
-    PyQt5 info message.
 
-    Parameters
-    ----------
-    msg: str
-        text to be displayed.
+# def info_messages(msg, title = " INFORMATION "):
+#     '''
+#     PyQt5 info message.
 
-    title: str
-        window title.
-    '''
+#     Parameters
+#     ----------
+#     msg: str
+#         text to be displayed.
 
-    msg_box = QMessageBox()
-    msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
-    # msg_box.setWindowModality(Qt.WindowModal)
-    msg_box.setIcon(QMessageBox.Information)
-    msg_box.setText(msg)
-    msg_box.setWindowTitle(title)
-    msg_box.exec_()
+#     title: str
+#         window title.
+#     '''
 
-def remove_bc_from_file(nodes_typed, path, keys_to_remove, message):
+#     msg_box = QMessageBox()
+#     msg_box.setWindowFlags(Qt.WindowStaysOnTopHint)
+#     # msg_box.setWindowModality(Qt.WindowModal)
+#     msg_box.setIcon(QMessageBox.Information)
+#     msg_box.setText(msg)
+#     msg_box.setWindowTitle(title)
+#     msg_box.exec_()
+
+
+def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys=False):
     try:
         bc_removed = False
         config = configparser.ConfigParser()
         config.read(path)
-        for node in nodes_typed: 
-            node_id = str(node)
-            if node_id in config.sections():
-                keys = config[node_id].keys()
+        sections = config.sections()
+        for typed_value in typed_values: 
+            _typed_value = str(typed_value)
+            if _typed_value in sections:
+                keys = config[_typed_value].keys()
                 for key_to_remove in keys_to_remove:
                     for key in keys:
                         if key_to_remove in key:
+                            if equals_keys:
+                                if key_to_remove != key:
+                                    continue
                             bc_removed = True
-                            config.remove_option(section=node_id, option=key)
-                            if list(config[node_id].keys())==[]:
-                                config.remove_section(section=node_id)
+                            config.remove_option(section=_typed_value, option=key)
+                            if list(config[_typed_value].keys())==[]:
+                                config.remove_section(section=_typed_value)
+                                        
             if bc_removed:
                 with open(path, 'w') as config_file:
                     config.write(config_file)
@@ -497,7 +504,7 @@ def remove_bc_from_file(nodes_typed, path, keys_to_remove, message):
             PrintMessageInput(["Removal of selected boundary condition" , message, "WARNING"])
 
     except Exception as log_error:
-        PrintMessageInput(["Error while removing BC from file" ,str(log_error), "ERROR"])
+        PrintMessageInput(["Error while removing BC from file", str(log_error), "ERROR"])
 
 
 def getColorRGB(color):
