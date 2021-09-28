@@ -234,6 +234,9 @@ class opvAnalysisRenderer(vtkRendererBase):
             self._cacheFrames()
             self._cacheFrequencyIndex = self._currentFrequencyIndex
             self.playingAnimation = True
+        
+        if self._currentPlot is None:
+            return
 
         if self.playingAnimation:
             return
