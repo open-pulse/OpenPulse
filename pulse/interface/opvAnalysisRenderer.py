@@ -1,4 +1,5 @@
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.loadingScreen import LoadingScreen
 import vtk
 import numpy as np
 from time import sleep
@@ -230,13 +231,9 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def playAnimation(self):
         def cache_callback():
-            print('0')
             self._cacheFrames()
-            print('1')
-            self.logMessage.close()
-            print('2')
-            self.playingAnimation = True
             self._cacheFrequencyIndex = self._currentFrequencyIndex
+            self.playingAnimation = True
 
         if self.playingAnimation:
             return
@@ -245,9 +242,9 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.playingAnimation = True
             return
 
-        t = Thread(target=cache_callback)
-        t.start()
-        self.logMessage.exec()
+        title = "Processing in progress"
+        message = "The animation frames calculation is in progress." 
+        LoadingScreen(title, message, target=cache_callback)
 
     def pauseAnimation(self):
         self.playingAnimation = False
