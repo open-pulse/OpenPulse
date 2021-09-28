@@ -5,7 +5,7 @@ from PyQt5 import uic
 from threading import Thread
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, opv=None, opvAnalysisRenderer=None, *args, **kwargs):
+    def __init__(self, text_info, opv=None, startnow=True, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
 
@@ -24,18 +24,12 @@ class PrintMessageInput(QDialog):
         self._label_title = self.findChild(QLabel, '_label_title')
         self._label_message = self.findChild(QLabel, '_label_message')
         
-        if opvAnalysisRenderer is None:
-            self.pushButton_close.setVisible(True)
-            self.create_font_title()
-            self.create_font_message()
-            self._label_title.setFont(self.font_title)
-            self._label_message.setFont(self.font_message)
-            self._label_message.setWordWrap(True)
-        else:
-            self.close()
-            self.pushButton_close.setVisible(False)
-            self.config_title_font()
-            self.config_message_font()
+        self.pushButton_close.setVisible(True)
+        self.create_font_title()
+        self.create_font_message()
+        self._label_title.setFont(self.font_title)
+        self._label_message.setFont(self.font_message)
+        self._label_message.setWordWrap(True)
 
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
@@ -44,12 +38,8 @@ class PrintMessageInput(QDialog):
         
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
-        
-        if opvAnalysisRenderer is None:
-            self.exec_()
-        else:
-            # Thread(target=self.exec_).start()
-            Thread(target=opvAnalysisRenderer._cacheFrames).start()
+
+        if startnow:
             self.exec_()
 
     def message_close(self):
