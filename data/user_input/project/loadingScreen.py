@@ -3,7 +3,7 @@ from time import sleep
 
 from PyQt5.QtCore import Qt, QSize, QObject, QThread, pyqtSignal
 from PyQt5.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QVBoxLayout, QSizePolicy
-from PyQt5.QtGui import QMovie, QFont
+from PyQt5.QtGui import QMovie, QFont, QIcon
 
 
 class QWorker(QObject):
@@ -20,6 +20,9 @@ class QWorker(QObject):
 class LoadingScreen(QDialog):
     def __init__(self, title='', text='', target=None, args=None, kwargs=None):
         super().__init__()
+        self.icon = QIcon('data\\icons\\pulse.png')
+        self.setWindowIcon(self.icon)
+
         self.layout = QVBoxLayout()
         self.label_title = QLabel(self)
         self.label_message = QLabel(self)
