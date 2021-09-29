@@ -10,6 +10,7 @@ from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInpu
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.materialInput import MaterialInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
+from data.user_input.model.setup.structural.flangesInput import FlangesInput
 from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
 from data.user_input.model.setup.structural.dofInput import DOFInput
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
@@ -127,25 +128,8 @@ class InputUi:
         read = SetMeshPropertiesInput(self.project, self.opv)
         return read.complete
 
-    def setStructuralElementType(self):
-        read = StructuralElementTypeInput(self.project, self.opv)
-        if read.complete:           
-            if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
-                                        beam_to_pipe=read.beam_to_pipe, 
-                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
-                if read.lines_id != []:
-                    _cache_selected_lines = read.lines_id
-                else:
-                    _cache_selected_lines = read.list_lines_to_update_cross_section
-                self.set_material(cache_selected_lines = _cache_selected_lines)
-            self.opv.updateEntityRadius()
-            self.opv.changePlotToEntitiesWithCrossSection()
-
-    def set_material(self, cache_selected_lines=[]):
-        mat = MaterialInput(    self.project,
-                                self.opv, 
-                                cache_selected_lines = cache_selected_lines)
-                                
+    def set_material(self):
+        mat = MaterialInput(self.project, self.opv)   
         if mat.material is None:
             return
          
@@ -160,6 +144,24 @@ class InputUi:
             return False
         else:
             return True        
+
+    def set_flanges(self):
+        FlangesInput(self.project, self.opv)
+
+    def setStructuralElementType(self):
+        read = StructuralElementTypeInput(self.project, self.opv)
+        if read.complete:           
+            if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
+                                        beam_to_pipe=read.beam_to_pipe, 
+                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
+                if read.lines_id != []:
+                    _cache_selected_lines = read.lines_id
+                else:
+                    _cache_selected_lines = read.list_lines_to_update_cross_section
+                    MaterialInput(self.project, self.opv, cache_selected_lines = _cache_selected_lines)
+                # self.set_material(cache_selected_lines = _cache_selected_lines)
+            self.opv.updateEntityRadius()
+            self.opv.changePlotToEntitiesWithCrossSection()
 
     def plot_cross_section(self):
         PlotCrossSectionInput(self.project, self.opv)

@@ -111,90 +111,111 @@ class MainWindow(QMainWindow):
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
-        # Structural Model Setup
-        self.set_material_action = QAction('&Set Material', self)        
-        self.set_material_action.setShortcut('Alt+1')
-        self.set_material_action.setStatusTip('Set Material')
-        self.set_material_action.triggered.connect(self.getInputWidget().set_material)
+        # General Settings
+        self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
+        self.setProjectAtributtes_action.setShortcut('Alt+1')
+        self.setProjectAtributtes_action.setStatusTip('Set Project Attributes')
+        self.setProjectAtributtes_action.triggered.connect(self.getInputWidget().set_project_attributes)
+
+        self.setMeshProperties_action = QAction('&Set Mesh Properties', self) 
+        self.setMeshProperties_action.setShortcut('Alt+2')
+        self.setMeshProperties_action.setStatusTip('Set Mesh Properties')
+        self.setMeshProperties_action.triggered.connect(self.getInputWidget().set_mesh_properties)
+
+        self.setGeometryFile_action = QAction('&Set Geometry File', self) 
+        self.setGeometryFile_action.setShortcut('Alt+3')
+        self.setGeometryFile_action.setStatusTip('Set Geometry File')
+        self.setGeometryFile_action.triggered.connect(self.getInputWidget().set_geometry_file)
+
+        self.setMaterial_action = QAction('&Set Material', self)        
+        self.setMaterial_action.setShortcut('Alt+4')
+        self.setMaterial_action.setStatusTip('Set Material')
+        self.setMaterial_action.triggered.connect(self.getInputWidget().set_material)
 
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
-        self.set_crossSection_action.setShortcut('Alt+2')
+        self.set_crossSection_action.setShortcut('Alt+5')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
+        # Structural Model Setup
+        self.setFlanges_action = QAction('&Add Connecting Flanges', self)
+        # self.setFlanges_action.setShortcut('Ctrl+3')
+        self.setFlanges_action.setStatusTip('Add Connecting Flanges')
+        self.setFlanges_action.triggered.connect(self.getInputWidget().set_flanges)
+
         self.setStructuralElementType_action = QAction('&Set Structural Element Type', self)        
-        self.setStructuralElementType_action.setShortcut('Alt+3')
+        # self.setStructuralElementType_action.setShortcut('Alt+4')
         self.setStructuralElementType_action.setStatusTip('Set Structural Element Type')
         self.setStructuralElementType_action.triggered.connect(self.getInputWidget().setStructuralElementType)
 
         self.setDOF_action = QAction('&Set Prescribed DOFs', self)        
-        self.setDOF_action.setShortcut('Alt+4')
+        # self.setDOF_action.setShortcut('Alt+5')
         self.setDOF_action.setStatusTip('Set Prescribed DOFs')
         self.setDOF_action.triggered.connect(self.getInputWidget().setDOF)
 
         self.setForce_action = QAction('&Set Nodal Loads', self)        
-        self.setForce_action.setShortcut('Alt+5')
+        # self.setForce_action.setShortcut('Alt+6')
         self.setForce_action.setStatusTip('Set Nodal Loads')
         self.setForce_action.triggered.connect(self.getInputWidget().setNodalLoads)
 
         self.setMass_action = QAction('&Add: Mass / Spring / Damper', self)        
-        self.setMass_action.setShortcut('Alt+6')
+        # self.setMass_action.setShortcut('Alt+7')
         self.setMass_action.setStatusTip('Add: Mass / Spring / Damper')
         self.setMass_action.triggered.connect(self.getInputWidget().addMassSpringDamper)
 
         self.setcappedEnd_action = QAction('&Set Capped End', self)        
-        self.setcappedEnd_action.setShortcut('Alt+7')
+        # self.setcappedEnd_action.setShortcut('Alt+8')
         self.setcappedEnd_action.setStatusTip('Set Capped End')
         self.setcappedEnd_action.triggered.connect(self.getInputWidget().setcappedEnd)
 
         self.stressStiffening_action = QAction('&Set Strees Stiffening', self)        
-        # self.stressStiffening_action.setShortcut('Alt+7')
+        # self.stressStiffening_action.setShortcut('Alt+9')
         self.stressStiffening_action.setStatusTip('Set Strees Stiffening')
         self.stressStiffening_action.triggered.connect(self.getInputWidget().set_stress_stress_stiffening)
 
         self.nodalLinks_action = QAction('&Add Elastic Nodal Links', self)        
-        # self.nodalLinks_action.setShortcut('Alt+7')
+        # self.nodalLinks_action.setShortcut('Alt+9')
         self.nodalLinks_action.setStatusTip('Add Elastic Nodal Links')
         self.nodalLinks_action.triggered.connect(self.getInputWidget().add_elastic_nodal_links)
 
         # Acoustic Model Setup
         self.setAcousticElementType_action = QAction('&Set Acoustic Element Type', self)        
-        self.setAcousticElementType_action.setShortcut('Ctrl+Alt+1')
+        # self.setAcousticElementType_action.setShortcut('Ctrl+Alt+1')
         self.setAcousticElementType_action.setStatusTip('Set Acoustic Element Type')
         self.setAcousticElementType_action.triggered.connect(self.getInputWidget().set_acoustic_element_type)
 
         self.set_fluid_action = QAction('&Set Fluid', self)        
-        self.set_fluid_action.setShortcut('Ctrl+Alt+2')
+        # self.set_fluid_action.setShortcut('Ctrl+Alt+2')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
         self.setAcousticPressure_action = QAction('&Set Acoustic Pressure', self)        
-        self.setAcousticPressure_action.setShortcut('Ctrl+Alt+3')
+        # self.setAcousticPressure_action.setShortcut('Ctrl+Alt+3')
         self.setAcousticPressure_action.setStatusTip('Set Acoustic Pressure')
         self.setAcousticPressure_action.triggered.connect(self.getInputWidget().setAcousticPressure)
 
         self.setVolumeVelocity_action = QAction('&Set Volume Velocity', self)        
-        self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+4')
+        # self.setVolumeVelocity_action.setShortcut('Ctrl+Alt+4')
         self.setVolumeVelocity_action.setStatusTip('Set Volume Velocity')
         self.setVolumeVelocity_action.triggered.connect(self.getInputWidget().setVolumeVelocity)
 
         self.setSpecificImpedance_action = QAction('&Set Specific Impedance', self)        
-        self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+5')
+        # self.setSpecificImpedance_action.setShortcut('Ctrl+Alt+5')
         self.setSpecificImpedance_action.setStatusTip('Set Specific Impedance')
         self.setSpecificImpedance_action.triggered.connect(self.getInputWidget().setSpecificImpedance)
 
         self.set_radiation_impedance_action = QAction('&Set Radiation Impedance', self)        
-        self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+6')
+        # self.set_radiation_impedance_action.setShortcut('Ctrl+Alt+6')
         self.set_radiation_impedance_action.setStatusTip('Set Radiation Impedance')
         self.set_radiation_impedance_action.triggered.connect(self.getInputWidget().set_radiation_impedance)
 
         self.add_perforated_plate_action = QAction('&Add Perforated Plate', self)        
-        self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
+        # self.add_perforated_plate_action.setShortcut('Ctrl+Alt+7')
         self.add_perforated_plate_action.setStatusTip('Add Perforated Plate')
         self.add_perforated_plate_action.triggered.connect(self.getInputWidget().add_perforated_plate)
 
         self.set_acoustic_element_length_correction_action = QAction('&Set Acoustic Element Length Correction', self)        
-        self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+8')
+        # self.set_acoustic_element_length_correction_action.setShortcut('Ctrl+Alt+8')
         self.set_acoustic_element_length_correction_action.setStatusTip('Set Acoustic Element Length Correction')
         self.set_acoustic_element_length_correction_action.triggered.connect(self.getInputWidget().set_acoustic_element_length_correction)
 
@@ -281,7 +302,7 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
-        # Camera
+        # Views
         self.cameraTop_action = QAction('&Top View', self)
         self.cameraTop_action.setShortcut('Ctrl+Shift+1')
         self.cameraTop_action.triggered.connect(self.cameraTop_call)
@@ -354,10 +375,16 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.mesh_action)
         self.graphicMenu.addAction(self.section_action)
 
+    def _loadGeneralSettingsMenu(self):
+        self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
+        self.generalSettingsMenu.addAction(self.setMeshProperties_action)
+        self.generalSettingsMenu.addAction(self.setGeometryFile_action)        
+        self.generalSettingsMenu.addAction(self.setMaterial_action)
+        self.generalSettingsMenu.addAction(self.set_crossSection_action)
+
     def _loadModelSetupMenu(self):
+        self.structuralModelSetupMenu.addAction(self.setFlanges_action)
         self.structuralModelSetupMenu.addAction(self.setStructuralElementType_action)
-        self.structuralModelSetupMenu.addAction(self.set_material_action)
-        self.structuralModelSetupMenu.addAction(self.set_crossSection_action)
         self.structuralModelSetupMenu.addAction(self.setDOF_action)
         self.structuralModelSetupMenu.addAction(self.setForce_action)
         self.structuralModelSetupMenu.addAction(self.setMass_action)
@@ -398,13 +425,13 @@ class MainWindow(QMainWindow):
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
     
     def _loadCameraMenu(self):
-        self.cameraMenu.addAction(self.cameraTop_action)
-        self.cameraMenu.addAction(self.cameraBottom_action)
-        self.cameraMenu.addAction(self.cameraLeft_action)
-        self.cameraMenu.addAction(self.cameraRight_action)
-        self.cameraMenu.addAction(self.cameraFront_action)
-        self.cameraMenu.addAction(self.cameraBack_action)
-        self.cameraMenu.addAction(self.cameraOrth_action)
+        self.viewsMenu.addAction(self.cameraTop_action)
+        self.viewsMenu.addAction(self.cameraBottom_action)
+        self.viewsMenu.addAction(self.cameraLeft_action)
+        self.viewsMenu.addAction(self.cameraRight_action)
+        self.viewsMenu.addAction(self.cameraFront_action)
+        self.viewsMenu.addAction(self.cameraBack_action)
+        self.viewsMenu.addAction(self.cameraOrth_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -414,17 +441,19 @@ class MainWindow(QMainWindow):
 
         self.projectMenu = menuBar.addMenu('&Project')
         self.graphicMenu = menuBar.addMenu('&Graphic')
+        self.generalSettingsMenu = menuBar.addMenu('&General Settings')
         self.structuralModelSetupMenu = menuBar.addMenu('&Structural Model Setup')
         self.acousticModelSetupMenu = menuBar.addMenu('&Acoustic Model Setup')
         
         self.modelInfoMenu = menuBar.addMenu('&Model Info')
         self.analysisMenu = menuBar.addMenu('&Analysis')
         self.resultsViewerMenu = menuBar.addMenu('&Results Viewer')
-        self.cameraMenu = menuBar.addMenu('&Views')
+        self.viewsMenu = menuBar.addMenu('&Views')
         self.helpMenu = menuBar.addMenu("&Help")
 
         self._loadProjectMenu()
         self._loadGraphicMenu()
+        self._loadGeneralSettingsMenu()
         self._loadModelSetupMenu()
         self._loadModelInfoMenu()
         self._loadAnalysisMenu()
@@ -435,12 +464,15 @@ class MainWindow(QMainWindow):
     def set_enable_menuBar(self, _bool):
         #
         self.graphicMenu.setEnabled(_bool)
+        self.generalSettingsMenu.setEnabled(_bool)
         self.structuralModelSetupMenu.setEnabled(_bool)
         self.acousticModelSetupMenu.setEnabled(_bool)
         self.modelInfoMenu.setEnabled(_bool)
         self.analysisMenu.setEnabled(_bool)
         self.resultsViewerMenu.setEnabled(_bool)
+        self.viewsMenu.setEnabled(_bool)
         #
+        self.playPauseAnimaton_action.setEnabled(_bool)
         self.saveAsPng_action.setEnabled(_bool) 
         self.reset_action.setEnabled(_bool) 
 
