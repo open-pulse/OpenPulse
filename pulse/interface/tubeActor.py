@@ -128,6 +128,8 @@ class TubeActor(vtkActorBase):
         max_ = 0        
 
         for element in self.elements.values():
+            if element.cross_section is None:
+                continue
             rad = element.cross_section.outer_diameter / 2
             min_ = min(rad, min_) if min_ else rad
             max_ = max(rad, max_)
