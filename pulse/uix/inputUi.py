@@ -145,7 +145,7 @@ class InputUi:
         else:
             return True        
 
-    def set_flanges(self):
+    def add_flanges(self):
         FlangesInput(self.project, self.opv)
 
     def setStructuralElementType(self):

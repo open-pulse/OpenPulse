@@ -156,7 +156,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_set_crossSection)
         #
         self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Model Setup'])
-        self.item_child_setFlanges = QTreeWidgetItem(['Add Connecting Flanges'])
+        self.item_child_addFlanges = QTreeWidgetItem(['Add Connecting Flanges'])
         self.item_child_setStructuralElementType = QTreeWidgetItem(['Set Structural Element Type'])
         self.item_child_setBeamXaxisRotation = QTreeWidgetItem(['Set Beam X-axis Rotation'])
         self.item_child_setRotationDecoupling = QTreeWidgetItem(['Set Rotation Decoupling'])
@@ -169,7 +169,7 @@ class MenuItems(QTreeWidget):
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
         self.list_top_items.append(self.item_top_structuralModelSetup)
-        self.list_child_items.append(self.item_child_setFlanges)
+        self.list_child_items.append(self.item_child_addFlanges)
         self.list_child_items.append(self.item_child_setStructuralElementType)
         self.list_child_items.append(self.item_child_setBeamXaxisRotation)
         self.list_child_items.append(self.item_child_setRotationDecoupling)
@@ -252,7 +252,7 @@ class MenuItems(QTreeWidget):
         self.item_top_generalSettings.addChild(self.item_child_set_crossSection)
         
         self.addTopLevelItem(self.item_top_structuralModelSetup)
-        self.item_top_structuralModelSetup.addChild(self.item_child_setFlanges)
+        self.item_top_structuralModelSetup.addChild(self.item_child_addFlanges)
         self.item_top_structuralModelSetup.addChild(self.item_child_setStructuralElementType)
         self.item_top_structuralModelSetup.addChild(self.item_child_setBeamXaxisRotation)
         self.item_top_structuralModelSetup.addChild(self.item_child_setPrescribedDofs)
@@ -389,10 +389,10 @@ class MenuItems(QTreeWidget):
                 # self.update_plot_entities()
                 self.mainWindow.getInputWidget().setStructuralElementType()
 
-        elif item == self.item_child_setFlanges:
-            if not self.item_child_setFlanges.isDisabled():
+        elif item == self.item_child_addFlanges:
+            if not self.item_child_addFlanges.isDisabled():
                 # self.update_plot_entities()
-                self.mainWindow.getInputWidget().set_flanges()
+                self.mainWindow.getInputWidget().add_flanges()
 
         elif item == self.item_child_setBeamXaxisRotation:
             if not self.item_child_setBeamXaxisRotation.isDisabled():
@@ -567,7 +567,7 @@ class MenuItems(QTreeWidget):
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
         #
-        self.item_child_setFlanges.setDisabled(bool_key)
+        self.item_child_addFlanges.setDisabled(bool_key)
         self.item_child_setStructuralElementType.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)

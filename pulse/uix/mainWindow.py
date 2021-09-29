@@ -138,10 +138,10 @@ class MainWindow(QMainWindow):
         self.set_crossSection_action.triggered.connect(self.getInputWidget().set_cross_section)
 
         # Structural Model Setup
-        self.setFlanges_action = QAction('&Add Connecting Flanges', self)
-        # self.setFlanges_action.setShortcut('Ctrl+3')
-        self.setFlanges_action.setStatusTip('Add Connecting Flanges')
-        self.setFlanges_action.triggered.connect(self.getInputWidget().set_flanges)
+        self.addFlanges_action = QAction('&Add Connecting Flanges', self)
+        # self.addFlanges_action.setShortcut('Ctrl+3')
+        self.addFlanges_action.setStatusTip('Add Connecting Flanges')
+        self.addFlanges_action.triggered.connect(self.getInputWidget().add_flanges)
 
         self.setStructuralElementType_action = QAction('&Set Structural Element Type', self)        
         # self.setStructuralElementType_action.setShortcut('Alt+4')
@@ -383,7 +383,7 @@ class MainWindow(QMainWindow):
         self.generalSettingsMenu.addAction(self.set_crossSection_action)
 
     def _loadModelSetupMenu(self):
-        self.structuralModelSetupMenu.addAction(self.setFlanges_action)
+        self.structuralModelSetupMenu.addAction(self.addFlanges_action)
         self.structuralModelSetupMenu.addAction(self.setStructuralElementType_action)
         self.structuralModelSetupMenu.addAction(self.setDOF_action)
         self.structuralModelSetupMenu.addAction(self.setForce_action)
