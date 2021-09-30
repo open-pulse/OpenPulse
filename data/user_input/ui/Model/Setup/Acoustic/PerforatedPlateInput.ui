@@ -1176,6 +1176,25 @@
            </item>
           </layout>
          </widget>
+         <widget class="QCheckBox" name="checkBox_single_hole">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="geometry">
+           <rect>
+            <x>20</x>
+            <y>210</y>
+            <width>341</width>
+            <height>17</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>Single hole</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
         </widget>
         <widget class="QWidget" name="tab_6">
          <attribute name="title">

@@ -196,6 +196,7 @@ class CrossSection:
         self.thickness = 0
         self.offset_y = 0
         self.offset_z = 0
+        self.offset = [self.offset_y, self.offset_z]
         self.insulation_thickness = 0
         self.insulation_density = 0
         self.offset_virtual = None

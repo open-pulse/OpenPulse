@@ -1,6 +1,7 @@
 from math import sqrt, pi
 import numpy as np
-from scipy.special import jv, struve
+from scipy.special import jv, struve, hankel1
+from scipy.optimize import minimize
 from pulse.preprocessing.perforated_plate import Foks_function
 from pulse.preprocessing.node import distance
 
@@ -236,12 +237,14 @@ class AcousticElement:
         """
         if self.perforated_plate:
             return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
+        elif self.element_type in ['undamped mean flow','peters','howe']:
+            return self.fetm_mean_flow_matrix(frequencies, length_correction)
         elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
-            return self.fetm_1d_matrix(frequencies, length_correction)
+            return self.fetm_matrix(frequencies, length_correction)
         elif self.element_type == 'LRF full':
             return self.lrf_thermoviscous_matrix(frequencies, length_correction)  
     
-    def fetm_1d_matrix(self, frequencies, length_correction = 0):
+    def fetm_matrix(self, frequencies, length_correction = 0):
         """
         This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
 
@@ -420,6 +423,96 @@ class AcousticElement:
         if criterion:
             self.flag_plane_wave = True
         return matrix  
+  
+    def fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
+        k, z, M = self._fetm_mean_flow_damping_models(frequencies)
+        self.radiation_impedance(k, z)
+        
+        area = self.cross_section.area_fluid
+
+        kLe = k * (self.length + length_correction)
+        sineh = np.sinh(1j*kLe)
+        cossineh = np.cosh(1j*kLe)
+        exponential = - np.exp(-1j*kLe*M)
+        matrix = ((area / (z * (1-M**2)*sineh))*np.array([cossineh - M*sineh, exponential, np.conj(exponential), cossineh + M*sineh])).T
+
+        return matrix
+
+    def _fetm_mean_flow_damping_models(self, frequencies):
+        omega = 2 * pi * frequencies
+        c0 = self.speed_of_sound_corrected()
+        rho_0 = self.fluid.density
+        kappa_real = omega/c0
+        di = self.cross_section.inner_diameter
+        if self.element_type == 'undamped mean flow':
+            return kappa_real/(1-self.mach**2), c0 * rho_0, self.mach
+
+        elif self.element_type == 'howe':
+            nu = self.fluid.kinematic_viscosity
+            alpha = self.fluid.thermal_diffusivity
+            pr = self.fluid.prandtl
+            gamma = self.fluid.isentropic_exponent
+            U = self.mach * c0
+            Karmank = 0.41
+
+            # TODO: prt warning por pr<0.5
+            prt = 0.87
+
+            def transcedental(ur):
+                return (U - ur*(2.44 * np.log(ur * di/(2*nu)) + 2) )**2
+            res = minimize(lambda x: transcedental(x), x0=0.5)
+
+            ur = res.x[0]
+            w_ast = 0.01*ur**2/nu
+            delta_vs = nu/ur*6.5*(1 + (1.7*(omega/w_ast)**3)/(1+(omega/w_ast)**3))
+
+            aux1 = np.sqrt(1j*omega*nu)/(Karmank*ur)
+            aux2 = delta_vs * np.sqrt(1j*omega/nu)
+            aux3 = np.sqrt(1j*omega*alpha)*prt/(Karmank*ur)
+            aux4 = delta_vs * np.sqrt(1j*omega/alpha)
+
+            F1 = 1j*(hankel1(1,aux1)*np.cos(aux2) -  hankel1(0,aux1)*np.sin(aux2))/(hankel1(0,aux1)*np.cos(aux2) +  hankel1(1,aux1)*np.sin(aux2))
+            F2 = 1j*(hankel1(1,aux3)*np.cos(aux4) -  hankel1(0,aux3)*np.sin(aux4))/(hankel1(0,aux3)*np.cos(aux4) +  hankel1(1,aux3)*np.sin(aux4))
+
+            aux1 = np.sqrt(2)*(1-1j)*np.sqrt(omega*nu)/(c0*di)
+            aux2_m = np.conj(F1/(1-self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
+            aux2_M = np.conj(F1/(1+self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
+
+            kappa_m = -1/(1-self.mach)*(kappa_real + aux1*aux2_m)
+            kappa_M =  1/(1+self.mach)*(kappa_real + aux1*aux2_M)
+
+            kappa = (kappa_M - kappa_m)/2
+            c = omega/kappa
+            z = rho_0 * c
+            mach_ef = U/c
+
+            return kappa, z, mach_ef
+
+        elif self.element_type == 'peters':
+            nu = self.fluid.kinematic_viscosity
+            gamma = self.fluid.isentropic_exponent
+            pr = self.fluid.prandtl
+
+            U = self.mach * c0
+            ur = np.sqrt(0.03955) * (nu/di)**(1/8) * U**(7/8)
+
+            delta_vs = 12.5
+            delta_a = np.sqrt(2*nu/omega)
+            delta_ap = delta_a*ur/nu
+
+            aux1 = delta_a/di
+            aux2 = (1 + np.exp(-2*(1+1j)*(delta_vs / delta_ap) -200j/delta_ap**2 ))/(1 - np.exp(-2*(1+1j)*(delta_vs / delta_ap)))
+            aux3 = (1 + (gamma - 1)/np.sqrt(pr))
+
+            kappa_m = kappa_real/(1-self.mach) * ( -1 - (1-1j)*aux1*aux2*aux3)
+            kappa_M = kappa_real/(1+self.mach) * ( +1 + (1-1j)*aux1*aux2*aux3)
+
+            kappa = (kappa_M - kappa_m)/2
+            c = omega/kappa
+            z = rho_0 * c
+            mach_ef = U/c
+
+            return kappa, z, mach_ef
 
     def update_pp_impedance(self, frequencies, nonlinear_effect):
         # Fluid physical quantities

@@ -270,9 +270,12 @@ class ProjectFile:
                 if acoustic_element_type != "":
                     if acoustic_element_type == 'proportional':
                         proportional_damping = entityFile[entity]['proportional damping']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping)]
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping), None]
+                    elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
+                        mean_velocity = entityFile[entity]['mean velocity']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(mean_velocity)]
                     else:
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None]
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, None]
                     self.element_type_is_acoustic = True
                 else:
                     self.dict_acoustic_element_type[int(entity)] = 'undamped'
@@ -548,12 +551,13 @@ class ProjectFile:
                                                             float(pp_data[1]),
                                                             float(pp_data[2]),
                                                             discharge_coefficient = float(pp_data[3]),
-                                                            nonlinear_effect = bool(pp_data[4]),
-                                                            nonlinear_discharge_coefficient = float(pp_data[5]),
-                                                            correction_factor = float(pp_data[6]),
-                                                            bias_effect = bool(pp_data[7]),
-                                                            bias_coefficient = float(pp_data[8]),
-                                                            type = int(pp_data[9]) )
+                                                            single_hole = bool(pp_data[4]),
+                                                            nonlinear_effect = bool(pp_data[5]),
+                                                            nonlinear_discharge_coefficient = float(pp_data[6]),
+                                                            correction_factor = float(pp_data[7]),
+                                                            bias_effect = bool(pp_data[8]),
+                                                            bias_coefficient = float(pp_data[9]),
+                                                            type = int(pp_data[10]) )
 
                         if 'dimensionless impedance' in  element_file[section].keys():
                             dimensionless_data = element_file[section]['dimensionless impedance'] 
@@ -873,6 +877,7 @@ class ProjectFile:
                     perforated_plate.thickness,
                     perforated_plate.porosity,
                     perforated_plate.linear_discharge_coefficient,
+                    int(perforated_plate.single_hole),
                     int(perforated_plate.nonlinear_effect),
                     perforated_plate.nonlinear_discharge_coefficient,
                     perforated_plate.correction_factor,
@@ -1008,7 +1013,7 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_acoustic_element_type_in_file(self, entity_id, element_type, proportional_damping=None):
+    def modify_acoustic_element_type_in_file(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
@@ -1020,6 +1025,12 @@ class ProjectFile:
             
         if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
             config.remove_option(section=_section, option='proportional damping')  
+
+        if element_type in ["undamped mean flow", "peters", "howe"]:
+            config[_section]['mean velocity'] = str(mean_velocity)
+
+        if element_type not in ["undamped mean flow", "peters", "howe"] and 'mean velocity' in config[_section].keys():
+            config.remove_option(section=_section, option='mean velocity')  
     
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)

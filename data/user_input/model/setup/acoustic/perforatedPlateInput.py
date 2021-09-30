@@ -126,6 +126,10 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_porosity = self.findChild(QLineEdit, 'lineEdit_porosity')
         self.lineEdit_discharge = self.findChild(QLineEdit, 'lineEdit_discharge')
 
+        self.checkBox_single_hole = self.findChild(QCheckBox, 'checkBox_single_hole')
+        self.checkBox_single_hole.toggled.connect(self.checkBoxEvent_single_hole)
+        self.flag_single_hole = self.checkBox_single_hole.isChecked()
+
         self.checkBox_nonlinear = self.findChild(QCheckBox, 'checkBox_nonlinear')
         self.checkBox_nonlinear.toggled.connect(self.checkBoxEvent_nonlinear)
         self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
@@ -234,6 +238,9 @@ class PerforatedPlateInput(QDialog):
                 self.lineEdit_elementID.setText('')
             else:
                 self.on_click_item(items[0])
+
+    def checkBoxEvent_single_hole(self):
+        self.flag_single_hole = self.checkBox_single_hole.isChecked()
     
     def checkBoxEvent_nonlinear(self):
         self.flag_nonlinear = self.checkBox_nonlinear.isChecked()
@@ -572,11 +579,14 @@ class PerforatedPlateInput(QDialog):
         if self.tabWidget_dimensionless.currentIndex()==0:
             if self.check_svalues():
                 return True
+        
+        self.dict_inputs['single hole'] = self.flag_single_hole
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 
                                                 self.dict_inputs['plate thickness'],
                                                 self.dict_inputs['area porosity'],
                                                 discharge_coefficient = self.dict_inputs['discharge coefficient'],
+                                                single_hole = self.dict_inputs['single hole'],
                                                 nonlinear_effect = self.dict_inputs['nonlinear effects'],
                                                 nonlinear_discharge_coefficient = self.dict_inputs['nonlinear discharge coefficient'],
                                                 correction_factor = self.dict_inputs['correction factor'],
@@ -1018,6 +1028,7 @@ class GetInformationOfGroup(QDialog):
         self.Label_tp = self.findChild(QLabel, 'Label_tp')
         self.Label_phi = self.findChild(QLabel, 'Label_phi')
         self.Label_sigma = self.findChild(QLabel, 'Label_sigma')
+        self.Label_single_hole = self.findChild(QLabel, 'Label_single_hole')
         self.Label_nl_effects = self.findChild(QLabel, 'Label_nl_effects')
         self.Label_nl_sigma = self.findChild(QLabel, 'Label_nl_sigma')
         self.Label_correction = self.findChild(QLabel, 'Label_correction')
@@ -1044,6 +1055,7 @@ class GetInformationOfGroup(QDialog):
         self.Label_tp.setText(str(self.perforated_plate.thickness))
         self.Label_phi.setText(str(self.perforated_plate.porosity))
         self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
+        self.Label_single_hole.setText(str(self.perforated_plate.single_hole))
         if self.perforated_plate.nonlinear_effect:
             self.Label_nl_effects.setText("On")
             self.Label_nl_sigma.setText(str(self.perforated_plate.nonlinear_discharge_coefficient))
