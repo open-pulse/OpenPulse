@@ -11,6 +11,7 @@ import vtk
 # from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
 from pulse.interface.opvRenderer import opvRenderer
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
+from data.user_input.project.loadingScreen import LoadingScreen
 
 
 class OPVUi(QVTKRenderWindowInteractor):
@@ -40,9 +41,11 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.setInUse(False)
 
     def updatePlots(self):
-        self.opvRenderer.plot()
-        self.opvAnalysisRenderer.plot()
-    
+        def callback():
+            self.opvRenderer.plot()
+            self.opvAnalysisRenderer.plot()        
+        LoadingScreen('loading', target=callback)
+
     def changePlotToEntities(self):
 
         self.change_plot_to_mesh = False
