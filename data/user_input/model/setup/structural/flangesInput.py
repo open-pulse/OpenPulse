@@ -468,19 +468,21 @@ class FlangesInput(QDialog):
                     value = float(value_string)
                 else:
                     value = int(value_string) 
-                if value <= 0 and _only_positive:
-                    message = f"You cannot input a non-positive value to the '{label}'."
+                if value < 0 and _only_positive:
+                    message = f"You cannot input a non-positive value at the '{label}' input field."
+                elif value == 0 and not _zero_if_empty:
+                    message = f"You cannot input a zero value at the '{label}' input field."
                 else:
                     self.value = value
             except Exception as _log_error:
-                message = f"You have typed an invalid value to the '{label}' input field."
+                message = f"You have typed an invalid value at the '{label}' input field."
                 message += "The input value should be a positive float number.\n\n"
                 message += f"{str(_log_error)}"
         elif _zero_if_empty:
             self.value = float(0)
         else:
             message = f"An empty entry has been detected at the '{label}' input field.\n\n" 
-            message += "You should to enter a positive value to proceed."
+            message += "You should enter a positive value to proceed."
             self.value = None
         if message != "":
             PrintMessageInput([title, message, window_title_1])
