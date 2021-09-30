@@ -1,6 +1,8 @@
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.loadingScreen import LoadingScreen
 import vtk
 import numpy as np
+from time import sleep
 
 from pulse.postprocessing.plot_structural_data import get_structural_response
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response
@@ -11,7 +13,7 @@ from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
-from threading import Thread
+from threading import Thread, Lock
 
 
 class opvAnalysisRenderer(vtkRendererBase):
@@ -32,8 +34,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.scaleBar = None
 
         self.playingAnimation = False
-        self.animationTimer = 0
-        self.dt = 0.05
+        self.animationIndex = 0
+        self.delayCounter = 0
+        self.increment = 1
+
+        self.logMessage = self.getLogMessage()
 
         # just ignore it 
         self.nodesBounds = dict()
@@ -47,15 +52,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider = None
         self._createSlider()
         self._createPlayer()
-        self._animationFrames = dict()
+        self._animationFrames = []
 
     def plot(self):
         self.reset()
-
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
         self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
         self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project, deformed=True)
-
         self.opvPressureTubes.transparent = False
 
         self._createSlider()
@@ -76,45 +79,56 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
-
-    def updateHud(self):
-        self._createSlider()
-        self._createColorBar()
-        self._createScaleBar()
-
-    def _cacheFrames(self, single_frame=False, value=1):
-        if single_frame:
-            vals = [value]
-        else:
-            vals = [round(i/10, 1) for i in range(-10, 11)]  
-        for val in vals:
-            self._currentPlot(self._currentFrequencyIndex, val)
-            cached = vtk.vtkPolyData()
-            cached.DeepCopy(self.opvDeformedTubes._data)
-            self._animationFrames[val] = cached
-
-    def _plotCached(self, gain):
-        cached = self._animationFrames[round(gain, 1)]
-        self.opvDeformedTubes._data.DeepCopy(cached)
+    
+    def updateAll(self):
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
         self._renderer.ResetCameraClippingRange()
         self.update()
 
+    def updateHud(self):
+        self._createSlider()
+        self._createColorBar()
+        self._createScaleBar()
+
+    def _cacheFrames(self):
+        dt = 0.1
+        self._animationFrames.clear()
+        for i in np.arange(-1, 1 + dt, dt):
+            self._currentPlot(self._currentFrequencyIndex, i)
+            cached = vtk.vtkPolyData()
+            cached.DeepCopy(self.opvDeformedTubes._data)
+            self._animationFrames.append(cached)
+
+    def _plotCached(self):
+        i = self.animationIndex + self.increment
+
+        if i >= len(self._animationFrames):
+            i = len(self._animationFrames) - 1
+            self.increment = -1
+        elif i < 0:
+            i = 0
+            self.increment = 1
+
+        self.animationIndex = i
+        cached = self._animationFrames[i]
+        self.opvDeformedTubes._data.DeepCopy(cached)
+        self.updateAll()
+        
+    def _plotOnce(self, gain):
+        self._currentPlot(self._currentFrequencyIndex, gain)
+        self.updateAll()
+        
     def showDisplacement(self, frequency_index):
         self._currentPlot = self.computeDisplacement
         self._currentFrequencyIndex = frequency_index   
-        self._animationFrames.clear()
-        self._cacheFrames(single_frame=True)
-        self._plotCached(1)
+        self._plotOnce(1)
 
     def showStressField(self, frequency_index):
         self._currentPlot = self.computeStressField
         self._currentFrequencyIndex = frequency_index    
-        self._animationFrames.clear()
-        self._cacheFrames(single_frame=True)
-        self._plotCached(1)
+        self._plotOnce(1)
 
     def showPressureField(self, frequency_index, real_part=True):
         self.computePressureField(frequency_index, real_part=True)
@@ -216,27 +230,41 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv.AddObserver('TimerEvent', self._animationCallback)
 
     def playAnimation(self):
-        self.animationTimer = self.slider.GetRepresentation().GetValue()
-        self.playingAnimation = True
+        def cache_callback():
+            self._cacheFrames()
+            self._cacheFrequencyIndex = self._currentFrequencyIndex
+            self.playingAnimation = True
+        
+        if self._currentPlot is None:
+            return
+
+        if self.playingAnimation:
+            return
+        
+        if self._cacheFrequencyIndex == self._currentFrequencyIndex:
+            self.playingAnimation = True
+            return
+
+        title = "Processing in progress"
+        message = "The animation frames calculation is in progress." 
+        LoadingScreen(title, message, target=cache_callback)
 
     def pauseAnimation(self):
         self.playingAnimation = False
 
     def tooglePlayPauseAnimation(self):
-        if self.project.analysis_ID not in [3,4] and not self.project.plot_pressure_field:
-            self.playingAnimation = not self.playingAnimation
-            if self.playingAnimation:
-                if self._cacheFrequencyIndex != self._currentFrequencyIndex:
-                    self._animationFrames.clear()
-                    #TODO: print the log message while the calculation is in progress then close it automatically after all
-                    # self.printLogMessage()
-                    self._cacheFrames()
-                    self._cacheFrequencyIndex = self._currentFrequencyIndex
+        if self.project.analysis_ID in [3,4] or self.project.plot_pressure_field:
+            return
+
+        if self.playingAnimation:
+            self.pauseAnimation()
+        else:
+            self.playAnimation()
     
-    def printLogMessage(self):
+    def getLogMessage(self):
         title = "Processing in progress"
         message = "The animation frames calculation in progress." 
-        PrintMessageInput([title, message, "OpenPulse"], opvAnalysisRenderer=self)
+        return PrintMessageInput([title, message, "OpenPulse"], startnow=False)
 
     def _animationCallback(self, caller, event):
         if self._currentPlot is None:
@@ -245,28 +273,17 @@ class opvAnalysisRenderer(vtkRendererBase):
         if not self.playingAnimation:
             return
 
-        self.animationTimer += self.dt
-
-        if self.animationTimer <= -1:
-            self.dt = -self.dt 
-            self.animationTimer = -1
-        
-        elif self.animationTimer >= 1:
-            self.dt = -self.dt
-            self.animationTimer = 1
-
-        self.slider.GetRepresentation().SetValue(round(self.animationTimer, 1))
-        self._plotCached(self.animationTimer)
+        self.slider.GetRepresentation().SetValue(0)
+        self._plotCached()
 
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
             return 
         
         self.playingAnimation = False
-        sliderValue = slider.GetRepresentation().GetValue()
-        slider.GetRepresentation().SetValue(round(sliderValue, 1))
-        self._cacheFrames(single_frame=True, value=round(sliderValue, 1))
-        self._plotCached(sliderValue)
+        sliderValue = round(slider.GetRepresentation().GetValue(), 1)
+        slider.GetRepresentation().SetValue(sliderValue)
+        self._plotOnce(sliderValue)
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()

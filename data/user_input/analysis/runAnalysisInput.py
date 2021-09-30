@@ -10,6 +10,7 @@ import configparser
 from threading import Thread
 
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.loadingScreen import LoadingScreen
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
@@ -46,7 +47,7 @@ class RunAnalysisInput(QDialog):
 
         self.complete = False
 
-        Thread(target=self.run).start()
+        LoadingScreen('Run Analysis', 'Solution in progress...', target=self.run)
         self.exec()
 
 
