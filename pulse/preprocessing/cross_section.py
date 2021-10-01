@@ -763,7 +763,10 @@ class CrossSection:
             
             N = 24# element.cross_section.division_number
             d_out, thickness, offset_y, offset_z = self.section_parameters
-            d_in = d_out - 2*thickness
+            if thickness == 0:
+                d_in = 0
+            else:
+                d_in = d_out - 2*thickness
 
             d_theta = np.pi/N
             theta = -np.arange(0, 2*np.pi, d_theta)
@@ -1196,7 +1199,10 @@ def get_points_to_plot_section(section_label, section_parameters):
 
         N = 60
         d_out, thickness, offset_y, offset_z = section_parameters
-        d_in = d_out - 2*thickness
+        if thickness == 0:
+            d_in = 0
+        else:
+            d_in = d_out - 2*thickness
         
         d_theta = np.pi/N
         theta = np.arange(-np.pi/2, (np.pi/2)+d_theta, d_theta)

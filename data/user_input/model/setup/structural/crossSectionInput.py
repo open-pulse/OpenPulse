@@ -921,13 +921,10 @@ class CrossSectionInput(QDialog):
                 return True
 
             if self.lineEdit_thickness_circular_section != "":
-                thickness = self.check_inputs(self.lineEdit_thickness_circular_section, 'Thickness (Circular section)')
+                thickness = self.check_inputs(self.lineEdit_thickness_circular_section, 'Thickness (Circular section)', zero_included=True)
                 if self.stop:
                     return
-                inner_diameter_beam = outer_diameter_beam - 2*thickness
-            else:
-                inner_diameter_beam = float(0)
-
+ 
             if outer_diameter_beam < 2*thickness:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The OUTER DIAMETER must be greater or equals to 2*THICKNESS."
