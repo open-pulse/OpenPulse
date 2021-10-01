@@ -818,9 +818,12 @@ class CrossSectionInput(QDialog):
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
                 self.remove_line_from_list(line_id)
-                self.project.set_cross_section_by_line(line_id, self.cross_section)
-                self.project.set_structural_element_type_by_entity(line_id, self.element_type)
-                self.project._set_expansion_joint_to_selected_entity(line_id, None)
+                # self.project.set_cross_section_by_line(line_id, self.cross_section)
+                # self.project.set_structural_element_type_by_entity(line_id, self.element_type)
+                # self.project._set_expansion_joint_to_selected_entity(line_id, None)
+            self.project.set_cross_section_by_line(self.lines_typed, self.cross_section)
+            self.project.set_structural_element_type_by_entity(self.lines_typed, self.element_type)
+            self.project._set_expansion_joint_to_selected_entity(self.lines_typed, None)
             print("[Set Cross-section] - defined at lines {}".format(self.lines_typed))
 
         elif self.flagElements:

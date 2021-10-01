@@ -195,8 +195,7 @@ class MaterialInput(QDialog):
                 if self.stop:
                     return True 
                                
-                for line in self.lines_typed:
-                    self.project.set_material_by_line(line, self.material)
+                self.project.set_material_by_line(self.lines_typed, self.material)
                 print("[Set Material] - {} defined in the entities {}".format(self.material.name, self.lines_typed))
                 # self.opv.changeColorEntities(self.lines_typed, self.material.getNormalizedColorRGB())
             else:

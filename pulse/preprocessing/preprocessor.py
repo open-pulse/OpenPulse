@@ -916,7 +916,7 @@ class Preprocessor:
             for element in slicer(self.acoustic_elements, elements):
                 element.cross_section = cross_section
 
-    def set_cross_section_by_line(self, line, cross_section):
+    def set_cross_section_by_line(self, lines, cross_section):
         """
         This method attributes cross section object to all elements that belongs to a line/entity.
 
@@ -928,10 +928,10 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
         """
-        for elements in slicer(self.line_to_elements, line):
+        for elements in slicer(self.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
     
-    def set_structural_element_type_by_line(self, line, element_type, remove=False):
+    def set_structural_element_type_by_line(self, lines, element_type, remove=False):
         """
         This method attributes structural element type to all elements that belongs to a line/entity.
 
@@ -947,29 +947,32 @@ class Preprocessor:
             True if the element_type have to be removed from the structural element type dictionary. False otherwise.
             Default is False.
         """
-        for elements in slicer(self.line_to_elements, line):
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        for elements in slicer(self.line_to_elements, lines):
             self.set_structural_element_type_by_element(elements, element_type)
-
-        if remove:
-            self.dict_structural_element_type_to_lines.pop(element_type)
-        elif element_type != "":
-            temp_dict = self.dict_structural_element_type_to_lines.copy()
-            if element_type not in list(temp_dict.keys()):
-                self.dict_structural_element_type_to_lines[element_type].append(line)
-                for key, lines in temp_dict.items():
-                    if key != element_type:
-                        if line in lines:
-                            self.dict_structural_element_type_to_lines[key].remove(line)
-            else:
-                for key, lines in temp_dict.items():
-                    if key != element_type:
-                        if line in lines:
-                            self.dict_structural_element_type_to_lines[key].remove(line)
-                    else:
-                        if line not in lines:
-                            self.dict_structural_element_type_to_lines[key].append(line)
-                    if self.dict_structural_element_type_to_lines[key] == []:
-                        self.dict_structural_element_type_to_lines.pop(key)
+        for line in lines:
+            if remove:
+                self.dict_structural_element_type_to_lines.pop(element_type)
+            elif element_type != "":
+                temp_dict = self.dict_structural_element_type_to_lines.copy()
+                if element_type not in list(temp_dict.keys()):
+                    self.dict_structural_element_type_to_lines[element_type].append(line)
+                    for key, lines in temp_dict.items():
+                        if key != element_type:
+                            if line in lines:
+                                self.dict_structural_element_type_to_lines[key].remove(line)
+                else:
+                    for key, lines in temp_dict.items():
+                        if key != element_type:
+                            if line in lines:
+                                self.dict_structural_element_type_to_lines[key].remove(line)
+                        else:
+                            if line not in lines:
+                                self.dict_structural_element_type_to_lines[key].append(line)
+                        if self.dict_structural_element_type_to_lines[key] == []:
+                            self.dict_structural_element_type_to_lines.pop(key)
 
     def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
@@ -1666,7 +1669,7 @@ class Preprocessor:
                 self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
 
 
-    def add_expansion_joint_by_line(self, line_id, parameters, remove=False):
+    def add_expansion_joint_by_line(self, lines, parameters, remove=False):
         """
         This method .
 
@@ -1682,16 +1685,19 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        for elements in slicer(self.line_to_elements, line_id):
-            self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
-        if remove:
-            if line_id in list(self.dict_lines_with_expansion_joints.keys()):
-                self.dict_lines_with_expansion_joints.pop(line_id)
-            if line_id in self.number_expansion_joints_by_lines.keys():
-                self.number_expansion_joints_by_lines.pop(line_id)
-        else:
-            self.dict_lines_with_expansion_joints[line_id] = parameters
-            self.number_expansion_joints_by_lines[line_id] = 1
+        if isinstance(lines, int):
+            lines = [lines] 
+        for line_id in lines:
+            for elements in slicer(self.line_to_elements, line_id):
+                self.add_expansion_joint_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
+            if remove:
+                if line_id in list(self.dict_lines_with_expansion_joints.keys()):
+                    self.dict_lines_with_expansion_joints.pop(line_id)
+                if line_id in self.number_expansion_joints_by_lines.keys():
+                    self.number_expansion_joints_by_lines.pop(line_id)
+            else:
+                self.dict_lines_with_expansion_joints[line_id] = parameters
+                self.number_expansion_joints_by_lines[line_id] = 1
         
     def set_stress_intensification_by_element(self, elements, value):
         """

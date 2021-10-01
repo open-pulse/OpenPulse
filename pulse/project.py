@@ -814,17 +814,16 @@ class Project:
     def set_material(self, material):
         self.preprocessor.set_material_by_element('all', material)
         self._set_material_to_all_entities(material)
-        for line in self.preprocessor.all_lines:
-            self.file.add_material_in_file(line, material.identifier)
+        self.file.add_material_in_file(self.preprocessor.all_lines, material.identifier)
 
-    def set_material_by_line(self, entity_id, material):
+    def set_material_by_line(self, entities, material):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_material_by_line(entity_id, material)
+            self.preprocessor.set_material_by_line(entities, material)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_material_by_element('all', material)
 
-        self._set_material_to_selected_entity(entity_id, material)
-        self.file.add_material_in_file(entity_id, material.identifier)
+        self._set_material_to_selected_entity(entities, material)
+        self.file.add_material_in_file(entities, material.identifier)
 
     def set_cross_section_to_all(self, cross_section):
         self.preprocessor.set_cross_section_by_element('all', cross_section)
@@ -840,14 +839,14 @@ class Project:
             if line not in self.lines_with_cross_section_by_elements:
                 self.lines_with_cross_section_by_elements.append(line)
 
-    def set_cross_section_by_line(self, line_id, cross_section):
-        self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
+    def set_cross_section_by_line(self, lines, cross_section):
+        self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_cross_section_by_line(line_id, cross_section)
+            self.preprocessor.set_cross_section_by_line(lines, cross_section)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
-        self._set_cross_section_to_selected_entity(line_id, cross_section)
-        self.file.add_cross_section_in_file(line_id, cross_section)
+        self._set_cross_section_to_selected_entity(lines, cross_section)
+        self.file.add_cross_section_in_file(lines, cross_section)
 
     def set_variable_cross_section_by_line(self, line_id, parameters):
         self._set_variable_cross_section_to_selected_entity(line_id, parameters)
@@ -1237,9 +1236,12 @@ class Project:
     def load_prescribed_dofs_bc_by_node(self, node_id, data):
         self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
 
-    def _set_material_to_selected_entity(self, entity_id, material):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.material = material
+    def _set_material_to_selected_entity(self, entities, material):
+        if isinstance(entities, int):
+            entities = [entities]
+        for entity_id in entities:
+            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+            entity.material = material
 
     def _set_material_to_all_entities(self, material):
         for entity in self.entities:
@@ -1259,9 +1261,12 @@ class Project:
             else:
                 entity.fluid = None
 
-    def _set_cross_section_to_selected_entity(self, entity_id, cross):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.cross_section = cross
+    def _set_cross_section_to_selected_entity(self, entities, cross):
+        if isinstance(entities, int):
+            entities = [entities]
+        for entity_id in entities:
+            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+            entity.cross_section = cross
 
     def _set_cross_section_to_all_entities(self, cross):
         for entity in self.entities:
@@ -1271,9 +1276,12 @@ class Project:
         entity = self.preprocessor.dict_tag_to_entity[entity_id]
         entity.variable_cross_section_data = parameters
 
-    def _set_structural_element_type_to_selected_entity(self, entity_id, element_type):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.structural_element_type = element_type
+    def _set_structural_element_type_to_selected_entity(self, entities, element_type):
+        if isinstance(entities, int):
+            entities = [entities]
+        for entity_id in entities:
+            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+            entity.structural_element_type = element_type
 
     def _set_structural_element_type_to_all_entities(self, element_type):
         for entity in self.entities:
@@ -1303,9 +1311,12 @@ class Project:
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
-    def _set_expansion_joint_to_selected_entity(self, entity_id, parameters):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.expansion_joint_parameters = parameters
+    def _set_expansion_joint_to_selected_entity(self, entities, parameters):
+        if isinstance(entities, int):
+            entities = [entities]
+        for entity_id in entities:
+            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+            entity.expansion_joint_parameters = parameters
     
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs

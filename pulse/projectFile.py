@@ -617,48 +617,53 @@ class ProjectFile:
                 PrintMessageInput([title, message, window_title])
                 
 
-    def add_cross_section_in_file(self, entity_id, cross_section):  
+    def add_cross_section_in_file(self, lines, cross_section):  
+
+        if isinstance(lines, int):
+            lines = [lines]
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        line_id = str(entity_id)
 
-        for section in config.sections():
-            section_prefix = line_id + '-'
-            if section_prefix in section:
-                config.remove_section(section)
-    
-        str_keys = [    'outer diameter', 
-                        'thickness', 
-                        'offset [e_y, e_z]', 
-                        'insulation thickness', 
-                        'insulation density',
-                        'variable section parameters',
-                        'beam section type',
-                        'section parameters',
-                        'section properties',
-                        'expansion joint parameters',
-                        'expansion joint stiffness'    ]
+        for line_id in lines:
+            line_id = str(line_id)
 
-        for str_key in str_keys:
-            if str_key in list(config[line_id].keys()):
-                config.remove_option(section=line_id, option=str_key)
+            for section in config.sections():
+                section_prefix = line_id + '-'
+                if section_prefix in section:
+                    config.remove_section(section)
+        
+            str_keys = [    'outer diameter', 
+                            'thickness', 
+                            'offset [e_y, e_z]', 
+                            'insulation thickness', 
+                            'insulation density',
+                            'variable section parameters',
+                            'beam section type',
+                            'section parameters',
+                            'section properties',
+                            'expansion joint parameters',
+                            'expansion joint stiffness'    ]
 
-        if cross_section is not None:
-            if cross_section.beam_section_info is not None:
-                if line_id in list(config.sections()):
-                    config[line_id]['beam section type'] = cross_section.section_label
-                    if "Generic section" == cross_section.section_label:
-                        config[line_id]['section properties'] = str(cross_section.section_properties)
-                    else:
-                        config[line_id]['section parameters'] = str(cross_section.section_parameters)
-            else:
-                if line_id in list(config.sections()):
-                    config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
-                    config[line_id]['thickness'] = str(cross_section.thickness)
-                    config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
-                    config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
-                    config[line_id]['insulation density'] = str(cross_section.insulation_density)
+            for str_key in str_keys:
+                if str_key in list(config[line_id].keys()):
+                    config.remove_option(section=line_id, option=str_key)
+
+            if cross_section is not None:
+                if cross_section.beam_section_info is not None:
+                    if line_id in list(config.sections()):
+                        config[line_id]['beam section type'] = cross_section.section_label
+                        if "Generic section" == cross_section.section_label:
+                            config[line_id]['section properties'] = str(cross_section.section_properties)
+                        else:
+                            config[line_id]['section parameters'] = str(cross_section.section_parameters)
+                else:
+                    if line_id in list(config.sections()):
+                        config[line_id]['outer diameter'] = str(cross_section.outer_diameter)
+                        config[line_id]['thickness'] = str(cross_section.thickness)
+                        config[line_id]['offset [e_y, e_z]'] = str(cross_section.offset)
+                        config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
+                        config[line_id]['insulation density'] = str(cross_section.insulation_density)
         
         self.write_data_in_file(self._entity_path, config)
         
@@ -996,19 +1001,24 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def modify_structural_element_type_in_file(self, line_id, element_type):
+    def modify_structural_element_type_in_file(self, lines, element_type):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        
-        str_line = str(line_id)
-        if element_type in ["beam_1"]:
-            str_keys = ['fluid id', 'stress stiffening parameters']
+
+        for line_id in lines:
+            str_line = str(line_id)
+            if element_type in ["beam_1"]:
+                str_keys = ['fluid id', 'stress stiffening parameters']
+                
+                for str_key in str_keys:
+                    if str_key in config[str_line].keys():
+                        config.remove_option(section=str_line, option=str_key)
             
-            for str_key in str_keys:
-                if str_key in config[str_line].keys():
-                    config.remove_option(section=str_line, option=str_key)
-        
-        config[str_line]['structural element type'] = element_type
+            config[str_line]['structural element type'] = element_type
 
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
@@ -1035,11 +1045,22 @@ class ProjectFile:
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
-    def add_material_in_file(self, entity_id, material_id):
+    def add_material_in_file(self, entities, material_id):
+
+        print('entrei')
+
+        if isinstance(entities, int):
+            entities = [entities]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['material id'] = str(material_id)
-        
+
+        dict_material_id = {'materia_id' : str(material_id)}
+
+        for entity_id in entities:
+            print(entity_id, str(material_id))
+            config[str(entity_id)] = dict_material_id
+            
         with open(self._entity_path, 'w') as config_file:
             config.write(config_file)
 
