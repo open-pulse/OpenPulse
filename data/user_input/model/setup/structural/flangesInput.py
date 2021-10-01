@@ -458,7 +458,7 @@ class FlangesInput(QDialog):
 
         return False
 
-    def check_input_parameters(self, lineEdit, label, _float=True, _zero_if_empty=False):
+    def check_input_parameters(self, lineEdit, label, _float=True, _zero_if_empty=False, _only_positive=True):
         message = ""
         title = f"Invalid entry to the '{label}'"
         value_string = lineEdit.text()
@@ -468,19 +468,21 @@ class FlangesInput(QDialog):
                     value = float(value_string)
                 else:
                     value = int(value_string) 
-                if value <= 0:
-                    message = f"You cannot input a non-positive value to the '{label}'."
+                if value < 0 and _only_positive:
+                    message = f"You cannot input a non-positive value at the '{label}' input field."
+                elif value == 0 and not _zero_if_empty:
+                    message = f"You cannot input a zero value at the '{label}' input field."
                 else:
                     self.value = value
             except Exception as _log_error:
-                message = f"You have typed an invalid value to the '{label}' input field."
+                message = f"You have typed an invalid value at the '{label}' input field."
                 message += "The input value should be a positive float number.\n\n"
                 message += f"{str(_log_error)}"
         elif _zero_if_empty:
             self.value = float(0)
         else:
             message = f"An empty entry has been detected at the '{label}' input field.\n\n" 
-            message += "You should to enter a positive value to proceed."
+            message += "You should enter a positive value to proceed."
             self.value = None
         if message != "":
             PrintMessageInput([title, message, window_title_1])
@@ -503,14 +505,14 @@ class FlangesInput(QDialog):
         else:
             self.inner_diameter = self.value        
 
-        if self.check_input_parameters(self.lineEdit_offset_y, 'Offset y', _zero_if_empty=True):
+        if self.check_input_parameters(self.lineEdit_offset_y, 'Offset y', _zero_if_empty=True, _only_positive=False):
             self.tabWidget_inputs.setCurrentIndex(1)
             self.lineEdit_offset_y.setFocus()
             return True
         else:
             self.offset_y = self.value        
 
-        if self.check_input_parameters(self.lineEdit_offset_z, 'Offset z', _zero_if_empty=True):
+        if self.check_input_parameters(self.lineEdit_offset_z, 'Offset z', _zero_if_empty=True, _only_positive=False):
             self.tabWidget_inputs.setCurrentIndex(1)
             self.lineEdit_offset_z.setFocus()
             return True
@@ -557,7 +559,7 @@ class FlangesInput(QDialog):
                 return True
             else:
                 self.outer_diameter = self.value
-        
+                
         return False
 
     def add_flange_to_selected_elements(self):
@@ -591,11 +593,14 @@ class FlangesInput(QDialog):
         self.actions_to_finalize()
 
     def set_flange_cross_section_to_list_elements(self, list_elements):
+        section_parameters = {}
+
         for element_id in list_elements:
             element = self.structural_elements[element_id]
             if self.flag_checkBox:
                 cross_section = element.cross_section
                 if cross_section is None:
+                    section_parameters = {}
                     return True
                 else:
                     outer_diameter = self.outer_diameter
@@ -612,17 +617,34 @@ class FlangesInput(QDialog):
                 offset_y = self.offset_y
                 offset_z = self.offset_z
                 insulation_thickness = self.insulation_thickness
-                insulation_density = self.insulation_density                    
+                insulation_density = self.insulation_density   
+
+            if outer_diameter <= inner_diameter:
+                section_parameters = {}
+                title = "Invalid input to the outer/inner diameters"
+                message = "The outer diameter input should be greater than the inner diameter. \n"
+                message += "This condition must be satified to proceed."
+                PrintMessageInput([title, message, window_title_1])
+                return True
+
+            section_parameters[element_id] = {  "outer_diameter" : outer_diameter,
+                                                "thickness" : thickness, 
+                                                "offset_y" : offset_y, 
+                                                "offset_z" : offset_z, 
+                                                "insulation_thickness" : insulation_thickness, 
+                                                "insulation_density" : insulation_density  }             
                     
-            section_parameters = {  "outer_diameter" : outer_diameter,
-                                    "thickness" : thickness, 
-                                    "offset_y" : offset_y, 
-                                    "offset_z" : offset_z, 
-                                    "insulation_thickness" : insulation_thickness, 
-                                    "insulation_density" : insulation_density  }
-            
+            # section_parameters = {  "outer_diameter" : outer_diameter,
+            #                         "thickness" : thickness, 
+            #                         "offset_y" : offset_y, 
+            #                         "offset_z" : offset_z, 
+            #                         "insulation_thickness" : insulation_thickness, 
+            #                         "insulation_density" : insulation_density  }
+        
+        for element_id in list_elements:
+
             pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                    "section_parameters" : section_parameters  }
+                                    "section_parameters" : section_parameters[element_id]  }
 
             self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
             self.project.set_cross_section_by_elements([element_id], self.cross_section)

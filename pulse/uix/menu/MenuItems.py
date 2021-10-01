@@ -351,7 +351,7 @@ class MenuItems(QTreeWidget):
 
     def on_click_item(self, item, column):
         """This event is raised every time an item is clicked on the menu."""
-        self.mainWindow.getInputWidget().beforeInput()
+        # self.mainWindow.getInputWidget().beforeInput()
 
         if self.update_childItems_visibility(item):
             return
