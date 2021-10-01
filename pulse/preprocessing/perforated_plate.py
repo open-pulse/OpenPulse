@@ -13,6 +13,7 @@ class PerforatedPlate:
         self.thickness = thickness
         self.porosity = porosity
         self.linear_discharge_coefficient = kwargs.get("discharge_coefficient", 1)
+        self.single_hole = kwargs.get("single_hole", False)
         self.nonlinear_effect = kwargs.get("nonlinear_effect", False)
         self.nonlinear_discharge_coefficient = kwargs.get("nonlinear_discharge_coefficient", 0.76)
         self.correction_factor = kwargs.get("correction_factor", 1)
@@ -24,7 +25,10 @@ class PerforatedPlate:
 
     @property
     def foks_delta(self):
-        return pi * self.hole_diameter * Foks_function(np.sqrt(self.porosity)) / 4 
+        if self.single_hole:
+            return pi * self.hole_diameter / 4 
+        else:
+            return pi * self.hole_diameter * Foks_function(np.sqrt(self.porosity)) / 4 
 
     def radiation_impedance(self, wave_number):
         dividend = jv(1,wave_number * self.hole_diameter)

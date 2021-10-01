@@ -38,6 +38,7 @@ class Preprocessor:
         # self.neighbors = {}
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
+        self.dict_line_to_nodes = {}
         self.elements_to_line = {}
         self.elements_with_expansion_joint = []
         self.number_expansion_joints_by_lines = {}
@@ -390,6 +391,21 @@ class Preprocessor:
             # dt = time() - t0
             # print(f"Time to process : {dt}")
 
+    def _map_lines_to_nodes(self):
+        # t0 = time()
+        self.dict_line_to_nodes = {}
+        for line_ID, list_elements in self.line_to_elements.items():
+            list_nodes = np.zeros(len(list_elements)+1, dtype=int)
+            for i, _id in enumerate(list_elements):
+                element = self.structural_elements[_id]
+                first_node_id = element.first_node.external_index
+                last_node_id = element.last_node.external_index
+                if i==0:
+                    list_nodes[i] = first_node_id
+                list_nodes[i+1] = last_node_id
+            self.dict_line_to_nodes[line_ID] = np.sort(list_nodes)              
+        # dt = time() - t0
+        # print(f"Time to process : {dt}")
 
     def get_line_length(self, line_ID):
         first_element_ID = self.line_to_elements[line_ID][0]
@@ -840,7 +856,7 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
-    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, remove=False):
+    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -863,6 +879,7 @@ class Preprocessor:
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
             element.proportional_damping = proportional_damping
+            element.mean_velocity = mean_velocity
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
@@ -954,7 +971,7 @@ class Preprocessor:
                     if self.dict_structural_element_type_to_lines[key] == []:
                         self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, remove=False):
+    def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -975,7 +992,7 @@ class Preprocessor:
             Default is False.
         """
         for elements in slicer(self.line_to_elements, line):
-            self.set_acoustic_element_type_by_element(elements, element_type, proportional_damping=proportional_damping)
+            self.set_acoustic_element_type_by_element(elements, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
 
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
@@ -1745,6 +1762,17 @@ class Preprocessor:
         """
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
+            
+    def set_mean_velocity_by_element(self, elements, mean_velocity):
+        for element in slicer(self.acoustic_elements, elements):
+            if 'beam_1' not in self.structural_elements[element.index].element_type:
+                element.mean_velocity = mean_velocity
+            else:
+                element.mean_velocity = None
+    
+    def set_mean_velocity_by_line(self, lines, mean_velocity):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_mean_velocity_by_element(elements, mean_velocity)
 
     def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
         for element in slicer(self.acoustic_elements, elements):
@@ -2752,30 +2780,6 @@ class Preprocessor:
 
 
     #TODO: remove the following methods if they are not necessary anymore
-
-    # def get_dict_line_to_nodes(self):
-    #     # t0 = time()
-    #     self.dict_line_to_nodes = {}
-    #     for line_ID, list_elements in self.line_to_elements.items():
-    #         # list_nodes = []
-    #         list_nodes = np.zeros(len(list_elements)+1, dtype=int)
-    #         for i, _id in enumerate(list_elements):
-    #             element = self.structural_elements[_id]
-    #             first_node_id = element.first_node.external_index
-    #             last_node_id = element.last_node.external_index
-    #             if i==0:
-    #                 list_nodes[i] = first_node_id
-    #             list_nodes[i+1] = last_node_id
-    #             # if first_node_id not in list_nodes:
-    #             #     list_nodes.append(first_node_id)
-    #             # if last_node_id not in list_nodes:
-    #             #     list_nodes.append(last_node_id)
-    #         self.dict_line_to_nodes[line_ID] = list_nodes  
-    #         # if line_ID in [1,2,3]:
-    #         #     print(self.dict_line_to_nodes[line_ID])  
-    #     # dt = time() - t0
-    #     # print(f"Time to process : {dt}")
-
 
     # def get_beam_nodes_and_indexes(self, list_beam_elements):
     #     """

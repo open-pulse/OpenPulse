@@ -17,14 +17,11 @@ import matplotlib.pyplot as plt
 window_title = "ERROR MESSAGE"
 
 class CrossSectionInput(QDialog):
-    def __init__(   self, 
-                    project, 
-                    opv, 
+    def __init__(   self, project, opv, 
                     pipe_to_beam = False,
                     beam_to_pipe = False,
                     lines_to_update_cross_section = [], 
-                    *args, 
-                    **kwargs):
+                    *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/crossSectionInput.ui', self)
 
@@ -642,7 +639,7 @@ class CrossSectionInput(QDialog):
         self.complete = True
         plt.close()
         self.opv.updateEntityRadius()
-        self.opv.changePlotToMesh()       
+        self.opv.changePlotToEntitiesWithCrossSection()
         self.close()
 
     def check_straight_pipe(self, plot=False):
@@ -924,13 +921,10 @@ class CrossSectionInput(QDialog):
                 return True
 
             if self.lineEdit_thickness_circular_section != "":
-                thickness = self.check_inputs(self.lineEdit_thickness_circular_section, 'Thickness (Circular section)')
+                thickness = self.check_inputs(self.lineEdit_thickness_circular_section, 'Thickness (Circular section)', zero_included=True)
                 if self.stop:
                     return
-                inner_diameter_beam = outer_diameter_beam - 2*thickness
-            else:
-                inner_diameter_beam = float(0)
-
+ 
             if outer_diameter_beam < 2*thickness:
                 title = "INPUT CROSS-SECTION ERROR"
                 message = "The OUTER DIAMETER must be greater or equals to 2*THICKNESS."

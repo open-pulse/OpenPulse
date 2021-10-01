@@ -134,26 +134,30 @@ class SolutionAcoustic:
         solution = np.zeros((rows, cols), dtype=complex)
 
         if bool(self.elements_with_perforated_plate):
-            values = list(dict.values(self.elements_with_perforated_plate))
-            elements = [self.acoustic_elements[j] for [_,i] in values for j in i ]
+            
+            values = self.elements_with_perforated_plate.values()
+            elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
+
             count = 0
             crit = 1
-            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
+            self.solution_nm1 = np.zeros((self.all_dofs, cols), dtype=complex)
 
             while crit > 1e-2:
                 self.get_global_matrices()
 
                 for i in range(cols):
-                    solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
+                    solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
 
                 solution = self._reinsert_prescribed_dofs(solution)
 
                 Crit = np.array([])
-                for el in elements:
-                    el.update_pressure(solution)
-                    first = el.first_node.global_index
-                    last = el.last_node.global_index
-                    Crit = np.r_[Crit, relative_error(solution[first,:], self.solution_nm1[first,:]), relative_error(solution[last,:], self.solution_nm1[last,:]) ]
+                for element in elements:
+                    element.update_pressure(solution)
+                    first = element.first_node.global_index
+                    last = element.last_node.global_index
+                    Crit = np.r_[   Crit, 
+                                    relative_error(solution[first,:], self.solution_nm1[first,:]), 
+                                    relative_error(solution[last,:], self.solution_nm1[last,:])   ]
                 crit = np.max(Crit)
                 # TODO: create a plot showing the iteration convergence.
                 # print(count, '\t:' ,crit) 

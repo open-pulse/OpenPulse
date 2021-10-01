@@ -20,6 +20,7 @@ class Entity:
         self.beam_xaxis_rotation = None
         self.acoustic_element_type = None
         self.proportional_damping = None
+        self.mean_velocity = None
         self.structural_element_type = None
         self.capped_end = False
         self.length_correction = None

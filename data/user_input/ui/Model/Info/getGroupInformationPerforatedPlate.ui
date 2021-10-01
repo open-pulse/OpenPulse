@@ -201,7 +201,7 @@
       <x>18</x>
       <y>70</y>
       <width>381</width>
-      <height>162</height>
+      <height>181</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
@@ -240,9 +240,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -277,9 +277,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -314,9 +314,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -351,13 +351,50 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
           <string>Label_sigma</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="Label_single_hole">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>140</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>140</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>50</weight>
+           <italic>true</italic>
+           <bold>false</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Label_single_hole</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -371,6 +408,43 @@
        <property name="sizeConstraint">
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
+       <item>
+        <widget class="QLabel" name="label_20">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>40</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>40</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>[m]</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="label_17">
          <property name="sizePolicy">
@@ -438,7 +512,7 @@
           </font>
          </property>
          <property name="text">
-          <string>[m]</string>
+          <string>[-]</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -512,7 +586,7 @@
           </font>
          </property>
          <property name="text">
-          <string>[-]</string>
+          <string> </string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -522,7 +596,7 @@
       </layout>
      </item>
      <item row="0" column="0">
-      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,0,0">
+      <layout class="QVBoxLayout" name="verticalLayout_6" stretch="0,0,0,0,0">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -677,6 +751,43 @@
          </property>
          <property name="text">
           <string>Discharge coefficient:</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_discharge_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>160</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>160</width>
+           <height>35</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>11</pointsize>
+           <weight>75</weight>
+           <italic>true</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="text">
+          <string>Single hole</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -904,9 +1015,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -941,9 +1052,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -962,9 +1073,9 @@
     <property name="geometry">
      <rect>
       <x>18</x>
-      <y>250</y>
+      <y>260</y>
       <width>381</width>
-      <height>121</height>
+      <height>111</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_5">
@@ -1003,9 +1114,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -1040,9 +1151,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -1077,9 +1188,9 @@
           <font>
            <family>Arial</family>
            <pointsize>11</pointsize>
-           <weight>75</weight>
+           <weight>50</weight>
            <italic>true</italic>
-           <bold>true</bold>
+           <bold>false</bold>
           </font>
          </property>
          <property name="text">
@@ -1344,7 +1455,7 @@ discharge coefficient:</string>
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>230</y>
+      <y>245</y>
       <width>420</width>
       <height>20</height>
      </rect>
@@ -1369,7 +1480,7 @@ discharge coefficient:</string>
     <property name="geometry">
      <rect>
       <x>0</x>
-      <y>370</y>
+      <y>375</y>
       <width>420</width>
       <height>20</height>
      </rect>
@@ -1529,9 +1640,9 @@ discharge coefficient:</string>
      <font>
       <family>Arial</family>
       <pointsize>11</pointsize>
-      <weight>75</weight>
+      <weight>50</weight>
       <italic>true</italic>
-      <bold>true</bold>
+      <bold>false</bold>
      </font>
     </property>
     <property name="text">

@@ -10,6 +10,7 @@ from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInpu
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.materialInput import MaterialInput
 from data.user_input.model.setup.structural.crossSectionInput import CrossSectionInput
+from data.user_input.model.setup.structural.flangesInput import FlangesInput
 from data.user_input.model.setup.structural.beamXaxisRotationInput import BeamXaxisRotationInput 
 from data.user_input.model.setup.structural.dofInput import DOFInput
 from data.user_input.model.setup.structural.decouplingRotationDOFsInput import DecouplingRotationDOFsInput
@@ -66,19 +67,11 @@ class InputUi:
         self.project = project
         self.parent = parent
         self.opv = self.parent.getOPVWidget()
+        
         self.analysis_ID = None
-
-        self.f_min = 0
-        self.f_max = 0
-        self.f_step = 0
         self.frequencies = None
         self.global_damping = [0,0,0,0]
 
-        self.acoustic_pressure_frequencies = None
-        self.volume_velocity_frequencies = None 
-        self.specific_impedance_frequencies = None
-        self.nodal_loads_frequencies = None
-        self.prescribed_dofs_frequencies = None
         self.project.none_project_action = False
 
     def beforeInput(self):
@@ -88,17 +81,28 @@ class InputUi:
         except:
             return
 
+    def processInput(self, workingClass, *args, **kwargs):
+        try:
+            self.beforeInput()
+            read = workingClass(*args, **kwargs)
+            self.opv.setInputObject(None)
+            return read
+        except Exception as log_error:
+            title = "Error detected in processInput method"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title_1])
+
     def new_project(self, config):
-        new_project_input = NewProjectInput(self.project, config)
+        new_project_input = self.processInput(NewProjectInput, self.project, config)
         return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
-        load_project = LoadProjectInput(self.project, config, path)
+        load_project = self.processInput(LoadProjectInput, self.project, config, path)
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
-        getStarted = GetStartedInput(self.project, config, self)
-        return self.initial_project_action(getStarted.draw)          
+        get_started = self.processInput(GetStartedInput, self.project, config, self)
+        return self.initial_project_action(get_started.draw)          
     
     def initial_project_action(self, obj):
         if obj:
@@ -114,120 +118,100 @@ class InputUi:
 
     def reset_project(self):
         if not self.project.none_project_action:
-            ResetProjectInput(self.project, self.opv)
-
+            self.processInput(ResetProjectInput, self.project, self.opv)
+            
     def set_project_attributes(self):
-        SetProjectAttributesInput(self.project, self.opv)
+        self.processInput(SetProjectAttributesInput, self.project, self.opv)
         self.parent.changeWindowTitle(self.project._project_name)
 
     def set_geometry_file(self):
-        SetGeometryFileInput(self.project, self.opv)
+        self.processInput(SetGeometryFileInput, self.project, self.opv)
 
     def set_mesh_properties(self):
-        read = SetMeshPropertiesInput(self.project, self.opv)
+        read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)
         return read.complete
 
-    def setStructuralElementType(self):
-        read = StructuralElementTypeInput(self.project, self.opv)
-        if read.complete:           
-            if self.set_cross_section(  pipe_to_beam=read.pipe_to_beam, 
-                                        beam_to_pipe=read.beam_to_pipe, 
-                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section ):
-                if read.lines_id != []:
-                    _cache_selected_lines = read.lines_id
-                else:
-                    _cache_selected_lines = read.list_lines_to_update_cross_section
-                self.set_material(cache_selected_lines = _cache_selected_lines)
-            self.opv.updateEntityRadius()
-            self.opv.changePlotToEntitiesWithCrossSection()
-
-    def set_material(self, cache_selected_lines=[]):
-        mat = MaterialInput(    self.project,
-                                self.opv, 
-                                cache_selected_lines = cache_selected_lines)
-                                
-        if mat.material is None:
-            return
+    def set_material(self):
+        self.processInput(MaterialInput, self.project, self.opv)   
          
     def set_cross_section(self, pipe_to_beam=False, beam_to_pipe=False, lines_to_update_cross_section=[]):
-        read = CrossSectionInput(   self.project, 
-                                    self.opv, 
-                                    pipe_to_beam = pipe_to_beam, 
-                                    beam_to_pipe = beam_to_pipe, 
-                                    lines_to_update_cross_section = lines_to_update_cross_section)
+        read = self.processInput(   CrossSectionInput, self.project, self.opv, 
+                                    pipe_to_beam = pipe_to_beam, beam_to_pipe = beam_to_pipe, 
+                                    lines_to_update_cross_section = lines_to_update_cross_section   ) 
+        if read.complete:
+            return read.complete
 
-        if not read.complete:
-            return False
-        else:
-            return True        
+    def add_flanges(self):
+        self.processInput(FlangesInput, self.project, self.opv)
+
+    def setStructuralElementType(self):
+        read = self.processInput(StructuralElementTypeInput, self.project, self.opv)
+        if read.complete:  
+            if read.pipe_to_beam or read.beam_to_pipe:         
+                self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 
+                                        lines_to_update_cross_section=read.list_lines_to_update_cross_section )
 
     def plot_cross_section(self):
-        PlotCrossSectionInput(self.project, self.opv)
-
+        self.processInput(PlotCrossSectionInput, self.project, self.opv)
+        
     def set_beam_xaxis_rotation(self):
-        BeamXaxisRotationInput(self.project, self.opv)
-
+        self.processInput(BeamXaxisRotationInput, self.project, self.opv)
+        
     def setDOF(self):
-        DOFInput(self.project, self.opv)   
+        self.processInput(DOFInput, self.project, self.opv)   
         
     def setRotationDecoupling(self):
-        read = DecouplingRotationDOFsInput(self.project, self.opv)  
-
+        self.processInput(DecouplingRotationDOFsInput, self.project, self.opv)
+        
     def setNodalLoads(self):
-        LoadsInput(self.project, self.opv)
+        self.processInput(LoadsInput, self.project, self.opv)
         
     def addMassSpringDamper(self):
-        MassSpringDamperInput(self.project, self.opv)
+        self.processInput(MassSpringDamperInput, self.project, self.opv)
 
     def setcappedEnd(self):
-        CappedEndInput(self.project, self.opv)
+        self.processInput(CappedEndInput, self.project, self.opv)
 
     def set_stress_stress_stiffening(self):
-        StressStiffeningInput(self.project, self.opv)
+        self.processInput(StressStiffeningInput, self.project, self.opv)
 
     def add_elastic_nodal_links(self):
-        ElasticNodalLinksInput(self.project, self.opv)
+        self.processInput(ElasticNodalLinksInput, self.project, self.opv)
     
     def add_expansion_joint(self):
-        ExpansionJointInput(self.project, self.opv)
+        self.processInput(ExpansionJointInput, self.project, self.opv)
 
     def set_acoustic_element_type(self):
-        read = AcousticElementTypeInput(self.project, self.opv)
-        if not read.complete:
-            return
-        self.set_fluid()
+        self.processInput(AcousticElementTypeInput, self.project, self.opv)
 
     def set_fluid(self):
-        fld = FluidInput(self.project, self.opv)
-        if fld.fluid is None:
-            return
+        self.processInput(FluidInput, self.project, self.opv)
 
     def setAcousticPressure(self):
-        AcousticPressureInput(self.project, self.opv)
+        self.processInput(AcousticPressureInput, self.project, self.opv)
     
     def setVolumeVelocity(self):
-        VolumeVelocityInput(self.project, self.opv)
+        self.processInput(VolumeVelocityInput, self.project, self.opv)
 
     def setSpecificImpedance(self):
-        SpecificImpedanceInput(self.project, self.opv)
+        self.processInput(SpecificImpedanceInput, self.project, self.opv)
     
     def set_radiation_impedance(self):
-        RadiationImpedanceInput(self.project, self.opv)
+        self.processInput(RadiationImpedanceInput, self.project, self.opv)
 
     def add_perforated_plate(self):
-        PerforatedPlateInput(self.project, self.opv)
+        self.processInput(PerforatedPlateInput, self.project, self.opv)
 
     def set_acoustic_element_length_correction(self):
-        AcousticElementLengthCorrectionInput(self.project, self.opv)
+        self.processInput(AcousticElementLengthCorrectionInput, self.project, self.opv)
 
     def add_compressor_excitation(self):
-        CompressorModelInput(self.project, self.opv)
-        # self.opv.updateRendererMesh()
-        return                                 
+        self.processInput(CompressorModelInput, self.project, self.opv)
+        # self.opv.updateRendererMesh()                                
 
     def analysisTypeInput(self):
 
-        read = AnalysisTypeInput()
+        read = self.processInput(AnalysisTypeInput)
 
         if not read.complete:
             return
@@ -262,29 +246,23 @@ class InputUi:
             return False
 
         self.project.load_analysis_file()
-        self.f_min, self.f_max, self.f_step = self.project.get_frequency_setup() 
+        f_min, f_max, f_step = self.project.get_frequency_setup() 
         self.global_damping = self.project.global_damping  
 
-        read = AnalysisSetupInput(self.project, f_min=self.f_min, f_max=self.f_max, f_step=self.f_step)
-        
+        read = self.processInput(AnalysisSetupInput, self.project, f_min=f_min, f_max=f_max, f_step=f_step)
         self.project.update_project_analysis_setup_state(read.complete)
 
         if not read.complete:
             return False
         
         self.frequencies = read.frequencies
-        self.f_min = read.f_min
-        self.f_max = read.f_max
-        self.f_step = read.f_step
         self.global_damping = read.global_damping
         
-        self.project.set_frequencies(self.frequencies, self.f_min, self.f_max, self.f_step)
+        self.project.set_frequencies(self.frequencies, read.f_min, read.f_max, read.f_step)
 
         if not self.analysis_ID in [3,4]:
             self.project.set_modes_sigma(read.modes)
             self.project.set_damping(self.global_damping)
-        # else:
-        #     return False
        
         if read.flag_run:
             self.runAnalysis()
@@ -305,7 +283,7 @@ class InputUi:
             return
         # self.project.time_to_checking_entries = time()-t0
 
-        read = RunAnalysisInput(self.project, self.analysis_ID, self.analysis_type_label)
+        read = self.processInput(RunAnalysisInput, self.project, self.analysis_ID, self.analysis_type_label)
         if read.complete:
             if self.analysis_ID == 2:
                 self.before_run.check_modal_analysis_imported_data()
@@ -320,12 +298,10 @@ class InputUi:
             if self.analysis_ID == 2:
                 if solution is None:
                     return
-                plot = PlotStructuralModeShapeInput(self.opv, self.project.natural_frequencies_structural)
+                plot = self.processInput(PlotStructuralModeShapeInput, self.opv, self.project.natural_frequencies_structural)
                 if plot.mode_index is None:
                     return
                 self.opv.changeAndPlotAnalysis(plot.mode_index)
-            else:
-                return
 
     def plotDisplacementField(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -335,12 +311,10 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = PlotDisplacementFieldInput(self.opv, self.frequencies)
+            plot = self.processInput(PlotDisplacementFieldInput, self.opv, self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency)
-        else:
-            return
 
     def plotAcousticModeShapes(self):
         self.project.plot_pressure_field = True
@@ -349,12 +323,10 @@ class InputUi:
         if self.analysis_ID == 4:
             if solution is None:
                 return
-            plot = PlotAcousticModeShapeInput(self.opv, self.project.natural_frequencies_acoustic)
+            plot = self.processInput(PlotAcousticModeShapeInput, self.opv, self.project.natural_frequencies_acoustic)
             if plot.mode_index is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True, real_part=plot.flag_real_part)
-        else:
-            return
 
     def plotAcousticPressureField(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -364,33 +336,34 @@ class InputUi:
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return
-            plot = PlotAcousticPressureFieldInput(self.opv, self.frequencies)
+            plot = self.processInput(PlotAcousticPressureFieldInput, self.opv, self.frequencies)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency, pressure_field_plot=True)
-        else:
-            return
 
     def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStructuralFrequencyResponseInput(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
+            self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
+                                self.analysis_method_label, self.frequencies, solution  )
 
     def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            PlotAcousticFrequencyResponseInput(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
+            self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
+                                self.analysis_method_label, self.frequencies, solution )
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
             solution = self.project.get_acoustic_solution()
             if solution is None:
                 return
-            Plot_TL_NR_Input(self.project, self.opv, self.analysis_method_label, self.frequencies, solution)
+            self.processInput(  Plot_TL_NR_Input, self.project, self.opv, 
+                                self.analysis_method_label, self.frequencies, solution  )
 
     def plotStressField(self):
         self.project.plot_pressure_field = False
@@ -399,31 +372,26 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressFieldInput(self.project, self.opv)
+            self.processInput(PlotStressFieldInput, self.project, self.opv)
 
     def plotStressFrequencyResponse(self):
         solution = self.project.get_structural_solution()
-       
         if self.analysis_ID in [0,1,5,6]:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            PlotStressFrequencyResponseInput(self.opv, self.project, self.analysis_method_label)
+            self.processInput(PlotStressFrequencyResponseInput, self.opv, self.project, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
-
         if self.analysis_ID in [0,1,5,6]:
-            PlotReactionsInput( self.opv, 
-                                self.project,
-                                self.analysis_method_label, 
-                                self.frequencies    )
+            self.processInput(PlotReactionsInput, self.opv,self.project, self.analysis_method_label, self.frequencies)
             return
 
     def structural_model_info(self):
-        StructuralModelInfoInput(self.project, self.opv)
+        self.processInput(StructuralModelInfoInput, self.project, self.opv)
 
     def acoustic_model_info(self):
-        AcousticModelInfoInput(self.project, self.opv)
+        self.processInput(AcousticModelInfoInput, self.project, self.opv)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

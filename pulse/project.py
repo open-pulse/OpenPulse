@@ -321,9 +321,9 @@ class Project:
                     self.load_structural_element_type_by_entity(line_id, etype_data) 
 
         # Acoustic element type to the entities
-        for key, [el_type, proportional_damping] in dict_acoustic_element_types.items():
+        for key, [el_type, proportional_damping, mean_velocity] in dict_acoustic_element_types.items():
             if self.file.element_type_is_acoustic:
-                self.load_acoustic_element_type_by_entity(key, el_type, proportional_damping=proportional_damping)
+                self.load_acoustic_element_type_by_entity(key, el_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
 
         # Length correction to the elements
         for key, value in dict_element_length_correction.items():
@@ -877,14 +877,14 @@ class Project:
     #     for line_id in self.preprocessor.all_lines:
     #         self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
 
-    def set_acoustic_element_type_by_line(self, entity_id, element_type, proportional_damping=None):
+    def set_acoustic_element_type_by_line(self, entity_id, element_type, proportional_damping=None, mean_velocity = None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping)
+            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
 
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping)
-        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, proportional_damping=proportional_damping)
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
@@ -1178,12 +1178,12 @@ class Project:
         self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
         # self._set_structural_element_type_to_selected_entity(entity_id, element_type)
 
-    def load_acoustic_element_type_by_entity(self, entity_id, element_type, proportional_damping=None):
+    def load_acoustic_element_type_by_entity(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping)
+            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
         elif self.file.get_import_type() == 1:
-            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping)
+            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
 
     def load_structural_loads_by_node(self, node_id, data):
         self.preprocessor.set_structural_load_bc_by_node(node_id, data)
@@ -1282,10 +1282,11 @@ class Project:
         for entity in self.entities:
             entity.structural_element_type = element_type
 
-    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, proportional_damping=None):
+    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
         entity = self.preprocessor.dict_tag_to_entity[entity_id]
         entity.acoustic_element_type = element_type
         entity.proportional_damping = proportional_damping
+        entity.mean_velocity = mean_velocity
 
     def _set_acoustic_element_type_to_all_entities(self, element_type, proportional_damping=None):
         for entity in self.entities: 

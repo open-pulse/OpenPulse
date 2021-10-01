@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import  QDialog, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QWidget
+from PyQt5.QtWidgets import  QDialog, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QWidget, QCheckBox, QLabel
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
@@ -37,7 +37,15 @@ class AcousticElementTypeInput(QDialog):
         self.update_cross_section = False
         self.pipe_to_beam = False
         self.beam_to_pipe = False
-        
+
+        self.checkBox_flow_effects = self.findChild(QCheckBox, 'checkBox_flow_effects')
+        self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
+        self.flag_flow_effects = self.checkBox_flow_effects.isChecked()
+
+        self.label_mean_velocity = self.findChild(QLabel, 'label_mean_velocity')
+        self.lineEdit_mean_velocity = self.findChild(QLineEdit, 'lineEdit_mean_velocity')
+        self.label_ms_unit = self.findChild(QLabel, 'label_ms_unit')
+
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
         self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
         self.lineEdit_selected_group.setDisabled(True)
@@ -134,18 +142,46 @@ class AcousticElementTypeInput(QDialog):
     def selectionChange(self, index):
         self.comboBox_index = self.comboBox.currentIndex()
         self.tabWidget_element_type.setTabEnabled(1, False)
-        if self.comboBox_index == 0:
-            self.element_type = 'undamped'
-        elif self.comboBox_index == 1:
-            self.element_type = 'proportional'
-            self.tabWidget_element_type.setTabEnabled(1, True)
-            self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
-        elif self.comboBox_index == 2:
-            self.element_type = 'wide-duct'
-        elif self.comboBox_index == 3:
-            self.element_type = 'LRF fluid equivalent'
-        elif self.comboBox_index == 4:
-            self.element_type = 'LRF full'
+        if self.flag_flow_effects:
+            if self.comboBox_index == 0:
+                self.element_type = 'undamped mean flow'
+            elif self.comboBox_index == 1:
+                self.element_type = 'peters'
+            elif self.comboBox_index == 2:
+                self.element_type = 'howe'
+        else:
+            if self.comboBox_index == 0:
+                self.element_type = 'undamped'
+            elif self.comboBox_index == 1:
+                self.element_type = 'proportional'
+                self.tabWidget_element_type.setTabEnabled(1, True)
+                self.tabWidget_element_type.setCurrentWidget(self.tab_damping)
+            elif self.comboBox_index == 2:
+                self.element_type = 'wide-duct'
+            elif self.comboBox_index == 3:
+                self.element_type = 'LRF fluid equivalent'
+            elif self.comboBox_index == 4:
+                self.element_type = 'LRF full'
+
+    def checkBoxEvent_flow_effects(self):
+        self.flag_flow_effects = self.checkBox_flow_effects.isChecked()
+        
+        if self.flag_flow_effects:
+            self.label_mean_velocity.setDisabled(False)
+            self.lineEdit_mean_velocity.setDisabled(False)
+            self.label_ms_unit.setDisabled(False)
+            self.comboBox.clear()
+            list_items = ["Undamped mean flow", "Peters", "Howe"]
+            self.comboBox.addItems(list_items)
+ 
+        else:
+            self.label_mean_velocity.setDisabled(True)
+            self.lineEdit_mean_velocity.setDisabled(True)
+            self.label_ms_unit.setDisabled(True)
+            self.comboBox.clear()
+            list_items = ["Undamped", "Proportional", "Wide-duct", "LRF fluid equivalent", "LRF full"]
+            self.comboBox.addItems(list_items)
+
 
     def check_input_parameters(self, input_string, label, _float=True):
         title = "INPUT ERROR"
@@ -178,12 +214,19 @@ class AcousticElementTypeInput(QDialog):
 
     def confirm_element_type_attribution(self):
 
-        if self.comboBox_index == 1:
+        if self.comboBox_index == 1 and not self.flag_flow_effects:
             if self.check_input_parameters(self.lineEdit_proportional_damping.text(), "proportional damping"):
                 return
             proportional_damping = self.value
         else:
             proportional_damping = None
+
+        if self.flag_flow_effects:
+            if self.check_input_parameters(self.lineEdit_mean_velocity.text(), "mean velocity"):
+                return
+            mean_velocity = self.value
+        else:
+            mean_velocity = None
 
         if self.flagSelection:
 
@@ -193,11 +236,11 @@ class AcousticElementTypeInput(QDialog):
                 return True
 
             for line in self.lines_typed:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping)
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
             print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_typed))
         elif self.flagAll:
             for line in self.project.preprocessor.all_lines:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping)
+                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
             # self.project.set_acoustic_element_type_to_all(self.element_type, proportional_damping=proportional_damping)
             print("[Set Acoustic Element Type] - defined in all the entities")
         self.complete = True

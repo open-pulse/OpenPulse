@@ -156,6 +156,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_set_crossSection)
         #
         self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Model Setup'])
+        self.item_child_addFlanges = QTreeWidgetItem(['Add Connecting Flanges'])
         self.item_child_setStructuralElementType = QTreeWidgetItem(['Set Structural Element Type'])
         self.item_child_setBeamXaxisRotation = QTreeWidgetItem(['Set Beam X-axis Rotation'])
         self.item_child_setRotationDecoupling = QTreeWidgetItem(['Set Rotation Decoupling'])
@@ -168,6 +169,7 @@ class MenuItems(QTreeWidget):
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
         self.list_top_items.append(self.item_top_structuralModelSetup)
+        self.list_child_items.append(self.item_child_addFlanges)
         self.list_child_items.append(self.item_child_setStructuralElementType)
         self.list_child_items.append(self.item_child_setBeamXaxisRotation)
         self.list_child_items.append(self.item_child_setRotationDecoupling)
@@ -250,6 +252,7 @@ class MenuItems(QTreeWidget):
         self.item_top_generalSettings.addChild(self.item_child_set_crossSection)
         
         self.addTopLevelItem(self.item_top_structuralModelSetup)
+        self.item_top_structuralModelSetup.addChild(self.item_child_addFlanges)
         self.item_top_structuralModelSetup.addChild(self.item_child_setStructuralElementType)
         self.item_top_structuralModelSetup.addChild(self.item_child_setBeamXaxisRotation)
         self.item_top_structuralModelSetup.addChild(self.item_child_setPrescribedDofs)
@@ -348,7 +351,7 @@ class MenuItems(QTreeWidget):
 
     def on_click_item(self, item, column):
         """This event is raised every time an item is clicked on the menu."""
-        self.mainWindow.getInputWidget().beforeInput()
+        # self.mainWindow.getInputWidget().beforeInput()
 
         if self.update_childItems_visibility(item):
             return
@@ -369,11 +372,6 @@ class MenuItems(QTreeWidget):
                 if self.mainWindow.getInputWidget().set_mesh_properties():
                     self._updateItems()
 
-        elif item == self.item_child_setStructuralElementType:
-            if not self.item_child_setStructuralElementType.isDisabled():
-                # self.update_plot_entities()
-                self.mainWindow.getInputWidget().setStructuralElementType()
-
         elif item == self.item_child_set_material:
             if not self.item_child_set_material.isDisabled():
                 self.update_plot_entities()
@@ -385,6 +383,16 @@ class MenuItems(QTreeWidget):
                 # self.update_plot_entities()
                 if self.mainWindow.getInputWidget().set_cross_section():
                     self.mainWindow.plot_entities_with_cross_section()
+
+        elif item == self.item_child_setStructuralElementType:
+            if not self.item_child_setStructuralElementType.isDisabled():
+                # self.update_plot_entities()
+                self.mainWindow.getInputWidget().setStructuralElementType()
+
+        elif item == self.item_child_addFlanges:
+            if not self.item_child_addFlanges.isDisabled():
+                # self.update_plot_entities()
+                self.mainWindow.getInputWidget().add_flanges()
 
         elif item == self.item_child_setBeamXaxisRotation:
             if not self.item_child_setBeamXaxisRotation.isDisabled():
@@ -559,6 +567,7 @@ class MenuItems(QTreeWidget):
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
         #
+        self.item_child_addFlanges.setDisabled(bool_key)
         self.item_child_setStructuralElementType.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
@@ -659,6 +668,6 @@ class MenuItems(QTreeWidget):
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
         message = 'Please, you should create a new project or load an already existing one before start to set up the model.'
-        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' buttons to continue."
+        message += "\n\nIt is recommended to use the 'New Project' or the 'Import Project' \nbuttons to continue."
         window_title = 'ERROR'
         PrintMessageInput([title, message, window_title], opv=self.mainWindow.getOPVWidget())
