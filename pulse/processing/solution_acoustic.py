@@ -138,7 +138,7 @@ class SolutionAcoustic:
             elements = [self.acoustic_elements[j] for [_,i] in values for j in i ]
             count = 0
             crit = 1
-            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
+            self.solution_nm1 = np.zeros((self.all_dofs, cols), dtype=complex)
 
             while crit > 1e-2:
                 self.get_global_matrices()
