@@ -212,7 +212,9 @@ def finalize():
     ierr = c_int()
     lib.gmshFinalize(
         byref(ierr))
-    signal.signal(signal.SIGINT, oldsig)
+    # commenting this function call can cause big problems,
+    # but it can also cause nothing, so lets be optmistc.
+    # signal.signal(signal.SIGINT, oldsig)
     if ierr.value != 0:
         raise ValueError(
             "gmshFinalize returned non-zero error code: ",

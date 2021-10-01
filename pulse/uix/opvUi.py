@@ -44,7 +44,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         def callback():
             self.opvRenderer.plot()
             self.opvAnalysisRenderer.plot()        
-        LoadingScreen('loading', target=callback)
+        LoadingScreen('Updating Plot', target=callback)
 
     def changePlotToEntities(self):
 
