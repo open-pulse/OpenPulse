@@ -828,8 +828,7 @@ class Project:
     def set_cross_section_to_all(self, cross_section):
         self.preprocessor.set_cross_section_by_element('all', cross_section)
         self._set_cross_section_to_all_entities(cross_section)
-        for line in self.preprocessor.all_lines:
-            self.file.add_cross_section_in_file(line, cross_section)
+        self.file.add_cross_section_in_file(self.preprocessor.all_lines, cross_section)
 
     def set_cross_section_by_elements(self, list_elements, cross_section):
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
@@ -855,8 +854,7 @@ class Project:
     def set_structural_element_type_to_all(self, element_type):
         self.preprocessor.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_all_entities(element_type)
-        for line in self.preprocessor.all_lines:
-            self.file.modify_structural_element_type_in_file(line, element_type)
+        self.file.modify_structural_element_type_in_file(self.preprocessor.all_lines, element_type)
 
     def set_structural_element_type_by_entity(self, entity_id, element_type):
         if self.file.get_import_type() == 0:
