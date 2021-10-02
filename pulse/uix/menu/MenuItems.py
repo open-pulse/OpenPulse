@@ -335,7 +335,7 @@ class MenuItems(QTreeWidget):
             self.mainWindow.plot_mesh()
 
     def update_plot_entities(self):
-        if not self.mainWindow.opv_widget.change_plot_to_entities:
+        if not (self.mainWindow.opv_widget.change_plot_to_entities or self.mainWindow.opv_widget.change_plot_to_entities_with_cross_section):
             self.mainWindow.plot_entities()  
 
     def update_plot_entities_with_cross_section(self):
@@ -380,19 +380,17 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_set_crossSection:
             if not self.item_child_set_crossSection.isDisabled():
-                # self.update_plot_entities()
                 if self.mainWindow.getInputWidget().set_cross_section():
                     self.mainWindow.plot_entities_with_cross_section()
 
-        elif item == self.item_child_setStructuralElementType:
-            if not self.item_child_setStructuralElementType.isDisabled():
-                # self.update_plot_entities()
-                self.mainWindow.getInputWidget().setStructuralElementType()
-
         elif item == self.item_child_addFlanges:
             if not self.item_child_addFlanges.isDisabled():
-                # self.update_plot_entities()
                 self.mainWindow.getInputWidget().add_flanges()
+
+        elif item == self.item_child_setStructuralElementType:
+            if not self.item_child_setStructuralElementType.isDisabled():
+                self.update_plot_entities()
+                self.mainWindow.getInputWidget().setStructuralElementType()
 
         elif item == self.item_child_setBeamXaxisRotation:
             if not self.item_child_setBeamXaxisRotation.isDisabled():
@@ -431,25 +429,22 @@ class MenuItems(QTreeWidget):
         
         elif item == self.item_child_add_expansion_joint:
             if not self.item_child_add_expansion_joint.isDisabled():
-                # return
                 self.mainWindow.getInputWidget().add_expansion_joint()
                 # self.mainWindow.plot_entities_with_cross_section()       
 
         elif item == self.item_child_setcappedEnd:
              if not self.item_child_setcappedEnd.isDisabled():
-                # self.update_plot_entities()
                 self.mainWindow.getInputWidget().setcappedEnd()
                 # self.mainWindow.plot_entities()
 
         elif item == self.item_child_set_stress_stiffening:
             if not self.item_child_set_stress_stiffening.isDisabled():
-                # self.update_plot_entities()
                 self.mainWindow.getInputWidget().set_stress_stress_stiffening()
                 # self.mainWindow.plot_entities()
         
         elif item == self.item_child_setAcousticElementType:
             if not self.item_child_setAcousticElementType.isDisabled():
-                # self.update_plot_entities()
+                self.update_plot_entities()
                 self.mainWindow.getInputWidget().set_acoustic_element_type()
                 self.mainWindow.plot_entities()
 

@@ -1,9 +1,12 @@
-from PyQt5.QtWidgets import  QDialog, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget
+from types import prepare_class
+from PyQt5.QtWidgets import  QDialog, QWidget, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QCheckBox
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
+
+from PyQt5.uic.uiparser import QtWidgets
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 
@@ -54,6 +57,21 @@ class StructuralElementTypeInput(QDialog):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
 
+        self.radioButton_thick_wall_formulation = self.findChild(QRadioButton, 'radioButton_thick_wall_formulation')
+        self.radioButton_thin_wall_formulation = self.findChild(QRadioButton, 'radioButton_thin_wall_formulation')
+        self.thick_wall_formulation = self.radioButton_thick_wall_formulation.isChecked()
+        self.thin_wall_formulation = self.radioButton_thin_wall_formulation.isChecked()
+        self.radioButton_thick_wall_formulation.clicked.connect(self.radioButton_formulation_Event)
+        self.radioButton_thin_wall_formulation.clicked.connect(self.radioButton_formulation_Event)
+        if self.thick_wall_formulation:
+            self.wall_formulation = "thick_wall"
+        else:
+            self.wall_formulation = "thin_wall"
+
+        self.checkBox_capped_end = self.findChild(QCheckBox, 'checkBox_capped_end')
+        self.checkBox_capped_end.clicked.connect(self.checkBox_Event)
+        self.capped_end_effect = self.checkBox_capped_end.isChecked()
+
         self.treeWidget_element_type = self.findChild(QTreeWidget, 'treeWidget_element_type')
         self.treeWidget_element_type.setColumnWidth(0, 120)
         # self.treeWidget_element_type.setColumnWidth(1, 100)
@@ -63,10 +81,20 @@ class StructuralElementTypeInput(QDialog):
         self.treeWidget_element_type.headerItem().setText(0, "ELEMENT TYPE")
         self.treeWidget_element_type.headerItem().setText(1, "LINES")
         
-        self.tabWidget_element_type = self.findChild(QTabWidget, 'tabWidget_element_type')
-        self.tabWidget_element_type.currentChanged.connect(self.tabEvent_)
-        self.currentTab_ = self.tabWidget_element_type.currentIndex()
+        self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
+        self.tabWidget_main.currentChanged.connect(self.tabEvent_)
+        self.currentTab_ = self.tabWidget_main.currentIndex()
 
+        self.tab_setup = self.tabWidget_main.findChild(QWidget, 'tab_setup')
+        self.tab_details = self.tabWidget_main.findChild(QWidget, 'tab_details')
+
+        self.tabWidget_selection_options = self.findChild(QTabWidget, 'tabWidget_selection_options')
+        # self.tabWidget_selection_options.currentChanged.connect(self.tabEvent_selection_options)
+        self.currentTab_selection_options = self.tabWidget_selection_options.currentIndex()
+
+        self.tab_type_selection = self.tabWidget_selection_options.findChild(QWidget, 'tab_type_selection')
+        self.tab_element_options = self.tabWidget_selection_options.findChild(QWidget, 'tab_element_options')
+        
         # self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
         # self.pushButton_remove.clicked.connect(self.group_remove)
         # self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
@@ -82,12 +110,19 @@ class StructuralElementTypeInput(QDialog):
         self.update()
         self.load_element_type_info()
         self.exec_()
-    
+
+    def checkBox_Event(self):
+        self.capped_end_effect = self.checkBox_capped_end.isChecked()
+
+    def radioButton_formulation_Event(self):
+        self.thick_wall_formulation = self.radioButton_thick_wall_formulation.isChecked()
+        self.thin_wall_formulation = self.radioButton_thin_wall_formulation.isChecked()
+   
     # def reset_all(self):
     #     temp_dict = self.project.preprocessor.dict_structural_element_type_to_lines
     #     element_type = ""
     #     for line in self.project.preprocessor.all_lines:
-    #         self.project.set_structural_element_type_by_entity(line, element_type)
+    #         self.project.set_structural_element_type_by_lines(line, element_type)
 
     # def group_remove(self):
     #     key = self.lineEdit_selected_group.text()
@@ -96,7 +131,7 @@ class StructuralElementTypeInput(QDialog):
     #             lines = self.project.preprocessor.dict_structural_element_type_to_lines[key]
     #             for line in lines:
     #                 element_type = ""
-    #                 self.project.set_structural_element_type_by_entity(line, element_type, remove=True)
+    #                 self.project.set_structural_element_type_by_lines(line, element_type, remove=True)
     #         except Exception as error:
     #             title = "ERROR WHILE DELETING GROUP OF LINES"
     #             message = str(error)
@@ -136,7 +171,7 @@ class StructuralElementTypeInput(QDialog):
             self.lineEdit_selected_ID.setText("All lines")
 
     def tabEvent_(self):
-        self.currentTab_ = self.tabWidget_element_type.currentIndex()
+        self.currentTab_ = self.tabWidget_main.currentIndex()
         self.pushButton_get_information.setDisabled(True)
         # self.pushButton_remove.setDisabled(True)
 
@@ -159,6 +194,12 @@ class StructuralElementTypeInput(QDialog):
             new.setTextAlignment(1, Qt.AlignCenter)
             self.treeWidget_element_type.addTopLevelItem(new)  
 
+    def check_wall_formulation(self):
+        if self.thick_wall_formulation:
+            self.wall_formulation = "thick_wall"
+        else:
+            self.wall_formulation = "thin_wall"
+
     def check_element_type_changes(self):
 
         self.pipe_to_beam = False
@@ -167,7 +208,7 @@ class StructuralElementTypeInput(QDialog):
         
         final_etype = self.element_type
         if self.lines_id == []:
-            tags = list(self.dict_tag_to_entity.keys())
+            tags = self.preprocessor.all_lines#list(self.dict_tag_to_entity.keys())
         else:
             tags = self.lines_id
             
@@ -175,34 +216,41 @@ class StructuralElementTypeInput(QDialog):
             initial_etype = self.dict_tag_to_entity[tag].structural_element_type
             
             if initial_etype in ['pipe_1', 'pipe_2', None] and final_etype in ['beam_1']:
+                
                 self.update_cross_section = True
                 self.pipe_to_beam = True
                 self.list_lines_to_update_cross_section.append(tag)
 
             elif initial_etype in ['beam_1', None] and final_etype in ['pipe_1', 'pipe_2']:
+                
                 self.update_cross_section = True
                 self.beam_to_pipe = True
                 self.list_lines_to_update_cross_section.append(tag)
 
         if self.update_cross_section:
-            self.update_modified_cross_sections(tags)
+            self.update_modified_cross_sections()
             if initial_etype is not None:
                 title = "Change in element type detected"
-                message = f"The element type previously defined to the {self.list_lines_to_update_cross_section} line(s) \n"
+                if len(self.list_lines_to_update_cross_section) <= 20:
+                    message = f"The element type previously defined at the {self.list_lines_to_update_cross_section} line(s) \n"
+                else:
+                    size = len(self.list_lines_to_update_cross_section)
+                    message = f"The element type previously defined in {size} lines \n"
                 message += "has been modified, therefore, it is necessary to update \n"
                 message += "the cross-section(s) of this(ese) line(s) to continue."
                 PrintMessageInput([title, message, window_title2])
             
-    def update_modified_cross_sections(self, tags):
-
-        final_etype = self.element_type
-
-        for tag in tags:
-            initial_etype = self.dict_tag_to_entity[tag].structural_element_type
-            if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
-                self.project.set_cross_section_by_line(tag, None)
-            elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
-                self.project.set_cross_section_by_line(tag, None)
+    def update_modified_cross_sections(self):
+        lines_to_reset = self.list_lines_to_update_cross_section
+        self.project.set_cross_section_by_line(lines_to_reset, None)
+        
+        # final_etype = self.element_type
+        # for tag in tags:
+        #     initial_etype = self.dict_tag_to_entity[tag].structural_element_type
+        #     if initial_etype in ['pipe_1', 'pipe_2'] and final_etype in ['beam_1']:
+        #         self.project.set_cross_section_by_line(tag, None)
+        #     elif initial_etype in ['beam_1'] and final_etype in ['pipe_1', 'pipe_2']:
+        #         self.project.set_cross_section_by_line(tag, None)
 
     def selectionChange(self, index):
         self.index = self.comboBox.currentIndex()
@@ -213,6 +261,11 @@ class StructuralElementTypeInput(QDialog):
         elif self.index ==2:
             self.element_type = 'beam_1'
 
+        if self.index in [2]:
+            self.tabWidget_selection_options.removeTab(1)
+        else:
+            self.tabWidget_selection_options.addTab(self.tab_element_options, 'Element options')
+
     def button_clicked(self):
         if self.flagEntity:
             lineEdit_lineID = self.lineEdit_selected_ID.text()
@@ -220,14 +273,24 @@ class StructuralElementTypeInput(QDialog):
             if self.stop:
                 return
             self.check_element_type_changes()
-            for line in self.typed_lines:
-                self.project.set_structural_element_type_by_entity(line, self.element_type)
-            print("[Set Element Type] - defined in the entities {}".format(self.typed_lines))
+            lines = self.typed_lines
+            if len(self.typed_lines) <= 20:
+                print(f"[Set Structural Element Type] - {self.element_type} assigned to {self.typed_lines} lines")
+            else:
+                print(f"[Set Structural Element Type] - {self.element_type} assigned in {len(self.typed_lines)} lines")
         elif self.flagAll:
             self.check_element_type_changes()
-            for line in self.project.preprocessor.all_lines:
-                self.project.set_structural_element_type_by_entity(line, self.element_type)
-            print("[Set Element Type] - defined in all the entities")
+            lines = self.preprocessor.all_lines
+            print(f"[Set Structural Element Type] - {self.element_type} assigned to all lines")
+        self.project.set_structural_element_type_by_lines(lines, self.element_type)
+    
+        if self.element_type in ['pipe_1', 'pipe_2']:
+            self.project.set_capped_end_by_lines(lines, self.capped_end_effect)
+            self.project.set_structural_element_wall_formulation_by_lines(lines, self.wall_formulation)
+        else:
+            self.project.set_structural_element_wall_formulation_by_lines(lines, None)
+            self.project.set_capped_end_by_lines(lines, False)
+
         self.complete = True
         self.close()
 
@@ -298,7 +361,7 @@ class GetInformationOfGroup(QDialog):
     #             line = int(self.lineEdit_selected_ID.text())
     #             if line in self.list_of_values:
     #                 self.list_of_values.remove(line)
-    #             self.project.set_capped_end_by_line(line, False)
+    #             self.project.set_capped_end_by_lines(line, False)
     #             self.load_group_info()
     #             self.lines_removed = True
     #     self.lineEdit_selected_ID.setText("")

@@ -290,131 +290,145 @@ class Project:
         return Entity(tag)
 
     def load_entity_file(self):
-        self.lines_with_cross_section_by_elements = []
-        self.number_sections_by_line = {}
-        self.file.get_dict_of_entities_from_file()
-        dict_structural_element_type = self.file.dict_structural_element_type
-        dict_acoustic_element_types = self.file.dict_acoustic_element_type
-        dict_element_length_correction = self.file.dict_length_correction
-        dict_element_perforated_plate = self.file.dict_perforated_plate
-        dict_materials = self.file.dict_material
-        dict_cross_sections = self.file.dict_cross
-        dict_variable_sections = self.file.dict_variable_sections
-        dict_beam_xaxis_rotation = self.file.dict_beam_xaxis_rotation
-        dict_fluids = self.file.dict_fluid
-        dict_element_length_correction = self.file.dict_length_correction
-        dict_capped_end = self.file.dict_capped_end
-        dict_stress_stiffening = self.file.dict_stress_stiffening
-        dict_B2PX_rotation_decoupling = self.file.dict_B2XP_rotation_decoupling
-        dict_expansion_joint = self.file.dict_expansion_joint_parameters
-        
-        # Structural element type to the entities
-        for key, etype_data in dict_structural_element_type.items():
-            if self.file.element_type_is_structural:
+        try:
+
+            self.lines_with_cross_section_by_elements = []
+            self.number_sections_by_line = {}
+            self.file.get_dict_of_entities_from_file()
+            dict_structural_element_type = self.file.dict_structural_element_type
+            dict_structural_element_wall_formulation = self.file.dict_structural_element_wall_formulation
+            dict_acoustic_element_types = self.file.dict_acoustic_element_type
+            dict_element_length_correction = self.file.dict_length_correction
+            dict_element_perforated_plate = self.file.dict_perforated_plate
+            dict_materials = self.file.dict_material
+            dict_cross_sections = self.file.dict_cross
+            dict_variable_sections = self.file.dict_variable_sections
+            dict_beam_xaxis_rotation = self.file.dict_beam_xaxis_rotation
+            dict_fluids = self.file.dict_fluid
+            dict_element_length_correction = self.file.dict_length_correction
+            dict_capped_end = self.file.dict_capped_end
+            dict_stress_stiffening = self.file.dict_stress_stiffening
+            dict_B2PX_rotation_decoupling = self.file.dict_B2XP_rotation_decoupling
+            dict_expansion_joint = self.file.dict_expansion_joint_parameters
+            
+            # Structural element type to the entities
+            for key, etype_data in dict_structural_element_type.items():
+                if self.file.element_type_is_structural:
+                    if "-" in key:
+                        self.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
+                    else:
+                        line_id = int(key)
+                        self.load_structural_element_type_by_line(line_id, etype_data) 
+
+            # Structural element wall formulation to the entities
+            for key, wall_formulation_data in dict_structural_element_wall_formulation.items():
                 if "-" in key:
-                    self.load_structural_element_type_by_elements(etype_data[0], etype_data[1])
+                    self.load_structural_element_wall_formulation_by_elements(wall_formulation_data[0], wall_formulation_data[1])
                 else:
                     line_id = int(key)
-                    self.load_structural_element_type_by_entity(line_id, etype_data) 
+                    self.load_structural_element_wall_formulation_by_line(line_id, wall_formulation_data)
 
-        # Acoustic element type to the entities
-        for key, [el_type, proportional_damping, mean_velocity] in dict_acoustic_element_types.items():
-            if self.file.element_type_is_acoustic:
-                self.load_acoustic_element_type_by_entity(key, el_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
+            # Acoustic element type to the entities
+            for key, [el_type, proportional_damping, mean_velocity] in dict_acoustic_element_types.items():
+                if self.file.element_type_is_acoustic:
+                    self.load_acoustic_element_type_by_line(key, el_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
 
-        # Length correction to the elements
-        for key, value in dict_element_length_correction.items():
-            self.load_length_correction_by_elements(value[0], value[1], key)
+            # Length correction to the elements
+            for key, value in dict_element_length_correction.items():
+                self.load_length_correction_by_elements(value[0], value[1], key)
 
-        for key, value in dict_element_perforated_plate.items():
-            frequency_setup_pass = True
-            table_name = value[1].dimensionless_impedance_table_name
-            if table_name is not None:
-                if self.change_project_frequency_setup(table_name, value[2]):
-                    frequency_setup_pass = False
-                    break
-            if frequency_setup_pass:
-                self.load_perforated_plate_by_elements(value[0], value[1], key)
-
-        # Material to the entities
-        for key, mat in dict_materials.items():
-            self.load_material_by_entity(key, mat)
-
-        # Fluid to the entities
-        for key, fld in dict_fluids.items():
-            self.load_fluid_by_entity(key, fld)
-
-        # Straight Cross-section to the entities
-        for key, cross in dict_cross_sections.items():
-            if "-" in key:
-                self.load_cross_section_by_element(cross[1], cross[0])
-                prefix_key = int(key.split("-")[0])
-                if prefix_key in list(self.number_sections_by_line.keys()):
-                    self.number_sections_by_line[prefix_key] += 1
-                else:
-                    self.number_sections_by_line[prefix_key] = 1
-            else:
-                self.load_cross_section_by_entity(int(key), cross)
-        
-        # Variable Cross-section to the entities
-        for key, value in dict_variable_sections.items():
-            self.load_variable_cross_section_by_entity(int(key), value)
-
-        # Beam X-axis rotation to the entities
-        for key, angle in dict_beam_xaxis_rotation.items():
-            self.load_beam_xaxis_rotation_by_entity(key, angle)
-        if len(dict_beam_xaxis_rotation) > 0:
-            self.preprocessor.process_all_rotation_matrices() 
-
-        # B2PX Rotation Decoupling
-        for key, item in dict_B2PX_rotation_decoupling.items():
-            if "B2PX ROTATION DECOUPLING" in str(key):
-                self.preprocessor.dict_B2PX_rotation_decoupling[str(item[2])] = [item[0], item[1], key]
-                for i in range(len(item[0])):
-                    self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
-
-        # Expansion Joint to the entities
-        for key, joint_data in dict_expansion_joint.items():
-            frequency_setup_pass = True
-            if "-" in key:
-                parameters = joint_data[1]
-                joint_tables = joint_data[1][2]
-                joint_list_freq = joint_data[1][3]
-                if joint_data[1][1] is not None:
-                    for i, joint_freq in enumerate(joint_list_freq):
-                        if self.change_project_frequency_setup(joint_tables[i], joint_freq):
-                            frequency_setup_pass = False
-                            break
+            for key, value in dict_element_perforated_plate.items():
+                frequency_setup_pass = True
+                table_name = value[1].dimensionless_impedance_table_name
+                if table_name is not None:
+                    if self.change_project_frequency_setup(table_name, value[2]):
+                        frequency_setup_pass = False
+                        break
                 if frequency_setup_pass:
-                    for list_elements in joint_data[0]:
-                        self.load_expansion_joint_by_elements(list_elements, parameters[:-1])
-            else:
-                joint_table_names = joint_data[2]
-                joint_list_freq = joint_data[3]
-                if joint_data[1] is not None:
-                    for i, joint_freq in enumerate(joint_list_freq):
-                        if self.change_project_frequency_setup(joint_table_names[i], joint_freq):
-                            frequency_setup_pass = False
-                            break
-                    if frequency_setup_pass:
-                        line_id = int(key)
-                        self.load_expansion_joint_by_line(line_id, joint_data[:-1])
-            
-        # Stress Stiffening to the entities and elements
-        for key, parameters in dict_stress_stiffening.items():
-            if "STRESS STIFFENING" in str(key):
-                self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
-            else:
-                self.load_stress_stiffening_by_line(key, parameters)        
+                    self.load_perforated_plate_by_elements(value[0], value[1], key)
 
-        # Capped end to the entities and elements
-        for key, group in dict_capped_end.items():
-            if "CAPPED END" in key:  
-                self.load_capped_end_by_elements(group, True, key)
-            else:
-                self.load_capped_end_by_entity(group, True, key)
-            # elif "True" in key:
-            #     self.load_capped_end_by_entity(group, True, key)
+            # Material to the entities
+            for key, mat in dict_materials.items():
+                self.load_material_by_line(key, mat)
+
+            # Fluid to the entities
+            for key, fld in dict_fluids.items():
+                self.load_fluid_by_line(key, fld)
+
+            # Straight Cross-section to the entities
+            for key, cross in dict_cross_sections.items():
+                if "-" in key:
+                    self.load_cross_section_by_element(cross[1], cross[0])
+                    prefix_key = int(key.split("-")[0])
+                    if prefix_key in list(self.number_sections_by_line.keys()):
+                        self.number_sections_by_line[prefix_key] += 1
+                    else:
+                        self.number_sections_by_line[prefix_key] = 1
+                else:
+                    self.load_cross_section_by_line(int(key), cross)
+            
+            # Variable Cross-section to the entities
+            for key, value in dict_variable_sections.items():
+                self.load_variable_cross_section_by_line(int(key), value)
+
+            # Beam X-axis rotation to the entities
+            for key, angle in dict_beam_xaxis_rotation.items():
+                self.load_beam_xaxis_rotation_by_line(key, angle)
+            if len(dict_beam_xaxis_rotation) > 0:
+                self.preprocessor.process_all_rotation_matrices() 
+
+            # B2PX Rotation Decoupling
+            for key, item in dict_B2PX_rotation_decoupling.items():
+                if "B2PX ROTATION DECOUPLING" in str(key):
+                    self.preprocessor.dict_B2PX_rotation_decoupling[str(item[2])] = [item[0], item[1], key]
+                    for i in range(len(item[0])):
+                        self.load_B2PX_rotation_decoupling(item[0][i], item[1][i], rotations_to_decouple=item[2])
+
+            # Expansion Joint to the entities
+            for key, joint_data in dict_expansion_joint.items():
+                frequency_setup_pass = True
+                if "-" in key:
+                    parameters = joint_data[1]
+                    joint_tables = joint_data[1][2]
+                    joint_list_freq = joint_data[1][3]
+                    if joint_data[1][1] is not None:
+                        for i, joint_freq in enumerate(joint_list_freq):
+                            if self.change_project_frequency_setup(joint_tables[i], joint_freq):
+                                frequency_setup_pass = False
+                                break
+                    if frequency_setup_pass:
+                        for list_elements in joint_data[0]:
+                            self.load_expansion_joint_by_elements(list_elements, parameters[:-1])
+                else:
+                    joint_table_names = joint_data[2]
+                    joint_list_freq = joint_data[3]
+                    if joint_data[1] is not None:
+                        for i, joint_freq in enumerate(joint_list_freq):
+                            if self.change_project_frequency_setup(joint_table_names[i], joint_freq):
+                                frequency_setup_pass = False
+                                break
+                        if frequency_setup_pass:
+                            line_id = int(key)
+                            self.load_expansion_joint_by_lines(line_id, joint_data[:-1])
+                
+            # Stress Stiffening to the entities and elements
+            for key, parameters in dict_stress_stiffening.items():
+                if "STRESS STIFFENING" in str(key):
+                    self.load_stress_stiffening_by_elements(parameters[0], parameters[1], section=key)
+                else:
+                    self.load_stress_stiffening_by_line(key, parameters)        
+
+            # Capped end to the entities and elements
+            for key, group in dict_capped_end.items():
+                if "CAPPED END" in key:  
+                    self.load_capped_end_by_elements(group, True, key)
+                else:
+                    self.load_capped_end_by_line(group, True)
+
+        except Exception as log_error:
+            title = "Error reached while loading data from dictionaries"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title])
 
     def load_mapped_cross_section(self):  
 
@@ -597,7 +611,7 @@ class Project:
                 list_elements_from_cross_section = dict_multiple_cross_sections[key_string]
                 if list_elements_from_cross_section == list_elements_from_line:
                     _element_type = elements[element_id].element_type
-                    self.set_structural_element_type_by_entity(line_id, _element_type)
+                    self.set_structural_element_type_by_lines(line_id, _element_type)
                     _cross_section = elements[element_id].cross_section
                     self.set_cross_section_by_line(line_id, _cross_section)
                     if line_id in self.number_sections_by_line.keys():
@@ -758,11 +772,6 @@ class Project:
                 if CompExcit is not None:
                     self.load_compressor_excitation_bc_by_node(key, [CompExcit, CompExcit_table_name], connection_info)  
             
-        # for key, data in volume_velocity.items():
-        #     for VelVol, VelVol_table_name, connection_info in data:
-        #         if VelVol is not None:
-        #             self.load_volume_velocity_bc_by_node(key, [VelVol, VelVol_table_name], connection_info=connection_info)
-
         for key, [SpecImp, SpecImp_table_name, SpecImp_freq] in specific_impedance.items():
             if SpecImp_table_name is not None:
                 if self.change_project_frequency_setup(SpecImp_table_name, SpecImp_freq):
@@ -811,19 +820,19 @@ class Project:
     def get_frequency_setup(self):
         return self.f_min, self.f_max, self.f_step
 
-    def set_material(self, material):
+    def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)
-        self._set_material_to_all_entities(material)
+        self._set_material_to_all_lines(material)
         self.file.add_material_in_file(self.preprocessor.all_lines, material.identifier)
 
-    def set_material_by_line(self, entities, material):
+    def set_material_by_lines(self, lines, material):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_material_by_line(entities, material)
+            self.preprocessor.set_material_by_lines(lines, material)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_material_by_element('all', material)
 
-        self._set_material_to_selected_entity(entities, material)
-        self.file.add_material_in_file(entities, material.identifier)
+        self._set_material_to_selected_lines(lines, material)
+        self.file.add_material_in_file(lines, material.identifier)
 
     def set_cross_section_to_all(self, cross_section):
         self.preprocessor.set_cross_section_by_element('all', cross_section)
@@ -844,46 +853,40 @@ class Project:
             self.preprocessor.set_cross_section_by_line(lines, cross_section)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
-        self._set_cross_section_to_selected_entity(lines, cross_section)
+        self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
 
     def set_variable_cross_section_by_line(self, line_id, parameters):
-        self._set_variable_cross_section_to_selected_entity(line_id, parameters)
+        self._set_variable_cross_section_to_selected_line(line_id, parameters)
         self.file.modify_variable_cross_section_in_file(line_id, parameters)
     
     def set_structural_element_type_to_all(self, element_type):
         self.preprocessor.set_structural_element_type_by_element('all', element_type)
-        self._set_structural_element_type_to_all_entities(element_type)
+        self._set_structural_element_type_to_all_lines(element_type)
         self.file.modify_structural_element_type_in_file(self.preprocessor.all_lines, element_type)
 
-    def set_structural_element_type_by_entity(self, entity_id, element_type):
+    def set_structural_element_type_by_lines(self, entities, element_type):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_structural_element_type_by_line(entity_id, element_type)
+            self.preprocessor.set_structural_element_type_by_lines(entities, element_type)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_structural_element_type_by_element('all', element_type)
 
-        self._set_structural_element_type_to_selected_entity(entity_id, element_type)
-        self.file.modify_structural_element_type_in_file(entity_id, element_type)
+        self._set_structural_element_type_to_selected_lines(entities, element_type)
+        self.file.modify_structural_element_type_in_file(entities, element_type)
         
-    # def set_acoustic_element_type_to_all(self, element_type, hysteretic_damping=None):
-    #     self.preprocessor.set_acoustic_element_type_by_element('all', element_type, hysteretic_damping=hysteretic_damping)
-    #     self._set_acoustic_element_type_to_all_entities(element_type, hysteretic_damping=hysteretic_damping)
-    #     for line_id in self.preprocessor.all_lines:
-    #         self.file.modify_acoustic_element_type_in_file(line_id, element_type, hysteretic_damping=hysteretic_damping)
-
-    def set_acoustic_element_type_by_line(self, entity_id, element_type, proportional_damping=None, mean_velocity = None):
+    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, mean_velocity = None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
+            self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
 
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
-        self.file.modify_acoustic_element_type_in_file(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self._set_acoustic_element_type_to_selected_lines(lines, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self.file.modify_acoustic_element_type_in_file(lines, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
         angle = self.preprocessor.dict_lines_to_rotation_angles[line_id]
-        self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
+        self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
         self.file.modify_beam_xaxis_rotation_by_lines_in_file(line_id, angle)
 
     def set_prescribed_dofs_bc_by_node(self, node_id, data, imported_table):
@@ -1002,11 +1005,11 @@ class Project:
             etype = "expansion_joint"
 
         self.preprocessor.add_expansion_joint_by_line(line_id, parameters, remove=remove)
-        self.set_capped_end_by_line(line_id, capped)
-        self.set_structural_element_type_by_entity(line_id, etype)
+        self.set_capped_end_by_lines(line_id, capped)
+        self.set_structural_element_type_by_lines(line_id, etype)
         if etype == "pipe_1":
             self.set_cross_section_by_line(line_id, None)  
-        self._set_expansion_joint_to_selected_entity(line_id, parameters)
+        self._set_expansion_joint_to_selected_lines(line_id, parameters)
 
         self.file.modify_expansion_joint_in_file(line_id, parameters)   
 
@@ -1089,27 +1092,20 @@ class Project:
             self.preprocessor.set_stress_stiffening_by_line(lines, parameters, remove=remove)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
-        
-        for line in lines:    
-            if remove:
-                self._set_stress_stiffening_to_selected_line(line, [None, None, None, None])
-                self.file.modify_stress_stiffnening_entity_in_file(line, [], remove=True)
-            else:
-                self._set_stress_stiffening_to_selected_line(line, parameters)
-                self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
+          
+        if remove:
+            self._set_stress_stiffening_to_selected_lines(lines, [None, None, None, None])
+            self.file.modify_stress_stiffnening_line_in_file(lines, [], remove=True)
+        else:
+            self._set_stress_stiffening_to_selected_lines(lines, parameters)
+            self.file.modify_stress_stiffnening_line_in_file(lines, parameters)
 
-    # def set_stress_stiffening_to_all_lines(self, parameters):
-    #     self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
-    #     self._set_stress_stiffening_to_all_entities(parameters)
-    #     for line in self.preprocessor.all_lines:
-    #         self.file.modify_stress_stiffnening_entity_in_file(line, parameters)
-
-    def load_material_by_entity(self, entity_id, material):
+    def load_material_by_line(self, line_id, material):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_material_by_line(entity_id, material)
+            self.preprocessor.set_material_by_lines(line_id, material)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_material_by_element('all', material)
-        self._set_material_to_selected_entity(entity_id, material)
+        self._set_material_to_selected_lines(line_id, material)
     
     def load_stress_stiffening_by_elements(self, elements_id, parameters, section=None):
         self.preprocessor.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
@@ -1119,35 +1115,35 @@ class Project:
             self.preprocessor.set_stress_stiffening_by_line(line_id, parameters)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_fluid_by_element('all', parameters)
-        self._set_stress_stiffening_to_selected_line(line_id, parameters)
+        self._set_stress_stiffening_to_selected_lines(line_id, parameters)
 
-    def load_fluid_by_entity(self, entity_id, fluid):
+    def load_fluid_by_line(self, line_id, fluid):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_fluid_by_line(entity_id, fluid)
+            self.preprocessor.set_fluid_by_lines(line_id, fluid)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_fluid_by_element('all', fluid)
-        self._set_fluid_to_selected_entity(entity_id, fluid)
+        self._set_fluid_to_selected_lines(line_id, fluid)
 
     def load_cross_section_by_element(self, list_elements, cross_section):
         self.set_cross_section_by_elements(list_elements, cross_section)
 
-    def load_cross_section_by_entity(self, entity_id, cross_section):
+    def load_cross_section_by_line(self, line_id, cross_section):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_cross_section_by_line(entity_id, cross_section)
+            self.preprocessor.set_cross_section_by_line(line_id, cross_section)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
-        self._set_cross_section_to_selected_entity(entity_id, cross_section)
+        self._set_cross_section_to_selected_line(line_id, cross_section)
 
-    def load_variable_cross_section_by_entity(self, entity_id, data):
-        self._set_variable_cross_section_to_selected_entity(entity_id, data)
+    def load_variable_cross_section_by_line(self, line_id, data):
+        self._set_variable_cross_section_to_selected_line(line_id, data)
 
-    def load_expansion_joint_by_line(self, line_id, data):
+    def load_expansion_joint_by_lines(self, line_id, data):
         self.preprocessor.add_expansion_joint_by_line(line_id, data)
-        self._set_expansion_joint_to_selected_entity(line_id, data)
+        self._set_expansion_joint_to_selected_lines(line_id, data)
         list_elements = self.preprocessor.line_to_elements[line_id]
         list_cross_sections = get_list_cross_sections_to_plot_expansion_joint(  list_elements, 
                                                                                 data[0][1]  )
-        self._set_cross_section_to_selected_entity(line_id, list_cross_sections[0])
+        self._set_cross_section_to_selected_line(line_id, list_cross_sections[0])
         self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
     
     def load_expansion_joint_by_elements(self, list_elements, data):
@@ -1157,27 +1153,38 @@ class Project:
                                                                                 data[0][1]  )
         self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
 
-    def load_beam_xaxis_rotation_by_entity(self, line_id, angle):
+    def load_beam_xaxis_rotation_by_line(self, line_id, angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, angle)
-        self._set_beam_xaxis_rotation_to_selected_entity(line_id, angle)
+        self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
 
-    def load_structural_element_type_by_entity(self, entity_id, element_type):
+    def load_structural_element_type_by_line(self, line_id, element_type):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_structural_element_type_by_line(entity_id, element_type)
+            self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_structural_element_type_by_element('all', element_type)
-        self._set_structural_element_type_to_selected_entity(entity_id, element_type)
+        self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
     def load_structural_element_type_by_elements(self, list_elements, element_type):
         self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
-        # self._set_structural_element_type_to_selected_entity(entity_id, element_type)
+        # self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
-    def load_acoustic_element_type_by_entity(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
+    def load_structural_element_wall_formulation_by_line(self, line_id, formulation):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_line(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+            self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, formulation)
+        elif self.file.get_import_type() == 1:
+            all_lines = self.preprocessor.all_lines
+            self.preprocessor.set_structural_element_type_by_element(all_lines, formulation)
+        self._set_structural_element_wall_formulation_to_lines(line_id, formulation)
+
+    def load_structural_element_wall_formulation_by_elements(self, list_elements, wall_formulation):
+        self.preprocessor.set_structural_element_wall_formulation_by_elements(list_elements, wall_formulation)
+
+    def load_acoustic_element_type_by_line(self, line_id, element_type, proportional_damping=None, mean_velocity=None):
+        if self.file.get_import_type() == 0:
+            self.preprocessor.set_acoustic_element_type_by_lines(line_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
-        self._set_acoustic_element_type_to_selected_entity(entity_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self._set_acoustic_element_type_to_selected_lines(line_id, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
 
     def load_structural_loads_by_node(self, node_id, data):
         self.preprocessor.set_structural_load_bc_by_node(node_id, data)
@@ -1203,12 +1210,12 @@ class Project:
     def load_capped_end_by_elements(self, elements, value, selection):
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
 
-    def load_capped_end_by_entity(self, lines, value, selection):
+    def load_capped_end_by_line(self, lines, value):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_capped_end_by_line(lines, value)
+            self.preprocessor.set_capped_end_by_lines(lines, value)
         # elif self.file.get_import_type() == 1:
         #     self.preprocessor.set_capped_end_by_element('all', value)
-        self._set_capped_end_to_entity(lines, value)
+        self._set_capped_end_to_lines(lines, value)
 
     def get_nodes_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
@@ -1234,106 +1241,115 @@ class Project:
     def load_prescribed_dofs_bc_by_node(self, node_id, data):
         self.preprocessor.set_prescribed_dofs_bc_by_node(node_id, data)
 
-    def _set_material_to_selected_entity(self, entities, material):
-        if isinstance(entities, int):
-            entities = [entities]
-        for entity_id in entities:
-            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+    def _set_material_to_selected_lines(self, lines, material):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
             entity.material = material
 
-    def _set_material_to_all_entities(self, material):
+    def _set_material_to_all_lines(self, material):
         for entity in self.entities:
             entity.material = material
 
-    def _set_fluid_to_selected_entity(self, line_id, fluid):
-        entity = self.preprocessor.dict_tag_to_entity[line_id]
-        if entity.structural_element_type not in ['beam_1']:
-            entity.fluid = fluid
-        else:
-            entity.fluid = None
-
-    def _set_fluid_to_all_entities(self, fluid):
-        for entity in self.entities:
-            if entity.structural_element_type not in ['beam_1']:
-                entity.fluid = fluid
-            else:
+    def _set_fluid_to_selected_lines(self, lines, fluid):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            if entity.structural_element_type in ['beam_1']:
                 entity.fluid = None
+            else:
+                entity.fluid = fluid    
 
-    def _set_cross_section_to_selected_entity(self, entities, cross):
-        if isinstance(entities, int):
-            entities = [entities]
-        for entity_id in entities:
-            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+    def _set_fluid_to_all_lines(self, fluid):
+        for entity in self.entities:
+            if entity.structural_element_type in ['beam_1']:
+                entity.fluid = None
+            else:
+                entity.fluid = fluid               
+
+    def _set_cross_section_to_selected_line(self, lines, cross):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
             entity.cross_section = cross
 
     def _set_cross_section_to_all_entities(self, cross):
         for entity in self.entities:
             entity.cross_section = cross
 
-    def _set_variable_cross_section_to_selected_entity(self, entity_id, parameters):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
+    def _set_variable_cross_section_to_selected_line(self, line_id, parameters):
+        entity = self.preprocessor.dict_tag_to_entity[line_id]
         entity.variable_cross_section_data = parameters
 
-    def _set_structural_element_type_to_selected_entity(self, entities, element_type):
-        if isinstance(entities, int):
-            entities = [entities]
-        for entity_id in entities:
-            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+    def _set_structural_element_type_to_selected_lines(self, lines, element_type):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
             entity.structural_element_type = element_type
 
-    def _set_structural_element_type_to_all_entities(self, element_type):
+    def _set_structural_element_type_to_all_lines(self, element_type):
         for entity in self.entities:
             entity.structural_element_type = element_type
 
-    def _set_acoustic_element_type_to_selected_entity(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.acoustic_element_type = element_type
-        entity.proportional_damping = proportional_damping
-        entity.mean_velocity = mean_velocity
+    def _set_acoustic_element_type_to_selected_lines(self, lines, element_type, proportional_damping=None, mean_velocity=None):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity.acoustic_element_type = element_type
+            entity.proportional_damping = proportional_damping
+            entity.mean_velocity = mean_velocity
 
-    def _set_acoustic_element_type_to_all_entities(self, element_type, proportional_damping=None):
+    def _set_acoustic_element_type_to_all_lines(self, element_type, proportional_damping=None):
         for entity in self.entities: 
             entity.acoustic_element_type = element_type
             entity.proportional_damping = proportional_damping
 
-    def _set_beam_xaxis_rotation_to_selected_entity(self, line_id, angle):
+    def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
         entity = self.preprocessor.dict_tag_to_entity[line_id]
         entity.beam_xaxis_rotation = angle
 
-    def _set_stress_stiffening_to_selected_line(self, entity_id, pressures):
-        entity = self.preprocessor.dict_tag_to_entity[entity_id]
-        entity.stress_stiffening_parameters = pressures
-        
+    def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
+            entity.stress_stiffening_parameters = pressures
+            
     # def _set_stress_stiffening_to_all_entities(self, pressures):
     #     for entity in self.entities:
     #         entity.external_pressure = pressures[0]
     #         entity.internal_pressure = pressures[1]
 
-    def _set_expansion_joint_to_selected_entity(self, entities, parameters):
-        if isinstance(entities, int):
-            entities = [entities]
-        for entity_id in entities:
-            entity = self.preprocessor.dict_tag_to_entity[entity_id]
+    def _set_expansion_joint_to_selected_lines(self, lines, parameters):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line_id in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line_id]
             entity.expansion_joint_parameters = parameters
     
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
 
-    def set_fluid_by_line(self, line_id, fluid):
+    def set_fluid_by_lines(self, lines, fluid):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_fluid_by_line(line_id, fluid)
+            self.preprocessor.set_fluid_by_lines(lines, fluid)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_fluid_by_element('all', fluid)
 
-        self._set_fluid_to_selected_entity(line_id, fluid)
+        self._set_fluid_to_selected_lines(lines, fluid)
         if fluid is None:
-            self.file.add_fluid_in_file(line_id, "")
+            self.file.add_fluid_in_file(lines, "")
         else:
-            self.file.add_fluid_in_file(line_id, fluid.identifier)
+            self.file.add_fluid_in_file(lines, fluid.identifier)
 
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
-        self._set_fluid_to_all_entities(fluid)
+        self._set_fluid_to_all_lines(fluid)
         for line in self.preprocessor.all_lines:
             self.file.add_fluid_in_file(line, fluid.identifier)
 
@@ -1386,21 +1402,32 @@ class Project:
 
     def set_capped_end_by_elements(self, elements, value, selection):
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
-        self.file.modify_capped_end_element_in_file(elements, value, selection)
+        self.file.modify_capped_end_elements_in_file(elements, value, selection)
 
-    def set_capped_end_by_line(self, lines, value):
+    def set_capped_end_by_lines(self, lines, value):
         if isinstance(lines, int):
             lines = [lines]
-        self.preprocessor.set_capped_end_by_line(lines, value)
-        # if lines == "all":
-        #     for line_id in self.preprocessor.all_lines:
-        #         self.file.modify_capped_end_entity_in_file(line_id, value)
-        # else:
-        self._set_capped_end_to_entity(lines, value)
-        for line_id in lines:
-            self.file.modify_capped_end_entity_in_file(line_id, value)      
+        self.preprocessor.set_capped_end_by_lines(lines, value)
+        self._set_capped_end_to_lines(lines, value)
+        self.file.modify_capped_end_lines_in_file(lines, value)      
 
-    def _set_capped_end_to_entity(self, lines, value):
+    def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
+        if isinstance(lines, int):
+            lines = [lines]
+        self.preprocessor.set_structural_element_wall_formulation_by_lines(lines, formulation)
+        self._set_structural_element_wall_formulation_to_lines(lines, formulation)
+        self.file.modify_structural_element_wall_formulation_in_file(lines, formulation)  
+
+    def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity.wall_formulation = formulation
+
+    def _set_capped_end_to_lines(self, lines, value):
+        if isinstance(lines, int):
+            lines = [lines]
         for line in lines:
             entity = self.preprocessor.dict_tag_to_entity[line] 
             entity.capped_end = value
@@ -1410,9 +1437,6 @@ class Project:
 
     def load_acoustic_pressure_bc_by_node(self, node_id, data):
         self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, data)
-
-    # def load_volume_velocity_bc_by_node(self, node_id, data, connection_info=None):
-    #     self.preprocessor.set_volume_velocity_bc_by_node(node_id, data, connection_info=connection_info)
 
     def load_volume_velocity_bc_by_node(self, node_id, data):
         self.preprocessor.set_volume_velocity_bc_by_node(node_id, data)
@@ -1455,22 +1479,22 @@ class Project:
     def get_node(self, node_id):
         return self.preprocessor.nodes[node_id]
 
-    def get_entity(self, entity_id):
-        self.preprocessor.dict_tag_to_entity[entity_id]
-        return self.preprocessor.dict_tag_to_entity[entity_id]
+    def get_entity(self, line_id):
+        self.preprocessor.dict_tag_to_entity[line_id]
+        return self.preprocessor.dict_tag_to_entity[line_id]
 
     def get_element_size(self):
         return self.file.element_size
 
-    def check_entity_material(self):
-        for entity in self.entities:#get_entities():
-            if entity.getMaterial() is None:
+    def check_line_material(self):
+        for line in self.entities:
+            if line.getMaterial() is None:
                 return False
         return True
 
-    def check_entity_crossSection(self):
-        for entity in self.entities:#get_entities():
-            if entity.getCrossSection() is None:
+    def check_line_crossSection(self):
+        for line in self.entities:
+            if line.getCrossSection() is None:
                 return False
         return True
 

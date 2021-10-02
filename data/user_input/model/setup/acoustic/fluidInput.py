@@ -532,24 +532,21 @@ class FluidInput(QDialog):
                                 dynamic_viscosity = dynamic_viscosity )
 
             if self.flagSelection:
-
                 if self.lineEdit_selected_ID.text() == "":
                     return
-
-                for line in self.lines_ids:
-                    self.project.set_fluid_by_line(line, self.fluid)
-                    
-                print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_typed))
+                lines = self.lines_typed
+                if len(self.lines_typed) <= 20:
+                    print("[Set Fluid] - {} defined at lines: {}".format(self.fluid.name, self.lines_typed))
+                else:
+                    print("[Set Fluid] - {} defined at {} lines".format(self.fluid.name, len(self.lines_typed)))
                 # self.opv.changeColorEntities(self.lines_ids, self.fluid.getNormalizedColorRGB())
 
             elif self.flagAll:
-
-                self.project.set_fluid_to_all_lines(self.fluid)
                 lines = self.project.preprocessor.all_lines
-
                 print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
                 # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
 
+            self.project.set_fluid_by_lines(lines, self.fluid)
             self.close()
 
         except Exception as err:
@@ -712,7 +709,7 @@ class FluidInput(QDialog):
 
                 for tag, line in self.dict_tag_to_entity.items():
                     if line.fluid.name == self.lineEdit_name_remove.text():
-                        self.project.set_fluid_by_line(tag, None)
+                        self.project.set_fluid_by_lines(tag, None)
 
                 self.treeWidget_fluids.clear()
                 self.clicked_item = None

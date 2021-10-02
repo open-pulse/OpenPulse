@@ -62,6 +62,7 @@ class ProjectFile:
         self._entity_path = get_new_path(self._project_path, self._entity_file_name)
         self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
         self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
@@ -167,8 +168,7 @@ class ProjectFile:
         config['Frequency setup']['frequency max'] = max_
         config['Frequency setup']['frequency step'] = step_
 
-        with open(temp_project_base_file_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(temp_project_base_file_path, config)
 
     def add_damping_in_file(self, global_damping):
 
@@ -186,13 +186,13 @@ class ProjectFile:
         config['Global damping setup']['alpha_h'] = alpha_h
         config['Global damping setup']['beta_h'] = beta_h
 
-        with open(temp_project_base_file_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(temp_project_base_file_path, config)
 
     def reset_project_setup(self):
-        path =  get_new_path(self._project_path, self._project_base_name)
+
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
         config = configparser.ConfigParser()
-        config.read(path)
+        config.read(temp_project_base_file_path)
         sections = config.sections()
 
         if "Frequency setup" in sections:
@@ -200,17 +200,15 @@ class ProjectFile:
 
         if "Global damping setup" in sections:
             config.remove_section("Global damping setup")
-        
-        with open(path, 'w') as config_file:
-            config.write(config_file)
 
+        self.write_data_in_file(temp_project_base_file_path, config)
+        
     def create_entity_file(self, entities):
         config = configparser.ConfigParser()
         for entity_id in entities:
             config[str(entity_id)] = {}
-
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        
+        self.write_data_in_file(self._entity_path, config)
     
     def get_dict_of_entities_from_file(self):
 
@@ -233,6 +231,7 @@ class ProjectFile:
         self.dict_expansion_joint_sections = {}
         self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
+        self.dict_structural_element_wall_formulation = {}
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
         self.dict_length_correction = {}
@@ -265,6 +264,20 @@ class ProjectFile:
                 else:
                     self.dict_structural_element_type[entity] = 'pipe_1'
                     
+            if 'structural element wall formulation' in entityFile[entity].keys():
+                wall_formulation = entityFile[entity]['structural element wall formulation']
+                if wall_formulation != "":
+                    if "-" in entity:
+                        if 'list of elements' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements']
+                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            self.dict_structural_element_wall_formulation[entity] = [list_elements, wall_formulation]
+                    else:
+                        self.dict_structural_element_wall_formulation[entity] = wall_formulation
+                    self.element_type_is_structural = True
+                else:
+                    self.dict_structural_element_wall_formulation[entity] = 'thick_wall'
+
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
                 if acoustic_element_type != "":
@@ -301,12 +314,12 @@ class ProjectFile:
                 if 'list of elements' in entityFile[entity].keys():
                     str_list_elements = entityFile[entity]['list of elements']
                     list_elements = self._get_list_of_values_from_string(str_list_elements)
-                
+
                 if structural_element_type == "":
                     line_id = entity.split("-")[0]
                     if 'structural element type' in entityFile[line_id].keys():
                         structural_element_type = entityFile[line_id]['structural element type']
-              
+            
                 if structural_element_type in ['pipe_1', 'pipe_2']:
 
                     if 'outer diameter' in entityFile[entity].keys():
@@ -616,7 +629,6 @@ class ProjectFile:
                 message = str(err)
                 PrintMessageInput([title, message, window_title])
                 
-
     def add_cross_section_in_file(self, lines, cross_section):  
 
         if isinstance(lines, int):
@@ -670,6 +682,9 @@ class ProjectFile:
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
         
@@ -685,9 +700,9 @@ class ProjectFile:
                         'expansion joint parameters',
                         'expansion joint stiffness'    ]
 
-        for line in [lines]:
+        for line_id in lines:
             subkey = 0
-            str_line = str(line)
+            str_line = str(line_id)
             if 'structural element type' in config[str_line].keys():
                 etype = config[str_line]['structural element type']
             else:
@@ -715,18 +730,26 @@ class ProjectFile:
         self.write_data_in_file(self._entity_path, config)
 
 
-    def modify_variable_cross_section_in_file(self, line_id, parameters):
+    def modify_variable_cross_section_in_file(self, lines, parameters):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-
-        str_line = str(line_id)
-        if str_line in list(config.sections()):
-            config[str_line]['variable section parameters'] = str(parameters)
         
+        for line_id in lines:
+            str_line = str(line_id)
+            if str_line in list(config.sections()):
+                config[str_line]['variable section parameters'] = str(parameters)
+            
         self.write_data_in_file(self._entity_path, config)
 
 
-    def modify_expansion_joint_in_file(self, line_id, parameters):
+    def modify_expansion_joint_in_file(self, lines, parameters):
+        
+        if isinstance(lines, int):
+            lines = [lines]
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -743,35 +766,37 @@ class ProjectFile:
                         'section properties',
                         'expansion joint parameters',
                         'expansion joint stiffness'    ]
-
-        str_line = str(line_id)
-        for _key in list_keys:
-            if _key in list(config[str_line].keys()):
-                config.remove_option(section=str_line, option=_key)
         
-        for section in sections:
-            if f'{line_id}-' in section:
-                config.remove_section(section)
-        
-        if parameters is not None:
+        for line_id in lines:
+            str_line = str(line_id)
+            for _key in list_keys:
+                if _key in list(config[str_line].keys()):
+                    config.remove_option(section=str_line, option=_key)
+            
+            for section in sections:
+                if f'{line_id}-' in section:
+                    config.remove_section(section)
+            
+            if parameters is not None:
 
-            list_table_names = parameters[2]
+                list_table_names = parameters[2]
 
-            config[str_line]['expansion joint parameters'] = str(parameters[0])
-            if list_table_names == []:
-                config[str_line]['expansion joint stiffness'] = str(parameters[1])
-            else:
-                str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
-                config[str_line]['expansion joint stiffness'] = str_table_names
+                config[str_line]['expansion joint parameters'] = str(parameters[0])
+                if list_table_names == []:
+                    config[str_line]['expansion joint stiffness'] = str(parameters[1])
+                else:
+                    str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+                    config[str_line]['expansion joint stiffness'] = str_table_names
 
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._entity_path, config)
 
-    def add_multiple_expansion_joints_in_file(  self, 
-                                                line_id, 
+    def add_multiple_expansion_joints_in_file(  self, lines, 
                                                 map_expansion_joint_to_elements, 
                                                 map_cross_sections_to_elements, 
                                                 update_by_cross=False   ):
+
+        if isinstance(lines, int):
+            lines = [lines]
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -791,75 +816,77 @@ class ProjectFile:
                         'section properties',
                         'expansion joint parameters',
                         'expansion joint stiffness'    ]
+        
+        for line_id in lines:
+            
+            str_line = str(line_id) 
 
-        str_line = str(line_id) 
-
-        for str_key in str_keys:
-            if str_key in config[str_line].keys():
-                config.remove_option(section=str_line, option=str_key)
-        
-        for section in sections:
-            if f'{line_id}-' in section:
-                config.remove_section(section)        
-        
-        counter_1 = 0
-        for (cross_key, elements) in map_cross_sections_to_elements.items():
+            for str_key in str_keys:
+                if str_key in config[str_line].keys():
+                    config.remove_option(section=str_line, option=str_key)
             
-            counter_1 += 1
-            section_key = f"{line_id}-{counter_1}"             
-            cross_strings = cross_key[1:-1].split(',')
-            vals = [float(value) for value in cross_strings] 
-            
-            index_etype = int(vals[6])
-            if index_etype == 0:
-                etype = 'pipe_1'
-            else:
-                etype = 'pipe_2'
-            
-            config[section_key] = { 'structural element type' : etype,
-                                    'outer diameter': f'{vals[0]}',
-                                    'thickness': f'{vals[1]}',
-                                    'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
-                                    'insulation thickness': f'{vals[4]}',
-                                    'insulation density': f'{vals[5]}',
-                                    'list of elements': f'{elements}' }
-        
-        counter_2 = 0
-        if update_by_cross:    
             for section in sections:
                 if f'{line_id}-' in section:
-                    if 'expansion joint parameters' in config_base[section].keys():
-                        counter_2 += 1
-                        section_key = f"{line_id}-{counter_1 + counter_2}"
-                        config[section_key] = config_base[section]
-        
-        else:
-
-            for (_, data) in map_expansion_joint_to_elements.items():
-                counter_2 += 1
-                parameters, list_elements, list_table_names = data
-                section_key = f"{line_id}-{counter_1 + counter_2}"
+                    config.remove_section(section)        
             
-                if list_table_names == []:
-
-                    config[section_key] = { 'structural element type' : 'expansion_joint',
-                                            'expansion joint parameters' : f'{parameters[0]}',
-                                            'expansion joint stiffness' : f'{parameters[1]}',
-                                            'list of elements' : f'{list_elements}' }
-                        
+            counter_1 = 0
+            for (cross_key, elements) in map_cross_sections_to_elements.items():
+                
+                counter_1 += 1
+                section_key = f"{line_id}-{counter_1}"             
+                cross_strings = cross_key[1:-1].split(',')
+                vals = [float(value) for value in cross_strings] 
+                
+                index_etype = int(vals[6])
+                if index_etype == 0:
+                    etype = 'pipe_1'
                 else:
+                    etype = 'pipe_2'
+                
+                config[section_key] = { 'structural element type' : etype,
+                                        'outer diameter': f'{vals[0]}',
+                                        'thickness': f'{vals[1]}',
+                                        'offset [e_y, e_z]': f'[{vals[2]}, {vals[3]}]',
+                                        'insulation thickness': f'{vals[4]}',
+                                        'insulation density': f'{vals[5]}',
+                                        'list of elements': f'{elements}' }
+            
+            counter_2 = 0
+            if update_by_cross:    
+                for section in sections:
+                    if f'{line_id}-' in section:
+                        if 'expansion joint parameters' in config_base[section].keys():
+                            counter_2 += 1
+                            section_key = f"{line_id}-{counter_1 + counter_2}"
+                            config[section_key] = config_base[section]
+            
+            else:
 
-                    str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+                for (_, data) in map_expansion_joint_to_elements.items():
+                    counter_2 += 1
+                    parameters, list_elements, list_table_names = data
+                    section_key = f"{line_id}-{counter_1 + counter_2}"
+                
+                    if list_table_names == []:
 
-                    config[section_key] = { 'structural element type' : 'expansion_joint',
-                                            'expansion joint parameters' : f'{parameters[0]}',
-                                            'expansion joint stiffness' : str_table_names,
-                                            'list of elements' : f'{list_elements}' }
+                        config[section_key] = { 'structural element type' : 'expansion_joint',
+                                                'expansion joint parameters' : f'{parameters[0]}',
+                                                'expansion joint stiffness' : f'{parameters[1]}',
+                                                'list of elements' : f'{list_elements}' }
+                            
+                    else:
+
+                        str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
+
+                        config[section_key] = { 'structural element type' : 'expansion_joint',
+                                                'expansion joint parameters' : f'{parameters[0]}',
+                                                'expansion joint stiffness' : str_table_names,
+                                                'list of elements' : f'{list_elements}' }
 
         self.write_data_in_file(self._entity_path, config)
 
     def add_length_correction_in_file(self, elements, _type, section): 
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+        
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -870,11 +897,10 @@ class ProjectFile:
             config[section] =   { 'length correction type': str(_type),
                                   'list of elements': str(elements) 
                                   }
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._element_info_path, config)
 
     def add_perforated_plate_in_file(self, elements, perforated_plate, section): 
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+        
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -904,11 +930,10 @@ class ProjectFile:
                                   'dimensionless impedance' : f"[{dimensionless_impedance}]",
                                   'list of elements': str(elements) }
 
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._element_info_path, config)
     
     def modify_B2PX_rotation_decoupling_in_file(self, elements, nodes, rotations_maks, section, remove=False, reset=False):
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+         
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -928,24 +953,28 @@ class ProjectFile:
                                     'list of nodes': str(nodes),
                                     'rotation dofs mask': str(rotations_maks) }
 
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._element_info_path, config)
 
-    def modify_stress_stiffnening_entity_in_file(self, entity_id, pressures, remove=False,): 
+    def modify_stress_stiffnening_line_in_file(self, lines, pressures, remove=False):
+        
+        if isinstance(lines, int):
+            lines = [lines] 
+        
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        str_entity_id = str(entity_id)
-        if remove:
-            if str_entity_id in list(config.sections()):
-                config.remove_option(section=str_entity_id, option='stress stiffening parameters')
-        else:
-            config[str_entity_id]['stress stiffening parameters'] = str(pressures)
 
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        for line_id in lines:
+            str_entity_id = str(line_id)
+            if remove:
+                if str_entity_id in list(config.sections()):
+                    config.remove_option(section=str_entity_id, option='stress stiffening parameters')
+            else:
+                config[str_entity_id]['stress stiffening parameters'] = str(pressures)
+
+        self.write_data_in_file(self._entity_path, config)
 
     def modify_stress_stiffnening_element_in_file(self, elements, parameters, section, remove=False):
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+        
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -954,18 +983,11 @@ class ProjectFile:
         else:
             config[section]['stress stiffening parameters'] = str(parameters)
             config[section]['list of elements'] = str(elements)
-            # if section in list(config.sections()):
-            #     config[section]['stress stiffening parameters'] = str(parameters)
-            #     config[section]['list of elements'] = str(elements)
-            # else:
-            #     config[section] =  { 'stress stiffening parameters': str(parameters),
-            #                          'list of elements': str(elements)                }
-
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+  
+        self.write_data_in_file(self._element_info_path, config)
 
     def remove_all_stress_stiffnening_in_file_by_group_elements(self): 
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+          
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -973,11 +995,10 @@ class ProjectFile:
             if "STRESS STIFFENING" in section:
                 config.remove_section(section)
 
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._element_info_path, config)
 
-    def modify_capped_end_element_in_file(self, elements, value, section): 
-        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)  
+    def modify_capped_end_elements_in_file(self, elements, value, section): 
+        
         config = configparser.ConfigParser()
         config.read(self._element_info_path)
 
@@ -985,21 +1006,25 @@ class ProjectFile:
             config[section]['list of elements'] = str(elements)
         else:    
             config.remove_section(section)
-        
-        with open(self._element_info_path, 'w') as config_file:
-            config.write(config_file)
+               
+        self.write_data_in_file(self._element_info_path, config)
 
-    def modify_capped_end_entity_in_file(self, entity_id, value):
+    def modify_capped_end_lines_in_file(self, lines, value):
+
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        str_entity_id = str(entity_id)
-        if value:    
-            config[str_entity_id]['capped end'] = str(value)
-        else:
-            config.remove_option(section=str_entity_id, option='capped end')
+        
+        for line_id in lines:
+            str_entity_id = str(line_id)
+            if value:    
+                config[str_entity_id]['capped end'] = str(value)
+            else:
+                config.remove_option(section=str_entity_id, option='capped end')
 
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._entity_path, config)
 
     def modify_structural_element_type_in_file(self, lines, element_type):
         
@@ -1020,56 +1045,77 @@ class ProjectFile:
             
             config[str_line]['structural element type'] = element_type
 
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._entity_path, config)
 
-    def modify_acoustic_element_type_in_file(self, entity_id, element_type, proportional_damping=None, mean_velocity=None):
+    def modify_structural_element_wall_formulation_in_file(self, lines, formulation):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
-        _section = str(entity_id)
+        for line_id in lines:
+            str_line = str(line_id)     
+            if formulation is None:
+                str_key = 'structural element wall formulation'
+                config.remove_option(section=str_line, option=str_key)
+            else:
+                config[str_line]['structural element wall formulation'] = formulation
 
-        config[_section]['acoustic element type'] = element_type
-        if element_type == 'proportional':
-            config[_section]['proportional damping'] = str(proportional_damping)
-            
-        if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
-            config.remove_option(section=_section, option='proportional damping')  
+        self.write_data_in_file(self._entity_path, config)
 
-        if element_type in ["undamped mean flow", "peters", "howe"]:
-            config[_section]['mean velocity'] = str(mean_velocity)
+    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, mean_velocity=None):
+        
+        if isinstance(lines, int):
+            lines = [lines]
 
-        if element_type not in ["undamped mean flow", "peters", "howe"] and 'mean velocity' in config[_section].keys():
-            config.remove_option(section=_section, option='mean velocity')  
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        
+        for line_id in lines:
+            _section = str(line_id)
+
+            config[_section]['acoustic element type'] = element_type
+            if element_type == 'proportional':
+                config[_section]['proportional damping'] = str(proportional_damping)
+                
+            if element_type != 'proportional' and 'proportional damping' in config[_section].keys():
+                config.remove_option(section=_section, option='proportional damping')  
+
+            if element_type in ["undamped mean flow", "peters", "howe"]:
+                config[_section]['mean velocity'] = str(mean_velocity)
+
+            if element_type not in ["undamped mean flow", "peters", "howe"] and 'mean velocity' in config[_section].keys():
+                config.remove_option(section=_section, option='mean velocity')  
     
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._entity_path, config)
 
-    def add_material_in_file(self, entities, material_id):
+    def add_material_in_file(self, lines, material_id):
 
-        print('entrei')
-
-        if isinstance(entities, int):
-            entities = [entities]
+        if isinstance(lines, int):
+            lines = [lines]
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
 
-        dict_material_id = {'materia_id' : str(material_id)}
-
-        for entity_id in entities:
-            print(entity_id, str(material_id))
-            config[str(entity_id)] = dict_material_id
+        for line_id in lines:
+            config[str(line_id)]['material_id'] = str(material_id)
             
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+        self.write_data_in_file(self._entity_path, config)
 
-    def add_fluid_in_file(self, entity_id, fluid_id):
+    def add_fluid_in_file(self, lines, fluid_id):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
         config = configparser.ConfigParser()
         config.read(self._entity_path)
-        config[str(entity_id)]['fluid id'] = str(fluid_id)
-        with open(self._entity_path, 'w') as config_file:
-            config.write(config_file)
+
+        for line_id in lines:
+            config[str(line_id)]['fluid id'] = str(fluid_id)
+
+        self.write_data_in_file(self._entity_path, config)
 
     def get_dict_of_structural_bc_from_file(self):
 

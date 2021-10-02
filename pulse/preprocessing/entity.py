@@ -22,6 +22,7 @@ class Entity:
         self.proportional_damping = None
         self.mean_velocity = None
         self.structural_element_type = None
+        self.structural_element_wall_formulation = None
         self.capped_end = False
         self.length_correction = None
         self.stress_stiffening_parameters = None

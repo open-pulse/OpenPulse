@@ -229,20 +229,20 @@ class AcousticElementTypeInput(QDialog):
             mean_velocity = None
 
         if self.flagSelection:
-
             lineEdit = self.lineEdit_selected_ID.text()
             self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True
-
-            for line in self.lines_typed:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
-            print("[Set Acoustic Element Type] - defined in the entities {}".format(self.lines_typed))
+            lines = self.lines_typed
+            if len(self.typed_lines) <= 20:
+                print(f"[Set Acoustic Element Type] - {self.element_type} assigned to {self.typed_lines} lines")
+            else:
+                print(f"[Set Acoustic Element Type] - {self.element_type} assigned in {len(self.typed_lines)} lines")
         elif self.flagAll:
-            for line in self.project.preprocessor.all_lines:
-                self.project.set_acoustic_element_type_by_line(line, self.element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
-            # self.project.set_acoustic_element_type_to_all(self.element_type, proportional_damping=proportional_damping)
-            print("[Set Acoustic Element Type] - defined in all the entities")
+            lines = self.project.preprocessor.all_lines
+            print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
+        
+        self.project.set_acoustic_element_type_by_lines(lines, self.element_type, proportional_damping = proportional_damping, mean_velocity = mean_velocity)
         self.complete = True
         self.close()
     

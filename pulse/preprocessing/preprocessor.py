@@ -85,6 +85,7 @@ class Preprocessor:
 
         self.nodes_with_elastic_link_stiffness = {}
         self.nodes_with_elastic_link_dampings = {}
+        self.lines_with_structural_element_wall_formulation = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
         self.elements_with_adding_mass_effect = []
@@ -372,7 +373,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        mesh_loaded : boll, optional.
+        mesh_loaded : bool, optional.
             True if the mesh was already generated (internally or externally). False otherwise.
         """
         if mesh_loaded:
@@ -630,7 +631,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        reordering : boll, optional.
+        reordering : bool, optional.
             True if the nodes numbering is according to the global indexing. False otherwise.
             Default is True.
         """
@@ -659,7 +660,7 @@ class Preprocessor:
 
         Parameters
         ----------
-        reordering : boll, optional.
+        reordering : bool, optional.
             True if the nodes numbering is according to the global indexing. False otherwise.
             Default is True.
         """
@@ -847,7 +848,7 @@ class Preprocessor:
         element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint']
             Structural element type to be attributed to the listed elements.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the element_type have to be removed from the structural element type dictionary. False otherwise.
             Default is False.
         """
@@ -856,6 +857,29 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
+    def set_structural_element_wall_formulation_by_elements(self, elements, wall_formulation, remove=False):
+        """
+        This method assigns a structural element wall formulation to a list of selected elements.
+
+        Parameters
+        ----------
+        elements : list
+            Structural elements indexes.
+            
+        wall_formulation : str, ['thick_wall', 'thin_wall']
+            Structural element type to be attributed to the listed elements.
+            
+        remove : bool, optional
+            True if the element_wall_formulation should to be removed from the _________ dictionary. False otherwise.
+            Default is False.
+        """
+        for element in slicer(self.structural_elements, elements):
+            element.wall_formulation = wall_formulation
+        #TODO: check if it is necessary
+        # if remove:
+        #     return
+            # self.dict_structural_element_wall_formulation_to_lines.pop(wall_formulation)
+
     def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
         This method attributes acoustic element type to a list of elements.
@@ -872,7 +896,7 @@ class Preprocessor:
             Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
             Default is False.
         """
@@ -895,7 +919,7 @@ class Preprocessor:
         cross_section : Cross section object
             Tube cross section data.
             
-        update_cross_section : boll, optional
+        update_cross_section : bool, optional
             True if the cross section data have to be evaluated or updated. False otherwise.
             Default is False.
         """
@@ -931,7 +955,7 @@ class Preprocessor:
         for elements in slicer(self.line_to_elements, lines):
             self.set_cross_section_by_element(elements, cross_section)
     
-    def set_structural_element_type_by_line(self, lines, element_type, remove=False):
+    def set_structural_element_type_by_lines(self, lines, element_type, remove=False):
         """
         This method attributes structural element type to all elements that belongs to a line/entity.
 
@@ -943,7 +967,7 @@ class Preprocessor:
         element_type : str, ['pipe_1', 'pipe_2', 'beam_1']
             Structural element type to be attributed to elements.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the element_type have to be removed from the structural element type dictionary. False otherwise.
             Default is False.
         """
@@ -974,7 +998,7 @@ class Preprocessor:
                         if self.dict_structural_element_type_to_lines[key] == []:
                             self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_line(self, line, element_type, proportional_damping=None, mean_velocity=None, remove=False):
+    def set_acoustic_element_type_by_lines(self, line, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -990,7 +1014,7 @@ class Preprocessor:
             Acoustic proportional damping coefficient. It must be attributed to the elements of type 'proportional'.
             Default is None.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
             Default is False.
         """
@@ -1036,7 +1060,7 @@ class Preprocessor:
         for element in slicer(self.acoustic_elements, elements):
             element.material = material
 
-    def set_material_by_line(self, lines, material):
+    def set_material_by_lines(self, lines, material):
         """
         This method attributes material object to all elements that belongs to a line/entity.
 
@@ -1270,11 +1294,11 @@ class Preprocessor:
         nodes_id : list
             Nodes external indexes.
 
-        rotations_to_decouple : list of bollean, optional
+        rotations_to_decouple : list of boolean, optional
             ?????
             Default is [False, False, False]
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -1397,7 +1421,7 @@ class Preprocessor:
 
         Parameters
         ----------            
-        reset : boll, optional
+        reset : bool, optional
             True if the fluid mass effect have to be disable. False to enable.
             Default is False.
         """
@@ -1421,7 +1445,7 @@ class Preprocessor:
         elements : list
             Acoustic elements indexes.
             
-        value : boll
+        value : bool
             True if the capped end effect have to be activated. False otherwise.
 
         selection : ?????
@@ -1446,7 +1470,7 @@ class Preprocessor:
     #         for element in slicer(self.structural_elements, elements):
     #             element.capped_end = value
  
-    def set_capped_end_by_line(self, lines, value):
+    def set_capped_end_by_lines(self, lines, value):
         """
         This method enables or disables the capped end effect to all acoustic elements that belongs to a line.
 
@@ -1455,7 +1479,7 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
             
-        value : boll
+        value : bool
             True if the capped end effect have to be activated. False otherwise.
         """
         # self.set_capped_end_line_to_element(lines, value)
@@ -1480,6 +1504,36 @@ class Preprocessor:
                     if tag in self.lines_with_capped_end:
                         self.lines_with_capped_end.remove(tag)
 
+
+    def set_structural_element_wall_formulation_by_lines(self, lines, formulation):
+        """
+        This method assign a strutural element wall formulation to the selected lines.
+
+        Parameters
+        ----------
+        lines : list
+            Lines/entities indexes.
+            
+        wall_formulation : str, ['thick_wall', 'thin_wall']
+            Structural element type to be attributed to the listed elements. 
+        """
+        try:
+            if isinstance(lines, int):
+                lines = [lines]
+
+            for elements in slicer(self.line_to_elements, lines):
+                for element in slicer(self.structural_elements, elements):
+                    element.wall_formulation = formulation
+            
+            for line in lines:
+                if formulation is None:
+                    list_lines = list(self.lines_with_structural_element_wall_formulation.keys())
+                    if line in list_lines:
+                        self.lines_with_structural_element_wall_formulation.pop(line)
+                else:
+                    self.lines_with_structural_element_wall_formulation[line] = formulation
+        except Exception as _error:
+            print(str(_error))
     # def set_capped_end_all_lines(self, value):
     #     self.set_capped_end_line_to_element("all", value)
     #     self.group_elements_with_capped_end = {}
@@ -1500,7 +1554,7 @@ class Preprocessor:
         parameters : list
             ????????.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -1542,7 +1596,7 @@ class Preprocessor:
             ??????
             Default is None
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -1581,7 +1635,7 @@ class Preprocessor:
             ??????
             Default is None
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -1681,7 +1735,7 @@ class Preprocessor:
         parameters : list
             ????????.
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -1708,7 +1762,7 @@ class Preprocessor:
         elements : list
             Elements indexes.
             
-        value : boll
+        value : bool
             True if the stress intensification effect have to be activated. False otherwise.
         """  
         for element in slicer(self.structural_elements, elements):
@@ -1723,7 +1777,7 @@ class Preprocessor:
         lines : list
             Lines/entities indexes.
             
-        value : boll
+        value : bool
             True if the stress intensification effect have to be activated. False otherwise.
         """
         for elements in slicer(self.line_to_elements, lines):
@@ -1754,7 +1808,7 @@ class Preprocessor:
             else:
                 element.fluid = None
     
-    def set_fluid_by_line(self, lines, fluid):
+    def set_fluid_by_lines(self, lines, fluid):
         """
         This method attributes fluid object to all acoustic elements that belongs to a line/entity.
 
@@ -1814,7 +1868,7 @@ class Preprocessor:
         section : ?????
             ??????
             
-        remove : boll, optional
+        remove : bool, optional
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
@@ -2141,7 +2195,7 @@ class Preprocessor:
 
         Returns
         ----------
-        boll
+        bool
             ?????
         """
         self.beam_gdofs, self.pipe_gdofs = self.get_beam_and_non_beam_elements_global_dofs()
@@ -2305,11 +2359,11 @@ class Preprocessor:
         parameters : ??????
             ???????.
 
-        _stiffness : boll, optional
+        _stiffness : bool, optional
             True if ???????. False otherwise.
             Default is False.
 
-        _damping : boll, optional
+        _damping : bool, optional
             True if ???????. False otherwise.
             Default is False.
         """

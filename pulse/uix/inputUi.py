@@ -146,7 +146,7 @@ class InputUi:
 
     def setStructuralElementType(self):
         read = self.processInput(StructuralElementTypeInput, self.project, self.opv)
-        if read.complete:  
+        if read.complete:
             if read.pipe_to_beam or read.beam_to_pipe:         
                 self.set_cross_section( pipe_to_beam=read.pipe_to_beam, beam_to_pipe=read.beam_to_pipe, 
                                         lines_to_update_cross_section=read.list_lines_to_update_cross_section )

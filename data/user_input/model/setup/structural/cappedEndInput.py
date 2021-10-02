@@ -381,7 +381,7 @@ class CappedEndInput(QDialog):
 
     def remove_line_group(self):
         lines = self.project.preprocessor.lines_with_capped_end.copy()
-        self.project.set_capped_end_by_line(lines, False)
+        self.project.set_capped_end_by_lines(lines, False)
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
     
@@ -392,12 +392,12 @@ class CappedEndInput(QDialog):
         self.load_elements_info()
 
     def set_capped_end_to_lines(self):
-        self.project.set_capped_end_by_line(self.lines_typed, self.flag_cappedEnd_enable)
+        self.project.set_capped_end_by_lines(self.lines_typed, self.flag_cappedEnd_enable)
         self.load_lines_info()
 
     def set_capped_end_to_all_lines(self):
         lines = self.project.preprocessor.all_lines
-        self.project.set_capped_end_by_line(lines, self.flag_cappedEnd_enable)
+        self.project.set_capped_end_by_lines(lines, self.flag_cappedEnd_enable)
         self.load_lines_info()
         self.load_elements_info()
 
@@ -406,7 +406,7 @@ class CappedEndInput(QDialog):
         for key, elements in temp_dict_group_elements.items():
             self.project.set_capped_end_by_elements(elements, False, key)
         lines = self.project.preprocessor.all_lines
-        self.project.set_capped_end_by_line(lines, False)
+        self.project.set_capped_end_by_lines(lines, False)
         self.load_elements_info()
         self.load_lines_info()
         self.lineEdit_selected_ID.setText("")
@@ -512,7 +512,7 @@ class GetInformationOfGroup(QDialog):
                 line = int(self.lineEdit_selected_ID.text())
                 if line in self.list_of_values:
                     self.list_of_values.remove(line)
-                self.project.set_capped_end_by_line(line, False)
+                self.project.set_capped_end_by_lines(line, False)
                 self.load_group_info()
                 self.lines_removed = True
         self.lineEdit_selected_ID.setText("")

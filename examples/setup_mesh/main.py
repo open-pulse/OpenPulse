@@ -23,4 +23,4 @@ preprocessor.set_cross_section_by_element('all', large_tube)
 
 # set properties for specific lines
 preprocessor.set_cross_section_by_line([37, 38, 39], thin_tube)
-preprocessor.set_material_by_line([37, 38, 39], alloy_steel)
+preprocessor.set_material_by_lines([37, 38, 39], alloy_steel)
