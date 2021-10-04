@@ -1,11 +1,12 @@
 from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QProgressBar, QLabel, QListWidget
+from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.project import Project
 from PyQt5.QtGui import QIcon
 from os.path import basename, expanduser, exists
 from PyQt5 import uic
 import os
 import configparser
-from shutil import copyfile
+from shutil import ExecError, copyfile
 import numpy as np
 from time import time
 
@@ -26,10 +27,16 @@ class LoadProjectInput(QDialog):
         else:
             self.complete_project_path = self.path
         
-        if self.complete_project_path != "":
-            t0 = time()
-            self.project.load_project(self.complete_project_path)
-            self.config.writeRecentProject(self.project.get_project_name(), self.complete_project_path)
-            self.complete = True
-            self.project.time_to_load_or_create_project = time() - t0
-            self.close()
+        try:
+            if self.complete_project_path != "":
+                t0 = time()
+                self.project.load_project(self.complete_project_path)
+                self.config.writeRecentProject(self.project.get_project_name(), self.complete_project_path)
+                self.complete = True
+                self.project.time_to_load_or_create_project = time() - t0
+                self.close()
+        except Exception as log_error:
+            title = "Error while loading project"
+            message = str(log_error)
+            window_title = "ERROR"
+            PrintMessageInput([title, message, window_title])

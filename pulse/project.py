@@ -121,12 +121,17 @@ class Project:
         self.load_project_files()
     
     def initial_load_project_actions(self, project_file_path):
-        self.reset_info()
-        self.file.load(project_file_path)
-        self._project_name = self.file._project_name
-        self.project_folder_path = os.path.dirname(project_file_path)
-        self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-        self.entities = self.preprocessor.dict_tag_to_entity.values()
+        try:
+            self.reset_info()
+            self.file.load(project_file_path)
+            self._project_name = self.file._project_name
+            self.project_folder_path = os.path.dirname(project_file_path)
+            self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
+            self.entities = self.preprocessor.dict_tag_to_entity.values()
+        except Exception as log_error:
+            title = "Error while processing initial load project actions"
+            message = str(log_error)
+            PrintMessageInput([title, message, window_title])
 
     def load_project_files(self):
         self.load_structural_bc_file()

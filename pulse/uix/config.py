@@ -3,10 +3,12 @@ import configparser
 
 class Config:
     def __init__(self):
+        self.reset()
+
+    def reset(self):
         self.recentProjects = {}
         self.openLastProject = False
         self.configFileName = ".config"
-
         self.loadConfigFile()
         self.LoadArgs()
     
@@ -14,7 +16,7 @@ class Config:
         config = configparser.ConfigParser()
         config.read(self.configFileName)
         if config.has_section('project'):
-            for k,v in config.items('project'):
+            for k, v in config.items('project'):
                 self.recentProjects[k] = v
 
     def writeRecentProject(self, projectName, projectDir):
@@ -43,6 +45,18 @@ class Config:
     def LoadArgs(self):
         if "--last" in sys.argv:
             self.openLastProject = True
+
+    def resetRecentProjectList(self):
+        config = configparser.ConfigParser()
+        config.read(self.configFileName)   
+        
+        if config.has_section('project'):
+            config.remove_section(section='project')
+        
+        with open(self.configFileName, 'w') as configfile:
+            config.write(configfile)
+        
+        self.reset()
 
     def getMostRecentProjectDir(self):
         return self.recentProjects[list(self.recentProjects.keys())[-1]]
