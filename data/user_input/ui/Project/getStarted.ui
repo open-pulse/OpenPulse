@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Open Pulse - Get Started</string>
+   <string>OpenPulse - Get Started</string>
   </property>
   <widget class="QWidget" name="widget" native="true">
    <property name="geometry">

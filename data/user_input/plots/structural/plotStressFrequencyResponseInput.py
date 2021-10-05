@@ -253,7 +253,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         stop, self.elementID = self.before_run.check_input_ElementID(lineEdit, single_ID=True)
         
         if stop:
-            return
+            return True
         
         self.get_stress_data()
 
@@ -276,7 +276,9 @@ class PlotStressFrequencyResponseInput(QDialog):
             PrintMessageInput([title, message, window_title_2])
             return
         
-        self.check(export=True)
+        if self.check(export=True):
+            return
+
         freq = self.frequencies
         self.export_path = self.export_path_folder + self.lineEdit_FileName.text() + ".dat"
         response = get_stress_spectrum_data(self.stress_data, self.elementID, self.stress_key)

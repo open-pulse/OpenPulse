@@ -19,11 +19,8 @@ class GetStartedInput(QDialog):
         self.icon = QIcon(icons_path + 'pulse.png')
         self.load_icon = QIcon(icons_path + 'loadProject.png')
         self.new_icon = QIcon(icons_path + 'add.png')
+        self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.setWindowIcon(self.icon)
-
-        self.create_button.setIcon(self.new_icon)
-        self.load_button.setIcon(self.load_icon)
-        self.about_button.setIcon(self.icon)
 
         self.project = project
         self.config = config
@@ -38,6 +35,11 @@ class GetStartedInput(QDialog):
         self.about_button = self.findChild(QPushButton, 'about_button')
         self.continue_button = self.findChild(QPushButton, 'continue_button')
         self.reset_list_projects_button = self.findChild(QPushButton, 'reset_list_projects_button')
+
+        self.create_button.setIcon(self.new_icon)
+        self.load_button.setIcon(self.load_icon)
+        self.about_button.setIcon(self.icon)
+        self.reset_list_projects_button.setIcon(self.reset_icon)
 
         self.create_button.clicked.connect(self.newProject)
         self.load_button.clicked.connect(self.loadProject)
@@ -128,7 +130,7 @@ class GetStartedInput(QDialog):
     def aboutProject(self):
         window_title = "OpenPulse" 
         message_title = "Version information"
-        message = "OpenPulse Beta Version (August, 2021)"
+        message = "OpenPulse Gamma Version (October, 2021)"
         PrintMessageInput([message_title, message, window_title])
 
     def loadRecentProject(self, dir):
@@ -137,11 +139,15 @@ class GetStartedInput(QDialog):
             self.close()
 
     def reset_list_projects(self):
-        title = f"Resetting the recent projects list"
-        message = "Do you really want to proceed with the\n 'Recent Projects' list resetting)?\n\n"
+        title = f"Resetting of the recent projects list"
+        message = "Dear user, do you want to proceed with the 'Recent Projects' list clean-up and resetting?\n\n"
         message += "\n\nPress the Continue button to proceed with the resetting or press Cancel or "
         message += "\nClose buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        
+        if read._doNotRun:
+            return
+
         if read._continue:
             self.config.resetRecentProjectList()
             self.initial_actions()

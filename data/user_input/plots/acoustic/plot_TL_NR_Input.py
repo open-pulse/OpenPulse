@@ -212,12 +212,12 @@ class Plot_TL_NR_Input(QDialog):
         lineEdit_input = self.lineEdit_inputNodeID.text()
         stop, self.input_node_ID = self.before_run.check_input_NodeID(lineEdit_input, single_ID=True)
         if stop:
-            return
+            return True
 
         lineEdit_output = self.lineEdit_outputNodeID.text()
         stop, self.output_node_ID = self.before_run.check_input_NodeID(lineEdit_output, single_ID=True)
         if stop:
-            return
+            return True
 
         if export:
             return
@@ -265,7 +265,8 @@ class Plot_TL_NR_Input(QDialog):
             PrintMessageInput([title, message, window_title1])            
             return
             
-        self.check(export=True)
+        if self.check(export=True):
+            return
         data = self.get_TL_NR()
 
         if self.stop:

@@ -246,7 +246,7 @@ class opvAnalysisRenderer(vtkRendererBase):
             return
 
         title = "Processing in progress"
-        message = "The animation frames calculation is in progress." 
+        message = "The animation frames calculation is in progress..." 
         LoadingScreen(title, message, target=cache_callback)
 
     def pauseAnimation(self):

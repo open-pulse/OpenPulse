@@ -61,6 +61,7 @@ class LoadingScreen(QDialog):
 
         self.label_title.setAlignment(Qt.AlignTop)
         self.label_animation.setAlignment(Qt.AlignCenter)
+        self.setWindowTitle("OpenPulse @Gamma version (2021)")
 
         self.config_title()
         self.config_message()

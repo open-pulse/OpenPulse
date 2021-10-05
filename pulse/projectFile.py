@@ -1100,7 +1100,7 @@ class ProjectFile:
         config.read(self._entity_path)
 
         for line_id in lines:
-            config[str(line_id)]['material_id'] = str(material_id)
+            config[str(line_id)]['material id'] = str(material_id)
             
         self.write_data_in_file(self._entity_path, config)
 
