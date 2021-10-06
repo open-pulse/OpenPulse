@@ -801,7 +801,7 @@ class Project:
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
         updated = False
-        if self.list_frequencies == []:
+        if self.list_frequencies == [] or not self.check_if_are_there_tables_in_model():
             updated = True
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:
