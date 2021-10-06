@@ -746,8 +746,7 @@ class ExpansionJointInput(QDialog):
                 return None, None
 
             imported_filename = os.path.basename(self.path_imported_table)
-            lineEdit.setText(self.path_imported_table)
-                        
+            lineEdit.setText(self.path_imported_table)   
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
                 
             if imported_file.shape[1]<2:
@@ -766,7 +765,7 @@ class ExpansionJointInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                        
-                if self.project.change_project_frequency_setup(stiffness_label, list(self.frequencies)):
+                if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
                     self.stop = True
                     return None, None
                 else:

@@ -384,11 +384,6 @@ class PerforatedPlateInput(QDialog):
             self.imported_filename = os.path.basename(self.path_imported_table)
             self.lineEdit_load_table_path.setText(self.path_imported_table)
 
-            # for ext_format in [".csv", ".dat", ".txt"]:
-            #     if ext_format in imported_basename:
-            #         first_string = imported_basename.split(ext_format)[0]
-            #         self.imported_filename = first_string.split(f"_table#")[0]
-
         except Exception as log_error:
             title = "Error while loading dimensionless impedance table file"
             message = str(log_error) 
@@ -422,7 +417,7 @@ class PerforatedPlateInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
 
-                if self.project.change_project_frequency_setup("Perforated plate", list(self.frequencies)):
+                if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
                     self.lineEdit_reset(self.lineEdit_load_table_path)
                     return
                 else:

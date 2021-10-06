@@ -175,12 +175,12 @@ class SpecificImpedanceInput(QDialog):
             self.lineEdit_specific_impedance_real.setFocus()
 
     def load_table(self, lineEdit, direct_load=False):
-        title = "Error reached while loading 'volume velocity' table"
+        title = "Error reached while loading 'specific impedance' table"
         try:
             if direct_load:
                 self.path_imported_table = lineEdit.text()
             else:
-                window_label = 'Choose a table to import the volume velocity'
+                window_label = 'Choose a table to import the specific impedance'
                 self.path_imported_table, _ = QFileDialog.getOpenFileName(None, window_label, self.userPath, 'Files (*.csv; *.dat; *.txt)')
 
             if self.path_imported_table == "":
@@ -206,7 +206,7 @@ class SpecificImpedanceInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                
-                if self.project.change_project_frequency_setup("Volume velocity", list(self.frequencies)):
+                if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
                     self.lineEdit_reset(self.lineEdit_load_table_path)
                     return None, None
                 else:

@@ -206,7 +206,7 @@ class AcousticPressureInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                
-                if self.project.change_project_frequency_setup("Acoustic pressure", list(self.frequencies)):
+                if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
                     self.lineEdit_reset(self.lineEdit_load_table_path)
                     return None, None
                 else:
@@ -334,20 +334,6 @@ class AcousticPressureInput(QDialog):
         if list_table_names != []:
             for table_name in list_table_names:
                 self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")            
-            # title = f"{label} - removal of imported table files"
-            # message = "Do you want to remove the following unused imported table \nfrom the project folder?\n\n"
-            # for table_name in list_table_names:
-            #     message += f"{table_name}\n"
-            # message += "\n\nPress the Continue button to proceed with removal or press Cancel or "
-            # message += "\nClose buttons to abort the current operation."
-            # read = CallDoubleConfirmationInput(title, message, leftButton_label="Cancel", rightButton_label="Continue")
-
-            # if read._doNotRun:
-            #     return
-
-            # if read._continue:
-            #     for table_name in list_table_names:
-            #         self.project.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")
 
     def check_reset(self):
         if len(self.preprocessor.nodes_with_acoustic_pressure)>0:

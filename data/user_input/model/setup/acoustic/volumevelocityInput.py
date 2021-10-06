@@ -207,7 +207,7 @@ class VolumeVelocityInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
                
-                if self.project.change_project_frequency_setup("Volume velocity", list(self.frequencies)):
+                if self.project.change_project_frequency_setup(imported_filename, list(self.frequencies)):
                     self.lineEdit_reset(self.lineEdit_load_table_path)
                     return None, None
                 else:

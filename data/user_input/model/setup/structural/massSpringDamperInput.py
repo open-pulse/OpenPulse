@@ -504,13 +504,7 @@ class MassSpringDamperInput(QDialog):
                 return None, None
             
             self.imported_filename = os.path.basename(self.path_imported_table)
-            lineEdit.setText(self.path_imported_table)
-          
-            # for ext_format in [".csv", ".dat", ".txt"]:
-            #     if ext_format in self.basename:
-            #         prefix_string = self.basename.split(ext_format)[0]
-            #         self.imported_filename = prefix_string.split(f"_{_label}_node_")[0]
-                        
+            lineEdit.setText(self.path_imported_table)                       
             imported_file = np.loadtxt(self.path_imported_table, delimiter=",")
         
             if imported_file.shape[1]<2:
@@ -527,7 +521,7 @@ class MassSpringDamperInput(QDialog):
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0]
 
-                if self.project.change_project_frequency_setup(_label, list(self.frequencies)):
+                if self.project.change_project_frequency_setup(self.imported_filename, list(self.frequencies)):
                     self.stop = True
                     return None, None
                 else:
