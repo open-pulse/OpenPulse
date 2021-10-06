@@ -72,19 +72,12 @@ class Project:
     def update_project_analysis_setup_state(self, _bool):
         self.setup_analysis_complete = _bool
 
-    def check_if_are_there_tables_in_model(self):
+    def check_if_there_are_tables_at_the_model(self):
         if os.path.exists(self.file._structural_imported_data_folder_path):
             return True
         if os.path.exists(self.file._acoustic_imported_data_folder_path):
             return True
         return False
-        # list_structural_table_names = os.listdir(self.file._structural_imported_data_folder_path).copy()
-        # if len(list_structural_table_names) > 0:
-        #     return True
-        # list_acoustic_table_names = os.listdir(self.file._acoustic_imported_data_folder_path).copy()
-        # if len(list_acoustic_table_names) > 0:
-        #     return True 
-        # return False       
 
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
@@ -801,7 +794,7 @@ class Project:
         if isinstance(frequencies, np.ndarray):
             frequencies = list(frequencies)
         updated = False
-        if self.list_frequencies == [] or not self.check_if_are_there_tables_in_model():
+        if self.list_frequencies == [] or not self.check_if_there_are_tables_at_the_model():
             updated = True
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:
