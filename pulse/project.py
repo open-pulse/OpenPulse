@@ -9,6 +9,7 @@ from pulse.projectFile import ProjectFile
 from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.loadingScreen import LoadingScreen
 
 import numpy as np
 import configparser
@@ -117,8 +118,10 @@ class Project:
         self._project_name = project_name
          
     def load_project(self, project_file_path):
-        self.initial_load_project_actions(project_file_path)
-        self.load_project_files()
+        def callback():
+            self.initial_load_project_actions(project_file_path)
+            self.load_project_files()
+        LoadingScreen('Loading Project', target=callback)
     
     def initial_load_project_actions(self, project_file_path):
         try:

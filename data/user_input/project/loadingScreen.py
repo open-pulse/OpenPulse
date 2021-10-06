@@ -58,6 +58,7 @@ class LoadingScreen(QDialog):
         self.setMinimumSize(QSize(400, 200))
         self.setMaximumSize(QSize(400, 800))
         self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
 
         self.label_title.setAlignment(Qt.AlignTop)
         self.label_animation.setAlignment(Qt.AlignCenter)
