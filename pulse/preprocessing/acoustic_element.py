@@ -1,7 +1,7 @@
 from math import sqrt, pi
 import numpy as np
 from scipy.special import jv, struve, hankel1
-from scipy.optimize import minimize
+from scipy.optimize import minimize, Bounds
 from pulse.preprocessing.perforated_plate import Foks_function
 from pulse.preprocessing.node import distance
 
@@ -457,10 +457,9 @@ class AcousticElement:
 
             # TODO: prt warning por pr<0.5
             prt = 0.87
-
-            def transcedental(ur):
-                return (U - ur*(2.44 * np.log(ur * di/(2*nu)) + 2) )**2
-            res = minimize(lambda x: transcedental(x), x0=0.5)
+            transc = lambda x: (U - x*(2.44 * np.log(x * di/(2*nu)) + 2) )**2
+            bound = Bounds(0, c0)
+            res = minimize(transc, 0.5, method='trust-constr', bounds=bound )
 
             ur = res.x[0]
             w_ast = 0.01*ur**2/nu
