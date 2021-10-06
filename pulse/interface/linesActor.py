@@ -10,6 +10,7 @@ class LinesActor(vtkActorBase):
 
         self.elements = elements 
         self.project = project
+        # self.elements = project.preprocessor.structural_elements
 
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
         self._data = vtk.vtkPolyData()

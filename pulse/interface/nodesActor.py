@@ -10,6 +10,7 @@ class NodesActor(vtkActorBase):
 
         self.nodes = nodes 
         self.project = project
+        # self.nodes = project.preprocessor.nodes
 
         self._key_index = {j:i for i,j in enumerate(self.nodes.keys())}
         self._data = vtk.vtkPolyData()

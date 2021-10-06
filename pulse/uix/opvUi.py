@@ -179,6 +179,12 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer._renderer.ResetCamera()
         self.opvRenderer.update()
 
+        self.opvAnalysisRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
+        self.opvAnalysisRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
+        self.opvAnalysisRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
+        self.opvAnalysisRenderer._renderer.ResetCamera()
+        self.opvAnalysisRenderer.update()
+
     # def updateDialogs(self):
     #     pass
 

@@ -12,6 +12,8 @@ class TubeActor(vtkActorBase):
 
         self.elements = elements
         self.project = project
+        # self.elements = project.preprocessor.structural_elements
+
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}

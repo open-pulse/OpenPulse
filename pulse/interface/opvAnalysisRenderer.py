@@ -13,8 +13,6 @@ from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
-from threading import Thread, Lock
-
 
 class opvAnalysisRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -37,8 +35,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.animationIndex = 0
         self.delayCounter = 0
         self.increment = 1
-
-        self.logMessage = self.getLogMessage()
 
         # just ignore it 
         self.nodesBounds = dict()
@@ -260,11 +256,6 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.pauseAnimation()
         else:
             self.playAnimation()
-    
-    def getLogMessage(self):
-        title = "Processing in progress"
-        message = "The animation frames calculation in progress." 
-        return PrintMessageInput([title, message, "OpenPulse"], startnow=False)
 
     def _animationCallback(self, caller, event):
         if self._currentPlot is None:

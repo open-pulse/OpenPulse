@@ -34,6 +34,7 @@ class SymbolsActor(vtkActorBase):
         
         self.project = project
         self.nodes = nodes
+        # self.nodes = project.preprocessor.nodes
         self.deformed = deformed
         self.scaleFactor = 0.3
 
