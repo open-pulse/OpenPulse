@@ -806,7 +806,7 @@ class Project:
             self.list_frequencies = frequencies
         if self.list_frequencies == frequencies:
             if updated:
-                self.frequencies = frequencies
+                self.frequencies = np.array(frequencies)
                 self.f_min = self.frequencies[0]
                 self.f_max = self.frequencies[-1]
                 self.f_step = self.frequencies[1] - self.frequencies[0] 
@@ -821,9 +821,6 @@ class Project:
             message += f"\n\n{table_name}"
             PrintMessageInput([title, message, window_title])
             return True
-
-    def get_frequency_setup(self):
-        return self.f_min, self.f_max, self.f_step
 
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)

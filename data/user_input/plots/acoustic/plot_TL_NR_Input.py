@@ -52,7 +52,7 @@ class SnaptoCursor(object):
 
 
 class Plot_TL_NR_Input(QDialog):
-    def __init__(self, project, opv, analysisMethod, frequencies, solution, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plot_TL_NR_Input.ui', self)
 
@@ -79,7 +79,7 @@ class Plot_TL_NR_Input(QDialog):
         self.save_path = ""
         
         self.analysisMethod = analysisMethod
-        self.frequencies = frequencies
+        self.frequencies = project.frequencies
         self.solution = solution
 
         self.mag = False

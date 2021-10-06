@@ -56,7 +56,7 @@ class SnaptoCursor(object):
 
 
 class PlotReactionsInput(QDialog):
-    def __init__(self, opv, project, analysisMethod, frequencies, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotReactionsInput.ui', self)
 
@@ -72,6 +72,7 @@ class PlotReactionsInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
+        self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_model_checks()
 
@@ -79,7 +80,7 @@ class PlotReactionsInput(QDialog):
         self.dict_reactions_at_constrained_dofs, self.dict_reactions_at_springs, self.dict_reactions_at_dampers = reactions
 
         self.analysisMethod = analysisMethod
-        self.frequencies = frequencies
+        self.frequencies = project.frequencies
         
         self.node_ID = 0
         self.imported_data = None

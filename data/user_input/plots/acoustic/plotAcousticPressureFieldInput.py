@@ -8,7 +8,7 @@ import numpy as np
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotAcousticPressureFieldInput(QDialog):
-    def __init__(self, opv, frequencies, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticPressureFieldInput.ui', self)
 
@@ -21,7 +21,9 @@ class PlotAcousticPressureFieldInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.frequencies = frequencies
+        self.project = project
+
+        self.frequencies = project.frequencies
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None
 
@@ -54,7 +56,7 @@ class PlotAcousticPressureFieldInput(QDialog):
         else:
             frequency_selected = float(self.lineEdit.text())
             self.frequency = self.frequency_to_index[frequency_selected]
-            
+            self.opv.changeAndPlotAnalysis(self.frequency, pressure_field_plot=True)
         self.close()
 
     def load(self):

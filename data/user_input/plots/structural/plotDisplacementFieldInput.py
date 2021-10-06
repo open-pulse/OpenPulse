@@ -9,7 +9,7 @@ import numpy as np
 from data.user_input.project.printMessageInput import PrintMessageInput
 
 class PlotDisplacementFieldInput(QDialog):
-    def __init__(self, opv, frequencies, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotDisplacementFieldInput.ui', self)
@@ -23,7 +23,8 @@ class PlotDisplacementFieldInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.frequencies = frequencies
+        self.project = project
+        self.frequencies = project.frequencies
         
         self.frequency_to_index = dict(zip(self.frequencies, np.arange(len(self.frequencies), dtype=int)))
         self.frequency = None

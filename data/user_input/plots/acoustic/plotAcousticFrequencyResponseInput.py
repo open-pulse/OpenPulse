@@ -52,7 +52,7 @@ class SnaptoCursor(object):
 
 
 class PlotAcousticFrequencyResponseInput(QDialog):
-    def __init__(self, project, opv, analysisMethod, frequencies, solution, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, solution, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticFrequencyResponseInput.ui', self)
 
@@ -73,7 +73,7 @@ class PlotAcousticFrequencyResponseInput(QDialog):
 
         self.nodes = self.preprocessor.nodes
         self.analysisMethod = analysisMethod
-        self.frequencies = frequencies
+        self.frequencies = project.frequencies
         self.solution = solution
 
         self.userPath = os.path.expanduser('~')

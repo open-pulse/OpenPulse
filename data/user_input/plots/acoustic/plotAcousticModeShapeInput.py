@@ -13,7 +13,7 @@ window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
 
 class PlotAcousticModeShapeInput(QDialog):
-    def __init__(self, opv, natural_frequencies, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Acoustic/plotAcousticModeShapeInput.ui', self)
 
@@ -26,7 +26,8 @@ class PlotAcousticModeShapeInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.natural_frequencies = natural_frequencies
+        self.project = project
+        self.natural_frequencies = project.natural_frequencies_acoustic
         self.mode_index = None
 
         self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
@@ -76,6 +77,7 @@ class PlotAcousticModeShapeInput(QDialog):
         else:
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
+            self.opv.changeAndPlotAnalysis(self.mode_index, pressure_field_plot=True, real_part=self.flag_real_part)
 
         if message != "":
             PrintMessageInput(self.text_data)

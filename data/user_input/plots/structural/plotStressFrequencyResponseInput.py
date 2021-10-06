@@ -52,7 +52,7 @@ window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 
 class PlotStressFrequencyResponseInput(QDialog):
-    def __init__(self, opv, project, analysisMethod, *args, **kwargs):
+    def __init__(self, project, opv, analysisMethod, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStressFrequencyResponseInput.ui', self)
 

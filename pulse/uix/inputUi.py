@@ -69,7 +69,6 @@ class InputUi:
         self.opv = self.parent.getOPVWidget()
         
         self.analysis_ID = None
-        self.frequencies = None
         self.global_damping = [0,0,0,0]
 
         self.project.none_project_action = False
@@ -245,29 +244,15 @@ class InputUi:
         if self.project.file._project_name == "":
             return False
 
-        self.project.load_analysis_file()
-        f_min, f_max, f_step = self.project.get_frequency_setup() 
-        self.global_damping = self.project.global_damping  
-
-        read = self.processInput(AnalysisSetupInput, self.project, f_min=f_min, f_max=f_max, f_step=f_step)
-        self.project.update_project_analysis_setup_state(read.complete)
-
-        if not read.complete:
+        read = self.processInput(AnalysisSetupInput, self.project)
+        
+        if read.complete:
+            if read.flag_run:
+                self.runAnalysis() 
+            return True   
+        else:
             return False
-        
-        self.frequencies = read.frequencies
-        self.global_damping = read.global_damping
-        
-        self.project.set_frequencies(self.frequencies, read.f_min, read.f_max, read.f_step)
-
-        if not self.analysis_ID in [3,4]:
-            self.project.set_modes_sigma(read.modes)
-            self.project.set_damping(self.global_damping)
        
-        if read.flag_run:
-            self.runAnalysis()
-        return True
-    
     def runAnalysis(self):
 
         # t0 = time()
@@ -298,7 +283,7 @@ class InputUi:
             if self.analysis_ID == 2:
                 if solution is None:
                     return
-                plot = self.processInput(PlotStructuralModeShapeInput, self.opv, self.project.natural_frequencies_structural)
+                plot = self.processInput(PlotStructuralModeShapeInput, self.project, self.opv)
                 if plot.mode_index is None:
                     return
                 self.opv.changeAndPlotAnalysis(plot.mode_index)
@@ -311,7 +296,7 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             if solution is None:
                 return
-            plot = self.processInput(PlotDisplacementFieldInput, self.opv, self.frequencies)
+            plot = self.processInput(PlotDisplacementFieldInput, self.project, self.opv)
             if plot.frequency is None:
                 return
             self.opv.changeAndPlotAnalysis(plot.frequency)
@@ -323,10 +308,7 @@ class InputUi:
         if self.analysis_ID == 4:
             if solution is None:
                 return
-            plot = self.processInput(PlotAcousticModeShapeInput, self.opv, self.project.natural_frequencies_acoustic)
-            if plot.mode_index is None:
-                return
-            self.opv.changeAndPlotAnalysis(plot.mode_index, pressure_field_plot=True, real_part=plot.flag_real_part)
+            self.processInput(PlotAcousticModeShapeInput, self.project, self.opv)           
 
     def plotAcousticPressureField(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -336,10 +318,7 @@ class InputUi:
         if self.analysis_ID in [3,5,6]:
             if solution is None:
                 return
-            plot = self.processInput(PlotAcousticPressureFieldInput, self.opv, self.frequencies)
-            if plot.frequency is None:
-                return
-            self.opv.changeAndPlotAnalysis(plot.frequency, pressure_field_plot=True)
+            self.processInput(PlotAcousticPressureFieldInput, self.project, self.opv)           
 
     def plotStructuralFrequencyResponse(self):
         if self.analysis_ID in [0,1,5,6]:
@@ -347,7 +326,7 @@ class InputUi:
             if solution is None:
                 return
             self.processInput(  PlotStructuralFrequencyResponseInput, self.project, self.opv, 
-                                self.analysis_method_label, self.frequencies, solution  )
+                                self.analysis_method_label, solution  )
 
     def plotAcousticFrequencyResponse(self):
         if self.analysis_ID in [3,5,6]:
@@ -355,7 +334,7 @@ class InputUi:
             if solution is None:
                 return
             self.processInput(  PlotAcousticFrequencyResponseInput, self.project, self.opv, 
-                                self.analysis_method_label, self.frequencies, solution )
+                                self.analysis_method_label, solution )
 
     def plot_TL_NR(self):
         if self.analysis_ID in [3,5,6]:
@@ -363,7 +342,7 @@ class InputUi:
             if solution is None:
                 return
             self.processInput(  Plot_TL_NR_Input, self.project, self.opv, 
-                                self.analysis_method_label, self.frequencies, solution  )
+                                self.analysis_method_label, solution  )
 
     def plotStressField(self):
         self.project.plot_pressure_field = False
@@ -380,12 +359,11 @@ class InputUi:
             solution = self.project.get_structural_solution()
             if solution is None:
                 return
-            self.processInput(PlotStressFrequencyResponseInput, self.opv, self.project, self.analysis_method_label)
+            self.processInput(PlotStressFrequencyResponseInput, self.project, self.opv, self.analysis_method_label)
 
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0,1,5,6]:
-            self.processInput(PlotReactionsInput, self.opv,self.project, self.analysis_method_label, self.frequencies)
-            return
+            self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
 
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)

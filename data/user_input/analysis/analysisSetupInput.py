@@ -10,7 +10,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 window_title = "ERROR"
 
 class AnalysisSetupInput(QDialog):
-    def __init__(self, project, f_min = 0, f_max = 0, f_step = 0):
+    def __init__(self, project):
         super().__init__()
        
         """
@@ -50,9 +50,9 @@ class AnalysisSetupInput(QDialog):
         self.flag_run = False
         self.frequencies = []
 
-        self.f_min = f_min
-        self.f_max = f_max
-        self.f_step = f_step
+        self.f_min = project.f_min
+        self.f_max = project.f_max
+        self.f_step = project.f_step
 
         self.global_damping = project.global_damping
         self.modes = 0
@@ -174,12 +174,18 @@ class AnalysisSetupInput(QDialog):
                 return True
 
         self.global_damping = [alpha_v, beta_v, alpha_h, beta_h]
+        self.project.set_damping(self.global_damping)
 
-        self.f_min = input_fmin
-        self.f_max = input_fmax
-        self.f_step = input_fstep
-        self.frequencies = np.arange(input_fmin, input_fmax+input_fstep, input_fstep)
+        if self.project.check_if_are_there_tables_in_model():
+            self.frequencies = self.project.frequencies
+        else:
+            self.frequencies = np.arange(input_fmin, input_fmax+input_fstep, input_fstep)
+            self.project.set_frequencies(self.frequencies, input_fmin, input_fmax, input_fstep)
         
+        if not self.analysis_ID in [3,4]:
+            self.project.set_modes_sigma(self.modes)
+
+        self.project.update_project_analysis_setup_state(True)
         self.complete = True
         self.close()
         return False

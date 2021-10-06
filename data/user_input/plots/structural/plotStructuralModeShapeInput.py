@@ -13,7 +13,7 @@ window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
 
 class PlotStructuralModeShapeInput(QDialog):
-    def __init__(self, opv, natural_frequencies, *args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Results/Structural/plotStructuralModeShapeInput.ui', self)
 
@@ -26,7 +26,8 @@ class PlotStructuralModeShapeInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.natural_frequencies = natural_frequencies
+        self.project = project
+        self.natural_frequencies = self.project.natural_frequencies_structural
         self.mode_index = None
 
         self.lineEdit_natural_frequency = self.findChild(QLineEdit, 'lineEdit_natural_frequency')
