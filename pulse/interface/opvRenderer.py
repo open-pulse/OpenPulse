@@ -154,8 +154,7 @@ class opvRenderer(vtkRendererBase):
 
         self.opvNodes.setColor(nodesColor)
         self.opvLines.setColor(linesColor)
-        self.opvTubes.setColor(tubesColor)
-
+        self.opvTubes.useMaterialColor()
     
     def highlight(self, obj, event):
         visual = [self.opvNodes, self.opvLines, self.opvTubes]

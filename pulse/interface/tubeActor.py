@@ -25,6 +25,7 @@ class TubeActor(vtkActorBase):
         self._mapper = vtk.vtkGlyph3DMapper()
         self.colorTable = None
         self._colors = vtk.vtkUnsignedCharArray()
+        self._defaultColors = vtk.vtkUnsignedCharArray()
         self._colors.SetNumberOfComponents(3)
         self._colors.SetNumberOfTuples(len(self.elements))
 
@@ -62,7 +63,7 @@ class TubeActor(vtkActorBase):
             section_rotation_xyz = element.section_rotation_xyz_undeformed
 
             rotations.InsertNextTuple(section_rotation_xyz)
-            self._colors.InsertNextTuple((255,255,255))
+            self._colors.InsertNextTuple((170, 170, 170))
             
             key = (element.cross_section, round(element.length, 4))
             if key not in cache:
@@ -76,6 +77,7 @@ class TubeActor(vtkActorBase):
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)
         self._data.GetPointData().SetScalars(self._colors)
+        self._defaultColors.DeepCopy(self._colors)
 
     def map(self):
         self._mapper.SetInputData(self._data)
@@ -92,6 +94,20 @@ class TubeActor(vtkActorBase):
     def actor(self):
         self._actor.SetMapper(self._mapper)
         self._actor.GetProperty().BackfaceCullingOff()
+
+    def useMaterialColor(self):
+        c = vtk.vtkUnsignedCharArray()
+        c.DeepCopy(self._colors)
+
+        for index, element in enumerate(self.elements.values()):
+            # WHO TF MADE MATERIAL COLOR A STRING THAT LOOKS LIKE A LIST
+            # INSTEAD OF AN ACTUAL LIST/TUPLE??????
+            color = tuple(int(i) for i in element.material.color.strip("[]").split(","))
+            c.SetTuple(index, color)
+
+        self._data.GetPointData().SetScalars(c)
+        self._colors = c
+        self._mapper.Update()
 
     def setColor(self, color, keys=None):
         c = vtk.vtkUnsignedCharArray()

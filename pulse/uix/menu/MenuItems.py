@@ -374,9 +374,9 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_set_material:
             if not self.item_child_set_material.isDisabled():
-                self.update_plot_entities()
+                self.update_plot_entities_with_cross_section()
                 self.mainWindow.getInputWidget().set_material()
-                self.mainWindow.plot_entities()
+                self.mainWindow.plot_entities_with_cross_section()
 
         elif item == self.item_child_set_fluid:
             if not self.item_child_set_fluid.isDisabled(): 
