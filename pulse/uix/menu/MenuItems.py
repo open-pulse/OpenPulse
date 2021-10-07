@@ -145,6 +145,7 @@ class MenuItems(QTreeWidget):
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
         self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
         self.item_child_set_material = QTreeWidgetItem(['Set Material'])
+        self.item_child_set_fluid = QTreeWidgetItem(['Set Fluid'])
         self.item_child_set_crossSection = QTreeWidgetItem(['Set Cross-Section'])
         #
         self.list_top_items.append(self.item_top_generalSettings)
@@ -153,11 +154,12 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_setGeometryFile)
         self.list_child_items.append(self.item_child_setMeshProperties)
         self.list_child_items.append(self.item_child_set_material)
+        self.list_child_items.append(self.item_child_set_fluid)
         self.list_child_items.append(self.item_child_set_crossSection)
         #
         self.item_top_structuralModelSetup = QTreeWidgetItem(['Structural Model Setup'])
-        self.item_child_addFlanges = QTreeWidgetItem(['Add Connecting Flanges'])
         self.item_child_setStructuralElementType = QTreeWidgetItem(['Set Structural Element Type'])
+        self.item_child_addFlanges = QTreeWidgetItem(['Add Connecting Flanges'])
         self.item_child_setBeamXaxisRotation = QTreeWidgetItem(['Set Beam X-axis Rotation'])
         self.item_child_setRotationDecoupling = QTreeWidgetItem(['Set Rotation Decoupling'])
         self.item_child_setPrescribedDofs = QTreeWidgetItem(['Set Prescribed DOFs'])
@@ -169,8 +171,8 @@ class MenuItems(QTreeWidget):
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
         self.list_top_items.append(self.item_top_structuralModelSetup)
-        self.list_child_items.append(self.item_child_addFlanges)
         self.list_child_items.append(self.item_child_setStructuralElementType)
+        self.list_child_items.append(self.item_child_addFlanges)
         self.list_child_items.append(self.item_child_setBeamXaxisRotation)
         self.list_child_items.append(self.item_child_setRotationDecoupling)
         self.list_child_items.append(self.item_child_setPrescribedDofs)
@@ -183,7 +185,6 @@ class MenuItems(QTreeWidget):
         #
         self.item_top_acousticModelSetup = QTreeWidgetItem(['Acoustic Model Setup'])
         self.item_child_setAcousticElementType = QTreeWidgetItem(['Set Acoustic Element Type'])
-        self.item_child_set_fluid = QTreeWidgetItem(['Set Fluid'])
         self.item_child_setAcousticPressure = QTreeWidgetItem(['Set Acoustic Pressure'])
         self.item_child_setVolumeVelocity = QTreeWidgetItem(['Set Volume Velocity'])
         self.item_child_setSpecificImpedance = QTreeWidgetItem(['Set Specific Impedance'])
@@ -194,7 +195,6 @@ class MenuItems(QTreeWidget):
         #
         self.list_top_items.append(self.item_top_acousticModelSetup)
         self.list_child_items.append(self.item_child_setAcousticElementType)
-        self.list_child_items.append(self.item_child_set_fluid)
         self.list_child_items.append(self.item_child_setAcousticPressure)
         self.list_child_items.append(self.item_child_setVolumeVelocity)
         self.list_child_items.append(self.item_child_setSpecificImpedance)
@@ -249,11 +249,12 @@ class MenuItems(QTreeWidget):
         self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
         self.item_top_generalSettings.addChild(self.item_child_setGeometryFile)
         self.item_top_generalSettings.addChild(self.item_child_set_material)
+        self.item_top_generalSettings.addChild(self.item_child_set_fluid)
         self.item_top_generalSettings.addChild(self.item_child_set_crossSection)
         
         self.addTopLevelItem(self.item_top_structuralModelSetup)
-        self.item_top_structuralModelSetup.addChild(self.item_child_addFlanges)
         self.item_top_structuralModelSetup.addChild(self.item_child_setStructuralElementType)
+        self.item_top_structuralModelSetup.addChild(self.item_child_addFlanges)
         self.item_top_structuralModelSetup.addChild(self.item_child_setBeamXaxisRotation)
         self.item_top_structuralModelSetup.addChild(self.item_child_setPrescribedDofs)
         self.item_top_structuralModelSetup.addChild(self.item_child_setRotationDecoupling)
@@ -266,7 +267,6 @@ class MenuItems(QTreeWidget):
         
         self.addTopLevelItem(self.item_top_acousticModelSetup)
         self.item_top_acousticModelSetup.addChild(self.item_child_setAcousticElementType)    
-        self.item_top_acousticModelSetup.addChild(self.item_child_set_fluid)             
         self.item_top_acousticModelSetup.addChild(self.item_child_setAcousticPressure) 
         self.item_top_acousticModelSetup.addChild(self.item_child_setVolumeVelocity)     
         self.item_top_acousticModelSetup.addChild(self.item_child_setSpecificImpedance)
@@ -378,6 +378,12 @@ class MenuItems(QTreeWidget):
                 self.mainWindow.getInputWidget().set_material()
                 self.mainWindow.plot_entities()
 
+        elif item == self.item_child_set_fluid:
+            if not self.item_child_set_fluid.isDisabled(): 
+                self.update_plot_entities()
+                self.mainWindow.getInputWidget().set_fluid()
+                self.mainWindow.plot_entities()
+
         elif item == self.item_child_set_crossSection:
             if not self.item_child_set_crossSection.isDisabled():
                 if self.mainWindow.getInputWidget().set_cross_section():
@@ -446,12 +452,6 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setAcousticElementType.isDisabled():
                 self.update_plot_entities()
                 self.mainWindow.getInputWidget().set_acoustic_element_type()
-                self.mainWindow.plot_entities()
-
-        elif item == self.item_child_set_fluid:
-            if not self.item_child_set_fluid.isDisabled(): 
-                self.update_plot_entities()
-                self.mainWindow.getInputWidget().set_fluid()
                 self.mainWindow.plot_entities()
 
         elif item == self.item_child_setAcousticPressure:
@@ -561,11 +561,12 @@ class MenuItems(QTreeWidget):
         self.item_child_setProjectAttributes.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
-        #
-        self.item_child_addFlanges.setDisabled(bool_key)
-        self.item_child_setStructuralElementType.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
+        self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_set_crossSection.setDisabled(bool_key)
+        #
+        self.item_child_setStructuralElementType.setDisabled(bool_key) 
+        self.item_child_addFlanges.setDisabled(bool_key) 
         self.item_child_setBeamXaxisRotation.setDisabled(bool_key)
         self.item_child_setPrescribedDofs.setDisabled(bool_key)
         self.item_child_setRotationDecoupling.setDisabled(bool_key)
@@ -577,7 +578,6 @@ class MenuItems(QTreeWidget):
         self.item_child_add_expansion_joint.setDisabled(bool_key)   
         #   
         self.item_child_setAcousticElementType.setDisabled(bool_key)
-        self.item_child_set_fluid.setDisabled(bool_key)
         self.item_child_setAcousticPressure.setDisabled(bool_key)
         self.item_child_setVolumeVelocity.setDisabled(bool_key)
         self.item_child_setSpecificImpedance.setDisabled(bool_key)

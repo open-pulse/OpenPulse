@@ -6,6 +6,7 @@ from data.user_input.project.resetProjectInput import ResetProjectInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
+from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 #
 from data.user_input.model.setup.structural.structuralElementTypeInput import StructuralElementTypeInput
 from data.user_input.model.setup.structural.materialInput import MaterialInput
@@ -370,6 +371,9 @@ class InputUi:
 
     def acoustic_model_info(self):
         self.processInput(AcousticModelInfoInput, self.project, self.opv)
+
+    def about_OpenPulse(self):
+        self.processInput(AboutOpenPulseInput, self.project)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
