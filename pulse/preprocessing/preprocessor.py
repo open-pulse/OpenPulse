@@ -983,22 +983,24 @@ class Preprocessor:
                 temp_dict = self.dict_structural_element_type_to_lines.copy()
                 if element_type not in list(temp_dict.keys()):
                     self.dict_structural_element_type_to_lines[element_type].append(line)
-                    for key, lines in temp_dict.items():
+                    for key, list_lines in temp_dict.items():
                         if key != element_type:
-                            if line in lines:
+                            if line in list_lines:
                                 self.dict_structural_element_type_to_lines[key].remove(line)
+                            if self.dict_structural_element_type_to_lines[key] == []:
+                                self.dict_structural_element_type_to_lines.pop(key)
                 else:
-                    for key, lines in temp_dict.items():
+                    for key, list_lines in temp_dict.items():
                         if key != element_type:
-                            if line in lines:
+                            if line in list_lines:
                                 self.dict_structural_element_type_to_lines[key].remove(line)
                         else:
-                            if line not in lines:
+                            if line not in list_lines:
                                 self.dict_structural_element_type_to_lines[key].append(line)
                         if self.dict_structural_element_type_to_lines[key] == []:
                             self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_lines(self, line, element_type, proportional_damping=None, mean_velocity=None, remove=False):
+    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, mean_velocity=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -1018,29 +1020,37 @@ class Preprocessor:
             True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
             Default is False.
         """
-        for elements in slicer(self.line_to_elements, line):
-            self.set_acoustic_element_type_by_element(elements, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        if isinstance(lines, int):
+            lines = [lines]
 
-        if remove:
-            self.dict_acoustic_element_type_to_lines.pop(element_type)
-        elif element_type != "":
-            temp_dict = self.dict_acoustic_element_type_to_lines.copy()
-            if element_type not in list(temp_dict.keys()):
-                self.dict_acoustic_element_type_to_lines[element_type].append(line)
-                for key, lines in temp_dict.items():
-                    if key != element_type:
-                        if line in lines:
-                            self.dict_acoustic_element_type_to_lines[key].remove(line)
-            else:
-                for key, lines in temp_dict.items():
-                    if key != element_type:
-                        if line in lines:
-                            self.dict_acoustic_element_type_to_lines[key].remove(line)
-                    else:
-                        if line not in lines:
-                            self.dict_acoustic_element_type_to_lines[key].append(line)
-                    if self.dict_acoustic_element_type_to_lines[key] == []:
-                        self.dict_acoustic_element_type_to_lines.pop(key)
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_acoustic_element_type_by_element(  elements, element_type, 
+                                                        proportional_damping = proportional_damping, 
+                                                        mean_velocity = mean_velocity  )
+        
+        for line in lines:
+            if remove:
+                self.dict_acoustic_element_type_to_lines.pop(element_type)
+            elif element_type != "":
+                temp_dict = self.dict_acoustic_element_type_to_lines.copy()
+                if element_type not in list(temp_dict.keys()):
+                    self.dict_acoustic_element_type_to_lines[element_type].append(line)
+                    for key, list_lines in temp_dict.items():
+                        if key != element_type:
+                            if line in list_lines:
+                                self.dict_acoustic_element_type_to_lines[key].remove(line)
+                            if self.dict_acoustic_element_type_to_lines[key] == []:
+                                self.dict_acoustic_element_type_to_lines.pop(key)
+                else:
+                    for key, list_lines in temp_dict.items():
+                        if key != element_type:
+                            if line in list_lines:
+                                self.dict_acoustic_element_type_to_lines[key].remove(line)
+                        else:
+                            if line not in list_lines:
+                                self.dict_acoustic_element_type_to_lines[key].append(line)
+                        if self.dict_acoustic_element_type_to_lines[key] == []:
+                            self.dict_acoustic_element_type_to_lines.pop(key)
 
     # Structural physical quantities
     def set_material_by_element(self, elements, material):

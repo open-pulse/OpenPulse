@@ -56,7 +56,7 @@ class SnaptoCursor(object):
 class PerforatedPlateInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/PerforatedPlateInput.ui', self)
+        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/_perforatedPlateInput.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')

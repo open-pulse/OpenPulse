@@ -872,14 +872,22 @@ class Project:
         self._set_structural_element_type_to_selected_lines(entities, element_type)
         self.file.modify_structural_element_type_in_file(entities, element_type)
         
-    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, mean_velocity = None):
+    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping = None, mean_velocity = None):
         if self.file.get_import_type() == 0:
-            self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, proportional_damping=proportional_damping, mean_velocity = mean_velocity)
+            self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, 
+                                                                 proportional_damping = proportional_damping, 
+                                                                 mean_velocity = mean_velocity)
         elif self.file.get_import_type() == 1:
-            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping)
+            self.preprocessor.set_acoustic_element_type_by_element('all', element_type, 
+                                                                   proportional_damping = proportional_damping,
+                                                                   mean_velocity = mean_velocity)
 
-        self._set_acoustic_element_type_to_selected_lines(lines, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
-        self.file.modify_acoustic_element_type_in_file(lines, element_type, proportional_damping=proportional_damping, mean_velocity=mean_velocity)
+        self._set_acoustic_element_type_to_selected_lines(lines, element_type, 
+                                                          proportional_damping = proportional_damping, 
+                                                          mean_velocity = mean_velocity)
+        self.file.modify_acoustic_element_type_in_file(lines, element_type, 
+                                                       proportional_damping = proportional_damping, 
+                                                       mean_velocity = mean_velocity)
 
     def set_beam_xaxis_rotation_by_line(self, line_id, delta_angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, delta_angle)
