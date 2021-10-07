@@ -116,6 +116,21 @@ class MainWindow(QMainWindow):
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
+        self.plot_material_action = QAction('&Plot Material', self)
+        self.plot_material_action.setShortcut('Ctrl+5')
+        self.plot_material_action.setStatusTip('Plot Material')
+        # self.plot_material_action.triggered.connect(self.getInputWidget().plot_material)
+
+        self.plot_fluid_action = QAction('&Plot Fluid', self)
+        self.plot_fluid_action.setShortcut('Ctrl+6')
+        self.plot_fluid_action.setStatusTip('Plot Fluid')
+        # self.plot_fluid_action.triggered.connect(self.getInputWidget().plot_fluid)
+
+        self.mesh_setup_visibility_action = QAction('&Mesh Setup Visibility', self)
+        self.mesh_setup_visibility_action.setShortcut('Ctrl+7')
+        self.mesh_setup_visibility_action.setStatusTip('Mesh Setup Visibility')
+        self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
+
         # General Settings
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
         self.setProjectAtributtes_action.setShortcut('Alt+1')
@@ -379,6 +394,9 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.mesh_action)
         self.graphicMenu.addAction(self.section_action)
+        self.graphicMenu.addAction(self.plot_material_action)
+        self.graphicMenu.addAction(self.plot_fluid_action)
+        self.graphicMenu.addAction(self.mesh_setup_visibility_action)
 
     def _loadGeneralSettingsMenu(self):
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)

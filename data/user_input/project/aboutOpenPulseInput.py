@@ -10,7 +10,7 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 class AboutOpenPulseInput(QDialog):
-    def __init__(self, project,*args, **kwargs):
+    def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Project/aboutOpenPulseInput.ui', self)
 
@@ -23,17 +23,29 @@ class AboutOpenPulseInput(QDialog):
 
         self.project = project
 
-        self.toolButton_repository = self.findChild(QToolButton, 'toolButton_repository')
-        self.toolButton_repository.clicked.connect(self.open_gitHub_repository)
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
 
-        self.label_version_information = self.findChild(QLabel, 'label_version_information')
-        self.label_version_information.setText("Gamma Version (v0.1.0 October 15th 2021)")
-        
+        self.opv = opv
+        self.opv.setInputObject(self)
+
+        version_info = "Gamma Version (v0.3.0 October 15th 2021)"
+        licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, MIT License."
         main_info = "OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. "
         main_info += "Openpulse allows the user to solve acoustic, structural, and coupled harmonic analyzes. The acoustic and structural modal analysis also can be "
         main_info += "solved in the current version. Further information is available in the OpenPulse repository at GitHub."
+
+        self.label_version_information = self.findChild(QLabel, 'label_version_information')
+        self.label_version_information.setText(version_info)
+        
+        self.label_licensing_information = self.findChild(QLabel, 'label_licensing_information')
+        self.label_licensing_information.setText(licensing_info)
+
         self.label_main_info = self.findChild(QLabel, 'label_main_info')
         self.label_main_info.setText(main_info)
+        
+        self.toolButton_repository = self.findChild(QToolButton, 'toolButton_repository')
+        self.toolButton_repository.clicked.connect(self.open_gitHub_repository)
 
         self.exec_()
 
@@ -44,13 +56,17 @@ class AboutOpenPulseInput(QDialog):
             self.close()
 
     def open_gitHub_repository(self):
-        url = QUrl('https://github.com/open-pulse/OpenPulse')
-        if not QDesktopServices.openUrl(url):
-            title = "Error reached while trying to access the project repository"
-            message = "The OpenPulse repository at the GitHub's site cannot be accessed.\n"
-            message += "We reccomend trying again later."
-            PrintMessageInput([title, message, "ERROR"])
-        
+        title = "Error reached while trying to access the project repository"
+        try:
+            url = QUrl('https://github.com/open-pulse/OpenPulse')
+            if not QDesktopServices.openUrl(url):
+                message = "The OpenPulse repository at the GitHub's site cannot be accessed.\n"
+                message += "We reccomend trying again later."
+                PrintMessageInput([title, message, "ERROR"])
+        except Exception as log_error:
+            message = str(log_error)
+            PrintMessageInput([title, message, "OpenPulse"])
+
     def createFont(self):
         self.font = QFont()
         self.font.setFamily("Arial")

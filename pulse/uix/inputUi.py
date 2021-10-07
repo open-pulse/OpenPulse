@@ -49,6 +49,7 @@ from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import Pl
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
 #
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
+from data.user_input.plots.render.meshSetupVisibilityInput import MeshSetupVisibilityInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 #
@@ -153,6 +154,9 @@ class InputUi:
 
     def plot_cross_section(self):
         self.processInput(PlotCrossSectionInput, self.project, self.opv)
+
+    def mesh_setup_visibility(self):
+        self.processInput(MeshSetupVisibilityInput, self.project, self.opv)
         
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)
@@ -373,7 +377,7 @@ class InputUi:
         self.processInput(AcousticModelInfoInput, self.project, self.opv)
 
     def about_OpenPulse(self):
-        self.processInput(AboutOpenPulseInput, self.project)
+        self.processInput(AboutOpenPulseInput, self.project, self.opv)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'
