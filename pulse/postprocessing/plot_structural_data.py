@@ -1,6 +1,8 @@
 import numpy as np
 from time import time
 from pulse.preprocessing.node import DOF_PER_NODE_STRUCTURAL
+from math import pi
+N_div = 20
 
 # this is temporary, and will be changed a lot
 def get_structural_frf(preprocessor, solution, node, dof, absolute=False, real=False, imaginary=False):
@@ -15,22 +17,57 @@ def get_structural_frf(preprocessor, solution, node, dof, absolute=False, real=F
         results = solution[position]
     return results
 
-def get_structural_response(preprocessor, solution, column, gain=None, new_scf=None, Normalize=True):
+def get_max_min_values_of_resultant_displacements(solution, column, new_scf=None, Normalize=True):
+    
+    data = np.abs(solution)
+    phases = np.angle(solution)
+    ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
+    
+    u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
+    _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
+                        phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
+    
+    r_min = 1
+    r_max = 0
+    thetas = np.arange(0, N_div+1, 1)*(2*pi)
+    for theta in thetas:
+        factor = np.cos(theta + _phases)
+        r_xyz = ((u_x*factor[:, 0])**2 + (u_y*factor[:, 1])**2 + (u_z*factor[:, 2])**2)**(1/2)
+
+        min_r_xyz = min(r_xyz)
+        max_r_xyz = max(r_xyz)
+
+        if min_r_xyz < r_min:
+            r_min = min_r_xyz
+        if max_r_xyz > r_max:
+            r_max = max_r_xyz
+ 
+    return r_min, r_max
+
+def get_structural_response(preprocessor, solution, column, phase_step=None, r_max=None,
+                            new_scf=None, Normalize=True, ):
+    
+    if r_max is None:
+        _, r_max = get_max_min_values_of_resultant_displacements(solution, column)
        
-    data = np.real(solution)
+    data = np.abs(solution)
+    phases = np.angle(solution)
     ind = np.arange( 0, data.shape[0], DOF_PER_NODE_STRUCTURAL )
     rows = int(data.shape[0]/DOF_PER_NODE_STRUCTURAL)
 
     u_x, u_y, u_z = data[ind+0, column], data[ind+1, column], data[ind+2, column]
-    r_xyz = ((u_x)**2 + (u_y)**2 + (u_z)**2)**(1/2) 
-    
+
+    _phases = np.array([phases[ind+0, column], phases[ind+1, column], phases[ind+2, column], 
+                        phases[ind+3, column], phases[ind+4, column], phases[ind+5, column]]).T
+
+
     if new_scf is None:
         scf = preprocessor.structure_principal_diagonal/50
     # else:
     #     scf = new_scf
 
     if Normalize:
-        r_max = max(r_xyz)
+        # r_max = max(r_xyz)
         if r_max==0:
             r_max=1
     else:
@@ -40,45 +77,34 @@ def get_structural_response(preprocessor, solution, column, gain=None, new_scf=N
     coord = preprocessor.nodal_coordinates_matrix
     connect = preprocessor.connectivity_matrix
 
-    if gain is None:
-        factor = (scf/r_max)
+    magnif_factor = scf/r_max
+    if phase_step is None:
+        factor = magnif_factor
     else:
-        factor = gain*(scf/r_max)
-
+        factor = magnif_factor*np.cos(phase_step + _phases)
+    
     coord_def[:,0] = coord[:,0]
-    coord_def[:,1] = coord[:,1] + u_x*factor
-    coord_def[:,2] = coord[:,2] + u_y*factor
-    coord_def[:,3] = coord[:,3] + u_z*factor
+    coord_def[:,1] = coord[:,1] + u_x*factor[:, 0]
+    coord_def[:,2] = coord[:,2] + u_y*factor[:, 1]
+    coord_def[:,3] = coord[:,3] + u_z*factor[:, 2]
 
-    nodal_solution_gcs = np.array([ data[ind+0, column], 
-                                    data[ind+1, column], 
-                                    data[ind+2, column], 
-                                    data[ind+3, column], 
-                                    data[ind+4, column], 
-                                    data[ind+5, column]]).T*factor
+    r_xyz_plot = (((u_x*factor[:, 0])**2 + (u_y*factor[:, 1])**2 + (u_z*factor[:, 2])**2)**(1/2))/magnif_factor
+    min_max_values = [min(r_xyz_plot), max(r_xyz_plot)]
 
+    nodal_solution_gcs = np.array([ data[ind+0, column], data[ind+1, column], data[ind+2, column],
+                                    data[ind+3, column], data[ind+4, column], data[ind+5, column] ]).T*factor
+ 
     nodes = preprocessor.nodes
     for node in nodes.values():
-        
         global_index = node.global_index 
-        node.deformed_coordinates = coord_def[global_index, 1:]        
+        node.deformed_coordinates = coord_def[global_index, 1:]       
         node.nodal_solution_gcs = nodal_solution_gcs[global_index, :]
         node.deformed_displacements_xyz_gcs =  nodal_solution_gcs[global_index, [0,1,2]]
         node.deformed_rotations_xyz_gcs =  nodal_solution_gcs[global_index, [3,4,5]]
 
     preprocessor.process_element_cross_sections_orientation_to_plot()
-   
-    # if new_scf is None:
-    #     control, new_scf = preprocessor.deformed_amplitude_control_in_expansion_joints()
-    #     if control:
-    #         return get_structural_response( preprocessor, 
-    #                                         solution, 
-    #                                         column, 
-    #                                         gain=None, 
-    #                                         new_scf=new_scf,
-    #                                         Normalize=True  )
 
-    return connect, coord_def, r_xyz, factor, scf
+    return connect, coord_def, r_xyz_plot, magnif_factor, min_max_values
 
 def get_reactions(preprocessor, reactions, node, dof, absolute=False, real=False, imaginary=False):
     #reactions: dictionary with all reactions and global dofs are the keys of dictionary
@@ -102,6 +128,43 @@ def get_stress_spectrum_data(stresses, element_id, stress_key, absolute = False,
         return np.imag(np.array(stresses[element_id][stress_key,:]))
     else:
         return np.array(stresses[element_id][stress_key,:])
+
+def get_min_max_stresses_values(data):
+
+    if isinstance(data, dict):
+        values = np.array(list(data.values()))
+
+    _stresses = np.abs(values)
+    phase = np.angle(values)
+    stress_min = 1
+    stress_max = 0
+    thetas = np.arange(0, N_div+1, 1)*(2*pi)
+    for theta in thetas:
+        stresses = _stresses*np.cos(theta + phase)
+        
+        _stress_min = min(stresses)
+        _stress_max = max(stresses)
+
+        if _stress_min < stress_min:
+            stress_min = _stress_min
+        if _stress_max > stress_max:
+            stress_max = _stress_max
+
+    return stress_min, stress_max 
+
+def get_stresses_to_plot(data, phase_step=None):
+    if isinstance(data, dict):
+        keys = data.keys()
+        values = np.array(list(data.values()))
+        
+    _stresses = np.abs(values)
+    _phase = np.angle(values)
+    stresses = _stresses*np.cos(phase_step + _phase)
+    stresses_data = dict(zip(keys, stresses))
+
+    min_max_values = [min(stresses), max(stresses)]
+
+    return stresses_data, min_max_values
 
 # def get_internal_loads_data(preprocessor, column, absolute=False, real=False, imaginary=False):
 
