@@ -77,7 +77,7 @@ class PlotAcousticModeShapeInput(QDialog):
         else:
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
-            self.opv.changeAndPlotAnalysis(self.mode_index, pressure_field_plot=True, real_part=self.flag_real_part)
+            self.opv.changeAndPlotAnalysis(self.mode_index, pressure_field_plot=True)
 
         if message != "":
             PrintMessageInput(self.text_data)
