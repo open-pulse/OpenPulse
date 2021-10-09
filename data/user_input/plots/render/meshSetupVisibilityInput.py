@@ -15,6 +15,10 @@ class MeshSetupVisibilityInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
+        icons_path = 'data\\icons\\'
+        self.icon = QIcon(icons_path + 'pulse.png')
+        self.setWindowIcon(self.icon)
+
         self.project = project
         self.opv = opv
         self.opv.setInputObject(self)

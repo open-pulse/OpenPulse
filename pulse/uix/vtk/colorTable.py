@@ -23,7 +23,7 @@ class ColorTable(vtk.vtkLookupTable):
         # self.min_value = min(self.valueVector)
         # self.max_value = max(self.valueVector)
                 
-        self.SetTableRange(self.min_value,self.max_value)
+        self.SetTableRange(self.min_value, self.max_value)
         self.SetHueRange( 2/3, 0 )
         self.ForceBuild()
 

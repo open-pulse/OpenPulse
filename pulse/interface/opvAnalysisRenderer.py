@@ -52,6 +52,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvSymbols = None
 
         self.slider = None
+        self.logoWidget = None
+
         self._createSlider()
         self._createPlayer()
         self.reset_min_max_values()
@@ -95,6 +97,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         if renWin: renWin.Render()
     
     def updateAll(self):
+        self._addLogosToRender()
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
@@ -255,15 +258,18 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def _createSlider(self):
         self.slider = vtk.vtkSliderWidget()
-        
         sld = vtk.vtkSliderRepresentation2D()
-        # sld.SetMinimumValue(-1)
-        # sld.SetMaximumValue(1)
-        # sld.SetValue(-1)
 
         sld.SetMinimumValue(0)
         sld.SetMaximumValue(360)
         sld.SetValue(0)
+        
+        sld.SetTitleText('Animation phase controller [deg]')
+        sld.GetTitleProperty().SetFontSize(14)
+        sld.GetTitleProperty().SetFontFamilyAsString('Arial')
+        # sld.GetTitleProperty().FrameOn()
+        # print(sld.GetTitleProperty().GetFrameColor())
+        # sld.GetTitleProperty().SetFrameColor(1,0,0)
 
         sld.GetSelectedProperty().SetColor(1, 0, 0)
         sld.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
@@ -349,21 +355,28 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()
-        textProperty.SetFontSize(14)
+        textProperty.SetFontSize(16)
         textProperty.SetItalic(1)
         unit = self.project.get_unit()
         text = "Unit: [{}]".format(unit)
 
+        # titleTextProperty = vtk.vtkTextProperty()
+        # titleTextProperty.SetVerticalJustificationToBottom()
+        # titleTextProperty.SetJustificationToRight()
+        # titleTextProperty.SetFontSize(14)
+        # titleTextProperty.SetItalic(1)
+        
         self._renderer.RemoveActor(self.colorbar)
         self.colorbar = vtk.vtkScalarBarActor()
         self.colorbar.SetLabelTextProperty(textProperty)
         self.colorbar.SetMaximumNumberOfColors(400)
         self.colorbar.SetWidth(0.04)
         self.colorbar.SetTextPositionToPrecedeScalarBar()
-        self.colorbar.SetPosition(0.94, 0.1)
+        self.colorbar.SetPosition(0.94, 0.07)
         self.colorbar.SetLabelFormat("%1.0e ")
         self.colorbar.UnconstrainedFontSizeOn()   
         self.colorbar.VisibilityOn()
+        # self.colorbar.SetTitleTextProperty(titleTextProperty)
         self.colorbar.SetTitle(text)
         self.colorbar.SetVerticalTitleSeparation(20)
         self.colorbar.GetTitleTextProperty().SetFontSize(20)
@@ -380,7 +393,6 @@ class opvAnalysisRenderer(vtkRendererBase):
     # info text
     def updateInfoText(self, *args, **kwargs):
         mode = self._currentFrequencyIndex + 1
-        magnif = abs(self.slider.GetRepresentation().GetValue())
         frequencies = self.project.get_frequencies()
         text = self.project.analysis_type_label + "\n"
         if self.project.analysis_ID not in [2,4]:
@@ -394,7 +406,7 @@ class opvAnalysisRenderer(vtkRendererBase):
             frequencies = self.project.get_acoustic_natural_frequencies()
             text += "Mode: {}\n".format(mode)
             text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
-            text += "Color scalling: {}".format(self._colorScalling)
+            # text += "Color scalling: {}".format(self._colorScalling)
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
