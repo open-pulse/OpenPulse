@@ -1,6 +1,5 @@
 <p align="center">
    <img src="https://open-pulse.github.io/OpenPulse/doc/opav_logo.png?raw=true" alt="OpenPulse logo"/>
-</p>
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
