@@ -1,7 +1,5 @@
-![alt text](https://open-pulse.github.io/OpenPulse/doc/opav_beta.PNG?raw=true)
-
 <p align="center">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/opav_beta.PNG?raw=true" alt="OpenPulse logo"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/opav_beta.png?raw=true" alt="OpenPulse logo"/>
 </p>
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
