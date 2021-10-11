@@ -36,11 +36,15 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.animationIndex = 0
         self.delayCounter = 0
         self.increment = 1
-                
-        self.N_div = 40
-        d_theta = 2*pi/self.N_div
-        self.phase_steps = np.arange(0, 2*pi + d_theta, d_theta)
 
+        #default values to the number of frames and cycles
+        self.number_frames = 40
+        self.number_cycles = 5
+        self.count_cycles = 0
+        self.total_frames = (self.number_frames+1)*self.number_cycles
+        self.number_frames_changed = False
+        self.update_phase_steps_attribute()
+                
         # just ignore it 
         self.nodesBounds = dict()
         self.elementsBounds = dict()
@@ -58,7 +62,23 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._createPlayer()
         self.reset_min_max_values()
         self._animationFrames = []
-        
+
+    def update_phase_steps_attribute(self):
+        d_theta = 2*pi/self.number_frames
+        # self.phase_steps = np.arange(0, 2*pi + d_theta, d_theta)
+        self.phase_steps = np.arange(0, self.number_frames+1, 1)*d_theta
+
+    def _setNumberFrames(self, frames):
+        self.number_frames = frames
+        self.update_phase_steps_attribute()
+    
+    def _setNumberCycles(self, cycles):
+        self.number_cycles = cycles
+        self.total_frames = (self.number_frames+1)*self.number_cycles
+    
+    def _numberFramesHasChanged(self, _bool):
+        self.number_frames_changed = _bool
+ 
     def reset_min_max_values(self):
         self.rDisp_min = None
         self.rDisp_max = None
@@ -312,9 +332,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         if self.playingAnimation:
             return
         
-        if self._cacheFrequencyIndex == self._currentFrequencyIndex:
+        if self._cacheFrequencyIndex == self._currentFrequencyIndex and not self.number_frames_changed:
             self.playingAnimation = True
             return
+
+        if self.number_frames_changed:
+            self.number_frames_changed = False
 
         title = "Processing in progress"
         message = "The animation frames calculation is in progress..." 
@@ -340,14 +363,21 @@ class opvAnalysisRenderer(vtkRendererBase):
             return
 
         self.slider.GetRepresentation().SetValue(0)
-        self._plotCached()
+        
+        self.count_cycles += 1
+        if self.count_cycles <= self.total_frames:
+            self._plotCached()
+        else:
+            self.pauseAnimation()
+            self.count_cycles = 0
+            return
 
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
             return 
         
         self.playingAnimation = False
-        delta_phase_deg = (360/self.N_div)
+        delta_phase_deg = (360/self.number_frames)
         sliderValue = round(slider.GetRepresentation().GetValue()/delta_phase_deg)*delta_phase_deg
         slider.GetRepresentation().SetValue(sliderValue)
         phase_rad = sliderValue*(2*pi/360)

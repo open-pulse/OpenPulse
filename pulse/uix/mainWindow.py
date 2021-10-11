@@ -272,11 +272,6 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
         # Results Viewer
-        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
-        self.playPauseAnimaton_action.setShortcut('Space')
-        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
-        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
-
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
@@ -321,6 +316,15 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setShortcut('Ctrl+V')
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
+
+        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
+        self.playPauseAnimaton_action.setShortcut('Space')
+        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
+
+        self.animationSettings_action = QAction('&Animation Settings', self)
+        self.animationSettings_action.setStatusTip('Animation Settings')
+        self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
 
         # Views
         self.cameraTop_action = QAction('&Top View', self)
@@ -436,17 +440,20 @@ class MainWindow(QMainWindow):
         self.analysisMenu.addAction(self.runAnalysis_action)
 
     def _loadResultsViewerMenu(self):
+        #structural
         self.resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
         self.resultsViewerMenu.addAction(self.plotDisplacementField_action)
         self.resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotSressField_action)
         self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
-        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
-
+        #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
+        #animation
+        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
+        self.resultsViewerMenu.addAction(self.animationSettings_action)
     
     def _loadCameraMenu(self):
         self.viewsMenu.addAction(self.cameraTop_action)

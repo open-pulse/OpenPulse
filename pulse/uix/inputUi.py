@@ -48,6 +48,7 @@ from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAc
 from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
 #
+from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
 from data.user_input.plots.render.meshSetupVisibilityInput import MeshSetupVisibilityInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
@@ -372,6 +373,9 @@ class InputUi:
     def plotReactionsFrequencyResponse(self):
         if self.analysis_ID in [0,1,5,6]:
             self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
+
+    def animationSettings(self):
+        self.processInput(AnimationSettingsInput, self.project, self.opv)
 
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)
