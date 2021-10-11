@@ -34,6 +34,7 @@ class LoadingScreen(QDialog):
 
         self.label_title.setText(title)
         self.label_message.setText(text)
+        self.label_message.setWordWrap(True)
         self.label_animation.setMovie(self.movie)
 
         self.layout.addWidget(self.label_title)

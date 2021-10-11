@@ -503,7 +503,7 @@
        <set>Qt::AlignCenter</set>
       </property>
      </widget>
-     <widget class="QPushButton" name="pushButton_ExportResults">
+     <widget class="QPushButton" name="pushButton_export_animation">
       <property name="geometry">
        <rect>
         <x>80</x>

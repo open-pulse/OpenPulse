@@ -43,6 +43,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.count_cycles = 0
         self.total_frames = (self.number_frames+1)*self.number_cycles
         self.number_frames_changed = False
+        self.export_animation = False
         self.update_phase_steps_attribute()
                 
         # just ignore it 
@@ -144,19 +145,14 @@ class opvAnalysisRenderer(vtkRendererBase):
             i = 0
             self.increment = 1
 
-        # if i >= len(self._animationFrames):
-        #     i = len(self._animationFrames) - 1
-        #     self.increment = -1
-        # elif i < 0:
-        #     i = 0
-        #     self.increment = 1
-
         self.animationIndex = i
         _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
         self.slider.GetRepresentation().SetValue(_phase_deg)
         cached = self._animationFrames[i]
         self.opvTubes._data.DeepCopy(cached)
         self.updateAll()
+        if self.export_animation:
+            self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
         self._currentPlot(self._currentFrequencyIndex, phase_step)
@@ -340,15 +336,18 @@ class opvAnalysisRenderer(vtkRendererBase):
             self.number_frames_changed = False
 
         title = "Processing in progress"
-        message = "The animation frames calculation is in progress..." 
+
+        if self.export_animation:
+            message = "The animation file exporting is in progress..."
+        else:
+            message = "The animation frames calculation is in progress..."
+        
         LoadingScreen(title, message, target=cache_callback)
 
     def pauseAnimation(self):
         self.playingAnimation = False
 
     def tooglePlayPauseAnimation(self):
-        # if self.project.analysis_ID in [3,4] or self.project.plot_pressure_field:
-        #     return
 
         if self.playingAnimation:
             self.pauseAnimation()
@@ -370,7 +369,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         else:
             self.pauseAnimation()
             self.count_cycles = 0
-            return
+            if self.export_animation:
+                self.end_export_animation_to_file()
+                return
 
     def _sliderCallback(self, slider, b):
         if self._currentPlot is None:
@@ -382,6 +383,33 @@ class opvAnalysisRenderer(vtkRendererBase):
         slider.GetRepresentation().SetValue(sliderValue)
         phase_rad = sliderValue*(2*pi/360)
         self._plotOnce(phase_rad)
+
+    def start_export_animation_to_file(self, path):
+        #Setup filter
+        self.renWin = self._renderer.GetRenderWindow()
+        self.imageFilter = vtk.vtkWindowToImageFilter()
+        self.imageFilter.SetInput(self.renWin)
+        self.imageFilter.SetInputBufferTypeToRGB()
+        self.imageFilter.ReadFrontBufferOff()
+        self.imageFilter.Update()
+        #Setup movie writer
+        self.moviewriter = vtk.vtkAVIWriter()
+        self.moviewriter.SetFileName(path)
+        self.moviewriter.SetInputConnection(self.imageFilter.GetOutputPort())
+        self.moviewriter.SetRate(30)
+        self.moviewriter.SetQuality(2)
+        self.moviewriter.Start()
+        #
+        self.export_animation = True
+    
+    def add_frame_to_animation_file(self):
+        self.imageFilter.Modified()
+        self.imageFilter.Update()
+        self.moviewriter.Write()
+
+    def end_export_animation_to_file(self):
+        self.moviewriter.End()
+        self.export_animation = False
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()

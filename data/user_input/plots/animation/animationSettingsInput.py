@@ -52,7 +52,8 @@ class AnimationSettingsInput(QDialog):
         self.pushButton_clean = self.findChild(QPushButton, 'pushButton_clean')
         self.pushButton_clean.clicked.connect(self.reset_input_field)
 
-        self.pushButton_ExportResults = self.findChild(QPushButton, 'pushButton_ExportResults')
+        self.pushButton_export_animation = self.findChild(QPushButton, 'pushButton_export_animation')
+        self.pushButton_export_animation.clicked.connect(self.export_animation_to_file)
 
         self.tabWidget_animation = self.findChild(QTabWidget, 'tabWidget_animation')
         self.tab_main = self.tabWidget_animation.findChild(QWidget, 'tab_main')
@@ -86,8 +87,17 @@ class AnimationSettingsInput(QDialog):
 
     def export_animation_to_file(self):
         if self.lineEdit_FileName.text() != "":
-            filename = self.lineEdit_FileName.text()
-            self.export_file_path = get_new_path(self.save_path, filename)
+            filename = self.lineEdit_FileName.text() + ".avi"
+            if os.path.exists(self.save_path):
+                self.export_file_path = get_new_path(self.save_path, filename)
+                self.opv.opvAnalysisRenderer.start_export_animation_to_file(self.export_file_path)
+                self.process_animation()
+            else:
+                title = "Invalid folder path"
+                message = "Inform a valid folder path before trying export the animation.\n\n"
+                message += f"{self.label_export_path.text()}"
+                PrintMessageInput([title, message, "ERROR"])
+                self.label_export_path.setText("<Folder path>")
         else:
             title = "Empty file name"
             message = "Inform a file name before trying export the animation."
