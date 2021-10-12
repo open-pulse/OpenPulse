@@ -4,6 +4,8 @@ import vtk
 import numpy as np
 from math import pi
 from time import sleep
+# import imageio
+# import os
 
 from pulse.postprocessing.plot_structural_data import get_structural_response, get_max_min_values_of_resultant_displacements, get_stresses_to_plot, get_min_max_stresses_values
 from pulse.postprocessing.plot_acoustic_data import get_acoustic_response, get_max_min_values_of_pressures
@@ -384,7 +386,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         phase_rad = sliderValue*(2*pi/360)
         self._plotOnce(phase_rad)
 
-    def start_export_animation_to_file(self, path):
+    def start_export_animation_to_file(self, path, frame_rate):
+        self.animation_path = path
         #Setup filter
         self.renWin = self._renderer.GetRenderWindow()
         self.imageFilter = vtk.vtkWindowToImageFilter()
@@ -393,7 +396,10 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.imageFilter.ReadFrontBufferOff()
         self.imageFilter.Update()
         #Setup movie writer
-        self.moviewriter = vtk.vtkAVIWriter()
+        if ".avi" in path:
+            self.moviewriter = vtk.vtkAVIWriter()
+        else:
+            self.moviewriter = vtk.vtkOggTheoraWriter()
         self.moviewriter.SetFileName(path)
         self.moviewriter.SetInputConnection(self.imageFilter.GetOutputPort())
         self.moviewriter.SetRate(30)
@@ -404,12 +410,26 @@ class opvAnalysisRenderer(vtkRendererBase):
     
     def add_frame_to_animation_file(self):
         self.imageFilter.Modified()
-        self.imageFilter.Update()
+        # self.imageFilter.Update()
         self.moviewriter.Write()
 
     def end_export_animation_to_file(self):
         self.moviewriter.End()
         self.export_animation = False
+        # for _format in [".avi", ".mp4", ".mpeg"] :
+        #     if _format in self.animation_path:
+        #         self.convert_animation_to_gif()
+        #         break
+
+    # def convert_animation_to_gif(self):
+    #     input_filename = self.animation_path.split(".")[0]
+    #     _reader = imageio.get_reader(self.animation_path)
+    #     fps = _reader.get_meta_data()['fps']
+    #     output_filename = input_filename + ".gif"
+    #     writer = imageio.get_writer(output_filename, fps=fps)
+    #     for i,im in enumerate(_reader):
+    #         writer.append_data(im)
+    #     writer.close()
 
     def _createColorBar(self):
         textProperty = vtk.vtkTextProperty()

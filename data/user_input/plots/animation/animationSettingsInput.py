@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QSpinBox, QPushButton, QWidget, QFileDialog
+from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QSpinBox, QPushButton, QWidget, QFileDialog, QComboBox
 import os
 from os.path import basename
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -41,6 +41,9 @@ class AnimationSettingsInput(QDialog):
         self.spinBox_cycles = self.findChild(QSpinBox, 'spinBox_cycles')
 
         self.spinBox_frames.valueChanged.connect(self.frames_value_changed)
+        self.spinBox_cycles.valueChanged.connect(self.cycles_value_changed)
+        self.frames = self.spinBox_frames.value()
+        self.cycles = self.spinBox_cycles.value()
 
         self.pushButton_animate = self.findChild(QPushButton, 'pushButton_animate')
         # self.pushButton_animate.setIcon(self.icon_animate)
@@ -54,6 +57,8 @@ class AnimationSettingsInput(QDialog):
 
         self.pushButton_export_animation = self.findChild(QPushButton, 'pushButton_export_animation')
         self.pushButton_export_animation.clicked.connect(self.export_animation_to_file)
+
+        self.comboBox_file_format = self.findChild(QComboBox, 'comboBox_file_format')
 
         self.tabWidget_animation = self.findChild(QTabWidget, 'tabWidget_animation')
         self.tab_main = self.tabWidget_animation.findChild(QWidget, 'tab_main')
@@ -73,6 +78,10 @@ class AnimationSettingsInput(QDialog):
 
     def frames_value_changed(self):
         self.opv.opvAnalysisRenderer._numberFramesHasChanged(True)
+        self.frames = self.spinBox_frames.value()
+        
+    def cycles_value_changed(self):
+        self.cycles = self.spinBox_cycles.value()
 
     def update_export_tabs(self):
         if self.checkBox_export.isChecked():
@@ -85,12 +94,18 @@ class AnimationSettingsInput(QDialog):
         self.save_name = basename(self.save_path)
         self.label_export_path.setText(str(self.save_path))
 
+    def get_file_format(self):
+        index = self.comboBox_file_format.currentIndex()
+        _formats = [".avi", ".mp4", ".ogv", ".mpeg"]
+        return _formats[index]
+
     def export_animation_to_file(self):
         if self.lineEdit_FileName.text() != "":
-            filename = self.lineEdit_FileName.text() + ".avi"
+            file_format = self.get_file_format()
+            filename = self.lineEdit_FileName.text() + file_format
             if os.path.exists(self.save_path):
                 self.export_file_path = get_new_path(self.save_path, filename)
-                self.opv.opvAnalysisRenderer.start_export_animation_to_file(self.export_file_path)
+                self.opv.opvAnalysisRenderer.start_export_animation_to_file(self.export_file_path, self.frames)
                 self.process_animation()
             else:
                 title = "Invalid folder path"
