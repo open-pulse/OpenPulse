@@ -157,6 +157,11 @@ class MainWindow(QMainWindow):
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
 
+        self.set_fluid_composition_action = QAction('&Set Fluid Composition', self)        
+        self.set_fluid_composition_action.setShortcut('Alt+6')
+        self.set_fluid_composition_action.setStatusTip('Set Fluid Composition')
+        self.set_fluid_composition_action.triggered.connect(self.getInputWidget().set_fluid_composition)
+
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
         self.set_crossSection_action.setShortcut('Alt+5')
         self.set_crossSection_action.setStatusTip('Set Cross-Section')
@@ -351,9 +356,9 @@ class MainWindow(QMainWindow):
         self.cameraBack_action.setShortcut('Ctrl+Shift+6')
         self.cameraBack_action.triggered.connect(self.cameraBack_call)
 
-        self.cameraOrth_action = QAction('&Isometric View', self)
-        self.cameraOrth_action.setShortcut('Ctrl+Shift+7')
-        self.cameraOrth_action.triggered.connect(self.cameraOrth_call)
+        self.cameraIsometric_action = QAction('&Isometric View', self)
+        self.cameraIsometric_action.setShortcut('Ctrl+Shift+7')
+        self.cameraIsometric_action.triggered.connect(self.cameraIsometric_call)
 
 
     def _createRecentProjectsActions(self):
@@ -408,8 +413,9 @@ class MainWindow(QMainWindow):
         self.generalSettingsMenu.addAction(self.setGeometryFile_action)        
         self.generalSettingsMenu.addAction(self.setMaterial_action)
         self.generalSettingsMenu.addAction(self.set_fluid_action)
+        self.generalSettingsMenu.addAction(self.set_fluid_composition_action)
         self.generalSettingsMenu.addAction(self.set_crossSection_action)
-
+        
     def _loadModelSetupMenu(self):
         #Structural model setup
         self.structuralModelSetupMenu.addAction(self.setStructuralElementType_action)
@@ -462,7 +468,7 @@ class MainWindow(QMainWindow):
         self.viewsMenu.addAction(self.cameraRight_action)
         self.viewsMenu.addAction(self.cameraFront_action)
         self.viewsMenu.addAction(self.cameraBack_action)
-        self.viewsMenu.addAction(self.cameraOrth_action)
+        self.viewsMenu.addAction(self.cameraIsometric_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -571,7 +577,7 @@ class MainWindow(QMainWindow):
         if path != "":
             self.getOPVWidget().savePNG(path)
 
-    def cameraOrth_call(self):
+    def cameraIsometric_call(self):
         self.opv_widget.setCameraView(0)
 
     def cameraTop_call(self):

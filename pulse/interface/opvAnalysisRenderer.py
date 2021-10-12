@@ -409,8 +409,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.export_animation = True
     
     def add_frame_to_animation_file(self):
+        self.imageFilter.Update()
         self.imageFilter.Modified()
-        # self.imageFilter.Update()
         self.moviewriter.Write()
 
     def end_export_animation_to_file(self):

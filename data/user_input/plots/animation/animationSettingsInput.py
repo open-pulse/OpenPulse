@@ -34,7 +34,7 @@ class AnimationSettingsInput(QDialog):
 
         self.lineEdit_FileName = self.findChild(QLineEdit, 'lineEdit_FileName')
         self.checkBox_export = self.findChild(QCheckBox, 'checkBox_export')
-        self.checkBox_export.clicked.connect(self.update_export_tabs)
+        
         self.label_export_path = self.findChild(QLabel, 'label_export_path')
         
         self.spinBox_frames = self.findChild(QSpinBox, 'spinBox_frames')
@@ -53,7 +53,8 @@ class AnimationSettingsInput(QDialog):
         self.pushButton_ChooseFolderExport.clicked.connect(self.choose_path_export_animation)
 
         self.pushButton_clean = self.findChild(QPushButton, 'pushButton_clean')
-        self.pushButton_clean.clicked.connect(self.reset_input_field)
+        self.pushButton_clean.setVisible(False)
+        # self.pushButton_clean.clicked.connect(self.reset_input_field)
 
         self.pushButton_export_animation = self.findChild(QPushButton, 'pushButton_export_animation')
         self.pushButton_export_animation.clicked.connect(self.export_animation_to_file)
@@ -64,7 +65,6 @@ class AnimationSettingsInput(QDialog):
         self.tab_main = self.tabWidget_animation.findChild(QWidget, 'tab_main')
         self.tab_export = self.tabWidget_animation.findChild(QWidget, 'tab_export')
 
-        self.update_export_tabs()
         self.exec()
 
     def keyPressEvent(self, event):
@@ -82,12 +82,6 @@ class AnimationSettingsInput(QDialog):
         
     def cycles_value_changed(self):
         self.cycles = self.spinBox_cycles.value()
-
-    def update_export_tabs(self):
-        if self.checkBox_export.isChecked():
-            self.tabWidget_animation.addTab(self.tab_export, "Export animation")
-        else:
-            self.tabWidget_animation.removeTab(1)
 
     def choose_path_export_animation(self):
         self.save_path = QFileDialog.getExistingDirectory(None, 'Choose a folder to export the results', self.userPath)

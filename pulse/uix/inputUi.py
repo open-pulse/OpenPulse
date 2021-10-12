@@ -24,6 +24,7 @@ from data.user_input.model.setup.structural.expansionJointInput import Expansion
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
@@ -191,6 +192,9 @@ class InputUi:
 
     def set_fluid(self):
         self.processInput(FluidInput, self.project, self.opv)
+
+    def set_fluid_composition(self):
+        self.processInput(SetFluidCompositionInput, self.project, self.opv)
 
     def setAcousticPressure(self):
         self.processInput(AcousticPressureInput, self.project, self.opv)

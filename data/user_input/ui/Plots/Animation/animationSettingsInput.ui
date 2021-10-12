@@ -140,7 +140,7 @@
       <property name="geometry">
        <rect>
         <x>170</x>
-        <y>18</y>
+        <y>30</y>
         <width>70</width>
         <height>30</height>
        </rect>
@@ -197,7 +197,7 @@
       <property name="geometry">
        <rect>
         <x>44</x>
-        <y>18</y>
+        <y>30</y>
         <width>120</width>
         <height>30</height>
        </rect>
@@ -234,7 +234,7 @@
       <property name="geometry">
        <rect>
         <x>170</x>
-        <y>68</y>
+        <y>92</y>
         <width>70</width>
         <height>30</height>
        </rect>
@@ -291,7 +291,7 @@
       <property name="geometry">
        <rect>
         <x>94</x>
-        <y>68</y>
+        <y>92</y>
         <width>70</width>
         <height>30</height>
        </rect>
@@ -324,58 +324,11 @@
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QCheckBox" name="checkBox_export">
-      <property name="geometry">
-       <rect>
-        <x>84</x>
-        <y>114</y>
-        <width>180</width>
-        <height>30</height>
-       </rect>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>180</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>180</width>
-        <height>30</height>
-       </size>
-      </property>
-      <property name="font">
-       <font>
-        <family>Arial</family>
-        <pointsize>12</pointsize>
-        <weight>75</weight>
-        <italic>true</italic>
-        <bold>true</bold>
-       </font>
-      </property>
-      <property name="text">
-       <string>Export animation</string>
-      </property>
-      <property name="icon">
-       <iconset>
-        <normaloff>../../../../icons/008-diskette.png</normaloff>../../../../icons/008-diskette.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>22</width>
-        <height>22</height>
-       </size>
-      </property>
-      <property name="checked">
-       <bool>false</bool>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pushButton_animate">
       <property name="geometry">
        <rect>
         <x>90</x>
-        <y>160</y>
+        <y>154</y>
         <width>160</width>
         <height>34</height>
        </rect>
@@ -749,6 +702,12 @@ background-color: rgb(255, 255, 255);</string>
       </property>
       <property name="editable">
        <bool>false</bool>
+      </property>
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <property name="maxVisibleItems">
+       <number>4</number>
       </property>
       <item>
        <property name="text">

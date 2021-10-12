@@ -53,8 +53,8 @@ class CallDoubleConfirmationInput(QDialog):
         self.exec_()
 
     def confirm_action(self):
-        self._stop = False
         self._continue = True
+        self._stop = False
         self._doNotRun = False
         self.close()
 
