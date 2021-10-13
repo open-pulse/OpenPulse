@@ -16,7 +16,12 @@ class QWorker(QObject):
 
     def run(self):
         if self.target is not None:
-            self.target()
+            try:
+                self.target()
+            except Exception as log_error:
+                title = "An error has been reached in LoadingScreen"
+                PrintMessageInput([title, str(log_error), "ERROR"])
+                
         self.finished.emit()
         self.thread().quit()
 
@@ -44,21 +49,14 @@ class LoadingScreen(QDialog):
         self.setLayout(self.layout)
         self.configAppearance()
 
-        try:
+        self.threadWorker = QThread()
+        self.worker = QWorker(target)
+        self.worker.moveToThread(self.threadWorker)
+        self.threadWorker.started.connect(self.worker.run)
+        self.threadWorker.finished.connect(self.close)
+        self.threadWorker.start()
+        self.movie.start()
 
-            self.threadWorker = QThread()
-            self.worker = QWorker(target)
-            self.worker.moveToThread(self.threadWorker)
-            self.threadWorker.started.connect(self.worker.run)
-            self.threadWorker.finished.connect(self.close)
-            self.threadWorker.start()
-            self.movie.start()
-
-        except Exception as log_error:
-            title = "An error has been reached in LoadingScreen"
-            message = str(log_error)
-            PrintMessageInput([title, message, "ERROR"])
-    
         self.exec()
         self.movie.stop()
 
