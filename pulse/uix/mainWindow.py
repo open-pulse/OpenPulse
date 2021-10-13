@@ -116,6 +116,21 @@ class MainWindow(QMainWindow):
         self.section_action.setStatusTip('Plot Cross-section')
         self.section_action.triggered.connect(self.getInputWidget().plot_cross_section)
 
+        self.plot_material_action = QAction('&Plot Material', self)
+        self.plot_material_action.setShortcut('Ctrl+5')
+        self.plot_material_action.setStatusTip('Plot Material')
+        # self.plot_material_action.triggered.connect(self.getInputWidget().plot_material)
+
+        self.plot_fluid_action = QAction('&Plot Fluid', self)
+        self.plot_fluid_action.setShortcut('Ctrl+6')
+        self.plot_fluid_action.setStatusTip('Plot Fluid')
+        # self.plot_fluid_action.triggered.connect(self.getInputWidget().plot_fluid)
+
+        self.mesh_setup_visibility_action = QAction('&Mesh Setup Visibility', self)
+        self.mesh_setup_visibility_action.setShortcut('Ctrl+7')
+        self.mesh_setup_visibility_action.setStatusTip('Mesh Setup Visibility')
+        self.mesh_setup_visibility_action.triggered.connect(self.getInputWidget().mesh_setup_visibility)
+
         # General Settings
         self.setProjectAtributtes_action = QAction('&Set Project Attributes', self) 
         self.setProjectAtributtes_action.setShortcut('Alt+1')
@@ -141,6 +156,11 @@ class MainWindow(QMainWindow):
         self.set_fluid_action.setShortcut('Alt+5')
         self.set_fluid_action.setStatusTip('Set Fluid')
         self.set_fluid_action.triggered.connect(self.getInputWidget().set_fluid)
+
+        self.set_fluid_composition_action = QAction('&Set Fluid Composition', self)        
+        self.set_fluid_composition_action.setShortcut('Alt+6')
+        self.set_fluid_composition_action.setStatusTip('Set Fluid Composition')
+        self.set_fluid_composition_action.triggered.connect(self.getInputWidget().set_fluid_composition)
 
         self.set_crossSection_action = QAction('&Set Cross-Section', self)        
         self.set_crossSection_action.setShortcut('Alt+5')
@@ -257,11 +277,6 @@ class MainWindow(QMainWindow):
         self.runAnalysis_action.triggered.connect(self.getInputWidget().runAnalysis)
  
         # Results Viewer
-        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
-        self.playPauseAnimaton_action.setShortcut('Space')
-        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
-        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
-
         self.plotStructuralModeShapes_action = QAction('&Plot Structural Mode Shapes', self)        
         self.plotStructuralModeShapes_action.setShortcut('Ctrl+Q')
         self.plotStructuralModeShapes_action.setStatusTip('Plot Structural Mode Shapes')
@@ -307,6 +322,15 @@ class MainWindow(QMainWindow):
         self.plot_TL_NR.setStatusTip('Plot Transmission Loss or Attenuation')
         self.plot_TL_NR.triggered.connect(self.getInputWidget().plot_TL_NR)
 
+        self.playPauseAnimaton_action = QAction(self.playpause_icon, '&Play/Pause Animation', self)
+        self.playPauseAnimaton_action.setShortcut('Space')
+        self.playPauseAnimaton_action.setStatusTip('Play/Pause Animation')
+        self.playPauseAnimaton_action.triggered.connect(self.opv_widget.opvAnalysisRenderer.tooglePlayPauseAnimation)
+
+        self.animationSettings_action = QAction('&Animation Settings', self)
+        self.animationSettings_action.setStatusTip('Animation Settings')
+        self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
+
         # Views
         self.cameraTop_action = QAction('&Top View', self)
         self.cameraTop_action.setShortcut('Ctrl+Shift+1')
@@ -332,9 +356,9 @@ class MainWindow(QMainWindow):
         self.cameraBack_action.setShortcut('Ctrl+Shift+6')
         self.cameraBack_action.triggered.connect(self.cameraBack_call)
 
-        self.cameraOrth_action = QAction('&Isometric View', self)
-        self.cameraOrth_action.setShortcut('Ctrl+Shift+7')
-        self.cameraOrth_action.triggered.connect(self.cameraOrth_call)
+        self.cameraIsometric_action = QAction('&Isometric View', self)
+        self.cameraIsometric_action.setShortcut('Ctrl+Shift+7')
+        self.cameraIsometric_action.triggered.connect(self.cameraIsometric_call)
 
 
     def _createRecentProjectsActions(self):
@@ -379,6 +403,9 @@ class MainWindow(QMainWindow):
         self.graphicMenu.addAction(self.entities_action_radius)
         self.graphicMenu.addAction(self.mesh_action)
         self.graphicMenu.addAction(self.section_action)
+        self.graphicMenu.addAction(self.plot_material_action)
+        self.graphicMenu.addAction(self.plot_fluid_action)
+        self.graphicMenu.addAction(self.mesh_setup_visibility_action)
 
     def _loadGeneralSettingsMenu(self):
         self.generalSettingsMenu.addAction(self.setProjectAtributtes_action)
@@ -386,8 +413,9 @@ class MainWindow(QMainWindow):
         self.generalSettingsMenu.addAction(self.setGeometryFile_action)        
         self.generalSettingsMenu.addAction(self.setMaterial_action)
         self.generalSettingsMenu.addAction(self.set_fluid_action)
+        self.generalSettingsMenu.addAction(self.set_fluid_composition_action)
         self.generalSettingsMenu.addAction(self.set_crossSection_action)
-
+        
     def _loadModelSetupMenu(self):
         #Structural model setup
         self.structuralModelSetupMenu.addAction(self.setStructuralElementType_action)
@@ -418,17 +446,20 @@ class MainWindow(QMainWindow):
         self.analysisMenu.addAction(self.runAnalysis_action)
 
     def _loadResultsViewerMenu(self):
+        #structural
         self.resultsViewerMenu.addAction(self.plotStructuralModeShapes_action)
         self.resultsViewerMenu.addAction(self.plotDisplacementField_action)
         self.resultsViewerMenu.addAction(self.plotStructuralFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotReactionsFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plotSressField_action)
         self.resultsViewerMenu.addAction(self.plotSressFrequencyResponse_action)
-        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
-
+        #acoustic
         self.resultsViewerMenu.addAction(self.plotPressureField_action)
         self.resultsViewerMenu.addAction(self.plotAcousticFrequencyResponse)
         self.resultsViewerMenu.addAction(self.plot_TL_NR)
+        #animation
+        self.resultsViewerMenu.addAction(self.playPauseAnimaton_action)
+        self.resultsViewerMenu.addAction(self.animationSettings_action)
     
     def _loadCameraMenu(self):
         self.viewsMenu.addAction(self.cameraTop_action)
@@ -437,7 +468,7 @@ class MainWindow(QMainWindow):
         self.viewsMenu.addAction(self.cameraRight_action)
         self.viewsMenu.addAction(self.cameraFront_action)
         self.viewsMenu.addAction(self.cameraBack_action)
-        self.viewsMenu.addAction(self.cameraOrth_action)
+        self.viewsMenu.addAction(self.cameraIsometric_action)
 
     def _loadHelpMenu(self):
         self.helpMenu.addAction(self.help_action)
@@ -546,7 +577,7 @@ class MainWindow(QMainWindow):
         if path != "":
             self.getOPVWidget().savePNG(path)
 
-    def cameraOrth_call(self):
+    def cameraIsometric_call(self):
         self.opv_widget.setCameraView(0)
 
     def cameraTop_call(self):

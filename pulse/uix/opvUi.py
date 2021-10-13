@@ -108,7 +108,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
         self._updateAxes()
 
-    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False, real_part=True): 
+    def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False): 
         # we call it so many times in so many different files that 
         # i will just continue my code from here and we organize all 
         # these in the future.
@@ -117,7 +117,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer.updateHud()
 
         if pressure_field_plot:
-            self.opvAnalysisRenderer.showPressureField(frequency_indice, real_part)
+            self.opvAnalysisRenderer.showPressureField(frequency_indice)
         elif stress_field_plot:
             self.opvAnalysisRenderer.showStressField(frequency_indice)
         else:

@@ -62,6 +62,7 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()
 
         self._renderer.ResetCameraClippingRange()
+        self._addLogosToRender()
 
     def showNodes(self, cond=True):
         self.opvNodes.setVisibility(cond)

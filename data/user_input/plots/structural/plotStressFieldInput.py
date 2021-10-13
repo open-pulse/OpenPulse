@@ -131,8 +131,7 @@ class PlotStressFieldInput(QDialog):
         if self.stress_data == [] or self.update_damping:
             self.stress_data = self.solve.stress_calculate( self.damping, 
                                                             pressure_external = 0, 
-                                                            damping_flag = self.flag_damping_effect, 
-                                                            _real_values = True )
+                                                            damping_flag = self.flag_damping_effect )
             self.update_damping = False
             
         self.stress_field = { key:array[self.stress_key, self.selected_index] for key, array in self.stress_data.items() }

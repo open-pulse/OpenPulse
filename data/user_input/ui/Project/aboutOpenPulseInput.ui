@@ -78,7 +78,7 @@
    <property name="geometry">
     <rect>
      <x>196</x>
-     <y>360</y>
+     <y>364</y>
      <width>385</width>
      <height>25</height>
     </rect>
@@ -301,7 +301,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLabel" name="label_version_information_2">
+  <widget class="QLabel" name="label_licensing_information">
    <property name="geometry">
     <rect>
      <x>196</x>
@@ -332,7 +332,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Copyright (c) 2020 Project OpenPulse Contributors, MIT License.</string>
+    <string>Licensing Information</string>
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

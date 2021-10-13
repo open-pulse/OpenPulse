@@ -22,6 +22,9 @@ class GetStartedInput(QDialog):
         self.reset_icon = QIcon(icons_path + 'refresh.png')
         self.setWindowIcon(self.icon)
 
+        self.setWindowFlags(Qt.WindowStaysOnTopHint)
+        self.setWindowModality(Qt.WindowModal)
+
         self.project = project
         self.config = config
         self.inputUi = inputUi

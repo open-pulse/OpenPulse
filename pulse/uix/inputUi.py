@@ -24,6 +24,7 @@ from data.user_input.model.setup.structural.expansionJointInput import Expansion
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from data.user_input.model.setup.acoustic.fluidInput import FluidInput
+from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
 from data.user_input.model.setup.acoustic.acousticpressureInput import AcousticPressureInput
 from data.user_input.model.setup.acoustic.volumevelocityInput import VolumeVelocityInput
 from data.user_input.model.setup.acoustic.specificimpedanceInput import SpecificImpedanceInput
@@ -48,7 +49,9 @@ from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAc
 from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
 #
+from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
+from data.user_input.plots.render.meshSetupVisibilityInput import MeshSetupVisibilityInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 #
@@ -153,6 +156,9 @@ class InputUi:
 
     def plot_cross_section(self):
         self.processInput(PlotCrossSectionInput, self.project, self.opv)
+
+    def mesh_setup_visibility(self):
+        self.processInput(MeshSetupVisibilityInput, self.project, self.opv)
         
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)
@@ -186,6 +192,9 @@ class InputUi:
 
     def set_fluid(self):
         self.processInput(FluidInput, self.project, self.opv)
+
+    def set_fluid_composition(self):
+        self.processInput(SetFluidCompositionInput, self.project, self.opv)
 
     def setAcousticPressure(self):
         self.processInput(AcousticPressureInput, self.project, self.opv)
@@ -229,9 +238,12 @@ class InputUi:
                
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
-        self.project.set_acoustic_solution(None)
-        self.project.set_structural_solution(None)
-
+        
+        if self.analysis_ID in [0, 1, 2, 5, 6]:
+            self.project.set_structural_solution(None)
+        if self.analysis_ID in [3, 4, 5, 6]:
+            self.project.set_acoustic_solution(None)
+        
         if self.analysis_ID in [2,4]:
             self.project.update_project_analysis_setup_state(True)
             self.runAnalysis()
@@ -366,6 +378,9 @@ class InputUi:
         if self.analysis_ID in [0,1,5,6]:
             self.processInput(PlotReactionsInput, self.project, self.opv, self.analysis_method_label)
 
+    def animationSettings(self):
+        self.processInput(AnimationSettingsInput, self.project, self.opv)
+
     def structural_model_info(self):
         self.processInput(StructuralModelInfoInput, self.project, self.opv)
 
@@ -373,7 +388,7 @@ class InputUi:
         self.processInput(AcousticModelInfoInput, self.project, self.opv)
 
     def about_OpenPulse(self):
-        self.processInput(AboutOpenPulseInput, self.project)
+        self.processInput(AboutOpenPulseInput, self.project, self.opv)
 
     def empty_project_action_message(self):
         title = 'EMPTY PROJECT'

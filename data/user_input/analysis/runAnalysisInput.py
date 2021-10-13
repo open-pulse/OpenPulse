@@ -48,6 +48,7 @@ class RunAnalysisInput(QDialog):
         self.complete = False
 
         LoadingScreen('Run Analysis', 'Solution in progress...', target=self.run)
+        
         self.exec()
 
 

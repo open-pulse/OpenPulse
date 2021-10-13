@@ -16,6 +16,55 @@ class vtkRendererBase(ABC):
         self.textProperty = vtk.vtkTextProperty()
         self.textProperty.SetFontSize(16)
         # self.textProperty.SetItalic(1)
+        
+        self._logo_pulse = vtk.vtkLogoRepresentation()
+        self._logo_mopt = vtk.vtkLogoRepresentation()
+        self._imageReader_pulse = vtk.vtkPNGReader()
+        self._imageReader_mopt = vtk.vtkPNGReader()
+        self._createConfigLogos()
+        self._addLogosToRender()
+
+    def _createConfigLogos(self):
+        
+        self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo3.png')
+        self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo2.png')
+        self._imageReader_pulse.Update()
+        self._imageReader_mopt.Update()
+        
+        self._logo_pulse_input = self._imageReader_pulse.GetOutput()
+        self._logo_pulse.SetImage(self._logo_pulse_input)
+        self._logo_pulse.ProportionalResizeOn()
+
+        self._logo_mopt_input = self._imageReader_mopt.GetOutput()
+        self._logo_mopt.SetImage(self._logo_mopt_input)
+        self._logo_mopt.ProportionalResizeOn()
+        
+        self._logo_pulse.SetPosition(0.865, 0.88)
+        self._logo_pulse.SetPosition2(0.14, 0.14)
+     
+        self._logo_pulse.GetImageProperty().SetOpacity(0.8)
+        self._logo_pulse.GetImageProperty().SetDisplayLocationToBackground()
+
+        self._logo_mopt.SetPosition(0, -0.01)
+        self._logo_mopt.SetPosition2(0.1, 0.1)
+     
+        self._logo_mopt.GetImageProperty().SetOpacity(0.3)
+        self._logo_mopt.GetImageProperty().SetDisplayLocationToBackground()  
+
+        # self.logoWidget = vtk.vtkLogoWidget()
+        # self.logoWidget.SetRepresentation(self._logo_pulse)
+        # self.logoWidget.On()
+        # self.logoWidget.SetEnabled(True)
+
+    def _addLogosToRender(self):
+        self._renderer.RemoveViewProp(self._logo_pulse)
+        self._renderer.RemoveViewProp(self._logo_mopt)
+        
+        self._renderer.AddViewProp(self._logo_pulse)
+        self._renderer.AddViewProp(self._logo_mopt)
+        
+        self._logo_pulse.SetRenderer(self._renderer)
+        self._logo_mopt.SetRenderer(self._renderer)
 
     def resetCamera(self):
         self._renderer.ResetCamera()
