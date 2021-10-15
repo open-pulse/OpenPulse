@@ -4,6 +4,7 @@ import platform
 import vtk
 from PyQt5 import Qt, QtCore, QtWidgets
 
+from pulse import __version__
 from pulse.uix.mainWindow import MainWindow
 
 def init():
@@ -36,4 +37,6 @@ def init():
     window = MainWindow()
     sys.exit(app.exec_())
     
-init()
+
+if __name__ == '__main__':
+    init()

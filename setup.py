@@ -1,6 +1,6 @@
 import os, sys
 from cx_Freeze import setup, Executable
-
+from pulse import __version__
 
 shortcut_table = [
     (
@@ -48,7 +48,7 @@ executable = [
 setup(
     name = 'OpenPulse',
     author = 'MOPT',
-    version = '0.2.0',
+    version = __version__,
     description = 'A software written in Python for numerical modelling of low-frequency \
                    acoustically induced vibration in gas pipeline systems',
     options = dict(build_exe = build_exe_options,
