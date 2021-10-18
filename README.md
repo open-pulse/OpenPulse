@@ -59,6 +59,8 @@ and then ```envpulse/Scripts/activate```
 - Now we are ready to go, just run ```python setup.py bdist_msi```
 
 - Your package will be created at ```OpenPulse/dist/OpenPulse-x.y.z.msi```
+
+- When everything is done you can deactivate the virtual environment. Do it just running ```deactivate```
     
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).
