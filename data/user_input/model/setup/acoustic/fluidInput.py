@@ -161,8 +161,8 @@ class FluidInput(QDialog):
         self.pushButton_reset_entries_add_fluid = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid')
         self.pushButton_reset_entries_add_fluid.clicked.connect(self.reset_add_texts)
 
-        self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
-        self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts)
+        # self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
+        # self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts_rp)
 
         self.pushButton_call_refprop = self.findChild(QPushButton, 'pushButton_call_refprop')
         self.pushButton_call_refprop.clicked.connect(self.call_refprop_interface)
@@ -178,9 +178,6 @@ class FluidInput(QDialog):
 
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
-
-        self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
-        self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts_rp)
 
         self.pushButton_edit_fluid_in_refprop = self.findChild(QPushButton, 'pushButton_edit_fluid_in_refprop')
         self.pushButton_edit_fluid_in_refprop.clicked.connect(self.edit_REFPROP_fluid)
