@@ -67,8 +67,8 @@ def default_fluid_library(path):
 
     config = configparser.ConfigParser()
 
-    config['AIR @300K'] = {
-                            'Name': 'air @300K',
+    config['Air @300K'] = {
+                            'Name': 'Air @300K',
                             'Identifier': 1,
                             'Color': '[0,0,255]', #Blue
                             'Fluid density': 1.1614, 
@@ -79,8 +79,8 @@ def default_fluid_library(path):
                             'Specific heat Cp': 1007,
                             'Dynamic viscosity': float(184.6e-7) }      
 
-    config['AIR @400K'] = {
-                            'Name': 'air @400K',
+    config['Air @400K'] = {
+                            'Name': 'Air @400K',
                             'Identifier': 2,
                             'Color': '[0,255,255]', #light Blue
                             'Fluid density': 0.8711, 
@@ -91,8 +91,8 @@ def default_fluid_library(path):
                             'Specific heat Cp': 1013,
                             'Dynamic viscosity': float(230.1e-7) }     
 
-    config['HYDROGEN @300K'] = {
-                            'Name': 'hydrogen @300K',
+    config['Hydrogen @300K'] = {
+                            'Name': 'Hydrogen @300K',
                             'Identifier': 3,
                             'Color': '[150,0,150]', #Magenta
                             'Fluid density': 0.08078,
@@ -103,8 +103,8 @@ def default_fluid_library(path):
                             'Specific heat Cp': 14307,
                             'Dynamic viscosity': float(89.6e-7) } 
     
-    config['HYDROGEN @400K'] = {
-                            'Name': 'hydrogen @400K',
+    config['Hydrogen @400K'] = {
+                            'Name': 'Hydrogen @400K',
                             'Identifier': 4,
                             'Color': '[200,125,255]', #Magenta
                             'Fluid density': 0.06059,
@@ -115,8 +115,8 @@ def default_fluid_library(path):
                             'Specific heat Cp': 14476,
                             'Dynamic viscosity': float(108.2e-7) } 
     
-    config['METHANE @300K'] = {
-                            'Name': 'methane @300K',
+    config['Methane @300K'] = {
+                            'Name': 'Methane @300K',
                             'Identifier': 5,
                             'Color': '[200,150,50]', #Cyan
                             'Fluid density': 0.657,

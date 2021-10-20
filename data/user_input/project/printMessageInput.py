@@ -5,7 +5,7 @@ from PyQt5 import uic
 from threading import Thread
 
 class PrintMessageInput(QDialog):
-    def __init__(self, text_info, opv=None, startnow=True, *args, **kwargs):
+    def __init__(self, text_info, opv=None, fontsizes=[13,12], *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Plots/Messages/printMessages.ui', self)
 
@@ -20,6 +20,8 @@ class PrintMessageInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
         if opv is not None:
             opv.setInputObject(self)
+
+        self.title_fontsize, self.message_fontsize = fontsizes
 
         self._label_title = self.findChild(QLabel, '_label_title')
         self._label_message = self.findChild(QLabel, '_label_message')
@@ -39,8 +41,7 @@ class PrintMessageInput(QDialog):
         if len(text_info)>2:
             self.setWindowTitle(text_info[2])
 
-        if startnow:
-            self.exec_()
+        self.exec_()
 
     def message_close(self):
         self.close()
@@ -48,7 +49,7 @@ class PrintMessageInput(QDialog):
     def create_font_title(self):
         self.font_title = QFont()
         self.font_title.setFamily("Arial")
-        self.font_title.setPointSize(13)
+        self.font_title.setPointSize(self.title_fontsize)
         self.font_title.setBold(True)
         self.font_title.setItalic(False)
         self.font_title.setWeight(75) 
@@ -56,7 +57,7 @@ class PrintMessageInput(QDialog):
     def create_font_message(self):
         self.font_message = QFont()
         self.font_message.setFamily("Arial")
-        self.font_message.setPointSize(12)
+        self.font_message.setPointSize(self.message_fontsize)
         self.font_message.setBold(True)
         self.font_message.setItalic(False)
         self.font_message.setWeight(75) 

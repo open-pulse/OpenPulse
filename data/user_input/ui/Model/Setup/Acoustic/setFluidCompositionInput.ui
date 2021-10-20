@@ -6,221 +6,45 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>558</height>
+    <width>1120</width>
+    <height>705</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>800</width>
-    <height>558</height>
+    <width>1120</width>
+    <height>705</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>800</width>
-    <height>558</height>
+    <width>1120</width>
+    <height>705</height>
    </size>
   </property>
   <property name="windowTitle">
-   <string>Set fluid composition</string>
+   <string>Set fluid mixture composition</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
     <rect>
      <x>0</x>
-     <y>58</y>
-     <width>800</width>
-     <height>500</height>
+     <y>48</y>
+     <width>1120</width>
+     <height>657</height>
     </rect>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
    </property>
    <property name="frameShadow">
-    <enum>QFrame::Plain</enum>
+    <enum>QFrame::Sunken</enum>
    </property>
-   <widget class="QPushButton" name="pushButton_remove_gas">
-    <property name="geometry">
-     <rect>
-      <x>242</x>
-      <y>384</y>
-      <width>120</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Remove gas</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="pushButton_add_gas">
-    <property name="geometry">
-     <rect>
-      <x>242</x>
-      <y>322</y>
-      <width>120</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
-      <italic>true</italic>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Add gas</string>
-    </property>
-   </widget>
-   <widget class="QTreeWidget" name="treeWidget_reference_gases">
-    <property name="geometry">
-     <rect>
-      <x>38</x>
-      <y>28</y>
-      <width>160</width>
-      <height>400</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>50</weight>
-      <italic>true</italic>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="indentation">
-     <number>0</number>
-    </property>
-    <attribute name="headerCascadingSectionResizes">
-     <bool>true</bool>
-    </attribute>
-    <attribute name="headerHighlightSections">
-     <bool>true</bool>
-    </attribute>
-    <column>
-     <property name="text">
-      <string>Fluid</string>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
-     </property>
-    </column>
-   </widget>
-   <widget class="QTreeWidget" name="treeWidget_new_gas">
-    <property name="geometry">
-     <rect>
-      <x>404</x>
-      <y>28</y>
-      <width>360</width>
-      <height>400</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <italic>true</italic>
-     </font>
-    </property>
-    <property name="editTriggers">
-     <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
-    </property>
-    <property name="alternatingRowColors">
-     <bool>true</bool>
-    </property>
-    <property name="selectionBehavior">
-     <enum>QAbstractItemView::SelectRows</enum>
-    </property>
-    <property name="indentation">
-     <number>0</number>
-    </property>
-    <column>
-     <property name="text">
-      <string>Fluid</string>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
-     </property>
-    </column>
-    <column>
-     <property name="text">
-      <string>Composition [%]</string>
-     </property>
-     <property name="font">
-      <font>
-       <family>Arial</family>
-       <pointsize>11</pointsize>
-       <weight>75</weight>
-       <italic>true</italic>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="textAlignment">
-      <set>AlignCenter</set>
-     </property>
-    </column>
-   </widget>
    <widget class="QPushButton" name="pushButton_confirm">
     <property name="geometry">
      <rect>
-      <x>464</x>
-      <y>446</y>
+      <x>682</x>
+      <y>604</y>
       <width>180</width>
       <height>40</height>
      </rect>
@@ -247,151 +71,14 @@
      </font>
     </property>
     <property name="text">
-     <string>Confirm fluid</string>
-    </property>
-   </widget>
-   <widget class="QLineEdit" name="lineEdit_composition">
-    <property name="geometry">
-     <rect>
-      <x>244</x>
-      <y>164</y>
-      <width>120</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <italic>true</italic>
-     </font>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_2">
-    <property name="geometry">
-     <rect>
-      <x>236</x>
-      <y>136</y>
-      <width>136</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>136</width>
-      <height>26</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>136</width>
-      <height>26</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Composition [%]</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_3">
-    <property name="geometry">
-     <rect>
-      <x>236</x>
-      <y>38</y>
-      <width>136</width>
-      <height>26</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Selected fluid</string>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_selected_fluid">
-    <property name="geometry">
-     <rect>
-      <x>244</x>
-      <y>66</y>
-      <width>120</width>
-      <height>50</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>120</width>
-      <height>50</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>120</width>
-      <height>50</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <italic>true</italic>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 255);
-background-color: rgb(255, 255, 255);</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
+     <string>Get fluid properties</string>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_reset_fluid">
     <property name="geometry">
      <rect>
-      <x>152</x>
-      <y>446</y>
+      <x>268</x>
+      <y>604</y>
       <width>180</width>
       <height>40</height>
      </rect>
@@ -421,89 +108,1303 @@ background-color: rgb(255, 255, 255);</string>
      <string>Reset fluid</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_4">
+   <widget class="QTabWidget" name="tabWidget_general">
     <property name="geometry">
      <rect>
-      <x>236</x>
-      <y>212</y>
-      <width>136</width>
-      <height>42</height>
+      <x>10</x>
+      <y>10</y>
+      <width>1101</width>
+      <height>583</height>
      </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>136</width>
-      <height>42</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>136</width>
-      <height>42</height>
-     </size>
     </property>
     <property name="font">
      <font>
       <family>Arial</family>
       <pointsize>11</pointsize>
       <weight>75</weight>
+      <italic>true</italic>
       <bold>true</bold>
      </font>
     </property>
-    <property name="text">
-     <string>Remaining composition [%]</string>
+    <property name="currentIndex">
+     <number>0</number>
     </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_remaining_composition">
-    <property name="geometry">
-     <rect>
-      <x>244</x>
-      <y>256</y>
-      <width>120</width>
-      <height>32</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>120</width>
-      <height>32</height>
-     </size>
-    </property>
-    <property name="font">
-     <font>
-      <family>Arial</family>
-      <pointsize>11</pointsize>
-      <italic>true</italic>
-     </font>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">color: rgb(0, 0, 255);
+    <widget class="QWidget" name="tab_fluid_setup">
+     <attribute name="title">
+      <string>Fluid setup</string>
+     </attribute>
+     <widget class="QPushButton" name="pushButton_add_gas">
+      <property name="geometry">
+       <rect>
+        <x>416</x>
+        <y>394</y>
+        <width>132</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>132</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>132</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Add gas &gt;</string>
+      </property>
+     </widget>
+     <widget class="QTreeWidget" name="treeWidget_new_gas">
+      <property name="geometry">
+       <rect>
+        <x>574</x>
+        <y>142</y>
+        <width>509</width>
+        <height>400</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
+      <column>
+       <property name="text">
+        <string>Fluid</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Molar fraction [%]</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+     </widget>
+     <widget class="QLabel" name="label_selected_fluid">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>78</y>
+        <width>350</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>350</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>350</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>8</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);
 background-color: rgb(255, 255, 255);</string>
-    </property>
-    <property name="frameShape">
-     <enum>QFrame::Box</enum>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-    <property name="wordWrap">
-     <bool>true</bool>
-    </property>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+      <property name="margin">
+       <number>2</number>
+      </property>
+      <property name="indent">
+       <number>2</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>414</x>
+        <y>280</y>
+        <width>136</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Molar fraction [%]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_composition">
+      <property name="geometry">
+       <rect>
+        <x>416</x>
+        <y>308</y>
+        <width>132</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>132</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>132</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>54</x>
+        <y>78</y>
+        <width>140</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>140</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>140</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Selected fluid:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QTreeWidget" name="treeWidget_reference_gases">
+      <property name="geometry">
+       <rect>
+        <x>12</x>
+        <y>142</y>
+        <width>376</width>
+        <height>400</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <weight>50</weight>
+        <italic>true</italic>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAsNeeded</enum>
+      </property>
+      <property name="sizeAdjustPolicy">
+       <enum>QAbstractScrollArea::AdjustIgnored</enum>
+      </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+      <attribute name="headerCascadingSectionResizes">
+       <bool>true</bool>
+      </attribute>
+      <attribute name="headerHighlightSections">
+       <bool>true</bool>
+      </attribute>
+      <column>
+       <property name="text">
+        <string>Default fluid library</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+     </widget>
+     <widget class="QLabel" name="label_remaining_composition">
+      <property name="geometry">
+       <rect>
+        <x>416</x>
+        <y>206</y>
+        <width>132</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>132</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>132</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_remove_gas">
+      <property name="geometry">
+       <rect>
+        <x>416</x>
+        <y>478</y>
+        <width>132</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>132</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>132</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Remove gas &lt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_title_remaining_fraction">
+      <property name="geometry">
+       <rect>
+        <x>414</x>
+        <y>162</y>
+        <width>136</width>
+        <height>42</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>136</width>
+        <height>42</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>136</width>
+        <height>42</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Remaining molar fraction [%]</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_fluid_name">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>22</y>
+        <width>350</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>350</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>350</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_5">
+      <property name="geometry">
+       <rect>
+        <x>34</x>
+        <y>22</y>
+        <width>160</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>160</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>160</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Insert a fluid name:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_10">
+      <property name="geometry">
+       <rect>
+        <x>634</x>
+        <y>22</y>
+        <width>110</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>110</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>110</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Temperature:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_temperature">
+      <property name="geometry">
+       <rect>
+        <x>750</x>
+        <y>22</y>
+        <width>120</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_pressure">
+      <property name="geometry">
+       <rect>
+        <x>750</x>
+        <y>78</y>
+        <width>120</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_9">
+      <property name="geometry">
+       <rect>
+        <x>654</x>
+        <y>78</y>
+        <width>90</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>90</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>90</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Pressure:</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox_pressure_units">
+      <property name="geometry">
+       <rect>
+        <x>876</x>
+        <y>78</y>
+        <width>60</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>36</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string> Pa</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> kPa</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> bar</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> psi</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="comboBox_temperature_units">
+      <property name="geometry">
+       <rect>
+        <x>876</x>
+        <y>22</y>
+        <width>60</width>
+        <height>36</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>36</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>36</height>
+       </size>
+      </property>
+      <item>
+       <property name="text">
+        <string>  K</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>  ºC</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string>  ºF</string>
+       </property>
+      </item>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_2">
+     <attribute name="title">
+      <string>Pretest analysis</string>
+     </attribute>
+     <widget class="QLabel" name="label_6">
+      <property name="geometry">
+       <rect>
+        <x>44</x>
+        <y>108</y>
+        <width>136</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Temperature</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_temperature_test">
+      <property name="geometry">
+       <rect>
+        <x>52</x>
+        <y>136</y>
+        <width>120</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_7">
+      <property name="geometry">
+       <rect>
+        <x>44</x>
+        <y>192</y>
+        <width>136</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>136</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Pressure</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_pressure_test">
+      <property name="geometry">
+       <rect>
+        <x>52</x>
+        <y>220</y>
+        <width>120</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QTreeWidget" name="treeWidget_fluids_states">
+      <property name="geometry">
+       <rect>
+        <x>288</x>
+        <y>30</y>
+        <width>425</width>
+        <height>400</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>9</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed|QAbstractItemView::SelectedClicked</set>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectRows</enum>
+      </property>
+      <property name="indentation">
+       <number>0</number>
+      </property>
+      <column>
+       <property name="text">
+        <string>Index</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Temperature</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Pressure</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Test status</string>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>10</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="textAlignment">
+        <set>AlignCenter</set>
+       </property>
+      </column>
+     </widget>
+     <widget class="QPushButton" name="pushButton_add_fluid_state">
+      <property name="geometry">
+       <rect>
+        <x>52</x>
+        <y>288</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Add fluid state &gt;</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_remove_fluid_state">
+      <property name="geometry">
+       <rect>
+        <x>52</x>
+        <y>372</y>
+        <width>200</width>
+        <height>50</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Remove fluid state &lt;</string>
+      </property>
+     </widget>
+     <widget class="QComboBox" name="comboBox_temperature_units_test">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>138</y>
+        <width>68</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string> K</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> ºC</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> ºF</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QComboBox" name="comboBox_pressure_units_test">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>222</y>
+        <width>68</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <item>
+       <property name="text">
+        <string> Pa</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> kPa</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> bar</string>
+       </property>
+      </item>
+      <item>
+       <property name="text">
+        <string> psi</string>
+       </property>
+      </item>
+     </widget>
+     <widget class="QFrame" name="frame_3">
+      <property name="geometry">
+       <rect>
+        <x>744</x>
+        <y>62</y>
+        <width>313</width>
+        <height>327</height>
+       </rect>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <widget class="QLabel" name="label_selected_fluid_2">
+       <property name="geometry">
+        <rect>
+         <x>16</x>
+         <y>22</y>
+         <width>283</width>
+         <height>215</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>70</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>500</width>
+         <height>400</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>11</pointsize>
+         <italic>true</italic>
+        </font>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>The pretest analysis checks if all fluid states lead to valid fluid properties. If the calculated fluid properties are physically consistent, the new fluid can be added to the fluid library, otherwise, it cannot.</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+       <property name="margin">
+        <number>2</number>
+       </property>
+       <property name="indent">
+        <number>2</number>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_run_pretest">
+       <property name="geometry">
+        <rect>
+         <x>52</x>
+         <y>258</y>
+         <width>210</width>
+         <height>50</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>210</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>210</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Arial</family>
+         <pointsize>12</pointsize>
+         <weight>75</weight>
+         <italic>true</italic>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="text">
+        <string>Run pretest</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_8">
+      <property name="geometry">
+       <rect>
+        <x>54</x>
+        <y>24</y>
+        <width>120</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>State index</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_fluid_state_index">
+      <property name="geometry">
+       <rect>
+        <x>54</x>
+        <y>54</y>
+        <width>120</width>
+        <height>32</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>120</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <italic>true</italic>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </widget>
    </widget>
   </widget>
   <widget class="QFrame" name="frame_2">
@@ -511,23 +1412,23 @@ background-color: rgb(255, 255, 255);</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
-     <height>59</height>
+     <width>1120</width>
+     <height>49</height>
     </rect>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
    </property>
    <property name="frameShadow">
-    <enum>QFrame::Plain</enum>
+    <enum>QFrame::Sunken</enum>
    </property>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>100</x>
+      <x>260</x>
       <y>4</y>
       <width>600</width>
-      <height>50</height>
+      <height>43</height>
      </rect>
     </property>
     <property name="font">
@@ -540,7 +1441,7 @@ background-color: rgb(255, 255, 255);</string>
      </font>
     </property>
     <property name="text">
-     <string>Set the fluid composition</string>
+     <string>Set the fluid mixture composition</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

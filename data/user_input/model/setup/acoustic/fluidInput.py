@@ -1,14 +1,17 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView, QWidget
 from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from time import time
 
+# from PyQt5.uic.uiparser import QtWidgets
+
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -41,6 +44,9 @@ class FluidInput(QDialog):
         self.fluid_path = project.get_fluid_list_path()
 
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self.REFPROP = None
+        self.fluid_data_REFPROP = {}
+        self.fluid_name_to_REFPROP_data = {}
         self.clicked_item = None
         self.fluid = None
         self.flagAll = False
@@ -49,6 +55,19 @@ class FluidInput(QDialog):
         self.adding = False
         self.editing = False
         self.temp_fluid_color = ""
+
+        self.fluid_data_keys = ["fluid name", 
+                                "id", 
+                                "color", 
+                                "fluid density", 
+                                "speed of sound", 
+                                "impedance", 
+                                "isentropic coefficient", 
+                                "thermal conductivity", 
+                                "specific heat Cp", 
+                                "dynamic viscosity",
+                                "temperature",
+                                "pressure"]
 
         self.treeWidget_fluids = self.findChild(QTreeWidget, 'treeWidget_fluids')
         header = self.treeWidget_fluids.headerItem()
@@ -80,6 +99,19 @@ class FluidInput(QDialog):
         self.lineEdit_thermal_conductivity = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity')
         self.lineEdit_specific_heat_Cp = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp')
         self.lineEdit_dynamic_viscosity = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity')
+        #
+        self.lineEdit_name_rp = self.findChild(QLineEdit, 'lineEdit_name_rp')
+        self.lineEdit_id_rp = self.findChild(QLineEdit, 'lineEdit_id_rp')
+        self.lineEdit_color_rp = self.findChild(QLineEdit, 'lineEdit_color_rp')
+        self.lineEdit_fluid_density_rp = self.findChild(QLineEdit, 'lineEdit_fluid_density_rp')
+        self.lineEdit_speed_of_sound_rp = self.findChild(QLineEdit, 'lineEdit_speed_of_sound_rp')
+        self.lineEdit_impedance_rp = self.findChild(QLineEdit, 'lineEdit_impedance_rp')
+        self.lineEdit_isentropic_exponent_rp = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_rp')
+        self.lineEdit_thermal_conductivity_rp = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_rp')
+        self.lineEdit_specific_heat_Cp_rp = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_rp')
+        self.lineEdit_dynamic_viscosity_rp = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_rp')
+        self.lineEdit_temperature_rp = self.findChild(QLineEdit, 'lineEdit_temperature_rp')
+        self.lineEdit_pressure_rp = self.findChild(QLineEdit, 'lineEdit_pressure_rp')
         #
         self.lineEdit_name_edit = self.findChild(QLineEdit, 'lineEdit_name_edit')
         self.lineEdit_id_edit = self.findChild(QLineEdit, 'lineEdit_id_edit')
@@ -120,14 +152,20 @@ class FluidInput(QDialog):
             self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all.setChecked(True)
 
-        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
-
         self.pushButton_confirm_add_fluid = self.findChild(QPushButton, 'pushButton_confirm_add_fluid')
         self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
 
+        self.pushButton_confirm_add_fluid_rp = self.findChild(QPushButton, 'pushButton_confirm_add_fluid_rp')
+        self.pushButton_confirm_add_fluid_rp.clicked.connect(self.check_add_fluid_refprop)
+
         self.pushButton_reset_entries_add_fluid = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid')
         self.pushButton_reset_entries_add_fluid.clicked.connect(self.reset_add_texts)
+
+        self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
+        self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts)
+
+        self.pushButton_call_refprop = self.findChild(QPushButton, 'pushButton_call_refprop')
+        self.pushButton_call_refprop.clicked.connect(self.call_refprop_interface)
 
         self.pushButton_confirm_fluid_edition = self.findChild(QPushButton, 'pushButton_confirm_fluid_edition')
         self.pushButton_confirm_fluid_edition.clicked.connect(self.check_edit_fluid)
@@ -135,17 +173,71 @@ class FluidInput(QDialog):
         self.pushButton_confirm_fluid_removal = self.findChild(QPushButton, 'pushButton_confirm_fluid_removal')
         self.pushButton_confirm_fluid_removal.clicked.connect(self.confirm_fluid_removal)
 
+        self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
+        self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
+
         self.pushButton_reset_library = self.findChild(QPushButton, 'pushButton_reset_library')
         self.pushButton_reset_library.clicked.connect(self.reset_library_to_default)
 
+        self.pushButton_reset_entries_add_fluid_rp = self.findChild(QPushButton, 'pushButton_reset_entries_add_fluid_rp')
+        self.pushButton_reset_entries_add_fluid_rp.clicked.connect(self.reset_add_texts_rp)
+
+        self.pushButton_edit_fluid_in_refprop = self.findChild(QPushButton, 'pushButton_edit_fluid_in_refprop')
+        self.pushButton_edit_fluid_in_refprop.clicked.connect(self.edit_REFPROP_fluid)
+        self.pushButton_edit_fluid_in_refprop.setVisible(False)
+
         self.tabWidget_fluid = self.findChild(QTabWidget, 'tabWidget_fluid')
         # self.tabWidget_fluid.currentChanged.connect(self.tab_event_update)
+
+        self.tabWidget_add = self.findChild(QTabWidget, 'tabWidget_add')
+        self.tab_user_defined = self.tabWidget_add.findChild(QWidget, 'tab_user_defined')
+        self.tab_refprop_button = self.tabWidget_add.findChild(QWidget, 'tab_refprop_button')
+        self.tab_refprop_all_entries = self.tabWidget_add.findChild(QWidget, 'tab_refprop_all_entries')
+        self.tabWidget_add.removeTab(2)
         
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelection = self.radioButton_selected_lines.isChecked()
 
         self.loadList()
         self.exec_()
+
+    def edit_REFPROP_fluid(self):
+        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid)
+        self.after_get_fluid_properties_from_REFPROP()
+
+    def call_refprop_interface(self):
+        self.REFPROP = SetFluidCompositionInput(self.project, self.opv)
+        self.after_get_fluid_properties_from_REFPROP()
+
+    def after_get_fluid_properties_from_REFPROP(self):
+        if self.REFPROP.complete:
+            self.tabWidget_add.removeTab(1)
+            self.tabWidget_add.addTab(self.tab_refprop_all_entries, "REFPROP")
+            self.tabWidget_add.setCurrentIndex(1)
+            self.fluid_data_REFPROP = self.REFPROP.fluid_properties
+            self.fluid_setup = self.REFPROP.fluid_setup
+            for index, key in enumerate(self.fluid_data_keys):
+                data = self.fluid_data_REFPROP[key]
+                if isinstance(data, float):
+                    if key in ["thermal conductivity", "dynamic viscosity"]:
+                        data = round(data, 9)
+                    elif key in ["temperature", "pressure"]:
+                        data = round(data, 4)
+                    else:
+                        data = round(data, 6)
+                self.list_add_lineEdit_rp[index].setText(str(data))
+
+    def disable_lineEdits(self):
+        lineEdits = [   self.lineEdit_fluid_density_rp,
+                        self.lineEdit_speed_of_sound_rp,
+                        self.lineEdit_impedance_rp,
+                        self.lineEdit_isentropic_exponent_rp,
+                        self.lineEdit_thermal_conductivity_rp,
+                        self.lineEdit_specific_heat_Cp_rp,
+                        self.lineEdit_dynamic_viscosity_rp   ]
+                        
+        for lineEdit in lineEdits:
+            lineEdit.setDisabled(True)
 
     # def tab_event_update(self):
     #     self.reset_add_texts()
@@ -180,6 +272,19 @@ class FluidInput(QDialog):
                                     self.lineEdit_thermal_conductivity,
                                     self.lineEdit_specific_heat_Cp,
                                     self.lineEdit_dynamic_viscosity ]  
+
+        self.list_add_lineEdit_rp = [   self.lineEdit_name_rp,
+                                        self.lineEdit_id_rp,
+                                        self.lineEdit_color_rp,
+                                        self.lineEdit_fluid_density_rp,
+                                        self.lineEdit_speed_of_sound_rp,
+                                        self.lineEdit_impedance_rp,
+                                        self.lineEdit_isentropic_exponent_rp,
+                                        self.lineEdit_thermal_conductivity_rp,
+                                        self.lineEdit_specific_heat_Cp_rp,
+                                        self.lineEdit_dynamic_viscosity_rp,
+                                        self.lineEdit_temperature_rp,
+                                        self.lineEdit_pressure_rp   ]  
 
         self.list_edit_lineEdit = [ self.lineEdit_name_edit,
                                     self.lineEdit_id_edit,
@@ -222,7 +327,15 @@ class FluidInput(QDialog):
                     message = "Please, inform a different fluid name. It is already being used by other fluid!"
                     PrintMessageInput([title, message, window_title1])
                     return True
-            self.dict_inputs['name'] = name_string
+
+                if self.lineEdit_temperature_rp.text() != "":
+                    _temperature = self.lineEdit_temperature_rp.text()
+                    name_string += f" @ {_temperature}K"
+                if self.lineEdit_pressure_rp.text() != "":
+                    _pressure = self.lineEdit_pressure_rp.text()
+                    name_string += f" & {_pressure}Pa"
+
+                self.dict_inputs['name'] = name_string
         
     def check_input_fluid_id(self, id_string):
         if id_string == "":
@@ -358,10 +471,11 @@ class FluidInput(QDialog):
             speed_of_sound = self.value
             self.dict_inputs['speed of sound'] = speed_of_sound
 
-            impedance = fluid_density*speed_of_sound
+            impedance = round(fluid_density*speed_of_sound, 4)
             impedance_string = str(fluid_density*speed_of_sound)
             if self.adding:
-                self.lineEdit_impedance.setText(impedance_string)
+                if self.lineEdit_impedance_rp.text() == "":
+                    self.lineEdit_impedance.setText(impedance_string)
             elif self.editing:
                 self.lineEdit_impedance_edit.setText(impedance_string)
             self.dict_inputs['impedance'] = impedance
@@ -407,7 +521,18 @@ class FluidInput(QDialog):
         else:
             self.list_empty_inputs.append('dynamic viscosity')
             self.incomplete_inputs = True
-        
+
+        if self.lineEdit_temperature_rp.text() != "":
+            self.dict_inputs['temperature'] = self.fluid_data_REFPROP["temperature"]
+
+        if self.lineEdit_pressure_rp.text() != "":
+            self.dict_inputs['pressure'] = self.fluid_data_REFPROP["pressure"]   
+
+        if self.REFPROP is not None:
+            [key_mixture, molar_fractions] = self.fluid_setup
+            self.dict_inputs['key mixture'] = key_mixture
+            self.dict_inputs['molar fractions'] = molar_fractions
+
         if self.incomplete_inputs:
             self.all_fluid_properties_message()
 
@@ -420,18 +545,18 @@ class FluidInput(QDialog):
             self.isentropic_exponent_string,
             self.thermal_conductivity_string,
             self.specific_heat_Cp_string,
-            self.dynamic_viscosity_string  ] = parameters
+            self.dynamic_viscosity_string, *args  ] = parameters
 
         self.dict_inputs = {}
 
         if self.check_input_name(name_string):
-            return
+            return True           
 
         if self.check_input_fluid_id(id_string):
-            return
+            return True
 
         if self.check_input_color(color_string):
-            return
+            return True
 
         if name_string not in self.list_names:
             self.list_names.append(name_string)
@@ -443,21 +568,22 @@ class FluidInput(QDialog):
             self.list_colors.append(self.colorRGB)
 
         if self.check_all_inputs():
-            return
+            return True
         
         try:
+            fluid_name = self.dict_inputs["name"]
             config = configparser.ConfigParser()
             config.read(self.fluid_path)
-            config[name_string.upper()] = self.dict_inputs
+            config[fluid_name] = self.dict_inputs
 
             with open(self.fluid_path, 'w') as config_file:
                 config.write(config_file)
                     
-        except Exception as err:
+        except Exception as log_error:
             title = "Error while saving the fluid data to the file"
-            message = str(err)
+            message = str(log_error)
             PrintMessageInput([title, message, window_title1])
-            return
+            return True
 
         if self.adding or self.editing:    
             self.treeWidget_fluids.clear()
@@ -578,6 +704,7 @@ class FluidInput(QDialog):
                 impedance =  str(rFluid['impedance'])
 
                 isentropic_exponent, thermal_conductivity, specific_heat_Cp, dynamic_viscosity = "", "", "", ""
+
                 if 'isentropic exponent' in keys:
                     isentropic_exponent = str(rFluid['isentropic exponent'])
                 if 'thermal conductivity' in keys:
@@ -587,6 +714,26 @@ class FluidInput(QDialog):
                 if 'dynamic viscosity' in keys:
                     dynamic_viscosity = str(rFluid['dynamic viscosity'])
                 
+                temperature = None
+                if 'temperature' in keys:
+                    temperature = float(str(rFluid['temperature']))
+
+                pressure = None
+                if 'pressure' in keys:
+                    pressure = float(str(rFluid['pressure']))
+
+                key_mixture = None
+                if 'key mixture' in keys:
+                    key_mixture = str(rFluid['key mixture'])  
+
+                molar_fractions = None                  
+                if 'molar fractions' in keys:
+                    str_molar_fractions = str(rFluid['molar fractions'])
+                    molar_fractions = self.project.file._get_list_of_values_from_string(str_molar_fractions, are_values_int=False)
+                
+                if not None in [temperature, pressure, key_mixture, molar_fractions]:
+                    self.fluid_name_to_REFPROP_data[name] = [name, temperature, pressure, key_mixture, molar_fractions]
+
                 load_fluid = QTreeWidgetItem([  name, 
                                                 identifier, 
                                                 color, 
@@ -621,6 +768,15 @@ class FluidInput(QDialog):
         self.adding = True
         self.editing = False
         self.check_add_edit( parameters )
+
+    def check_add_fluid_refprop(self):
+        parameters = []
+        for lineEdit in self.list_add_lineEdit_rp:
+            parameters.append(lineEdit.text())
+        self.adding = True
+        self.editing = False
+        if not self.check_add_edit( parameters ):
+            self.reset_add_texts_rp()
     
     def all_fluid_properties_message(self):
         title = "WARNING - EMPTY ENTRIES IN FLUID INPUTS"
@@ -676,13 +832,26 @@ class FluidInput(QDialog):
 
     def on_click_item(self, item):
         # self.current_index = self.tabWidget_fluid.currentIndex()
+        self.tabWidget_add.setCurrentIndex(0)
+        self.pushButton_edit_fluid_in_refprop.setVisible(False)
         self.clicked_item = item
         N = len(self.list_add_lineEdit)
         for i in range(N):
             self.list_add_lineEdit[i].setText(item.text(i))
             self.list_edit_lineEdit[i].setText(item.text(i))
             self.list_remove_lineEdit[i].setText(item.text(i))
-        self.temp_fluid_color = item.text(2)            
+        self.temp_fluid_color = item.text(2)   
+
+        fluid_name = item.text(0)
+        self.tabWidget_add.removeTab(1)
+        self.tabWidget_add.addTab(self.tab_refprop_button, "REFPROP")
+
+        if fluid_name in self.fluid_name_to_REFPROP_data.keys():
+            self.tabWidget_add.setCurrentIndex(1)
+            self.pushButton_edit_fluid_in_refprop.setVisible(True)
+            self.selected_REFPROP_fluid = self.fluid_name_to_REFPROP_data[fluid_name]   
+        else:
+            self.tabWidget_add.setCurrentIndex(0)
 
     def on_doubleclick_item(self, item):
         self.clicked_item = item
@@ -703,13 +872,14 @@ class FluidInput(QDialog):
             else:
                 config = configparser.ConfigParser()
                 config.read(self.fluid_path)
-                config.remove_section(self.lineEdit_name_remove.text().upper())
+                config.remove_section(self.lineEdit_name_remove.text())
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
                 for tag, line in self.dict_tag_to_entity.items():
-                    if line.fluid.name == self.lineEdit_name_remove.text():
-                        self.project.set_fluid_by_lines(tag, None)
+                    if line.fluid is not None:
+                        if line.fluid.name == self.lineEdit_name_remove.text():
+                            self.project.set_fluid_by_lines(tag, None)
 
                 self.treeWidget_fluids.clear()
                 self.clicked_item = None
@@ -741,37 +911,49 @@ class FluidInput(QDialog):
             self.reset_remove_texts() 
     
     def reset_add_texts(self):
-        self.lineEdit_name.setText("")
-        self.lineEdit_id.setText("")
-        self.lineEdit_fluid_density.setText("")
-        self.lineEdit_speed_of_sound.setText("")
-        self.lineEdit_impedance.setText("")
-        self.lineEdit_color.setText("")
-        self.lineEdit_isentropic_exponent.setText("")
-        self.lineEdit_thermal_conductivity.setText("") 
-        self.lineEdit_specific_heat_Cp.setText("") 
-        self.lineEdit_dynamic_viscosity.setText("") 
+        for lineEdit in self.list_add_lineEdit:
+            lineEdit.setText("")
+        # self.lineEdit_name.setText("")
+        # self.lineEdit_id.setText("")
+        # self.lineEdit_fluid_density.setText("")
+        # self.lineEdit_speed_of_sound.setText("")
+        # self.lineEdit_impedance.setText("")
+        # self.lineEdit_color.setText("")
+        # self.lineEdit_isentropic_exponent.setText("")
+        # self.lineEdit_thermal_conductivity.setText("") 
+        # self.lineEdit_specific_heat_Cp.setText("") 
+        # self.lineEdit_dynamic_viscosity.setText("") 
+
+    def reset_add_texts_rp(self):
+        for lineEdit in self.list_add_lineEdit_rp:
+            lineEdit.setText("")
+        self.tabWidget_add.removeTab(1)
+        self.tabWidget_add.addTab(self.tab_refprop_button, "REFPROP")
 
     def reset_edit_texts(self):
-        self.lineEdit_name_edit.setText("")
-        self.lineEdit_id_edit.setText("")
-        self.lineEdit_fluid_density_edit.setText("")
-        self.lineEdit_speed_of_sound_edit.setText("")
-        self.lineEdit_impedance_edit.setText("")
-        self.lineEdit_color_edit.setText("")
-        self.lineEdit_isentropic_exponent_edit.setText("")
-        self.lineEdit_thermal_conductivity_edit.setText("") 
-        self.lineEdit_specific_heat_Cp_edit.setText("") 
-        self.lineEdit_dynamic_viscosity_edit.setText("") 
+        for lineEdit in self.list_edit_lineEdit:
+            lineEdit.setText("")
+        # self.lineEdit_name_edit.setText("")
+        # self.lineEdit_id_edit.setText("")
+        # self.lineEdit_fluid_density_edit.setText("")
+        # self.lineEdit_speed_of_sound_edit.setText("")
+        # self.lineEdit_impedance_edit.setText("")
+        # self.lineEdit_color_edit.setText("")
+        # self.lineEdit_isentropic_exponent_edit.setText("")
+        # self.lineEdit_thermal_conductivity_edit.setText("") 
+        # self.lineEdit_specific_heat_Cp_edit.setText("") 
+        # self.lineEdit_dynamic_viscosity_edit.setText("") 
 
     def reset_remove_texts(self):
-        self.lineEdit_name_remove.setText("")
-        self.lineEdit_id_remove.setText("")
-        self.lineEdit_fluid_density_remove.setText("")
-        self.lineEdit_speed_of_sound_remove.setText("")
-        self.lineEdit_impedance_remove.setText("")
-        self.lineEdit_color_remove.setText("")
-        self.lineEdit_isentropic_exponent_remove.setText("")
-        self.lineEdit_thermal_conductivity_remove.setText("") 
-        self.lineEdit_specific_heat_Cp_remove.setText("") 
-        self.lineEdit_dynamic_viscosity_remove.setText("") 
+        for lineEdit in self.list_remove_lineEdit:
+            lineEdit.setText("")
+        # self.lineEdit_name_remove.setText("")
+        # self.lineEdit_id_remove.setText("")
+        # self.lineEdit_fluid_density_remove.setText("")
+        # self.lineEdit_speed_of_sound_remove.setText("")
+        # self.lineEdit_impedance_remove.setText("")
+        # self.lineEdit_color_remove.setText("")
+        # self.lineEdit_isentropic_exponent_remove.setText("")
+        # self.lineEdit_thermal_conductivity_remove.setText("") 
+        # self.lineEdit_specific_heat_Cp_remove.setText("") 
+        # self.lineEdit_dynamic_viscosity_remove.setText("") 
