@@ -130,9 +130,17 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities_with_cross_section = False
 
     def setRenderer(self, renderer):
-        # if renderer.getInUse(): 
-        #     return
+        if renderer.getInUse(): 
+            return
         
+        if (self.opvRenderer.getInUse()):
+            lastCamera = self.opvRenderer._renderer.GetActiveCamera()
+            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+
+        if (self.opvAnalysisRenderer.getInUse()):
+            lastCamera = self.opvAnalysisRenderer._renderer.GetActiveCamera()
+            renderer._renderer.GetActiveCamera().DeepCopy(lastCamera)
+
         self.clearRendereres()
         self.clearRendereresUse()
         renderer.setInUse(True)
