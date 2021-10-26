@@ -19,7 +19,7 @@ class SymbolsActor(vtkActorBase):
     PRESCRIBED_ROTATION_SYMBOL = loadSymbol('data/symbols/prescribedRotation.obj')
     NODAL_LOAD_POSITION_SYMBOL = loadSymbol('data/symbols/nodalLoadPosition.obj')
     NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('data/symbols/nodalLoadRotation.obj')
-    DUMPER_SYMBOL = loadSymbol('data/symbols/dumper.obj')
+    DAMPER_SYMBOL = loadSymbol('data/symbols/damper.obj')
     SPRING_SYMBOL = loadSymbol('data/symbols/spring.obj')
     VOLUME_VELOCITY_SYMBOL = loadSymbol('data/symbols/volumeVelocity.obj')
     ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('data/symbols/acousticPressure.obj')
@@ -104,7 +104,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetSourceData(2, self.PRESCRIBED_ROTATION_SYMBOL)
         self._mapper.SetSourceData(3, self.NODAL_LOAD_POSITION_SYMBOL)
         self._mapper.SetSourceData(4, self.NODAL_LOAD_ROTATION_SYMBOL)
-        self._mapper.SetSourceData(5, self.DUMPER_SYMBOL)
+        self._mapper.SetSourceData(5, self.DAMPER_SYMBOL)
         self._mapper.SetSourceData(6, self.SPRING_SYMBOL)
         self._mapper.SetSourceData(7, self.VOLUME_VELOCITY_SYMBOL)
         self._mapper.SetSourceData(8, self.ACOUSTIC_PRESSURE_SYMBOL)
@@ -340,7 +340,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getDamper(self, node):
-        offset = 0.05 * self.scaleFactor
+        offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 5
         scl = (1,1,1)
@@ -352,23 +352,23 @@ class SymbolsActor(vtkActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (0,0,90)
+            rot = (180,0,90)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (0,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (-90,0,0)
+            rot = (90,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
     
     def _getSpring(self, node):
-        offset = 0.05 * self.scaleFactor
+        offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 6
         scl = (1,1,1)
@@ -380,17 +380,17 @@ class SymbolsActor(vtkActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (0,0,90)
+            rot = (180,0,90)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (0,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (-90,0,0)
+            rot = (90,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
