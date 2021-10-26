@@ -468,11 +468,15 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getPerforatedPlate(self, element):
+        
+        rad = 1
         acoustic = self.project.get_acoustic_element(element.index)
 
-        rad = element.cross_section.inner_diameter / self.scaleFactor
-        if rad == 0:
-            rad = 1
+        if element.cross_section:
+            if element.element_type in ['pipe_1', 'pipe_2']:
+                rad = element.cross_section.inner_diameter / self.scaleFactor
+                if rad == 0:
+                    rad = 1
 
         src = 13
         pos = element.element_center_coordinates
