@@ -1,6 +1,7 @@
 import vtk
 import numpy as np 
 from time import time
+from dataclasses import dataclass
 
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
@@ -11,6 +12,22 @@ from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
 from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+
+
+@dataclass(frozen=True)
+class PlotFlags:
+    SHOW_NODES   = (1 << 0)
+    SHOW_LINES   = (1 << 1)
+    SHOW_TUBES   = (1 << 2)
+    SHOW_TRANSP  = (1 << 3)
+    SHOW_SYMBOLS = (1 << 4)
+
+@dataclass(frozen=True)
+class SelectionFlags:
+    SELECT_NODES    = (1 << 0)
+    SELECT_ENTITIES = (1 << 1)
+    SELECT_ELEMENTS = (1 << 2)
+
 
 class opvRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -23,9 +40,8 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
-        self._selectionToNodes = False
-        self._selectionToElements = False
-        self._selectionToEntities = False
+        self._plotFlags = 0
+        self._selectionFlags = 0
     
         self.opvNodes = None 
         self.opvLines = None
@@ -63,32 +79,27 @@ class opvRenderer(vtkRendererBase):
 
         self._renderer.ResetCameraClippingRange()
         self._addLogosToRender()
-
-    def showNodes(self, cond=True):
-        self.opvNodes.setVisibility(cond)
-
-    def showTubes(self, cond=True, transparent=True):
-        self.opvTubes.setVisibility(cond)
-        self.opvTubes.transparent = transparent
     
-    def showLines(self, cond=True):
-        self.opvLines.setVisibility(cond)
-    
-    def showSymbols(self, cond=True):
+    def setPlotFlags(self, flags):
+        self.opvNodes.setVisibility(flags & PlotFlags.SHOW_NODES)
+        self.opvLines.setVisibility(flags & PlotFlags.SHOW_LINES)
+        self.opvTubes.setVisibility(flags & PlotFlags.SHOW_TUBES)
+        self.opvSymbols.setVisibility(flags & PlotFlags.SHOW_SYMBOLS)
+        self.opvTubes.transparent = flags & PlotFlags.SHOW_TRANSP
         self.opvSymbols.build()
-        self.opvSymbols.setVisibility(cond)
+        self._plotFlags = flags
 
-    def selectNodes(self, cond):
-        self._selectionToNodes = cond
+    def setSelectionFlags(self, flags):
+        self._selectionFlags = flags
+    
+    def selectionToNodes(self):
+        return self._selectionFlags & SelectionFlags.SELECT_NODES
+    
+    def selectionToElements(self):
+        return self._selectionFlags & SelectionFlags.SELECT_ELEMENTS 
 
-    def selectElements(self, cond):
-        self._selectionToElements = cond 
-        self._selectionToEntities = self._selectionToEntities and not cond
-
-    def selectEntities(self, cond):
-        self._selectionToEntities = cond 
-        self._selectionToElements = self._selectionToElements and not cond
-
+    def selectionToEntities(self):
+        return self._selectionFlags & SelectionFlags.SELECT_ENTITIES
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -123,23 +134,22 @@ class opvRenderer(vtkRendererBase):
             self.elementsBounds[key] = bounds
 
     def saveLineToElements(self):
-        # preprocessor = self.project.get_preprocess()
         self.lineToElements = self.project.preprocessor.line_to_elements
     
     def getListPickedPoints(self):
-        if self._selectionToNodes:
+        if self.selectionToNodes():
             return self._style.getListPickedPoints()
         else:
             return []
 
     def getListPickedElements(self):
-        if self._selectionToElements:
+        if self.selectionToElements():
             return self._style.getListPickedElements()
         else:
             return []
 
     def getListPickedEntities(self):
-        if self._selectionToEntities:
+        if self.selectionToEntities():
             return self._style.getListPickedEntities()
         else:
             return []
@@ -170,14 +180,14 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()  # clear colors
         selectionColor = (255, 0, 0)
 
-        if selectedNodes and self._selectionToNodes:
+        if selectedNodes and self.selectionToNodes():
             self.opvNodes.setColor(selectionColor, keys=selectedNodes)
 
-        if selectedElements and self._selectionToElements:
+        if selectedElements and self.selectionToElements():
             self.opvLines.setColor(selectionColor, keys=selectedElements)
             self.opvTubes.setColor(selectionColor, keys=selectedElements)
 
-        if selectedEntities and self._selectionToEntities:
+        if selectedEntities and self.selectionToEntities():
             elementsFromEntities = set()
             for i in selectedEntities:
                 elements = self.lineToElements[i]
@@ -192,7 +202,7 @@ class opvRenderer(vtkRendererBase):
 
         ids = self.getListPickedElements()
 
-        if not self._selectionToElements:
+        if not self.selectionToElements():
             return 
         
         if len(ids) != 1:
@@ -230,13 +240,13 @@ class opvRenderer(vtkRendererBase):
     # LA ABERRACIÓN
     def updateInfoText(self, obj, event):
         text = ''
-        if self._selectionToNodes and self.getListPickedPoints():
+        if self.selectionToNodes() and self.getListPickedPoints():
             text += self.getNodesInfoText() + '\n'
 
-        if self._selectionToElements and self.getListPickedElements():
+        if self.selectionToElements() and self.getListPickedElements():
             text += self.getElementsInfoText() + '\n'
         
-        if self._selectionToEntities and self.getListPickedEntities():
+        if self.selectionToEntities() and self.getListPickedEntities():
             text += self.getEntityInfoText()  + '\n'
             
         self.createInfoText(text)

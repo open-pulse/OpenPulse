@@ -3,9 +3,11 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+from PyQt5 import uic
 import numpy as np
 
-from PyQt5 import uic
+from pulse.interface.opvRenderer import PlotFlags, SelectionFlags
+
 
 class MeshSetupVisibilityInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -29,6 +31,7 @@ class MeshSetupVisibilityInput(QDialog):
         self.checkBox_structural_symbols = self.findChild(QCheckBox, 'checkBox_structural_symbols')
 
         self.toolButton_confirm = self.findChild(QToolButton, 'toolButton_confirm')
+        self.toolButton_confirm.pressed.connect(self.confirm_and_update_mesh_visibility)
 
         self.exec()
 
@@ -39,4 +42,17 @@ class MeshSetupVisibilityInput(QDialog):
             self.close()
 
     def confirm_and_update_mesh_visibility(self):
+        # gets the correspondent flag according to the checkbox then bitwise OR everything
+        # and send the result to opvRenderer
+        plot_flags = (
+            (PlotFlags.SHOW_LINES)
+            | (PlotFlags.SHOW_NODES if self.checkBox_nodes.isChecked() else 0)
+            | (PlotFlags.SHOW_TUBES if self.checkBox_elements.isChecked() else 0)
+            | (PlotFlags.SHOW_SYMBOLS if self.checkBox_acoustic_symbols.isChecked() else 0)
+        )
+
+        selection_flags = 0
+
+        self.opv.opvRenderer.setPlotFlags(plot_flags)
+        self.opv.opvRenderer.setSelectionFlags(selection_flags)
         self.close()

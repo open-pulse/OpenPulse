@@ -4,12 +4,7 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-# from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-# from pulse.uix.vtk.renderer.rendererElement import RendererElement
-# from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
-# from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
-# from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
-from pulse.interface.opvRenderer import opvRenderer
+from pulse.interface.opvRenderer import opvRenderer, PlotFlags, SelectionFlags
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -47,66 +42,72 @@ class OPVUi(QVTKRenderWindowInteractor):
         LoadingScreen('Updating Plot', target=callback)
 
     def changePlotToEntities(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
-
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(False)
-        self.opvRenderer.update()
+        plot_flags = (
+            PlotFlags.SHOW_LINES
+        )
 
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
+        selection_flags = (
+            SelectionFlags.SELECT_ENTITIES
+        )
 
+        self.opvRenderer.setPlotFlags(plot_flags)
+        self.opvRenderer.setSelectionFlags(selection_flags)
         self._updateAxes()
 
     
     def changePlotToEntitiesWithCrossSection(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
-
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(True, transparent=False)
-        self.opvRenderer.update()
+        plot_flags = (
+            PlotFlags.SHOW_LINES | PlotFlags.SHOW_TUBES
+        )
 
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
+        selection_flags = (
+            SelectionFlags.SELECT_ENTITIES
+        )
 
+        self.opvRenderer.setPlotFlags(plot_flags)
+        self.opvRenderer.setSelectionFlags(selection_flags)
         self._updateAxes()
 
 
     def changePlotToMesh(self):
-
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
+        plot_flags = (
+            PlotFlags.SHOW_NODES | PlotFlags.SHOW_LINES | PlotFlags.SHOW_SYMBOLS | 
+            PlotFlags.SHOW_TUBES | PlotFlags.SHOW_TRANSP
+        )
+
+        selection_flags = (
+            SelectionFlags.SELECT_NODES | SelectionFlags.SELECT_ELEMENTS
+        )
+
         self.setRenderer(self.opvRenderer)
-
-        self.opvRenderer.showNodes(True)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(True)
-        self.opvRenderer.showTubes(True, transparent=True)
-        self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(True)
-        self.opvRenderer.selectElements(True)
-        self.opvRenderer.selectEntities(False)
-
+        self.opvRenderer.setPlotFlags(plot_flags)
+        self.opvRenderer.setSelectionFlags(selection_flags)
         self._updateAxes()
+    
+    def custom_plot(self, plot_flags, selection_flags):
+        self.change_plot_to_mesh = False
+        self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
+
+        self.setRenderer(self.opvRenderer)
+        self.opvRenderer.setPlotFlags(plot_flags)
+        self.opvRenderer.setSelectionFlags(selection_flags)
+        self._updateAxes()
+
 
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False): 
         # we call it so many times in so many different files that 
