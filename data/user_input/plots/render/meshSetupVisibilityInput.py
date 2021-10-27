@@ -23,11 +23,15 @@ class MeshSetupVisibilityInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
-        self.checkBox_nodes = self.findChild(QCheckBox, 'checkBox_nodes')
-        self.checkBox_elements = self.findChild(QCheckBox, 'checkBox_elements')
-        self.checkBox_acoustic_symbols = self.findChild(QCheckBox, 'checkBox_acoustic_symbols')
-        self.checkBox_structural_symbols = self.findChild(QCheckBox, 'checkBox_structural_symbols')
+        self.checkBox_nodes_viewer = self.findChild(QCheckBox, 'checkBox_nodes_viewer')
+        self.checkBox_elements_viewer = self.findChild(QCheckBox, 'checkBox_elements_viewer')
+        self.checkBox_acoustic_symbols_viewer = self.findChild(QCheckBox, 'checkBox_acoustic_symbols_viewer')
+        self.checkBox_structural_symbols_viewer = self.findChild(QCheckBox, 'checkBox_structural_symbols_viewer')
 
+        self.checkBox_nodes_selector = self.findChild(QCheckBox, 'checkBox_nodes_selector')
+        self.checkBox_elements_selector = self.findChild(QCheckBox, 'checkBox_elements_selector')
+        self.checkBox_lines_selector = self.findChild(QCheckBox, 'checkBox_lines_selector')
+        
         self.toolButton_confirm = self.findChild(QToolButton, 'toolButton_confirm')
 
         self.exec()

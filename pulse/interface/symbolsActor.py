@@ -29,13 +29,15 @@ class SymbolsActor(vtkActorBase):
     COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
     PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforatedPlate.obj')
     
-    def __init__(self, nodes, project, deformed=False):
+    def __init__(self, project, deformed=False):
         super().__init__()
         
         self.project = project
-        self.nodes = nodes
+        self.nodes = project.get_nodes() 
         self.deformed = deformed
         self.scaleFactor = 0.3
+        self._show_acoustic_symbols = True
+        self._show_structural_symbols = True
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
@@ -47,13 +49,17 @@ class SymbolsActor(vtkActorBase):
         self._createNodalLinks()
         self._loadSources()
         
-        for node in self.nodes.values():
-            for symbol in self._getNodeSymbols(node):
-                self._createSymbol(symbol)    
+        for node in self.nodes.values():   
+            for symbol in self._getAcousticNodeSymbols(node):
+                self._createSymbol(symbol)
+            for symbol in self._getStructuralNodeSymbols(node):
+                self._createSymbol(symbol)
 
         for element in self.project.get_structural_elements().values():
-            for symbol in self._getElementSymbols(element):
+            for symbol in self._getAcousticElementSymbols(element):
                 self._createSymbol(symbol)    
+            for symbol in self._getStructuralElementSymbols(element):
+                self._createSymbol(symbol)  
         
         self._populateData()
 
@@ -121,26 +127,42 @@ class SymbolsActor(vtkActorBase):
         self._scales.InsertNextTuple(symbol.scale)
         self._colors.InsertNextTuple(symbol.color)
 
-    def _getNodeSymbols(self, node):
+    
+    def _getAcousticNodeSymbols(self, node):
         # HERE YOU CALL THE FUNCTIONS CREATED
         symbols = []
-        symbols.extend(self._getPrescribedPositionSymbols(node))
-        symbols.extend(self._getPrescribedRotationSymbols(node))
-        symbols.extend(self._getNodalLoadPosition(node))
-        symbols.extend(self._getNodalLoadRotation(node))
-        symbols.extend(self._getDamper(node))
-        symbols.extend(self._getSpring(node))
-        symbols.extend(self._getVolumeVelocity(node))
-        symbols.extend(self._getAcousticPressure(node))
-        symbols.extend(self._getSpecificImpedance(node))
-        symbols.extend(self._getRadiationImpedance(node))
-        symbols.extend(self._getLumpedMass(node))
-        symbols.extend(self._getCompressor(node))
+        if self._show_acoustic_symbols:
+            symbols.extend(self._getAcousticPressure(node))
+            symbols.extend(self._getVolumeVelocity(node))
+            symbols.extend(self._getSpecificImpedance(node))
+            symbols.extend(self._getRadiationImpedance(node))
+            symbols.extend(self._getCompressor(node))
+        return symbols
+
+    def _getStructuralNodeSymbols(self, node):
+        # HERE YOU CALL THE FUNCTIONS CREATED
+        symbols = []
+        if self._show_structural_symbols:
+            symbols.extend(self._getPrescribedPositionSymbols(node))
+            symbols.extend(self._getPrescribedRotationSymbols(node))
+            symbols.extend(self._getNodalLoadForce(node))
+            symbols.extend(self._getNodalLoadMoment(node))
+            symbols.extend(self._getLumpedMass(node))
+            symbols.extend(self._getSpring(node))
+            symbols.extend(self._getDamper(node))
+        return symbols
+
+    def _getAcousticElementSymbols(self, element):
+        symbols = []
+        if self._show_acoustic_symbols:
+            symbols.extend(self._getPerforatedPlate(element))
         return symbols
     
-    def _getElementSymbols(self, element):
+    def _getStructuralElementSymbols(self, element):
         symbols = []
-        symbols.extend(self._getPerforatedPlate(element))
+        if self._show_structural_symbols:
+            pass
+            # symbols.extend(self._getValve(element))
         return symbols
 
     def _createNodalLinks(self):
@@ -265,7 +287,7 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
 
-    def _getNodalLoadPosition(self, node):
+    def _getNodalLoadForce(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 3
@@ -302,7 +324,7 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
     
-    def _getNodalLoadRotation(self, node):
+    def _getNodalLoadMoment(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 4
