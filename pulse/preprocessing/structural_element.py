@@ -169,7 +169,7 @@ class StructuralElement:
         self.stress = None
         self.internal_load = None
         self.static_analysis_evaluated = False
-
+        self.valve_data = None
 
     @property
     def length(self):
