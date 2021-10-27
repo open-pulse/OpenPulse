@@ -31,6 +31,15 @@ class MeshSetupVisibilityInput(QDialog):
         self.checkBox_nodes_selector = self.findChild(QCheckBox, 'checkBox_nodes_selector')
         self.checkBox_elements_selector = self.findChild(QCheckBox, 'checkBox_elements_selector')
         self.checkBox_lines_selector = self.findChild(QCheckBox, 'checkBox_lines_selector')
+
+        self.radioButton_black_color = self.findChild(QCheckBox, 'radioButton_black_color')
+        self.radioButton_dark_gray_color = self.findChild(QCheckBox, 'radioButton_dark_gray_color')
+        self.radioButton_light_gray_color = self.findChild(QCheckBox, 'radioButton_light_gray_color')
+        self.radioButton_white_color = self.findChild(QCheckBox, 'radioButton_white_color')
+
+        self.radioButton_OpenPulse_logo = self.findChild(QCheckBox, 'radioButton_OpenPulse_logo')
+        self.radioButton_MOPT_logo = self.findChild(QCheckBox, 'radioButton_MOPT_logo')
+        self.radioButton_reference_scale = self.findChild(QCheckBox, 'radioButton_reference_scale')
         
         self.toolButton_confirm = self.findChild(QToolButton, 'toolButton_confirm')
 
