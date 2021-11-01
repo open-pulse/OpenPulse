@@ -62,7 +62,7 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
-        self.opvSymbols = SymbolsActor(self.project.get_nodes(), self.project)
+        self.opvSymbols = SymbolsActor(self.project)
 
         self.opvNodes.build()
         self.opvSymbols.build()

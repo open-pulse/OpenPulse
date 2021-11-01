@@ -3,6 +3,7 @@ import numpy as np
 from time import time
 from collections import namedtuple
 from itertools import chain
+from scipy.spatial.transform import Rotation
 
 from pulse.interface.vtkActorBase import vtkActorBase
 
@@ -19,41 +20,49 @@ class SymbolsActor(vtkActorBase):
     PRESCRIBED_ROTATION_SYMBOL = loadSymbol('data/symbols/prescribedRotation.obj')
     NODAL_LOAD_POSITION_SYMBOL = loadSymbol('data/symbols/nodalLoadPosition.obj')
     NODAL_LOAD_ROTATION_SYMBOL = loadSymbol('data/symbols/nodalLoadRotation.obj')
-    DUMPER_SYMBOL = loadSymbol('data/symbols/dumper.obj')
-    SPRING_SYMBOL = loadSymbol('data/symbols/spring.obj')
+    LUMPED_MASS_SYMBOL = loadSymbol('data/symbols/lumpedMass.obj')
+    LUMPED_DAMPER_SYMBOL = loadSymbol('data/symbols/damper.obj')
+    LUMPED_SPRING_SYMBOL = loadSymbol('data/symbols/spring.obj')
+    # VALVE_SYMBOL = loadSymbol('data/symbols/valve_symbol2.obj')
     VOLUME_VELOCITY_SYMBOL = loadSymbol('data/symbols/volumeVelocity.obj')
     ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('data/symbols/acousticPressure.obj')
     SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/specificImpedance.obj')
     RADIATION_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/radiationImpedance.obj')
-    LUMPED_MASS_SYMBOL = loadSymbol('data/symbols/lumpedMass.obj')
     COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
     PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforatedPlate.obj')
     
-    def __init__(self, nodes, project, deformed=False):
+    def __init__(self, project, deformed=False):
         super().__init__()
         
         self.project = project
-        self.nodes = nodes
+        self.nodes = project.get_nodes() 
+        self.preprocessor = project.preprocessor
         self.deformed = deformed
         self.scaleFactor = 0.3
+        self._show_acoustic_symbols = True
+        self._show_structural_symbols = True
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
     
     def source(self):
-        self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
+        self.scaleFactor = self.preprocessor.structure_principal_diagonal / 10
         
         self._createArrays()
         self._createNodalLinks()
         self._loadSources()
         
-        for node in self.nodes.values():
-            for symbol in self._getNodeSymbols(node):
-                self._createSymbol(symbol)    
+        for node in self.nodes.values():   
+            for symbol in self._getAcousticNodeSymbols(node):
+                self._createSymbol(symbol)
+            for symbol in self._getStructuralNodeSymbols(node):
+                self._createSymbol(symbol)
 
         for element in self.project.get_structural_elements().values():
-            for symbol in self._getElementSymbols(element):
+            for symbol in self._getAcousticElementSymbols(element):
                 self._createSymbol(symbol)    
+            for symbol in self._getStructuralElementSymbols(element):
+                self._createSymbol(symbol)  
         
         self._populateData()
 
@@ -104,8 +113,8 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetSourceData(2, self.PRESCRIBED_ROTATION_SYMBOL)
         self._mapper.SetSourceData(3, self.NODAL_LOAD_POSITION_SYMBOL)
         self._mapper.SetSourceData(4, self.NODAL_LOAD_ROTATION_SYMBOL)
-        self._mapper.SetSourceData(5, self.DUMPER_SYMBOL)
-        self._mapper.SetSourceData(6, self.SPRING_SYMBOL)
+        self._mapper.SetSourceData(5, self.LUMPED_DAMPER_SYMBOL)
+        self._mapper.SetSourceData(6, self.LUMPED_SPRING_SYMBOL)
         self._mapper.SetSourceData(7, self.VOLUME_VELOCITY_SYMBOL)
         self._mapper.SetSourceData(8, self.ACOUSTIC_PRESSURE_SYMBOL)
         self._mapper.SetSourceData(9, self.SPECIFIC_IMPEDANCE_SYMBOL)
@@ -113,6 +122,7 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetSourceData(11, self.LUMPED_MASS_SYMBOL)
         self._mapper.SetSourceData(12, self.COMPRESSOR_SYMBOL)
         self._mapper.SetSourceData(13, self.PERFORATED_PLATE_SYMBOL)
+        # self._mapper.SetSourceData(14, self.VALVE_SYMBOL)
     
     def _createSymbol(self, symbol):
         self._sources.InsertNextTuple1(symbol.source)
@@ -120,27 +130,42 @@ class SymbolsActor(vtkActorBase):
         self._rotations.InsertNextTuple(symbol.rotation)
         self._scales.InsertNextTuple(symbol.scale)
         self._colors.InsertNextTuple(symbol.color)
-
-    def _getNodeSymbols(self, node):
+    
+    def _getAcousticNodeSymbols(self, node):
         # HERE YOU CALL THE FUNCTIONS CREATED
         symbols = []
-        symbols.extend(self._getPrescribedPositionSymbols(node))
-        symbols.extend(self._getPrescribedRotationSymbols(node))
-        symbols.extend(self._getNodalLoadPosition(node))
-        symbols.extend(self._getNodalLoadRotation(node))
-        symbols.extend(self._getDamper(node))
-        symbols.extend(self._getSpring(node))
-        symbols.extend(self._getVolumeVelocity(node))
-        symbols.extend(self._getAcousticPressure(node))
-        symbols.extend(self._getSpecificImpedance(node))
-        symbols.extend(self._getRadiationImpedance(node))
-        symbols.extend(self._getLumpedMass(node))
-        symbols.extend(self._getCompressor(node))
+        if self._show_acoustic_symbols:
+            symbols.extend(self._getAcousticPressure(node))
+            symbols.extend(self._getVolumeVelocity(node))
+            symbols.extend(self._getSpecificImpedance(node))
+            symbols.extend(self._getRadiationImpedance(node))
+            symbols.extend(self._getCompressor(node))
+        return symbols
+
+    def _getStructuralNodeSymbols(self, node):
+        # HERE YOU CALL THE FUNCTIONS CREATED
+        symbols = []
+        if self._show_structural_symbols:
+            symbols.extend(self._getPrescribedPositionSymbols(node))
+            symbols.extend(self._getPrescribedRotationSymbols(node))
+            symbols.extend(self._getNodalLoadForce(node))
+            symbols.extend(self._getNodalLoadMoment(node))
+            symbols.extend(self._getLumpedMass(node))
+            symbols.extend(self._getSpring(node))
+            symbols.extend(self._getDamper(node))
+        return symbols
+
+    def _getAcousticElementSymbols(self, element):
+        symbols = []
+        if self._show_acoustic_symbols:
+            symbols.extend(self._getPerforatedPlate(element))
         return symbols
     
-    def _getElementSymbols(self, element):
+    def _getStructuralElementSymbols(self, element):
         symbols = []
-        symbols.extend(self._getPerforatedPlate(element))
+        if self._show_structural_symbols:
+            pass
+            # symbols.extend(self._getValve(element))
         return symbols
 
     def _createNodalLinks(self):
@@ -265,7 +290,7 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
 
-    def _getNodalLoadPosition(self, node):
+    def _getNodalLoadForce(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 3
@@ -302,7 +327,7 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
     
-    def _getNodalLoadRotation(self, node):
+    def _getNodalLoadMoment(self, node):
         offset = 0.05 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 4
@@ -340,7 +365,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getDamper(self, node):
-        offset = 0.05 * self.scaleFactor
+        offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 5
         scl = (1,1,1)
@@ -352,23 +377,23 @@ class SymbolsActor(vtkActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (0,0,90)
+            rot = (180,0,90)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (0,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (-90,0,0)
+            rot = (90,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
     
     def _getSpring(self, node):
-        offset = 0.05 * self.scaleFactor
+        offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
         src = 6
         scl = (1,1,1)
@@ -380,17 +405,17 @@ class SymbolsActor(vtkActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (0,0,90)
+            rot = (180,0,90)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,180)
+            rot = (0,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (-90,0,0)
+            rot = (90,0,0)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
@@ -454,6 +479,24 @@ class SymbolsActor(vtkActorBase):
         if any(node.lumped_masses):
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
+
+    def _getValve(self, element):
+        src = 11
+        pos = element.element_center_coordinates
+        rot = (0,0,0)
+        scl = (1,1,1)
+        col = (7,156,231)
+        symbols = []
+
+        if any(element.valve_data):
+            rot = element.section_rotation_xyz_undeformed
+            rotation = Rotation.from_euler('xyz', rot, degrees=True)
+            rot_matrix = rotation.as_matrix()
+            vector = [round(value, 5) for value in rot_matrix[:,1]]
+            if vector[1] < 0:
+                rot[0] += 180
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        return symbols        
     
     def _getCompressor(self, node):
         src = 12
@@ -468,11 +511,15 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getPerforatedPlate(self, element):
+        
+        rad = 1
         acoustic = self.project.get_acoustic_element(element.index)
 
-        rad = element.cross_section.inner_diameter / self.scaleFactor
-        if rad == 0:
-            rad = 1
+        if element.cross_section:
+            if element.element_type in ['pipe_1', 'pipe_2']:
+                rad = element.cross_section.inner_diameter / self.scaleFactor
+                if rad == 0:
+                    rad = 1
 
         src = 13
         pos = element.element_center_coordinates
