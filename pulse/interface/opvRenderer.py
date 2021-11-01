@@ -90,6 +90,7 @@ class opvRenderer(vtkRendererBase):
         self._plotFlags = flags
 
     def setSelectionFlags(self, flags):
+        self.clearSelection()
         self._selectionFlags = flags
     
     def selectionToNodes(self):
@@ -100,6 +101,9 @@ class opvRenderer(vtkRendererBase):
 
     def selectionToEntities(self):
         return self._selectionFlags & SelectionFlags.SELECT_ENTITIES
+
+    def clearSelection(self):
+        self._style.clear()
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
