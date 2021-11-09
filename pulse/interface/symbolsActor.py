@@ -23,13 +23,13 @@ class SymbolsActor(vtkActorBase):
     LUMPED_MASS_SYMBOL = loadSymbol('data/symbols/lumpedMass.obj')
     LUMPED_DAMPER_SYMBOL = loadSymbol('data/symbols/damper.obj')
     LUMPED_SPRING_SYMBOL = loadSymbol('data/symbols/spring.obj')
-    # VALVE_SYMBOL = loadSymbol('data/symbols/valve_symbol2.obj')
     VOLUME_VELOCITY_SYMBOL = loadSymbol('data/symbols/volumeVelocity.obj')
     ACOUSTIC_PRESSURE_SYMBOL = loadSymbol('data/symbols/acousticPressure.obj')
     SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/specificImpedance.obj')
     RADIATION_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/radiationImpedance.obj')
     COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
     PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforatedPlate.obj')
+    VALVE_SYMBOL = loadSymbol('data/symbols/valve_symbol2.obj')
     
     def __init__(self, project, deformed=False):
         super().__init__()
@@ -51,6 +51,7 @@ class SymbolsActor(vtkActorBase):
         self._createArrays()
         self._createNodalLinks()
         self._loadSources()
+        self.valves_coord_to_parameters = {}
         
         for node in self.nodes.values():   
             for symbol in self._getAcousticNodeSymbols(node):
@@ -113,16 +114,17 @@ class SymbolsActor(vtkActorBase):
         self._mapper.SetSourceData(2, self.PRESCRIBED_ROTATION_SYMBOL)
         self._mapper.SetSourceData(3, self.NODAL_LOAD_POSITION_SYMBOL)
         self._mapper.SetSourceData(4, self.NODAL_LOAD_ROTATION_SYMBOL)
-        self._mapper.SetSourceData(5, self.LUMPED_DAMPER_SYMBOL)
+        self._mapper.SetSourceData(5, self.LUMPED_MASS_SYMBOL)
         self._mapper.SetSourceData(6, self.LUMPED_SPRING_SYMBOL)
-        self._mapper.SetSourceData(7, self.VOLUME_VELOCITY_SYMBOL)
-        self._mapper.SetSourceData(8, self.ACOUSTIC_PRESSURE_SYMBOL)
-        self._mapper.SetSourceData(9, self.SPECIFIC_IMPEDANCE_SYMBOL)
-        self._mapper.SetSourceData(10, self.RADIATION_IMPEDANCE_SYMBOL)
-        self._mapper.SetSourceData(11, self.LUMPED_MASS_SYMBOL)
-        self._mapper.SetSourceData(12, self.COMPRESSOR_SYMBOL)
-        self._mapper.SetSourceData(13, self.PERFORATED_PLATE_SYMBOL)
-        # self._mapper.SetSourceData(14, self.VALVE_SYMBOL)
+        self._mapper.SetSourceData(7, self.LUMPED_DAMPER_SYMBOL)
+        self._mapper.SetSourceData(8, self.VALVE_SYMBOL)
+        self._mapper.SetSourceData(9, self.ACOUSTIC_PRESSURE_SYMBOL)
+        self._mapper.SetSourceData(10, self.VOLUME_VELOCITY_SYMBOL)
+        self._mapper.SetSourceData(11, self.SPECIFIC_IMPEDANCE_SYMBOL)
+        self._mapper.SetSourceData(12, self.RADIATION_IMPEDANCE_SYMBOL)
+        self._mapper.SetSourceData(13, self.COMPRESSOR_SYMBOL)
+        self._mapper.SetSourceData(14, self.PERFORATED_PLATE_SYMBOL)
+        
     
     def _createSymbol(self, symbol):
         self._sources.InsertNextTuple1(symbol.source)
@@ -164,8 +166,7 @@ class SymbolsActor(vtkActorBase):
     def _getStructuralElementSymbols(self, element):
         symbols = []
         if self._show_structural_symbols:
-            pass
-            # symbols.extend(self._getValve(element))
+            symbols.extend(self._getValve(element))
         return symbols
 
     def _createNodalLinks(self):
@@ -364,34 +365,18 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
     
-    def _getDamper(self, node):
-        offset = 0.62 * self.scaleFactor
-        x,y,z = self._getCoords(node)
+    def _getLumpedMass(self, node):
         src = 5
+        pos = node.coordinates
+        rot = (0,0,0)
         scl = (1,1,1)
-        col = (255,0,100)
-
+        col = (7,156,231)
         symbols = []
-        # mask = node.get_lumped_dampings()[:3]
-        mask = [(i is not None) for i in node.get_lumped_dampings()[:3]]
 
-        if mask[0]:
-            pos = (x-offset, y, z)
-            rot = (180,0,90)
+        if any(node.lumped_masses):
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-
-        if mask[1]:
-            pos = (x, y-offset, z)
-            rot = (0,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-
-        if mask[2]:
-            pos = (x, y, z-offset)
-            rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        
         return symbols
-    
+
     def _getSpring(self, node):
         offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
@@ -420,20 +405,62 @@ class SymbolsActor(vtkActorBase):
         
         return symbols
 
-    def _getVolumeVelocity(self, node):
+    def _getDamper(self, node):
+        offset = 0.62 * self.scaleFactor
+        x,y,z = self._getCoords(node)
         src = 7
-        pos = node.coordinates
-        rot = (0,0,0)
         scl = (1,1,1)
-        col = (255,10,10)
-        symbols = []
+        col = (255,0,100)
 
-        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
+        symbols = []
+        # mask = node.get_lumped_dampings()[:3]
+        mask = [(i is not None) for i in node.get_lumped_dampings()[:3]]
+
+        if mask[0]:
+            pos = (x-offset, y, z)
+            rot = (180,0,90)
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+        if mask[1]:
+            pos = (x, y-offset, z)
+            rot = (0,0,0)
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+        if mask[2]:
+            pos = (x, y, z-offset)
+            rot = (90,0,0)
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        
         return symbols
 
-    def _getAcousticPressure(self, node):
+    def _getValve(self, element):
         src = 8
+        rot = (0,0,0)
+        col = (255,100,0)
+        col = (0,0,255)
+        symbols = []
+        
+        if element.valve_parameters:
+            center_coordinates = element.valve_parameters["valve_center_coordinates"]
+            if str(center_coordinates) not in self.valves_coord_to_parameters.keys():
+                self.valves_coord_to_parameters[str(center_coordinates)] = element.valve_parameters
+                pos = center_coordinates
+                rot = element.section_rotation_xyz_undeformed
+                rotation = Rotation.from_euler('xyz', rot, degrees=True)
+                rot_matrix = rotation.as_matrix()
+                vector = [round(value, 5) for value in rot_matrix[:,1]]
+                if vector[1] < 0:
+                    rot[0] += 180
+                factor_x = 12*element.valve_parameters["valve_length"]
+                # factor_r = 0.1/element.cross_section.outer_diameter
+                scl = (factor_x, factor_x, factor_x)
+                # scl = (1,1,1)
+                symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
+        return symbols  
+
+    def _getAcousticPressure(self, node):
+        src = 9
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -444,8 +471,20 @@ class SymbolsActor(vtkActorBase):
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
+    def _getVolumeVelocity(self, node):
+        src = 10
+        pos = node.coordinates
+        rot = (0,0,0)
+        scl = (1,1,1)
+        col = (255,10,10)
+        symbols = []
+
+        if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
+            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+        return symbols
+
     def _getSpecificImpedance(self, node):
-        src = 9
+        src = 11
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -457,7 +496,7 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getRadiationImpedance(self, node):
-        src = 10
+        src = 12
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -466,40 +505,10 @@ class SymbolsActor(vtkActorBase):
 
         if node.radiation_impedance_type in [0,1,2]:
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        return symbols
-
-    def _getLumpedMass(self, node):
-        src = 11
-        pos = node.coordinates
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (7,156,231)
-        symbols = []
-
-        if any(node.lumped_masses):
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        return symbols
-
-    def _getValve(self, element):
-        src = 11
-        pos = element.element_center_coordinates
-        rot = (0,0,0)
-        scl = (1,1,1)
-        col = (7,156,231)
-        symbols = []
-
-        if any(element.valve_data):
-            rot = element.section_rotation_xyz_undeformed
-            rotation = Rotation.from_euler('xyz', rot, degrees=True)
-            rot_matrix = rotation.as_matrix()
-            vector = [round(value, 5) for value in rot_matrix[:,1]]
-            if vector[1] < 0:
-                rot[0] += 180
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        return symbols        
+        return symbols    
     
     def _getCompressor(self, node):
-        src = 12
+        src = 13
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -516,12 +525,12 @@ class SymbolsActor(vtkActorBase):
         acoustic = self.project.get_acoustic_element(element.index)
 
         if element.cross_section:
-            if element.element_type in ['pipe_1', 'pipe_2']:
+            if element.element_type in ['pipe_1', 'pipe_2', 'valve']:
                 rad = element.cross_section.inner_diameter / self.scaleFactor
                 if rad == 0:
                     rad = 1
 
-        src = 13
+        src = 14
         pos = element.element_center_coordinates
         rot = element.section_rotation_xyz_undeformed
         scl = (1,rad,rad)

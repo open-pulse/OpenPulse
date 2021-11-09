@@ -260,7 +260,7 @@ class ExpansionJointInput(QDialog):
                 self.lineEdit_joint_length.setText("")
                 self.lineEdit_selected_ID.setFocus()
                 return True  
-            joint_length = self.preprocessor.get_line_length(self.line_id) 
+            joint_length, _ = self.preprocessor.get_line_length(self.line_id) 
             self.lineEdit_joint_length.setText(str(round(joint_length,6)))
 
     def write_id(self, selected_id):
@@ -274,7 +274,7 @@ class ExpansionJointInput(QDialog):
         if self.line_id != []:
             self.write_id(self.line_id)
             self.radioButton_line_selection.setChecked(True)
-            length = self.preprocessor.get_line_length(self.line_id[0])
+            length, _ = self.preprocessor.get_line_length(self.line_id[0])
             self.lineEdit_joint_length.setText(str(round(length,8)))
         
         elif self.node_id != []:
@@ -617,27 +617,32 @@ class ExpansionJointInput(QDialog):
         if self.check_constant_values_to_stiffness():
             return
 
-        self.all_parameters = [self.list_parameters, self.list_stiffness, []]
-            
+        self.all_parameters = [self.list_parameters, self.list_stiffness, [None, None, None, None]]
+        
         if self.selection_by_line:
             self.process_table_file_removal(self.list_table_names_from_selection)
+            self.project.add_valve_by_line(self.lineID, None)
             self.project.set_cross_section_by_line(self.lineID, None)
             # self.list_elements = self.preprocessor.line_to_elements[self.lineID]
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
                                                                             self.effective_diameter )
             self.project.preprocessor.set_cross_section_by_element(self.list_elements, list_cross)
             self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
-
+            
         else:
 
-            # self.get_nodes_elements_according_joint_length()
-            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
-            if self.lines_to_apply_cross_section != []:
+            if self.check_previous_attributions_to_elements(self.list_elements):
+                return
+
+            self.project.add_valve_by_elements(self.list_elements, None, reset_cross=False)
+            # self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section()
+            self.elements_to_apply_cross_section = self.get_list_of_elements_to_update_cross_section() 
+            if self.elements_to_apply_cross_section != []:
                 read = CrossSectionInput(   self.project, 
                                             self.opv, 
                                             pipe_to_beam = False, 
                                             beam_to_pipe = True, 
-                                            lines_to_update_cross_section = self.lines_to_apply_cross_section   )
+                                            elements_to_update_cross_section = self.elements_to_apply_cross_section   )
                 if not read.complete:
                     return
             else:
@@ -664,6 +669,28 @@ class ExpansionJointInput(QDialog):
                         list_lines.append(line_id)
             
         return list_lines
+
+    def get_list_of_elements_to_update_cross_section(self):
+        list_lines = []
+        for element_id in self.list_elements:
+            line_id = self.preprocessor.elements_to_line[element_id]
+            if line_id not in list_lines:
+                list_lines.append(line_id)
+                
+        list_elements = []
+        for _line_id in list_lines:
+            list_elements_from_line = self.preprocessor.line_to_elements[_line_id]
+            for element_id_from_line in list_elements_from_line:
+                element = self.structural_elements[element_id_from_line]
+                if element.element_type in [None, "beam_1"] or element.cross_section in [None]:
+                    if element_id_from_line not in list_elements:
+                        list_elements.append(element_id_from_line)
+            # element = self.structural_elements[element_id]
+            # if element.element_type in ["expansion_joint"]:
+            #     if element_id not in list_elements:
+            #         list_elements.append(element_id)
+
+        return list_elements
 
     def get_pipe_cross_section_from_neighbors(self, line_id, list_elements):
 
@@ -971,6 +998,7 @@ class ExpansionJointInput(QDialog):
         if self.selection_by_line:
             
             self.process_table_file_removal(self.list_table_names_from_selection)
+            self.project.add_valve_by_line(self.lineID, None)
             self.project.set_cross_section_by_line(self.lineID, None)
             # self.list_elements = self.preprocessor.line_to_elements[self.lineID]
             list_cross = get_list_cross_sections_to_plot_expansion_joint(   self.list_elements, 
@@ -979,15 +1007,19 @@ class ExpansionJointInput(QDialog):
             self.project.add_expansion_joint_by_line(self.lineID, self.all_parameters)
 
         else:
-
+            
+            if self.check_previous_attributions_to_elements(self.list_elements):
+                return
+                
             # self.get_nodes_elements_according_joint_length()
-            self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
-            if self.lines_to_apply_cross_section != []:
+            # self.lines_to_apply_cross_section = self.get_list_of_lines_to_update_cross_section() 
+            self.elements_to_apply_cross_section = self.get_list_of_elements_to_update_cross_section() 
+            if self.elements_to_apply_cross_section != []:
                 read = CrossSectionInput(   self.project, 
                                             self.opv, 
                                             pipe_to_beam = False, 
                                             beam_to_pipe = True, 
-                                            lines_to_update_cross_section = self.lines_to_apply_cross_section   )
+                                            elements_to_update_cross_section = self.elements_to_apply_cross_section   )
                 read.remove_expansion_joint_tables_files = False
                 if not read.complete:
                     return
@@ -1030,6 +1062,18 @@ class ExpansionJointInput(QDialog):
     def remove_all_table_files_from_nodes(self, list_node_ids):
         list_table_names = self.get_list_tables_names_from_selected_nodes(list_node_ids)
         self.process_table_file_removal(list_table_names)
+
+    def check_previous_attributions_to_elements(self, list_elements):
+        for element_id in list_elements:
+            element = self.structural_elements[element_id]
+            if element.element_type == "valve":
+                title = "Valve detected in the elements selection"
+                message = "In the present element list, at least one 'valve' element was found. "
+                message += "To avoid unwanted valve setup modifications, we recommend removing any " 
+                message += "already existing valve in the vicinity of the 'new expansion joint' elements."
+                PrintMessageInput([title, message, window_title_1])
+                return True
+        return False
 
     def skip_treeWidget_row(self, treeWidget):
         new = QTreeWidgetItem(["", ""])

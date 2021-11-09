@@ -41,15 +41,19 @@ class Preprocessor:
         self.dict_line_to_nodes = {}
         self.elements_to_line = {}
         self.elements_with_expansion_joint = []
+        self.elements_with_valve = []
         self.number_expansion_joints_by_lines = {}
+        self.number_valves_by_lines = {}
         self.group_elements_with_length_correction = {}
         self.group_elements_with_capped_end = {}
         self.group_elements_with_perforated_plate = {}
         self.group_elements_with_stress_stiffening = {}
         self.group_elements_with_expansion_joints = {}
+        self.group_elements_with_valves = {}
         self.group_lines_with_capped_end = {}        
         self.dict_lines_with_stress_stiffening = {}
         self.dict_lines_with_expansion_joints = {}
+        self.dict_lines_with_valves = {}
         self.expansion_joint_table_indexes = defaultdict(list)
         self.dict_B2PX_rotation_decoupling = {}
         self.entities = []
@@ -415,19 +419,20 @@ class Preprocessor:
         node1_first_element = self.structural_elements[first_element_ID].first_node
         node2_first_element = self.structural_elements[first_element_ID].last_node
 
-        node1_last_element = self.structural_elements[last_element_ID].first_node
-        node2_last_element = self.structural_elements[last_element_ID].last_node
+        node3_last_element = self.structural_elements[last_element_ID].first_node
+        node4_last_element = self.structural_elements[last_element_ID].last_node
 
         list_nodes = [  node1_first_element, node2_first_element, 
-                        node1_last_element, node2_last_element  ]
+                        node3_last_element, node4_last_element  ]
 
         length = 0
         for index in range(1, len(list_nodes)):
             length_i = np.linalg.norm(list_nodes[0].coordinates - list_nodes[index].coordinates)
             if length_i > length:
                 length = length_i
-        
-        return length
+                _node = list_nodes[index]
+        edge_nodes = [list_nodes[0], _node]
+        return length, edge_nodes
 
     def _finalize_gmsh(self):
         """
@@ -746,10 +751,10 @@ class Preprocessor:
         return I.flatten(), J.flatten()
 
     def map_structural_to_acoustic_elements(self):
-        dict_structural_to_acoustic_elements = {}
+        self.dict_structural_to_acoustic_elements = {}
         for key, element in self.structural_elements.items():
-            dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
-        return dict_structural_to_acoustic_elements 
+            self.dict_structural_to_acoustic_elements[element] = self.acoustic_elements[key]
+        return self.dict_structural_to_acoustic_elements 
 
     def get_neighbor_nodes_and_elements_by_node(self, node_id, length, tolerance=1e-5):
         """ This method returns two lists of nodes ids and elements ids at the neighborhood of the 
@@ -845,7 +850,7 @@ class Preprocessor:
         elements : list
             Structural elements indexes.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint']
+        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to the listed elements.
             
         remove : bool, optional
@@ -964,7 +969,7 @@ class Preprocessor:
         line : list
             Entities tag.
             
-        element_type : str, ['pipe_1', 'pipe_2', 'beam_1']
+        element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve']
             Structural element type to be attributed to elements.
             
         remove : bool, optional
@@ -1650,6 +1655,7 @@ class Preprocessor:
             Default is False.
         """
         if aux_line_id is not None:
+            
             elements_from_line = self.line_to_elements[aux_line_id]
             temp_dict = self.group_elements_with_expansion_joints.copy()
             for key, [_list_elements_ids, _] in temp_dict.items():
@@ -1699,7 +1705,7 @@ class Preprocessor:
             [joint_length, effective_diameter, joint_mass, axial_locking_criteria, rods_included] = parameters[0]
             [axial_stiffness, transversal_stiffness, torsional_stiffness, angular_stiffness] = parameters[1]
             list_stiffness_table_names = parameters[2]
-
+           
             for element in slicer(self.structural_elements, list_elements):
                 element.joint_length = joint_length
                 element.joint_effective_diameter = effective_diameter
@@ -1732,7 +1738,6 @@ class Preprocessor:
                 key = f"group-{size+1}"
                 self.group_elements_with_expansion_joints[key] = [list_elements, parameters]
 
-
     def add_expansion_joint_by_line(self, lines, parameters, remove=False):
         """
         This method .
@@ -1762,7 +1767,120 @@ class Preprocessor:
             else:
                 self.dict_lines_with_expansion_joints[line_id] = parameters
                 self.number_expansion_joints_by_lines[line_id] = 1
+
+    def add_valve_by_elements(  self, 
+                                list_elements, 
+                                parameters, 
+                                remove=False, 
+                                aux_line_id=None, 
+                                reset_cross=True  ):
+        """
+        This method .
+
+        Parameters
+        ----------
+        lines : list
+            Elements indexes.
+
+        parameters : list
+            ????????.
+
+        section : ?????
+            ??????
+            Default is None
+            
+        remove : bool, optional
+            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+            Default is False.
+        """
+        if aux_line_id is not None:
+            elements_from_line = self.line_to_elements[aux_line_id]
+            temp_dict = self.group_elements_with_valves.copy()
+            for key, [_list_elements_ids, _] in temp_dict.items():
+                for element_id in _list_elements_ids:
+                    if element_id in elements_from_line:
+                        self.group_elements_with_valves.pop(key)
+                        break
+
+        list_lines = []
+        for element_id in list_elements:
+            line_id = self.elements_to_line[element_id]
+            if line_id not in list_lines:
+                list_lines.append(line_id)
+
+        if remove:
+            for element in slicer(self.structural_elements, list_elements):
+                element.reset_valve_parameters()
+                if reset_cross:
+                    element.cross_section = None
+                if element in self.elements_with_valve:
+                    self.elements_with_valve.remove(element)
+            
+            for line_id in list_lines:
+                if line_id in self.number_valves_by_lines.keys():
+                    self.number_valves_by_lines.pop(line_id)
+
+        else:
+
+            for line_id in list_lines:
+                if line_id in self.number_valves_by_lines.keys():
+                    self.number_valves_by_lines[line_id] += 1
+                else:
+                    self.number_valves_by_lines[line_id] = 1
+            
+            for element in slicer(self.structural_elements, list_elements):
+                element.valve_parameters = parameters
+                element.valve_elements = parameters["valve_elements"]
+                element.valve_section_parameters = parameters["valve_section_parameters"]
+                element.valve_length = parameters["valve_length"]
+                element.valve_stiffening_factor = parameters["stiffening_factor"]
+                element.valve_mass = parameters["valve_mass"]
+                element.valve_center_coordinates = parameters["valve_center_coordinates"]
+                element.valve_diameters = parameters["valve_diameters"]
+
+                if "flange_section_parameters" in parameters.keys():
+                    element.flange_parameters = parameters["flange_section_parameters"]
+                    element.number_flange_elements = parameters["number_flange_elements"]
+                    element.flange_elements = parameters["flange_elements"]
+                    
+                if element not in self.elements_with_valve:
+                    self.elements_with_valve.append(element)
         
+            if aux_line_id is None:
+                size = len(self.group_elements_with_valves)
+                key = f"group-{size+1}"
+                self.group_elements_with_valves[key] = [list_elements, parameters]
+            
+    def add_valve_by_line(self, lines, parameters, remove=False):
+        """
+        This method .
+
+        Parameters
+        ----------
+        lines : list
+            Lines/entities indexes.
+
+        parameters : list
+            ????????.
+            
+        remove : bool, optional
+            True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+            Default is False.
+        """
+        if isinstance(lines, int):
+            lines = [lines] 
+        for line_id in lines:
+            for elements in slicer(self.line_to_elements, line_id):
+                self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
+            if remove:
+                if line_id in list(self.dict_lines_with_valves.keys()):
+                    self.dict_lines_with_valves.pop(line_id)
+                if line_id in self.number_valves_by_lines.keys():
+                    self.number_valves_by_lines.pop(line_id)
+            else:
+                self.dict_lines_with_valves[line_id] = parameters
+                self.number_valves_by_lines[line_id] = 1      
+
     def set_stress_intensification_by_element(self, elements, value):
         """
         This method enables or disables the stress intensification effect in a list of structural elements.
@@ -1833,32 +1951,6 @@ class Preprocessor:
         for elements in slicer(self.line_to_elements, lines):
             self.set_fluid_by_element(elements, fluid)
             
-    def set_mean_velocity_by_element(self, elements, mean_velocity):
-        for element in slicer(self.acoustic_elements, elements):
-            if 'beam_1' not in self.structural_elements[element.index].element_type:
-                element.mean_velocity = mean_velocity
-            else:
-                element.mean_velocity = None
-    
-    def set_mean_velocity_by_line(self, lines, mean_velocity):
-        for elements in slicer(self.line_to_elements, lines):
-            self.set_mean_velocity_by_element(elements, mean_velocity)
-
-    def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
-        for element in slicer(self.acoustic_elements, elements):
-            element.perforated_plate = perforated_plate
-            element.delta_pressure = 0
-            element.pp_impedance = None
-            if element not in self.element_with_perforated_plate:
-                self.element_with_perforated_plate.append(element)
-            if perforated_plate is None:
-                if element in self.element_with_perforated_plate:
-                    self.element_with_perforated_plate.remove(element)
-        if delete_from_dict:
-            self.group_elements_with_perforated_plate.pop(section) 
-        else:
-            self.group_elements_with_perforated_plate[section] = [perforated_plate, elements]
-
     def set_length_correction_by_element(self, elements, value, section, delete_from_dict=False):
         """
         This method enables or disables the acoustic length correction effect in a list of acoustic elements.
@@ -1981,6 +2073,34 @@ class Preprocessor:
             message = str(error)
             PrintMessageInput([title, message, window_title_1])
             return True  
+
+    def set_mean_velocity_by_element(self, elements, mean_velocity):
+        for element in slicer(self.acoustic_elements, elements):
+            if 'beam_1' not in self.structural_elements[element.index].element_type:
+                element.mean_velocity = mean_velocity
+            else:
+                element.mean_velocity = None
+    
+    def set_mean_velocity_by_line(self, lines, mean_velocity):
+        for elements in slicer(self.line_to_elements, lines):
+            self.set_mean_velocity_by_element(elements, mean_velocity)
+
+    def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
+        for element in slicer(self.structural_elements, elements):
+            element.perforated_plate = perforated_plate
+        for element in slicer(self.acoustic_elements, elements):
+            element.perforated_plate = perforated_plate
+            element.delta_pressure = 0
+            element.pp_impedance = None
+            if element not in self.element_with_perforated_plate:
+                self.element_with_perforated_plate.append(element)
+            if perforated_plate is None:
+                if element in self.element_with_perforated_plate:
+                    self.element_with_perforated_plate.remove(element)
+        if delete_from_dict:
+            self.group_elements_with_perforated_plate.pop(section) 
+        else:
+            self.group_elements_with_perforated_plate[section] = [perforated_plate, elements]
 
     def set_compressor_excitation_bc_by_node(self, nodes, data, connection_info=""):
         """
@@ -2175,7 +2295,7 @@ class Preprocessor:
         # list_pipe_gdofs = []  
         pipe_gdofs = {}
         for element in self.structural_elements.values():
-            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint']:
+            if element.element_type in ['pipe_1', 'pipe_2', 'expansion_joint', 'valve']:
                 gdofs_node_first = element.first_node.global_index
                 gdofs_node_last = element.last_node.global_index
                 pipe_gdofs[gdofs_node_first] = gdofs_node_first 
@@ -2224,11 +2344,13 @@ class Preprocessor:
             Acoustic elements list.
         """
         acoustic_elements = []
-        dict_structural_to_acoustic_elements = self.map_structural_to_acoustic_elements()
+        self.map_structural_to_acoustic_elements()
         for element in self.structural_elements.values():
             if element.element_type not in ['beam_1']:
-                acoustic_element = dict_structural_to_acoustic_elements[element]
+                acoustic_element = self.dict_structural_to_acoustic_elements[element]
                 acoustic_elements.append(acoustic_element)
+                # if element.element_type == "valve":
+                #     print(element.element_type, element.index)
         return acoustic_elements   
     
     def get_nodes_relative_to_acoustic_elements(self):
@@ -2320,7 +2442,6 @@ class Preprocessor:
             last_node = node_1
         return reord_gdofs, first_node, last_node       
 
-
     def get_nodes_and_elements_with_expansion(self, ratio=10):
         title = "Incomplete model setup"
         message = "Dear user, you should should to apply a cross-setion to all 'pipe_1' or 'pipe_2' elements"
@@ -2351,7 +2472,7 @@ class Preprocessor:
                     diameters_ratio = max(diameters)/min(diameters)
                     if diameters_ratio > 2:
                         self.nodes_with_cross_section_transition[node] = neigh_elements
-                        print(node.external_index, diameters_ratio)
+                        # print(node.external_index, diameters_ratio)
 
 
     def add_elastic_nodal_link(self, nodeID_1, nodeID_2, data, _stiffness=False, _damping=False):
@@ -2833,7 +2954,6 @@ class Preprocessor:
             
             if delta_yz > 3*self.element_size:
                 value = element.joint_effective_diameter/6
-                # print(f"Element: {element.index} <==> delta_yz: {delta_yz}")
                 return True, value
             
             first_node = element.first_node
@@ -2843,7 +2963,6 @@ class Preprocessor:
 
             if delta_x < self.element_size/3 or delta_x > 2*self.element_size: 
                 value = self.element_size/2
-                # print(f"Element: {element.index} <==> delta_yz: {delta_x}")
                 return True, value
 
         return False, None

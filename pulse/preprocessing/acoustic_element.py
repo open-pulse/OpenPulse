@@ -163,7 +163,7 @@ class AcousticElement:
     def mach(self):
         return self.mean_velocity / self.speed_of_sound_corrected()
 
-    def update_pressure(self,solution):
+    def update_pressure(self, solution):
         pressure_first = solution[self.first_node.global_index, :]
         pressure_last = solution[self.last_node.global_index, :]
         self.delta_pressure =  pressure_last - pressure_first
@@ -540,6 +540,7 @@ class AcousticElement:
             u_n = np.abs(self.delta_pressure/self.pp_impedance)
         else:
             u_n = 0
+        self.u_n = u_n
 
         if self.perforated_plate.type == 0:
             theta_rad = self.perforated_plate.radiation_impedance(k)

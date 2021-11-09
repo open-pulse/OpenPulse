@@ -199,6 +199,7 @@ class CrossSection:
         self.offset = [self.offset_y, self.offset_z]
         self.insulation_thickness = 0
         self.insulation_density = 0
+        self.valve_inner_diameter = 1e-6
         self.offset_virtual = None
 
         # Beam section properties
@@ -228,6 +229,7 @@ class CrossSection:
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
         self.beam_section_info = kwargs.get('beam_section_info', None)
         self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
+        self.diameters_to_plot = kwargs.get('diameters_to_plot', None)
         self.section_label = kwargs.get('section_label', None)
         self.section_parameters = kwargs.get('section_parameters', None)
         self.expansion_joint_plot_key = None
@@ -271,8 +273,14 @@ class CrossSection:
             self.section_label = self.expansion_joint_info[0]
             self.expansion_joint_plot_key = self.expansion_joint_info[1]
             self.outer_diameter = self.expansion_joint_info[2]
-
-
+        
+        if self.diameters_to_plot:
+            d_out, d_in = self.diameters_to_plot
+            if d_in < 0:
+                d_in = 0.004
+            self.outer_diameter_to_plot = d_out
+            self.inner_diameter_to_plot = d_in
+            
     @property
     def outer_radius(self):
         return self.outer_diameter/2
@@ -838,6 +846,33 @@ class CrossSection:
             Y_in = r_in*cossine + self.offset_y
             Z_in = r_in*sine + self.offset_z
             
+            outer_points = list(zip(Y_out, Z_out))
+            inner_points = list(zip(Y_in, Z_in))
+
+        elif self.section_label == "Valve section" :#9:
+    
+            N = 32 # temporary number of divisions for pipe sections
+
+            d_out = self.outer_diameter_to_plot
+            d_in = d_out - 2*self.thickness
+            if d_in < 0:
+                d_in = 0.004
+            self.inner_diameter_to_plot = d_in
+
+            d_theta = 2*np.pi/N
+            theta = -np.arange(0, 2*np.pi, d_theta)
+            sine = np.sin(theta)
+            cossine = np.cos(theta)
+            
+            Y_out = (d_out/2)*cossine + self.offset_y
+            Z_out = (d_out/2)*sine + self.offset_z
+            Y_in = (d_in/2)*cossine + self.offset_y
+            Z_in = (d_in/2)*sine + self.offset_z
+
+            if self.insulation_thickness != float(0):
+                Y_out = ((d_out + 2*self.insulation_thickness)/2)*cossine + self.offset_y
+                Z_out = ((d_out + 2*self.insulation_thickness)/2)*sine + self.offset_z
+
             outer_points = list(zip(Y_out, Z_out))
             inner_points = list(zip(Y_in, Z_in))
 

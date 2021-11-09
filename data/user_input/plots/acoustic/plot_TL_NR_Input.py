@@ -327,29 +327,32 @@ class Plot_TL_NR_Input(QDialog):
         
         self.stop = False
 
+        noise = 1e-10
+
         P_input = get_acoustic_frf(self.preprocessor, self.solution, self.input_node_ID)
         P_output = get_acoustic_frf(self.preprocessor, self.solution, self.output_node_ID)
         
-        P_input2 = 0.5*np.real(P_input*np.conjugate(P_input))
-        P_output2 = 0.5*np.real(P_output*np.conjugate(P_output))
+        P_input2 = 0.5*np.real(P_input*np.conjugate(P_input)) + noise
+        P_output2 = 0.5*np.real(P_output*np.conjugate(P_output)) + noise
 
         d_in, rho_in, c0_in = self.get_minor_outer_diameter_from_node(self.input_node_ID)
         d_out, rho_out, c0_out = self.get_minor_outer_diameter_from_node(self.output_node_ID)
                
-        if 0 not in P_input2 and 0 not in P_output2:
-            if self.flagTL:
-                alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
-                TL = -10*np.log10(alpha_T)
-                return TL
-                
-            if self.flagNR:
-                delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
-                NR = 10*np.log10(delta)
-                return NR
+        # if 0 not in P_input2 and 0 not in P_output2:
+        
+        if self.flagTL:
+            alpha_T = (P_output2*rho_out*c0_out)/(P_input2*rho_in*c0_in)
+            TL = -10*np.log10(alpha_T)
+            return TL
+            
+        if self.flagNR:
+            delta =  (P_output2*rho_out*c0_out*(d_out**2))/(P_input2*rho_in*c0_in*(d_in**2))
+            NR = 10*np.log10(delta)
+            return NR
 
-        else:
-            self.stop = True
-            return None
+        # else:
+        #     self.stop = True
+        #     return None
 
     def plot(self):
 
@@ -360,11 +363,11 @@ class Plot_TL_NR_Input(QDialog):
         frequencies = self.frequencies
         results = self.get_TL_NR()
         
-        if self.stop:
-            title = "Invalid pressure values"
-            message = "The input pressure must be different from zero value!"
-            PrintMessageInput([title, message, window_title1])
-            return
+        # if self.stop:
+        #     title = "Invalid pressure values"
+        #     message = "The input pressure must be different from zero value!"
+        #     PrintMessageInput([title, message, window_title1])
+        #     return
 
         if self.flagTL:
             analysis_label = "TRANSMISSION LOSS"

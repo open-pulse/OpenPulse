@@ -54,9 +54,9 @@ class SnaptoCursor(object):
             self.ax.figure.canvas.draw_idle()
 
 class PerforatedPlateInput(QDialog):
-    def __init__(self, project, opv, *args, **kwargs):
+    def __init__(self, project, opv, valve_ids=[], *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/_perforatedPlateInput.ui', self)
+        uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/perforatedPlateInput.ui', self)
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -68,6 +68,7 @@ class PerforatedPlateInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
+        self.valve_ids = valve_ids
         self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_model_checks()
@@ -81,12 +82,20 @@ class PerforatedPlateInput(QDialog):
         self.acoustic_elements = project.preprocessor.acoustic_elements
         self.dict_group_elements = project.preprocessor.group_elements_with_perforated_plate
         self.elements_id = self.opv.getListPickedElements()
+        
+        if self.valve_ids:
+            self.elements_id = self.valve_ids
+            self.lineEdit_elementID.setDisabled(True)
+
         self.inputs_from_node = False
         self.table_to_save = False
+        self.complete = False
+
         self.type_label = None
         self.basename = None
         self.imported_values = None
         self.imported_filename = None
+
         self.elements_info_path = project.file._element_info_path
         self.dict_label = "PERFORATED PLATE || {}"
         self.tol = 1e-6
@@ -659,7 +668,7 @@ class PerforatedPlateInput(QDialog):
 
                             self.set_perforated_plate_to_elements(key)
                             self.replaced = True
-
+            self.complete = True
             self.close()         
 
         except Exception as log_error:
@@ -800,15 +809,16 @@ class PerforatedPlateInput(QDialog):
                 self.info_text = [title, message, window_title_1]
                 PrintMessageInput(self.info_text)
                 return True
-            elif specified_element[0] in group_elements:
-                self.plot_select_element = specified_element
-                return False
-            else:
+            elif len(specified_element) == 0:
                 title = "ERROR IN ELEMENT SELECTION"
                 message = "Please, select an element in the group to plot the preview."
                 self.info_text = [title, message, window_title_1]
                 PrintMessageInput(self.info_text)
                 return True
+            elif specified_element[0] in group_elements:
+                self.plot_select_element = specified_element
+                return False
+                
         else:
             title = "ERROR IN GROUP SELECTION"
             message = "Please, select a group in the list to plot the preview."
@@ -935,7 +945,10 @@ class PerforatedPlateInput(QDialog):
             self.inputs_from_node = False
 
     def update(self):
-        self.elements_id = self.opv.getListPickedElements()
+        
+        if len(self.valve_ids) == 0:
+            self.elements_id = self.opv.getListPickedElements()
+        
         if self.elements_id != []:
             self.elements_id.sort()
             

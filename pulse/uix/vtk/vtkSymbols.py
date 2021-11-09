@@ -150,7 +150,7 @@ class vtkSymbols:
             a.setNormalizedColor([242/255,121/255,0])
             a.setNormalizedColor([1,0,1])
             a.setShiftValue(shift)
-            a.removeTipLenght()
+            a.removeTipLength()
             a.build()
             arrows.append(a.getActor())
 

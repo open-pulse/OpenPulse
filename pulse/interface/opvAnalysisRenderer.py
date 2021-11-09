@@ -115,7 +115,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.pauseAnimation()
     
     def update(self):
-        self.opv.updateDialogs()
+        # self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
     

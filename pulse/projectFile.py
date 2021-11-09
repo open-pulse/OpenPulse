@@ -3,7 +3,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import remove_bc_from_file, get_new_path, check_is_there_a_group_of_elements_inside_list_elements
+from pulse.utils import remove_bc_from_file, get_new_path, check_is_there_a_group_of_elements_inside_list_elements, get_V_linear_distribution
 import configparser
 from collections import defaultdict
 import os
@@ -229,6 +229,8 @@ class ProjectFile:
         self.dict_variable_sections = {}
         self.dict_expansion_joint_parameters = {}
         self.dict_expansion_joint_sections = {}
+        self.dict_valve = {}
+        self.dict_valve_sections = {}
         self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
         self.dict_structural_element_wall_formulation = {}
@@ -243,7 +245,7 @@ class ProjectFile:
 
         window_title = "ERROR"
         title = "Error while loading data from project file"
-
+        
         for entity in entityFile.sections():
 
             structural_element_type = ""
@@ -253,8 +255,8 @@ class ProjectFile:
             if 'structural element type' in entityFile[entity].keys():
                 structural_element_type = entityFile[entity]['structural element type']
                 if structural_element_type != "":
-                    if "-" in entity:
-                        if 'list of elements' in entityFile[entity].keys():
+                    if 'list of elements' in entityFile[entity].keys():
+                        if "-" in entity:
                             str_list_elements = entityFile[entity]['list of elements']
                             list_elements = self._get_list_of_values_from_string(str_list_elements)
                             self.dict_structural_element_type[entity] = [list_elements, structural_element_type]
@@ -361,14 +363,14 @@ class ProjectFile:
                             message = str(log_error)
                             message += f"\n\n {entity}"
                             PrintMessageInput([title, message, window_title])
-                
+    
                 if str_joint_parameters != "" and str_joint_stiffness != "":
                     _list_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
                     _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
                     self.dict_expansion_joint_parameters[entity]= [_list_elements, _data]
-
+            
             else:
-
+        
                 if structural_element_type == 'beam_1':
 
                     if 'beam section type' in entityFile[entity].keys():
@@ -442,10 +444,106 @@ class ProjectFile:
                             message = str(err)
                             message += f"\n\nProblem detected at line: {entity}"
                             PrintMessageInput([title, message, window_title])
-            
+                
                     if str_joint_parameters != "" and str_joint_stiffness != "":
                         _data = [joint_parameters, joint_stiffness, joint_table_names, joint_list_freq]
                         self.dict_expansion_joint_parameters[entity] = _data
+            
+            valve_data = {}
+            dict_element_to_diameters = {}
+            valve_section_parameters = []
+            flange_section_parameters = []
+            valve_cross, flange_cross = [], []
+            number_valve_elements = 0
+            number_flange_elements = 0
+
+            if structural_element_type == "valve":
+            
+                if "valve parameters" in entityFile[entity].keys():
+                    str_valve_parameters = entityFile[entity]['valve parameters']
+                    valve_parameters = self._get_list_of_values_from_string(str_valve_parameters, are_values_int=False)
+                    [valve_length, stiffening_factor, valve_mass] = valve_parameters
+                    valve_data["valve_length"] = valve_length
+                    valve_data["stiffening_factor"] = stiffening_factor
+                    valve_data["valve_mass"] = valve_mass
+                
+                if "valve center coordinates" in entityFile[entity].keys():
+                    str_valve_coord = entityFile[entity]['valve center coordinates']
+                    valve_data["valve_center_coordinates"] = self._get_list_of_values_from_string(str_valve_coord, are_values_int=False) 
+                
+                if "valve section parameters" in entityFile[entity].keys():
+                    str_valve_section_parameters = entityFile[entity]['valve section parameters'] 
+                    valve_section_parameters = self._get_list_of_values_from_string(str_valve_section_parameters, are_values_int=False)
+                
+                if "flange section parameters" in entityFile[entity].keys():
+                    str_flange_section_parameters = entityFile[entity]['flange section parameters']
+                    flange_section_parameters = self._get_list_of_values_from_string(str_flange_section_parameters, are_values_int=False) 
+                
+                if 'list of elements' in entityFile[entity].keys():
+                    str_valve_list_elements = entityFile[entity]['list of elements']
+                    valve_data["valve_elements"] = self._get_list_of_values_from_string(str_valve_list_elements)
+                    number_valve_elements = len(valve_data["valve_elements"])
+                    
+                if 'number of flange elements' in entityFile[entity].keys():
+                    str_number_flange_elements = entityFile[entity]['number of flange elements']
+                    number_flange_elements = int(str_number_flange_elements)
+                    valve_data["number_flange_elements"] = number_flange_elements
+
+                cross_section_labels = ["outer_diameter", "thickness", "offset_y", "offset_z", "insulation_thickness", "insulation_density"]
+                if len(valve_section_parameters) == 6:
+                    valve_data["valve_section_parameters"] = dict(zip(cross_section_labels, valve_section_parameters))
+                    valve_section_info = {  "section_type_label" : "Valve section",
+                                            "section_parameters" : valve_data["valve_section_parameters"]  }
+                                        
+                    list_valve_elements = valve_data["valve_elements"]
+                    valve_thickness = valve_section_parameters[1]
+                    
+                    N = number_valve_elements - number_flange_elements
+                    nf = int(number_flange_elements/2) 
+                    if number_flange_elements == 0:
+                        list_inner_elements = valve_data["valve_elements"]
+                        list_outer_diameters =  get_V_linear_distribution(valve_section_parameters[0], 50, N)
+                        list_inner_diameters = list_outer_diameters - 2*valve_thickness
+                    else:
+                        flange_thickness = flange_section_parameters[1]
+                        list_inner_elements = valve_data["valve_elements"][nf:-nf]
+
+                        flange_diameter = flange_section_parameters[0]
+                        list_outer_diameters = np.ones(number_valve_elements)*flange_diameter
+                        list_inner_diameters = list_outer_diameters - 2*flange_thickness
+                        
+                        list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], 50, N)
+                        list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*valve_thickness
+                        
+                        lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
+                        list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
+                        valve_data["flange_elements"] = list_flange_elements
+                    
+                    dict_outer_diameters = dict(zip(list_valve_elements, list_outer_diameters))                        
+                    dict_inner_diameters = dict(zip(list_valve_elements, list_inner_diameters))                        
+                                                    
+                    for _id in list_inner_elements:
+                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
+                        diameters_to_plot = dict_element_to_diameters[_id]
+                        valve_cross.append(CrossSection(pipe_section_info=valve_section_info, 
+                                                        diameters_to_plot=diameters_to_plot)) 
+                
+                if len(flange_section_parameters) == 6:
+                    valve_data["flange_section_parameters"] = dict(zip(cross_section_labels, flange_section_parameters))
+                    flange_section_info = { "section_type_label" : "Valve section",
+                                            "section_parameters" : valve_data["flange_section_parameters"]  }
+
+                    for _id in list_flange_elements:
+                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
+                        diameters_to_plot = dict_element_to_diameters[_id]           
+                        flange_cross.append(CrossSection(   pipe_section_info=flange_section_info, 
+                                                            diameters_to_plot=diameters_to_plot   )) 
+                
+                valve_data["valve_diameters"] = dict_element_to_diameters
+
+                if valve_data:
+                    cross_sections = [valve_cross, flange_cross] 
+                    self.dict_valve[entity] = [valve_data, cross_sections]
 
             if 'material id' in entityFile[entity].keys():
                 material_id = entityFile[entity]['material id']
@@ -490,7 +588,7 @@ class ProjectFile:
                             isentropic_exponent = None
                             if 'isentropic exponent' in keys:
                                 isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
-                              
+                            
                             thermal_conductivity = None
                             if 'thermal conductivity' in keys:
                                 thermal_conductivity =  float(fluid_list[fluid]['thermal conductivity'])
@@ -502,17 +600,17 @@ class ProjectFile:
                             dynamic_viscosity = None
                             if 'dynamic viscosity' in keys:
                                 dynamic_viscosity =  float(fluid_list[fluid]['dynamic viscosity'])
-                              
+                            
                             # acoustic_impedance =  fluid_list[fluid]['impedance']
                             color =  fluid_list[fluid]['color']
                             temp_fluid = Fluid(name,
-                                               float(fluid_density),
-                                               float(speed_of_sound),
-                                               isentropic_exponent = isentropic_exponent,
-                                               thermal_conductivity = thermal_conductivity,
-                                               specific_heat_Cp = specific_heat_Cp,
-                                               dynamic_viscosity = dynamic_viscosity,
-                                               color=color, identifier=int(identifier))
+                                            float(fluid_density),
+                                            float(speed_of_sound),
+                                            isentropic_exponent = isentropic_exponent,
+                                            thermal_conductivity = thermal_conductivity,
+                                            specific_heat_Cp = specific_heat_Cp,
+                                            dynamic_viscosity = dynamic_viscosity,
+                                            color=color, identifier=int(identifier))
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
             if 'capped end' in entityFile[entity].keys():
@@ -559,6 +657,7 @@ class ProjectFile:
                     if 'list of elements' in  element_file[section].keys():
                         list_elements = element_file[section]['list of elements']
                         get_list_elements = self._get_list_of_values_from_string(list_elements)
+                    
                     if pp_data != [] and get_list_elements != []:
                         perforated_plate = PerforatedPlate( float(pp_data[0]), 
                                                             float(pp_data[1]),
@@ -627,8 +726,8 @@ class ProjectFile:
             except Exception as err: 
                 title = "ERROR WHILE LOADING B2PX ROTATION DECOUPLING FROM FILE" 
                 message = str(err)
-                PrintMessageInput([title, message, window_title])
-                
+                PrintMessageInput([title, message, window_title]) 
+
     def add_cross_section_in_file(self, lines, cross_section):  
 
         if isinstance(lines, int):
@@ -655,7 +754,13 @@ class ProjectFile:
                             'section parameters',
                             'section properties',
                             'expansion joint parameters',
-                            'expansion joint stiffness'    ]
+                            'expansion joint stiffness',
+                            'valve parameters',
+                            'valve center coordinates',
+                            'valve section parameters',
+                            'flange section parameters',
+                            'list of elements',
+                            'number of flange elements'    ]
 
             for str_key in str_keys:
                 if str_key in list(config[line_id].keys()):
@@ -677,8 +782,7 @@ class ProjectFile:
                         config[line_id]['insulation thickness'] = str(cross_section.insulation_thickness)
                         config[line_id]['insulation density'] = str(cross_section.insulation_density)
         
-        self.write_data_in_file(self._entity_path, config)
-        
+        self.write_data_in_file(self._entity_path, config)      
 
     def add_multiple_cross_section_in_file(self, lines, map_cross_sections_to_elements):
 
@@ -746,6 +850,71 @@ class ProjectFile:
         self.write_data_in_file(self._entity_path, config)
 
 
+    def modify_valve_in_file(self, lines, parameters):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+        sections = config.sections()
+
+        list_keys = [   'outer diameter', 
+                        'thickness', 
+                        'offset [e_y, e_z]', 
+                        'insulation thickness', 
+                        'insulation density',
+                        'variable section parameters',
+                        'beam section type',
+                        'section parameters',
+                        'section properties',
+                        'expansion joint parameters',
+                        'expansion joint stiffness',
+                        'valve parameters',
+                        'valve center coordinates',
+                        'valve section parameters',
+                        'flange section parameters',
+                        'list of elements',
+                        'number of flange elements'   ]
+        
+        for line_id in lines:
+            str_line = str(line_id)
+            for _key in list_keys:
+                if _key in list(config[str_line].keys()):
+                    config.remove_option(section=str_line, option=_key)
+            
+            for section in sections:
+                if f'{line_id}-' in section:
+                    config.remove_section(section)
+            
+            if parameters:
+                valve_length = parameters["valve_length"]
+                stiffening_factor = parameters["stiffening_factor"]
+                valve_mass = parameters["valve_mass"]
+                valve_center_coordinates = parameters["valve_center_coordinates"]
+                
+                valve_section_parameters = []
+                list_valve_elements = parameters["valve_elements"]
+                for value in parameters["valve_section_parameters"].values():
+                    valve_section_parameters.append(value)      
+
+                valve_parameters = [valve_length, stiffening_factor, valve_mass]
+                config[str_line]['valve parameters'] = str(valve_parameters)
+                config[str_line]['valve center coordinates'] = str(list(valve_center_coordinates))
+                config[str_line]['valve section parameters'] = str(valve_section_parameters)
+                config[str_line]['list of elements'] = str(list_valve_elements)
+                
+                if "number_flange_elements" in parameters.keys():
+                    flange_parameters = []
+                    number_flange_elements = parameters["number_flange_elements"]
+                    for value in parameters["flange_section_parameters"].values():
+                        flange_parameters.append(value)  
+                    config[str_line]['flange section parameters'] = str(flange_parameters)
+                    config[str_line]['number of flange elements'] = str(number_flange_elements)
+
+        self.write_data_in_file(self._entity_path, config)
+
+
     def modify_expansion_joint_in_file(self, lines, parameters):
         
         if isinstance(lines, int):
@@ -765,7 +934,13 @@ class ProjectFile:
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
-                        'expansion joint stiffness'    ]
+                        'expansion joint stiffness',
+                        'valve parameters',
+                        'valve center coordinates',
+                        'valve section parameters',
+                        'flange section parameters',
+                        'list of elements',
+                        'number of flange elements'   ]
         
         for line_id in lines:
             str_line = str(line_id)
@@ -778,11 +953,9 @@ class ProjectFile:
                     config.remove_section(section)
             
             if parameters is not None:
-
                 list_table_names = parameters[2]
-
                 config[str_line]['expansion joint parameters'] = str(parameters[0])
-                if list_table_names == []:
+                if list_table_names == [None, None, None, None]:
                     config[str_line]['expansion joint stiffness'] = str(parameters[1])
                 else:
                     str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
@@ -790,10 +963,12 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def add_multiple_expansion_joints_in_file(  self, lines, 
-                                                map_expansion_joint_to_elements, 
-                                                map_cross_sections_to_elements, 
-                                                update_by_cross=False   ):
+    def add_multiple_cross_sections_expansion_joints_valves_in_file(self, 
+                                                                    lines, 
+                                                                    map_cross_sections_to_elements, 
+                                                                    map_expansion_joint_to_elements, 
+                                                                    map_valve_to_elements,
+                                                                    update_by_cross=False):
 
         if isinstance(lines, int):
             lines = [lines]
@@ -815,7 +990,13 @@ class ProjectFile:
                         'section parameters',
                         'section properties',
                         'expansion joint parameters',
-                        'expansion joint stiffness'    ]
+                        'expansion joint stiffness',
+                        'valve parameters',
+                        'valve center coordinates',
+                        'valve section parameters',
+                        'flange section parameters',
+                        'list of elements',
+                        'number of flange elements'    ]
         
         for line_id in lines:
             
@@ -855,23 +1036,55 @@ class ProjectFile:
             if update_by_cross:    
                 for section in sections:
                     if f'{line_id}-' in section:
-                        if 'expansion joint parameters' in config_base[section].keys():
+                        if 'valve parameters' in config_base[section].keys():
                             counter_2 += 1
                             section_key = f"{line_id}-{counter_1 + counter_2}"
                             config[section_key] = config_base[section]
             
             else:
 
-                for (_, data) in map_expansion_joint_to_elements.items():
+                for [valve_data, _] in map_valve_to_elements.values():
                     counter_2 += 1
-                    parameters, list_elements, list_table_names = data
                     section_key = f"{line_id}-{counter_1 + counter_2}"
                 
-                    if list_table_names == []:
+                    valve_elements = valve_data["valve_elements"]
+                    valve_parameters = [valve_data["valve_length"], valve_data["stiffening_factor"], valve_data["valve_mass"]]
+                    valve_center_coordinates = valve_data["valve_center_coordinates"]
+                    valve_section_parameters = list(valve_data["valve_section_parameters"].values())
+
+                    if "flange_elements" in valve_data.keys():
+                        number_flange_elements = valve_data["number_flange_elements"]
+                        flange_section_parameters = list(valve_data["flange_section_parameters"].values())
+
+                    config[section_key] = { 'structural element type' : 'valve',
+                                            'valve parameters' : f'{valve_parameters}',
+                                            'valve center coordinates' : f'{valve_center_coordinates}',
+                                            'valve section parameters' : f'{valve_section_parameters}',
+                                            'flange section parameters' : f'{flange_section_parameters}',
+                                            'list of elements' : f'{valve_elements}',
+                                            'number of flange elements' : f'{number_flange_elements}' }
+
+            counter_3 = 0
+            if update_by_cross:    
+                for section in sections:
+                    if f'{line_id}-' in section:
+                        if 'expansion joint parameters' in config_base[section].keys():
+                            counter_3 += 1
+                            section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
+                            config[section_key] = config_base[section]
+            
+            else:
+
+                for [exp_joint_parameters, list_elements, list_table_names] in map_expansion_joint_to_elements.values():
+
+                    counter_2 += 1
+                    section_key = f"{line_id}-{counter_1 + counter_2 + counter_3}"
+                
+                    if list_table_names.count(None) == 4:
 
                         config[section_key] = { 'structural element type' : 'expansion_joint',
-                                                'expansion joint parameters' : f'{parameters[0]}',
-                                                'expansion joint stiffness' : f'{parameters[1]}',
+                                                'expansion joint parameters' : f'{exp_joint_parameters[0]}',
+                                                'expansion joint stiffness' : f'{exp_joint_parameters[1]}',
                                                 'list of elements' : f'{list_elements}' }
                             
                     else:
@@ -879,7 +1092,7 @@ class ProjectFile:
                         str_table_names = f"[{list_table_names[0]},{list_table_names[1]},{list_table_names[2]},{list_table_names[3]}]"
 
                         config[section_key] = { 'structural element type' : 'expansion_joint',
-                                                'expansion joint parameters' : f'{parameters[0]}',
+                                                'expansion joint parameters' : f'{exp_joint_parameters[0]}',
                                                 'expansion joint stiffness' : str_table_names,
                                                 'list of elements' : f'{list_elements}' }
 
@@ -1427,6 +1640,8 @@ class ProjectFile:
 
         if N==4:
             for i in range(N):
+                if read[i] == "None":
+                    continue
                 try:
                     output[i] = float(read[i])
                 except Exception:

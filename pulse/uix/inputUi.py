@@ -21,6 +21,7 @@ from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
 from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
 from data.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from data.user_input.model.setup.structural.valvesInput import ValvesInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from data.user_input.model.setup.acoustic.fluidInput import FluidInput
@@ -186,6 +187,9 @@ class InputUi:
     
     def add_expansion_joint(self):
         self.processInput(ExpansionJointInput, self.project, self.opv)
+
+    def add_valve(self):
+        self.processInput(ValvesInput, self.project, self.opv)
 
     def set_acoustic_element_type(self):
         self.processInput(AcousticElementTypeInput, self.project, self.opv)

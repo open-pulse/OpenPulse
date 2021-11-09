@@ -21,6 +21,7 @@ class CrossSectionInput(QDialog):
                     pipe_to_beam = False,
                     beam_to_pipe = False,
                     lines_to_update_cross_section = [], 
+                    elements_to_update_cross_section = [],
                     *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Model/Setup/Structural/crossSectionInput.ui', self)
@@ -48,6 +49,7 @@ class CrossSectionInput(QDialog):
         self.pipe_to_beam = pipe_to_beam
         self.beam_to_pipe = beam_to_pipe
         self.lines_to_update_cross_section = lines_to_update_cross_section
+        self.elements_to_update_cross_section = elements_to_update_cross_section
         self.remove_expansion_joint_tables_files = True
 
         self.section_type = None
@@ -207,7 +209,17 @@ class CrossSectionInput(QDialog):
             self.tabWidget_general.setCurrentWidget(self.tab_pipe)
             self.tabWidget_general.setTabEnabled(1, False)
         
-        if self.lines_id != []:
+        if self.lines_to_update_cross_section != []:
+            self.lineEdit_id_labels.setText("Lines IDs:")
+            self.radioButton_selected_lines.setChecked(True)
+            self.write_ids(self.lines_to_update_cross_section)
+
+        elif self.elements_to_update_cross_section != []:
+            self.lineEdit_id_labels.setText("Elements IDs:")
+            self.radioButton_selected_elements.setChecked(True)
+            self.write_ids(self.elements_to_update_cross_section)  
+
+        elif self.lines_id != []:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.radioButton_selected_lines.setChecked(True)
             self.write_ids(self.lines_id)
@@ -216,12 +228,7 @@ class CrossSectionInput(QDialog):
             self.lineEdit_id_labels.setText("Elements IDs:")
             self.radioButton_selected_elements.setChecked(True)
             self.write_ids(self.elements_id)
-                    
-        elif self.lines_to_update_cross_section != []:
-            self.lineEdit_id_labels.setText("Lines IDs:")
-            self.radioButton_selected_lines.setChecked(True)
-            self.write_ids(self.lines_to_update_cross_section)
-            
+                          
         else:
             self.lineEdit_id_labels.setText("Lines IDs:")
             self.radioButton_all_lines.setChecked(True)  
@@ -291,13 +298,19 @@ class CrossSectionInput(QDialog):
             self.reset_all_input_texts()
             self.selection = self.dict_tag_to_entity[self.lines_id[0]]
             element_type = self.selection.structural_element_type
+            if element_type is None:
+                for element_id in self.preprocessor.line_to_elements[self.lines_id[0]]:
+                    element = self.structural_elements[element_id]
+                    element_type = element.element_type
+                    if element_type in ["pipe_1", "pipe_2", "beam_1"]:
+                        break
         elif len(self.elements_id) > 0:   
             self.reset_all_input_texts()
             self.selection = self.structural_elements[self.elements_id[0]]
             element_type = self.selection.element_type
         else:
             return
-        if self.selection.expansion_joint_parameters is None:
+        if self.selection.variable_cross_section_data is None:
             if self.selection.cross_section is not None:
                 cross = self.selection.cross_section
                 self.section_label = cross.section_info["section_type_label"]
@@ -315,9 +328,9 @@ class CrossSectionInput(QDialog):
         else:
 
             if element_type in ['pipe_1', 'pipe_2']:
-                self.tabWidget_general.setCurrentWidget(self.tab_pipe)
-                if self.selection.variable_cross_section_data is not None:
-                    self.tabWidget_pipe_section.setCurrentWidget(self.tab_variable_pipe_section)
+                self.tabWidget_general.setCurrentIndex(0)
+                if self.selection.variable_cross_section_data:
+                    self.tabWidget_pipe_section.setCurrentIndex(1)
                     self.update_section_entries(variable_section=True)
             
             elif element_type in ['beam_1']:
@@ -425,11 +438,12 @@ class CrossSectionInput(QDialog):
             self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
             self.project.set_cross_section_by_elements([element_id], self.cross_section)
         
+        self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
         self.project.set_structural_element_type_by_lines(self.lines_typed[0], self.element_type)
         self.project.set_variable_cross_section_by_line(self.lines_typed[0], list_variable_parameters)
         
         self.remove_line_from_list(self.lines_typed[0])
-        self.project.get_dict_multiple_cross_sections()
+        # self.project.get_dict_multiple_cross_sections()
         self.actions_to_finalize()
 
     def update_section_entries(self, variable_section=False):
@@ -569,7 +583,6 @@ class CrossSectionInput(QDialog):
         for lineEdit in self.list_beam_section_entries:
             lineEdit.setText("")
 
-
     def flip_element_ids(self):
         self.flip = not self.flip
         temp_initial = self.lineEdit_element_id_initial.text()
@@ -618,8 +631,8 @@ class CrossSectionInput(QDialog):
         if self.currentTab_cross_section == 0:
             if self.flagEntity:
                 if len(self.lines_id) == 1:
-                    line = self.lines_id[0]
-                    self.list_elements = self.project.preprocessor.line_to_elements[line]
+                    line_id = self.lines_id[0]
+                    self.list_elements = self.project.preprocessor.line_to_elements[line_id]
                     self.lineEdit_element_id_initial.setText(str(self.list_elements[0]))
                     self.lineEdit_element_id_final.setText(str(self.list_elements[-1]))
 
@@ -841,6 +854,7 @@ class CrossSectionInput(QDialog):
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
                 self.remove_line_from_list(line_id)
+            self.project.add_valve_by_line(line_id, None)
                 
             self.project.set_cross_section_by_line(self.lines_typed, self.cross_section)
             self.project.set_structural_element_type_by_lines(self.lines_typed, self.element_type)
@@ -853,7 +867,8 @@ class CrossSectionInput(QDialog):
 
         elif self.flagElements:
             self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
-            self.project.get_dict_multiple_cross_sections()
+            self.project.add_cross_sections_expansion_joints_valves_in_file(self.elements_typed)
+            # self.project.get_dict_multiple_cross_sections()
             # self.preprocessor.set_structural_element_type_by_element(self.elements_typed, self.element_type)
             
             if len(self.elements_typed) < 20:
@@ -862,10 +877,12 @@ class CrossSectionInput(QDialog):
                 print("[Set Cross-section] - defined at {} selected elements".format(len(self.elements_typed)))
 
         else:
+            line_ids = self.preprocessor.all_lines
             if self.remove_expansion_joint_tables_files:
-                self.process_expansion_joint_table_files_removal(self.preprocessor.all_lines)
+                self.process_expansion_joint_table_files_removal(line_ids)
             self.project.set_cross_section_to_all(self.cross_section)
             self.project.set_structural_element_type_to_all(self.element_type)
+            self.project.add_valve_by_line(line_ids, None)
             
             print("[Set Cross-section] - defined at all lines") 
 

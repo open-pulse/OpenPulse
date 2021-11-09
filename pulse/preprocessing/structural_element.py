@@ -95,7 +95,7 @@ class StructuralElement:
     index : int
         Element index.
 
-    element_type : str, ['pipe_1', 'pipe_2', 'beam_1'], optional
+    element_type : str, ['pipe_1', 'pipe_2', 'beam_1', 'expansion_joint', 'valve'], optional
         Element type
         Default is 'pipe_1'.
 
@@ -143,6 +143,7 @@ class StructuralElement:
         self.internal_pressure = 0
         self.external_pressure = 0
         self.reset_expansion_joint_parameters()
+        self.reset_valve_parameters()
 
         self.delta_x = self.last_node.x - self.first_node.x
         self.delta_y = self.last_node.y - self.first_node.y
@@ -169,6 +170,7 @@ class StructuralElement:
         self.stress = None
         self.internal_load = None
         self.static_analysis_evaluated = False
+        self.perforated_plate = None
         self.valve_data = None
 
     @property
@@ -302,6 +304,9 @@ class StructuralElement:
         elif self.element_type in ['beam_1']:
             stiffness = Rt @ self.stiffness_matrix_beam() @ R
             mass = Rt @ self.mass_matrix_beam() @ R
+        elif self.element_type in ['valve']:
+            stiffness = Rt @ self.stiffness_matrix_pipes()*self.valve_stiffening_factor @ R
+            mass = Rt @ self.mass_matrix_valve() @ R   
         # elif self.element_type == "expansion_joint":
         #     stiffness = Rt @ self.stiffness_matrix_expansion_joint() @ R
         #     mass = Rt @ self.mass_matrix_expansion_joint() @ R            
@@ -357,6 +362,8 @@ class StructuralElement:
             return Rt @ self.stiffness_matrix_pipes() @ R
         elif self.element_type in ['beam_1']:
             return Rt @ self.stiffness_matrix_beam() @ R
+        elif self.element_type in ['valve']:
+            return Rt @ self.stiffness_matrix_pipes()*self.valve_stiffening_factor @ R
         elif self.element_type == "expansion_joint":
             return Rt @ self.stiffness_matrix_expansion_joint_harmonic(frequencies=frequencies) @ R
             
@@ -381,6 +388,8 @@ class StructuralElement:
             return Rt @ self.mass_matrix_pipes() @ R
         elif self.element_type in ['beam_1']:
             return Rt @ self.mass_matrix_beam() @ R
+        elif self.element_type in ['valve']:
+            return Rt @ self.mass_matrix_valve() @ R
         elif self.element_type == "expansion_joint":
             return Rt @ self.mass_matrix_expansion_joint() @ R  
 
@@ -467,7 +476,7 @@ class StructuralElement:
         aly = 1/res_y
         alz = 1/res_z
         
-        if self.element_type == 'pipe_1':
+        if self.element_type in ['pipe_1', 'valve']:
             Qy = 0
             Qz = 0
             Iyz = 0
@@ -754,7 +763,7 @@ class StructuralElement:
         A = self.cross_section.area
         nu = self.material.poisson_ratio
 
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type in ['pipe_1', 'pipe_2', 'expansion_joint', 'valve']:
             stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
         else:
             return np.zeros((rows, cols))
@@ -798,7 +807,7 @@ class StructuralElement:
         P_in = self.internal_pressure
         P_out = self.external_pressure
         
-        if self.element_type in ['pipe_1', 'pipe_2']:
+        if self.element_type in ['pipe_1', 'pipe_2', 'valve']:
             axial_stress = (P_in*(D_in**2) - P_out*(D_out**2))/((D_out**2) - (D_in**2))
         else:
             return aux
@@ -1174,6 +1183,16 @@ class StructuralElement:
         M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
         return M_matrix
 
+    def mass_matrix_valve(self):
+        L_e = self.valve_length/self.length
+        M_matrix = np.zeros((DOF_PER_ELEMENT, DOF_PER_ELEMENT), dtype=float)
+
+        M1 = M2 = M3 = self.valve_mass/(2*L_e)
+        indexes = np.array([0,1,2,6,7,8], dtype=int)
+
+        M_matrix[indexes,indexes] = [M1, M2, M3, M1, M2, M3]
+        return M_matrix
+
     def reset_expansion_joint_parameters(self):
         self.expansion_joint_parameters = None
         self.joint_length = 0
@@ -1186,6 +1205,18 @@ class StructuralElement:
         self.joint_torsional_stiffness = 0
         self.joint_angular_stiffness = 0
         self.joint_stiffness_table_names = []
+
+    def reset_valve_parameters(self):
+        self.valve_parameters = None
+        self.valve_elements = []
+        self.flange_elements = []
+        self.valve_section_parameters = {}
+        self.valve_length = 0
+        self.valve_stiffening_factor = 10
+        self.valve_mass = 0
+        self.valve_center_coordinates = None
+        self.flange_parameters = {}  
+        self.valve_diameters = {}        
 
     def get_array_values(self, value, number_frequencies):
         if isinstance(value, np.ndarray):

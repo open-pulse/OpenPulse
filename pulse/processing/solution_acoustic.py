@@ -1,13 +1,18 @@
 from time import time
 import numpy as np
+from numpy.lib.type_check import real
 from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
+import matplotlib
+import matplotlib.pyplot as plt
+
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
+from data.user_input.project.printMessageInput import PrintMessageInput
 
+def relative_error(vect_1, vect_2):
+    return norm((vect_2-vect_1))/norm(vect_1)
 
-def relative_error(p1,p2):
-    return norm(p1-p2)/norm(p1)
 class SolutionAcoustic:
     """ This class creates a Acoustic Solution object from input data.
 
@@ -26,10 +31,13 @@ class SolutionAcoustic:
             pass
         elif frequencies[0]==0:
             frequencies[0] = float(1e-4)
+
         self.all_dofs = len(preprocessor.nodes)
         self.assembly = AssemblyAcoustic(preprocessor, frequencies)
         self.acoustic_elements = preprocessor.acoustic_elements
         self.frequencies = frequencies
+        self.max_iter = 100
+        self.target = 10/100
 
         self.elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
         self.solution_nm1 = None
@@ -117,73 +125,6 @@ class SolutionAcoustic:
         
         return volume_velocity_combined
 
-    def direct_method(self):
-        """
-        This method evaluate the FETM acoustic solution through direct method.
-
-        Returns
-        ----------
-        array
-            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
-        """
-        self.get_global_matrices()
-        volume_velocity = self.get_combined_volume_velocity()
-
-        rows = self.K[0].shape[0]
-        cols = len(self.frequencies)
-        solution = np.zeros((rows, cols), dtype=complex)
-
-        if bool(self.elements_with_perforated_plate):
-            
-            values = self.elements_with_perforated_plate.values()
-            elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
-
-            count = 0
-            crit = 1
-            self.solution_nm1 = np.zeros((self.all_dofs, cols), dtype=complex)
-
-            while crit > 1e-2:
-                self.get_global_matrices()
-
-                for i in range(cols):
-                    solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
-
-                solution = self._reinsert_prescribed_dofs(solution)
-
-                Crit = np.array([])
-                for element in elements:
-                    element.update_pressure(solution)
-                    first = element.first_node.global_index
-                    last = element.last_node.global_index
-                    Crit = np.r_[   Crit, 
-                                    relative_error(solution[first,:], self.solution_nm1[first,:]), 
-                                    relative_error(solution[last,:], self.solution_nm1[last,:])   ]
-                crit = np.max(Crit)
-                # TODO: create a plot showing the iteration convergence.
-                # print(count, '\t:' ,crit) 
-                
-                count += 1
-                self.solution_nm1 = solution
-                solution = np.zeros((rows, cols), dtype=complex)
-
-                if crit < 1e-2:
-                    return self.solution_nm1
-                elif count > 100:
-                    # TODO: print warning message
-
-                    # title = "ITERATIVE PROCESS HAS NOT CONVERGED"
-                    # message = "The perforated plate solver has not converged."
-                    # message += "\n\nActual relative error: {}\n".format(str(crit.shape).replace(",", ""))
-                    # PrintMessageInput([title, message, "WARNING"])
-                    return self.solution_nm1
-        else:
-            for i in range(cols):
-                solution[:,i] = spsolve(self.Kadd_lump[i],volume_velocity[:, i])
-
-            solution = self._reinsert_prescribed_dofs(solution)
-
-            return solution
-
     def modal_analysis(self, modes=20, which='LM', sigma=0.01):
         """
         This method evaluate the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.
@@ -237,3 +178,263 @@ class SolutionAcoustic:
                     self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                         "The null value has been attributed to those DOFs with non-zero values."]
         return natural_frequencies, modal_shape
+
+    def direct_method(self):
+        """
+        This method evaluate the FETM acoustic solution through direct method.
+
+        Returns
+        ----------
+        array
+            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
+        """
+        self.get_global_matrices()
+        volume_velocity = self.get_combined_volume_velocity()
+
+        rows = self.K[0].shape[0]
+        cols = len(self.frequencies)
+        solution = np.zeros((rows, cols), dtype=complex)
+        
+        if self.elements_with_perforated_plate:
+                        
+            values = self.elements_with_perforated_plate.values()
+            elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
+            
+            self.non_linear = False
+            for element in elements:
+                if element.perforated_plate.nonlinear_effect:
+                    self.non_linear = True
+                    break
+
+            self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
+            vect_freqs = list(np.arange(cols, dtype=int))[1:]
+
+            self.plt = plt
+            fig = self.plt.figure(figsize=[8,6])
+            self.ax = fig.add_subplot(1,1,1)
+
+            self.iterations = []
+            pressure_residues = []
+            delta_residues = []
+
+            cache_delta_pressures = []
+            cache_delta = []
+            
+            self.unstable_frequencies = {}
+            freq_indexes = {}
+
+            count = 0
+            relative_difference = 1
+            converged = False
+
+            if self.non_linear:
+                while relative_difference > self.target or not converged:
+                    
+                    self.get_global_matrices()
+
+                    for i in range(cols):
+                        solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+
+                    solution = self._reinsert_prescribed_dofs(solution)
+                    
+                    delta_pressures = []
+                    cache_delta_residues = []
+                    cache_pressure_residues = np.array([])
+
+                    for i, element in enumerate(elements):
+                        element.update_pressure(solution)
+                        first = element.first_node.global_index
+                        last = element.last_node.global_index
+                        pressure_residue_first = relative_error(solution[first, vect_freqs], self.solution_nm1[first, vect_freqs])
+                        pressure_residue_last = relative_error(solution[last, vect_freqs], self.solution_nm1[last, vect_freqs])
+                        cache_pressure_residues = np.r_[ cache_pressure_residues, pressure_residue_first, pressure_residue_last ] 
+        
+                        index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
+                        max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
+
+                        if len(delta_pressures) == len(elements):
+                            delta_pressures[i] = element.delta_pressure[1:]
+                            cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
+                        else:
+                            delta_pressures.append(element.delta_pressure[1:])
+                            cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
+                            cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
+                                        
+                        if count >= 10:
+                            if len(cache_delta) == len(elements):                                
+                                if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
+                                    if index in freq_indexes.keys():
+                                        freq_indexes[index] += 1
+                                    else:
+                                        freq_indexes[index] = 1
+                                cache_delta[i] = max_value
+                            else:
+                                cache_delta.append(max_value)
+
+                    count += 1
+                    relative_difference = np.max(cache_pressure_residues)
+                    pressure_residues.append(100*relative_difference)
+                    delta_residues.append(100*max(cache_delta_residues))
+                    self.iterations.append(count)
+
+                    cache_delta_pressures = delta_pressures.copy()
+                    self.solution_nm1 = solution
+                    solution = np.zeros((rows, cols), dtype=complex)
+
+                    for ind, repetitions in freq_indexes.items():
+                        if repetitions >= 4:
+                            if ind not in self.unstable_frequencies:
+                                _frequencies = self.frequencies[vect_freqs]
+                                freq = _frequencies[ind]
+                                self.unstable_frequencies[ind] = freq
+                                vect_freqs.remove(freq)
+                                message = f"The {freq}Hz frequency step produces unstable results, therefore "
+                                message += "it will be excluded from the calculation of the residue convergence criteria.\n"
+                                print(message)  
+
+                    converged = self.check_convergence_criterias(pressure_residues, delta_residues)
+
+                    if converged:
+                        return self.solution_nm1
+
+            else:
+
+                for i in range(cols):
+                    solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                solution = self._reinsert_prescribed_dofs(solution)
+                return solution                     
+                                
+        else:
+
+            for i in range(cols):
+                solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+            solution = self._reinsert_prescribed_dofs(solution)
+            return solution
+
+    def check_convergence_criterias(self, pressure_residues, delta_residues, delta_residue_criteria=True):
+
+        ordinal = {1:"st", 2:"nd", 3:"rd"}
+        count = self.iterations[-1]
+        # delta_residue_criteria = False
+
+        if count >= 10:
+            if np.remainder(len(pressure_residues), 5) == 0:
+                self.plot_convergence_graph(self.iterations, pressure_residues, delta_residues)
+        
+        if count == 1:
+            _label =  "\n      ---------------------------------------------------------------\n"
+            _label += "      ||>>>>>    PERFORATED PLATE: CONVERGENCE INFORMATION    <<<<<||"
+            _label += "\n      ---------------------------------------------------------------\n"
+            print(_label)
+        
+        if count in ordinal.keys():
+            label = ordinal[count]
+        else:
+            label = "th"
+
+        print(f"Evaluated pressure residue criteria: {round(pressure_residues[-1], 2)}[%] @ {count}{label} iteration")
+        print(f"Evaluated delta pressure residue criteria: {round(delta_residues[-1], 2)}[%] @ {count}{label} iteration\n")
+
+        if count >= self.max_iter:
+            
+            self.plt.close()
+            if pressure_residues[-1] < 100*self.target:
+
+                final_log = f"The solution converged after {count} iterations with the following observations:"
+                if len(self.unstable_frequencies):
+                    list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                    final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
+                final_log += "\nPressure residues criteria: converged"
+                final_log += "\nDelta pressure residues criteria: not converged\n"
+                print(final_log)
+                return True 
+
+            else:
+
+                final_log = f"The solution did not converge after {count} iterations."
+                final_log += f"\nLast pressure residue criteria found: {round(pressure_residues[-1], 2)}[%]"
+                final_log += f"\nLast delta pressure residue criteria found: {round(delta_residues[-1], 2)}[%]"
+                final_log += f"\nTarget criteria: {round(100*self.target, 2)}[%]\n"
+                
+                if len(self.unstable_frequencies):
+                    list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                    final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"
+                                        
+                final_log += "\nPressure residues criteria: not converged"
+                final_log += "\nDelta pressure residues criteria: not converged\n"
+                print(final_log)
+                # TODO: print warning message without any threading conflicts
+                return True 
+
+        elif delta_residue_criteria:
+    
+            if pressure_residues[-1] < 100*self.target:
+                if len(delta_residues) >= 4:
+                        if max(delta_residues[-5:]) <= 10:
+                            if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
+                                if max(pressure_residues[-3:]) <= 10:
+                                    if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
+                                        self.plt.close()
+                                        final_log = f"The solution converged after {count} iterations with the following observations:"
+                                        if len(self.unstable_frequencies):
+                                            list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                                            final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"                   
+                                        final_log += "\nPressure residues criteria: converged"
+                                        final_log += "\nDelta pressure residues criteria: converged\n"
+                                        print(final_log)
+                                        return True        
+                
+        else: 
+
+            if max(pressure_residues[-5:]) <= 100*self.target:
+                if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
+                    self.plt.close()
+                    final_log = f"The solution converged after {count} iterations with the following observations:"
+                    if len(self.unstable_frequencies):
+                        list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                        final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
+                    final_log += "\nPressure residues criteria: converged"
+                    final_log += "\nDelta pressure residues criteria: not converged\n"
+                    print(final_log)
+                    return True    
+
+        return False
+
+    def plot_convergence_graph(self, iterations, relative_errors, deltaP_errors=[]):
+
+        # self.plt.clf()
+        # self.plt.cla()
+        
+        x, y = 500, 100
+        backend = matplotlib.get_backend()
+        mngr = self.plt.get_current_fig_manager()
+
+        if backend == 'TkAgg':
+            mngr.window.wm_geometry("+%d+%d" % (x, y))
+        elif backend == 'WXAgg':
+            mngr.window.SetPosition((x, y))
+        else:
+            mngr.window.move(x, y)
+        
+        perc_criteria = self.target*100
+        first_plot, = self.plt.plot(iterations, relative_errors, color=[1,0,0], linewidth=2, marker='s', markersize=6, markerfacecolor=[0,0,1])
+        second_plot, = self.plt.plot([1, max(iterations)], [perc_criteria, perc_criteria], color=[0,0,0], linewidth=2, linestyle="--")
+        if deltaP_errors:
+            third_plot, = self.plt.plot(iterations, deltaP_errors, color=[0,0,1], linewidth=2, marker='s', markersize=6, markerfacecolor=[1,0,0])
+
+        first_plot_label = "Pressure residues"
+        third_plot_label = "Delta pressure residues"
+        second_plot_label = f'Target: {perc_criteria}%'
+        if deltaP_errors:
+            _legends = self.plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label], loc='upper right')
+        else:
+            _legends = self.plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
+        self.plt.gca().add_artist(_legends)
+
+        self.ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
+        self.ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
+        self.ax.set_ylabel("Relative error [%]", fontsize = 14, fontweight = 'bold')
+
+        self.plt.xlim(1, max(iterations))
+        self.plt.draw()
+        self.plt.pause(0.001)            

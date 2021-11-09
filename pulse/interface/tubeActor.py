@@ -12,7 +12,7 @@ class TubeActor(vtkActorBase):
 
         self.elements = elements
         self.project = project
-        # self.elements = project.preprocessor.structural_elements
+        self.preprocessor = project.preprocessor
 
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
@@ -63,8 +63,15 @@ class TubeActor(vtkActorBase):
 
             rotations.InsertNextTuple(section_rotation_xyz)
             self._colors.InsertNextTuple((255,255,255))
-            
-            key = (element.cross_section, round(element.length, 4))
+
+            if element.valve_parameters:
+                radius = element.valve_diameters[element.index][1]/2
+            elif element.perforated_plate:
+                radius = element.perforated_plate.hole_diameter/2
+            else:
+                radius = None
+
+            key = (element.cross_section, round(element.length, 4), radius)
             if key not in cache:
                 cache[key] = counter
                 source = self.createTubeSection(element)
@@ -151,22 +158,28 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
+        
         if (element.cross_section is None):
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(3)
             poly.SetNormal(1,0,0)
             poly.SetRadius(1e-6)
             return poly
+        
+        if self.pressure_plot:
+            if element.element_type in ['beam_1']:
+                poly = vtk.vtkRegularPolygonSource()
+                poly.SetNumberOfSides(3)
+                poly.SetNormal(1,0,0)
+                poly.SetRadius(1e-6)
+                return poly
+            elif element.valve_parameters:
+                r = (element.valve_diameters[element.index][1]/2) * self.bff
+            elif element.perforated_plate:
+                r = (element.perforated_plate.hole_diameter/2) * self.bff
+            else:
+                r = (element.cross_section.inner_diameter/2) * self.bff
 
-        if self.pressure_plot and (element.element_type in ['beam_1']):
-            poly = vtk.vtkRegularPolygonSource()
-            poly.SetNumberOfSides(3)
-            poly.SetNormal(1,0,0)
-            poly.SetRadius(1e-6)
-            return poly
-
-        if self.pressure_plot and (element.element_type not in ['beam_1']):
-            r = element.cross_section.inner_diameter/2 * self.bff
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(20)
             poly.SetNormal(1,0,0)

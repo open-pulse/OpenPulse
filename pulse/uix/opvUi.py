@@ -193,9 +193,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer._renderer.ResetCamera()
         self.opvAnalysisRenderer.update()
 
-    # def updateDialogs(self):
-    #     pass
-
     def updateDialogs(self):
         if self.inputObject is None:
             return

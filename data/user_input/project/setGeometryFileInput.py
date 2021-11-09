@@ -57,6 +57,7 @@ class SetGeometryFileInput(QDialog):
         self.projectFileName = "project.ini"
         self.material_list_path = ""
         self.fluid_list_path = ""
+        self.selected_geometry_path = ""
 
         self.lineEdit_current_geometry_file_path = self.findChild(QLineEdit, 'lineEdit_current_geometry_file_path')
         self.lineEdit_new_geometry_file_path = self.findChild(QLineEdit, 'lineEdit_new_geometry_file_path')
@@ -90,6 +91,8 @@ class SetGeometryFileInput(QDialog):
     def confirm_and_update_model(self):
         if self.lineEdit_new_geometry_file_path.text() == "":
             self.search_new_geometry_file()
+            if self.selected_geometry_path == "":
+                return
 
         if self.check_all_input_mesh_settings():
             if self.copy_geometry_file_to_project_folder():

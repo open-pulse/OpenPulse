@@ -167,6 +167,7 @@ class MenuItems(QTreeWidget):
         self.item_child_addMassSpringDamper = QTreeWidgetItem(['Add: Mass / Spring / Damper'])
         self.item_child_add_elastic_nodal_links = QTreeWidgetItem(['Add Elastic Nodal Links'])
         self.item_child_add_expansion_joint = QTreeWidgetItem(['Add Expansion Joint'])
+        self.item_child_add_valve = QTreeWidgetItem(['Add Valve'])
         self.item_child_setcappedEnd = QTreeWidgetItem(['Set Capped End'])
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
@@ -180,6 +181,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_addMassSpringDamper)
         self.list_child_items.append(self.item_child_add_elastic_nodal_links)
         self.list_child_items.append(self.item_child_add_expansion_joint)
+        self.list_child_items.append(self.item_child_add_valve)
         self.list_child_items.append(self.item_child_setcappedEnd)
         self.list_child_items.append(self.item_child_set_stress_stiffening)
         #
@@ -262,6 +264,7 @@ class MenuItems(QTreeWidget):
         self.item_top_structuralModelSetup.addChild(self.item_child_addMassSpringDamper)
         self.item_top_structuralModelSetup.addChild(self.item_child_add_elastic_nodal_links)
         self.item_top_structuralModelSetup.addChild(self.item_child_add_expansion_joint)
+        self.item_top_structuralModelSetup.addChild(self.item_child_add_valve)
         self.item_top_structuralModelSetup.addChild(self.item_child_set_stress_stiffening)
         self.item_top_structuralModelSetup.addChild(self.item_child_setcappedEnd)
         
@@ -438,6 +441,12 @@ class MenuItems(QTreeWidget):
                 self.mainWindow.getInputWidget().add_expansion_joint()
                 # self.mainWindow.plot_entities_with_cross_section()       
 
+        elif item == self.item_child_add_valve:
+            if not self.item_child_add_valve.isDisabled():
+                self.mainWindow.getInputWidget().add_valve()
+                self.mainWindow.plot_mesh()
+                # self.mainWindow.plot_entities_with_cross_section()               
+
         elif item == self.item_child_setcappedEnd:
              if not self.item_child_setcappedEnd.isDisabled():
                 self.mainWindow.getInputWidget().setcappedEnd()
@@ -575,7 +584,8 @@ class MenuItems(QTreeWidget):
         self.item_child_setcappedEnd.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)   
-        self.item_child_add_expansion_joint.setDisabled(bool_key)   
+        self.item_child_add_expansion_joint.setDisabled(bool_key)  
+        self.item_child_add_valve.setDisabled(bool_key) 
         #   
         self.item_child_setAcousticElementType.setDisabled(bool_key)
         self.item_child_setAcousticPressure.setDisabled(bool_key)

@@ -383,8 +383,6 @@ class Node:
         set_prescribed_volume_velocity : Attributes the node's acoustic volume velocity boundary condition.
         """
         if isinstance(self.volume_velocity, np.ndarray):
-            # print(frequencies)
-            print(len(self.volume_velocity), len(frequencies))
             if len(self.volume_velocity) == len(frequencies):
                 return self.volume_velocity
             else:
