@@ -530,6 +530,8 @@ class Preprocessor:
                     countA += 1
                 elif acoustic_bc:
                     countA += 1
+            if node.radiation_impedance_type in [0, 1, 2]:
+                countA += 1
             return countA
 
         countS = 0
