@@ -22,7 +22,7 @@ class TubeDeformedActor(TubeActor):
         self.updateBff()
         cache = dict()
         counter = 0
-        
+      
         for element in self.elements.values():
             x,y,z = element.first_node.deformed_coordinates
             points.InsertNextPoint(x,y,z)
@@ -31,14 +31,30 @@ class TubeDeformedActor(TubeActor):
             rotations.InsertNextTuple(section_rotation_xyz)
 
             self._colors.InsertNextTuple((255,255,255))
+            
+            if element.valve_parameters:
+                radius = element.valve_diameters[element.index][0]/2
+            elif element.perforated_plate:
+                radius = element.perforated_plate.hole_diameter/2
+            else:
+                radius = None
 
-            if element.cross_section not in cache:
-                cache[element.cross_section] = counter
+            key = (element.cross_section, round(element.length, 4), radius)
+            if key not in cache:
+                cache[key] = counter
                 source = self.createTubeSection(element)
                 self._mapper.SetSourceData(counter, source)
                 counter += 1
-            sources.InsertNextTuple1(cache[element.cross_section])
-     
+            sources.InsertNextTuple1(cache[key])
+
+            # if element.cross_section not in cache:
+            #     cache[element.cross_section] = counter
+            #     source = self.createTubeSection(element)
+            #     self._mapper.SetSourceData(counter, source)
+            #     counter += 1
+        
+            # sources.InsertNextTuple1(cache[element.cross_section])
+
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)

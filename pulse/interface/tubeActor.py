@@ -181,12 +181,13 @@ class TubeActor(vtkActorBase):
                 r = (element.cross_section.inner_diameter/2) * self.bff
 
             poly = vtk.vtkRegularPolygonSource()
-            poly.SetNumberOfSides(20)
+            poly.SetNumberOfSides(36)
             poly.SetNormal(1,0,0)
             poly.SetRadius(r)
             return poly
-
-        outer_points, inner_points = element.cross_section.get_cross_section_points()
+                
+        # outer_points, inner_points = element.cross_section.get_cross_section_points()
+        outer_points, inner_points = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
         

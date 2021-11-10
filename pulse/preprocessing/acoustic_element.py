@@ -107,6 +107,7 @@ class AcousticElement:
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
+        self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
         self.mean_velocity = kwargs.get('mean_velocity', 0)

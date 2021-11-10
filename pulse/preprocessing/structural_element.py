@@ -125,6 +125,7 @@ class StructuralElement:
         self.wall_formulation = kwargs.get('wall_formulation', 'thick_wall')
         self.material = kwargs.get('material', None)
         self.cross_section = kwargs.get('cross_section', None)
+        self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_forces = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE_STRUCTURAL))
         self.fluid = kwargs.get('fluid', None)
         self.adding_mass_effect = kwargs.get('adding_mass_effect', False)

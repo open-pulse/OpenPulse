@@ -3,7 +3,7 @@ from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
-from pulse.utils import remove_bc_from_file, get_new_path, check_is_there_a_group_of_elements_inside_list_elements, get_V_linear_distribution
+from pulse.utils import *
 import configparser
 from collections import defaultdict
 import os
@@ -502,7 +502,7 @@ class ProjectFile:
                     nf = int(number_flange_elements/2) 
                     if number_flange_elements == 0:
                         list_inner_elements = valve_data["valve_elements"]
-                        list_outer_diameters =  get_V_linear_distribution(valve_section_parameters[0], 50, N)
+                        list_outer_diameters =  get_V_linear_distribution(valve_section_parameters[0], N)
                         list_inner_diameters = list_outer_diameters - 2*valve_thickness
                     else:
                         flange_thickness = flange_section_parameters[1]
@@ -512,21 +512,20 @@ class ProjectFile:
                         list_outer_diameters = np.ones(number_valve_elements)*flange_diameter
                         list_inner_diameters = list_outer_diameters - 2*flange_thickness
                         
-                        list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], 50, N)
+                        list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_section_parameters[0], N)
                         list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*valve_thickness
                         
                         lists_flange_elements = [list_valve_elements[0:nf], list_valve_elements[-nf:]]
                         list_flange_elements = [element_id for _list_elements in lists_flange_elements for element_id in _list_elements]
                         valve_data["flange_elements"] = list_flange_elements
                     
-                    dict_outer_diameters = dict(zip(list_valve_elements, list_outer_diameters))                        
-                    dict_inner_diameters = dict(zip(list_valve_elements, list_inner_diameters))                        
+                    dict_outer_diameters = dict(zip(list_valve_elements, np.round(list_outer_diameters, decimals=6)))                        
+                    dict_inner_diameters = dict(zip(list_valve_elements, np.round(list_inner_diameters, decimals=6)))                        
                                                     
                     for _id in list_inner_elements:
                         dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
-                        diameters_to_plot = dict_element_to_diameters[_id]
-                        valve_cross.append(CrossSection(pipe_section_info=valve_section_info, 
-                                                        diameters_to_plot=diameters_to_plot)) 
+                        valve_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]
+                        valve_cross.append(CrossSection(valve_section_info=valve_section_info)) 
                 
                 if len(flange_section_parameters) == 6:
                     valve_data["flange_section_parameters"] = dict(zip(cross_section_labels, flange_section_parameters))
@@ -534,10 +533,9 @@ class ProjectFile:
                                             "section_parameters" : valve_data["flange_section_parameters"]  }
 
                     for _id in list_flange_elements:
-                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]
-                        diameters_to_plot = dict_element_to_diameters[_id]           
-                        flange_cross.append(CrossSection(   pipe_section_info=flange_section_info, 
-                                                            diameters_to_plot=diameters_to_plot   )) 
+                        dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]   
+                        flange_section_info["diameters_to_plot"] = dict_element_to_diameters[_id]       
+                        flange_cross.append(CrossSection(valve_section_info=flange_section_info))
                 
                 valve_data["valve_diameters"] = dict_element_to_diameters
 

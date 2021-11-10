@@ -415,9 +415,8 @@ class Project:
             
             # Valve to the entities
             for key, [valve_data, cross_sections] in dict_valve.items():
-                # return
                 if "-" in key:
-                    self.load_valve_by_elements(valve_data, cross_sections)                            
+                    self.load_valve_by_elements(valve_data, cross_sections)                      
                 else:
                     line_id = int(key)
                     self.load_valve_by_lines(line_id, valve_data, cross_sections)            
@@ -441,10 +440,11 @@ class Project:
             message = str(log_error)
             PrintMessageInput([title, message, window_title])
 
-    def load_mapped_cross_section(self):  
+    def process_cross_sections_mapping(self):  
 
-        label_etypes = ['pipe_1', 'pipe_2', 'beam_1', 'valve']
-        indexes = [0, 1, 2, 3]
+        label_etypes = ['pipe_1', 'pipe_2', 'valve']
+        indexes = [0, 1, 2]
+        
         dict_etype_index = dict(zip(label_etypes,indexes))
         dict_index_etype = dict(zip(indexes,label_etypes))
         map_cross_section_to_elements = defaultdict(list)
@@ -452,11 +452,12 @@ class Project:
         for index, element in self.preprocessor.structural_elements.items():
 
             e_type  = element.element_type
-            if e_type in ['beam_1','expansion_joint']:
+            if e_type in ['beam_1', 'expansion_joint']:
                 continue
             elif e_type is None:
                 e_type = 'pipe_1'
                 self.acoustic_analysis = True
+        
             index_etype = dict_etype_index[e_type]
 
             poisson = element.material.poisson_ratio
@@ -469,16 +470,10 @@ class Project:
             offset_z = element.cross_section.offset_z
             insulation_thickness = element.cross_section.insulation_thickness
             insulation_density = element.cross_section.insulation_density
-        
-            map_cross_section_to_elements[str([ outer_diameter, 
-                                                thickness, 
-                                                offset_y, 
-                                                offset_z, 
-                                                poisson, 
-                                                index_etype, 
-                                                insulation_thickness, 
-                                                insulation_density ])].append(index)
-            
+           
+            map_cross_section_to_elements[str([ outer_diameter, thickness, offset_y, offset_z, poisson,
+                                                index_etype, insulation_thickness, insulation_density ])].append(index)
+       
         for key, elements in map_cross_section_to_elements.items():
 
             cross_strings = key[1:-1].split(',')
@@ -491,89 +486,22 @@ class Project:
                                     "offset_z" : vals[3], 
                                     "insulation_thickness" : vals[6], 
                                     "insulation_density" : vals[7] }
+    
+            if el_type in ['pipe_1', 'pipe_2']:
+                pipe_section_info = {   "section_type_label" : "Pipe section",
+                                        "section_parameters" : section_parameters   }   
+                cross_section = CrossSection(pipe_section_info=pipe_section_info)                             
 
-            pipe_section_info = {   "section_type_label" : "Pipe section",
-                                    "section_parameters" : section_parameters }
+            elif el_type in ['valve']:
+                valve_section_info = {  "section_type_label" : "Valve section",
+                                        "section_parameters" : section_parameters,  
+                                        "diameters_to_plot" : [None, None] }
+                cross_section = CrossSection(valve_section_info=valve_section_info)            
 
-            if el_type in ['pipe_1', 'pipe_2', 'valve']:
-
-                cross_section = CrossSection(pipe_section_info=pipe_section_info)                                
-
-                if self.analysis_ID in [3,4]:
-                    self.preprocessor.set_cross_section_by_element(elements, cross_section, update_cross_section=False)  
-                else:
-                    self.preprocessor.set_cross_section_by_element(elements, cross_section, update_cross_section=True)  
-
-    # def get_dict_multiple_cross_sections(self):
-    #     '''This methods updates the file information of multiples cross-sections
-        
-    #     '''
-    #     return
-    #     if len(self.lines_with_cross_section_by_elements)==0:
-    #         return
-
-    #     label_etypes = ['pipe_1', 'pipe_2']
-    #     indexes = [0, 1]
-    #     dict_etype_index = dict(zip(label_etypes,indexes))
-
-    #     for line_id in self.lines_with_cross_section_by_elements:
-    #         dict_multiple_cross_sections = defaultdict(list)
-    #         list_elements = self.preprocessor.line_to_elements[line_id]
-    #         elements = self.preprocessor.structural_elements
-    #         count_sections = 0
-    #         update_line = True
-
-    #         for element_id in list_elements:
-
-    #             element = elements[element_id]
-    #             e_type  = element.element_type
-    #             if e_type in ['beam_1', 'expansion_joint', 'valve', None]:
-    #                 update_line = False
-    #                 continue
-               
-    #             index_etype = dict_etype_index[e_type]
-
-    #             cross = element.cross_section
-    #             if cross:
-    #                 outer_diameter = element.cross_section.outer_diameter
-    #                 thickness = element.cross_section.thickness
-    #                 offset_y = element.cross_section.offset_y
-    #                 offset_z = element.cross_section.offset_z
-    #                 insultation_thickness = element.cross_section.insulation_thickness
-    #                 insultation_density = element.cross_section.insulation_density
-    #                 key_string = str([  outer_diameter, 
-    #                                     thickness, 
-    #                                     offset_y, 
-    #                                     offset_z, 
-    #                                     insultation_thickness, 
-    #                                     insultation_density,
-    #                                     index_etype ])
-
-    #                 if key_string not in list(dict_multiple_cross_sections.keys()):
-    #                     count_sections += 1
-    #                 dict_multiple_cross_sections[key_string].append(element_id)
-        
-    #         if len(dict_multiple_cross_sections) == 1:
-    #             if count_sections == 1:
-    #                 if update_line:
-    #                     _cross_section = elements[element_id].cross_section
-    #                     self.set_cross_section_by_line(line_id, _cross_section)
-    #                     if line_id in self.number_sections_by_line.keys():
-    #                         self.number_sections_by_line.pop(line_id)
-    #                 else:
-    #                     self.file.add_multiple_expansion_joints_in_file(line_id, 
-    #                                                                     dict_multiple_cross_sections,
-    #                                                                     {}, 
-    #                                                                     {},
-    #                                                                     update_by_cross=True)
-    #         else:
-    #             self.number_sections_by_line[line_id] = count_sections
-    #             self.file.add_multiple_expansion_joints_in_file(line_id, 
-    #                                                             dict_multiple_cross_sections,
-    #                                                             {}, 
-    #                                                             {},
-    #                                                             update_by_cross=True)
-    #             # self.file.add_multiple_cross_section_in_file(line_id, dict_multiple_cross_sections)     
+            if self.analysis_ID in [3,4]:
+                self.preprocessor.set_cross_section_by_element(elements, cross_section, update_cross_section=False, update_section_points=False)  
+            else:
+                self.preprocessor.set_cross_section_by_element(elements, cross_section, update_cross_section=True, update_section_points=False)      
 
     def get_dict_multiple_cross_sections_from_line(self, line_id):
         '''This methods returns a dictionary of multiples cross-sections associated to 
@@ -1318,11 +1246,11 @@ class Project:
         self.preprocessor.set_cross_section_by_element(list_elements, list_cross_sections)
 
     def load_valve_by_lines(self, line_id, data, cross_sections):
+        valve_elements = data["valve_elements"]
+        valve_cross, flange_cross = cross_sections
         self.preprocessor.add_valve_by_line(line_id, data)
         self._set_valve_to_selected_lines(line_id, data)
-        # list_elements = self.preprocessor.line_to_elements[line_id]
-        valve_cross, flange_cross = cross_sections
-        valve_elements = data["valve_elements"]
+
         if 'flange_elements' in data.keys():
             flange_elements = data["flange_elements"]
             _valve_elements = [element_id for element_id in valve_elements if element_id not in flange_elements]
@@ -1345,7 +1273,7 @@ class Project:
             self.preprocessor.set_cross_section_by_element(flange_elements, flange_cross)
         else:
             self.preprocessor.set_cross_section_by_element(valve_elements, valve_cross)
-        # self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
+        self.preprocessor.set_structural_element_type_by_element(valve_elements, "valve")
 
     def load_beam_xaxis_rotation_by_line(self, line_id, angle):
         self.preprocessor.set_beam_xaxis_rotation_by_line(line_id, angle)

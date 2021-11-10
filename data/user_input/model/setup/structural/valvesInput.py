@@ -491,13 +491,13 @@ class ValvesInput(QDialog):
         N = number_valve_elements - number_flange_elements
         dict_diameters = {}
         if number_flange_elements == 0:
-            list_outer_diameters =  get_V_linear_distribution(valve_diameter, 50, N)
+            list_outer_diameters =  get_V_linear_distribution(valve_diameter, N)
             list_outer_diameters = list_outer_diameters - 2*self.valve_thickness
         else:
             nf = int(number_flange_elements/2)
             list_outer_diameters = np.ones(number_valve_elements)*self.flange_outer_diameter
             list_inner_diameters = list_outer_diameters - 2*self.flange_thickness
-            list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_diameter, 50, N)
+            list_outer_diameters[nf:-nf] = get_V_linear_distribution(valve_diameter, N)
             list_inner_diameters[nf:-nf] = list_outer_diameters[nf:-nf] - 2*self.valve_thickness 
         for i, element_id in enumerate(self.list_valve_elements):
             dict_diameters[element_id] = [list_outer_diameters[i], list_inner_diameters[i]]
@@ -796,13 +796,12 @@ class ValvesInput(QDialog):
                 return True
 
     def set_cross_section_to_list_elements(self, list_elements, section_parameters, valve_diameters): 
-        pipe_section_info = {   "section_type_label" : "Valve section" ,
-                                "section_parameters" : section_parameters   }
+        valve_section_info = {   "section_type_label" : "Valve section" ,
+                                    "section_parameters" : section_parameters   }
         list_cross_sections = []
-        for element_id in list_elements:
-            diameters_to_plot = valve_diameters[element_id]             
-            cross_section = CrossSection(   pipe_section_info=pipe_section_info, 
-                                            diameters_to_plot=diameters_to_plot   )
+        for element_id in list_elements:             
+            valve_section_info["diameters_to_plot"] = valve_diameters[element_id] 
+            cross_section = CrossSection(valve_section_info=valve_section_info)
             list_cross_sections.append(cross_section)
         self.project.set_cross_section_by_elements(list_elements, list_cross_sections)
         return False

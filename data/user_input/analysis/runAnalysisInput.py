@@ -56,9 +56,8 @@ class RunAnalysisInput(QDialog):
         self.complete = False
         t0i = time()
         self.label_message.setText("Processing the cross-sections...")
-        self.project.load_mapped_cross_section()
+        self.project.process_cross_sections_mapping()
         self.project.time_to_process_cross_sections = time() - t0i
-        # self.project.get_dict_multiple_cross_sections()
         self.label_message.setText("Preparing model to solve...")
 
         if self.analysis_ID in [0,1,3,5,6]:
