@@ -961,32 +961,32 @@ class CrossSection:
         elif self.section_label == 'C-section': # Beam: C-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
-            Y_out = [0, w2, w2, tw, tw, w1, w1, 0]
-            Z_out = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
+            Yp_out = [0, w2, w2, tw, tw, w1, w1, 0]
+            Zp_out = [-(h/2), -(h/2), -((h/2)-t2), -((h/2)-t2), ((h/2)-t1), ((h/2)-t1), (h/2), (h/2)]
 
-            Ys = np.array(Y_out) + offset_y
-            Zs = np.array(Z_out) + offset_z
-            outer_points = list(zip(Ys, Zs))
+            Y_out = np.array(Yp_out) + offset_y
+            Z_out = np.array(Zp_out) + offset_z
+            outer_points = list(zip(Y_out, Z_out))
 
         elif self.section_label == 'I-section': # Beam: I-section
 
             h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
-            Y_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
-            Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t2, -(h/2)+t2, -(h/2), -(h/2), -(h/2)+t2, -(h/2)+t2, (h/2)-t1, (h/2)-t1, (h/2)]
+            Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), (w2/2), (w2/2), -(w2/2), -(w2/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
+            Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2)+t2, -(h/2)+t2, -(h/2), -(h/2), -(h/2)+t2, -(h/2)+t2, (h/2)-t1, (h/2)-t1, (h/2)]
             
-            Ys = np.array(Y_out) + offset_y
-            Zs = np.array(Z_out) + offset_z
-            outer_points = list(zip(Ys, Zs))
+            Y_out = np.array(Yp_out) + offset_y
+            Z_out = np.array(Zp_out) + offset_z
+            outer_points = list(zip(Y_out, Z_out))
     
         elif self.section_label == 'T-section': # Beam: T-section
 
             h, w1, t1, tw, offset_y, offset_z = self.section_parameters
-            Y_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
-            Z_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
+            Yp_out = [(w1/2), (w1/2), (tw/2), (tw/2), -(tw/2), -(tw/2), -(w1/2), -(w1/2)]
+            Zp_out = [(h/2), (h/2)-t1, (h/2)-t1, -(h/2), -(h/2), (h/2)-t1, (h/2)-t1, (h/2)]
 
-            Ys = np.array(Y_out) + offset_y
-            Zs = np.array(Z_out) + offset_z
-            outer_points = list(zip(Ys, Zs))
+            Y_out = np.array(Yp_out) + offset_y
+            Z_out = np.array(Zp_out) + offset_z
+            outer_points = list(zip(Y_out, Z_out))
         
         elif self.section_label == "Expansion joint section" : #
     
@@ -1053,13 +1053,22 @@ class CrossSection:
             outer_points = list(zip(Y_out, Z_out))
 
         # TODO: section_type == 6: creates an equivalent beam section
-        return outer_points, inner_points
+        # return outer_points, inner_points
 
-def get_circular_section_points(parameters, expansion_joint=False, valve=False):
+        if inner_points == []:
+            Y_in, Z_in = 0, 0
+            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label])
+        else:
+            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label])        
+        
+        return outer_points, inner_points, max_min
+
+def get_circular_section_points(parameters, section_label):
     """" This method returns """
     N = 32 # temporary number of divisions for circular sections
     
-    if expansion_joint:
+    if section_label == "Expansion joint section":
+        
         d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
 
         if key == "major":
@@ -1070,6 +1079,7 @@ def get_circular_section_points(parameters, expansion_joint=False, valve=False):
             d_out *= 1.4
             
     else:
+
         d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
     
     r_out = d_out/2
@@ -1091,8 +1101,10 @@ def get_circular_section_points(parameters, expansion_joint=False, valve=False):
 
     outer_points = list(zip(Y_out, Z_out))
     inner_points = list(zip(Y_in, Z_in))
+
+    max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), section_label])
     
-    return outer_points, inner_points
+    return outer_points, inner_points, max_min
 
 def get_points_to_plot_section(section_label, section_parameters):   
     

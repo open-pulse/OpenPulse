@@ -854,12 +854,12 @@ class CrossSectionInput(QDialog):
                 self.process_expansion_joint_table_files_removal(self.lines_typed)
             for line_id in self.lines_typed:
                 self.remove_line_from_list(line_id)
-            self.project.add_valve_by_line(line_id, None)
+            self.project.add_valve_by_line(line_id, None, reset_cross=False)
+            self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
                 
             self.project.set_cross_section_by_line(self.lines_typed, self.cross_section)
             self.project.set_structural_element_type_by_lines(self.lines_typed, self.element_type)
-            self.project._set_expansion_joint_to_selected_lines(self.lines_typed, None)
- 
+            
             if len(self.lines_typed) < 20:
                 print("[Set Cross-section] - defined at the {} lines".format(self.lines_typed))
             else:
@@ -880,11 +880,15 @@ class CrossSectionInput(QDialog):
             line_ids = self.preprocessor.all_lines
             if self.remove_expansion_joint_tables_files:
                 self.process_expansion_joint_table_files_removal(line_ids)
-            self.project.set_cross_section_to_all(self.cross_section)
+            self.project.add_valve_by_line(line_ids, None, reset_cross=False)
+            self.project._set_expansion_joint_to_selected_lines(line_ids, None)
+
+            self.project.set_cross_section_by_line(line_ids, self.cross_section)
             self.project.set_structural_element_type_to_all(self.element_type)
-            self.project.add_valve_by_line(line_ids, None)
             
             print("[Set Cross-section] - defined at all lines") 
+        
+        self.preprocessor.add_lids_to_variable_cross_sections()
 
     def confirm_beam(self):
         self.element_type = 'beam_1'

@@ -210,8 +210,8 @@ class SolutionAcoustic:
             vect_freqs = list(np.arange(cols, dtype=int))[1:]
 
             self.plt = plt
-            fig = self.plt.figure(figsize=[8,6])
-            self.ax = fig.add_subplot(1,1,1)
+            self.fig = self.plt.figure(figsize=[8,6])
+            self.ax = self.fig.add_subplot(1,1,1)
 
             self.iterations = []
             pressure_residues = []
@@ -437,4 +437,8 @@ class SolutionAcoustic:
 
         self.plt.xlim(1, max(iterations))
         self.plt.draw()
-        self.plt.pause(0.001)            
+        self.plt.pause(0.001)
+
+        del self.ax   
+        self.ax = self.fig.add_subplot(1,1,1)
+        

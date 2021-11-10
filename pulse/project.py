@@ -774,10 +774,14 @@ class Project:
         self._set_material_to_selected_lines(lines, material)
         self.file.add_material_in_file(lines, material.identifier)
 
-    def set_cross_section_to_all(self, cross_section):
-        self.preprocessor.set_cross_section_by_element('all', cross_section)
-        self._set_cross_section_to_all_entities(cross_section)
-        self.file.add_cross_section_in_file(self.preprocessor.all_lines, cross_section)
+    def set_cross_section_by_line(self, lines, cross_section):
+        self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
+        if self.file.get_import_type() == 0:
+            self.preprocessor.set_cross_section_by_line(lines, cross_section)
+        elif self.file.get_import_type() == 1:
+            self.preprocessor.set_cross_section_by_element('all', cross_section)
+        self._set_cross_section_to_selected_line(lines, cross_section)
+        self.file.add_cross_section_in_file(lines, cross_section)
 
     def set_cross_section_by_elements(self, list_elements, cross_section):
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file(list_elements)
@@ -805,15 +809,6 @@ class Project:
                                                                                     map_cross_sections_to_elements, 
                                                                                     map_expansion_joints_to_elements,
                                                                                     map_valves_to_elements )                                        
-
-    def set_cross_section_by_line(self, lines, cross_section):
-        self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
-        if self.file.get_import_type() == 0:
-            self.preprocessor.set_cross_section_by_line(lines, cross_section)
-        elif self.file.get_import_type() == 1:
-            self.preprocessor.set_cross_section_by_element('all', cross_section)
-        self._set_cross_section_to_selected_line(lines, cross_section)
-        self.file.add_cross_section_in_file(lines, cross_section)
 
     def set_variable_cross_section_by_line(self, line_id, parameters):
         self._set_variable_cross_section_to_selected_line(line_id, parameters)
@@ -953,7 +948,7 @@ class Project:
             values = parameters[0]
         self.file.add_structural_bc_in_file(section_string, values, labels)
 
-    def add_valve_by_line(self, line_id, parameters):
+    def add_valve_by_line(self, line_ids, parameters, reset_cross=True):
         if parameters is None:
             remove = True
             capped = False
@@ -963,17 +958,24 @@ class Project:
             capped = True
             etype = "valve"
 
-        self.preprocessor.add_expansion_joint_by_line(line_id, None, remove=True)
-        self.preprocessor.add_valve_by_line(line_id, parameters, remove=remove)
-        self.set_capped_end_by_lines(line_id, capped)
-        self.set_structural_element_type_by_lines(line_id, etype)
-        if etype == "pipe_1":
-            self.set_cross_section_by_line(line_id, None)  
-        self._set_valve_to_selected_lines(line_id, parameters)
-        if line_id in self.number_sections_by_line.keys():
-            self.number_sections_by_line.pop(line_id)
+        self.preprocessor.add_expansion_joint_by_line(line_ids, None, remove=True)
+        self.preprocessor.add_valve_by_line(line_ids, parameters, remove=remove, reset_cross=reset_cross)
+        self.set_capped_end_by_lines(line_ids, capped)
+        self.set_structural_element_type_by_lines(line_ids, etype)
+        self._set_valve_to_selected_lines(line_ids, parameters)
+        
+        if reset_cross:
 
-        self.file.modify_valve_in_file(line_id, parameters) 
+            if etype == "pipe_1":
+                self.set_cross_section_by_line(line_ids, None)  
+            
+            if isinstance(line_ids, int):
+                line_ids = [line_ids]
+            for line_id in line_ids:
+                if line_id in self.number_sections_by_line.keys():
+                    self.number_sections_by_line.pop(line_ids)
+
+            self.file.modify_valve_in_file(line_ids, parameters) 
 
     def add_valve_by_elements(  self, 
                                 list_elements, 
@@ -1398,10 +1400,6 @@ class Project:
             lines = [lines]
         for line_id in lines:
             entity = self.preprocessor.dict_tag_to_entity[line_id]
-            entity.cross_section = cross
-
-    def _set_cross_section_to_all_entities(self, cross):
-        for entity in self.entities:
             entity.cross_section = cross
 
     def _set_variable_cross_section_to_selected_line(self, line_id, parameters):

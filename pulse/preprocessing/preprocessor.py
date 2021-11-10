@@ -486,21 +486,21 @@ class Preprocessor:
                         element = first_element
                         
                     if element:
-                    
+
                         cross = element.cross_section
                         outer_diameter = cross.outer_diameter
                         inner_diameter = _inner_diameter
                         offset_y = cross.offset_y
                         offset_z = cross.offset_z
                         insulation_thickness = cross.insulation_thickness
+                        section_label = cross.section_label
                         
                         if element.element_type == 'expansion_joint':
                             _key = element.cross_section.expansion_joint_plot_key
                             parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
-                            element.cross_section_points = get_circular_section_points(parameters, expansion_joint=True)
                         else:
                             parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                            element.cross_section_points = get_circular_section_points(parameters)
+                        element.cross_section_points = get_circular_section_points(parameters, section_label)
                         
     def get_list_edge_nodes(self, size, tolerance=1e-5):
         
@@ -1873,12 +1873,7 @@ class Preprocessor:
                 self.dict_lines_with_expansion_joints[line_id] = parameters
                 self.number_expansion_joints_by_lines[line_id] = 1
 
-    def add_valve_by_elements(  self, 
-                                list_elements, 
-                                parameters, 
-                                remove=False, 
-                                aux_line_id=None, 
-                                reset_cross=True  ):
+    def add_valve_by_elements( self, list_elements, parameters, remove=False, aux_line_id=None, reset_cross=True ):
         """
         This method .
 
@@ -1956,7 +1951,7 @@ class Preprocessor:
                 key = f"group-{size+1}"
                 self.group_elements_with_valves[key] = [list_elements, parameters]
             
-    def add_valve_by_line(self, lines, parameters, remove=False):
+    def add_valve_by_line(self, lines, parameters, remove=False, reset_cross=True):
         """
         This method .
 
@@ -1976,7 +1971,7 @@ class Preprocessor:
             lines = [lines] 
         for line_id in lines:
             for elements in slicer(self.line_to_elements, line_id):
-                self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id)
+                self.add_valve_by_elements(elements, parameters, remove=remove, aux_line_id=line_id, reset_cross=reset_cross)
             if remove:
                 if line_id in list(self.dict_lines_with_valves.keys()):
                     self.dict_lines_with_valves.pop(line_id)

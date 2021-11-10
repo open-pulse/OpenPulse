@@ -55,8 +55,12 @@ class TubeActor(vtkActorBase):
         self.updateBff()
         cache = dict()
         counter = 0
-
+ 
         for element in self.elements.values():
+            
+            radius = None
+            max_min = None
+            
             x,y,z = element.first_node.coordinates
             points.InsertNextPoint(x,y,z)
             section_rotation_xyz = element.section_rotation_xyz_undeformed
@@ -67,11 +71,14 @@ class TubeActor(vtkActorBase):
             if element.valve_parameters:
                 radius = element.valve_diameters[element.index][1]/2
             elif element.perforated_plate:
-                radius = element.perforated_plate.hole_diameter/2
-            else:
-                radius = None
+                radius = element.perforated_plate.hole_diameter/2        
+            
+            if element.cross_section_points:
+                max_min = element.cross_section_points[2]
 
-            key = (element.cross_section, round(element.length, 4), radius)
+            # key = (element.cross_section, round(element.length, 4), radius)
+            key = (radius, max_min)
+
             if key not in cache:
                 cache[key] = counter
                 source = self.createTubeSection(element)
@@ -158,8 +165,8 @@ class TubeActor(vtkActorBase):
         return extruderFilter.GetOutput()
 
     def createSectionPolygon(self, element):
-        
-        if (element.cross_section is None):
+       
+        if None in [element.cross_section, element.cross_section_points]:
             poly = vtk.vtkRegularPolygonSource()
             poly.SetNumberOfSides(3)
             poly.SetNormal(1,0,0)
@@ -187,7 +194,7 @@ class TubeActor(vtkActorBase):
             return poly
                 
         # outer_points, inner_points = element.cross_section.get_cross_section_points()
-        outer_points, inner_points = element.cross_section_points
+        outer_points, inner_points, _ = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
         
