@@ -44,9 +44,7 @@ class TubeDeformedActor(TubeActor):
             if element.cross_section_points:
                 max_min = element.cross_section_points[2]
 
-            # key = (element.cross_section, round(element.length, 4), radius)
             key = (radius, max_min)
-           
             if key not in cache:
                 cache[key] = counter
                 source = self.createTubeSection(element)

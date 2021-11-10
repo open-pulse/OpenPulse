@@ -461,6 +461,8 @@ class Preprocessor:
     def add_lids_to_variable_cross_sections(self):
         """ This method adds lids to cross_section variations"""
         for elements in self.elements_connected_to_node.values():
+
+            element = None
             if len(elements)==2:
                 first_element, last_element = elements
                 
@@ -471,37 +473,75 @@ class Preprocessor:
                     if not (first_cross and last_cross):
                         continue
 
-                    element = None
                     first_outer_diameter = first_cross.outer_diameter
                     first_inner_diameter = first_cross.inner_diameter
                     last_outer_diameter = last_cross.outer_diameter
                     last_inner_diameter = last_cross.inner_diameter
 
                     if first_outer_diameter < last_inner_diameter:
-                        _inner_diameter = first_inner_diameter 
+                        inner_diameter = first_inner_diameter 
                         element = last_element
 
                     if last_outer_diameter < first_inner_diameter:
-                        _inner_diameter = last_inner_diameter 
+                        inner_diameter = last_inner_diameter 
                         element = first_element
-                        
-                    if element:
+            
+            elif len(elements) == 1: 
 
-                        cross = element.cross_section
-                        outer_diameter = cross.outer_diameter
-                        inner_diameter = _inner_diameter
-                        offset_y = cross.offset_y
-                        offset_z = cross.offset_z
-                        insulation_thickness = cross.insulation_thickness
-                        section_label = cross.section_label
+                element = elements[0]   
+                if element.element_type == 'beam_1':
+                    continue  
+
+                first_node = element.first_node
+                last_node = element.last_node  
+                inner_diameter = element.cross_section.inner_diameter 
+
+                if len(self.neighbors[first_node]) == 1:
+                    if self.get_number_attributes_from_node(first_node, acoustic=True) == 0:
+                        inner_diameter = 0
+
+                elif len(self.neighbors[last_node]) == 1: 
+                    if self.get_number_attributes_from_node(last_node, acoustic=True) == 0:
+                        inner_diameter = 0
+            
+            if element:
+
+                cross = element.cross_section
+                outer_diameter = cross.outer_diameter
+                offset_y = cross.offset_y
+                offset_z = cross.offset_z
+                insulation_thickness = cross.insulation_thickness
+                section_label = cross.section_label
+        
+                if element.element_type == 'expansion_joint':
+                    _key = element.cross_section.expansion_joint_plot_key
+                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                else:
+                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
+                element.cross_section_points = get_circular_section_points(parameters, section_label)
                         
-                        if element.element_type == 'expansion_joint':
-                            _key = element.cross_section.expansion_joint_plot_key
-                            parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
-                        else:
-                            parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                        element.cross_section_points = get_circular_section_points(parameters, section_label)
-                        
+    def get_number_attributes_from_node(self, node, acoustic=False, structural=False):
+        
+        countA = 0
+        if acoustic:
+            acoustic_bcs = [node.acoustic_pressure, node.volume_velocity, node.specific_impedance, node.radiation_impedance, node.compressor_excitation_table_names]
+            for acoustic_bc in acoustic_bcs:
+                if isinstance(acoustic_bc, np.ndarray):
+                    countA += 1
+                elif acoustic_bc:
+                    countA += 1
+            return countA
+
+        countS = 0
+        if structural:
+            structural_bcs = [node.prescribed_dofs, node.nodal_loads, node.lumped_masses, node.lumped_stiffness, node.lumped_dampings, node.elastic_nodal_link_stiffness]
+            for structural_bc in structural_bcs:
+                if isinstance(structural_bc, np.ndarray):
+                    countS += 1
+                elif structural_bc:
+                    countS +=1
+            return countS
+             
     def get_list_edge_nodes(self, size, tolerance=1e-5):
         
         coord_matrix = self.nodal_coordinates_matrix_external
@@ -995,14 +1035,14 @@ class Preprocessor:
                     _element = [element]
                     # _cross_section = cross_section[i]
                     for element in slicer(self.structural_elements, _element):
-                        element.cross_section_points = element.cross_section.get_cross_section_points()
+                        element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
                     for element in slicer(self.acoustic_elements, _element):
-                        element.cross_section_points = element.cross_section.get_cross_section_points()
+                        element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
             else:    
                 for element in slicer(self.structural_elements, elements):
-                    element.cross_section_points = element.cross_section.get_cross_section_points()
+                    element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
                 for element in slicer(self.acoustic_elements, elements):
-                    element.cross_section_points = element.cross_section.get_cross_section_points()
+                    element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
 
     def set_cross_section_by_line(self, lines, cross_section):
         """

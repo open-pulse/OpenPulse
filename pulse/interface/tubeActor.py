@@ -76,9 +76,7 @@ class TubeActor(vtkActorBase):
             if element.cross_section_points:
                 max_min = element.cross_section_points[2]
 
-            # key = (element.cross_section, round(element.length, 4), radius)
             key = (radius, max_min)
-
             if key not in cache:
                 cache[key] = counter
                 source = self.createTubeSection(element)
@@ -193,7 +191,6 @@ class TubeActor(vtkActorBase):
             poly.SetRadius(r)
             return poly
                 
-        # outer_points, inner_points = element.cross_section.get_cross_section_points()
         outer_points, inner_points, _ = element.cross_section_points
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)

@@ -891,9 +891,10 @@ class CrossSection:
      
             return e_y, e_z
     
-    def get_cross_section_points(self):
+    def get_cross_section_points(self, length):
 
         inner_points = []
+        length = round(length, 4)
 
         if self.section_label == "Pipe section": # Pipe section - It's a pipe section, so ignore for beam plots
 
@@ -1057,9 +1058,9 @@ class CrossSection:
 
         if inner_points == []:
             Y_in, Z_in = 0, 0
-            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label])
+            max_min = str([max(Y_out), max(Z_out), 0, 0, min(Y_out), min(Z_out), 0, 0, self.section_label, length])
         else:
-            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label])        
+            max_min = str([max(Y_out), max(Z_out), max(Y_in), max(Z_in), min(Y_out), min(Z_out), min(Y_in), min(Z_in), self.section_label, length])        
         
         return outer_points, inner_points, max_min
 
@@ -1068,7 +1069,7 @@ def get_circular_section_points(parameters, section_label):
     N = 32 # temporary number of divisions for circular sections
     
     if section_label == "Expansion joint section":
-        
+
         d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
 
         if key == "major":
