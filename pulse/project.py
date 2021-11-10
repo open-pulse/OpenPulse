@@ -435,6 +435,8 @@ class Project:
                 else:
                     self.load_capped_end_by_line(group, True)
 
+            self.preprocessor.add_lids_to_variable_cross_sections()
+
         except Exception as log_error:
             title = "Error reached while loading data from dictionaries"
             message = str(log_error)

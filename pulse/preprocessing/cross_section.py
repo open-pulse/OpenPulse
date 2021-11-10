@@ -1055,6 +1055,44 @@ class CrossSection:
         # TODO: section_type == 6: creates an equivalent beam section
         return outer_points, inner_points
 
+def get_circular_section_points(parameters, expansion_joint=False, valve=False):
+    """" This method returns """
+    N = 32 # temporary number of divisions for circular sections
+    
+    if expansion_joint:
+        d_out, d_in, offset_y, offset_z, insulation_thickness, key = parameters
+
+        if key == "major":
+            d_out *= 1.25 
+        elif key == "minor":
+            d_out *= 1.1            
+        else:
+            d_out *= 1.4
+            
+    else:
+        d_out, d_in, offset_y, offset_z, insulation_thickness = parameters
+    
+    r_out = d_out/2
+    r_in = d_in/2
+    
+    d_theta = 2*np.pi/N
+    theta = -np.arange(0, 2*np.pi, d_theta)
+    sine = np.sin(theta)
+    cossine = np.cos(theta)
+    
+    Y_out = r_out*cossine + offset_y
+    Z_out = r_out*sine + offset_z
+    Y_in = r_in*cossine + offset_y
+    Z_in = r_in*sine + offset_z
+
+    if insulation_thickness != float(0):
+        Y_out = (r_out + insulation_thickness)*cossine + offset_y
+        Z_out = (r_out + insulation_thickness)*sine + offset_z
+
+    outer_points = list(zip(Y_out, Z_out))
+    inner_points = list(zip(Y_in, Z_in))
+    
+    return outer_points, inner_points
 
 def get_points_to_plot_section(section_label, section_parameters):   
     

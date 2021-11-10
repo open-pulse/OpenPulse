@@ -7,6 +7,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from time import time
 from pulse.preprocessing import structural_element
+from pulse.preprocessing.cross_section import *
 
 from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.node import Node, DOF_PER_NODE_STRUCTURAL, DOF_PER_NODE_ACOUSTIC
@@ -111,7 +112,7 @@ class Preprocessor:
         Parameters
         ----------
         path : str
-            CAD file path. '.igs' is the only format file supported.
+            CAD file path '*.igs' and '*.step' are the file formats supported.
 
         element_size : float
             Element size to be used to build the preprocessor.
@@ -457,7 +458,50 @@ class Preprocessor:
             # if len(self.neighbors[element.last_node]) > 2:
             #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
+    def add_lids_to_variable_cross_sections(self):
+        """ This method adds lids to cross_section variations"""
+        for elements in self.elements_connected_to_node.values():
+            if len(elements)==2:
+                first_element, last_element = elements
+                
+                if 'beam_1' not in [first_element.element_type, last_element.element_type]:
+                    first_cross = first_element.cross_section
+                    last_cross = last_element.cross_section
+                    
+                    if not (first_cross and last_cross):
+                        continue
 
+                    element = None
+                    first_outer_diameter = first_cross.outer_diameter
+                    first_inner_diameter = first_cross.inner_diameter
+                    last_outer_diameter = last_cross.outer_diameter
+                    last_inner_diameter = last_cross.inner_diameter
+
+                    if first_outer_diameter < last_inner_diameter:
+                        _inner_diameter = first_inner_diameter 
+                        element = last_element
+
+                    if last_outer_diameter < first_inner_diameter:
+                        _inner_diameter = last_inner_diameter 
+                        element = first_element
+                        
+                    if element:
+                    
+                        cross = element.cross_section
+                        outer_diameter = cross.outer_diameter
+                        inner_diameter = _inner_diameter
+                        offset_y = cross.offset_y
+                        offset_z = cross.offset_z
+                        insulation_thickness = cross.insulation_thickness
+                        
+                        if element.element_type == 'expansion_joint':
+                            _key = element.cross_section.expansion_joint_plot_key
+                            parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                            element.cross_section_points = get_circular_section_points(parameters, expansion_joint=True)
+                        else:
+                            parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
+                            element.cross_section_points = get_circular_section_points(parameters)
+                        
     def get_list_edge_nodes(self, size, tolerance=1e-5):
         
         coord_matrix = self.nodal_coordinates_matrix_external
@@ -3029,6 +3073,7 @@ class Preprocessor:
         return False, None
 
     def get_number_of_elements_by_element_type(self):
+        """" This method returns """
         acoustic_etype_to_number_elements = {   'undamped' : 0, 
                                                 'proportional' : 0, 
                                                 'wide-duct' : 0, 
@@ -3038,20 +3083,25 @@ class Preprocessor:
                                                 'howe' : 0, 
                                                 'peters' : 0, 
                                                 None : 0    }
+
         structural_etype_to_number_elements = { "pipe_1" : 0, 
                                                 "pipe_2" : 0, 
                                                 "beam_1" : 0, 
                                                 "expansion_joint" : 0, 
                                                 "valve" : 0, 
                                                 None : 0 }
+
         acoustic_etype_to_elements = defaultdict(list)
         structural_etype_to_elements = defaultdict(list)
         for element in self.structural_elements.values():
             structural_etype_to_number_elements[element.element_type] += 1
             structural_etype_to_elements[element.element_type].append(element.index)
-        for element in self.acoustic_elements.values():
-            acoustic_etype_to_number_elements[element.element_type] += 1
-            acoustic_etype_to_elements[element.element_type].append(element.index)
+        for index, element in self.acoustic_elements.items():
+            if self.structural_elements[index].element_type != 'beam_1':
+                acoustic_etype_to_number_elements[element.element_type] += 1
+                acoustic_etype_to_elements[element.element_type].append(element.index)
+        # print(f"acoustic elements data: {acoustic_etype_to_number_elements}")
+        # print(f"structural elements data: {structural_etype_to_number_elements}")
         return structural_etype_to_number_elements, acoustic_etype_to_number_elements
 
     #TODO: remove the following methods if they are not necessary anymore
