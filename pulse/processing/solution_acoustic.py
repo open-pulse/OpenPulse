@@ -27,6 +27,8 @@ class SolutionAcoustic:
 
     def __init__(self, preprocessor, frequencies):
 
+        self.preprocessor = preprocessor
+
         if frequencies is None:
             pass
         elif frequencies[0]==0:
@@ -229,6 +231,13 @@ class SolutionAcoustic:
 
             if self.non_linear:
                 while relative_difference > self.target or not converged:
+
+                    if self.preprocessor.stop_processing:
+                        del self.ax
+                        self.plt.close()
+                        print("The processing interruption requested by the user has ended.")
+                        self.preprocessor.stop_processing = False
+                        return None
                     
                     self.get_global_matrices()
 
@@ -336,7 +345,7 @@ class SolutionAcoustic:
         print(f"Evaluated delta pressure residue criteria: {round(delta_residues[-1], 2)}[%] @ {count}{label} iteration\n")
 
         if count >= self.max_iter:
-            
+            del self.ax
             self.plt.close()
             if pressure_residues[-1] < 100*self.target:
 
@@ -374,6 +383,7 @@ class SolutionAcoustic:
                             if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
                                 if max(pressure_residues[-3:]) <= 10:
                                     if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
+                                        del self.ax 
                                         self.plt.close()
                                         final_log = f"The solution converged after {count} iterations with the following observations:"
                                         if len(self.unstable_frequencies):
@@ -388,6 +398,7 @@ class SolutionAcoustic:
 
             if max(pressure_residues[-5:]) <= 100*self.target:
                 if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
+                    del self.ax 
                     self.plt.close()
                     final_log = f"The solution converged after {count} iterations with the following observations:"
                     if len(self.unstable_frequencies):
