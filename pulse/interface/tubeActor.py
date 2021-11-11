@@ -55,7 +55,7 @@ class TubeActor(vtkActorBase):
         self.updateBff()
         cache = dict()
         counter = 0
- 
+        # t0 = time()
         for element in self.elements.values():
             
             radius = None
@@ -83,7 +83,8 @@ class TubeActor(vtkActorBase):
                 self._mapper.SetSourceData(counter, source)
                 counter += 1
             sources.InsertNextTuple1(cache[key])
-
+        # dt = time() - t0  
+        # print(f"tubeActor - elapsed time: {dt}s")
         self._data.SetPoints(points)
         self._data.GetPointData().AddArray(sources)
         self._data.GetPointData().AddArray(rotations)

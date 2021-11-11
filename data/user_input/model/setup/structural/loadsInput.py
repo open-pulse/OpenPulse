@@ -25,7 +25,6 @@ class LoadsInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.transform_points = opv.transformPoints
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -225,7 +224,7 @@ class LoadsInput(QDialog):
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_nodal_loads_by_node(self.nodes_typed, data, False)
             print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}")    
-            self.transform_points(self.nodes_typed)
+            self.opv.updateRendererMesh()
             self.close()
         else:    
             window_title ="ERROR"
@@ -426,7 +425,7 @@ class LoadsInput(QDialog):
 
         self.process_table_file_removal(list_table_names)
         print(f"[Set Nodal loads] - defined at node(s) {self.nodes_typed}") 
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.close()
 
     def text_label(self, mask):
@@ -477,7 +476,7 @@ class LoadsInput(QDialog):
         self.remove_all_table_files_from_nodes(self.nodes_typed)
         data = [self.list_Nones, self.list_Nones]
         self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.load_nodes_info()
         self.close()
 
@@ -519,6 +518,7 @@ class LoadsInput(QDialog):
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_structural_load_bc_by_node(self.nodes_typed, data)
 
+            self.opv.updateRendererMesh()
             self.load_nodes_info()
             self.close()
 

@@ -104,6 +104,7 @@ class Preprocessor:
         
         self.beam_gdofs = None
         self.pipe_gdofs = None
+        self.stop_processing = False
 
     def generate(self, path, element_size, tolerance=1e-6):
         """
@@ -459,7 +460,7 @@ class Preprocessor:
             #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
     def add_lids_to_variable_cross_sections(self):
-        """ This method adds lids to cross_section variations"""
+        """ This method adds lids to cross_section variations and terminations."""
         for elements in self.elements_connected_to_node.values():
 
             element = None

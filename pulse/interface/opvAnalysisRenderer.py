@@ -83,6 +83,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.number_frames_changed = _bool
  
     def reset_min_max_values(self):
+        self.count_cycles = 0
         self.rDisp_min = None
         self.rDisp_max = None
         self.stress_min = None
@@ -141,60 +142,70 @@ class opvAnalysisRenderer(vtkRendererBase):
             self._animationFrames.append(cached)
 
     def _plotCached(self):
-        i = self.animationIndex + self.increment
+        if self._animationFrames:
+             
+            if self.animationIndex >= len(self._animationFrames):
+                self.animationIndex = 0
+                
+            i = self.animationIndex
+            self.animationIndex += 1
+                            
+            _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
+            self.slider.GetRepresentation().SetValue(_phase_deg)
+            cached = self._animationFrames[i]
+            self.opvTubes._data.DeepCopy(cached)
+            self.updateAll()
 
-        if i >= len(self._animationFrames):
-            i = 0
-            self.increment = 1
-
-        self.animationIndex = i
-        _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
-        self.slider.GetRepresentation().SetValue(_phase_deg)
-        cached = self._animationFrames[i]
-        self.opvTubes._data.DeepCopy(cached)
-        self.updateAll()
-        if self.export_animation:
-            self.add_frame_to_animation_file()
+            if self.export_animation:
+                self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
+
+    def reset_plot_data(self):
+        self.count_cycles = 0
+        self.animationIndex = 0
+        self._animationFrames.clear()
+        self._cacheFrequencyIndex = None
         
     def showDisplacement(self, frequency_index):
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvDeformedTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.opvTubes != self.opvDeformedTubes:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+        self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacement
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
     def showStressField(self, frequency_index):
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvDeformedTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.opvTubes != self.opvDeformedTubes:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_stresses() 
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+        self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
     def showPressureField(self, frequency_index):
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvPressureTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.opvTubes != self.opvPressureTubes:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_pressure(self._currentFrequencyIndex)
+        self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
         self._plotOnce(0)
 
     def get_min_max_values_to_resultant_displacements(self, frequency_index):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.get_structural_solution()
-            self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
+        solution = self.project.get_structural_solution()
+        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
 
     def computeDisplacement(self, frequency, phase_step=0):
 
@@ -217,10 +228,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvDeformedTubes.getActor().SetVisibility(True)
         self.opvPressureTubes.getActor().SetVisibility(False)
         
-    def get_min_max_values_to_stresses(self):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.stresses_values_for_color_table
-            self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
+    def get_min_max_values_to_stresses(self): 
+        solution = self.project.stresses_values_for_color_table
+        self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
 
     def computeStressField(self, frequency, phase_step=0):
 
@@ -248,9 +258,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(False)
 
     def get_min_max_values_to_pressure(self, frequency_index):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.get_acoustic_solution()
-            self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
+        solution = self.project.get_acoustic_solution()
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
 
     def computePressureField(self, frequency, phase_step, real_part=True):
 
@@ -319,6 +328,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv.AddObserver('TimerEvent', self._animationCallback)
 
     def playAnimation(self):
+        
         def cache_callback():
             self._cacheFrames()
             self._cacheFrequencyIndex = self._currentFrequencyIndex
@@ -326,14 +336,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         if self._currentPlot is None:
             return
-
+        
         if self.playingAnimation:
             return
         
         if self._cacheFrequencyIndex == self._currentFrequencyIndex and not self.number_frames_changed:
             self.playingAnimation = True
             return
-
+        
         if self.number_frames_changed:
             self.number_frames_changed = False
 

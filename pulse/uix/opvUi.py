@@ -42,6 +42,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def updatePlots(self):
         def callback():
+            self.project.preprocessor.add_lids_to_variable_cross_sections()
             self.opvRenderer.plot()
             self.opvAnalysisRenderer.plot()        
         LoadingScreen('Updating Plot', target=callback)
@@ -225,9 +226,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def getListPickedEntities(self):
         return self.opvRenderer.getListPickedEntities()
-
-    def transformPoints(self, *args, **kwargs):
-        self.updatePlots()
 
     def updateEntityRadius(self, *args, **kwargs):
         self.opvRenderer.plot()

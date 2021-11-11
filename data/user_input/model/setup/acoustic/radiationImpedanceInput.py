@@ -30,7 +30,6 @@ class RadiationImpedanceInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.transform_points = self.opv.transformPoints
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -129,7 +128,6 @@ class RadiationImpedanceInput(QDialog):
             self.radiation_impedance = type_id
             self.project.set_radiation_impedance_bc_by_node(self.nodes_typed, type_id)
             
-            self.transform_points(self.nodes_typed)
             self.opv.updateRendererMesh()
             self.close()
             print(f"[Set Radiation Impedance] - defined at node(s) {self.nodes_typed}")
@@ -163,7 +161,6 @@ class RadiationImpedanceInput(QDialog):
         message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
         self.project.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
-        self.transform_points(self.nodes_typed)
         self.opv.updateRendererMesh()
         self.load_nodes_info()
         # self.close()
@@ -186,7 +183,6 @@ class RadiationImpedanceInput(QDialog):
                     key_strings = ["radiation impedance"]
                     remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
                     self.preprocessor.set_radiation_impedance_bc_by_node(node_id, None)
-                self.transform_points(self.nodes_typed)
                 
                 title = "Radiation impedance resetting process complete"
                 message = "All radiation impedances applied to the acoustic\n" 

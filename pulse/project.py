@@ -13,6 +13,7 @@ from data.user_input.project.loadingScreen import LoadingScreen
 
 import numpy as np
 import configparser
+from time import time
 from shutil import rmtree
 from collections import defaultdict
 import os
@@ -53,15 +54,15 @@ class Project:
         self.none_project_action = False
         self.stress_stiffening_enabled = False
 
-        self.time_to_load_or_create_project = None
-        self.time_to_checking_entries = None
-        self.time_to_process_cross_sections = None
-        self.time_to_preprocess_model = None
-        self.time_to_solve_model = None
-        self.time_to_solve_acoustic_model = None
-        self.time_to_solve_structural_model = None
-        self.time_to_postprocess = None
-        self.total_time = None
+        self.time_to_load_or_create_project = 0
+        self.time_to_checking_entries = 0
+        self.time_to_process_cross_sections = 0
+        self.time_to_preprocess_model = 0
+        self.time_to_solve_model = 0
+        self.time_to_solve_acoustic_model = 0
+        self.time_to_solve_structural_model = 0
+        self.time_to_postprocess = 0
+        self.total_time = 0
 
         self.number_sections_by_line = {}
         # self.lines_with_cross_section_by_elements = []
@@ -435,8 +436,6 @@ class Project:
                 else:
                     self.load_capped_end_by_line(group, True)
 
-            self.preprocessor.add_lids_to_variable_cross_sections()
-
         except Exception as log_error:
             title = "Error reached while loading data from dictionaries"
             message = str(log_error)
@@ -475,6 +474,9 @@ class Project:
            
             map_cross_section_to_elements[str([ outer_diameter, thickness, offset_y, offset_z, poisson,
                                                 index_etype, insulation_thickness, insulation_density ])].append(index)
+            
+            if self.preprocessor.stop_processing:
+                return
        
         for key, elements in map_cross_section_to_elements.items():
 
@@ -499,6 +501,9 @@ class Project:
                                         "section_parameters" : section_parameters,  
                                         "diameters_to_plot" : [None, None] }
                 cross_section = CrossSection(valve_section_info=valve_section_info)            
+
+            if self.preprocessor.stop_processing:
+                return
 
             if self.analysis_ID in [3,4]:
                 self.preprocessor.set_cross_section_by_element(elements, cross_section, update_cross_section=False, update_section_points=False)  

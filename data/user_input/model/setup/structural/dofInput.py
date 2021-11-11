@@ -26,7 +26,6 @@ class DOFInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.transform_points = opv.transformPoints
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -291,7 +290,7 @@ class DOFInput(QDialog):
             self.remove_all_table_files_from_nodes(self.nodes_typed)
             self.project.set_prescribed_dofs_bc_by_node(self.nodes_typed, data, False)   
             print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}")    
-            self.transform_points(self.nodes_typed)
+            self.opv.updateRendererMesh()
             self.close()
         else:   
             window_title ="ERROR"
@@ -540,7 +539,7 @@ class DOFInput(QDialog):
 
         self.process_table_file_removal(list_table_names)
         print(f"[Set Prescribed DOF] - defined at node(s) {self.nodes_typed}") 
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.close()
 
     def text_label(self, mask):
@@ -594,7 +593,7 @@ class DOFInput(QDialog):
         self.remove_all_table_files_from_nodes(self.nodes_typed)
         data = [self.list_Nones, self.list_Nones]
         self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.load_nodes_info()
         self.close()
     
@@ -632,6 +631,7 @@ class DOFInput(QDialog):
             data = [self.list_Nones, self.list_Nones]
             self.preprocessor.set_prescribed_dofs_bc_by_node(self.nodes_typed, data)
 
+            self.opv.updateRendererMesh()
             self.load_nodes_info()
             self.close()
 

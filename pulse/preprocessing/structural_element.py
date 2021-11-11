@@ -761,11 +761,16 @@ class StructuralElement:
         cols = len(frequencies)
         Do = self.cross_section.outer_diameter
         Di = self.cross_section.inner_diameter
-        A = self.cross_section.area
+        
         nu = self.material.poisson_ratio
 
-        if self.element_type in ['pipe_1', 'pipe_2', 'expansion_joint', 'valve']:
+        if self.element_type in ['pipe_1', 'pipe_2']:
+            A = self.cross_section.area
             stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
+        elif self.element_type in ['expansion_joint','valve']:
+            nu = 0
+            A = self.cross_section.area_fluid
+            stress_axial = pressure_avg
         else:
             return np.zeros((rows, cols))
 
