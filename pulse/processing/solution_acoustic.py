@@ -43,6 +43,7 @@ class SolutionAcoustic:
 
         self.elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
         self.solution_nm1 = None
+        self.convergence_dataLog = None
 
         self.prescribed_indexes = self.assembly.get_prescribed_indexes()
         self.prescribed_values = self.assembly.get_prescribed_values()
@@ -239,7 +240,7 @@ class SolutionAcoustic:
                     if self.stop_processing():
                         del self.ax
                         self.plt.close()
-                        return None
+                        return None, None
 
                     self.get_global_matrices()
 
@@ -306,23 +307,24 @@ class SolutionAcoustic:
                     converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
                     if converged:
-                        return self.solution_nm1
+                        self.convergence_dataLog = [self.iterations, pressure_residues, delta_residues, 100*self.target]
+                        return self.solution_nm1, self.convergence_dataLog
 
             else:
 
                 for i in range(cols):
                     solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
                     if self.stop_processing():
-                        return None
+                        return None, None
                 solution = self._reinsert_prescribed_dofs(solution)
-                return solution                     
+                return solution, self.convergence_dataLog                     
                                 
         else:
 
             for i in range(cols):
                 solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
             solution = self._reinsert_prescribed_dofs(solution)
-            return solution
+            return solution, self.convergence_dataLog
 
     def check_convergence_criterias(self, pressure_residues, delta_residues, delta_residue_criteria=True):
 

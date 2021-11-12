@@ -39,9 +39,10 @@ class ColorTable(vtk.vtkLookupTable):
             return [255,255,255]
 
         color_temp = [0,0,0]
-        if self.stress_field_plot and element.element_type == 'expansion_joint':
+        
+        if self.stress_field_plot and element.element_type in ['beam_1', 'expansion_joint', 'valve']:
             return [255,255,255]
-        elif (self.stress_field_plot or self.pressure_field_plot) and element.element_type == 'beam_1':
+        elif self.pressure_field_plot and element.element_type == 'beam_1':
             return [255,255,255]
         elif self.pressure_field_plot:
             value = (self.valueVector[key1] + self.valueVector[key2])/2

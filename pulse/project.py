@@ -45,6 +45,7 @@ class Project:
         self.imported_table_frequency_setup = False
         self.solution_structural = None
         self.solution_acoustic = None
+        self.perforated_plate_dataLog = None
         self.flag_set_material = False
         self.flag_set_crossSection = False
         self.plot_pressure_field = False
@@ -1591,6 +1592,9 @@ class Project:
     def load_perforated_plate_by_elements(self, list_elements, perforated_plate, key):
         self.preprocessor.set_perforated_plate_by_elements(list_elements, perforated_plate, key)
         self.preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file(list_elements)
+    
+    def set_perforated_plate_convergence_dataLog(self, data):
+        self.perforated_plate_dataLog = data
 
     def get_map_nodes(self):
         return self.preprocessor.map_nodes

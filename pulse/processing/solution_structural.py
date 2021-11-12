@@ -587,7 +587,7 @@ class SolutionStructural:
 
         for element in elements:
 
-            if element.element_type in ['beam_1', 'expansion_joint']:
+            if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
                 element.stress = np.zeros((7, len(self.frequencies)))
             
             elif element.element_type in ['pipe_1', 'pipe_2']:

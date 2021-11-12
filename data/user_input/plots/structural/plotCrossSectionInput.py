@@ -170,10 +170,8 @@ class PlotCrossSectionInput(QDialog):
 
         if self.section_label != 'Expansion joint section':
             self.section_parameters = cross_section.section_parameters
-            
-            if self.section_label != "Pipe section":
-                self.section_properties = cross_section.section_properties
-               
+            # if self.section_label != "Pipe section":
+            #     self.section_properties = cross_section.section_properties    
         else:
             self.window_title = "WARNING"
             self.title = "Unable to plot cross-section"
