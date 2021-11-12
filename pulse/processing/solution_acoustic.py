@@ -179,6 +179,10 @@ class SolutionAcoustic:
                     self.flag_Modal_prescribed_NonNull_DOFs = True
                     self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                         "The null value has been attributed to those DOFs with non-zero values."]
+        
+        if self.stop_processing():
+            return None, None
+
         return natural_frequencies, modal_shape
 
     def direct_method(self):
@@ -232,13 +236,11 @@ class SolutionAcoustic:
             if self.non_linear:
                 while relative_difference > self.target or not converged:
 
-                    if self.preprocessor.stop_processing:
+                    if self.stop_processing():
                         del self.ax
                         self.plt.close()
-                        print("The processing interruption requested by the user has ended.")
-                        self.preprocessor.stop_processing = False
                         return None
-                    
+
                     self.get_global_matrices()
 
                     for i in range(cols):
@@ -310,6 +312,8 @@ class SolutionAcoustic:
 
                 for i in range(cols):
                     solution[:,i] = spsolve(self.Kadd_lump[i], volume_velocity[:, i])
+                    if self.stop_processing():
+                        return None
                 solution = self._reinsert_prescribed_dofs(solution)
                 return solution                     
                                 
@@ -452,4 +456,8 @@ class SolutionAcoustic:
 
         del self.ax   
         self.ax = self.fig.add_subplot(1,1,1)
-        
+
+    def stop_processing(self):
+        if self.preprocessor.stop_processing:
+            print("\nProcessing interruption was requested by the user. \nSolution interruped.")
+            return True

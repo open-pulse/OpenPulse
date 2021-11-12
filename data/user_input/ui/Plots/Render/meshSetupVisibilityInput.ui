@@ -776,9 +776,6 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup</string>
-       </attribute>
       </widget>
       <widget class="QRadioButton" name="radioButton_black_color">
        <property name="geometry">
@@ -816,9 +813,6 @@
        <property name="checked">
         <bool>true</bool>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup</string>
-       </attribute>
       </widget>
       <widget class="QRadioButton" name="radioButton_white_color">
        <property name="geometry">
@@ -856,9 +850,6 @@
        <property name="checked">
         <bool>false</bool>
        </property>
-       <attribute name="buttonGroup">
-        <string notr="true">buttonGroup</string>
-       </attribute>
       </widget>
       <widget class="QRadioButton" name="radioButton_dark_gray_color">
        <property name="geometry">
@@ -988,7 +979,4 @@
  </widget>
  <resources/>
  <connections/>
- <buttongroups>
-  <buttongroup name="buttonGroup"/>
- </buttongroups>
 </ui>

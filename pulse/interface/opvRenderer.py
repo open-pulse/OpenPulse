@@ -63,7 +63,7 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()
 
         self._renderer.ResetCameraClippingRange()
-        self._addLogosToRender()
+        self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
     def showNodes(self, cond=True):
         self.opvNodes.setVisibility(cond)

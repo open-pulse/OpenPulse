@@ -77,7 +77,7 @@ class LoadingScreen(QDialog):
         self.setMaximumSize(QSize(400, 250))
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowFlags(Qt.CustomizeWindowHint | Qt.WindowTitleHint | Qt.WindowMinimizeButtonHint)
-        # self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+        self.setGeometry(QRect(400, 120, 400, 250))
     
     def configAppearance(self):
         self.label_title.setAlignment(Qt.AlignTop)
@@ -113,6 +113,10 @@ class LoadingScreen(QDialog):
         font.setPointSize(12)
         self.label_message.setFont(font)
         self.label_message.setWordWrap(True)
+    
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
+            self.pushButton_pressed()
     
     def pushButton_pressed(self):
         if self.project:

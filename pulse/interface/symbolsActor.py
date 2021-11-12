@@ -28,8 +28,8 @@ class SymbolsActor(vtkActorBase):
     SPECIFIC_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/specificImpedance.obj')
     RADIATION_IMPEDANCE_SYMBOL = loadSymbol('data/symbols/radiationImpedance.obj')
     COMPRESSOR_SYMBOL = loadSymbol('data/symbols/compressor.obj')
-    PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforatedPlate.obj')
-    VALVE_SYMBOL = loadSymbol('data/symbols/valve_symbol2.obj')
+    PERFORATED_PLATE_SYMBOL = loadSymbol('data/symbols/perforated_plate.obj')
+    VALVE_SYMBOL = loadSymbol('data/symbols/valve_symbol.obj')
     
     def __init__(self, project, deformed=False):
         super().__init__()
@@ -451,10 +451,10 @@ class SymbolsActor(vtkActorBase):
                 vector = [round(value, 5) for value in rot_matrix[:,1]]
                 if vector[1] < 0:
                     rot[0] += 180
-                factor_x = 12*element.valve_parameters["valve_length"]
-                # factor_r = 0.1/element.cross_section.outer_diameter
-                scl = (factor_x, factor_x, factor_x)
-                # scl = (1,1,1)
+                factor_x = (element.valve_parameters["valve_length"]/0.247)/self.scaleFactor
+                # factor_yz = (element.valve_parameters["valve_section_parameters"]["outer_diameter"]/0.130)/self.scaleFactor
+                factor_yz = 1
+                scl = (factor_x, factor_yz, factor_yz)
                 symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         return symbols  
@@ -520,25 +520,24 @@ class SymbolsActor(vtkActorBase):
         return symbols
     
     def _getPerforatedPlate(self, element):
-        
-        rad = 1
-        acoustic = self.project.get_acoustic_element(element.index)
-
-        if element.cross_section:
-            if element.element_type in ['pipe_1', 'pipe_2', 'valve']:
-                rad = element.cross_section.inner_diameter / self.scaleFactor
-                if rad == 0:
-                    rad = 1
 
         src = 14
         pos = element.element_center_coordinates
         rot = element.section_rotation_xyz_undeformed
-        scl = (1,rad,rad)
         col = (255,0,0)
         symbols = []
 
-        if (acoustic.perforated_plate is not None):
+        if element.perforated_plate:
+        
+            pos = element.element_center_coordinates
+            rot = element.section_rotation_xyz_undeformed
+   
+            factor_x = (element.perforated_plate.thickness/0.01)/self.scaleFactor
+            factor_yz = (element.cross_section.inner_diameter/0.1)/self.scaleFactor
+            scl = (factor_x, factor_yz, factor_yz)
+
             symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+
         return symbols
 
     def _getCoords(self, node):

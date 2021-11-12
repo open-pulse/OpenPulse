@@ -60,7 +60,7 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.slider = None
         self.logoWidget = None
-
+        
         self._createSlider()
         self._createPlayer()
         self.reset_min_max_values()
@@ -106,6 +106,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
         plt(self.opvSymbols)
+
+        self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
     
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -121,7 +123,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         if renWin: renWin.Render()
     
     def updateAll(self):
-        self._addLogosToRender()
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
@@ -284,43 +285,67 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(True)
 
     def _createSlider(self):
-        self.slider = vtk.vtkSliderWidget()
-        sld = vtk.vtkSliderRepresentation2D()
-
-        sld.SetMinimumValue(0)
-        sld.SetMaximumValue(360)
-        sld.SetValue(0)
-        
-        sld.SetTitleText('Animation phase controller [deg]')
-        sld.GetTitleProperty().SetFontSize(14)
-        sld.GetTitleProperty().SetFontFamilyAsString('Arial')
-        # sld.GetTitleProperty().FrameOn()
-        # print(sld.GetTitleProperty().GetFrameColor())
-        # sld.GetTitleProperty().SetFrameColor(1,0,0)
-
-        sld.GetSelectedProperty().SetColor(1, 0, 0)
-        sld.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
-        sld.GetCapProperty().SetColor(0.8, 0.8, 0.8)
-        
-        sld.SetSliderLength(0.01)
-        sld.SetSliderWidth(0.02)
-        sld.SetTubeWidth(0.02)
-
-        sld.SetEndCapWidth(0.02)
-        sld.SetEndCapLength(0.005)
-
-        sld.SetTitleHeight(0.015)
-        sld.SetLabelHeight(0.015)
 
         width, height = self.getSize()
-        sld.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        sld.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        sld.GetPoint1Coordinate().SetValue(20, height-150)
-        sld.GetPoint2Coordinate().SetValue(220, height-150)
+
+        self._titleActor = vtk.vtkTextActor()
+        self.titleProperty = vtk.vtkTextProperty()
+        self.titleProperty.SetFontSize(15)
+        self.titleProperty.SetColor(self.opv.font_color)
+        # self.titleProperty.BoldOn()
+        self.titleProperty.SetFontFamilyAsString('Arial')
+
+        self._renderer.RemoveActor2D(self._titleActor)
+        
+        self.titleProperty.SetVerticalJustificationToTop()
+        self.titleProperty.SetJustificationToLeft()
+        self._titleActor.SetInput('Animation phase controller [deg]')
+        self._titleActor.SetTextProperty(self.titleProperty)
+        self._titleActor.SetDisplayPosition(20, height-180)
+        self._renderer.AddActor2D(self._titleActor)
+
+        self.slider = vtk.vtkSliderWidget()
+        self.sldRep = vtk.vtkSliderRepresentation2D()
+
+        self.sldRep.SetMinimumValue(0)
+        self.sldRep.SetMaximumValue(360)
+        self.sldRep.SetValue(0)
+        
+        # sld.SetTitleText('Animation phase controller [deg]')
+        # sld.GetTitleProperty().SetFontSize(5)
+        # sld.GetTitleProperty().SetFontFamilyAsString('Arial')
+        # sld.GetTitleProperty().SetColor(self.opv.font_color)
+        # sld.GetTitleProperty().ShadowOff()
+        # sld.GetTitleProperty().SetJustificationToLeft()
+        self.sldRep.GetLabelProperty().SetColor(self.opv.font_color)
+        self.sldRep.GetLabelProperty().ShadowOff()
+
+        self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
+        self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
+        self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
+        
+        self.sldRep.SetSliderLength(0.01)
+        self.sldRep.SetSliderWidth(0.02)
+        self.sldRep.SetTubeWidth(0.02)
+
+        self.sldRep.SetEndCapWidth(0.02)
+        self.sldRep.SetEndCapLength(0.005)
+
+        # sld.SetTitleHeight(0.020)
+        self.sldRep.SetLabelHeight(0.015)
+
+        self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
+        self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
+        self.sldRep.GetPoint1Coordinate().SetValue(20, height-160)
+        self.sldRep.GetPoint2Coordinate().SetValue(220, height-160)
 
         self.slider.SetInteractor(self.opv)
-        self.slider.SetRepresentation(sld)
+        self.slider.SetRepresentation(self.sldRep)
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
+
+    def _updateFontColor(self, color):
+        self.titleProperty.SetColor(color)
+        self.sldRep.GetLabelProperty().SetColor(color)
 
     def _createPlayer(self):
         self.opv.Initialize()
@@ -474,9 +499,10 @@ class opvAnalysisRenderer(vtkRendererBase):
     def _createScaleBar(self):
         width, height = self.getSize()
         self._renderer.RemoveActor(self.scaleBar)
-        self.scaleBar = vtk.vtkLegendScaleActor()
-        self.scaleBar.AllAxesOff()
-        self._renderer.AddActor(self.scaleBar)
+        if self.opv.show_reference_scale:
+            self.scaleBar = vtk.vtkLegendScaleActor()
+            self.scaleBar.AllAxesOff()
+            self._renderer.AddActor(self.scaleBar)
 
     # info text
     def updateInfoText(self, *args, **kwargs):

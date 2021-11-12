@@ -55,7 +55,10 @@ class RunAnalysisInput(QDialog):
         LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)
         LoadingScreen('SOLUTION IN PROGRESS', 'Solving the analysis',  target=self.process_analysis, project=project)
         
-        if self.solution_acoustic is not None or self.solution_structural is not None:
+        if self.project.preprocessor.stop_processing:
+            self.reset_all_results()
+            self.project.preprocessor.stop_processing = False
+        else:
             LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
             self.exec()
             self.check_warnings()
@@ -211,6 +214,24 @@ class RunAnalysisInput(QDialog):
         if message != "":
             PrintMessageInput([title, message, window_title_2])
 
+    def reset_all_results(self):
+
+        self.solution_structural = None
+        self.solution_acoustic = None
+
+        if self.analysis_ID == 2:
+            self.project.set_structural_solution(None)
+            self.project.set_structural_natural_frequencies(None)
+        elif self.analysis_ID == 4: 
+            self.project.set_acoustic_solution(None)
+            self.project.set_acoustic_natural_frequencies(None)
+        elif self.analysis_ID == 3:
+            self.project.set_acoustic_solution(None)
+        elif self.analysis_ID in [0,1,5,6]:
+            self.project.set_acoustic_solution(None)
+            self.project.set_structural_solution(None)
+            self.project.set_structural_reactions([ {}, {}, {} ])
+
     def config_title_font(self):
         font = QFont()
         font.setPointSize(19)
@@ -248,7 +269,6 @@ class RunAnalysisInput(QDialog):
 
         text += "Press ESC to continue..."
         self.label_message.setText(text)
-
 
 
     # def check_log_times(self):
