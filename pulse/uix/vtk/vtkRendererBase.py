@@ -4,25 +4,31 @@ import vtk
 class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
+
         self._renderer = vtk.vtkRenderer()
-        self._renderer.SetBackground(0,0,0)
+        self._renderer.SetBackground((0,0,0))
+
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
+
         self._textActor = vtk.vtkTextActor()
         self.textActorStress = vtk.vtkTextActor()
         self.actors = {}
         self._inUse = False
         self._usePicker = True
         self.textProperty = vtk.vtkTextProperty()
-        self.textProperty.SetFontSize(16)
+        self.textProperty.SetFontSize(17)
+        self.textProperty.SetColor((1,1,1))
+        # self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
         
         self._logo_pulse = vtk.vtkLogoRepresentation()
         self._logo_mopt = vtk.vtkLogoRepresentation()
         self._imageReader_pulse = vtk.vtkPNGReader()
         self._imageReader_mopt = vtk.vtkPNGReader()
+
         self._createConfigLogos()
-        self._addLogosToRender()
+        # self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
     def _createConfigLogos(self):
         
@@ -48,7 +54,7 @@ class vtkRendererBase(ABC):
         self._logo_mopt.SetPosition(0, -0.01)
         self._logo_mopt.SetPosition2(0.1, 0.1)
      
-        self._logo_mopt.GetImageProperty().SetOpacity(0.3)
+        self._logo_mopt.GetImageProperty().SetOpacity(0.8)
         self._logo_mopt.GetImageProperty().SetDisplayLocationToBackground()  
 
         # self.logoWidget = vtk.vtkLogoWidget()
@@ -56,15 +62,24 @@ class vtkRendererBase(ABC):
         # self.logoWidget.On()
         # self.logoWidget.SetEnabled(True)
 
-    def _addLogosToRender(self):
+    def _addLogosToRender(self, OpenPulse=True, MOPT=True):
+
         self._renderer.RemoveViewProp(self._logo_pulse)
         self._renderer.RemoveViewProp(self._logo_mopt)
+
+        if OpenPulse:   
+            self._renderer.AddViewProp(self._logo_pulse)
+            self._logo_pulse.SetRenderer(self._renderer)
         
-        self._renderer.AddViewProp(self._logo_pulse)
-        self._renderer.AddViewProp(self._logo_mopt)
-        
-        self._logo_pulse.SetRenderer(self._renderer)
-        self._logo_mopt.SetRenderer(self._renderer)
+        if MOPT:
+            self._renderer.AddViewProp(self._logo_mopt)
+            self._logo_mopt.SetRenderer(self._renderer)
+
+    def changeBackgroundColor(self, color):
+        self._renderer.SetBackground(color)
+    
+    def changeFontColor(self, color):
+        self.textProperty.SetColor(color)
 
     def resetCamera(self):
         self._renderer.ResetCamera()

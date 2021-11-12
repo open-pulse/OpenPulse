@@ -19,14 +19,15 @@ class Entity:
         self.variable_cross_section_data = None
         self.beam_xaxis_rotation = None
         self.acoustic_element_type = None
-        self.proportional_damping = None
         self.mean_velocity = None
+        self.proportional_damping = None
         self.structural_element_type = None
         self.structural_element_wall_formulation = None
         self.capped_end = False
         self.length_correction = None
         self.stress_stiffening_parameters = None
         self.expansion_joint_parameters = None
+        self.valve_parameters = None
 
     def insertNode(self, node):
         """

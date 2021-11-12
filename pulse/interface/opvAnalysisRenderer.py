@@ -60,10 +60,11 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.slider = None
         self.logoWidget = None
-
+        
         self._createSlider()
         self._createPlayer()
         self.reset_min_max_values()
+        self.cache_plot_state()
         self._animationFrames = []
 
     def update_phase_steps_attribute(self):
@@ -83,6 +84,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.number_frames_changed = _bool
  
     def reset_min_max_values(self):
+        self.count_cycles = 0
         self.rDisp_min = None
         self.rDisp_max = None
         self.stress_min = None
@@ -92,6 +94,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.min_max_rDisp_values_current = None
         self.min_max_stresses_values_current = None
         self.min_max_pressures_values_current = None
+        self.plot_state = [False, False, False]
 
     def plot(self):
         self.reset()
@@ -105,6 +108,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
         plt(self.opvSymbols)
+
+        self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
     
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -115,12 +120,11 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.pauseAnimation()
     
     def update(self):
-        self.opv.updateDialogs()
+        # self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
     
     def updateAll(self):
-        self._addLogosToRender()
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
@@ -132,6 +136,12 @@ class opvAnalysisRenderer(vtkRendererBase):
         self._createColorBar()
         self._createScaleBar()
 
+    def cache_plot_state(self, displacement=False, stress=False, pressure=False):
+        self.plot_changed = False
+        if self.plot_state != [displacement, stress, pressure]: 
+            self.plot_changed = True
+        self.plot_state = [displacement, stress, pressure]
+            
     def _cacheFrames(self):
         self._animationFrames.clear()
         for phase_step in self.phase_steps:
@@ -141,60 +151,73 @@ class opvAnalysisRenderer(vtkRendererBase):
             self._animationFrames.append(cached)
 
     def _plotCached(self):
-        i = self.animationIndex + self.increment
+        if self._animationFrames:
+             
+            if self.animationIndex >= len(self._animationFrames):
+                self.animationIndex = 0
+                
+            i = self.animationIndex
+            self.animationIndex += 1
+                            
+            _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
+            self.slider.GetRepresentation().SetValue(_phase_deg)
+            cached = self._animationFrames[i]
+            self.opvTubes._data.DeepCopy(cached)
+            self.updateAll()
 
-        if i >= len(self._animationFrames):
-            i = 0
-            self.increment = 1
-
-        self.animationIndex = i
-        _phase_deg = round(self.phase_steps[i]*(360/(2*pi)))
-        self.slider.GetRepresentation().SetValue(_phase_deg)
-        cached = self._animationFrames[i]
-        self.opvTubes._data.DeepCopy(cached)
-        self.updateAll()
-        if self.export_animation:
-            self.add_frame_to_animation_file()
+            if self.export_animation:
+                self.add_frame_to_animation_file()
         
     def _plotOnce(self, phase_step):
         self._currentPlot(self._currentFrequencyIndex, phase_step)
         self.updateAll()
+
+    def reset_plot_data(self):
+        self.count_cycles = 0
+        self.animationIndex = 0
+        self._animationFrames.clear()
+        self._cacheFrequencyIndex = None
         
     def showDisplacement(self, frequency_index):
+        self.cache_plot_state(displacement=True)
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvDeformedTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+        self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeDisplacement
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
     def showStressField(self, frequency_index):
+        self.cache_plot_state(stress=True)
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvDeformedTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_stresses() 
             self.get_min_max_values_to_resultant_displacements(self._currentFrequencyIndex)
+        self.opvTubes = self.opvDeformedTubes
         self._currentPlot = self.computeStressField
         self.last_frequency_index = frequency_index 
         self._plotOnce(0)
 
     def showPressureField(self, frequency_index):
+        self.cache_plot_state(pressure=True)
         self._currentFrequencyIndex = frequency_index 
-        self.opvTubes = self.opvPressureTubes
-        if self._currentFrequencyIndex != self.last_frequency_index:
+        if self._currentFrequencyIndex != self.last_frequency_index or self.plot_changed:
+            self.reset_plot_data()
             self.reset_min_max_values()
             self.get_min_max_values_to_pressure(self._currentFrequencyIndex)
+        self.opvTubes = self.opvPressureTubes
         self._currentPlot = self.computePressureField
         self.last_frequency_index = frequency_index
         self._plotOnce(0)
 
     def get_min_max_values_to_resultant_displacements(self, frequency_index):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.get_structural_solution()
-            self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
+        solution = self.project.get_structural_solution()
+        self.rDisp_min, self.rDisp_max = get_max_min_values_of_resultant_displacements(solution, frequency_index)
 
     def computeDisplacement(self, frequency, phase_step=0):
 
@@ -218,10 +241,9 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(False)
         
     def get_min_max_values_to_stresses(self):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.stresses_values_for_color_table
-            self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
-
+        solution = self.project.stresses_values_for_color_table
+        self.stress_min, self.stress_max = get_min_max_stresses_values(solution)
+        
     def computeStressField(self, frequency, phase_step=0):
 
         preprocessor = self.project.preprocessor
@@ -248,9 +270,8 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(False)
 
     def get_min_max_values_to_pressure(self, frequency_index):
-        if  self._currentFrequencyIndex != self.last_frequency_index:    
-            solution = self.project.get_acoustic_solution()
-            self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
+        solution = self.project.get_acoustic_solution()
+        self.pressure_min, self.pressure_max = get_max_min_values_of_pressures(solution, frequency_index)
 
     def computePressureField(self, frequency, phase_step, real_part=True):
 
@@ -275,43 +296,67 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvPressureTubes.getActor().SetVisibility(True)
 
     def _createSlider(self):
-        self.slider = vtk.vtkSliderWidget()
-        sld = vtk.vtkSliderRepresentation2D()
-
-        sld.SetMinimumValue(0)
-        sld.SetMaximumValue(360)
-        sld.SetValue(0)
-        
-        sld.SetTitleText('Animation phase controller [deg]')
-        sld.GetTitleProperty().SetFontSize(14)
-        sld.GetTitleProperty().SetFontFamilyAsString('Arial')
-        # sld.GetTitleProperty().FrameOn()
-        # print(sld.GetTitleProperty().GetFrameColor())
-        # sld.GetTitleProperty().SetFrameColor(1,0,0)
-
-        sld.GetSelectedProperty().SetColor(1, 0, 0)
-        sld.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
-        sld.GetCapProperty().SetColor(0.8, 0.8, 0.8)
-        
-        sld.SetSliderLength(0.01)
-        sld.SetSliderWidth(0.02)
-        sld.SetTubeWidth(0.02)
-
-        sld.SetEndCapWidth(0.02)
-        sld.SetEndCapLength(0.005)
-
-        sld.SetTitleHeight(0.015)
-        sld.SetLabelHeight(0.015)
 
         width, height = self.getSize()
-        sld.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
-        sld.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        sld.GetPoint1Coordinate().SetValue(20, height-150)
-        sld.GetPoint2Coordinate().SetValue(220, height-150)
+
+        self._titleActor = vtk.vtkTextActor()
+        self.titleProperty = vtk.vtkTextProperty()
+        self.titleProperty.SetFontSize(15)
+        self.titleProperty.SetColor(self.opv.font_color)
+        # self.titleProperty.BoldOn()
+        self.titleProperty.SetFontFamilyAsString('Arial')
+
+        self._renderer.RemoveActor2D(self._titleActor)
+        
+        self.titleProperty.SetVerticalJustificationToTop()
+        self.titleProperty.SetJustificationToLeft()
+        self._titleActor.SetInput('Animation phase controller [deg]')
+        self._titleActor.SetTextProperty(self.titleProperty)
+        self._titleActor.SetDisplayPosition(20, height-180)
+        self._renderer.AddActor2D(self._titleActor)
+
+        self.slider = vtk.vtkSliderWidget()
+        self.sldRep = vtk.vtkSliderRepresentation2D()
+
+        self.sldRep.SetMinimumValue(0)
+        self.sldRep.SetMaximumValue(360)
+        self.sldRep.SetValue(0)
+        
+        # sld.SetTitleText('Animation phase controller [deg]')
+        # sld.GetTitleProperty().SetFontSize(5)
+        # sld.GetTitleProperty().SetFontFamilyAsString('Arial')
+        # sld.GetTitleProperty().SetColor(self.opv.font_color)
+        # sld.GetTitleProperty().ShadowOff()
+        # sld.GetTitleProperty().SetJustificationToLeft()
+        self.sldRep.GetLabelProperty().SetColor(self.opv.font_color)
+        self.sldRep.GetLabelProperty().ShadowOff()
+
+        self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
+        self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
+        self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
+        
+        self.sldRep.SetSliderLength(0.01)
+        self.sldRep.SetSliderWidth(0.02)
+        self.sldRep.SetTubeWidth(0.02)
+
+        self.sldRep.SetEndCapWidth(0.02)
+        self.sldRep.SetEndCapLength(0.005)
+
+        # sld.SetTitleHeight(0.020)
+        self.sldRep.SetLabelHeight(0.015)
+
+        self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
+        self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
+        self.sldRep.GetPoint1Coordinate().SetValue(20, height-160)
+        self.sldRep.GetPoint2Coordinate().SetValue(220, height-160)
 
         self.slider.SetInteractor(self.opv)
-        self.slider.SetRepresentation(sld)
+        self.slider.SetRepresentation(self.sldRep)
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
+
+    def _updateFontColor(self, color):
+        self.titleProperty.SetColor(color)
+        self.sldRep.GetLabelProperty().SetColor(color)
 
     def _createPlayer(self):
         self.opv.Initialize()
@@ -319,6 +364,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opv.AddObserver('TimerEvent', self._animationCallback)
 
     def playAnimation(self):
+        
         def cache_callback():
             self._cacheFrames()
             self._cacheFrequencyIndex = self._currentFrequencyIndex
@@ -326,14 +372,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         
         if self._currentPlot is None:
             return
-
+        
         if self.playingAnimation:
             return
         
         if self._cacheFrequencyIndex == self._currentFrequencyIndex and not self.number_frames_changed:
             self.playingAnimation = True
             return
-
+        
         if self.number_frames_changed:
             self.number_frames_changed = False
 
@@ -464,9 +510,10 @@ class opvAnalysisRenderer(vtkRendererBase):
     def _createScaleBar(self):
         width, height = self.getSize()
         self._renderer.RemoveActor(self.scaleBar)
-        self.scaleBar = vtk.vtkLegendScaleActor()
-        self.scaleBar.AllAxesOff()
-        self._renderer.AddActor(self.scaleBar)
+        if self.opv.show_reference_scale:
+            self.scaleBar = vtk.vtkLegendScaleActor()
+            self.scaleBar.AllAxesOff()
+            self._renderer.AddActor(self.scaleBar)
 
     # info text
     def updateInfoText(self, *args, **kwargs):

@@ -60,6 +60,7 @@ class RendererEntity(vtkRendererBase):
 
                     if entity.acoustic_element_type is not None:
                         text += f'\nAcoustic element type: {entity.acoustic_element_type}'
+                        
                     if entity.proportional_damping is not None:
                         text += f'\nProportional damping: {entity.proportional_damping}'        
 
@@ -172,7 +173,7 @@ class RendererEntity(vtkRendererBase):
 
     def update(self):
         self.opv.update()
-        self.opv.updateDialogs()
+        # self.opv.updateDialogs()
 
     def setPlotRadius(self, value):
         self.plotRadius = value
@@ -209,7 +210,7 @@ class RendererEntity(vtkRendererBase):
 
     def createSectionPolygon(self, element):
 
-        outer_points, inner_points = element.cross_section.get_cross_section_points()
+        outer_points, inner_points = element.cross_section.get_cross_section_points(element.length)
         number_inner_points = len(inner_points)
         number_outer_points = len(outer_points)
 

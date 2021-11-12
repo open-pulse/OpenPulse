@@ -219,6 +219,10 @@ class SolutionStructural:
                         self.flag_Modal_prescribed_NonNull_DOFs = True
                         self.warning_Modal_prescribedDOFs = ["The Prescribed DOFs of non-zero values have been ignored in the modal analysis.\n"+
                                                             "The null value has been attributed to those DOFs with non-zero values."]
+        
+        if self.stop_processing():
+            return None, None        
+        
         return natural_frequencies, modal_shape
 
 
@@ -268,6 +272,9 @@ class SolutionStructural:
             
             A = F_K + F_M + F_C + F_Clump
             solution[:,i] = spsolve(A, F[:,i])
+
+            if self.stop_processing():
+                return None
 
         self.solution = self._reinsert_prescribed_dofs(solution)
 
@@ -333,6 +340,9 @@ class SolutionStructural:
             F_aux = modal_shape.T @ F
             solution = modal_shape @ (diag @ F_aux)
             solution = solution.reshape(cols, rows).T 
+
+            if self.stop_processing():
+                return None
         
         else:
         
@@ -349,6 +359,9 @@ class SolutionStructural:
                 data = np.divide(1, (F_kg + F_mg + F_cg))
                 diag = np.diag(data)
                 solution[:,i] = modal_shape @ (diag @ F_aux[:,i])
+
+                if self.stop_processing():
+                    return None
 
         self.solution = self._reinsert_prescribed_dofs(solution)
 
@@ -574,7 +587,7 @@ class SolutionStructural:
 
         for element in elements:
 
-            if element.element_type in ['beam_1', 'expansion_joint']:
+            if element.element_type in ['beam_1', 'expansion_joint', 'valve']:
                 element.stress = np.zeros((7, len(self.frequencies)))
             
             elif element.element_type in ['pipe_1', 'pipe_2']:
@@ -636,3 +649,7 @@ class SolutionStructural:
             
         return self.stress_field_dict
 
+    def stop_processing(self):
+        if self.preprocessor.stop_processing:
+            print("\nProcessing interruption was requested by the user. \nSolution interruped.")
+            return True

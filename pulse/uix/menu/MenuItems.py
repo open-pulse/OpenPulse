@@ -167,6 +167,7 @@ class MenuItems(QTreeWidget):
         self.item_child_addMassSpringDamper = QTreeWidgetItem(['Add: Mass / Spring / Damper'])
         self.item_child_add_elastic_nodal_links = QTreeWidgetItem(['Add Elastic Nodal Links'])
         self.item_child_add_expansion_joint = QTreeWidgetItem(['Add Expansion Joint'])
+        self.item_child_add_valve = QTreeWidgetItem(['Add Valve'])
         self.item_child_setcappedEnd = QTreeWidgetItem(['Set Capped End'])
         self.item_child_set_stress_stiffening = QTreeWidgetItem(['Set Stress Stiffening'])
         #
@@ -180,6 +181,7 @@ class MenuItems(QTreeWidget):
         self.list_child_items.append(self.item_child_addMassSpringDamper)
         self.list_child_items.append(self.item_child_add_elastic_nodal_links)
         self.list_child_items.append(self.item_child_add_expansion_joint)
+        self.list_child_items.append(self.item_child_add_valve)
         self.list_child_items.append(self.item_child_setcappedEnd)
         self.list_child_items.append(self.item_child_set_stress_stiffening)
         #
@@ -234,12 +236,14 @@ class MenuItems(QTreeWidget):
         self.item_child_plotAcousticPressureField = QTreeWidgetItem(['Plot Acoustic Pressure Field'])
         self.item_child_plotAcousticFrequencyResponse = QTreeWidgetItem(['Plot Acoustic Frequency Response'])
         self.item_child_plot_TL_NR = QTreeWidgetItem(['Plot Transmission Loss or Attenuation'])
+        self.item_child_plot_perforated_plate_convergence_data = QTreeWidgetItem(['Plot perforated plate convergence data'])
         #
         self.list_top_items.append(self.item_top_resultsViewer_acoustic)
         self.list_child_items.append(self.item_child_plotAcousticModeShapes)
         self.list_child_items.append(self.item_child_plotAcousticPressureField)
         self.list_child_items.append(self.item_child_plotAcousticFrequencyResponse)
         self.list_child_items.append(self.item_child_plot_TL_NR)
+        self.list_child_items.append(self.item_child_plot_perforated_plate_convergence_data)
         #
 
     def _addItems(self):
@@ -262,6 +266,7 @@ class MenuItems(QTreeWidget):
         self.item_top_structuralModelSetup.addChild(self.item_child_addMassSpringDamper)
         self.item_top_structuralModelSetup.addChild(self.item_child_add_elastic_nodal_links)
         self.item_top_structuralModelSetup.addChild(self.item_child_add_expansion_joint)
+        self.item_top_structuralModelSetup.addChild(self.item_child_add_valve)
         self.item_top_structuralModelSetup.addChild(self.item_child_set_stress_stiffening)
         self.item_top_structuralModelSetup.addChild(self.item_child_setcappedEnd)
         
@@ -292,7 +297,8 @@ class MenuItems(QTreeWidget):
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticModeShapes)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticPressureField)
         self.item_top_resultsViewer_acoustic.addChild(self.item_child_plotAcousticFrequencyResponse)
-        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_TL_NR)     
+        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_TL_NR)   
+        self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)  
 
     def _configItems(self):
         """Configure all items."""   
@@ -340,7 +346,10 @@ class MenuItems(QTreeWidget):
 
     def update_plot_entities_with_cross_section(self):
         if not self.mainWindow.opv_widget.change_plot_to_entities_with_cross_section:
-            self.mainWindow.plot_entities_with_cross_section()      
+            self.mainWindow.plot_entities_with_cross_section()   
+
+    # def create_plot_convergence_data(self):
+    #     self.item_top_resultsViewer_acoustic.addChild(self.item_child_plot_perforated_plate_convergence_data)
 
     def update_childItems_visibility(self, item):
         toggle = lambda x: x.setExpanded(not x.isExpanded())
@@ -437,6 +446,12 @@ class MenuItems(QTreeWidget):
             if not self.item_child_add_expansion_joint.isDisabled():
                 self.mainWindow.getInputWidget().add_expansion_joint()
                 # self.mainWindow.plot_entities_with_cross_section()       
+
+        elif item == self.item_child_add_valve:
+            if not self.item_child_add_valve.isDisabled():
+                self.mainWindow.getInputWidget().add_valve()
+                self.mainWindow.plot_mesh()
+                # self.mainWindow.plot_entities_with_cross_section()               
 
         elif item == self.item_child_setcappedEnd:
              if not self.item_child_setcappedEnd.isDisabled():
@@ -555,6 +570,10 @@ class MenuItems(QTreeWidget):
             if not self.item_child_plot_TL_NR.isDisabled():
                 self.update_plot_mesh()
                 self.mainWindow.getInputWidget().plot_TL_NR()
+        
+        elif item == self.item_child_plot_perforated_plate_convergence_data:
+            if not self.item_child_plot_perforated_plate_convergence_data.isDisabled():
+                self.mainWindow.getInputWidget().plotPerforatedPlateConvergenceDataLog()
 
     def modify_model_setup_items_access(self, bool_key):
         #
@@ -575,7 +594,8 @@ class MenuItems(QTreeWidget):
         self.item_child_setcappedEnd.setDisabled(bool_key)
         self.item_child_set_stress_stiffening.setDisabled(bool_key)
         self.item_child_add_elastic_nodal_links.setDisabled(bool_key)   
-        self.item_child_add_expansion_joint.setDisabled(bool_key)   
+        self.item_child_add_expansion_joint.setDisabled(bool_key)  
+        self.item_child_add_valve.setDisabled(bool_key) 
         #   
         self.item_child_setAcousticElementType.setDisabled(bool_key)
         self.item_child_setAcousticPressure.setDisabled(bool_key)
@@ -600,6 +620,7 @@ class MenuItems(QTreeWidget):
             self.item_child_plotAcousticFrequencyResponse.setDisabled(True)
             self.item_child_plotAcousticPressureField.setDisabled(True)
             self.item_child_plot_TL_NR.setDisabled(True)
+            self.item_child_plot_perforated_plate_convergence_data.setDisabled(True)
             self.item_child_plotReactionsFrequencyResponse.setDisabled(True)
             self.item_child_analisysSetup.setDisabled(True)
             self.item_child_runAnalysis.setDisabled(True)
@@ -626,10 +647,14 @@ class MenuItems(QTreeWidget):
             elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
             elif self.project.analysis_ID == 3:
+                if self.project.perforated_plate_dataLog:
+                    self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticPressureField.setDisabled(False)
                 self.item_child_plot_TL_NR.setDisabled(False)
             elif self.project.analysis_ID in [5,6]:
+                if self.project.perforated_plate_dataLog:
+                    self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
                 self.item_child_plotStructuralFrequencyResponse.setDisabled(False)
                 self.item_child_plotAcousticFrequencyResponse.setDisabled(False)
                 self.item_child_plotStressField.setDisabled(False)

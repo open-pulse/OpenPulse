@@ -26,7 +26,6 @@ class AcousticPressureInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.transform_points = self.opv.transformPoints
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -163,7 +162,6 @@ class AcousticPressureInput(QDialog):
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
             self.project.set_acoustic_pressure_bc_by_node(self.nodes_typed, data, False)
-            self.transform_points(self.nodes_typed)
             self.opv.updateRendererMesh()
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")
             self.close()
@@ -277,7 +275,6 @@ class AcousticPressureInput(QDialog):
                     self.project.set_acoustic_pressure_bc_by_node([node_id], data, True)
                 
             self.process_table_file_removal(list_table_names)
-            self.transform_points(self.nodes_typed)                 
             self.opv.updateRendererMesh()
             print(f"[Set Acoustic Pressure] - defined at node(s) {self.nodes_typed}")   
             self.close()
@@ -325,7 +322,6 @@ class AcousticPressureInput(QDialog):
                 list_table_names = self.get_list_table_names_from_selected_nodes([picked_node_id])
                 self.process_table_file_removal(list_table_names)
                 self.preprocessor.set_acoustic_pressure_bc_by_node(picked_node_id, [None, None])
-                self.transform_points(picked_node_id)
                 self.opv.updateRendererMesh()
                 self.load_nodes_info()
                 # self.close()
@@ -361,7 +357,6 @@ class AcousticPressureInput(QDialog):
                             _list_table_names.append(table_name)
                     remove_bc_from_file([node_id], self.acoustic_bc_info_path, key_strings, None)
                     self.preprocessor.set_acoustic_pressure_bc_by_node(node_id, [None, None])
-                    self.transform_points(node_id)
                 self.process_table_file_removal(_list_table_names)
 
                 title = "Acoustic pressure resetting process complete"

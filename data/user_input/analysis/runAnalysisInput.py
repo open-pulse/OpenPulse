@@ -42,25 +42,38 @@ class RunAnalysisInput(QDialog):
         self.modes = self.project.modes
         self.solution_acoustic = None
         self.solution_structural = None
+        self.convergence_dataLog = None
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
 
         self.complete = False
 
-        LoadingScreen('Run Analysis', 'Solution in progress...', target=self.run)
+        LoadingScreen('SOLUTION IN PROGRESS', 'Processing the cross-sections',  target=self.process_cross_sections, project=project)
+        if self.project.preprocessor.stop_processing:
+            self.project.preprocessor.stop_processing = False
+            return
+
+        LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)
+        LoadingScreen('SOLUTION IN PROGRESS', 'Solving the analysis',  target=self.process_analysis, project=project)
         
-        self.exec()
+        if self.project.preprocessor.stop_processing:
+            self.reset_all_results()
+            self.project.preprocessor.stop_processing = False
+        else:
+            LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
+            self.exec()
+            self.check_warnings()
 
+    def process_cross_sections(self):
 
-    def run(self):
-        self.complete = False
         t0i = time()
-        self.label_message.setText("Processing the cross-sections...")
-        self.project.load_mapped_cross_section()
+        self.complete = False
+        self.project.process_cross_sections_mapping()
         self.project.time_to_process_cross_sections = time() - t0i
-        # self.project.get_dict_multiple_cross_sections()
-        self.label_message.setText("Preparing model to solve...")
 
+    def preparing_mathematical_model_to_solve(self):
+
+        t0 = time()
         if self.analysis_ID in [0,1,3,5,6]:
             if self.frequencies is None:
                 return
@@ -93,13 +106,59 @@ class RunAnalysisInput(QDialog):
             self.project.preprocessor.enable_fluid_mass_adding_effect(reset=True)
             self.solve = self.project.get_structural_solve()
 
-        self.project.time_to_preprocess_model = time() - (t0i + self.project.time_to_process_cross_sections)
-        message = "Solution in progress..."
-        self.label_message.setText(message)
+        self.project.time_to_preprocess_model = time() - t0
        
+    def process_analysis(self):
+        
         t0 = time()
-        self.process_analysis()
 
+        if self.analysis_ID == 0:
+            self.solution_structural = self.solve.direct_method(self.damping) # Structural Harmonic Analysis - Direct Method
+
+        elif self.analysis_ID == 1: # Structural Harmonic Analysis - Mode Superposition Method
+            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+
+        elif self.analysis_ID == 3: # Acoustic Harmonic Analysis - Direct Method
+            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method()
+
+        elif self.analysis_ID == 5: # Coupled Harmonic Analysis - Direct Method
+            
+            t0_acoustic = time()
+            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
+            self.project.time_to_solve_acoustic_model = time() - t0_acoustic
+            
+            self.project.set_acoustic_solution(self.solution_acoustic)
+            self.solve = self.project.get_structural_solve()
+            
+            t0_structural = time()
+            self.solution_structural = self.solve.direct_method(self.damping) #Coupled Harmonic Analysis - Direct Method
+            self.project.time_to_solve_structural_model = time() - t0_structural
+            
+        elif self.analysis_ID == 6: # Coupled Harmonic Analysis - Mode Superposition Method
+            
+            t0_acoustic = time()
+            self.solution_acoustic, self.convergence_dataLog = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
+            self.project.time_to_solve_acoustic_model = time() - t0_acoustic
+            
+            self.project.set_acoustic_solution(self.solution_acoustic)
+            self.solve = self.project.get_structural_solve()
+            
+            t0_structural = time()
+            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
+            self.project.time_to_solve_structural_model = time() - t0_structural
+            
+        elif self.analysis_ID == 2: # Structural Modal Analysis
+            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
+
+        elif self.analysis_ID == 4: # Acoustic Modal Analysis
+            self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
+        
+        self.project.time_to_solve_model = time() - t0
+
+    def post_process_results(self): 
+
+        t0 = time()
+        self.project.set_perforated_plate_convergence_dataLog(self.convergence_dataLog)
         if self.analysis_ID == 2:
             
             if self.solution_structural is None:
@@ -136,63 +195,13 @@ class RunAnalysisInput(QDialog):
                                                     self.dict_reactions_at_springs,
                                                     self.dict_reactions_at_dampers  ])
 
-        self.project.time_to_postprocess = time() - (t0 + self.project.time_to_solve_model)
-        self.project.total_time = time() - t0i
-        self.check_log_times()
+        self.project.time_to_postprocess = time() - t0
+        _times =  [self.project.time_to_process_cross_sections, self.project.time_to_preprocess_model, self.project.time_to_solve_model, self.project.time_to_postprocess]
+        self.project.total_time = sum(_times)
         self.print_final_log()
         self.complete = True
 
-    def process_analysis(self):
-        
-        t0 = time()
-
-        if self.analysis_ID == 0:
-            self.solution_structural = self.solve.direct_method(self.damping) # Structural Harmonic Analysis - Direct Method
-
-        elif self.analysis_ID == 1: # Structural Harmonic Analysis - Mode Superposition Method
-            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
-
-        elif self.analysis_ID == 3: # Acoustic Harmonic Analysis - Direct Method
-            self.solution_acoustic = self.solve.direct_method()
-
-        elif self.analysis_ID == 5: # Coupled Harmonic Analysis - Direct Method
-            self.label_message.setText("Solving the acoustic model...")
-            
-            t0_acoustic = time()
-            self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
-            self.project.time_to_solve_acoustic_model = time() - t0_acoustic
-            
-            self.label_message.setText("Solution of the acoustic model finished.")
-            self.project.set_acoustic_solution(self.solution_acoustic)
-            self.solve = self.project.get_structural_solve()
-            self.label_message.setText("Solving the structural model...")
-            
-            t0_structural = time()
-            self.solution_structural = self.solve.direct_method(self.damping) #Coupled Harmonic Analysis - Direct Method
-            self.project.time_to_solve_structural_model = time() - t0_structural
-            
-        elif self.analysis_ID == 6: # Coupled Harmonic Analysis - Mode Superposition Method
-            
-            t0_acoustic = time()
-            self.solution_acoustic = self.solve.direct_method() #Acoustic Harmonic Analysis - Direct Method
-            self.project.time_to_solve_acoustic_model = time() - t0_acoustic
-            
-            self.project.set_acoustic_solution(self.solution_acoustic)
-            self.solve = self.project.get_structural_solve()
-            
-            t0_structural = time()
-            self.solution_structural = self.solve.mode_superposition(self.modes, self.damping)
-            self.project.time_to_solve_structural_model = time() - t0_structural
-            
-        elif self.analysis_ID == 2: # Structural Modal Analysis
-            self.natural_frequencies_structural, self.solution_structural = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
-
-        elif self.analysis_ID == 4: # Acoustic Modal Analysis
-            self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
-        
-        self.project.time_to_solve_model = time() - t0
-        self.label_message.setText("Post-processing the results...")
-
+    def check_warnings(self):
         # WARNINGS REACHED DURING SOLUTION
         title = self.analysis_type_label
         message = ""
@@ -206,6 +215,24 @@ class RunAnalysisInput(QDialog):
                 message = self.solve.warning_Modal_prescribedDOFs[0] 
         if message != "":
             PrintMessageInput([title, message, window_title_2])
+
+    def reset_all_results(self):
+
+        self.solution_structural = None
+        self.solution_acoustic = None
+
+        if self.analysis_ID == 2:
+            self.project.set_structural_solution(None)
+            self.project.set_structural_natural_frequencies(None)
+        elif self.analysis_ID == 4: 
+            self.project.set_acoustic_solution(None)
+            self.project.set_acoustic_natural_frequencies(None)
+        elif self.analysis_ID == 3:
+            self.project.set_acoustic_solution(None)
+        elif self.analysis_ID in [0,1,5,6]:
+            self.project.set_acoustic_solution(None)
+            self.project.set_structural_solution(None)
+            self.project.set_structural_reactions([ {}, {}, {} ])
 
     def config_title_font(self):
         font = QFont()
@@ -227,33 +254,6 @@ class RunAnalysisInput(QDialog):
         self.label_message.setFont(font)
         self.label_message.setStyleSheet("color:blue")
 
-    def check_log_times(self):
-        #
-        if self.project.time_to_load_or_create_project is None:
-            self.project.time_to_load_or_create_project = 0
-        #
-        if self.project.time_to_process_cross_sections is None:
-            self.project.time_to_process_cross_sections = 0
-        #
-        if self.project.time_to_preprocess_model is None:
-            self.project.time_to_preprocess_model = 0
-        #
-        if self.project.time_to_solve_acoustic_model is None:
-            self.project.time_to_solve_acoustic_model = 0
-        #
-        if self.project.time_to_solve_structural_model is None:
-            self.project.time_to_solve_structural_model = 0
-        #
-        if self.project.time_to_solve_model is None:
-            self.project.time_to_solve_model = 0
-        #
-        if self.project.time_to_postprocess is None:
-            self.project.time_to_postprocess = 0
-        #
-        if self.project.total_time is None:
-            self.project.total_time = 0
-
-
     def print_final_log(self):
 
         text = "Solution finished!\n\n"
@@ -271,3 +271,30 @@ class RunAnalysisInput(QDialog):
 
         text += "Press ESC to continue..."
         self.label_message.setText(text)
+
+
+    # def check_log_times(self):
+    #     #
+    #     if self.project.time_to_load_or_create_project is None:
+    #         self.project.time_to_load_or_create_project = 0
+    #     #
+    #     if self.project.time_to_process_cross_sections is None:
+    #         self.project.time_to_process_cross_sections = 0
+    #     #
+    #     if self.project.time_to_preprocess_model is None:
+    #         self.project.time_to_preprocess_model = 0
+    #     #
+    #     if self.project.time_to_solve_acoustic_model is None:
+    #         self.project.time_to_solve_acoustic_model = 0
+    #     #
+    #     if self.project.time_to_solve_structural_model is None:
+    #         self.project.time_to_solve_structural_model = 0
+    #     #
+    #     if self.project.time_to_solve_model is None:
+    #         self.project.time_to_solve_model = 0
+    #     #
+    #     if self.project.time_to_postprocess is None:
+    #         self.project.time_to_postprocess = 0
+    #     #
+    #     if self.project.total_time is None:
+    #         self.project.total_time = 0

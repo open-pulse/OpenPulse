@@ -241,6 +241,7 @@ class AssemblyAcoustic:
 
         rows, cols = self.preprocessor.get_global_acoustic_indexes()
         data_k = np.zeros([len(self.frequencies), total_entries], dtype = complex)
+        
         for element in self.acoustic_elements:
             
             index = element.index
@@ -250,7 +251,7 @@ class AssemblyAcoustic:
 
             length_correction = self.get_length_corretion(element)
             data_k[:, start:end] = element.matrix(self.frequencies, length_correction = length_correction)
-            
+
         full_K = [csr_matrix((data, (rows, cols)), shape=[total_dof, total_dof], dtype=complex) for data in data_k]
 
         K = [full[self.unprescribed_indexes, :][:, self.unprescribed_indexes] for full in full_K]

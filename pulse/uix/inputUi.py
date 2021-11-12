@@ -21,6 +21,7 @@ from data.user_input.model.setup.structural.cappedEndInput import CappedEndInput
 from data.user_input.model.setup.structural.stressStiffeningInput import StressStiffeningInput
 from data.user_input.model.setup.structural.elasticNodalLinksInput import ElasticNodalLinksInput
 from data.user_input.model.setup.structural.expansionJointInput import ExpansionJointInput
+from data.user_input.model.setup.structural.valvesInput import ValvesInput
 #
 from data.user_input.model.setup.acoustic.acousticElementTypeInput import AcousticElementTypeInput
 from data.user_input.model.setup.acoustic.fluidInput import FluidInput
@@ -48,6 +49,7 @@ from data.user_input.plots.acoustic.plotAcousticModeShapeInput import PlotAcoust
 from data.user_input.plots.acoustic.plotAcousticPressureFieldInput import PlotAcousticPressureFieldInput
 from data.user_input.plots.acoustic.plotAcousticFrequencyResponseInput import PlotAcousticFrequencyResponseInput
 from data.user_input.plots.acoustic.plot_TL_NR_Input import Plot_TL_NR_Input
+from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import PlotPerforatedPlateConvergenceData
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
@@ -186,6 +188,9 @@ class InputUi:
     
     def add_expansion_joint(self):
         self.processInput(ExpansionJointInput, self.project, self.opv)
+
+    def add_valve(self):
+        self.processInput(ValvesInput, self.project, self.opv)
 
     def set_acoustic_element_type(self):
         self.processInput(AcousticElementTypeInput, self.project, self.opv)
@@ -356,6 +361,10 @@ class InputUi:
                 return
             self.processInput(  Plot_TL_NR_Input, self.project, self.opv, 
                                 self.analysis_method_label, solution  )
+
+    def plotPerforatedPlateConvergenceDataLog(self):
+        if self.project.perforated_plate_dataLog:
+            self.processInput( PlotPerforatedPlateConvergenceData, self.project.perforated_plate_dataLog )
 
     def plotStressField(self):
         self.project.plot_pressure_field = False

@@ -17,15 +17,23 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.project = project
 
         self.inputObject = None
+        self.defaultPreferences()
     
+        self.opvRenderer = opvRenderer(self.project, self)
+        self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
+
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
-        self.opvRenderer = opvRenderer(self.project, self)
-        self.opvAnalysisRenderer = opvAnalysisRenderer(self.project, self)
-
         self._createAxes()        
+
+    def defaultPreferences(self):
+        self.background_color = (0,0,0)
+        self.font_color = (1,1,1)
+        self.add_OpenPulse_logo = True
+        self.add_MOPT_logo = True
+        self.show_reference_scale = True
 
     def clearRendereres(self):
         self.GetRenderWindow().RemoveRenderer(self.opvRenderer.getRenderer())
@@ -37,6 +45,7 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def updatePlots(self):
         def callback():
+            self.project.preprocessor.add_lids_to_variable_cross_sections()
             self.opvRenderer.plot()
             self.opvAnalysisRenderer.plot()        
         LoadingScreen('Updating Plot', target=callback)
@@ -173,9 +182,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvAnalysisRenderer._renderer.ResetCamera()
         self.opvAnalysisRenderer.update()
 
-    # def updateDialogs(self):
-    #     pass
-
     def updateDialogs(self):
         if self.inputObject is None:
             return
@@ -190,6 +196,17 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def _createAxes(self):
         axesActor = vtk.vtkAxesActor()
+        
+        axesActor.SetShaftTypeToCylinder()
+        axesActor.SetCylinderRadius(0.03)
+        axesActor.SetConeRadius(0.5)
+        axesActor.SetNormalizedTipLength(0.25, 0.25, 0.25)
+        axesActor.SetNormalizedLabelPosition(1.3,1.3,1.3)
+        
+        axesActor.SetXAxisLabelText("X")
+        axesActor.SetYAxisLabelText("Y")
+        axesActor.SetZAxisLabelText("Z")
+        
         self.axes = vtk.vtkOrientationMarkerWidget()
         self.axes.SetOrientationMarker(axesActor)
         self.axes.SetInteractor(self)
@@ -208,9 +225,6 @@ class OPVUi(QVTKRenderWindowInteractor):
 
     def getListPickedEntities(self):
         return self.opvRenderer.getListPickedEntities()
-
-    def transformPoints(self, *args, **kwargs):
-        self.updatePlots()
 
     def updateEntityRadius(self, *args, **kwargs):
         self.opvRenderer.plot()

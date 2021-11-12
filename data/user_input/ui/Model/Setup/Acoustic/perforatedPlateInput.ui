@@ -21,14 +21,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>391</width>
-    <height>435</height>
+    <width>401</width>
+    <height>611</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>1000</width>
-    <height>1000</height>
+    <width>401</width>
+    <height>611</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -2454,22 +2454,22 @@ discharge coefficient:</string>
        </property>
        <property name="geometry">
         <rect>
-         <x>210</x>
-         <y>320</y>
-         <width>150</width>
-         <height>120</height>
+         <x>218</x>
+         <y>312</y>
+         <width>160</width>
+         <height>130</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>145</width>
-         <height>120</height>
+         <width>160</width>
+         <height>130</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>150</width>
-         <height>120</height>
+         <width>160</width>
+         <height>130</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -2487,10 +2487,10 @@ discharge coefficient:</string>
        <widget class="QWidget" name="verticalLayoutWidget_10">
         <property name="geometry">
          <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>142</width>
-          <height>81</height>
+          <x>12</x>
+          <y>38</y>
+          <width>135</width>
+          <height>83</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_15">
@@ -2563,8 +2563,8 @@ discharge coefficient:</string>
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>150</width>
-          <height>25</height>
+          <width>160</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -2575,14 +2575,14 @@ discharge coefficient:</string>
         </property>
         <property name="minimumSize">
          <size>
-          <width>0</width>
-          <height>0</height>
+          <width>160</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
-          <height>60</height>
+          <width>160</width>
+          <height>20</height>
          </size>
         </property>
         <property name="font">
@@ -2630,22 +2630,22 @@ p, li { white-space: pre-wrap; }
        </property>
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>320</y>
-         <width>185</width>
-         <height>120</height>
+         <x>8</x>
+         <y>312</y>
+         <width>200</width>
+         <height>130</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>185</width>
-         <height>120</height>
+         <width>200</width>
+         <height>130</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>165</width>
-         <height>120</height>
+         <width>200</width>
+         <height>130</height>
         </size>
        </property>
        <property name="sizeIncrement">
@@ -2664,9 +2664,9 @@ p, li { white-space: pre-wrap; }
         <property name="geometry">
          <rect>
           <x>10</x>
-          <y>30</y>
-          <width>174</width>
-          <height>80</height>
+          <y>38</y>
+          <width>185</width>
+          <height>83</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_16">
@@ -2674,13 +2674,13 @@ p, li { white-space: pre-wrap; }
           <widget class="QRadioButton" name="radioButton_impedance">
            <property name="minimumSize">
             <size>
-             <width>140</width>
+             <width>190</width>
              <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>190</width>
              <height>22</height>
             </size>
            </property>
@@ -2711,13 +2711,13 @@ p, li { white-space: pre-wrap; }
           <widget class="QRadioButton" name="radioButton_absortion">
            <property name="minimumSize">
             <size>
-             <width>172</width>
+             <width>190</width>
              <height>22</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
-             <width>140</width>
+             <width>190</width>
              <height>22</height>
             </size>
            </property>
@@ -2731,7 +2731,7 @@ p, li { white-space: pre-wrap; }
             </font>
            </property>
            <property name="text">
-            <string>Absortion coefficient</string>
+            <string>Absorption coefficient</string>
            </property>
           </widget>
          </item>
@@ -2745,8 +2745,8 @@ p, li { white-space: pre-wrap; }
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>185</width>
-          <height>25</height>
+          <width>200</width>
+          <height>30</height>
          </rect>
         </property>
         <property name="sizePolicy">
@@ -2757,14 +2757,14 @@ p, li { white-space: pre-wrap; }
         </property>
         <property name="minimumSize">
          <size>
-          <width>185</width>
-          <height>21</height>
+          <width>200</width>
+          <height>30</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>165</width>
-          <height>60</height>
+          <width>200</width>
+          <height>30</height>
          </size>
         </property>
         <property name="font">
@@ -2809,21 +2809,21 @@ p, li { white-space: pre-wrap; }
       <widget class="QPushButton" name="pushButton_plot_parameter">
        <property name="geometry">
         <rect>
-         <x>50</x>
-         <y>450</y>
-         <width>281</width>
+         <x>52</x>
+         <y>448</y>
+         <width>282</width>
          <height>30</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>282</width>
          <height>30</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
+         <width>282</width>
          <height>30</height>
         </size>
        </property>
@@ -2844,7 +2844,7 @@ p, li { white-space: pre-wrap; }
        <property name="geometry">
         <rect>
          <x>16</x>
-         <y>14</y>
+         <y>10</y>
          <width>341</width>
          <height>47</height>
         </rect>
@@ -2876,9 +2876,9 @@ perfurated plate parameter:</string>
        <property name="geometry">
         <rect>
          <x>18</x>
-         <y>76</y>
+         <y>64</y>
          <width>341</width>
-         <height>141</height>
+         <height>153</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -2989,8 +2989,8 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_3">
        <property name="geometry">
         <rect>
-         <x>10</x>
-         <y>270</y>
+         <x>30</x>
+         <y>274</y>
          <width>181</width>
          <height>25</height>
         </rect>
@@ -3026,8 +3026,8 @@ perfurated plate parameter:</string>
       <widget class="QLineEdit" name="lineEdit_specify_elementID">
        <property name="geometry">
         <rect>
-         <x>200</x>
-         <y>270</y>
+         <x>220</x>
+         <y>274</y>
          <width>108</width>
          <height>25</height>
         </rect>
@@ -3066,9 +3066,9 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_4">
        <property name="geometry">
         <rect>
-         <x>16</x>
-         <y>220</y>
-         <width>141</width>
+         <x>14</x>
+         <y>222</y>
+         <width>147</width>
          <height>25</height>
         </rect>
        </property>
@@ -3103,9 +3103,9 @@ perfurated plate parameter:</string>
       <widget class="Line" name="line_3">
        <property name="geometry">
         <rect>
-         <x>-10</x>
+         <x>0</x>
          <y>250</y>
-         <width>381</width>
+         <width>385</width>
          <height>20</height>
         </rect>
        </property>
@@ -3116,9 +3116,9 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_elementID_plot">
        <property name="geometry">
         <rect>
-         <x>160</x>
-         <y>220</y>
-         <width>200</width>
+         <x>167</x>
+         <y>222</y>
+         <width>193</width>
          <height>25</height>
         </rect>
        </property>
@@ -3169,10 +3169,10 @@ perfurated plate parameter:</string>
       <widget class="QTreeWidget" name="treeWidget_perforated_plate_remove">
        <property name="geometry">
         <rect>
-         <x>18</x>
+         <x>24</x>
          <y>76</y>
          <width>341</width>
-         <height>141</height>
+         <height>203</height>
         </rect>
        </property>
        <property name="minimumSize">
@@ -3246,7 +3246,7 @@ perfurated plate parameter:</string>
       <widget class="QLabel" name="label_29">
        <property name="geometry">
         <rect>
-         <x>16</x>
+         <x>22</x>
          <y>14</y>
          <width>341</width>
          <height>47</height>
@@ -3278,8 +3278,8 @@ perfurated plate:</string>
       <widget class="QPushButton" name="pushButton_remove">
        <property name="geometry">
         <rect>
-         <x>210</x>
-         <y>220</y>
+         <x>216</x>
+         <y>292</y>
          <width>92</width>
          <height>30</height>
         </rect>
@@ -3312,8 +3312,8 @@ perfurated plate:</string>
       <widget class="QPushButton" name="pushButton_get_information_remove">
        <property name="geometry">
         <rect>
-         <x>260</x>
-         <y>180</y>
+         <x>268</x>
+         <y>240</y>
          <width>90</width>
          <height>32</height>
         </rect>
@@ -3346,8 +3346,8 @@ perfurated plate:</string>
       <widget class="QPushButton" name="pushButton_reset">
        <property name="geometry">
         <rect>
-         <x>80</x>
-         <y>220</y>
+         <x>86</x>
+         <y>292</y>
          <width>80</width>
          <height>30</height>
         </rect>

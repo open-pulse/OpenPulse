@@ -28,7 +28,6 @@ class MassSpringDamperInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.transform_points = self.opv.transformPoints
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -487,7 +486,7 @@ class MassSpringDamperInput(QDialog):
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
         
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.close()
 
     def load_table(self, lineEdit, _label, direct_load=False):
@@ -950,7 +949,7 @@ class MassSpringDamperInput(QDialog):
         if self.lumped_dampings is not None:
             print("[Set Damper] - defined at node(s) {}".format(self.nodes_typed))
 
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         self.close()      
 
     def process_table_file_removal(self, list_table_names):
@@ -996,7 +995,7 @@ class MassSpringDamperInput(QDialog):
             self.preprocessor.add_damper_to_node(self.nodes_typed, data)
 
         self.load_nodes_info()
-        self.transform_points(self.nodes_typed)
+        self.opv.updateRendererMesh()
         # self.close()
     
     def remove_masses_table_files(self):

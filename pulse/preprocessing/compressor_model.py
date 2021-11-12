@@ -50,7 +50,7 @@ class CompressorModel:
 
         [  bore_diameter,                      # Cylinder bore diameter [m]
            stroke,                             # Length of compressor full stroke [m]
-           rod_lenght,                         # Connecting rod length [m]
+           rod_length,                         # Connecting rod length [m]
            rod_diameter,                       # Rod diameter [m]
            pressure_ratio,                     # Compressor pressure ratio Pd/Ps
            clearance,                          # Clearance volume as percentage of full volume (%)
@@ -70,7 +70,7 @@ class CompressorModel:
 
         self.D = bore_diameter
         self.r = stroke/2
-        self.L = rod_lenght
+        self.L = rod_length
         self.rod_diam = rod_diameter
         self.p_ratio = pressure_ratio
         self.c = clearance/100

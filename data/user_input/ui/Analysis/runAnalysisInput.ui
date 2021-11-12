@@ -99,7 +99,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Run analysis</string>
+     <string>Analysis time log</string>
     </property>
     <property name="textFormat">
      <enum>Qt::AutoText</enum>
