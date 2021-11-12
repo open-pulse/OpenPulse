@@ -2,9 +2,10 @@ import vtk
 import numpy as np 
 from time import time
 from collections import namedtuple
-from itertools import chain
-from scipy.spatial.transform import Rotation
+# from itertools import chain
+# from scipy.spatial.transform import Rotation
 
+from abc import ABC, abstractmethod
 from pulse.interface.vtkActorBase import vtkActorBase
 
 def loadSymbol(path):
@@ -13,7 +14,100 @@ def loadSymbol(path):
     reader.Update()
     return reader.GetOutput()
 
-Symbol = namedtuple('Symbol', ['source', 'position', 'rotation', 'scale', 'color'])
+SymbolTransform = namedtuple('SymbolTransform', ['source', 'position', 'rotation', 'scale', 'color'])
+
+class SymbolsActorBase(vtkActorBase):
+    def __init__(self, project, deformed=False):
+        super().__init__()
+        
+        self.project = project 
+        self.deformed = deformed
+        self.scaleFactor = 0.3
+
+        self._connections = self._createConnections()
+        self._sequence = self._createSequence()
+
+        self._data = vtk.vtkPolyData()
+        self._mapper = vtk.vtkGlyph3DMapper()
+
+    @abstractmethod
+    def _createConnections(self):
+        return []
+    
+    @abstractmethod
+    def _createSequence(self):
+        return []
+
+    def source(self):
+        self._createArrays()
+        # self._createNodalLinks()
+        self._loadSources()
+
+        for data in self._sequence:
+            for i, (func, symb) in enumerate(self._connections):
+                for transform in func(data):
+                    self._createSymbol(i, transform)
+
+        self._populateData()
+    
+    def map(self):
+        self._mapper.SetInputData(self._data)
+        self._mapper.SetSourceIndexArray('sources')
+        self._mapper.SetOrientationArray('rotations')
+        self._mapper.SetScaleArray('scales')
+        self._mapper.SetScaleFactor(self.scaleFactor)
+        
+        self._mapper.SourceIndexingOn()
+        self._mapper.SetOrientationModeToRotation()
+        self._mapper.SetScaleModeToScaleByVectorComponents()
+        self._mapper.Update()
+    
+    def filter(self):
+        pass 
+    
+    def actor(self):
+        self._actor.SetMapper(self._mapper)
+        self._actor.GetProperty().SetOpacity(0.9)
+        self._actor.GetProperty().BackfaceCullingOff()
+    
+    def _createArrays(self):
+        self._sources = vtk.vtkIntArray()
+        self._positions = vtk.vtkPoints()
+        self._rotations = vtk.vtkDoubleArray()
+        self._scales = vtk.vtkDoubleArray()
+        self._colors = vtk.vtkUnsignedCharArray()
+
+        self._sources.SetName('sources')
+        self._rotations.SetName('rotations')
+        self._scales.SetName('scales')
+        self._rotations.SetNumberOfComponents(3)
+        self._scales.SetNumberOfComponents(3)
+        self._colors.SetNumberOfComponents(3)
+
+    def _populateData(self):
+        self._data.SetPoints(self._positions)
+        self._data.GetPointData().AddArray(self._sources)
+        self._data.GetPointData().AddArray(self._rotations)
+        self._data.GetPointData().AddArray(self._scales)
+        self._data.GetPointData().SetScalars(self._colors)
+
+    def _loadSources(self):
+        for i, (func, symb) in enumerate(self._connections):
+            self._mapper.SetSourceData(i, symb)
+
+    def _createSymbol(self, src, symbol):
+        self._sources.InsertNextTuple1(src)
+        self._positions.InsertNextPoint(symbol.position)
+        self._rotations.InsertNextTuple(symbol.rotation)
+        self._scales.InsertNextTuple(symbol.scale)
+        self._colors.InsertNextTuple(symbol.color)
+
+
+
+
+
+
+
 
 class SymbolsActor(vtkActorBase):
     PRESCRIBED_POSITION_SYMBOL = loadSymbol('data/symbols/prescribedPosition.obj')
@@ -233,7 +327,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x-offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -241,7 +335,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -249,7 +343,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
 
@@ -270,7 +364,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -278,7 +372,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -286,7 +380,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
 
@@ -307,7 +401,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -315,7 +409,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -323,7 +417,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,90,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
     
@@ -344,7 +438,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[0]):
                 pos = (x+offset, y, z)
                 rot = (0,0,-90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
@@ -352,7 +446,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[1]):
                 pos = (x, y+offset, z)
                 rot = (180,90,180)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
@@ -360,7 +454,7 @@ class SymbolsActor(vtkActorBase):
             if self.is_value_negative(values[2]):
                 pos = (x, y, z+offset)
                 rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
     
@@ -378,17 +472,17 @@ class SymbolsActor(vtkActorBase):
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (180,0,90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
             rot = (0,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
     
@@ -406,17 +500,17 @@ class SymbolsActor(vtkActorBase):
         if mask[0]:
             pos = (x-offset, y, z)
             rot = (180,0,90)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
             rot = (0,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
             rot = (90,0,0)
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
 
@@ -429,7 +523,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if (node.volume_velocity is not None) and (node.compressor_excitation_table_names == []):
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _getAcousticPressure(self, node):
@@ -441,7 +535,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if node.acoustic_pressure is not None:
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _getSpecificImpedance(self, node):
@@ -453,7 +547,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if node.specific_impedance is not None:
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
     
     def _getRadiationImpedance(self, node):
@@ -465,7 +559,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if node.radiation_impedance_type in [0,1,2]:
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _getLumpedMass(self, node):
@@ -477,7 +571,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if any(node.lumped_masses):
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _getValve(self, element):
@@ -495,7 +589,7 @@ class SymbolsActor(vtkActorBase):
             vector = [round(value, 5) for value in rot_matrix[:,1]]
             if vector[1] < 0:
                 rot[0] += 180
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols        
     
     def _getCompressor(self, node):
@@ -507,11 +601,10 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
     
     def _getPerforatedPlate(self, element):
-        
         rad = 1
         acoustic = self.project.get_acoustic_element(element.index)
 
@@ -529,7 +622,7 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if (acoustic.perforated_plate is not None):
-            symbols.append(Symbol(source=src, position=pos, rotation=rot, scale=scl, color=col))
+            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
 
     def _getCoords(self, node):

@@ -11,22 +11,25 @@ from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
 from pulse.interface.symbolsActor import SymbolsActor
+from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
+from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 
 @dataclass(frozen=True)
-class PlotFlags:
-    SHOW_NODES   = (1 << 0)
-    SHOW_LINES   = (1 << 1)
-    SHOW_TUBES   = (1 << 2)
-    SHOW_TRANSP  = (1 << 3)
-    SHOW_SYMBOLS = (1 << 4)
+class PlotFilter:
+    nodes = (1 << 0)
+    lines = (1 << 1)
+    tubes = (1 << 2)
+    transparent = (1 << 3)
+    acoustic_symbols = (1 << 4)
+    structural_symbols = (1 << 5)
 
 @dataclass(frozen=True)
-class SelectionFlags:
-    SELECT_NODES    = (1 << 0)
-    SELECT_ENTITIES = (1 << 1)
-    SELECT_ELEMENTS = (1 << 2)
+class SelectionFilter:
+    nodes    = (1 << 0)
+    entities = (1 << 1)
+    elements = (1 << 2)
 
 
 class opvRenderer(vtkRendererBase):
@@ -40,8 +43,8 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
-        self._plotFlags = 0
-        self._selectionFlags = 0
+        self._plotFilter = 0
+        self._selectionFilter = 0
     
         self.opvNodes = None 
         self.opvLines = None
@@ -64,43 +67,62 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
         self.opvSymbols = SymbolsActor(self.project)
 
+        self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
+        self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
+        self.opvStructuralNodesSymbols = StructuralNodesSymbolsActor(self.project)
+        self.opvStructuralElementsSymbols = StructuralElementsSymbolsActor(self.project)
+
         self.opvNodes.build()
         self.opvSymbols.build()
         self.opvLines.build()
         self.opvTubes.build()
+        self.opvAcousticNodesSymbols.build()
+        self.opvAcousticElementsSymbols.build()
+        self.opvStructuralNodesSymbols.build()
+        self.opvStructuralElementsSymbols.build()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvNodes)
         plt(self.opvSymbols)
         plt(self.opvLines)
         plt(self.opvTubes)
+        plt(self.opvAcousticNodesSymbols)
+        plt(self.opvAcousticElementsSymbols)
+        plt(self.opvStructuralNodesSymbols)
+        plt(self.opvStructuralElementsSymbols)
 
         self.updateColors()
 
         self._renderer.ResetCameraClippingRange()
         self._addLogosToRender()
     
-    def setPlotFlags(self, flags):
-        self.opvNodes.setVisibility(flags & PlotFlags.SHOW_NODES)
-        self.opvLines.setVisibility(flags & PlotFlags.SHOW_LINES)
-        self.opvTubes.setVisibility(flags & PlotFlags.SHOW_TUBES)
-        self.opvSymbols.setVisibility(flags & PlotFlags.SHOW_SYMBOLS)
-        self.opvTubes.transparent = flags & PlotFlags.SHOW_TRANSP
-        self.opvSymbols.build()
-        self._plotFlags = flags
+    def setPlotFilter(self, filter):
+        self.opvNodes.setVisibility(filter & PlotFilter.nodes)
+        self.opvLines.setVisibility(filter & PlotFilter.lines)
+        self.opvTubes.setVisibility(filter & PlotFilter.tubes)
+        self.opvTubes.transparent = filter & PlotFilter.transparent
+        self.opvSymbols.setVisibility(False)
 
-    def setSelectionFlags(self, flags):
+        self.opvAcousticNodesSymbols.setVisibility(filter & PlotFilter.acoustic_symbols)
+        self.opvAcousticElementsSymbols.setVisibility(filter & PlotFilter.acoustic_symbols)
+        self.opvStructuralNodesSymbols.setVisibility(filter & PlotFilter.structural_symbols)
+        self.opvStructuralElementsSymbols.setVisibility(filter & PlotFilter.structural_symbols)
+
+        self.opvSymbols.build()
+        self._plotFilter = filter
+
+    def setSelectionFilter(self, filter):
         self.clearSelection()
-        self._selectionFlags = flags
+        self._selectionFilter = filter
     
     def selectionToNodes(self):
-        return self._selectionFlags & SelectionFlags.SELECT_NODES
+        return self._selectionFilter & SelectionFilter.nodes
     
     def selectionToElements(self):
-        return self._selectionFlags & SelectionFlags.SELECT_ELEMENTS 
+        return self._selectionFilter & SelectionFilter.elements 
 
     def selectionToEntities(self):
-        return self._selectionFlags & SelectionFlags.SELECT_ENTITIES
+        return self._selectionFilter & SelectionFilter.entities
 
     def clearSelection(self):
         self._style.clear()

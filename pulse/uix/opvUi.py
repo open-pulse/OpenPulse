@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-from pulse.interface.opvRenderer import opvRenderer, PlotFlags, SelectionFlags
+from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -47,16 +47,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities_with_cross_section = False
         self.setRenderer(self.opvRenderer)
 
-        plot_flags = (
-            PlotFlags.SHOW_LINES
-        )
-
-        selection_flags = (
-            SelectionFlags.SELECT_ENTITIES
-        )
-
-        self.opvRenderer.setPlotFlags(plot_flags)
-        self.opvRenderer.setSelectionFlags(selection_flags)
+        self.opvRenderer.setPlotFilter(PlotFilter.lines)
+        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
 
     
@@ -66,16 +58,8 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_entities = False
         self.setRenderer(self.opvRenderer)
 
-        plot_flags = (
-            PlotFlags.SHOW_LINES | PlotFlags.SHOW_TUBES
-        )
-
-        selection_flags = (
-            SelectionFlags.SELECT_ENTITIES
-        )
-
-        self.opvRenderer.setPlotFlags(plot_flags)
-        self.opvRenderer.setSelectionFlags(selection_flags)
+        self.opvRenderer.setPlotFilter(PlotFilter.lines | PlotFilter.tubes)
+        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
 
 
@@ -83,29 +67,24 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.change_plot_to_mesh = True
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
-
-        plot_flags = (
-            PlotFlags.SHOW_NODES | PlotFlags.SHOW_LINES | PlotFlags.SHOW_SYMBOLS | 
-            PlotFlags.SHOW_TUBES | PlotFlags.SHOW_TRANSP
-        )
-
-        selection_flags = (
-            SelectionFlags.SELECT_NODES | SelectionFlags.SELECT_ELEMENTS
-        )
-
         self.setRenderer(self.opvRenderer)
-        self.opvRenderer.setPlotFlags(plot_flags)
-        self.opvRenderer.setSelectionFlags(selection_flags)
+
+        self.opvRenderer.setPlotFilter(
+            PlotFilter.nodes | PlotFilter.lines 
+            | PlotFilter.tubes | PlotFilter.transparent
+            | PlotFilter.acoustic_symbols | PlotFilter.structural_symbols
+        )
+        self.opvRenderer.setSelectionFilter(SelectionFilter.nodes | SelectionFilter.elements)
         self._updateAxes()
     
-    def custom_plot(self, plot_flags, selection_flags):
+    def custom_plot(self, plot_filter, selection_filter):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
-        self.opvRenderer.setPlotFlags(plot_flags)
-        self.opvRenderer.setSelectionFlags(selection_flags)
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
 
 

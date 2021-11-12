@@ -19,6 +19,7 @@ class QWorker(QObject):
             try:
                 self.target()
             except Exception as log_error:
+                print(log_error)
                 title = "An error has been reached in LoadingScreen"
                 PrintMessageInput([title, str(log_error), "ERROR"])
                 

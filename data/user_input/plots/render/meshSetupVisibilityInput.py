@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import numpy as np
 
-from pulse.interface.opvRenderer import PlotFlags, SelectionFlags
+from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
 class MeshSetupVisibilityInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -56,27 +56,31 @@ class MeshSetupVisibilityInput(QDialog):
             self.close()
 
     def set_current_state(self):
-        plot_flags = self.opv.opvRenderer._plotFlags
-        selection_flags = self.opv.opvRenderer._selectionFlags
+        plot_filter = self.opv.opvRenderer._plotFilter
+        selection_filter = self.opv.opvRenderer._selectionFilter
 
         self.checkBox_nodes_viewer.setChecked(
-            PlotFlags.SHOW_NODES & plot_flags
+            PlotFilter.nodes & plot_filter
         )
         self.checkBox_elements_viewer.setChecked(
-            PlotFlags.SHOW_TUBES & plot_flags
+            PlotFilter.tubes & plot_filter
         )
         self.checkBox_acoustic_symbols_viewer.setChecked(
-            PlotFlags.SHOW_SYMBOLS & plot_flags
+            PlotFilter.acoustic_symbols & plot_filter
         )
+        self.checkBox_structural_symbols_viewer.setChecked(
+            PlotFilter.structural_symbols & plot_filter
+        )
+
         
         self.checkBox_nodes_selector.setChecked(
-            SelectionFlags.SELECT_NODES & selection_flags
+            SelectionFilter.nodes & selection_filter
         )
         self.checkBox_elements_selector.setChecked(
-            SelectionFlags.SELECT_ELEMENTS & selection_flags
+            SelectionFilter.elements & selection_filter
         )
         self.checkBox_lines_selector.setChecked(
-            SelectionFlags.SELECT_ENTITIES & selection_flags
+            SelectionFilter.entities & selection_filter
         )
         
 
@@ -84,28 +88,28 @@ class MeshSetupVisibilityInput(QDialog):
         # gets the correspondent flag according to the checkbox then bitwise OR everything
         # and send the result to opvRenderer
 
+        # convenience variables
         plt_nodes = self.checkBox_nodes_viewer.isChecked()
         plt_tubes = self.checkBox_elements_viewer.isChecked()
-        plt_symbols = self.checkBox_acoustic_symbols_viewer.isChecked()
-        
+        plt_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
+        plt_structural = self.checkBox_structural_symbols_viewer.isChecked()
         slc_nodes = self.checkBox_nodes_selector.isChecked()
         slc_elements = self.checkBox_elements_selector.isChecked()
         slc_entities = self.checkBox_lines_selector.isChecked()
 
-        plot_flags = (
-            (PlotFlags.SHOW_LINES)
-            | (PlotFlags.SHOW_NODES if plt_nodes else 0)
-            | (PlotFlags.SHOW_TUBES if plt_tubes else 0)
-            | (PlotFlags.SHOW_SYMBOLS if plt_symbols else 0)
-            | (PlotFlags.SHOW_TRANSP if plt_nodes else 0)
+        self.opv.opvRenderer.setPlotFilter(
+            (PlotFilter.lines)
+            | (PlotFilter.nodes if plt_nodes else 0)
+            | (PlotFilter.tubes if plt_tubes else 0)
+            | (PlotFilter.acoustic_symbols if plt_acoustic else 0)
+            | (PlotFilter.structural_symbols if plt_structural else 0)
+            | (PlotFilter.transparent if (plt_nodes or plt_acoustic or plt_structural) else 0)
+        )
+        
+        self.opv.opvRenderer.setSelectionFilter(
+            (SelectionFilter.nodes if slc_nodes and plt_nodes else 0)
+            | (SelectionFilter.elements if slc_elements else 0)
+            | (SelectionFilter.entities if slc_entities else 0)
         )
 
-        selection_flags = (
-            (SelectionFlags.SELECT_NODES if slc_nodes and plt_nodes else 0)
-            | (SelectionFlags.SELECT_ELEMENTS if slc_elements else 0)
-            | (SelectionFlags.SELECT_ENTITIES if slc_entities else 0)
-        )
-
-        self.opv.opvRenderer.setPlotFlags(plot_flags)
-        self.opv.opvRenderer.setSelectionFlags(selection_flags)
         self.close()
