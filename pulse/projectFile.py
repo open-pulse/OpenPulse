@@ -1,3 +1,4 @@
+import re
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
 from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
@@ -151,9 +152,29 @@ class ProjectFile:
                 alpha_h = config['Global damping setup']['alpha_h']
                 beta_h = config['Global damping setup']['beta_h']
         
+        preferences = {}
+        if "User interface preferences" in sections:
+            background_color = config['User interface preferences']['background-color']
+            font_color = config['User interface preferences']['font-color']
+            OpenPulse_logo = config['User interface preferences']['openpulse logo']
+            mopt_logo = config['User interface preferences']['mopt logo']
+            reference_scale = config['User interface preferences']['reference scale']
+
+            background_color = background_color[1:-1].split(",")
+            background_color = tuple([float(val) for val in background_color])
+            
+            font_color = font_color[1:-1].split(",")
+            font_color = tuple([float(val) for val in font_color])
+        
+            preferences = { 'background_color' : background_color,
+                            'font_color' : font_color,
+                            'OpenPulse_logo' : bool(int(OpenPulse_logo)),
+                            'mopt_logo' : bool(int(mopt_logo)),
+                            'reference_scale' : bool(int(reference_scale)) }
+        
         global_damping = [float(alpha_v),float(beta_v),float(alpha_h),float(beta_h)]
 
-        return float(f_min), float(f_max), float(f_step), global_damping
+        return float(f_min), float(f_max), float(f_step), global_damping, preferences
 
     def add_frequency_in_file(self, min_, max_, step_):
         min_ = str(min_)
@@ -201,6 +222,16 @@ class ProjectFile:
         if "Global damping setup" in sections:
             config.remove_section("Global damping setup")
 
+        self.write_data_in_file(temp_project_base_file_path, config)
+
+    def add_user_preferences_to_file(self, preferences):
+
+        temp_project_base_file_path =  get_new_path(self._project_path, self._project_base_name)
+        config = configparser.ConfigParser()
+        config.read(temp_project_base_file_path)
+
+        config['User interface preferences'] = preferences
+        
         self.write_data_in_file(temp_project_base_file_path, config)
         
     def create_entity_file(self, entities):

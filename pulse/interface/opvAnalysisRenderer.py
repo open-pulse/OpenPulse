@@ -60,11 +60,12 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.slider = None
         self.logoWidget = None
-        
-        self._createSlider()
+        self.stressesTextProperty = vtk.vtkTextProperty()
         self._createPlayer()
         self.reset_min_max_values()
         self.cache_plot_state()
+        self.updateHud()
+        
         self._animationFrames = []
 
     def update_phase_steps_attribute(self):
@@ -103,13 +104,13 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
-        self._createSlider()
+        # self._createSlider()
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
         plt(self.opvSymbols)
 
-        self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
     
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -120,7 +121,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.pauseAnimation()
     
     def update(self):
-        # self.opv.updateDialogs()
         renWin = self._renderer.GetRenderWindow()
         if renWin: renWin.Render()
     
@@ -298,20 +298,17 @@ class opvAnalysisRenderer(vtkRendererBase):
     def _createSlider(self):
 
         width, height = self.getSize()
-
+        self.sliderTitleProperty = vtk.vtkTextProperty()
         self._titleActor = vtk.vtkTextActor()
-        self.titleProperty = vtk.vtkTextProperty()
-        self.titleProperty.SetFontSize(15)
-        self.titleProperty.SetColor(self.opv.font_color)
-        # self.titleProperty.BoldOn()
-        self.titleProperty.SetFontFamilyAsString('Arial')
-
         self._renderer.RemoveActor2D(self._titleActor)
-        
-        self.titleProperty.SetVerticalJustificationToTop()
-        self.titleProperty.SetJustificationToLeft()
+        self.sliderTitleProperty.SetFontSize(15)
+        self.sliderTitleProperty.SetColor(self.opv.font_color)
+        # self.sliderTitleProperty.BoldOn()
+        self.sliderTitleProperty.SetFontFamilyAsString('Arial')        
+        self.sliderTitleProperty.SetVerticalJustificationToTop()
+        self.sliderTitleProperty.SetJustificationToLeft()
         self._titleActor.SetInput('Animation phase controller [deg]')
-        self._titleActor.SetTextProperty(self.titleProperty)
+        self._titleActor.SetTextProperty(self.sliderTitleProperty)
         self._titleActor.SetDisplayPosition(20, height-180)
         self._renderer.AddActor2D(self._titleActor)
 
@@ -321,29 +318,25 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.sldRep.SetMinimumValue(0)
         self.sldRep.SetMaximumValue(360)
         self.sldRep.SetValue(0)
+        self.sliderLabelProperty = self.sldRep.GetLabelProperty()
         
-        # sld.SetTitleText('Animation phase controller [deg]')
-        # sld.GetTitleProperty().SetFontSize(5)
-        # sld.GetTitleProperty().SetFontFamilyAsString('Arial')
-        # sld.GetTitleProperty().SetColor(self.opv.font_color)
-        # sld.GetTitleProperty().ShadowOff()
-        # sld.GetTitleProperty().SetJustificationToLeft()
-        self.sldRep.GetLabelProperty().SetColor(self.opv.font_color)
-        self.sldRep.GetLabelProperty().ShadowOff()
+        self.sliderLabelProperty.SetColor(self.opv.font_color)
+        self.sliderLabelProperty.ShadowOff()
+        # self.sliderLabelProperty.SetFontSize(10)
 
         self.sldRep.GetSelectedProperty().SetColor(1, 0, 0)
         self.sldRep.GetTubeProperty().SetColor(0.5, 0.5, 0.5)
         self.sldRep.GetCapProperty().SetColor(0.8, 0.8, 0.8)
         
         self.sldRep.SetSliderLength(0.01)
-        self.sldRep.SetSliderWidth(0.02)
+        self.sldRep.SetSliderWidth(0.03)
         self.sldRep.SetTubeWidth(0.02)
 
         self.sldRep.SetEndCapWidth(0.02)
         self.sldRep.SetEndCapLength(0.005)
 
-        # sld.SetTitleHeight(0.020)
-        self.sldRep.SetLabelHeight(0.015)
+        # self.sldRep.SetTitleHeight(0.010)
+        self.sldRep.SetLabelHeight(0.022)
 
         self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
         self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
@@ -353,10 +346,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.slider.SetInteractor(self.opv)
         self.slider.SetRepresentation(self.sldRep)
         self.slider.AddObserver(vtk.vtkCommand.EndInteractionEvent, self._sliderCallback)
-
-    def _updateFontColor(self, color):
-        self.titleProperty.SetColor(color)
-        self.sldRep.GetLabelProperty().SetColor(color)
 
     def _createPlayer(self):
         self.opv.Initialize()
@@ -477,43 +466,16 @@ class opvAnalysisRenderer(vtkRendererBase):
     #         writer.append_data(im)
     #     writer.close()
 
-    def _createColorBar(self):
-        textProperty = vtk.vtkTextProperty()
-        textProperty.SetFontSize(16)
-        textProperty.SetItalic(1)
-        unit = self.project.get_unit()
-        text = "Unit: [{}]".format(unit)
-
-        # titleTextProperty = vtk.vtkTextProperty()
-        # titleTextProperty.SetVerticalJustificationToBottom()
-        # titleTextProperty.SetJustificationToRight()
-        # titleTextProperty.SetFontSize(14)
-        # titleTextProperty.SetItalic(1)
-        
-        self._renderer.RemoveActor(self.colorbar)
-        self.colorbar = vtk.vtkScalarBarActor()
-        self.colorbar.SetLabelTextProperty(textProperty)
-        self.colorbar.SetMaximumNumberOfColors(400)
-        self.colorbar.SetWidth(0.04)
-        self.colorbar.SetTextPositionToPrecedeScalarBar()
-        self.colorbar.SetPosition(0.94, 0.07)
-        self.colorbar.SetLabelFormat("%1.0e ")
-        self.colorbar.UnconstrainedFontSizeOn()   
-        self.colorbar.VisibilityOn()
-        # self.colorbar.SetTitleTextProperty(titleTextProperty)
-        self.colorbar.SetTitle(text)
-        self.colorbar.SetVerticalTitleSeparation(20)
-        self.colorbar.GetTitleTextProperty().SetFontSize(20)
-        self.colorbar.GetTitleTextProperty().SetJustificationToLeft()
-        self._renderer.AddActor(self.colorbar)
-
-    def _createScaleBar(self):
-        width, height = self.getSize()
-        self._renderer.RemoveActor(self.scaleBar)
-        if self.opv.show_reference_scale:
-            self.scaleBar = vtk.vtkLegendScaleActor()
-            self.scaleBar.AllAxesOff()
-            self._renderer.AddActor(self.scaleBar)
+    def _updateFontColor(self, color):
+        self.sliderTitleProperty.SetColor(color)
+        self.sliderLabelProperty.SetColor(color)
+        self.colorBarTitleProperty.SetColor(color)
+        self.stressesTextProperty.SetColor(color)
+        self.scaleBarTitleProperty.SetColor(color)
+        self.colorBarLabelProperty.SetColor(color)
+        self.scaleBarLabelProperty.SetColor(color)
+        self.colorBarTitleProperty.SetColor(color)
+        self.changeReferenceScaleFontColor(color)
 
     # info text
     def updateInfoText(self, *args, **kwargs):
@@ -548,15 +510,22 @@ class opvAnalysisRenderer(vtkRendererBase):
             [max_stress, min_stress] = self.min_max_stresses_values_current
             text += "Maximum {} stress: {:.3e} [Pa]\n".format(stress_label, max_stress)
             text += "Minimum {} stress: {:.3e} [Pa]\n".format(stress_label, min_stress)
-
+        
+        width, height = self._renderer.GetSize()
+                
         self.textActorStress.SetInput(text)
-        textProperty = vtk.vtkTextProperty()
-        textProperty.SetFontSize(17)
-        textProperty.SetBold(1)
-        textProperty.SetItalic(1)
-        self.textActorStress.SetTextProperty(textProperty)
-        _, height = self._renderer.GetSize()
-        self.textActorStress.SetDisplayPosition(600, height-75)
+        self.stressesTextProperty.SetFontSize(17)
+        self.stressesTextProperty.SetBold(1)
+        # self.stressesTextProperty.SetItalic(1)
+        self.stressesTextProperty.ShadowOff()
+        self.stressesTextProperty.SetColor(self.opv.font_color)
+        self.textActorStress.SetTextProperty(self.stressesTextProperty)
+        self.textSize = [0,0]
+        self.textActorStress.GetSize(self._renderer, self.textSize)
+        
+        xTextPosition = int((width - self.textSize[0])/2)
+
+        self.textActorStress.SetDisplayPosition(xTextPosition, height-75)
         self._renderer.AddActor2D(self.textActorStress)
 
     # functions to be removed but currently break the execution

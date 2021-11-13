@@ -5,8 +5,9 @@ class vtkRendererBase(ABC):
     def __init__(self, style):
         super().__init__()
 
+        self.background_color = (0,0,0)
         self._renderer = vtk.vtkRenderer()
-        self._renderer.SetBackground((0,0,0))
+        self._renderer.SetBackground(self.background_color)
 
         self._style = style
         self._style.SetDefaultRenderer(self._renderer)
@@ -19,7 +20,7 @@ class vtkRendererBase(ABC):
         self.textProperty = vtk.vtkTextProperty()
         self.textProperty.SetFontSize(17)
         self.textProperty.SetColor((1,1,1))
-        # self.textProperty.BoldOn()
+        self.textProperty.BoldOn()
         # self.textProperty.SetItalic(1)
         
         self._logo_pulse = vtk.vtkLogoRepresentation()
@@ -27,13 +28,13 @@ class vtkRendererBase(ABC):
         self._imageReader_pulse = vtk.vtkPNGReader()
         self._imageReader_mopt = vtk.vtkPNGReader()
 
-        self._createConfigLogos()
-        # self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.changeLogosToGetBetterContrast()
+        self._createConfigLogos()        
 
     def _createConfigLogos(self):
         
-        self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo3.png')
-        self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo2.png')
+        self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
+        self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
         self._imageReader_pulse.Update()
         self._imageReader_mopt.Update()
         
@@ -45,24 +46,19 @@ class vtkRendererBase(ABC):
         self._logo_mopt.SetImage(self._logo_mopt_input)
         self._logo_mopt.ProportionalResizeOn()
         
-        self._logo_pulse.SetPosition(0.865, 0.88)
-        self._logo_pulse.SetPosition2(0.14, 0.14)
+        self._logo_pulse.SetPosition(0.845, 0.89)
+        self._logo_pulse.SetPosition2(0.15, 0.15)   
      
-        self._logo_pulse.GetImageProperty().SetOpacity(0.8)
+        self._logo_pulse.GetImageProperty().SetOpacity(0.9)
         self._logo_pulse.GetImageProperty().SetDisplayLocationToBackground()
 
-        self._logo_mopt.SetPosition(0, -0.01)
-        self._logo_mopt.SetPosition2(0.1, 0.1)
+        self._logo_mopt.SetPosition(0.01, -0.015)
+        self._logo_mopt.SetPosition2(0.07, 0.1)
      
-        self._logo_mopt.GetImageProperty().SetOpacity(0.8)
+        self._logo_mopt.GetImageProperty().SetOpacity(0.9)
         self._logo_mopt.GetImageProperty().SetDisplayLocationToBackground()  
 
-        # self.logoWidget = vtk.vtkLogoWidget()
-        # self.logoWidget.SetRepresentation(self._logo_pulse)
-        # self.logoWidget.On()
-        # self.logoWidget.SetEnabled(True)
-
-    def _addLogosToRender(self, OpenPulse=True, MOPT=True):
+    def _createLogos(self, OpenPulse=True, MOPT=True):
 
         self._renderer.RemoveViewProp(self._logo_pulse)
         self._renderer.RemoveViewProp(self._logo_mopt)
@@ -76,10 +72,99 @@ class vtkRendererBase(ABC):
             self._logo_mopt.SetRenderer(self._renderer)
 
     def changeBackgroundColor(self, color):
+        self.background_color = color
         self._renderer.SetBackground(color)
+        self.changeLogosToGetBetterContrast()
+
+    def changeLogosToGetBetterContrast(self):
+        if self.background_color == (0,0,0):
+            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
+            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
+        elif self.background_color == (0.25,0.25,0.25):
+            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_white.png')
+            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_white.png')
+        elif self.background_color == (0.7,0.7,0.7):
+            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_black.png')
+            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_black.png')
+        elif self.background_color == (1,1,1):
+            self._imageReader_pulse.SetFileName('data\\icons\\OpenPulse_logo_black.png')
+            self._imageReader_mopt.SetFileName('data\\icons\\mopt_logo_black.png')
+        self._imageReader_pulse.Update()
+        self._imageReader_mopt.Update()
     
     def changeFontColor(self, color):
         self.textProperty.SetColor(color)
+
+    def changeSliderFontColor(self, color):
+        self.SetColor(color)
+
+    def changeColorbarFontColor(self, color):
+        self.SetColor(color)
+
+    def changeReferenceScaleFontColor(self, color):
+        self.scaleBarTitleProperty.SetColor(color)
+        self.scaleBarLabelProperty.SetColor(color)
+
+    def _createScaleBar(self):
+        
+        self._renderer.RemoveActor(self.scaleBar)
+        width, height = self.getSize()
+        self.scaleBar = vtk.vtkLegendScaleActor()
+        self.scaleBarTitleProperty = self.scaleBar.GetLegendTitleProperty()
+        self.scaleBarLabelProperty = self.scaleBar.GetLegendLabelProperty()
+        
+        if self.opv.show_reference_scale:
+            self.scaleBarTitleProperty.ShadowOff()
+            self.scaleBarLabelProperty.ShadowOff()
+            self.scaleBarTitleProperty.SetFontSize(16)
+            self.scaleBarLabelProperty.SetFontSize(16)
+            self.scaleBarTitleProperty.SetColor(self.opv.font_color)
+            self.scaleBarLabelProperty.SetColor(self.opv.font_color)
+            self.scaleBarTitleProperty.SetVerticalJustificationToTop()
+            self.scaleBarTitleProperty.SetLineOffset(-40)
+            self.scaleBarLabelProperty.SetLineOffset(-25)
+            self.scaleBar.AllAxesOff()
+            self._renderer.AddActor(self.scaleBar)
+            # self.scaleBar.LegendVisibilityOff()
+            # self.scaleBar.BottomAxisVisibilityOn()
+
+    def _createColorBar(self):
+
+        self.colorBarTitleProperty = vtk.vtkTextProperty()
+        self.colorBarTitleProperty.SetFontSize(20)
+        self.colorBarTitleProperty.ShadowOff()
+        self.colorBarTitleProperty.BoldOn()
+        # self.colorBarTitleProperty.SetItalic(1)
+        self.colorBarTitleProperty.SetColor(self.opv.font_color)
+        self.colorBarTitleProperty.SetJustificationToLeft()
+        
+        self.colorBarLabelProperty = vtk.vtkTextProperty()
+        self.colorBarLabelProperty.SetFontSize(14)
+        self.colorBarLabelProperty.ShadowOff()
+        # self.colorBarLabelProperty.SetItalic(1)
+        self.colorBarLabelProperty.SetColor(self.opv.font_color)
+        self.colorBarLabelProperty.SetJustificationToLeft()   
+
+        unit = self.project.get_unit()
+        if unit:
+            text = "None"
+        text = "Unit: [{}]".format(unit)
+        
+        self._renderer.RemoveActor(self.colorbar)
+        self.colorbar = vtk.vtkScalarBarActor()
+        self.colorbar.SetLabelTextProperty(self.colorBarLabelProperty)
+        self.colorbar.SetTitleTextProperty(self.colorBarTitleProperty)
+        self.colorbar.SetMaximumNumberOfColors(400)
+        self.colorbar.SetWidth(0.04)
+        self.colorbar.SetTextPositionToPrecedeScalarBar()
+        self.colorbar.SetPosition(0.94, 0.07)
+        self.colorbar.SetLabelFormat("%1.0e ")
+        self.colorbar.UnconstrainedFontSizeOn()   
+        self.colorbar.VisibilityOn()
+        self.colorbar.SetTitle(text)
+        self.colorbar.SetVerticalTitleSeparation(20)
+
+        self._renderer.AddActor(self.colorbar)
 
     def resetCamera(self):
         self._renderer.ResetCamera()

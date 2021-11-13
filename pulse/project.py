@@ -35,6 +35,7 @@ class Project:
         self.analysis_type_label = ""
         self.analysis_method_label = ""
         self.global_damping = [0,0,0,0]
+        self.preferences = {}
         self.modes = 0
         self.frequencies = None
         self.f_min = 0
@@ -288,6 +289,9 @@ class Project:
             self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
         elif self.file.get_import_type() == 1:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
+
+    def add_user_preferences_to_file(self, preferences):
+        self.file.add_user_preferences_to_file(preferences)
   
     def set_entity(self, tag):
         return Entity(tag)
@@ -733,7 +737,7 @@ class Project:
                 self.load_radiation_impedance_bc_by_node(key, RadImp)
 
     def load_analysis_file(self):
-        self.f_min, self.f_max, self.f_step, self.global_damping = self.file.load_analysis_file()
+        self.f_min, self.f_max, self.f_step, self.global_damping, self.preferences = self.file.load_analysis_file()
 
     def load_frequencies_from_table(self):
         self.f_min, self.f_max, self.f_step = self.file.f_min, self.file.f_max, self.file.f_step
@@ -1729,6 +1733,8 @@ class Project:
         return self.structural_reactions
 
     def get_unit(self):
+        if self.analysis_ID is None:
+            return self.analysis_ID
         analysis = self.analysis_ID
         if analysis >=0 and analysis <= 6:
             if (analysis in [3,5,6] and self.plot_pressure_field) or self.plot_stress_field:

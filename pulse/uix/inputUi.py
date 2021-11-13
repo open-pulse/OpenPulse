@@ -102,7 +102,7 @@ class InputUi:
         return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
-        load_project = self.processInput(LoadProjectInput, self.project, config, path)
+        load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
