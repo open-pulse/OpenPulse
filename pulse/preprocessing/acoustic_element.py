@@ -1,7 +1,7 @@
 from math import sqrt, pi
 import numpy as np
 from scipy.special import jv, struve, hankel1
-from scipy.optimize import minimize, Bounds
+from scipy.optimize import root
 from pulse.preprocessing.perforated_plate import Foks_function
 from pulse.preprocessing.node import distance
 
@@ -427,16 +427,17 @@ class AcousticElement:
   
     def fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
         k, z, M = self._fetm_mean_flow_damping_models(frequencies)
-        self.radiation_impedance(k, z)
+        self.radiation_impedance(k, z* (1-M**2))
         
         area = self.cross_section.area_fluid
 
         kLe = k * (self.length + length_correction)
+        cotanh = 1/np.tanh(1j*kLe)
         sineh = np.sinh(1j*kLe)
-        cossineh = np.cosh(1j*kLe)
-        exponential = - np.exp(-1j*kLe*M)
-        matrix = ((area / (z * (1-M**2)*sineh))*np.array([cossineh - M*sineh, exponential, np.conj(exponential), cossineh + M*sineh])).T
-
+        exp_neg_sin = -np.exp(-1j*kLe*M)/sineh
+        exp_sin = -np.exp(1j*kLe*M)/sineh
+        adm = area / (z * (1-M**2))
+        matrix = (adm*np.array([cotanh - M, exp_neg_sin, exp_sin, cotanh + M])).T
         return matrix
 
     def _fetm_mean_flow_damping_models(self, frequencies):
@@ -453,14 +454,13 @@ class AcousticElement:
             alpha = self.fluid.thermal_diffusivity
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
-            U = self.mach * c0
+            U = self.mean_velocity
             Karmank = 0.41
 
             # TODO: prt warning por pr<0.5
             prt = 0.87
-            transc = lambda x: (U - x*(2.44 * np.log(x * di/(2*nu)) + 2) )**2
-            bound = Bounds(0, c0)
-            res = minimize(transc, 0.5, method='trust-constr', bounds=bound )
+            transc = lambda x: (U/x - (2.44 * np.log(x * di/(2*nu)) + 2))**2
+            res = root(transc, 1e-4, method='hybr')
 
             ur = res.x[0]
             w_ast = 0.01*ur**2/nu
@@ -478,10 +478,10 @@ class AcousticElement:
             aux2_m = np.conj(F1/(1-self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
             aux2_M = np.conj(F1/(1+self.mach)**2 + (gamma-1)*F2*np.sqrt(alpha/nu))
 
-            kappa_m = -1/(1-self.mach)*(kappa_real + aux1*aux2_m)
-            kappa_M =  1/(1+self.mach)*(kappa_real + aux1*aux2_M)
+            kappa_m = 1/(1-self.mach)*(kappa_real + aux1*aux2_m)
+            kappa_M = 1/(1+self.mach)*(kappa_real + aux1*aux2_M)
 
-            kappa = (kappa_M - kappa_m)/2
+            kappa = (kappa_M + kappa_m)/2
             c = omega/kappa
             z = rho_0 * c
             mach_ef = U/c
@@ -493,7 +493,7 @@ class AcousticElement:
             gamma = self.fluid.isentropic_exponent
             pr = self.fluid.prandtl
 
-            U = self.mach * c0
+            U = self.mean_velocity
             ur = np.sqrt(0.03955) * (nu/di)**(1/8) * U**(7/8)
 
             delta_vs = 12.5
