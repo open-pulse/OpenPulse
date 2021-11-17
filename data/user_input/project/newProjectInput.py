@@ -10,6 +10,7 @@ from time import time
 from pulse.project import Project
 from pulse.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse.utils import get_new_path
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
@@ -116,10 +117,10 @@ class NewProjectInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
 
-        if self.currentTab == 0: #.iges
+        if self.currentTab == 0: # .iges & .step
             if self.lineEdit_import_geometry.text() == "":
                 title = 'Empty geometry at selection'
-                message = "Please, select a valid *.iges format geometry to continue."
+                message = "Please, select a valid *.iges or *.step format geometry to continue."
                 PrintMessageInput([title, message, window_title1])
                 return
             if self.lineEdit_element_size.text() == "":
@@ -185,10 +186,7 @@ class NewProjectInput(QDialog):
 
     def createProject(self):
 
-        if "\\" in self.project_directory:
-            self.project_folder_path = '{}\\{}'.format(self.project_directory, self.lineEdit_project_name.text())
-        elif "/" in self.project_directory:
-            self.project_folder_path = '{}/{}'.format(self.project_directory, self.lineEdit_project_name.text())
+        self.project_folder_path = get_new_path(self.project_directory, self.lineEdit_project_name.text())
 
         if not os.path.exists(self.project_folder_path):
             os.makedirs(self.project_folder_path)
@@ -198,50 +196,55 @@ class NewProjectInput(QDialog):
         self.createProjectFile()
         
         if self.currentTab == 0:
-            geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())#.split('/')[-1]
-            new_geometry_path = "{}\\{}".format(self.project_folder_path, geometry_filename)
+            geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())
+            new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_import_geometry.text(), new_geometry_path)
+            project_name = self.lineEdit_project_name.text()
             element_size = float(self.lineEdit_element_size.text())
             geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             import_type = 0
-            self.config.writeRecentProject(self.lineEdit_project_name.text(), self.project_file_path)
+            self.config.writeRecentProject(project_name, self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
-                                        self.lineEdit_project_name.text(), 
+                                        project_name, 
                                         element_size,
                                         geometry_tolerance, 
                                         import_type, 
                                         self.material_list_path, 
                                         self.fluid_list_path, 
-                                        geometry_path=new_geometry_path)
+                                        geometry_path=new_geometry_path   )
             return True
             
         elif self.currentTab == 1:
-            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())#.split('/')[-1]
-            connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())#.split('/')[-1]
-            new_cord_path = "{}\\{}".format(self.project_folder_path, nodal_coordinates_filename)
-            new_conn_path = "{}\\{}".format(self.project_folder_path, connectivity_filename)
+            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
+            connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())
+            new_cord_path = get_new_path(self.project_folder_path, nodal_coordinates_filename)
+            new_conn_path = get_new_path(self.project_folder_path, connectivity_filename)
             copyfile(self.lineEdit_import_nodal_coordinates.text(), new_cord_path)
             copyfile(self.lineEdit_import_connectivity.text(), new_conn_path)
+            project_name = self.lineEdit_project_name.text()
             element_size = 0
             import_type = 1
-            self.config.writeRecentProject(self.lineEdit_project_name.text(), self.project_file_path)
-            self.project.new_project(self.project_folder_path, self.lineEdit_project_name.text(), element_size, import_type, self.material_list_path, self.fluid_list_path, conn_path=new_conn_path, coord_path=new_cord_path)
+            self.config.writeRecentProject(project_name, self.project_file_path)
+            self.project.new_project(   self.project_folder_path, 
+                                        project_name, 
+                                        element_size, import_type, 
+                                        self.material_list_path, 
+                                        self.fluid_list_path, 
+                                        conn_path=new_conn_path, 
+                                        coord_path=new_cord_path   )
             return True
         return False
 
     def createProjectFile(self):
 
-        if "\\" in self.project_directory:
-            self.project_file_path = '{}\\{}'.format(self.project_folder_path, self.projectFileName)
-        elif "/" in self.project_directory:
-            self.project_file_path = '{}/{}'.format(self.project_folder_path, self.projectFileName)
+        self.project_file_path = get_new_path(self.project_folder_path, self.projectFileName)
 
         config = configparser.ConfigParser()
         config['PROJECT'] = {}
         config['PROJECT']['Name'] = self.lineEdit_project_name.text()
 
         if self.currentTab == 0:
-            geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())#.split('/')[-1]
+            geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())
             element_size = self.lineEdit_element_size.text()
             geometry_tolerance = self.lineEdit_geometry_tolerance.text()
 
@@ -251,8 +254,8 @@ class NewProjectInput(QDialog):
             config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
         elif self.currentTab == 1:
-            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())#.split('/')[-1]
-            connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())#.split('/')[-1]
+            nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
+            connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             config['PROJECT']['Import type'] = str(1)
             config['PROJECT']['Nodal coordinates file'] = nodal_coordinates_filename
             config['PROJECT']['Connectivity matrix file'] = connectivity_matrix_filename
@@ -264,19 +267,9 @@ class NewProjectInput(QDialog):
             config.write(config_file)
 
     def createMaterialFile(self):
-
-        if "\\" in self.project_directory:
-            self.material_list_path = '{}\\{}'.format(self.project_folder_path, self.materialListName)
-        elif "/" in self.project_directory:
-            self.material_list_path = '{}/{}'.format(self.project_folder_path, self.materialListName)
-
+        self.material_list_path = get_new_path(self.project_folder_path, self.materialListName)
         default_material_library(self.material_list_path)
 
     def createFluidFile(self):
-
-        if "\\" in self.project_directory:
-            self.fluid_list_path = '{}\\{}'.format(self.project_folder_path, self.fluidListName)
-        elif "/" in self.project_directory:
-            self.fluid_list_path = '{}/{}'.format(self.project_folder_path, self.fluidListName)
-
+        self.fluid_list_path = get_new_path(self.project_folder_path, self.fluidListName)
         default_fluid_library(self.fluid_list_path)

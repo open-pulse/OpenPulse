@@ -86,6 +86,7 @@ class Project:
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         
         self.reset_info()
+    
         self.file.new(  project_folder_path, 
                         project_name, 
                         element_size, 
@@ -96,6 +97,7 @@ class Project:
                         geometry_path, 
                         coord_path, 
                         conn_path   )
+        
         self._project_name = project_name
         self.project_folder_path = project_folder_path
 

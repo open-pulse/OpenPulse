@@ -75,7 +75,6 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()
         self.updateHud()
         self._renderer.ResetCameraClippingRange()
-        
 
     def showNodes(self, cond=True):
         self.opvNodes.setVisibility(cond)
@@ -170,7 +169,6 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.setColor(tubesColor)
 
     def call_update_in_QDialogs_if_highlighted(self):
-        # print("update_highlight")
         self.opv.updateDialogs()
         # renWin = self._renderer.GetRenderWindow()
         # if renWin: renWin.Render()    

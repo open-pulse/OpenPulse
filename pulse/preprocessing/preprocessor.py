@@ -495,6 +495,9 @@ class Preprocessor:
 
                 first_node = element.first_node
                 last_node = element.last_node  
+
+                if element.cross_section is None:
+                    continue
                 inner_diameter = element.cross_section.inner_diameter 
 
                 if len(self.neighbors[first_node]) == 1:
