@@ -52,11 +52,23 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes = None 
         self.opvSymbols = None
         self.elementAxes = None 
+        self.scaleBar = None
 
         self._style.AddObserver('SelectionChangedEvent', self.highlight)
         self._style.AddObserver('SelectionChangedEvent', self.updateInfoText)
         self._style.AddObserver('SelectionChangedEvent', self.showElementAxes)
+
+        self.updateHud()
+
+    def updateHud(self):
+        self._createScaleBar()
+        self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
     
+    def _updateFontColor(self, color):
+        self.scaleBarTitleProperty.SetColor(color)
+        self.scaleBarLabelProperty.SetColor(color)
+        self.changeReferenceScaleFontColor(color)
+
     def plot(self):
         self.reset()
         self.saveNodesBounds()
@@ -93,9 +105,9 @@ class opvRenderer(vtkRendererBase):
         plt(self.opvStructuralElementsSymbols)
 
         self.updateColors()
-
+        self.updateHud()
         self._renderer.ResetCameraClippingRange()
-        self._addLogosToRender()
+        # self._addLogosToRender()
     
     def setPlotFilter(self, plot_filter):
         self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
@@ -108,7 +120,7 @@ class opvRenderer(vtkRendererBase):
         self.opvAcousticElementsSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvStructuralNodesSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
         self.opvStructuralElementsSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
-        self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        # self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
         self.opvSymbols.build()
         self._plotFilter = plot_filter
@@ -197,7 +209,6 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.setColor(tubesColor)
 
     def call_update_in_QDialogs_if_highlighted(self):
-        # print("update_highlight")
         self.opv.updateDialogs()
         # renWin = self._renderer.GetRenderWindow()
         # if renWin: renWin.Render()    
@@ -252,7 +263,8 @@ class opvRenderer(vtkRendererBase):
         element = self.project.get_structural_elements()[ids[0]]
         xyz = element.element_center_coordinates
         r_xyz = element.section_rotation_xyz_undeformed
-        size = [element.length] * 3 # [a] * 3 = [a, a, a]
+        length = element.length
+        size = [length, length, length]
 
         transform = vtk.vtkTransform()
         transform.Translate(xyz)
@@ -278,7 +290,7 @@ class opvRenderer(vtkRendererBase):
     def setPlotRadius(self, *args, **kwargs):
         pass
 
-    # LA ABERRACIÓN
+    # TODO: clean-up the below methods
     def updateInfoText(self, obj, event):
         text = ''
         if self.selectionToNodes() and self.getListPickedPoints():

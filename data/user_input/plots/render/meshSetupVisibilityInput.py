@@ -151,6 +151,7 @@ class MeshSetupVisibilityInput(QDialog):
         self.opv.opvAnalysisRenderer.changeBackgroundColor(color)
         self.opv.opvRenderer.changeFontColor(font_color)
         self.opv.opvAnalysisRenderer.changeFontColor(font_color)
+        self.opv.opvRenderer._updateFontColor(font_color)
         self.opv.opvAnalysisRenderer._updateFontColor(font_color)
     
     def load_reference_scale_state(self):
@@ -158,6 +159,7 @@ class MeshSetupVisibilityInput(QDialog):
 
     def update_reference_scale_state(self):
         self.opv.show_reference_scale = self.checkBox_reference_scale.isChecked()
+        self.opv.opvRenderer._createScaleBar()
         self.opv.opvAnalysisRenderer._createScaleBar()
 
     def load_logo_state(self):
@@ -167,8 +169,21 @@ class MeshSetupVisibilityInput(QDialog):
     def update_logo_state(self):        
         self.opv.add_OpenPulse_logo = self.checkBox_OpenPulse_logo.isChecked()
         self.opv.add_MOPT_logo = self.checkBox_MOPT_logo.isChecked()
-        self.opv.opvRenderer._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
-        self.opv.opvAnalysisRenderer._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.opv.opvRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+        self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
+
+    def confirm_and_update_mesh_visibility(self):
+        self.update_logo_state()
+        self.update_background_color_state()
+        self.update_reference_scale_state()
+        preferences = { 'background-color' : self.opv.background_color,
+                        'font-color' : self.opv.font_color,
+                        'OpenPulse logo' : int(self.opv.add_OpenPulse_logo),
+                        'mopt logo' : int(self.opv.add_MOPT_logo),
+                        'Reference scale' : int(self.opv.show_reference_scale) }
+        self.project.add_user_preferences_to_file(preferences)
+        # self.update_renders()
+        self.close()
 
     def update_renders(self):
         self.opv.updateRendererMesh()

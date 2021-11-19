@@ -103,9 +103,9 @@ class LoadingScreen(QDialog):
         self.pushButton_stop_process.setFont(font)
         self.pushButton_stop_process.setStyleSheet("color:blue")
         # self.pushButton_stop_process.setText("Stop process")
-        self.pushButton_stop_process.setGeometry(QRect(175, 300, 150, 32))
-        self.pushButton_stop_process.setMinimumSize(QSize(150, 32))
-        self.pushButton_stop_process.setMaximumSize(QSize(150, 32))
+        self.pushButton_stop_process.setGeometry(QRect(175, 300, 150, 36))
+        self.pushButton_stop_process.setMinimumSize(QSize(150, 36))
+        self.pushButton_stop_process.setMaximumSize(QSize(150, 36))
         self.pushButton_stop_process.move(QPoint(175, 300))
 
     def config_message(self):

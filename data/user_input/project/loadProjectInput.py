@@ -13,9 +13,10 @@ from time import time
 from PyQt5 import uic
 
 class LoadProjectInput(QDialog):
-    def __init__(self, project, config, path, *args, **kwargs):
+    def __init__(self, project, opv, config, path, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.project = project
+        self.opv = opv
         self.config = config
         self.path = path
         self.userPath = expanduser('~')
@@ -31,6 +32,8 @@ class LoadProjectInput(QDialog):
             if self.complete_project_path != "":
                 t0 = time()
                 self.project.load_project(self.complete_project_path)
+                if self.project.preferences:
+                    self.opv.setUserInterfacePreferences(self.project.preferences)
                 self.config.writeRecentProject(self.project.get_project_name(), self.complete_project_path)
                 self.complete = True
                 self.project.time_to_load_or_create_project = time() - t0

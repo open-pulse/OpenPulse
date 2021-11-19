@@ -609,14 +609,16 @@ class SymbolsActor(vtkActorBase):
         symbols = []
 
         if (node.volume_velocity is not None) and (node.compressor_excitation_table_names != []):
+            element = self.preprocessor.elements_connected_to_node[node]
+            pos = element[0].element_center_coordinates
+            rot = element[0].section_rotation_xyz_undeformed
+            scl = (0.5,0.5,0.5)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         return symbols
     
     def _getPerforatedPlate(self, element):
         
         src = 14
-        pos = element.element_center_coordinates
-        rot = element.section_rotation_xyz_undeformed
         col = (255,0,0)
         symbols = []
 
