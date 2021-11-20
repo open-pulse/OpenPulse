@@ -14,7 +14,7 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
 from pulse.interface.tubeActor import TubeActor
-from pulse.interface.symbolsActor import SymbolsActor
+# from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
 
 class opvAnalysisRenderer(vtkRendererBase):
@@ -101,14 +101,14 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.reset()
         self.opvDeformedTubes = TubeDeformedActor(self.project.get_structural_elements(), self.project)
         self.opvPressureTubes = TubeActor(self.project.get_structural_elements(), self.project, pressure_plot=True)
-        self.opvSymbols = SymbolsActor(self.project, deformed=True)
+        # self.opvSymbols = SymbolsActor(self.project, deformed=True)
         self.opvPressureTubes.transparent = False
 
         # self._createSlider()
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvDeformedTubes)
         plt(self.opvPressureTubes)
-        plt(self.opvSymbols)
+        # plt(self.opvSymbols)
 
         self._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
     

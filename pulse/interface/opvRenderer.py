@@ -10,7 +10,6 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
-from pulse.interface.symbolsActor import SymbolsActor
 from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
 from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
@@ -78,7 +77,6 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
-        self.opvSymbols = SymbolsActor(self.project)
 
         self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
         self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
@@ -86,7 +84,6 @@ class opvRenderer(vtkRendererBase):
         self.opvStructuralElementsSymbols = StructuralElementsSymbolsActor(self.project)
 
         self.opvNodes.build()
-        self.opvSymbols.build()
         self.opvLines.build()
         self.opvTubes.build()
         self.opvAcousticNodesSymbols.build()
@@ -96,7 +93,6 @@ class opvRenderer(vtkRendererBase):
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvNodes)
-        plt(self.opvSymbols)
         plt(self.opvLines)
         plt(self.opvTubes)
         plt(self.opvAcousticNodesSymbols)
@@ -107,22 +103,18 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()
         self.updateHud()
         self._renderer.ResetCameraClippingRange()
-        # self._addLogosToRender()
     
     def setPlotFilter(self, plot_filter):
         self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
         self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
         self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
         self.opvTubes.transparent = plot_filter & PlotFilter.transparent
-        self.opvSymbols.setVisibility(False)
 
         self.opvAcousticNodesSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvAcousticElementsSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvStructuralNodesSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
         self.opvStructuralElementsSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
-        # self._addLogosToRender(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
-        self.opvSymbols.build()
         self._plotFilter = plot_filter
 
     def setSelectionFilter(self, selection_filter):

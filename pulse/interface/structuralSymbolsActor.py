@@ -1,6 +1,7 @@
 import vtk
 from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, loadSymbol
 
+
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
         return [

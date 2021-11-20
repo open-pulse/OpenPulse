@@ -58,6 +58,10 @@ class MeshSetupVisibilityInput(QDialog):
             self.close()
 
     def load_plot_state(self):
+        '''
+        Check over the renderer wich components are being plotted to update the checkbox states.
+        '''
+
         plot_filter = self.opv.opvRenderer._plotFilter
 
         self.checkBox_nodes_viewer.setChecked(
@@ -74,6 +78,10 @@ class MeshSetupVisibilityInput(QDialog):
         )
 
     def load_selection_state(self):
+        '''
+        Check over the renderer wich components are being selected to update the checkbox states.
+        '''
+
         selection_filter = self.opv.opvRenderer._selectionFilter
 
         self.checkBox_nodes_selector.setChecked(
@@ -85,19 +93,32 @@ class MeshSetupVisibilityInput(QDialog):
         self.checkBox_lines_selector.setChecked(
             SelectionFilter.entities & selection_filter
         )
+    
+    def update_selection_state(self):
+        '''
+        Reads the users options and updates selection behavior.
+        '''
 
-    def confirm_and_update_mesh_visibility(self):
-        # gets the correspondent flag according to the checkbox then bitwise OR everything
-        # and send the result to opvRenderer
+        plt_nodes = self.checkBox_nodes_viewer.isChecked()
+        slc_nodes = self.checkBox_nodes_selector.isChecked()
+        slc_elements = self.checkBox_elements_selector.isChecked()
+        slc_entities = self.checkBox_lines_selector.isChecked()
 
-        # convenience variables
+        self.opv.opvRenderer.setSelectionFilter(
+            (SelectionFilter.nodes if slc_nodes and plt_nodes else 0)
+            | (SelectionFilter.elements if slc_elements else 0)
+            | (SelectionFilter.entities if slc_entities else 0)
+        )
+    
+    def update_plot_state(self):
+        '''
+        Reads the users options and updates the plot.
+        '''
+
         plt_nodes = self.checkBox_nodes_viewer.isChecked()
         plt_tubes = self.checkBox_elements_viewer.isChecked()
         plt_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
         plt_structural = self.checkBox_structural_symbols_viewer.isChecked()
-        slc_nodes = self.checkBox_nodes_selector.isChecked()
-        slc_elements = self.checkBox_elements_selector.isChecked()
-        slc_entities = self.checkBox_lines_selector.isChecked()
 
         self.opv.opvRenderer.setPlotFilter(
             (PlotFilter.lines)
@@ -107,18 +128,6 @@ class MeshSetupVisibilityInput(QDialog):
             | (PlotFilter.structural_symbols if plt_structural else 0)
             | (PlotFilter.transparent if (plt_nodes or plt_acoustic or plt_structural) else 0)
         )
-        
-        self.opv.opvRenderer.setSelectionFilter(
-            (SelectionFilter.nodes if slc_nodes and plt_nodes else 0)
-            | (SelectionFilter.elements if slc_elements else 0)
-            | (SelectionFilter.entities if slc_entities else 0)
-        )
-
-        self.update_logo_state()
-        self.update_background_color_state()
-        self.update_reference_scale_state()
-        # self.update_renders()
-        self.close()
 
     def load_background_color_state(self):
         if self.opv.background_color == (0,0,0):
@@ -173,6 +182,8 @@ class MeshSetupVisibilityInput(QDialog):
         self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
     def confirm_and_update_mesh_visibility(self):
+        self.update_plot_state()
+        self.update_selection_state()
         self.update_logo_state()
         self.update_background_color_state()
         self.update_reference_scale_state()
