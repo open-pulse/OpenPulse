@@ -1190,21 +1190,21 @@ class Preprocessor:
             elif element_type != "":
                 temp_dict = self.dict_acoustic_element_type_to_lines.copy()
                 if element_type not in list(temp_dict.keys()):
-                    self.dict_acoustic_element_type_to_lines[element_type].append(line)
+                    self.dict_acoustic_element_type_to_lines[element_type].append([line, mean_velocity])
                     for key, list_lines in temp_dict.items():
                         if key != element_type:
                             if line in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].remove(line)
+                                self.dict_acoustic_element_type_to_lines[key].remove([line, mean_velocity])
                             if self.dict_acoustic_element_type_to_lines[key] == []:
                                 self.dict_acoustic_element_type_to_lines.pop(key)
                 else:
                     for key, list_lines in temp_dict.items():
                         if key != element_type:
                             if line in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].remove(line)
+                                self.dict_acoustic_element_type_to_lines[key].remove([line, mean_velocity])
                         else:
                             if line not in list_lines:
-                                self.dict_acoustic_element_type_to_lines[key].append(line)
+                                self.dict_acoustic_element_type_to_lines[key].append([line, mean_velocity])
                         if self.dict_acoustic_element_type_to_lines[key] == []:
                             self.dict_acoustic_element_type_to_lines.pop(key)
 

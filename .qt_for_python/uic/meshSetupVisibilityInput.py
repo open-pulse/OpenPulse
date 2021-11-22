@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp4\OpenPulse\data\user_input\ui\Plots\Render\meshSetupVisibilityInput.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Plots\Render\meshSetupVisibilityInput.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #
