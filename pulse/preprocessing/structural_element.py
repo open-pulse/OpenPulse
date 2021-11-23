@@ -172,7 +172,7 @@ class StructuralElement:
         self.internal_load = None
         self.static_analysis_evaluated = False
         self.perforated_plate = None
-        self.valve_data = None
+        self.valve_parameters = None
 
     @property
     def length(self):

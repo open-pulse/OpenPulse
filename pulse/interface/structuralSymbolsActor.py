@@ -1,6 +1,7 @@
 import vtk
 from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, loadSymbol
-
+import numpy as np
+from scipy.spatial.transform import Rotation
 
 class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
@@ -211,7 +212,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         return symbols
 
     def _getLumpedMass(self, node):
-        src = 11
+        src = 5
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -253,7 +254,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
     def _getDamper(self, node):
         offset = 0.62 * self.scaleFactor
         x,y,z = self._getCoords(node)
-        src = 5
+        src = 7
         scl = (1,1,1)
         col = (255,0,100)
 
@@ -295,27 +296,37 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
 class StructuralElementsSymbolsActor(SymbolsActorBase):
     # I think we dont have nothing to see here, but I will let it here because who knows
+    
     def _createConnections(self):
-        return []
-
+        return [
+            (self._getValve, loadSymbol('data/symbols/valve_symbol.obj'))
+        ]
+    
     def _createSequence(self):
-        return []
-
-
+        return self.project.get_structural_elements().values()   
+    
     def _getValve(self, element):
-        src = 11
-        pos = element.element_center_coordinates
+        src = 8
         rot = (0,0,0)
-        scl = (1,1,1)
-        col = (7,156,231)
+        col = (255,100,0)
+        col = (0,0,255)
         symbols = []
+        
+        if element.valve_parameters:
+            center_coordinates = element.valve_parameters["valve_center_coordinates"]
+            if str(center_coordinates) not in self.valves_coord_to_parameters.keys():
+                self.valves_coord_to_parameters[str(center_coordinates)] = element.valve_parameters
+                pos = center_coordinates
+                rot = element.section_rotation_xyz_undeformed
+                rotation = Rotation.from_euler('xyz', rot, degrees=True)
+                rot_matrix = rotation.as_matrix()
+                vector = [round(value, 5) for value in rot_matrix[:,1]]
+                if vector[1] < 0:
+                    rot[0] += 180
+                factor_x = (element.valve_parameters["valve_length"]/0.247)/self.scaleFactor
+                # factor_yz = (element.valve_parameters["valve_section_parameters"]["outer_diameter"]/0.130)/self.scaleFactor
+                factor_yz = 1
+                scl = (factor_x, factor_yz, factor_yz)
+                symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
-        if any(element.valve_data):
-            rot = element.section_rotation_xyz_undeformed
-            rotation = Rotation.from_euler('xyz', rot, degrees=True)
-            rot_matrix = rotation.as_matrix()
-            vector = [round(value, 5) for value in rot_matrix[:,1]]
-            if vector[1] < 0:
-                rot[0] += 180
-            symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
-        return symbols        
+        return symbols  

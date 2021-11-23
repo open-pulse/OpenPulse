@@ -41,6 +41,8 @@ class SymbolsActorBase(vtkActorBase):
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
 
+        self.valves_coord_to_parameters = {}
+
     @abstractmethod
     def _createConnections(self):
         '''

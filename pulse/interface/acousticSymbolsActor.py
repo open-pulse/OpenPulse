@@ -4,7 +4,7 @@ from pulse.interface.symbolsActor import SymbolsActorBase, SymbolTransform, load
 class AcousticNodesSymbolsActor(SymbolsActorBase):
     def _createConnections(self):
         return [
-            (self._getAcousticPressure    ,   loadSymbol('data/symbols/prescribedPosition.obj')),
+            (self._getAcousticPressure    ,   loadSymbol('data/symbols/acousticPressure.obj')),
             (self._getVolumeVelocity      ,   loadSymbol('data/symbols/volumeVelocity.obj')),
             (self._getSpecificImpedance   ,   loadSymbol('data/symbols/specificImpedance.obj')),
             (self._getRadiationImpedance  ,   loadSymbol('data/symbols/radiationImpedance.obj')),
@@ -15,7 +15,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return self.project.get_nodes().values()
 
     def _getAcousticPressure(self, node):
-        src = 8
+        src = 9
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -27,7 +27,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
     
     def _getVolumeVelocity(self, node):
-        src = 7
+        src = 10
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -39,7 +39,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
 
     def _getSpecificImpedance(self, node):
-        src = 9
+        src = 11
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
@@ -51,7 +51,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
         return symbols
     
     def _getRadiationImpedance(self, node):
-        src = 10
+        src = 12
         pos = node.coordinates
         rot = (0,0,0)
         scl = (1,1,1)
