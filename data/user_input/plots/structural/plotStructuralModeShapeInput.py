@@ -64,8 +64,10 @@ class PlotStructuralModeShapeInput(QDialog):
             message += "list before trying to plot the structural mode shape."
             self.text_data = [title, message, window_title_2]
         else:
+            self.project.analysis_type_label = "Structural Modal Analysis"
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
+            self.opv.changeAndPlotAnalysis(self.mode_index)
 
         if message != "":
             PrintMessageInput(self.text_data)

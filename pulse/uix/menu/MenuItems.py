@@ -642,10 +642,13 @@ class MenuItems(QTreeWidget):
                 self.item_child_plotStressField.setDisabled(False)
                 self.item_child_plotStressFrequencyResponse.setDisabled(False)
             elif self.project.analysis_ID == 2:
-                self.expandItem(self.item_top_resultsViewer_structural)
                 self.item_child_plotStructuralModeShapes.setDisabled(False)
+                if self.project.get_acoustic_solution() is not None:
+                    self.item_child_plotAcousticModeShapes.setDisabled(False)    
             elif self.project.analysis_ID == 4:
                 self.item_child_plotAcousticModeShapes.setDisabled(False)
+                if self.project.get_structural_solution() is not None:
+                    self.item_child_plotStructuralModeShapes.setDisabled(False)  
             elif self.project.analysis_ID == 3:
                 if self.project.perforated_plate_dataLog:
                     self.item_child_plot_perforated_plate_convergence_data.setDisabled(False)
