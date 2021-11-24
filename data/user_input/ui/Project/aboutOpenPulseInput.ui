@@ -13,67 +13,6 @@
   <property name="windowTitle">
    <string>About OpenPulse</string>
   </property>
-  <widget class="QLabel" name="label_verison_upper">
-   <property name="geometry">
-    <rect>
-     <x>4</x>
-     <y>56</y>
-     <width>581</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>0</width>
-     <height>25</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>16777215</width>
-     <height>25</height>
-    </size>
-   </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>14</pointsize>
-     <weight>75</weight>
-     <italic>true</italic>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Gamma Version</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>4</x>
-     <y>5</y>
-     <width>581</width>
-     <height>49</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Linux Biolinum G</family>
-     <pointsize>29</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>OpenPulse</string>
-   </property>
-   <property name="alignment">
-    <set>Qt::AlignCenter</set>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_version_information">
    <property name="geometry">
     <rect>
@@ -266,7 +205,7 @@
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>64</x>
+     <x>54</x>
      <y>4</y>
      <width>75</width>
      <height>77</height>
@@ -277,25 +216,6 @@
    </property>
    <property name="pixmap">
     <pixmap>../../../icons/pulse.png</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>442</x>
-     <y>4</y>
-     <width>75</width>
-     <height>77</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>../../../icons/pulse_reverse.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>
@@ -336,6 +256,25 @@
    </property>
    <property name="alignment">
     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>144</x>
+     <y>10</y>
+     <width>350</width>
+     <height>76</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="pixmap">
+    <pixmap>../../../icons/OpenPulse_logo_black.png</pixmap>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
    </property>
   </widget>
  </widget>
