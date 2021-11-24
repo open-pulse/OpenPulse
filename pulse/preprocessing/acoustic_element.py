@@ -298,7 +298,7 @@ class AcousticElement:
         kappa_real = omega/c0
         radius = self.cross_section.inner_diameter / 2
         if self.element_type == 'undamped':
-            criterion = np.real(kappa_real[-1] * radius) > 3.83
+            criterion = np.real(kappa_real[-1] * radius) > 1.84118
             if criterion:
                 self.flag_plane_wave = True
             return kappa_real, c0 * rho_0
@@ -308,7 +308,7 @@ class AcousticElement:
             kappa_complex = kappa_real * hysteresis
             impedance_complex = c0 * rho_0 * hysteresis
             
-            criterion = np.real(kappa_real[-1] * radius) > 3.83
+            criterion = np.real(kappa_real[-1] * radius) > 1.84118
             if criterion:
                 self.flag_plane_wave = True
             return kappa_complex, impedance_complex
@@ -317,18 +317,24 @@ class AcousticElement:
             nu = self.fluid.kinematic_viscosity
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
-            k = self.fluid.thermal_conductivity
+            k0 = self.fluid.thermal_conductivity
             
             omega_min = max([min(omega), 1])
             omega_max = max(omega)
 
-            criterion_1 = radius < 10 * sqrt(2  * nu / omega_min)
-            criterion_2 = radius < 10 * sqrt(2  * k / omega_min)
-            criterion_3 = sqrt(omega_max * nu / c0**2) > 0.1
+            criterion_1 = radius * sqrt(omega_min / (2 * nu) ) < 10
+            criterion_2 = radius * sqrt(omega_min / (2 * k0) ) < 10
+            criterion_3 = c0 / sqrt(omega_max * nu) > 10
+
+            print(self.index)
+            print(radius * sqrt(omega_min / (2 * nu) ))
+            print(radius * sqrt(omega_min / (2 * k0) ))
+            print(c0 / sqrt(omega_max * nu))
+            print('\n')
             if np.any(np.array([criterion_1, criterion_2, criterion_3])):
                 self.flag_wide_duct = True
 
-            criterion = np.real(kappa_real[-1] * radius) > 3.83
+            criterion = np.real(kappa_real[-1] * radius) > 1.84118
             if criterion:
                 self.flag_plane_wave = True
 
@@ -359,9 +365,9 @@ class AcousticElement:
             kappa_complex = kappa_real * np.sqrt(y_t / y_v)
             impedance_complex = c0 * rho_0 / np.sqrt(y_t * y_v)
 
-            criterion = np.real(kappa_real[-1] * radius)  > 1
-            if criterion:
-                self.flag_plane_wave = True
+            # criterion = np.real(kappa_real[-1] * radius)  > 1
+            # if criterion:
+            #     self.flag_plane_wave = True
 
             return kappa_complex, impedance_complex
 
@@ -385,7 +391,7 @@ class AcousticElement:
         ones = np.ones(len(frequencies), dtype='float64')
         omega = 2 * pi * frequencies
         rho = self.fluid.density
-        mu = self.fluid.dynamic_viscosity
+        nu = self.fluid.kinematic_viscosity
         gamma = self.fluid.isentropic_exponent
         pr = self.fluid.prandtl
         area = self.cross_section.area_fluid
@@ -394,10 +400,10 @@ class AcousticElement:
         radius = self.cross_section.inner_diameter / 2
         kappa_real = omega / c
 
-        s = radius * np.sqrt(rho * omega / mu)
+        s = radius * np.sqrt(omega / nu)
         sigma = sqrt(pr)
 
-        criterion_1 = kappa_real[-1] * radius / s[-1] > 0.1
+        criterion_1 = s[-1] / (kappa_real[-1]*radius) < 10
         criterion_2 = s[0]< 4
         if np.any(np.array([criterion_1, criterion_2])):
             self.flag_lrf_full = True
@@ -420,9 +426,9 @@ class AcousticElement:
 
         matrix = - ((area * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
 
-        criterion = np.real(kappa_complex[-1] * radius) > 1
-        if criterion:
-            self.flag_plane_wave = True
+        # criterion = np.real(kappa_complex[-1] * radius) > 1
+        # if criterion:
+        #     self.flag_plane_wave = True
         return matrix  
   
     def fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
@@ -446,8 +452,12 @@ class AcousticElement:
         rho_0 = self.fluid.density
         kappa_real = omega/c0
         di = self.cross_section.inner_diameter
+        radius = di / 2
         if self.element_type == 'undamped mean flow':
-            return kappa_real/(1-self.mach**2), c0 * rho_0, self.mach
+            criterion = np.real(kappa_real[-1]*(1-self.mach**2) * radius) > 1.84118
+            if criterion:
+                self.flag_plane_wave = True
+            return kappa_real, c0 * rho_0, self.mach
 
         elif self.element_type == 'howe':
             nu = self.fluid.kinematic_viscosity
@@ -486,6 +496,10 @@ class AcousticElement:
             z = rho_0 * c
             mach_ef = U/c
 
+            criterion = np.real(kappa[-1]*(1-mach_ef[-1]**2) * radius) > 1.84118
+            if criterion:
+                self.flag_plane_wave = True
+
             return kappa, z, mach_ef
 
         elif self.element_type == 'peters':
@@ -511,6 +525,10 @@ class AcousticElement:
             c = omega/kappa
             z = rho_0 * c
             mach_ef = U/c
+
+            criterion = np.real(kappa[-1]*(1-mach_ef[-1]**2) * radius) > 1.84118
+            if criterion:
+                self.flag_plane_wave = True
 
             return kappa, z, mach_ef
 
@@ -653,7 +671,7 @@ class AcousticElement:
 
         kr_great_t_1 = kr[~mask]
 
-        if np.any(kr_great_t_1 > 3.83):
+        if np.any(kr_great_t_1 > 1.84118):
             self.flag_unflanged_radiation_impedance = True
 
         aux_1_2 = np.abs(np.sqrt(pi * kr_great_t_1) * np.exp(-kr_great_t_1) * (1 + 3 / (32 * kr_great_t_1**2)))
