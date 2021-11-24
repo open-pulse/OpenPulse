@@ -244,12 +244,11 @@ class InputUi:
         self.project.set_analysis_type(self.analysis_ID, self.analysis_type_label, self.analysis_method_label)
         self.project.set_modes_sigma(read.modes, sigma=read.sigma_factor)
         
-        if self.analysis_ID in [0, 1, 2, 5, 6]:
+        if self.analysis_ID in [0, 1, 3, 5, 6]:
             self.project.set_structural_solution(None)
-        if self.analysis_ID in [3, 4, 5, 6]:
             self.project.set_acoustic_solution(None)
         
-        if self.analysis_ID in [2,4]:
+        if self.analysis_ID in [2, 4]:
             self.project.update_project_analysis_setup_state(True)
             self.runAnalysis()
         else:
@@ -294,17 +293,14 @@ class InputUi:
                 self.before_run.check_all_acoustic_criteria()
         
     def plotStructuralModeShapes(self):
-            self.project.set_min_max_type_stresses("", "", "")
-            self.project.plot_pressure_field = False
-            self.project.plot_stress_field = False
-            solution = self.project.get_structural_solution()
-            if self.analysis_ID == 2:
-                if solution is None:
-                    return
-                plot = self.processInput(PlotStructuralModeShapeInput, self.project, self.opv)
-                if plot.mode_index is None:
-                    return
-                self.opv.changeAndPlotAnalysis(plot.mode_index)
+        self.project.set_min_max_type_stresses("", "", "")
+        self.project.plot_pressure_field = False
+        self.project.plot_stress_field = False
+        solution = self.project.get_structural_solution()
+        if solution is None:
+            return
+        if self.analysis_ID in [2, 4]:
+            self.processInput(PlotStructuralModeShapeInput, self.project, self.opv)      
 
     def plotDisplacementField(self):
         self.project.set_min_max_type_stresses("", "", "")
@@ -323,9 +319,9 @@ class InputUi:
         self.project.plot_pressure_field = True
         self.project.plot_stress_field = False
         solution = self.project.get_acoustic_solution()
-        if self.analysis_ID == 4:
-            if solution is None:
-                return
+        if solution is None:
+            return
+        if self.analysis_ID in [2, 4]:
             self.processInput(PlotAcousticModeShapeInput, self.project, self.opv)           
 
     def plotAcousticPressureField(self):

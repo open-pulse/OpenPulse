@@ -77,6 +77,9 @@ class PlotStructuralModeShapeInput(QDialog):
         if self.check_selected_frequency():
             return
         self.complete = True
+        if self.mode_index is None:
+            return
+        self.opv.changeAndPlotAnalysis(self.mode_index)
         self.close()
 
     def load(self):
