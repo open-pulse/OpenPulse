@@ -326,11 +326,6 @@ class AcousticElement:
             criterion_2 = radius * sqrt(omega_min / (2 * k0) ) < 10
             criterion_3 = c0 / sqrt(omega_max * nu) > 10
 
-            print(self.index)
-            print(radius * sqrt(omega_min / (2 * nu) ))
-            print(radius * sqrt(omega_min / (2 * k0) ))
-            print(c0 / sqrt(omega_max * nu))
-            print('\n')
             if np.any(np.array([criterion_1, criterion_2, criterion_3])):
                 self.flag_wide_duct = True
 
