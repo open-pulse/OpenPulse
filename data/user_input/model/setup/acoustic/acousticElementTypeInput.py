@@ -256,8 +256,8 @@ class AcousticElementTypeInput(QDialog):
         header.setTextAlignment(0, Qt.AlignCenter)
         header.setTextAlignment(1, Qt.AlignCenter)
         header.setTextAlignment(2, Qt.AlignCenter)
-        for key, values in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
-            lines, mean_velocity = list(map(list, zip(*values)))
+        for key, lines in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
+            mean_velocity = [self.dict_tag_to_entity[line].mean_velocity for line in lines]
             if None in mean_velocity:
                 new = QTreeWidgetItem([str(key), str('---'), str(lines)])
             else:
@@ -333,14 +333,14 @@ class GetInformationOfGroup(QDialog):
     def load_group_info(self):
         self.treeWidget_group_info.clear()
         values = self.project.preprocessor.dict_acoustic_element_type_to_lines[self.key]
-        for line, mean_flow in values:
+        for line in values:
             if self.key == 'proportional':
                 damping = self.dict_tag_to_entity[line].proportional_damping
                 new = QTreeWidgetItem([str(line), self.key, str(damping)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             elif self.key in ["undamped mean flow", "peters", "howe"]:
-                damping = self.dict_tag_to_entity[line].proportional_damping
-                new = QTreeWidgetItem([str(line), self.key, str(mean_flow)])
+                mean_velocity = self.dict_tag_to_entity[line].mean_velocity
+                new = QTreeWidgetItem([str(line), self.key, str(mean_velocity)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             else:
                 new = QTreeWidgetItem([str(line), self.key])
