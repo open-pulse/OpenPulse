@@ -75,6 +75,7 @@ class PlotAcousticModeShapeInput(QDialog):
             message += "list before trying to plot the acoustic mode shape."
             self.text_data = [title, message, window_title_2]
         else:
+            self.project.analysis_type_label = "Acoustic Modal Analysis"
             frequency = self.selected_natural_frequency
             self.mode_index = self.natural_frequencies.index(frequency)
             self.opv.changeAndPlotAnalysis(self.mode_index, pressure_field_plot=True)

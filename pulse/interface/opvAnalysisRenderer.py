@@ -336,7 +336,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.sldRep.SetEndCapLength(0.005)
 
         # self.sldRep.SetTitleHeight(0.010)
-        self.sldRep.SetLabelHeight(0.022)
+        self.sldRep.SetLabelHeight(0.018)
 
         self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
         self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
@@ -479,21 +479,21 @@ class opvAnalysisRenderer(vtkRendererBase):
 
     # info text
     def updateInfoText(self, *args, **kwargs):
-        mode = self._currentFrequencyIndex + 1
-        frequencies = self.project.get_frequencies()
+        
         text = self.project.analysis_type_label + "\n"
-        if self.project.analysis_ID not in [2,4]:
+        if self.project.analysis_ID in [2, 4]:
+            if self.project.analysis_type_label == "Structural Modal Analysis":
+                frequencies = self.project.get_structural_natural_frequencies()
+            if self.project.analysis_type_label == "Acoustic Modal Analysis":
+                frequencies = self.project.get_acoustic_natural_frequencies()
+            mode = self._currentFrequencyIndex + 1
+            text += "Mode: {}\n".format(mode)
+            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
+        else:
+            frequencies = self.project.get_frequencies()
             text += self.project.analysis_method_label + "\n"
             text += "Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
-        elif self.project.analysis_ID == 2:
-            frequencies = self.project.get_structural_natural_frequencies()
-            text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
-        elif self.project.analysis_ID == 4:
-            frequencies = self.project.get_acoustic_natural_frequencies()
-            text += "Mode: {}\n".format(mode)
-            text += "Natural Frequency: {:.2f} [Hz]\n".format(frequencies[self._currentFrequencyIndex])
-            # text += "Color scalling: {}".format(self._colorScalling)
+
         if not self.project.plot_pressure_field:
             text += "\nMagnification factor: {:.4e}\n".format(self._magnificationFactor)
         # vertical_position_adjust = None
