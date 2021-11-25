@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp3\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\specificimpedanceInput.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\specificimpedanceInput.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #
@@ -25,7 +25,7 @@ class Ui_Dialog(object):
         Dialog.setMaximumSize(QtCore.QSize(450, 350))
         Dialog.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\temp3\\OpenPulse\\data\\user_input\\ui\\Model\\Setup\\Acoustic\\../../../../../../Downloads/load - Copia.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\OpenPulse\\data\\user_input\\ui\\Model\\Setup\\Acoustic\\../../../../../../Downloads/load - Copia.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Dialog.setWindowIcon(icon)
         Dialog.setWhatsThis("")
         self.frame = QtWidgets.QFrame(Dialog)

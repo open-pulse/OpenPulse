@@ -312,10 +312,10 @@ class BeforeRun:
         flag_lrf_full = False
         flag_unflanged_radiation_impedance = False
         
-        message_plane_wave = "flag_plane_wave"
-        message_wide_duct = "flag_wide_duct"
-        message_lrf_fluid_eq = "flag_lrf_fluid_eq"
-        message_lrf_full = "flag_lrf_full"
+        message_plane_wave = "The acoustic model is out of the plane wave validity frequency range. It is recommended to check the high frequency results carefully."
+        message_wide_duct = "The wide-duct acoustic damping model is out of its validity frequency range. It is recommended to check the results carefully."
+        message_lrf_fluid_eq = "The Low Reduced Frequency (LRF fluid equivalent) acoustic damping model is out of its validity frequency range. It is recommended to check the results carefully."
+        message_lrf_full = "The Low Reduced Frequency (LRF) acoustic damping model is out of its validity frequency range. It is recommended to check the results carefully."
         message_unflanged_radiation_impedance  = "The unflanged radiation impedance model is out of its validity frequency range. It is recommended to check the results carefully."
 
         for element in self.acoustic_elements.values():

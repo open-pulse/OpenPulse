@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp3\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\acousticElementTypeInput.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Model\Setup\Acoustic\acousticElementTypeInput.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #

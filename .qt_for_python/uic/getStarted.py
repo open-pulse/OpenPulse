@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp3\OpenPulse\data\user_input\ui\Project\getStarted.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Project\getStarted.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #
@@ -31,7 +31,7 @@ class Ui_Form(object):
         font.setWeight(75)
         self.load_button.setFont(font)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\temp3\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/loadProject.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/loadProject.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.load_button.setIcon(icon)
         self.load_button.setIconSize(QtCore.QSize(40, 45))
         self.load_button.setDefault(False)
@@ -46,7 +46,7 @@ class Ui_Form(object):
         font.setWeight(75)
         self.create_button.setFont(font)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\temp3\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/012-favorite.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/012-favorite.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.create_button.setIcon(icon1)
         self.create_button.setIconSize(QtCore.QSize(40, 45))
         self.create_button.setDefault(False)
@@ -62,7 +62,7 @@ class Ui_Form(object):
         self.reset_list_projects_button.setFont(font)
         self.reset_list_projects_button.setStyleSheet("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\temp3\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/pulse.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon2.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/pulse.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.reset_list_projects_button.setIcon(icon2)
         self.reset_list_projects_button.setIconSize(QtCore.QSize(40, 45))
         self.reset_list_projects_button.setObjectName("reset_list_projects_button")
@@ -178,7 +178,7 @@ class Ui_Form(object):
         self.project1_button.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.project1_button.setAutoFillBackground(False)
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\temp3\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/002-analysis.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon3.addPixmap(QtGui.QPixmap("c:\\Users\\Kula\\Petrobras\\OpenPulse\\data\\user_input\\ui\\Project\\../../../data/icons/002-analysis.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.project1_button.setIcon(icon3)
         self.project1_button.setAutoDefault(False)
         self.project1_button.setDefault(False)

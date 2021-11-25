@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\temp4\OpenPulse\data\user_input\ui\Model\Setup\Structural\valvesInput.ui'
+# Form implementation generated from reading ui file 'c:\Users\Kula\Petrobras\OpenPulse\data\user_input\ui\Model\Setup\Structural\valvesInput.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.0
 #
