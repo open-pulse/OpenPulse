@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <widget class="QFrame" name="frame_2">
+  <widget class="QFrame" name="frame_message">
    <property name="geometry">
     <rect>
      <x>0</x>

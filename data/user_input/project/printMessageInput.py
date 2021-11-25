@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
+from PyQt5.QtWidgets import QDialog, QPushButton, QLabel, QFrame
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -11,6 +11,8 @@ class PrintMessageInput(QDialog):
 
         self.pushButton_close = self.findChild(QPushButton, 'pushButton_close')
         self.pushButton_close.clicked.connect(self.message_close)
+
+        self.frame_message = self.findChild(QFrame, 'frame_message')
 
         icons_path = 'data\\icons\\'
         self.icon = QIcon(icons_path + 'pulse.png')
@@ -35,6 +37,43 @@ class PrintMessageInput(QDialog):
 
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
+
+        if len(message) > 500:
+            self.setMinimumWidth(600)
+            self.setMinimumHeight(600)
+            self.setMaximumWidth(600)
+            self.setMaximumHeight(600)
+
+            self.frame_message.setMinimumWidth(600)
+            self.frame_message.setMinimumHeight(548)
+            self.frame_message.setMaximumWidth(600)
+            self.frame_message.setMaximumHeight(548)
+
+            self._label_message.setMinimumWidth(580)
+            self._label_message.setMinimumHeight(480)
+            self._label_message.setMaximumWidth(580)
+            self._label_message.setMaximumHeight(480)
+            self.pushButton_close.move(250,502)    
+        else:
+            self.setMinimumWidth(600)
+            self.setMinimumHeight(400)
+            self.setMaximumWidth(600)
+            self.setMaximumHeight(400)
+
+            self.frame_message.setMinimumWidth(600)
+            self.frame_message.setMinimumHeight(348)
+            self.frame_message.setMaximumWidth(600)
+            self.frame_message.setMaximumHeight(348)
+
+            self._label_message.setMinimumWidth(580)
+            self._label_message.setMinimumHeight(280)
+            self._label_message.setMaximumWidth(580)
+            self._label_message.setMaximumHeight(280)
+            self.pushButton_close.move(250,302)
+
+        self.frame_message.move(0,52)
+        self._label_message.move(10,12)
+        
         self._label_title.setText(text_info[0])
         self._label_message.setText(message)
         
