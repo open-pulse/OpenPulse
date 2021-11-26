@@ -150,7 +150,8 @@ class TubeActor(vtkActorBase):
             max_ = max(rad, max_)
                         
         avg = (min_ + max_) / 2
-        self.bff = (5 / avg) if avg else 5
+        self.bff = (5 / avg / 2) if avg else 5
+        print("bff = ", self.bff)
 
     def createTubeSection(self, element):
         extruderFilter = vtk.vtkLinearExtrusionFilter()
