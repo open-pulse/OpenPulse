@@ -309,7 +309,7 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.sliderTitleProperty.SetJustificationToLeft()
         self._titleActor.SetInput('Animation phase controller [deg]')
         self._titleActor.SetTextProperty(self.sliderTitleProperty)
-        self._titleActor.SetDisplayPosition(20, height-180)
+        self._titleActor.SetDisplayPosition(20, height-190)
         self._renderer.AddActor2D(self._titleActor)
 
         self.slider = vtk.vtkSliderWidget()
@@ -340,8 +340,8 @@ class opvAnalysisRenderer(vtkRendererBase):
 
         self.sldRep.GetPoint1Coordinate().SetCoordinateSystemToDisplay()
         self.sldRep.GetPoint2Coordinate().SetCoordinateSystemToDisplay()
-        self.sldRep.GetPoint1Coordinate().SetValue(20, height-160)
-        self.sldRep.GetPoint2Coordinate().SetValue(220, height-160)
+        self.sldRep.GetPoint1Coordinate().SetValue(20, height-165)
+        self.sldRep.GetPoint2Coordinate().SetValue(220, height-165)
 
         self.slider.SetInteractor(self.opv)
         self.slider.SetRepresentation(self.sldRep)

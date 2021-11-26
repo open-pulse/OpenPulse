@@ -780,12 +780,14 @@ class CrossSectionInput(QDialog):
             # if self.stop:
             #     return
         elif self.flagEntity:
-            
             lineEdit = self.lineEdit_selected_ID.text()
             self.stop, self.lines_typed = self.before_run.check_input_LineID(lineEdit)
             if self.stop:
                 return True        
         
+        elif self.flagAll:
+            self.lines_typed = self.preprocessor.all_lines
+
         if self.currentTab_cross_section == 1:
 
             if self.currentTab_beam == 6:

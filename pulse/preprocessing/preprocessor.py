@@ -1036,19 +1036,20 @@ class Preprocessor:
                 element.cross_section = cross_section
 
         if update_section_points:
-            if isinstance(cross_section, list):
-                for i, element in enumerate(elements):
-                    _element = [element]
-                    # _cross_section = cross_section[i]
-                    for element in slicer(self.structural_elements, _element):
+            if cross_section:
+                if isinstance(cross_section, list):
+                    for i, element in enumerate(elements):
+                        _element = [element]
+                        # _cross_section = cross_section[i]
+                        for element in slicer(self.structural_elements, _element):
+                            element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                        for element in slicer(self.acoustic_elements, _element):
+                            element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
+                else:    
+                    for element in slicer(self.structural_elements, elements):
                         element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
-                    for element in slicer(self.acoustic_elements, _element):
+                    for element in slicer(self.acoustic_elements, elements):
                         element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
-            else:    
-                for element in slicer(self.structural_elements, elements):
-                    element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
-                for element in slicer(self.acoustic_elements, elements):
-                    element.cross_section_points = element.cross_section.get_cross_section_points(element.length)
 
     def set_cross_section_by_line(self, lines, cross_section):
         """
