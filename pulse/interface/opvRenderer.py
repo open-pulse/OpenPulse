@@ -1,6 +1,7 @@
 import vtk
 import numpy as np 
 from time import time
+from dataclasses import dataclass
 
 from pulse.uix.vtk.vtkRendererBase import vtkRendererBase
 from pulse.uix.vtk.vtkMeshClicker import vtkMeshClicker
@@ -9,8 +10,26 @@ from pulse.uix.vtk.colorTable import ColorTable
 from pulse.interface.tubeActor import TubeActor
 from pulse.interface.nodesActor import NodesActor
 from pulse.interface.linesActor import LinesActor
-from pulse.interface.symbolsActor import SymbolsActor
+from pulse.interface.acousticSymbolsActor import AcousticNodesSymbolsActor, AcousticElementsSymbolsActor
+from pulse.interface.structuralSymbolsActor import StructuralNodesSymbolsActor, StructuralElementsSymbolsActor
 from pulse.interface.tubeDeformedActor import TubeDeformedActor
+
+
+@dataclass(frozen=True)
+class PlotFilter:
+    nodes = (1 << 0)
+    lines = (1 << 1)
+    tubes = (1 << 2)
+    transparent = (1 << 3)
+    acoustic_symbols = (1 << 4)
+    structural_symbols = (1 << 5)
+
+@dataclass(frozen=True)
+class SelectionFilter:
+    nodes    = (1 << 0)
+    entities = (1 << 1)
+    elements = (1 << 2)
+
 
 class opvRenderer(vtkRendererBase):
     def __init__(self, project, opv):
@@ -24,9 +43,8 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
-        self._selectionToNodes = False
-        self._selectionToElements = False
-        self._selectionToEntities = False
+        self._plotFilter = 0
+        self._selectionFilter = 0
     
         self.opvNodes = None 
         self.opvLines = None
@@ -59,47 +77,61 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes = NodesActor(self.project.get_nodes(), self.project)
         self.opvLines = LinesActor(self.project.get_structural_elements(), self.project)
         self.opvTubes = TubeActor(self.project.get_structural_elements(), self.project)
-        self.opvSymbols = SymbolsActor(self.project)
+
+        self.opvAcousticNodesSymbols = AcousticNodesSymbolsActor(self.project)
+        self.opvAcousticElementsSymbols = AcousticElementsSymbolsActor(self.project)
+        self.opvStructuralNodesSymbols = StructuralNodesSymbolsActor(self.project)
+        self.opvStructuralElementsSymbols = StructuralElementsSymbolsActor(self.project)
 
         self.opvNodes.build()
-        self.opvSymbols.build()
         self.opvLines.build()
         self.opvTubes.build()
+        self.opvAcousticNodesSymbols.build()
+        self.opvAcousticElementsSymbols.build()
+        self.opvStructuralNodesSymbols.build()
+        self.opvStructuralElementsSymbols.build()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvNodes)
-        plt(self.opvSymbols)
         plt(self.opvLines)
         plt(self.opvTubes)
+        plt(self.opvAcousticNodesSymbols)
+        plt(self.opvAcousticElementsSymbols)
+        plt(self.opvStructuralNodesSymbols)
+        plt(self.opvStructuralElementsSymbols)
 
         self.updateColors()
         self.updateHud()
         self._renderer.ResetCameraClippingRange()
-
-    def showNodes(self, cond=True):
-        self.opvNodes.setVisibility(cond)
-
-    def showTubes(self, cond=True, transparent=True):
-        self.opvTubes.setVisibility(cond)
-        self.opvTubes.transparent = transparent
     
-    def showLines(self, cond=True):
-        self.opvLines.setVisibility(cond)
+    def setPlotFilter(self, plot_filter):
+        self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
+        self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
+        self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
+        self.opvTubes.transparent = plot_filter & PlotFilter.transparent
+
+        self.opvAcousticNodesSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
+        self.opvAcousticElementsSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
+        self.opvStructuralNodesSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
+        self.opvStructuralElementsSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
+
+        self._plotFilter = plot_filter
+
+    def setSelectionFilter(self, selection_filter):
+        self.clearSelection()
+        self._selectionFilter = selection_filter
     
-    def showSymbols(self, cond=True):
-        self.opvSymbols.build()
-        self.opvSymbols.setVisibility(cond)
+    def selectionToNodes(self):
+        return self._selectionFilter & SelectionFilter.nodes
+    
+    def selectionToElements(self):
+        return self._selectionFilter & SelectionFilter.elements 
 
-    def selectNodes(self, cond):
-        self._selectionToNodes = cond
+    def selectionToEntities(self):
+        return self._selectionFilter & SelectionFilter.entities
 
-    def selectElements(self, cond):
-        self._selectionToElements = cond 
-        self._selectionToEntities = self._selectionToEntities and not cond
-
-    def selectEntities(self, cond):
-        self._selectionToEntities = cond 
-        self._selectionToElements = self._selectionToElements and not cond
+    def clearSelection(self):
+        self._style.clear()
 
     def reset(self):
         self._renderer.RemoveAllViewProps()
@@ -138,19 +170,19 @@ class opvRenderer(vtkRendererBase):
         self.lineToElements = self.preprocessor.line_to_elements
     
     def getListPickedPoints(self):
-        if self._selectionToNodes:
+        if self.selectionToNodes():
             return self._style.getListPickedPoints()
         else:
             return []
 
     def getListPickedElements(self):
-        if self._selectionToElements:
+        if self.selectionToElements():
             return self._style.getListPickedElements()
         else:
             return []
 
     def getListPickedEntities(self):
-        if self._selectionToEntities:
+        if self.selectionToEntities():
             return self._style.getListPickedEntities()
         else:
             return []
@@ -186,16 +218,16 @@ class opvRenderer(vtkRendererBase):
         selectionColor = (255, 0, 0)
         _update = False
 
-        if selectedNodes and self._selectionToNodes:
+        if selectedNodes and self.selectionToNodes():
             self.opvNodes.setColor(selectionColor, keys=selectedNodes)
             _update = True
 
-        if selectedElements and self._selectionToElements:
+        if selectedElements and self.selectionToElements():
             self.opvLines.setColor(selectionColor, keys=selectedElements)
             self.opvTubes.setColor(selectionColor, keys=selectedElements)
             _update = True
 
-        if selectedEntities and self._selectionToEntities:
+        if selectedEntities and self.selectionToEntities():
             elementsFromEntities = set()
             for i in selectedEntities:
                 elements = self.lineToElements[i]
@@ -214,7 +246,7 @@ class opvRenderer(vtkRendererBase):
 
         ids = self.getListPickedElements()
 
-        if not self._selectionToElements:
+        if not self.selectionToElements():
             return 
         
         if len(ids) != 1:
@@ -253,13 +285,13 @@ class opvRenderer(vtkRendererBase):
     # TODO: clean-up the below methods
     def updateInfoText(self, obj, event):
         text = ''
-        if self._selectionToNodes and self.getListPickedPoints():
+        if self.selectionToNodes() and self.getListPickedPoints():
             text += self.getNodesInfoText() + '\n'
 
-        if self._selectionToElements and self.getListPickedElements():
+        if self.selectionToElements() and self.getListPickedElements():
             text += self.getElementsInfoText() + '\n'
         
-        if self._selectionToEntities and self.getListPickedEntities():
+        if self.selectionToEntities() and self.getListPickedEntities():
             text += self.getEntityInfoText()  + '\n'
             
         self.createInfoText(text)

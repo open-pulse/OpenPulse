@@ -42,4 +42,5 @@ class LoadProjectInput(QDialog):
             title = "Error while loading project"
             message = str(log_error)
             window_title = "ERROR"
+            print(message)
             PrintMessageInput([title, message, window_title])

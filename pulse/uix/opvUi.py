@@ -4,12 +4,7 @@ from PyQt5.QtCore import Qt
 from vtk.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
 
-# from pulse.uix.vtk.renderer.rendererEntity import RendererEntity
-# from pulse.uix.vtk.renderer.rendererElement import RendererElement
-# from pulse.uix.vtk.renderer.rendererMesh import RendererMesh
-# from pulse.uix.vtk.renderer.rendererPoint import RendererPoint
-# from pulse.uix.vtk.renderer.rendererPostProcessing import RendererPostProcessing
-from pulse.interface.opvRenderer import opvRenderer
+from pulse.interface.opvRenderer import opvRenderer, PlotFilter, SelectionFilter
 from pulse.interface.opvAnalysisRenderer import opvAnalysisRenderer
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -70,66 +65,51 @@ class OPVUi(QVTKRenderWindowInteractor):
         LoadingScreen('Updating Plot', target=callback)
 
     def changePlotToEntities(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities = True
         self.change_plot_to_entities_with_cross_section = False
-
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(False)
-        self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
-
+        self.opvRenderer.setPlotFilter(PlotFilter.lines)
+        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
 
     
     def changePlotToEntitiesWithCrossSection(self):
-
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
         self.change_plot_to_entities = False
-
         self.setRenderer(self.opvRenderer)
 
-        self.opvRenderer.showNodes(False)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(False)
-        self.opvRenderer.showTubes(True, transparent=False)
-        self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(False)
-        self.opvRenderer.selectElements(False)
-        self.opvRenderer.selectEntities(True)
-
+        self.opvRenderer.setPlotFilter(PlotFilter.lines | PlotFilter.tubes)
+        self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
 
 
     def changePlotToMesh(self):
-
         self.change_plot_to_mesh = True
+        self.change_plot_to_entities = False
+        self.change_plot_to_entities_with_cross_section = False
+        self.setRenderer(self.opvRenderer)
+
+        self.opvRenderer.setPlotFilter(
+            PlotFilter.nodes | PlotFilter.lines 
+            | PlotFilter.tubes | PlotFilter.transparent
+            | PlotFilter.acoustic_symbols | PlotFilter.structural_symbols
+        )
+        self.opvRenderer.setSelectionFilter(SelectionFilter.nodes | SelectionFilter.elements)
+        self._updateAxes()
+    
+    def custom_plot(self, plot_filter, selection_filter):
+        self.change_plot_to_mesh = False
         self.change_plot_to_entities = False
         self.change_plot_to_entities_with_cross_section = False
 
         self.setRenderer(self.opvRenderer)
-
-        self.opvRenderer.showNodes(True)
-        self.opvRenderer.showLines(True)
-        self.opvRenderer.showSymbols(True)
-        self.opvRenderer.showTubes(True, transparent=True)
-        self.opvRenderer.update()
-
-        self.opvRenderer.selectNodes(True)
-        self.opvRenderer.selectElements(True)
-        self.opvRenderer.selectEntities(False)
-
+        self.opvRenderer.setPlotFilter(plot_filter)
+        self.opvRenderer.setSelectionFilter(selection_filter)
         self._updateAxes()
+
 
     def changeAndPlotAnalysis(self, frequency_indice, pressure_field_plot=False, stress_field_plot=False): 
         # we call it so many times in so many different files that 

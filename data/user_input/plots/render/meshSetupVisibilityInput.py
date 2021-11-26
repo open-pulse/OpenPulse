@@ -3,9 +3,10 @@ from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
+from PyQt5 import uic
 import numpy as np
 
-from PyQt5 import uic
+from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
 class MeshSetupVisibilityInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -46,6 +47,8 @@ class MeshSetupVisibilityInput(QDialog):
         self.load_background_color_state()
         self.load_logo_state()
         self.load_reference_scale_state()
+        self.load_plot_state()
+        self.load_selection_state()
         self.exec()
 
     def keyPressEvent(self, event):
@@ -53,6 +56,78 @@ class MeshSetupVisibilityInput(QDialog):
             self.confirm_and_update_mesh_visibility()
         elif event.key() == Qt.Key_Escape:
             self.close()
+
+    def load_plot_state(self):
+        '''
+        Check over the renderer wich components are being plotted to update the checkbox states.
+        '''
+
+        plot_filter = self.opv.opvRenderer._plotFilter
+
+        self.checkBox_nodes_viewer.setChecked(
+            PlotFilter.nodes & plot_filter
+        )
+        self.checkBox_elements_viewer.setChecked(
+            PlotFilter.tubes & plot_filter
+        )
+        self.checkBox_acoustic_symbols_viewer.setChecked(
+            PlotFilter.acoustic_symbols & plot_filter
+        )
+        self.checkBox_structural_symbols_viewer.setChecked(
+            PlotFilter.structural_symbols & plot_filter
+        )
+
+    def load_selection_state(self):
+        '''
+        Check over the renderer wich components are being selected to update the checkbox states.
+        '''
+
+        selection_filter = self.opv.opvRenderer._selectionFilter
+
+        self.checkBox_nodes_selector.setChecked(
+            SelectionFilter.nodes & selection_filter
+        )
+        self.checkBox_elements_selector.setChecked(
+            SelectionFilter.elements & selection_filter
+        )
+        self.checkBox_lines_selector.setChecked(
+            SelectionFilter.entities & selection_filter
+        )
+    
+    def update_selection_state(self):
+        '''
+        Reads the users options and updates selection behavior.
+        '''
+
+        plt_nodes = self.checkBox_nodes_viewer.isChecked()
+        slc_nodes = self.checkBox_nodes_selector.isChecked()
+        slc_elements = self.checkBox_elements_selector.isChecked()
+        slc_entities = self.checkBox_lines_selector.isChecked()
+
+        self.opv.opvRenderer.setSelectionFilter(
+            (SelectionFilter.nodes if slc_nodes and plt_nodes else 0)
+            | (SelectionFilter.elements if slc_elements else 0)
+            | (SelectionFilter.entities if slc_entities else 0)
+        )
+    
+    def update_plot_state(self):
+        '''
+        Reads the users options and updates the plot.
+        '''
+
+        plt_nodes = self.checkBox_nodes_viewer.isChecked()
+        plt_tubes = self.checkBox_elements_viewer.isChecked()
+        plt_acoustic = self.checkBox_acoustic_symbols_viewer.isChecked()
+        plt_structural = self.checkBox_structural_symbols_viewer.isChecked()
+
+        self.opv.opvRenderer.setPlotFilter(
+            (PlotFilter.lines)
+            | (PlotFilter.nodes if plt_nodes else 0)
+            | (PlotFilter.tubes if plt_tubes else 0)
+            | (PlotFilter.acoustic_symbols if plt_acoustic else 0)
+            | (PlotFilter.structural_symbols if plt_structural else 0)
+            | (PlotFilter.transparent if (plt_nodes or plt_acoustic or plt_structural) else 0)
+        )
 
     def load_background_color_state(self):
         if self.opv.background_color == (0,0,0):
@@ -107,6 +182,8 @@ class MeshSetupVisibilityInput(QDialog):
         self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
     def confirm_and_update_mesh_visibility(self):
+        self.update_plot_state()
+        self.update_selection_state()
         self.update_logo_state()
         self.update_background_color_state()
         self.update_reference_scale_state()
