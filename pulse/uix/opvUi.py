@@ -74,7 +74,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
 
-    
     def changePlotToEntitiesWithCrossSection(self):
         self.change_plot_to_mesh = False
         self.change_plot_to_entities_with_cross_section = True
@@ -84,7 +83,6 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer.setPlotFilter(PlotFilter.lines | PlotFilter.tubes)
         self.opvRenderer.setSelectionFilter(SelectionFilter.entities)
         self._updateAxes()
-
 
     def changePlotToMesh(self):
         self.change_plot_to_mesh = True

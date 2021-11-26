@@ -829,7 +829,6 @@ class ValvesInput(QDialog):
             return True
 
     def actions_to_finalize(self):
-        # self.project.get_dict_multiple_cross_sections()
         self.opv.updateEntityRadius()
         self.opv.changePlotToMesh()
         # self.opv.changePlotToEntitiesWithCrossSection()   
