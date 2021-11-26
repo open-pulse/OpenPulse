@@ -631,18 +631,20 @@ class SetFluidCompositionInput(QDialog):
 
     def default_library_gases(self):
         try:
+
+            from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
+
             self.list_gases = {}
             self.fluid_file_to_final_name = {}
-            from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
-            self.RefProp = REFPROPFunctionLibrary(os.environ['RPPREFIX'])
-            self.RefProp.SETPATHdll(os.environ['RPPREFIX'])
-            # refProp_path = os.getenv("SystemDrive") + "\\Program Files (x86)\\REFPROP"
             refProp_path = os.environ['RPPREFIX']
 
             if os.path.exists(refProp_path):
+                
+                self.RefProp = REFPROPFunctionLibrary(refProp_path)
+                self.RefProp.SETPATHdll(refProp_path)
                 refProp_fluids_path = get_new_path(refProp_path, "FLUIDS")
                 list_files = os.listdir(refProp_fluids_path)
-                count = 0
+                
                 for fluid_file in list_files:
                     if ".BNC" not in fluid_file:
                         filepath = get_new_path(refProp_fluids_path, fluid_file)

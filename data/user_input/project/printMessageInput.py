@@ -38,38 +38,35 @@ class PrintMessageInput(QDialog):
         self.text_info = text_info
         message = self.preprocess_big_strings(self.text_info[1])
 
-        if len(message) > 500:
-            self.setMinimumWidth(600)
-            self.setMinimumHeight(600)
-            self.setMaximumWidth(600)
-            self.setMaximumHeight(600)
+        if 0 < len(message) < 200:
+            height = 300
+            width = 600
+        elif 200 <= len(message) < 400:
+            height = 400
+            width = 600
+        elif 400 <= len(message) < 800:
+            height = 600
+            width = 600
+        elif len(message) >= 800:
+            height = 800
+            width = 600
 
-            self.frame_message.setMinimumWidth(600)
-            self.frame_message.setMinimumHeight(548)
-            self.frame_message.setMaximumWidth(600)
-            self.frame_message.setMaximumHeight(548)
+        self.setMinimumWidth(width)
+        self.setMinimumHeight(height)
+        self.setMaximumWidth(width)
+        self.setMaximumHeight(height)
 
-            self._label_message.setMinimumWidth(580)
-            self._label_message.setMinimumHeight(480)
-            self._label_message.setMaximumWidth(580)
-            self._label_message.setMaximumHeight(480)
-            self.pushButton_close.move(250,502)    
-        else:
-            self.setMinimumWidth(600)
-            self.setMinimumHeight(400)
-            self.setMaximumWidth(600)
-            self.setMaximumHeight(400)
+        self.frame_message.setMinimumWidth(width)
+        self.frame_message.setMinimumHeight(height-52)
+        self.frame_message.setMaximumWidth(width)
+        self.frame_message.setMaximumHeight(height-52)
 
-            self.frame_message.setMinimumWidth(600)
-            self.frame_message.setMinimumHeight(348)
-            self.frame_message.setMaximumWidth(600)
-            self.frame_message.setMaximumHeight(348)
+        self._label_message.setMinimumWidth(width-20)
+        self._label_message.setMinimumHeight(height-120)
+        self._label_message.setMaximumWidth(width-20)
+        self._label_message.setMaximumHeight(height-120)
 
-            self._label_message.setMinimumWidth(580)
-            self._label_message.setMinimumHeight(280)
-            self._label_message.setMaximumWidth(580)
-            self._label_message.setMaximumHeight(280)
-            self.pushButton_close.move(250,302)
+        self.pushButton_close.move(250,height-98)   
 
         self.frame_message.move(0,52)
         self._label_message.move(10,12)
