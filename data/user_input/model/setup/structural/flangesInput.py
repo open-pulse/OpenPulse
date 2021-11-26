@@ -578,19 +578,17 @@ class FlangesInput(QDialog):
             
         if self.selection_by_line:
             list_elements = self.get_elements_from_start_end_line()
-            if self.set_flange_cross_section_to_list_elements(list_elements):
-                return
 
-        if self.selection_by_node:            
+        elif self.selection_by_node:            
             list_elements = self.get_neighbors_elements_from_nodes()
-            if self.set_flange_cross_section_to_list_elements(list_elements):
-                return
 
-        if self.selection_by_element:
-            if self.set_flange_cross_section_to_list_elements(self.elementID):
-                return
+        elif self.selection_by_element:
+            list_elements = self.elementID
+
+        if self.set_flange_cross_section_to_list_elements(list_elements):
+            return
         
-        self.actions_to_finalize()
+        self.actions_to_finalize(list_elements)
 
     def set_flange_cross_section_to_list_elements(self, list_elements):
         section_parameters = {}
@@ -634,13 +632,6 @@ class FlangesInput(QDialog):
                                                 "insulation_thickness" : insulation_thickness, 
                                                 "insulation_density" : insulation_density  }             
                     
-            # section_parameters = {  "outer_diameter" : outer_diameter,
-            #                         "thickness" : thickness, 
-            #                         "offset_y" : offset_y, 
-            #                         "offset_z" : offset_z, 
-            #                         "insulation_thickness" : insulation_thickness, 
-            #                         "insulation_density" : insulation_density  }
-        
         for element_id in list_elements:
 
             pipe_section_info = {   "section_type_label" : "Pipe section" ,
@@ -651,8 +642,9 @@ class FlangesInput(QDialog):
 
         return False
 
-    def actions_to_finalize(self):
-        self.project.get_dict_multiple_cross_sections()
+    def actions_to_finalize(self, list_elements):
+        self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
+        self.preprocessor.add_lids_to_variable_cross_sections()
         self.opv.updateEntityRadius()
         self.opv.changePlotToEntitiesWithCrossSection()   
         self.close()

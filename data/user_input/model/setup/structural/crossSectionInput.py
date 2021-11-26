@@ -304,13 +304,16 @@ class CrossSectionInput(QDialog):
                     element_type = element.element_type
                     if element_type in ["pipe_1", "pipe_2", "beam_1"]:
                         break
+            _variable_cross_section_data = self.selection.variable_cross_section_data
         elif len(self.elements_id) > 0:   
             self.reset_all_input_texts()
             self.selection = self.structural_elements[self.elements_id[0]]
             element_type = self.selection.element_type
+            _variable_cross_section_data = None
         else:
             return
-        if self.selection.variable_cross_section_data is None:
+
+        if _variable_cross_section_data is None:
             if self.selection.cross_section is not None:
                 cross = self.selection.cross_section
                 self.section_label = cross.section_info["section_type_label"]
@@ -443,7 +446,6 @@ class CrossSectionInput(QDialog):
         self.project.set_variable_cross_section_by_line(self.lines_typed[0], list_variable_parameters)
         
         self.remove_line_from_list(self.lines_typed[0])
-        # self.project.get_dict_multiple_cross_sections()
         self.actions_to_finalize()
 
     def update_section_entries(self, variable_section=False):
@@ -668,8 +670,8 @@ class CrossSectionInput(QDialog):
         self.radioButton_all_lines.setDisabled(_bool)
 
     def actions_to_finalize(self):
-        self.complete = True
         plt.close()
+        self.complete = True
         self.opv.updateEntityRadius()
         self.opv.changePlotToEntitiesWithCrossSection()
         self.close()
@@ -870,7 +872,6 @@ class CrossSectionInput(QDialog):
         elif self.flagElements:
             self.project.set_cross_section_by_elements(self.elements_typed, self.cross_section)
             self.project.add_cross_sections_expansion_joints_valves_in_file(self.elements_typed)
-            # self.project.get_dict_multiple_cross_sections()
             # self.preprocessor.set_structural_element_type_by_element(self.elements_typed, self.element_type)
             
             if len(self.elements_typed) < 20:

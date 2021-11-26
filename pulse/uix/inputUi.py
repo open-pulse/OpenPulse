@@ -143,8 +143,7 @@ class InputUi:
         read = self.processInput(   CrossSectionInput, self.project, self.opv, 
                                     pipe_to_beam = pipe_to_beam, beam_to_pipe = beam_to_pipe, 
                                     lines_to_update_cross_section = lines_to_update_cross_section   ) 
-        if read.complete:
-            return read.complete
+        return read.complete
 
     def add_flanges(self):
         self.processInput(FlangesInput, self.project, self.opv)
