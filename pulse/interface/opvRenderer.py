@@ -110,6 +110,11 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
         self.opvTubes.transparent = plot_filter & PlotFilter.transparent
 
+        self.opvAcousticNodesSymbols.build()
+        self.opvAcousticElementsSymbols.build()
+        self.opvStructuralNodesSymbols.build()
+        self.opvStructuralElementsSymbols.build()
+
         self.opvAcousticNodesSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvAcousticElementsSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvStructuralNodesSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
