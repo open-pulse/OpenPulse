@@ -126,6 +126,9 @@ class PerforatedPlateInput(QDialog):
         self.radioButton_melling = self.findChild(QRadioButton, 'radioButton_melling')
         self.radioButton_melling.toggled.connect(self.radioButtonEvent_setup)
 
+        self.radioButton_common_pipe_section = self.findChild(QRadioButton, 'radioButton_common_pipe_section')
+        self.radioButton_common_pipe_section.toggled.connect(self.radioButtonEvent_setup)
+
         self.flag_OpenPulse = self.radioButton_OpenPulse.isChecked()
         self.flag_melling = self.radioButton_melling.isChecked()
         self.dict_inputs['type'] = 0
@@ -212,6 +215,10 @@ class PerforatedPlateInput(QDialog):
         self.flag_plotImag = self.radioButton_plotImag.isChecked()
 
         # Remove tab
+        self.tabWidget_perforated_plate = self.findChild(QTabWidget, 'tabWidget_perforated_plate')
+        self.tabWidget_setup = self.tabWidget_perforated_plate.findChild(QTabWidget, 'tabWidget_setup')
+        self.tab_main = self.tabWidget_setup.findChild(QWidget, 'tab_main')
+        self.tab_advanced = self.tabWidget_setup.findChild(QWidget, 'tab_advanced')
         self.treeWidget_perforated_plate_remove = self.findChild(QTreeWidget, 'treeWidget_perforated_plate_remove')
         self.treeWidget_perforated_plate_remove.setColumnWidth(0, 80)
 
@@ -289,8 +296,16 @@ class PerforatedPlateInput(QDialog):
     def radioButtonEvent_setup(self):
         self.flag_OpenPulse = self.radioButton_OpenPulse.isChecked()
         self.flag_melling = self.radioButton_melling.isChecked()
+        self.flag_common_pipe_section = self.radioButton_common_pipe_section.isChecked()
+        self.lineEdit_thickness.setDisabled(False)
+        self.lineEdit_porosity.setDisabled(False)
+        self.lineEdit_discharge.setDisabled(False)
+        self.checkBox_single_hole.setChecked(False)
+        self.checkBox_single_hole.setDisabled(False)
+        self.tabWidget_setup.removeTab(1)
 
         if self.flag_OpenPulse:
+
             self.checkBox_nonlinear.setDisabled(False)
             self.checkBoxEvent_nonlinear()
 
@@ -299,22 +314,26 @@ class PerforatedPlateInput(QDialog):
 
             self.checkBox_dimensionless.setDisabled(False)
             self.checkBoxEvent_dimensionless()
+            self.tabWidget_setup.addTab(self.tab_advanced, "Advanced")
             self.dict_inputs['type'] = 0
+
         elif self.flag_melling:
-            self.checkBox_nonlinear.setDisabled(True)
-            self.lineEdit_nonlinDischarge.setDisabled(True)
-            self.lineEdit_correction.setDisabled(True)
-            self.label_nonlinDischarge.setDisabled(True)
-            self.label_correction.setDisabled(True)
-
-            self.checkBox_bias.setDisabled(True)
-            self.lineEdit_bias.setDisabled(True)
-            self.label_bias.setDisabled(True)
-
-            self.checkBox_dimensionless.setDisabled(True)
-            self.tabWidget_dimensionless.setDisabled(True)
-
+            
             self.dict_inputs['type'] = 1
+
+        elif self.flag_common_pipe_section:
+            
+            self.lineEdit_thickness.setText("")
+            self.lineEdit_porosity.setText("")
+            self.lineEdit_discharge.setText("1")
+            self.lineEdit_thickness.setDisabled(True)
+            self.lineEdit_porosity.setDisabled(True)
+            self.lineEdit_discharge.setDisabled(True)
+            self.checkBox_single_hole.setChecked(True)
+            self.checkBox_single_hole.setDisabled(True)
+            self.lineEdit_HoleDiameter.setFocus()
+
+            self.dict_inputs['type'] = 2
 
     def check_input_parameters(self, string, label, not_None = False):
         title = "INPUT ERROR"
