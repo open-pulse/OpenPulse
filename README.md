@@ -15,7 +15,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - New interface and visualization tools (optimization of animation and several new resources);
 - Enhancements of project files management;
 - New acoustic elements considering mean flow;
-- Enhanced orifice plate (considering now mean flow effects);
+- Enhanced orifice plate (considering mean flow effects);
 - New structural elements: expansion joint, flange and valve (integrated with acoustic analysis);
 - Gas properties obtained through a fluid thermodynamic database (mixtures enabled);
 - Enhanced animation of results (animation and saving set-up).
