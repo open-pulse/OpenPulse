@@ -86,10 +86,7 @@ class opvRenderer(vtkRendererBase):
         self.opvNodes.build()
         self.opvLines.build()
         self.opvTubes.build()
-        self.opvAcousticNodesSymbols.build()
-        self.opvAcousticElementsSymbols.build()
-        self.opvStructuralNodesSymbols.build()
-        self.opvStructuralElementsSymbols.build()
+        self.buildSymbols()
         
         plt = lambda x: self._renderer.AddActor(x.getActor())
         plt(self.opvNodes)
@@ -103,6 +100,12 @@ class opvRenderer(vtkRendererBase):
         self.updateColors()
         self.updateHud()
         self._renderer.ResetCameraClippingRange()
+
+    def buildSymbols(self):
+        self.opvAcousticNodesSymbols.build()
+        self.opvAcousticElementsSymbols.build()
+        self.opvStructuralNodesSymbols.build()
+        self.opvStructuralElementsSymbols.build()
     
     def setPlotFilter(self, plot_filter):
         self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
@@ -110,10 +113,7 @@ class opvRenderer(vtkRendererBase):
         self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
         self.opvTubes.transparent = plot_filter & PlotFilter.transparent
 
-        self.opvAcousticNodesSymbols.build()
-        self.opvAcousticElementsSymbols.build()
-        self.opvStructuralNodesSymbols.build()
-        self.opvStructuralElementsSymbols.build()
+        self.buildSymbols()
 
         self.opvAcousticNodesSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)
         self.opvAcousticElementsSymbols.setVisibility(plot_filter & PlotFilter.acoustic_symbols)

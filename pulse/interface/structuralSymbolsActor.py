@@ -11,8 +11,8 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
             (self._getNodalLoadForce            , loadSymbol('data/symbols/nodalLoadPosition.obj')), 
             (self._getNodalLoadMoment           , loadSymbol('data/symbols/nodalLoadRotation.obj')),
             (self._getLumpedMass                , loadSymbol('data/symbols/lumpedMass.obj')),
-            (self._getSpring                    , loadSymbol('data/symbols/spring.obj')),
-            (self._getDamper                    , loadSymbol('data/symbols/damper.obj')),
+            (self._getSpring                    , loadSymbol('data/symbols/_spring.obj')),
+            (self._getDamper                    , loadSymbol('data/symbols/_damper.obj')),
         ]
 
     def _createSequence(self):
@@ -224,10 +224,22 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
         return symbols
 
     def _getSpring(self, node):
-        offset = 0.62 * self.scaleFactor
+        e_size = self.project.file._element_size
+        length = self.scaleFactor/2
+        if self.scaleFactor/2 > 4*e_size:
+            f = 2
+        elif self.scaleFactor/2 > 2*e_size:
+            f = 1
+        elif self.scaleFactor/2 > e_size/2:
+            f = 0.5
+        else:
+            f = 0.25
+        delta_x = 0.14 + f*e_size*1.19/length
+        offset = delta_x*length/1.19
         x,y,z = self._getCoords(node)
         src = 6
-        scl = (1,1,1)
+        scale_x = (length/1.19)/self.scaleFactor
+        scl = (scale_x, scale_x, scale_x)
         col = (242,121,0)
 
         symbols = []
@@ -236,26 +248,38 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (180,0,90)
+            rot = (0,0,0)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,0)
+            rot = (0,0,90)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (90,0,0)
+            rot = (0,-90,0)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols
 
     def _getDamper(self, node):
-        offset = 0.62 * self.scaleFactor
+        e_size = self.project.file._element_size
+        length = self.scaleFactor/2
+        if self.scaleFactor/2 > 4*e_size:
+            f = 2
+        elif self.scaleFactor/2 > 2*e_size:
+            f = 1
+        elif self.scaleFactor/2 > e_size/2:
+            f = 0.5
+        else:
+            f = 0.25
+        delta_x = 0.14 + f*e_size*1.19/length
+        offset = delta_x*length/1.19
         x,y,z = self._getCoords(node)
         src = 7
-        scl = (1,1,1)
+        scale_x = (length/1.19)/self.scaleFactor
+        scl = (scale_x, scale_x, scale_x)
         col = (255,0,100)
 
         symbols = []
@@ -264,17 +288,17 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
         if mask[0]:
             pos = (x-offset, y, z)
-            rot = (180,0,90)
+            rot = (0,0,0)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[1]:
             pos = (x, y-offset, z)
-            rot = (0,0,0)
+            rot = (0,0,90)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 
         if mask[2]:
             pos = (x, y, z-offset)
-            rot = (90,0,0)
+            rot = (0,-90,0)
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
         
         return symbols

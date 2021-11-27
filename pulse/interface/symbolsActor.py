@@ -73,6 +73,8 @@ class SymbolsActorBase(vtkActorBase):
 
     def source(self):
         self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
+        if 200*self.project.file._element_size < self.scaleFactor:
+            self.scaleFactor = 200*self.project.file._element_size
         self._createArrays()
         self._loadSources()
 
