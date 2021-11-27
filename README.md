@@ -1,10 +1,10 @@
 <p align="center">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma.PNG?raw=true" alt="OpenPulse logo" width="700"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma.PNG?raw=true" alt="OpenPulse logo" width="600"/>
 </p>
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
 
-*Beta Version* (August 10th 2021)
+*Gamma Version* (November 29th 2021)
 
 OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. It allows to import the geometry of the pipe system (lines in IGES and STEP formats), insert materials properties, set sections, and import pressure/acceleration/force loads (from measurements or theory). OpenPulse performs an acoustic time-harmonic response analysis of the respective 1D acoustic domain using the Finite Element Transfer Method (FETM). The resulting pressure field is applied as a distributed load over the respective structural piping system, modeled with the Timoshenko beam theory and the Finite Element Method (FEM), in order to run a structural time-harmonic response analysis. In addition to simply boundary conditions as constraints on displacements, OpenPulse allows to insert lumped springs, masses and dampers along the domain.
 
@@ -12,10 +12,10 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 
 *What's new?* 
 
-- New interface and visualization tools (including animation of results);
-- Enhancements of pre-processing performance;
-- New acoustic element: orifice plate (single or multiple orifice);
-- New structural element: expansion joint (integrated with acoustic analysis);
+- New interface and visualization tools (optimization of animation and several new resources);
+- Enhancements of project files management;
+- Enhanced orifice plate (considering now mean flow effects);
+- New structural elements: flange and valve (integrated with acoustic analysis);
 - Prestressed structural analysis (static pressure effect);
 - Pipe reduction considering linear variation of diameters and offsets;
 - Beam elements enabling rotation about axis and offsets.
@@ -69,7 +69,7 @@ python pulse.py
 
 ## Next events
 
-- The 12th Congresso Iberoamericano de Acústica. August 29 -September 01, 2021. [FIA2020/1](https://fia2020.com.br/).
+- The 12th Congresso Iberoamericano de Acústica. August 28 - 31, 2022. [FIA2020/2022](https://fia2022.com.br/).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
