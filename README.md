@@ -1,5 +1,5 @@
 <p align="center">
-   <img src="https://open-pulse.github.io/OpenPulse/doc/new_OpenPulse_logo.png?raw=true" alt="OpenPulse logo" width="700"/>
+   <img src="https://open-pulse.github.io/OpenPulse/doc/OP_gamma.PNG?raw=true" alt="OpenPulse logo" width="700"/>
 </p>
 
 # OpenPulse: Open Source Software for Pulsation Analysis of Pipeline Systems
