@@ -20,7 +20,7 @@ After defining the FEM mesh for the model, you can plot the piping system geomet
 - Gas properties obtained through a fluid thermodynamic database (mixtures enabled);
 - Enhanced animation of results (animation and saving set-up).
 
-![alt text](https://open-pulse.github.io/OpenPulse/doc/mega.png?raw=true)
+![alt text](https://open-pulse.github.io/OpenPulse/doc/OP_gamma_example.PNG?raw=true)
 
 ## Installing
 
