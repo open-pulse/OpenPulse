@@ -3,7 +3,6 @@ import numpy as np
 from time import time
 from collections import namedtuple
 # from itertools import chain
-# from scipy.spatial.transform import Rotation
 
 from abc import ABC, abstractmethod
 from pulse.interface.vtkActorBase import vtkActorBase
@@ -40,8 +39,6 @@ class SymbolsActorBase(vtkActorBase):
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
-
-        self.valves_coord_to_parameters = {}
 
     @abstractmethod
     def _createConnections(self):

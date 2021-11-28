@@ -319,8 +319,7 @@ class StructuralNodesSymbolsActor(SymbolsActorBase):
 
 
 class StructuralElementsSymbolsActor(SymbolsActorBase):
-    # I think we dont have nothing to see here, but I will let it here because who knows
-    
+
     def _createConnections(self):
         return [
             (self._getValve, loadSymbol('data/symbols/valve_symbol.obj'))
@@ -331,15 +330,22 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
     
     def _getValve(self, element):
         src = 8
-        rot = (0,0,0)
-        col = (255,100,0)
-        col = (0,0,255)
+        col = (0,10,255)
         symbols = []
         
         if element.valve_parameters:
+
             center_coordinates = element.valve_parameters["valve_center_coordinates"]
-            if str(center_coordinates) not in self.valves_coord_to_parameters.keys():
-                self.valves_coord_to_parameters[str(center_coordinates)] = element.valve_parameters
+            valve_elements = element.valve_parameters["valve_elements"]
+            if np.remainder(len(valve_elements), 2) == 0:
+                index = int(len(valve_elements)/2)
+                center_element = valve_elements[index]
+            else:
+                index = int((len(valve_elements)-1)/2) + 1
+                center_element = valve_elements[index]
+            
+            if center_element == element.index:
+
                 pos = center_coordinates
                 rot = element.section_rotation_xyz_undeformed
                 rotation = Rotation.from_euler('xyz', rot, degrees=True)
@@ -348,8 +354,8 @@ class StructuralElementsSymbolsActor(SymbolsActorBase):
                 if vector[1] < 0:
                     rot[0] += 180
                 factor_x = (element.valve_parameters["valve_length"]/0.247)/self.scaleFactor
-                # factor_yz = (element.valve_parameters["valve_section_parameters"]["outer_diameter"]/0.130)/self.scaleFactor
-                factor_yz = 1
+                factor_yz = (element.valve_parameters["valve_section_parameters"]["outer_diameter"]/0.130)/self.scaleFactor
+                # factor_yz = 1
                 scl = (factor_x, factor_yz, factor_yz)
                 symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
 

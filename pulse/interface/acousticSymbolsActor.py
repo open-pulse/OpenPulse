@@ -80,6 +80,7 @@ class AcousticNodesSymbolsActor(SymbolsActorBase):
 
 
 class AcousticElementsSymbolsActor(SymbolsActorBase):
+    
     def _createConnections(self):
         return [
             (self._getPerforatedPlate, loadSymbol('data/symbols/perforated_plate.obj'))
@@ -99,7 +100,14 @@ class AcousticElementsSymbolsActor(SymbolsActorBase):
             rot = element.section_rotation_xyz_undeformed
    
             factor_x = (element.perforated_plate.thickness/0.01) / self.scaleFactor
-            factor_yz = (element.cross_section.inner_diameter/0.1) / self.scaleFactor
+            if element.valve_parameters:
+                outer_diameter = element.cross_section.outer_diameter
+                thickness = element.cross_section.thickness
+                inner_diameter = outer_diameter - 4*thickness                
+                factor_yz = ((inner_diameter/2)/0.1) / self.scaleFactor
+            else:
+                factor_yz = (element.cross_section.inner_diameter/0.1) / self.scaleFactor
+            
             scl = (factor_x, factor_yz, factor_yz)
 
             symbols.append(SymbolTransform(source=src, position=pos, rotation=rot, scale=scl, color=col))
