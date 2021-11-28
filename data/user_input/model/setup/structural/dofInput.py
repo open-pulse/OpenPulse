@@ -579,16 +579,16 @@ class DOFInput(QDialog):
         self.check_remove_bc_from_node()
 
     def check_remove_bc_from_node(self):
+        
         self.basenames = []
         lineEdit_nodeID = self.lineEdit_nodeID.text()
         self.stop, self.nodes_typed = self.before_run.check_input_NodeID(lineEdit_nodeID)
         if self.stop:
             return
+
         key_strings = ["displacements", "rotations"]
-        if self.print_message:
-            message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) \nhave been removed."
-        else:
-            message = None
+        message = f"The prescribed dof(s) value(s) attributed to the {self.nodes_typed} node(s) \nhave been removed."
+
         remove_bc_from_file(self.nodes_typed, self.structural_bc_info_path, key_strings, message)
         self.remove_all_table_files_from_nodes(self.nodes_typed)
         data = [self.list_Nones, self.list_Nones]
