@@ -48,6 +48,21 @@ python pulse.py
     vtk
     gmsh-sdk
     h5py
+
+## Build your own version
+
+- Before building the software you should update the version at ```OpenPulse/pulse/__init__.py```.
+
+- Now you need to setup a new virtual environment to make sure only the needed packages will be part of the executable. Do it running ```python -m venv envpulse```
+and then ```envpulse/Scripts/activate```.
+
+- After that we can install the required packages using ```pip install -r requirements.txt```.
+
+- Now we are ready to go, just run ```python setup.py bdist_msi```.
+
+- Your package will be created at ```OpenPulse/dist/OpenPulse-x.y.z.msi```.
+
+- When everything is done you can deactivate the virtual environment. Do it just running ```deactivate```.
     
 ## Documentation
 - You can read the API reference [here](https://open-pulse.readthedocs.io/en/latest/index.html).
