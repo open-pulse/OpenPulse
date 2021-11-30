@@ -9,6 +9,7 @@ from time import time
 
 from pulse.preprocessing.fluid import Fluid
 from pulse.default_libraries import default_fluid_library
+from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 from data.user_input.model.setup.acoustic.setFluidCompositionInput import SetFluidCompositionInput
@@ -17,8 +18,10 @@ window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
 def getColorRGB(color):
-    temp = color[1:-1]
-    tokens = temp.split(',')
+    color = color.replace(" ", "")
+    if ("[" or "(") in color:
+        color = color[1:-1]
+    tokens = color.split(',')
     return list(map(int, tokens))
 
 class FluidInput(QDialog):
@@ -152,6 +155,15 @@ class FluidInput(QDialog):
             self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all.setChecked(True)
 
+        self.pushButton_pickColor_add_user_defined = self.findChild(QPushButton, 'pushButton_pickColor_add_user_defined')
+        self.pushButton_pickColor_add_user_defined.clicked.connect(self.pick_color_add_user_defined)
+
+        self.pushButton_pickColor_add_refprop = self.findChild(QPushButton, 'pushButton_pickColor_add_refprop')
+        self.pushButton_pickColor_add_refprop.clicked.connect(self.pick_color_add_refprop)
+        
+        self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
+        self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
+
         self.pushButton_confirm_add_fluid = self.findChild(QPushButton, 'pushButton_confirm_add_fluid')
         self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
 
@@ -235,6 +247,24 @@ class FluidInput(QDialog):
                         
         for lineEdit in lineEdits:
             lineEdit.setDisabled(True)
+
+    def pick_color_add_user_defined(self):
+        read = PickColorInput()
+        if read.complete:
+            str_color = str(read.color)[1:-1]
+            self.lineEdit_color.setText(str_color)
+
+    def pick_color_add_refprop(self):
+        read = PickColorInput()
+        if read.complete:
+            str_color = str(read.color)[1:-1]
+            self.lineEdit_color_rp.setText(str_color)
+
+    def pick_color_edit(self):
+        read = PickColorInput()
+        if read.complete:
+            str_color = str(read.color)[1:-1]
+            self.lineEdit_color_edit.setText(str_color)
 
     # def tab_event_update(self):
     #     self.reset_add_texts()
@@ -332,7 +362,7 @@ class FluidInput(QDialog):
                     _pressure = self.lineEdit_pressure_rp.text()
                     name_string += f" & {_pressure}Pa"
 
-                self.dict_inputs['name'] = name_string
+            self.dict_inputs['name'] = name_string
         
     def check_input_fluid_id(self, id_string):
         if id_string == "":
@@ -350,17 +380,17 @@ class FluidInput(QDialog):
                         PrintMessageInput([title, message, window_title1])
                         return True
                       
-            except Exception as err:
+            except Exception as log_error:
                 title = "Invalid fluid ID"
-                message = str(err)
+                message = str(log_error)
                 PrintMessageInput([title, message, window_title1])
                 return True
             self.dict_inputs['identifier'] = id_string
     
     def check_input_color(self, color_string):
         if color_string == "":
-            title = 'Empty [r,g,b] color'
-            message = "Please, insert a valid [r,g,b] color to the fluid."
+            title = "Empty 'r, g, b' color"
+            message = "Please, insert a valid 'r, g, b' color to the fluid."
             PrintMessageInput([title, message, window_title1])
             return True
         else:
@@ -368,10 +398,10 @@ class FluidInput(QDialog):
             message = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
             try:
                 self.colorRGB = getColorRGB(color_string)
+                title = "Invalid 'r, g, b' color"
                 message_color = (" The RGB color {} was already used.\n Please, input a different color.").format(self.colorRGB)
 
                 if len(self.colorRGB)!=3:
-                    title = 'Invalid [r,g,b] color'
                     PrintMessageInput([title, message, window_title1])
                     return True
 
@@ -379,7 +409,6 @@ class FluidInput(QDialog):
                     temp_colorRGB = getColorRGB(self.temp_fluid_color)
                     if temp_colorRGB != self.colorRGB:
                         if self.colorRGB in self.list_colors:
-                            title = 'Invalid [r,g,b] color'
                             PrintMessageInput([title, message_color, window_title1])
                             return True 
                         else:
@@ -387,13 +416,11 @@ class FluidInput(QDialog):
                             
                 elif self.adding:
                     if self.colorRGB in self.list_colors:
-                        title = 'Invalid [r,g,b] color'
                         PrintMessageInput([title, message_color, window_title1])
                         return True
 
-            except Exception as err:
-                title = 'Invalid [r,g,b] color'
-                message = str(err)
+            except Exception as log_error:
+                message = str(log_error)
                 PrintMessageInput([title, message, window_title1])
                 return True
             self.dict_inputs['color'] = color_string
@@ -672,9 +699,9 @@ class FluidInput(QDialog):
             self.project.set_fluid_by_lines(lines, self.fluid)
             self.close()
 
-        except Exception as err:
+        except Exception as log_error:
             title = "Error with the fluid list data"
-            message = str(err)
+            message = str(log_error)
             PrintMessageInput([title, message, window_title1])
             return
 
@@ -752,9 +779,9 @@ class FluidInput(QDialog):
                     # load_fluid.setForeground(i, QColor(0,0,0))
                 self.treeWidget_fluids.addTopLevelItem(load_fluid)
 
-        except Exception as err:
+        except Exception as log_error:
             title = "Error while loading the fluid list data"
-            message = str(err)
+            message = str(log_error)
             PrintMessageInput([title, message, window_title1])
             self.close()
         
@@ -884,17 +911,17 @@ class FluidInput(QDialog):
                 self.reset_remove_texts() 
                 self.remove_hightlight()
 
-        except Exception as err:
+        except Exception as log_error:
             title = "Error with the material removal"
-            message = str(err)
+            message = str(log_error)
             PrintMessageInput([title, message, window_title1])
 
     def reset_library_to_default(self):
 
-        title = "Remove all nodal elastic links added to the model"
+        title = "Resetting of fluids library"
         message = "Do you really want to reset the fluid library to default values?\n\n\n"
-        message += "Press the Continue button to proceed with resetting or press Cancel or Close buttons to abort the current operation."
-        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+        message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
 
         if read._doNotRun:
             return
@@ -910,16 +937,6 @@ class FluidInput(QDialog):
     def reset_add_texts(self):
         for lineEdit in self.list_add_lineEdit:
             lineEdit.setText("")
-        # self.lineEdit_name.setText("")
-        # self.lineEdit_id.setText("")
-        # self.lineEdit_fluid_density.setText("")
-        # self.lineEdit_speed_of_sound.setText("")
-        # self.lineEdit_impedance.setText("")
-        # self.lineEdit_color.setText("")
-        # self.lineEdit_isentropic_exponent.setText("")
-        # self.lineEdit_thermal_conductivity.setText("") 
-        # self.lineEdit_specific_heat_Cp.setText("") 
-        # self.lineEdit_dynamic_viscosity.setText("") 
 
     def reset_add_texts_rp(self):
         for lineEdit in self.list_add_lineEdit_rp:
@@ -930,27 +947,7 @@ class FluidInput(QDialog):
     def reset_edit_texts(self):
         for lineEdit in self.list_edit_lineEdit:
             lineEdit.setText("")
-        # self.lineEdit_name_edit.setText("")
-        # self.lineEdit_id_edit.setText("")
-        # self.lineEdit_fluid_density_edit.setText("")
-        # self.lineEdit_speed_of_sound_edit.setText("")
-        # self.lineEdit_impedance_edit.setText("")
-        # self.lineEdit_color_edit.setText("")
-        # self.lineEdit_isentropic_exponent_edit.setText("")
-        # self.lineEdit_thermal_conductivity_edit.setText("") 
-        # self.lineEdit_specific_heat_Cp_edit.setText("") 
-        # self.lineEdit_dynamic_viscosity_edit.setText("") 
 
     def reset_remove_texts(self):
         for lineEdit in self.list_remove_lineEdit:
             lineEdit.setText("")
-        # self.lineEdit_name_remove.setText("")
-        # self.lineEdit_id_remove.setText("")
-        # self.lineEdit_fluid_density_remove.setText("")
-        # self.lineEdit_speed_of_sound_remove.setText("")
-        # self.lineEdit_impedance_remove.setText("")
-        # self.lineEdit_color_remove.setText("")
-        # self.lineEdit_isentropic_exponent_remove.setText("")
-        # self.lineEdit_thermal_conductivity_remove.setText("") 
-        # self.lineEdit_specific_heat_Cp_remove.setText("") 
-        # self.lineEdit_dynamic_viscosity_remove.setText("") 
