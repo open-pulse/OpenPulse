@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QWidget
-from pulse.utils import getColorRGB
+# from pulse.utils import getColorRGB
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush
 from PyQt5.QtCore import Qt
@@ -7,10 +7,19 @@ from PyQt5 import uic
 import configparser
 
 from pulse.preprocessing.material import Material
-from pulse.default_libraries import default_fluid_library
+from pulse.default_libraries import default_material_library
+from data.user_input.model.setup.pickColorInput import PickColorInput
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 window_title = "ERROR"
+
+def getColorRGB(color):
+    color = color.replace(" ", "")
+    if ("[" or "(") in color:
+        color = color[1:-1]
+    tokens = color.split(',')
+    return list(map(int, tokens))
 
 class MaterialInput(QDialog):
     def __init__(   self, project, opv,  cache_selected_lines=[], *args, **kwargs):
@@ -33,7 +42,7 @@ class MaterialInput(QDialog):
         self.preprocessor = project.preprocessor
         self.before_run = project.get_model_checks()
 
-        self.materialPath = project.get_material_list_path()
+        self.material_path = project.get_material_list_path()
         self.cache_selected_lines = cache_selected_lines
         
         self.clicked_item = None
@@ -87,6 +96,16 @@ class MaterialInput(QDialog):
         self.lineEdit_thermal_expansion_coefficient_edit = self.findChild(QLineEdit, 'lineEdit_thermal_expansion_coefficient_edit')
         self.lineEdit_color_edit = self.findChild(QLineEdit, 'lineEdit_color_edit')
 
+        self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
+        self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
+        self.lineEdit_density_remove = self.findChild(QLineEdit, 'lineEdit_density_remove')
+        self.lineEdit_youngModulus_remove = self.findChild(QLineEdit, 'lineEdit_youngModulus_remove')
+        self.lineEdit_poisson_remove = self.findChild(QLineEdit, 'lineEdit_poisson_remove')
+        self.lineEdit_thermal_expansion_coefficient_remove = self.findChild(QLineEdit, 'lineEdit_thermal_expansion_coefficient_remove')
+        self.lineEdit_color_remove = self.findChild(QLineEdit, 'lineEdit_color_remove')
+        #
+        self.create_lists_of_lineEdit()
+
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
         self.radioButton_all.toggled.connect(self.radioButtonEvent)
@@ -105,6 +124,12 @@ class MaterialInput(QDialog):
             self.lineEdit_selected_ID.setText("All lines")
             self.lineEdit_selected_ID.setEnabled(False)
             self.radioButton_all.setChecked(True)
+
+        self.pushButton_pickColor_add = self.findChild(QPushButton, 'pushButton_pickColor_add')
+        self.pushButton_pickColor_add.clicked.connect(self.pick_color_add)
+        
+        self.pushButton_pickColor_edit = self.findChild(QPushButton, 'pushButton_pickColor_edit')
+        self.pushButton_pickColor_edit.clicked.connect(self.pick_color_edit)
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.check)
@@ -161,7 +186,44 @@ class MaterialInput(QDialog):
         elif self.currentTab_ == 2:
             if self.clicked_item is not None:
                 self.selected_material_to_remove()
-            
+
+    def create_lists_of_lineEdit(self):
+        self.list_add_lineEdit = [  self.lineEdit_name,
+                                    self.lineEdit_id,
+                                    self.lineEdit_color,
+                                    self.lineEdit_density,
+                                    self.lineEdit_youngModulus,
+                                    self.lineEdit_poisson,
+                                    self.lineEdit_thermal_expansion_coefficient  ]  
+
+        self.list_edit_lineEdit = [ self.lineEdit_name_edit,
+                                    self.lineEdit_id_edit,
+                                    self.lineEdit_color_edit,
+                                    self.lineEdit_density_edit,
+                                    self.lineEdit_youngModulus_edit,
+                                    self.lineEdit_poisson_edit,
+                                    self.lineEdit_thermal_expansion_coefficient_edit ]  
+
+        self.list_remove_lineEdit = [   self.lineEdit_name_remove,
+                                        self.lineEdit_id_remove,
+                                        self.lineEdit_color_remove,
+                                        self.lineEdit_density_remove,
+                                        self.lineEdit_youngModulus_remove,
+                                        self.lineEdit_poisson_remove,
+                                        self.lineEdit_thermal_expansion_coefficient_remove   ]  
+
+    def pick_color_add(self):
+        read = PickColorInput()
+        if read.complete:
+            str_color = str(read.color)[1:-1]
+            self.lineEdit_color.setText(str_color)
+
+    def pick_color_edit(self):
+        read = PickColorInput()
+        if read.complete:
+            str_color = str(read.color)[1:-1]
+            self.lineEdit_color_edit.setText(str_color)
+
     def check(self):
 
         if self.clicked_item is None:
@@ -218,7 +280,7 @@ class MaterialInput(QDialog):
 
         try:
             config = configparser.ConfigParser()
-            config.read(self.materialPath)
+            config.read(self.material_path)
     
             for mat in config.sections():
                 material = config[mat]
@@ -243,23 +305,22 @@ class MaterialInput(QDialog):
                     self.treeWidget.headerItem().setTextAlignment(i, Qt.AlignCenter)
                     load_material.setTextAlignment(i, Qt.AlignCenter)
                     
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             self.close()
         
     def check_add_material(self):
-        name_string = self.lineEdit_name.text()
-        id_string = self.lineEdit_id.text()
-        density_string = self.lineEdit_density.text()
-        young_modulus_string = self.lineEdit_youngModulus.text()
-        poisson_string = self.lineEdit_poisson.text()
-        thermal_expansion_coefficient_string = self.lineEdit_thermal_expansion_coefficient.text()
-        color_string = self.lineEdit_color.text()
+
         self.editing = False
         self.adding = True
-        if self.check_add_edit(name_string, id_string, density_string, young_modulus_string, poisson_string, thermal_expansion_coefficient_string, color_string):
+
+        add_data = []
+        for lineEdit in self.list_add_lineEdit:
+            add_data.append(lineEdit.text())
+
+        if self.check_add_edit(add_data):
             PrintMessageInput([self.title, self.message, window_title])  
 
     def check_edit_material(self):
@@ -267,20 +328,25 @@ class MaterialInput(QDialog):
             if self.selected_material_to_edit():
                 return
         if self.editing:
-            name_string = self.lineEdit_name_edit.text()
-            id_string = self.lineEdit_id_edit.text()
-            density_string = self.lineEdit_density_edit.text()
-            young_modulus_string = self.lineEdit_youngModulus_edit.text()
-            poisson_string = self.lineEdit_poisson_edit.text()
-            thermal_expansion_coefficient_string = self.lineEdit_thermal_expansion_coefficient_edit.text()
-            color_string = self.lineEdit_color_edit.text()
+            edit_data = []
+            for lineEdit in self.list_edit_lineEdit:
+                edit_data.append(lineEdit.text())
 
-            if self.check_add_edit(name_string, id_string, density_string, young_modulus_string, poisson_string, thermal_expansion_coefficient_string, color_string):
-                PrintMessageInput([self.title, self.message, window_title])        
+            if self.check_add_edit(edit_data):
+                PrintMessageInput([self.title, self.message, window_title])      
+
         else:
             return
 
-    def check_add_edit(self, name_string, id_string, density_string, young_modulus_string, poisson_string, thermal_expansion_coefficient_string, color_string):
+    def check_add_edit(self, data):
+
+        [   name_string, 
+            id_string,
+            color_string, 
+            density_string, 
+            young_modulus_string, 
+            poisson_string, 
+            thermal_expansion_coefficient_string   ] = data
         
         self.title = "INVALID MATERIAL NAME"
         if name_string == "":
@@ -370,7 +436,7 @@ class MaterialInput(QDialog):
                 return True 
 
         self.title = "INVALID MATERIAL COLOR ATTRIBUTION"
-        message_1 = "Insert a valid material Color in [r,g,b] format. \nThe r, g and b values must be inside [0, 255] interval."
+        message_1 = "Insert a valid material Color in 'r, g, b' format. \nThe r, g and b values must be inside [0, 255] interval."
         if color_string == "":
             self.message = message_1
             return True
@@ -395,28 +461,28 @@ class MaterialInput(QDialog):
                         self.message = message_2
                         return True
 
-            except Exception as e:
+            except Exception as error_log:
                 self.message = message_1
                 return True
         
         try:
+
             config = configparser.ConfigParser()
-            config.read(self.materialPath)
-            config[name.upper()] = {
-            'Name': name,
-            'Identifier': identifier,
-            'Density': density,
-            'Young Modulus': young_modulus,
-            'Poisson': poisson,
-            'Thermal expansion coefficient': thermal_expansion_coefficient,
-            'Color': color
-            }
-            with open(self.materialPath, 'w') as config_file:
+            config.read(self.material_path)
+            config[name.upper()] = {    'Name': name,
+                                        'Identifier': identifier,
+                                        'Density': density,
+                                        'Young Modulus': young_modulus,
+                                        'Poisson': poisson,
+                                        'Thermal expansion coefficient': thermal_expansion_coefficient,
+                                        'Color': color    }
+
+            with open(self.material_path, 'w') as config_file:
                 config.write(config_file)
                     
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST"
-            self.message = str(e)
+            self.message = str(error_log)
             return True
 
         if self.adding:
@@ -445,9 +511,9 @@ class MaterialInput(QDialog):
             self.lineEdit_poisson.setText(self.clicked_item.text(4))
             self.lineEdit_thermal_expansion_coefficient.setText(self.clicked_item.text(5))
             self.lineEdit_color.setText(self.clicked_item.text(6))    
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return True
         return False
@@ -476,9 +542,9 @@ class MaterialInput(QDialog):
             
             self.editing = True
 
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return True
         self.no_material_selected_to_edit = False
@@ -528,9 +594,9 @@ class MaterialInput(QDialog):
             self.lineEdit_thermal_expansion_coefficient_remove.setText(self.clicked_item.text(5))
             self.lineEdit_color_remove.setText(self.clicked_item.text(6))
 
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR WHILE LOADING THE MATERIAL LIST DATA"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return True
         self.no_material_selected_to_remove = False
@@ -546,133 +612,54 @@ class MaterialInput(QDialog):
         try:
 
             config = configparser.ConfigParser()
-            config.read(self.materialPath)
+            config.read(self.material_path)
 
             if self.lineEdit_name_remove.text() != "":
                 config.remove_section(self.lineEdit_name_remove.text().upper())
 
-                with open(self.materialPath, 'w') as config_file:
+                with open(self.material_path, 'w') as config_file:
                     config.write(config_file)
                 self.treeWidget.clear()
                 self.clicked_item = None
                 self.loadList()
-                self.lineEdit_name_remove.setText("")
-                self.lineEdit_id_remove.setText("")
-                self.lineEdit_density_remove.setText("")
-                self.lineEdit_youngModulus_remove.setText("")
-                self.lineEdit_poisson_remove.setText("")
-                self.lineEdit_thermal_expansion_coefficient_remove.setText("")
-                self.lineEdit_color_remove.setText("")
+                self.reset_remove_texts()
                 self.no_material_selected_to_remove = True
                 
             else:
                 return
 
-        except Exception as e:
+        except Exception as error_log:
             self.title = "ERROR DURING THE MATERIAL REMOVAL"
-            self.message = str(e)
+            self.message = str(error_log)
             PrintMessageInput([self.title, self.message, window_title])
             return
 
-
-    def default_material_library(self):
-
-        config = configparser.ConfigParser()
-
-        config['STEEL'] = {
-            'Name': 'steel',
-            'Identifier': 1,
-            'Density': 7860,
-            'Young Modulus': 210,
-            'Poisson': 0.3,
-            'Thermal expansion coefficient': 1.2e-5,
-            'Color': '[170,170,170]' #Light Gray
-        }
-
-        config['STAINLESS_STEEL'] = {
-            'Name': 'stainless_steel',
-            'Identifier': 2,
-            'Density': 7750,
-            'Young Modulus': 193,
-            'Poisson': 0.31,
-            'Thermal expansion coefficient': 1.7e-5,
-            'Color': '[126,46,31]' #Wood color
-        }
-
-        config['NI-CO-CR_ALLOY'] = {
-            'Name': 'Ni-Co-Cr_alloy',
-            'Identifier': 3,
-            'Density': 8220,
-            'Young Modulus': 212,
-            'Poisson': 0.315,
-            'Thermal expansion coefficient': 1.2e-5,
-            'Color': '[0,255,255]' #Cyan
-        }
-
-        config['CAST_IRON'] = {
-            'Name': 'cast_iron',
-            'Identifier': 4,
-            'Density': 7200,
-            'Young Modulus': 110,
-            'Poisson': 0.28,
-            'Thermal expansion coefficient': 1.1e-5,
-            'Color': '[50,50,50]' #Dark Grey
-        }
-
-        config['ALUMINUM'] = {
-            'Name': 'aluminum',
-            'Identifier': 5,
-            'Density': 2770,
-            'Young Modulus': 71,
-            'Poisson': 0.333,
-            'Thermal expansion coefficient': 2.3e-5,
-            'Color': '[255,255,255]' #White
-        }
-
-        config['BRASS'] = {
-            'Name': 'brass',
-            'Identifier': 6,
-            'Density': 8150,
-            'Young Modulus': 96,
-            'Poisson': 0.345,
-            'Thermal expansion coefficient': 1.9e-5,
-            'Color': '[181,166,66]' #Brass color
-        }
-
-        with open(self.materialPath, 'w') as config_file:
-            config.write(config_file)
-        
     def reset_library_to_default(self):
-        self.default_material_library()
-        self.treeWidget.clear()
-        self.loadList()
-        self.reset_add_texts()
-        self.reset_edit_texts() 
-        self.reset_remove_texts() 
 
-    def reset_add_texts(self):
-        self.lineEdit_name.setText("")
-        self.lineEdit_id.setText("")
-        self.lineEdit_density.setText("")
-        self.lineEdit_youngModulus.setText("")
-        self.lineEdit_poisson.setText("")
-        self.lineEdit_thermal_expansion_coefficient.setText("")
-        self.lineEdit_color.setText("")
+        title = "Resetting of materials library"
+        message = "Do you really want to reset the material library to default values?\n\n\n"
+        message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+
+        if read._doNotRun:
+            return
+
+        if read._continue:     
+            default_material_library(self.material_path)
+            self.treeWidget.clear()
+            self.loadList()
+            self.reset_add_texts()
+            self.reset_edit_texts() 
+            self.reset_remove_texts() 
     
+    def reset_add_texts(self):
+        for lineEdit in self.list_add_lineEdit:
+            lineEdit.setText("")
+
     def reset_edit_texts(self):
-        self.lineEdit_name_edit.setText("")
-        self.lineEdit_id_edit.setText("")
-        self.lineEdit_density_edit.setText("")
-        self.lineEdit_youngModulus_edit.setText("")
-        self.lineEdit_poisson_edit.setText("")
-        self.lineEdit_thermal_expansion_coefficient_edit.setText("")
-        self.lineEdit_color_edit.setText("")
+        for lineEdit in self.list_edit_lineEdit:
+            lineEdit.setText("")
 
     def reset_remove_texts(self):
-        self.lineEdit_name_remove.setText("")
-        self.lineEdit_id_remove.setText("")
-        self.lineEdit_density_remove.setText("")
-        self.lineEdit_youngModulus_remove.setText("")
-        self.lineEdit_poisson_remove.setText("")
-        self.lineEdit_thermal_expansion_coefficient_remove.setText("")
-        self.lineEdit_color_remove.setText("")
+        for lineEdit in self.list_remove_lineEdit:
+            lineEdit.setText("")

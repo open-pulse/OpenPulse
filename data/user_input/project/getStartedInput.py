@@ -1,6 +1,6 @@
 import os
 from os.path import basename
-from PyQt5.QtWidgets import QToolButton, QFileDialog, QLineEdit, QDialog, QTreeWidget, QRadioButton, QTreeWidgetItem, QPushButton, QTabWidget, QWidget, QMessageBox, QCheckBox, QTreeWidget, QLabel
+from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
 from pulse.utils import remove_bc_from_file
 from PyQt5.QtGui import QIcon
 from PyQt5.QtGui import QColor, QBrush, QFont
@@ -8,10 +8,11 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.aboutOpenPulseInput import AboutOpenPulseInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 class GetStartedInput(QDialog):
-    def __init__(self, project, config, inputUi, *args, **kwargs):
+    def __init__(self, project, opv, config, inputUi, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Project/getStarted.ui', self)
 
@@ -26,6 +27,7 @@ class GetStartedInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.opv = opv
         self.config = config
         self.inputUi = inputUi
 
@@ -131,10 +133,7 @@ class GetStartedInput(QDialog):
             self.close()
 
     def aboutProject(self):
-        window_title = "OpenPulse" 
-        message_title = "Version information"
-        message = "OpenPulse Gamma Version (October, 2021)"
-        PrintMessageInput([message_title, message, window_title])
+        AboutOpenPulseInput(self.project, self.opv)
 
     def loadRecentProject(self, dir):
         if self.inputUi.loadProject(self.config, path=dir):

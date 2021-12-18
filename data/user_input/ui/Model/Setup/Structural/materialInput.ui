@@ -103,10 +103,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -125,10 +137,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -147,7 +171,7 @@
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>114</y>
+        <y>108</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -165,10 +189,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -187,7 +223,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>56</y>
+        <y>48</y>
         <width>49</width>
         <height>20</height>
        </rect>
@@ -200,10 +236,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -222,10 +270,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -244,7 +304,7 @@
       <property name="geometry">
        <rect>
         <x>62</x>
-        <y>114</y>
+        <y>108</y>
         <width>45</width>
         <height>20</height>
        </rect>
@@ -257,7 +317,7 @@
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>56</y>
+        <y>48</y>
         <width>69</width>
         <height>20</height>
        </rect>
@@ -270,10 +330,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -292,7 +364,7 @@
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>56</y>
+        <y>48</y>
         <width>149</width>
         <height>20</height>
        </rect>
@@ -394,10 +466,22 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -416,7 +500,7 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>114</y>
+        <y>108</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -429,7 +513,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>56</y>
+        <y>48</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -442,7 +526,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>36</y>
+        <y>28</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -457,8 +541,8 @@
       </property>
       <property name="geometry">
        <rect>
-        <x>516</x>
-        <y>128</y>
+        <x>8</x>
+        <y>178</y>
         <width>120</width>
         <height>30</height>
        </rect>
@@ -516,6 +600,44 @@
        <bool>false</bool>
       </property>
      </widget>
+     <widget class="QPushButton" name="pushButton_pickColor_add">
+      <property name="geometry">
+       <rect>
+        <x>474</x>
+        <y>128</y>
+        <width>90</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>90</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>90</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(212, 208, 255);
+font: 75 italic bold 12pt &quot;Arial&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Pick color</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_edit_material">
      <attribute name="title">
@@ -525,10 +647,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -547,7 +681,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>36</y>
+        <y>28</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -560,10 +694,22 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -582,7 +728,7 @@
       <property name="geometry">
        <rect>
         <x>62</x>
-        <y>114</y>
+        <y>108</y>
         <width>45</width>
         <height>20</height>
        </rect>
@@ -595,7 +741,7 @@
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>56</y>
+        <y>48</y>
         <width>149</width>
         <height>20</height>
        </rect>
@@ -608,10 +754,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -630,7 +788,7 @@
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>114</y>
+        <y>108</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -651,10 +809,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -673,10 +843,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -695,7 +877,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>56</y>
+        <y>48</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -708,10 +890,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -733,10 +927,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -755,7 +961,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>56</y>
+        <y>48</y>
         <width>49</width>
         <height>20</height>
        </rect>
@@ -768,7 +974,7 @@
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>56</y>
+        <y>48</y>
         <width>69</width>
         <height>20</height>
        </rect>
@@ -781,7 +987,7 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>114</y>
+        <y>108</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -877,6 +1083,44 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pushButton_pickColor_edit">
+      <property name="geometry">
+       <rect>
+        <x>474</x>
+        <y>128</y>
+        <width>90</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>90</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>90</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(212, 208, 255);
+font: 75 italic bold 12pt &quot;Arial&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Pick color</string>
       </property>
      </widget>
     </widget>
@@ -977,7 +1221,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>36</y>
+        <y>28</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -993,10 +1237,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1018,10 +1274,22 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1040,7 +1308,7 @@
       <property name="geometry">
        <rect>
         <x>500</x>
-        <y>56</y>
+        <y>48</y>
         <width>152</width>
         <height>20</height>
        </rect>
@@ -1056,10 +1324,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1081,10 +1361,22 @@
       <property name="geometry">
        <rect>
         <x>28</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1103,7 +1395,7 @@
       <property name="geometry">
        <rect>
         <x>174</x>
-        <y>56</y>
+        <y>48</y>
         <width>149</width>
         <height>20</height>
        </rect>
@@ -1119,10 +1411,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1144,10 +1448,22 @@
       <property name="geometry">
        <rect>
         <x>192</x>
-        <y>134</y>
+        <y>128</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1166,7 +1482,7 @@
       <property name="geometry">
        <rect>
         <x>62</x>
-        <y>114</y>
+        <y>108</y>
         <width>45</width>
         <height>20</height>
        </rect>
@@ -1179,7 +1495,7 @@
       <property name="geometry">
        <rect>
         <x>60</x>
-        <y>56</y>
+        <y>48</y>
         <width>49</width>
         <height>20</height>
        </rect>
@@ -1195,10 +1511,22 @@
       <property name="geometry">
        <rect>
         <x>520</x>
-        <y>76</y>
+        <y>68</y>
         <width>113</width>
-        <height>20</height>
+        <height>26</height>
        </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>113</width>
+        <height>26</height>
+       </size>
       </property>
       <property name="font">
        <font>
@@ -1217,7 +1545,7 @@
       <property name="geometry">
        <rect>
         <x>162</x>
-        <y>114</y>
+        <y>108</y>
         <width>173</width>
         <height>20</height>
        </rect>
@@ -1235,7 +1563,7 @@
       <property name="geometry">
        <rect>
         <x>356</x>
-        <y>114</y>
+        <y>108</y>
         <width>113</width>
         <height>20</height>
        </rect>
@@ -1248,7 +1576,7 @@
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>56</y>
+        <y>48</y>
         <width>69</width>
         <height>20</height>
        </rect>

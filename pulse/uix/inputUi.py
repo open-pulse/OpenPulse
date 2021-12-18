@@ -106,7 +106,7 @@ class InputUi:
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
-        get_started = self.processInput(GetStartedInput, self.project, config, self)
+        get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
         return self.initial_project_action(get_started.draw)          
     
     def initial_project_action(self, obj):
