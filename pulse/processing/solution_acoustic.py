@@ -5,6 +5,7 @@ from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
 import matplotlib
+matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
