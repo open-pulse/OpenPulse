@@ -561,6 +561,8 @@ class Project:
                 
                 dict_multiple_cross_sections[key_string].append(element_id)
 
+        self.number_sections_by_line[line_id] = count_sections
+
         if len(dict_multiple_cross_sections) == 1:
             if count_sections == 1:
                 list_elements_from_cross_section = dict_multiple_cross_sections[key_string]
@@ -573,8 +575,6 @@ class Project:
                         self.number_sections_by_line.pop(line_id)
                     single_cross = True 
         
-        self.number_sections_by_line[line_id] = count_sections
-       
         return dict_multiple_cross_sections, single_cross   
 
     def load_structural_bc_file(self):
@@ -803,7 +803,7 @@ class Project:
         #     if line not in self.lines_with_cross_section_by_elements:
         #         self.lines_with_cross_section_by_elements.append(line)
 
-    def add_cross_sections_expansion_joints_valves_in_file( self, list_elements ):
+    def add_cross_sections_expansion_joints_valves_in_file(self, list_elements):
         list_lines = []
         for element_id in list_elements:
             line_id = self.preprocessor.elements_to_line[element_id]
@@ -813,14 +813,15 @@ class Project:
             map_expansion_joints_to_elements = {}
             map_valves_to_elements = {}
             map_cross_sections_to_elements, single_cross = self.get_dict_multiple_cross_sections_from_line(_line_id)
-            if not single_cross:        
+            if not single_cross:
+                  
                 map_expansion_joints_to_elements = self.get_map_expansion_joints_to_elements(_line_id)
                 map_valves_to_elements = self.get_map_valves_to_elements(_line_id)
 
-            self.file.add_multiple_cross_sections_expansion_joints_valves_in_file(  _line_id, 
-                                                                                    map_cross_sections_to_elements, 
-                                                                                    map_expansion_joints_to_elements,
-                                                                                    map_valves_to_elements )                                        
+                self.file.add_multiple_cross_sections_expansion_joints_valves_in_file(  _line_id, 
+                                                                                        map_cross_sections_to_elements, 
+                                                                                        map_expansion_joints_to_elements,
+                                                                                        map_valves_to_elements )                                        
 
     def set_variable_cross_section_by_line(self, line_id, parameters):
         self._set_variable_cross_section_to_selected_line(line_id, parameters)

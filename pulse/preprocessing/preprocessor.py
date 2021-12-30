@@ -1940,14 +1940,14 @@ class Preprocessor:
             True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
             Default is False.
         """
-        if aux_line_id is not None:
-            elements_from_line = self.line_to_elements[aux_line_id]
-            temp_dict = self.group_elements_with_valves.copy()
-            for key, [_list_elements_ids, _] in temp_dict.items():
-                for element_id in _list_elements_ids:
-                    if element_id in elements_from_line:
-                        self.group_elements_with_valves.pop(key)
-                        break
+        # if aux_line_id is not None:
+        #     elements_from_line = self.line_to_elements[aux_line_id]
+        #     temp_dict = self.group_elements_with_valves.copy()
+        #     for key, [_list_elements_ids, _] in temp_dict.items():
+        #         for element_id in _list_elements_ids:
+        #             if element_id in elements_from_line:
+        #                 self.group_elements_with_valves.pop(key)
+        #                 break
 
         list_lines = []
         for element_id in list_elements:
@@ -1966,6 +1966,13 @@ class Preprocessor:
             for line_id in list_lines:
                 if line_id in self.number_valves_by_lines.keys():
                     self.number_valves_by_lines.pop(line_id)
+            
+            temp_dict = self.group_elements_with_valves.copy()
+            for key, [_list_elements_ids, _] in temp_dict.items():
+                for element_id in _list_elements_ids:
+                    if element_id in list_elements:
+                        self.group_elements_with_valves.pop(key)
+                        break
 
         else:
 

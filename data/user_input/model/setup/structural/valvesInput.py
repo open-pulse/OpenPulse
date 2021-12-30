@@ -11,7 +11,6 @@ from collections import defaultdict
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from numpy.core.numeric import False_, outer  
 
 from data.user_input.model.setup.acoustic.perforatedPlateInput import PerforatedPlateInput
 from pulse.preprocessing.cross_section import CrossSection
@@ -43,6 +42,7 @@ class ValvesInput(QDialog):
         self.before_run = project.get_model_checks()
         self.nodes = self.project.preprocessor.nodes
         self.preprocessor._map_lines_to_nodes()
+        self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
         
         self.structural_elements = self.project.preprocessor.structural_elements
    
@@ -100,24 +100,35 @@ class ValvesInput(QDialog):
         self.tab_line_selection = self.tabWidget_inputs.findChild(QWidget, "tab_insert_by_line")
         self.tab_element_selection = self.tabWidget_inputs.findChild(QWidget, "tab_insert_by_element")
         self.tab_flange_setup = self.tabWidget_inputs.findChild(QWidget, "tab_flange_setup")
+        self.tab_remove = self.tabWidget_inputs.findChild(QWidget, "tab_remove")
         self.tabWidget_inputs.removeTab(2)
+        self.treeWidget_valve_remove = self.findChild(QTreeWidget, 'treeWidget_valve_remove')
+        self.treeWidget_valve_remove.itemClicked.connect(self.on_click_item_remove)
+        self.treeWidget_valve_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
         # self.tabWidget_inputs.addTab(self.tab_line_selection, "Line selection")
 
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
         self.pushButton_confirm.clicked.connect(self.add_valve_to_selected_elements)
 
+        self.pushButton_reset = self.findChild(QPushButton, 'pushButton_reset')
+        self.pushButton_reset.clicked.connect(self.remove_all_valves)
+
+        self.pushButton_remove = self.findChild(QPushButton, 'pushButton_remove')
+        self.pushButton_remove.clicked.connect(self.remove_valve_by_selection)
+
         if len(self.line_id) + len(self.element_id) == 0:
             self.opv.changePlotToEntitiesWithCrossSection()
 
         self.update()
-        self.checkBox_event_update()
+        # self.checkBox_event_update()
+        self.load_valves_info()
+        self.tabWidget_inputs.setCurrentIndex(0)
         self.checkBox_enable_acoustic_effects_event_update()
         self.exec_()
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            if self.tabWidget_main.currentIndex() == 0:
-                self.add_valve_to_selected_elements()
+            self.add_valve_to_selected_elements()
         if event.key() == Qt.Key_Escape:
             self.close()
 
@@ -130,6 +141,25 @@ class ValvesInput(QDialog):
             self.tabWidget_inputs.addTab(self.tab_flange_setup, 'Flange setup')
         else:
             self.tabWidget_inputs.removeTab(1)
+        self.update_remove_tab()
+
+    def update_remove_tab(self):        
+        #
+        currentIndex = self.tabWidget_inputs.currentIndex()
+        number_tabs = self.tabWidget_inputs.count()
+        self.tabWidget_inputs.setCurrentIndex(number_tabs-1)
+        currentTab = self.tabWidget_inputs.currentWidget()
+        #
+        if currentTab == self.tab_remove:
+            if len(self.preprocessor.group_elements_with_valves) == 0:
+                self.tabWidget_inputs.removeTab(number_tabs-1) 
+                self.tabWidget_inputs.setCurrentIndex(0)
+        else:     
+            if len(self.preprocessor.group_elements_with_valves) != 0:
+                self.tabWidget_inputs.addTab(self.tab_remove, "Remove")
+                self.tabWidget_inputs.setCurrentIndex(0)  
+            else:
+                self.tabWidget_inputs.setCurrentIndex(currentIndex)      
 
     def checkBox_enable_acoustic_effects_event_update(self):
         self.enable_acoustic_effects = self.checkBox_enable_acoustic_effects.isChecked()
@@ -162,6 +192,7 @@ class ValvesInput(QDialog):
     def update(self):
         self.update_selected_id()
         self.update_selection_flags()
+        self.checkBox_event_update()
         self.update_selection_texts_info()
                     
     def update_selected_id(self): 
@@ -226,7 +257,7 @@ class ValvesInput(QDialog):
             print(str(log_error))
 
     def update_selection_flags(self):
-        
+
         if self.opv.change_plot_to_mesh and self.radioButton_line_selection.isChecked():
             self.opv.changePlotToEntitiesWithCrossSection()
         self.selection_by_line = self.radioButton_line_selection.isChecked()
@@ -244,7 +275,7 @@ class ValvesInput(QDialog):
             if self.opv.getListPickedPoints() != []:
                 self.opv.changePlotToMesh()
             self.tabWidget_inputs.addTab(self.tab_element_selection, "Element selection")
-        
+
         return False
 
     def get_line_length(self):
@@ -650,7 +681,32 @@ class ValvesInput(QDialog):
                                 offset_y = cross.offset_y
                                 offset_z = cross.offset_z
                                 self.inner_diameter = cross.inner_diameter
-                  
+                        else:
+                            # search cross_sections in neighborhood
+                            # line_id = self.preprocessor.elements_to_line[element_id]
+                            # first_element_id = self.preprocessor.line_to_elements[line_id][0]
+                            # last_element_id = self.preprocessor.line_to_elements[line_id][-1]
+                            first_element_id = min(self.list_valve_elements)
+                            last_element_id = max(self.list_valve_elements)
+                            element_indexes = [ first_element_id-1, first_element_id+1, 
+                                                last_element_id-1, last_element_id+1 ]
+
+                            for element_id in element_indexes:
+                                if element_id not in self.list_valve_elements:
+                                    cross = self.structural_elements[element_id].cross_section
+                                    element_type = self.structural_elements[element_id].element_type
+                                    if element_type in ['pipe_1', 'pipe_2']:
+                                        if cross:
+                                            if cross.outer_diameter > outer_diameter:
+                                                outer_diameter = cross.outer_diameter
+                                                thickness = cross.thickness
+                                                offset_y = cross.offset_y
+                                                offset_z = cross.offset_z   
+                                                self.inner_diameter = cross.inner_diameter
+                                                break
+                    else:
+                        continue
+
                 valve_section_parameters = {    "outer_diameter" : outer_diameter,
                                                 "thickness" : thickness, 
                                                 "offset_y" : offset_y, 
@@ -829,7 +885,94 @@ class ValvesInput(QDialog):
             return True
 
     def actions_to_finalize(self):
+        self.complete = True
         self.opv.updateEntityRadius()
         self.opv.changePlotToMesh()
         # self.opv.changePlotToEntitiesWithCrossSection()   
         self.close()
+    
+    def load_valves_info(self):
+        self.treeWidget_valve_remove.clear()
+        for group_key, [_, parameters] in self.preprocessor.group_elements_with_valves.items():
+            length = parameters['valve_length']
+            sitffening_factor = parameters['stiffening_factor']
+            mass = parameters['valve_mass']
+            outer_diameter = parameters['valve_section_parameters']['outer_diameter']
+            valve_info = f"d_v: {outer_diameter}m; length: {length}m; Kf: {sitffening_factor}; mass: {mass}kg"
+            #
+            new = QTreeWidgetItem([group_key, valve_info])
+            new.setTextAlignment(0, Qt.AlignCenter)
+            new.setTextAlignment(1, Qt.AlignCenter)  
+            self.treeWidget_valve_remove.addTopLevelItem(new)  
+
+        self.treeWidget_valve_remove.header().setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
+        self.treeWidget_valve_remove.setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
+        self.update_remove_tab()
+    
+    def on_click_item_remove(self, item):
+        [list_elements, _] = self.group_elements_with_valves[item.text(0)]
+        self.opv.opvRenderer.highlight_elements(list_elements)
+        self.opv.opvRenderer.update()
+        self.lineEdit_selected_ID.setText(item.text(0))
+
+    def on_doubleclick_item_remove(self, item):
+        key = item.text(0)
+        self.lineEdit_selected_ID.setText(key)
+        if key in self.group_elements_with_valves.keys():
+            self.remove_function(key)
+        self.load_valves_info()
+        self.lineEdit_selected_ID.setText("")
+        self.opv.opvRenderer.plot()
+        self.opv.changePlotToEntitiesWithCrossSection()
+
+    def remove_function(self, key):
+        [list_elements, _] = self.group_elements_with_valves[key]
+        self.project.add_valve_by_elements(list_elements, None)
+        #
+        first_element_id = min(list_elements)
+        last_element_id = max(list_elements)
+        element_indexes = [ first_element_id-1, first_element_id+1, 
+                            last_element_id-1, last_element_id+1 ]
+        #
+        for element_id in element_indexes:
+            if element_id not in list_elements:
+                cross = self.structural_elements[element_id].cross_section
+                element_type = self.structural_elements[element_id].element_type
+                if element_type in ['pipe_1', 'pipe_2']:
+                    if cross:
+                        self.project.set_cross_section_by_elements(list_elements, cross)
+                        self.project.add_cross_sections_expansion_joints_valves_in_file(list_elements)
+                        break
+
+        self.load_valves_info()
+
+    def remove_valve_by_selection(self):
+        key = self.lineEdit_selected_ID.text()
+        if key in self.group_elements_with_valves.keys():
+            self.remove_function(key)
+        self.lineEdit_selected_ID.setText("")
+        title = "Valve removal complete"
+        message = "The selectect valve has been removed from model."
+        message += f"\n\n ID: {key}"
+        PrintMessageInput([title, message, window_title_2])
+        self.opv.opvRenderer.plot()
+        self.opv.changePlotToEntitiesWithCrossSection()
+
+    def remove_all_valves(self):
+        title = f"Removal of all valves from model"
+        message = "Are you really sure you want to remove all valves from the model?\n\n\n"
+        message += "Press the Continue button to proceed with removal or press Cancel or Close buttons to abort the current operation."
+        read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Continue')
+
+        if read._stop:
+            return
+        
+        temp_dict = self.group_elements_with_valves.copy()
+        _keys = temp_dict.keys()
+        for key in _keys:
+            self.remove_function(key)
+        title = "Valves resetting complete"
+        message = "The valves has been removed from all elements."
+        PrintMessageInput([title, message, window_title_2])
+        self.opv.opvRenderer.plot()
+        self.opv.changePlotToEntitiesWithCrossSection()

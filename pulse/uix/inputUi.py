@@ -189,7 +189,7 @@ class InputUi:
         self.processInput(ExpansionJointInput, self.project, self.opv)
 
     def add_valve(self):
-        self.processInput(ValvesInput, self.project, self.opv)
+        return self.processInput(ValvesInput, self.project, self.opv)
 
     def set_acoustic_element_type(self):
         self.processInput(AcousticElementTypeInput, self.project, self.opv)
