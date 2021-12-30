@@ -1678,8 +1678,8 @@ class Project:
     def get_analysis_method_label(self):
         return self.analysis_method_label
 
-    def get_model_checks(self):
-        return BeforeRun(self)
+    def get_model_checks(self, opv=None):
+        return BeforeRun(self, opv)
 
     def set_damping(self, value):
         self.global_damping = value

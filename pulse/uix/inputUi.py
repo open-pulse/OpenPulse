@@ -279,7 +279,7 @@ class InputUi:
             PrintMessageInput([title, message, window_title_1])
             return
 
-        self.before_run = self.project.get_model_checks()
+        self.before_run = self.project.get_model_checks(opv=self.opv)
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0

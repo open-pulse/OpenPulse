@@ -245,6 +245,27 @@ class opvRenderer(vtkRendererBase):
         if _update:
             self.call_update_in_QDialogs_if_highlighted()
 
+    def highlight_lines(self, line_ids, reset_colors=True, color=(255,0,0)):
+        if reset_colors:
+            self.updateColors()  # clear colors
+        selectionColor = color
+        elementsFromEntities = set()
+
+        for line_id in line_ids:
+            elements = self.lineToElements[line_id]
+            elementsFromEntities = elementsFromEntities.union(elements)
+
+        self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
+        self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
+
+    def highlight_elements(self, element_ids, reset_colors=True, color=(255,0,0)):
+        if reset_colors:
+            self.updateColors()  # clear colors
+        selectionColor = color
+
+        self.opvLines.setColor(selectionColor, keys=element_ids)
+        self.opvTubes.setColor(selectionColor, keys=element_ids)
+
     def showElementAxes(self, obj, event):
         self._renderer.RemoveActor(self.elementAxes)
         self.update()

@@ -325,7 +325,7 @@ class PerforatedPlateInput(QDialog):
             
             self.lineEdit_thickness.setText("")
             self.lineEdit_porosity.setText("")
-            self.lineEdit_discharge.setText("1")
+            self.lineEdit_discharge.setText("")
             self.lineEdit_thickness.setDisabled(True)
             self.lineEdit_porosity.setDisabled(True)
             self.lineEdit_discharge.setDisabled(True)
@@ -341,17 +341,17 @@ class PerforatedPlateInput(QDialog):
             try:
                 value = float(string)
                 if value < 0:
-                    message = "The {} must be a positive number.".format(label)
+                    message = f"The {label} must be a positive number."
                     PrintMessageInput([title, message, window_title_1])
                     return True
                 else:
                     self.value = value
             except Exception:
-                message = "You have typed an invalid value to the {}.".format(label)
+                message = f"You have typed an invalid value to the {label}."
                 PrintMessageInput([title, message, window_title_1])
                 return True
         elif not_None:
-            message = "The {} must be given.".format(label)
+            message = f"The {label} must be given."
             PrintMessageInput([title, message, window_title_1])
             return True
         else:
@@ -528,80 +528,90 @@ class PerforatedPlateInput(QDialog):
                 return False
             self.dict_inputs['hole diameter'] = self.value
         
-        # Check plate thickness
-        if self.check_input_parameters(self.lineEdit_thickness.text(), 'plate thickness', True):
-            self.lineEdit_thickness.setFocus()
-            return True
+        if self.dict_inputs['type'] == 2:
+            self.dict_inputs['plate thickness'] = round(min(elements_lengths), 6)
+            self.dict_inputs['area porosity'] = 0
+            self.dict_inputs['discharge coefficient'] = 0
+            self.dict_inputs['nonlinear effects'] = 0
+            self.dict_inputs['nonlinear discharge coefficient'] = 0
+            self.dict_inputs['correction factor'] = 0
+            self.dict_inputs['bias flow effects'] = 0
+            self.dict_inputs['bias flow coefficient'] = 0
         else:
-            aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
-            if not all(aux):
-                title = "Plate thickness different from element length"
-                message = "If possible, use plate thickness equal to the element length for better precision."
-                PrintMessageInput([title, message, "WARNING MESSAGE"])
+            # Check plate thickness
+            if self.check_input_parameters(self.lineEdit_thickness.text(), 'plate thickness', True):
                 self.lineEdit_thickness.setFocus()
-            self.dict_inputs['plate thickness'] = self.value
-
-        # Check area porosity
-        if self.check_input_parameters(self.lineEdit_porosity.text(), 'area porosity', True):
-            self.lineEdit_porosity.setFocus()
-            return True
-        else:
-            if self.value >= 1:
-                title = "Invalid area porosity value"
-                message = "The area porosity must be less than 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_porosity.setFocus()
-                return False
-            self.dict_inputs['area porosity'] = self.value
-
-        # Check discharge coefficient
-        if self.check_input_parameters(self.lineEdit_discharge.text(), 'discharge coefficient'):
-            self.lineEdit_discharge.setFocus()
-            return True
-        else:
-            if self.value > 1:
-                title = "Invalid discharge coefficient value"
-                message = "The discharge coefficient must be less than or equal to 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_discharge.setFocus()
-                return False
-            self.dict_inputs['discharge coefficient'] = self.value
-
-        self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
-
-        # Check nonlinear discharge coefficient
-        if self.check_input_parameters(self.lineEdit_nonlinDischarge.text(), 'nonlinear discharge coefficient'):
-            self.lineEdit_nonlinDischarge.setFocus()
-            return True
-        else:
-            if self.value > 1:
-                title = "Invalid nonlinear discharge coefficient value"
-                message = "The nonlinear discharge coefficient must be less than or equal to 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_nonlinDischarge.setFocus()
-                return False
-            self.dict_inputs['nonlinear discharge coefficient'] = self.value
-
-        # Check correction factor
-        if self.check_input_parameters(self.lineEdit_correction.text(), 'correction factor'):
-            self.lineEdit_correction.setFocus()
-            return True
-        else:
-            self.dict_inputs['correction factor'] = self.value
-
-        self.dict_inputs['bias flow effects'] = self.flag_bias
-
-        # Check bias flow
-        if self.check_input_parameters(self.lineEdit_bias.text(), 'bias flow coefficient'):
-            self.lineEdit_bias.setFocus()
-            return True
-        else:
-            self.dict_inputs['bias flow coefficient'] = self.value
-
-        # Check dimensionless impedance
-        if self.tabWidget_dimensionless.currentIndex()==0:
-            if self.check_svalues():
                 return True
+            else:
+                aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
+                if not all(aux):
+                    title = "Plate thickness different from element length"
+                    message = "If possible, use plate thickness equal to the element length for better precision."
+                    PrintMessageInput([title, message, "WARNING MESSAGE"])
+                    self.lineEdit_thickness.setFocus()
+                self.dict_inputs['plate thickness'] = self.value
+
+            # Check area porosity
+            if self.check_input_parameters(self.lineEdit_porosity.text(), 'area porosity', True):
+                self.lineEdit_porosity.setFocus()
+                return True
+            else:
+                if self.value >= 1:
+                    title = "Invalid area porosity value"
+                    message = "The area porosity must be less than 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_porosity.setFocus()
+                    return False
+                self.dict_inputs['area porosity'] = self.value
+
+            # Check discharge coefficient
+            if self.check_input_parameters(self.lineEdit_discharge.text(), 'discharge coefficient'):
+                self.lineEdit_discharge.setFocus()
+                return True
+            else:
+                if self.value > 1:
+                    title = "Invalid discharge coefficient value"
+                    message = "The discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_discharge.setFocus()
+                    return False
+                self.dict_inputs['discharge coefficient'] = self.value
+
+            self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
+
+            # Check nonlinear discharge coefficient
+            if self.check_input_parameters(self.lineEdit_nonlinDischarge.text(), 'nonlinear discharge coefficient'):
+                self.lineEdit_nonlinDischarge.setFocus()
+                return True
+            else:
+                if self.value > 1:
+                    title = "Invalid nonlinear discharge coefficient value"
+                    message = "The nonlinear discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_nonlinDischarge.setFocus()
+                    return False
+                self.dict_inputs['nonlinear discharge coefficient'] = self.value
+
+            # Check correction factor
+            if self.check_input_parameters(self.lineEdit_correction.text(), 'correction factor'):
+                self.lineEdit_correction.setFocus()
+                return True
+            else:
+                self.dict_inputs['correction factor'] = self.value
+
+            self.dict_inputs['bias flow effects'] = self.flag_bias
+
+            # Check bias flow
+            if self.check_input_parameters(self.lineEdit_bias.text(), 'bias flow coefficient'):
+                self.lineEdit_bias.setFocus()
+                return True
+            else:
+                self.dict_inputs['bias flow coefficient'] = self.value
+
+            # Check dimensionless impedance
+            if self.tabWidget_dimensionless.currentIndex()==0:
+                if self.check_svalues():
+                    return True
         
         self.dict_inputs['single hole'] = self.flag_single_hole
 
@@ -816,6 +826,8 @@ class PerforatedPlateInput(QDialog):
         if "Selection-" in selected_key:
             value = self.dict_group_elements[selected_key]
             tokens = self.lineEdit_specify_elementID.text().strip().split(',')
+            if value[0].type == 2:
+                return True
             try:
                 tokens.remove('')
             except:     
@@ -874,6 +886,7 @@ class PerforatedPlateInput(QDialog):
         self.plot()
 
     def plot(self):
+        
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
@@ -970,6 +983,7 @@ class PerforatedPlateInput(QDialog):
         
         if self.elements_id != []:
             self.elements_id.sort()
+            self.write_ids(self.elements_id)
             
             element_id = self.elements_id[0]
             element = self.preprocessor.acoustic_elements[element_id]
@@ -979,19 +993,23 @@ class PerforatedPlateInput(QDialog):
                 
                 self.reset_input_fields(force_reset=True)
                 
-                if perforated_plate.type == 0:
-                    self.radioButton_OpenPulse.setChecked(True)
-                elif perforated_plate.type == 1:
-                    self.radioButton_melling.setChecked(True)
-                
                 self.lineEdit_HoleDiameter.setText(str(perforated_plate.hole_diameter))
                 self.lineEdit_thickness.setText(str(perforated_plate.thickness))
                 self.lineEdit_porosity.setText(str(perforated_plate.porosity))
 
+                if perforated_plate.type == 0:
+                    self.radioButton_OpenPulse.setChecked(True)
+                elif perforated_plate.type == 1:
+                    self.radioButton_melling.setChecked(True)
+                elif perforated_plate.type == 2:
+                    self.radioButton_common_pipe_section.setChecked(True)
+                    self.radioButtonEvent_setup()
+
                 if perforated_plate.nonlinear_effect:
                     self.lineEdit_nonlinDischarge.setText(str(perforated_plate.nonlinear_discharge_coefficient))
                 else:
-                    self.lineEdit_discharge.setText(str(perforated_plate.linear_discharge_coefficient))
+                    if perforated_plate.linear_discharge_coefficient:
+                        self.lineEdit_discharge.setText(str(perforated_plate.linear_discharge_coefficient))
                 
                 if perforated_plate.bias_effect:
                     self.lineEdit_bias.setText(str(perforated_plate.bias_coefficient))
@@ -1012,8 +1030,6 @@ class PerforatedPlateInput(QDialog):
                 self.inputs_from_node = True
             else:
                 self.reset_input_fields()
-
-            self.write_ids(self.elements_id)    
 
     def write_ids(self, list_elements_ids):
         text = ""
@@ -1080,8 +1096,17 @@ class GetInformationOfGroup(QDialog):
         
         self.Label_dh.setText(str(self.perforated_plate.hole_diameter))
         self.Label_tp.setText(str(self.perforated_plate.thickness))
-        self.Label_phi.setText(str(self.perforated_plate.porosity))
-        self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
+        
+        if self.perforated_plate.porosity:
+            self.Label_phi.setText(str(self.perforated_plate.porosity))
+        else:
+            self.Label_phi.setText("___")
+            
+        if self.perforated_plate.linear_discharge_coefficient:
+            self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
+        else:
+            self.Label_sigma.setText("___")
+
         self.Label_single_hole.setText(str(self.perforated_plate.single_hole))
         if self.perforated_plate.nonlinear_effect:
             self.Label_nl_effects.setText("On")
