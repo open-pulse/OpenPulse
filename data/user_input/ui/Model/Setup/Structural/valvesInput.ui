@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>Add a valve</string>
   </property>
-  <widget class="QFrame" name="frame">
+  <widget class="QFrame" name="main_frame">
    <property name="geometry">
     <rect>
      <x>0</x>
