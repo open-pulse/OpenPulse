@@ -80,7 +80,9 @@ class PerforatedPlateInput(QDialog):
 
         self.frequencies = project.frequencies
         self.acoustic_elements = project.preprocessor.acoustic_elements
-        self.dict_group_elements = project.preprocessor.group_elements_with_perforated_plate
+        self.structural_elements = project.preprocessor.structural_elements
+        self.group_elements_with_perforated_plates = project.preprocessor.group_elements_with_perforated_plate
+        self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
         self.elements_id = self.opv.getListPickedElements()
         
         if self.valve_ids:
@@ -230,6 +232,8 @@ class PerforatedPlateInput(QDialog):
         
         self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
+
+        self.checkBox_remove_valve_structural_effects = self.findChild(QCheckBox, 'checkBox_remove_valve_structural_effects')
 
         self.update()
         self.load_elements_info()
@@ -652,7 +656,7 @@ class PerforatedPlateInput(QDialog):
             
             self.set_perforated_plate_to_elements(section, _print=True, remove_tables=True)
             self.replaced = False
-            temp_dict = self.dict_group_elements.copy()
+            temp_dict = self.group_elements_with_perforated_plates.copy()
 
             for key, values in temp_dict.items():
                 if self.elements_typed == list(np.sort(values[1])):
@@ -751,7 +755,7 @@ class PerforatedPlateInput(QDialog):
         else:
             message = None
 
-        [_, list_elements] = self.dict_group_elements[section]
+        [_, list_elements] = self.group_elements_with_perforated_plates[section]
         key_strings = ['perforated plate data', 'dimensionless impedance', 'list of elements']
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)
         # self.remove_perforated_plate_table_files_attributed_to_elements(list_elements)
@@ -760,22 +764,24 @@ class PerforatedPlateInput(QDialog):
         else:
             if section in self.preprocessor.group_elements_with_perforated_plate.keys():
                 self.preprocessor.group_elements_with_perforated_plate.pop(section) 
+        if self.checkBox_remove_valve_structural_effects.isChecked():
+            self.check_if_is_there_a_valve_and_remove_it(list_elements)
         self.load_elements_info()
 
     def remove_perforated_plate_by_group(self):
         key = self.dict_label.format(self.lineEdit_elementID.text())
-        [perforated_plate, _] = self.dict_group_elements[key]
+        [perforated_plate, _] = self.group_elements_with_perforated_plates[key]
         table_name = perforated_plate.dimensionless_impedance_table_name
         self.process_table_file_removal(table_name)
-        if key in self.dict_group_elements.keys():
+        if key in self.group_elements_with_perforated_plates.keys():
             self.remove_function(key)
         self.lineEdit_elementID.setText("")
     
     def remove_all_perforated_plate(self):
-        temp_dict = self.dict_group_elements.copy()
+        temp_dict = self.group_elements_with_perforated_plates.copy()
         _keys = temp_dict.keys()
         for key in _keys:
-            [perforated_plate, _] = self.dict_group_elements[key]
+            [perforated_plate, _] = self.group_elements_with_perforated_plates[key]
             table_name = perforated_plate.dimensionless_impedance_table_name
             self.process_table_file_removal(table_name)
             self.remove_function(key, message_print=False)
@@ -798,10 +804,10 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_elementID.setText(item.text(0))
         selected_key = self.dict_label.format(self.lineEdit_elementID.text())
         if "Selection-" in selected_key:
-            value = self.dict_group_elements[selected_key]
-            self.label_elementID_plot.setText(str(value[1]))
-            if len(value[1]) == 1:
-                self.lineEdit_specify_elementID.setText(str(value[1][0]))
+            [_, list_elements] = self.group_elements_with_perforated_plates[selected_key]
+            self.label_elementID_plot.setText(str(list_elements))
+            if len(list_elements) == 1:
+                self.lineEdit_specify_elementID.setText(str(list_elements[0]))
             else:
                 self.lineEdit_specify_elementID.setText('')
     
@@ -824,7 +830,7 @@ class PerforatedPlateInput(QDialog):
     def check_select_element(self):        
         selected_key = self.dict_label.format(self.lineEdit_elementID.text())
         if "Selection-" in selected_key:
-            value = self.dict_group_elements[selected_key]
+            value = self.group_elements_with_perforated_plates[selected_key]
             tokens = self.lineEdit_specify_elementID.text().strip().split(',')
             if value[0].type == 2:
                 return True
@@ -918,7 +924,7 @@ class PerforatedPlateInput(QDialog):
 
     def load_elements_info(self):
         self.treeWidget_perforated_plate_plot.clear()
-        for section, value in self.dict_group_elements.items():
+        for section, value in self.group_elements_with_perforated_plates.items():
             text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
@@ -930,7 +936,7 @@ class PerforatedPlateInput(QDialog):
         self.treeWidget_perforated_plate_plot.setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
 
         self.treeWidget_perforated_plate_remove.clear()
-        for section, value in self.dict_group_elements.items():
+        for section, value in self.group_elements_with_perforated_plates.items():
             text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
@@ -946,7 +952,7 @@ class PerforatedPlateInput(QDialog):
         try:
             selected_key = self.dict_label.format(self.lineEdit_elementID.text())
             if "Selection-" in selected_key:
-                value = self.dict_group_elements[selected_key]
+                value = self.group_elements_with_perforated_plates[selected_key]
                 GetInformationOfGroup(value, selected_key)
             else:
                 title = "ERROR IN GROUP SELECTION"
@@ -1046,6 +1052,42 @@ class PerforatedPlateInput(QDialog):
             self.tab_remove.setDisabled(False)
             self.tab_preview.setDisabled(False)
 
+    def check_if_is_there_a_valve_and_remove_it(self, perforated_plate_elements):
+        _update_renderer = False
+        temp_dict = self.group_elements_with_valves.copy()
+        for key, data in temp_dict.items():
+            [valve_elements, valve_parameters] = data
+            for element_id in perforated_plate_elements:
+                if element_id in valve_elements:
+                    self.project.add_valve_by_elements(valve_elements, None)
+                    #
+                    lists_element_indexes = []
+                    first_element_id = min(valve_elements)
+                    last_element_id = max(valve_elements)
+                    lists_element_indexes.append([  first_element_id-1, first_element_id+1, 
+                                                    last_element_id-1, last_element_id+1  ])
+                    #
+                    line_id = self.preprocessor.elements_to_line[valve_elements[0]]
+                    first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
+                    last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
+                    lists_element_indexes.append([  first_element_id_from_line-1, first_element_id_from_line+1, 
+                                                    last_element_id_from_line-1, last_element_id_from_line+1  ])
+                    #
+                    for element_indexes in lists_element_indexes:
+                        for _element_id in element_indexes:
+                            if _element_id not in valve_elements:
+                                cross = self.structural_elements[_element_id].cross_section
+                                element_type = self.structural_elements[_element_id].element_type
+                                if element_type in ['pipe_1', 'pipe_2']:
+                                    if cross:
+                                        self.project.set_cross_section_by_elements(valve_elements, cross)
+                                        self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
+                                        _update_renderer = True
+                                        
+        if _update_renderer:
+            self.opv.opvRenderer.plot()
+            self.opv.changePlotToEntitiesWithCrossSection()
+
         
 class GetInformationOfGroup(QDialog):
     def __init__(self, value, selected_key, *args, **kwargs):
@@ -1136,39 +1178,3 @@ class GetInformationOfGroup(QDialog):
     
     def force_to_close(self):
         self.close()
-
-    # def remove_perforated_plate_table_files_attributed_to_elements(self, elements_id):
-    #     if isinstance(elements_id, int):
-    #         elements_id = [elements_id]
-    #     for element_id in elements_id:
-    #         folder_table_name = "perforated_plate_files"
-    #         element = self.preprocessor.acoustic_elements[element_id]
-    #         if element.perforated_plate is not None:
-    #             label = "Perforated plate"
-    #             str_key = "dimensionless impedance"                
-    #             if element.perforated_plate.dimensionless_impedance_table_name is not None:
-    #                 table_name = element.perforated_plate.dimensionless_impedance_table_name
-    #                 if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                         folder_table_name, node_info=False, label=label   ):
-    #                     self.process_table_file_removal(table_name)  
-    #             elif len(self.list_dimensionless_impedance_table_names) > 0:
-    #                 for table_name in self.list_dimensionless_impedance_table_names:
-    #                     if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                             folder_table_name, node_info=False, label=label   ):
-    #                         self.process_table_file_removal(table_name)   
-
-    # def remove_tables_from_selected_elements(self):
-    #     folder_table_name = "perforated_plate_files"
-    #     str_key = "dimensionless impedance"
-    #     label = "Perforated plate"
-    #     self.list_dimensionless_impedance_table_names = self.get_dimensionless_impedance_table_names_in_typed_elements()
-    #     if self.lineEdit_load_table_path.text() != "":
-    #         if self.basename in self.list_dimensionless_impedance_table_names:
-    #             self.list_dimensionless_impedance_table_names.remove(self.basename)
-    #     for table_name in self.list_dimensionless_impedance_table_names:
-    #         self.process_table_file_removal(table_name)
-    #         for element_id in self.elements_typed:
-    #             if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                     folder_table_name, node_info=False, label=label   ):
-                    
-    #                 self.process_table_file_removal(table_name)

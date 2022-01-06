@@ -99,10 +99,10 @@ class ValvesInput(QDialog):
         self.checkBox_enable_acoustic_effects.clicked.connect(self.checkBox_enable_acoustic_effects_event_update)
         self.enable_acoustic_effects = self.checkBox_enable_acoustic_effects.isChecked()
 
-        self.checkBox_remove_perforated_plate = QCheckBox("Remove perforated plate", self.main_frame)
-        self.checkBox_remove_perforated_plate.setChecked(True)
-        self.checkBox_remove_perforated_plate.setVisible(False)
-        self.config_remove_PP_checkBox()
+        self.checkBox_remove_valve_acoustic_effects = QCheckBox("Remove valve acoustic effects", self.main_frame)
+        self.checkBox_remove_valve_acoustic_effects.setChecked(True)
+        self.checkBox_remove_valve_acoustic_effects.setVisible(False)
+        self.config_remove_valve_acoustic_effects_checkBox_appearance()
 
         self.tabWidget_inputs = self.findChild(QTabWidget, 'tabWidget_inputs')
         self.tab_line_selection = self.tabWidget_inputs.findChild(QWidget, "tab_insert_by_line")
@@ -140,28 +140,28 @@ class ValvesInput(QDialog):
         currentTab = self.tabWidget_inputs.currentWidget()
 
         if currentTab == self.tab_remove:
-            self.checkBox_remove_perforated_plate.setVisible(True)
+            self.checkBox_remove_valve_acoustic_effects.setVisible(True)
             self.checkBox_add_flanges_to_the_valve.setVisible(False)
             self.checkBox_enable_acoustic_effects.setVisible(False)
         else:
-            self.checkBox_remove_perforated_plate.setVisible(False)
+            self.checkBox_remove_valve_acoustic_effects.setVisible(False)
             self.checkBox_add_flanges_to_the_valve.setVisible(True)
             self.checkBox_enable_acoustic_effects.setVisible(True)
 
-    def config_remove_PP_checkBox(self):
+    def config_remove_valve_acoustic_effects_checkBox_appearance(self):
         font = QFont()
         font.setBold(True)
         font.setItalic(False)
         font.setPointSize(12)
         self.checkBox_add_flanges_to_the_valve.setFont(font)
         self.checkBox_enable_acoustic_effects.setFont(font)
-        self.checkBox_remove_perforated_plate.setFont(font)
-        # self.checkBox_remove_perforated_plate.setStyleSheet("color:black")
-        # self.checkBox_remove_perforated_plate.setText("Remove perforated plate")
-        # self.checkBox_remove_perforated_plate.setGeometry(QRect(175, 300, 150, 36))
-        self.checkBox_remove_perforated_plate.setMinimumSize(QSize(300, 36))
-        self.checkBox_remove_perforated_plate.setMaximumSize(QSize(300, 36))
-        self.checkBox_remove_perforated_plate.move(QPoint(150, 70))
+        self.checkBox_remove_valve_acoustic_effects.setFont(font)
+        # self.checkBox_remove_valve_acoustic_effects.setStyleSheet("color:black")
+        # self.checkBox_remove_valve_acoustic_effects.setText("Remove perforated plate")
+        # self.checkBox_remove_valve_acoustic_effects.setGeometry(QRect(175, 300, 150, 36))
+        self.checkBox_remove_valve_acoustic_effects.setMinimumSize(QSize(300, 36))
+        self.checkBox_remove_valve_acoustic_effects.setMaximumSize(QSize(300, 36))
+        self.checkBox_remove_valve_acoustic_effects.move(QPoint(130, 70))
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -949,7 +949,7 @@ class ValvesInput(QDialog):
     def remove_valve_function(self, key):
         [valve_elements, _] = self.group_elements_with_valves[key]
         self.project.add_valve_by_elements(valve_elements, None)
-        self.check_is_there_a_perforated_plate(valve_elements)
+        self.check_if_is_there_a_perforated_plate_and_remove_it(valve_elements)
         #
         lists_element_indexes = []
         first_element_id = min(valve_elements)
@@ -1005,21 +1005,21 @@ class ValvesInput(QDialog):
         self.opv.opvRenderer.plot()
         self.opv.changePlotToEntitiesWithCrossSection()
 
-    def check_is_there_a_perforated_plate(self, elements_from_valve):
+    def check_if_is_there_a_perforated_plate_and_remove_it(self, elements_from_valve):
         temp_dict = self.group_elements_with_perforated_plate.copy()
-        for key, [perforated_plate, elments_from_pp] in temp_dict.items():
-            for element_id in elments_from_pp:
+        for key, [perforated_plate, elements_from_pp] in temp_dict.items():
+            for element_id in elements_from_pp:
                 if element_id in elements_from_valve:
                     table_name = perforated_plate.dimensionless_impedance_table_name
                     self.process_table_file_removal(table_name)
-                    if self.checkBox_remove_perforated_plate.isChecked():
-                        self.remove_perforated_plate_function(key, message_print=False)
+                    if self.checkBox_remove_valve_acoustic_effects.isChecked():
+                        self.remove_valve_acoustic_effects_function(key, message_print=False)
 
     def process_table_file_removal(self, table_name):
         if table_name is not None:
             self.project.remove_acoustic_table_files_from_folder(table_name, "perforated_plate_files")
 
-    def remove_perforated_plate_function(self, key, message_print=True):
+    def remove_valve_acoustic_effects_function(self, key, message_print=True):
 
         if message_print:
             group_label = key.split(" || ")[1]
