@@ -7,6 +7,7 @@ from scipy.sparse.linalg import eigs, spsolve
 import matplotlib
 matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 from pulse.processing.assembly_acoustic import AssemblyAcoustic
 from data.user_input.project.printMessageInput import PrintMessageInput
@@ -50,6 +51,13 @@ class SolutionAcoustic:
         self.prescribed_values = self.assembly.get_prescribed_values()
         # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
+        
+        # self.fig = plt.figure(figsize=[8,6])
+        # self.ax = self.fig.add_subplot(1,1,1)
+
+        self.relative_error = []
+        self.deltaP_errors = []
+        self.iterations = []
 
     def get_global_matrices(self):
         """
@@ -218,10 +226,10 @@ class SolutionAcoustic:
             vect_freqs = list(np.arange(cols, dtype=int))[1:]
 
             self.plt = plt
-            self.fig = self.plt.figure(figsize=[8,6])
-            self.ax = self.fig.add_subplot(1,1,1)
+            # self.fig = self.plt.figure(figsize=[8,6])
+            # self.ax = self.fig.add_subplot(1,1,1)
 
-            self.iterations = []
+            # self.iterations = []
             pressure_residues = []
             delta_residues = []
 
@@ -239,8 +247,7 @@ class SolutionAcoustic:
                 while relative_difference > self.target or not converged:
 
                     if self.stop_processing():
-                        del self.ax
-                        self.plt.close()
+                        # self.plt.close()
                         return None, None
 
                     self.get_global_matrices()
@@ -305,6 +312,8 @@ class SolutionAcoustic:
                                 message += "it will be excluded from the calculation of the residue convergence criteria.\n"
                                 print(message)  
 
+                    self.relative_error = pressure_residues
+                    self.deltaP_errors = delta_residues
                     converged = self.check_convergence_criterias(pressure_residues, delta_residues)
 
                     if converged:
@@ -327,15 +336,51 @@ class SolutionAcoustic:
             solution = self._reinsert_prescribed_dofs(solution)
             return solution, self.convergence_dataLog
 
+    def graph_callback(self, interval, fig, ax):  
+        if (len(self.iterations) < 2) or (len(self.relative_error) < 2):
+            xlim = (1, 2)
+            ylim = (1, 2)
+        else:
+            xlim = (1, max(self.iterations))
+            ylim = (1, max(self.relative_error))
+
+        ax.set_xlim(*xlim)
+        ax.set_ylim(*ylim)
+        perc_criteria = self.target*100
+
+        first_plot, = plt.plot(self.iterations, self.relative_error, color=[1,0,0], linewidth=2, marker='s', markersize=6, markerfacecolor=[0,0,1])
+        second_plot, = plt.plot(xlim, [perc_criteria, perc_criteria], color=[0,0,0], linewidth=2, linestyle="--")
+        
+        if self.deltaP_errors:
+            third_plot, = plt.plot(self.iterations, self.deltaP_errors, color=[0,0,1], linewidth=2, marker='s', markersize=6, markerfacecolor=[1,0,0])
+        else:
+            third_plot, = plt.plot([])
+        
+        first_plot_label = "Pressure residues"
+        third_plot_label = "Delta pressure residues"
+        second_plot_label = f'Target: {perc_criteria}%'
+        
+        if self.deltaP_errors:
+            _legends = plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label], loc='upper right')
+        else:
+            _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
+        plt.gca().add_artist(_legends)
+
+        ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
+        ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
+        ax.set_ylabel("Relative error [%]", fontsize = 14, fontweight = 'bold')
+
+        return (first_plot, second_plot, third_plot)
+
     def check_convergence_criterias(self, pressure_residues, delta_residues, delta_residue_criteria=True):
 
         ordinal = {1:"st", 2:"nd", 3:"rd"}
         count = self.iterations[-1]
         # delta_residue_criteria = False
 
-        if count >= 10:
-            if np.remainder(len(pressure_residues), 5) == 0:
-                self.plot_convergence_graph(self.iterations, pressure_residues, delta_residues)
+        # if count >= 10:
+        #     if np.remainder(len(pressure_residues), 5) == 0:
+        #         self.plot_convergence_graph(self.iterations, pressure_residues, delta_residues)
         
         if count == 1:
             _label =  "\n      ---------------------------------------------------------------\n"
@@ -352,8 +397,7 @@ class SolutionAcoustic:
         print(f"Evaluated delta pressure residue criteria: {round(delta_residues[-1], 2)}[%] @ {count}{label} iteration\n")
 
         if count >= self.max_iter:
-            del self.ax
-            self.plt.close()
+            # self.plt.close()
             if pressure_residues[-1] < 100*self.target:
 
                 final_log = f"The solution converged after {count} iterations with the following observations:"
@@ -389,9 +433,8 @@ class SolutionAcoustic:
                         if max(delta_residues[-5:]) <= 10:
                             if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
                                 if max(pressure_residues[-3:]) <= 10:
-                                    if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
-                                        del self.ax 
-                                        self.plt.close()
+                                    if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                                        # self.plt.close()
                                         final_log = f"The solution converged after {count} iterations with the following observations:"
                                         if len(self.unstable_frequencies):
                                             list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
@@ -404,9 +447,8 @@ class SolutionAcoustic:
         else: 
 
             if max(pressure_residues[-5:]) <= 100*self.target:
-                if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]:
-                    del self.ax 
-                    self.plt.close()
+                if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                    # self.plt.close()
                     final_log = f"The solution converged after {count} iterations with the following observations:"
                     if len(self.unstable_frequencies):
                         list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
@@ -419,6 +461,7 @@ class SolutionAcoustic:
         return False
 
     def plot_convergence_graph(self, iterations, relative_errors, deltaP_errors=[]):
+        # it is no more being used
 
         # self.plt.clf()
         # self.plt.cla()
@@ -456,8 +499,7 @@ class SolutionAcoustic:
         self.plt.xlim(1, max(iterations))
         self.plt.draw()
         self.plt.pause(0.001)
-
-        del self.ax   
+   
         self.ax = self.fig.add_subplot(1,1,1)
 
     def stop_processing(self):

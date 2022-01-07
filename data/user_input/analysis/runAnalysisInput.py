@@ -9,6 +9,9 @@ from time import time, sleep
 import configparser
 from threading import Thread
 
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loadingScreen import LoadingScreen
 
@@ -54,6 +57,17 @@ class RunAnalysisInput(QDialog):
             return
 
         LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)
+
+        try:
+            fig = plt.figure(figsize=[8,6])
+            ax  = fig.add_subplot(1,1,1)
+            anime = FuncAnimation(fig, self.solve.graph_callback, fargs=(fig,ax), interval=3000)
+            anime._start()
+            plt.ion()
+            plt.show()
+        except Exception as e:
+            print(e)
+
         LoadingScreen('SOLUTION IN PROGRESS', 'Solving the analysis',  target=self.process_analysis, project=project)
         
         if self.project.preprocessor.stop_processing:
