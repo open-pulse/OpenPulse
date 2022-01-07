@@ -158,7 +158,7 @@ class AcousticElement:
         float
             The element impedance.
         """
-        return self.fluid.impedance / self.cross_section.area_fluid
+        return self.fluid.impedance / self.area_fluid
 
     @property
     def mach(self):
@@ -236,9 +236,14 @@ class AcousticElement:
         2D array
             Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
         """
+        self.area_fluid = self.cross_section.area_fluid
         if self.perforated_plate:
-            return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
-        elif self.element_type in ['undamped mean flow','peters','howe']:
+            if self.perforated_plate.type in [0,1]:
+                return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
+            else:
+                d = self.perforated_plate.hole_diameter
+                self.area_fluid = pi*(d**2)/4
+        if self.element_type in ['undamped mean flow','peters','howe']:
             return self.fetm_mean_flow_matrix(frequencies, length_correction)
         elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
             return self.fetm_matrix(frequencies, length_correction)
@@ -266,12 +271,10 @@ class AcousticElement:
         kappa_complex, impedance_complex = self._fetm_damping_models(frequencies)
         self.radiation_impedance(kappa_complex, impedance_complex)
         
-        area_fluid = self.cross_section.area_fluid
-
         kappaLe = kappa_complex * (self.length + length_correction)
         sine = np.sin(kappaLe)
         cossine = np.cos(kappaLe)
-        matrix = ((area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
+        matrix = ((self.area_fluid*1j/(sine*impedance_complex))*np.array([-cossine, ones, ones, -cossine])).T
 
         return matrix
 
@@ -389,7 +392,7 @@ class AcousticElement:
         nu = self.fluid.kinematic_viscosity
         gamma = self.fluid.isentropic_exponent
         pr = self.fluid.prandtl
-        area = self.cross_section.area_fluid
+        
         c = self.speed_of_sound_corrected()
         length = self.length + length_correction
         radius = self.cross_section.inner_diameter / 2
@@ -419,7 +422,7 @@ class AcousticElement:
         sinh = np.sinh(kappa_complex * length)
         cosh = np.cosh(kappa_complex * length)
 
-        matrix = - ((area * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
+        matrix = - ((self.area_fluid * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
 
         # criterion = np.real(kappa_complex[-1] * radius) > 1
         # if criterion:
@@ -430,14 +433,12 @@ class AcousticElement:
         k, z, M = self._fetm_mean_flow_damping_models(frequencies)
         self.radiation_impedance(k, z* (1-M**2))
         
-        area = self.cross_section.area_fluid
-
         kLe = k * (self.length + length_correction)
         cotanh = 1/np.tanh(1j*kLe)
         sineh = np.sinh(1j*kLe)
         exp_neg_sin = -np.exp(-1j*kLe*M)/sineh
         exp_sin = -np.exp(1j*kLe*M)/sineh
-        adm = area / (z * (1-M**2))
+        adm = self.area_fluid / (z * (1-M**2))
         matrix = (adm*np.array([cotanh - M, exp_neg_sin, exp_sin, cotanh + M])).T
         return matrix
 
@@ -607,7 +608,7 @@ class AcousticElement:
 
     def perforated_plate_matrix(self, frequencies, nonlinear_effect):
         self.update_pp_impedance(frequencies, nonlinear_effect)
-        admittance = self.cross_section.area_fluid / self.pp_impedance
+        admittance = self.area_fluid / self.pp_impedance
         
         return np.c_[- admittance, admittance, admittance, - admittance]
 
@@ -717,10 +718,9 @@ class AcousticElement:
         """
         length = self.length + length_correction
         rho = self.fluid.density
-        area = self.cross_section.area_fluid
         c = self.speed_of_sound_corrected()
 
-        Ke = area/(rho*length) * np.array([[1,-1],[-1,1]])
-        Me = area * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
+        Ke = self.area_fluid/(rho*length) * np.array([[1,-1],[-1,1]])
+        Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
         
         return Ke, Me

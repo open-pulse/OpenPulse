@@ -449,8 +449,9 @@ class MenuItems(QTreeWidget):
 
         elif item == self.item_child_add_valve:
             if not self.item_child_add_valve.isDisabled():
-                self.mainWindow.getInputWidget().add_valve()
-                self.mainWindow.plot_mesh()
+                read = self.mainWindow.getInputWidget().add_valve()
+                if read.complete:
+                    self.mainWindow.plot_mesh()
                 # self.mainWindow.plot_entities_with_cross_section()               
 
         elif item == self.item_child_setcappedEnd:

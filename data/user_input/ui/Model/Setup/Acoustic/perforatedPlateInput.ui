@@ -3205,22 +3205,22 @@ perfurated plate parameter:</string>
       <widget class="QTreeWidget" name="treeWidget_perforated_plate_remove">
        <property name="geometry">
         <rect>
-         <x>24</x>
-         <y>76</y>
-         <width>341</width>
-         <height>233</height>
+         <x>22</x>
+         <y>120</y>
+         <width>342</width>
+         <height>300</height>
         </rect>
        </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
-         <height>0</height>
+         <width>342</width>
+         <height>300</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
-         <height>1000000</height>
+         <width>342</width>
+         <height>300</height>
         </size>
        </property>
        <property name="font">
@@ -3283,10 +3283,22 @@ perfurated plate parameter:</string>
        <property name="geometry">
         <rect>
          <x>22</x>
-         <y>14</y>
-         <width>341</width>
-         <height>47</height>
+         <y>56</y>
+         <width>342</width>
+         <height>50</height>
         </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>342</width>
+         <height>50</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>342</width>
+         <height>50</height>
+        </size>
        </property>
        <property name="font">
         <font>
@@ -3315,7 +3327,7 @@ perfurated plate:</string>
        <property name="geometry">
         <rect>
          <x>216</x>
-         <y>326</y>
+         <y>436</y>
          <width>92</width>
          <height>30</height>
         </rect>
@@ -3349,7 +3361,7 @@ perfurated plate:</string>
        <property name="geometry">
         <rect>
          <x>268</x>
-         <y>270</y>
+         <y>382</y>
          <width>90</width>
          <height>32</height>
         </rect>
@@ -3383,7 +3395,7 @@ perfurated plate:</string>
        <property name="geometry">
         <rect>
          <x>86</x>
-         <y>326</y>
+         <y>436</y>
          <width>80</width>
          <height>30</height>
         </rect>
@@ -3417,6 +3429,39 @@ perfurated plate:</string>
        </property>
        <property name="flat">
         <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="checkBox_remove_valve_structural_effects">
+       <property name="geometry">
+        <rect>
+         <x>64</x>
+         <y>14</y>
+         <width>280</width>
+         <height>30</height>
+        </rect>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>280</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>280</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Remove valve strucutral effects</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
        </property>
       </widget>
      </widget>

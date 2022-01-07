@@ -1,4 +1,5 @@
 # from pulse.preprocessing.before_run import BeforeRun
+from collections import defaultdict
 from data.user_input.project.printMessageInput import PrintMessageInput
 import numpy as np
 
@@ -6,8 +7,9 @@ window_title_1 = "ERROR"
 window_title_2 = "WARNING"
 
 class BeforeRun:
-    def __init__(self, project, **kwargs):
+    def __init__(self, project, opv, **kwargs):
         self.project = project
+        self.opv = opv
         self.preprocessor = project.preprocessor
         self.nodes = project.preprocessor.nodes
         self.structural_elements = project.preprocessor.structural_elements
@@ -167,21 +169,30 @@ class BeforeRun:
         """
         self.check_set_material = False
         self.check_poisson = False
+        lines_without_materials = []
         for element in self.structural_elements.values():
+            line_id = self.preprocessor.elements_to_line[element.index]
             if element.material is None:
                 self.check_set_material = True
-                return
+                if line_id not in lines_without_materials:
+                    lines_without_materials.append(line_id)
+                
+        return lines_without_materials
 
     def check_poisson_all_elements(self):
         """
         This method checks if all structural elements have a Poisson ratio attributed.
         """
         self.check_poisson = False
+        lines_without_poisson = []
         for element in self.structural_elements.values():
+            line_id = self.preprocessor.elements_to_line[element.index]
             if element.material.poisson_ratio == 0:
                 self.check_poisson = True
-                return
-
+                if line_id not in lines_without_poisson:
+                    lines_without_poisson.append(line_id)
+                
+        return lines_without_poisson
 
     def check_material_and_cross_section_in_all_elements(self):
         """
@@ -190,26 +201,44 @@ class BeforeRun:
         self.check_set_material = False
         self.check_set_crossSection = False
         self.check_poisson = False
+        lines_without_materials = []
+        lines_without_cross_sections = []
+        elements_without_cross_sections = defaultdict(list)  
         for element in self.structural_elements.values():
+            line_id = self.preprocessor.elements_to_line[element.index]
             if element.material is None:
                 self.check_set_material = True
-                return
+                if line_id not in lines_without_materials:
+                    lines_without_materials.append(line_id)
+                
             if element.cross_section is None:
                 if element.element_type:
                     self.check_set_crossSection = True
-                    return
+                    if element.index not in elements_without_cross_sections[line_id]:
+                        elements_without_cross_sections[line_id].append(element.index)
+                    if line_id not in lines_without_cross_sections:
+                        lines_without_cross_sections.append(line_id)
+                    
             else:        
 
                 if element.element_type == 'expansion_joint':
                     if element.cross_section.area_fluid == 0:
                         self.check_set_crossSection = True
-                        return
+                        if element.index not in elements_without_cross_sections[line_id]:
+                            elements_without_cross_sections[line_id].append(element.index)
+                        if line_id not in lines_without_cross_sections:
+                            lines_without_cross_sections.append(line_id)
+                        
                 else:
                     if element.cross_section.thickness == 0:
                         if element.cross_section.area == 0:
                             self.check_set_crossSection = True
-                            return
-
+                            if element.index not in elements_without_cross_sections[line_id]:
+                                elements_without_cross_sections[line_id].append(element.index)
+                            if line_id not in lines_without_cross_sections:
+                                lines_without_cross_sections.append(line_id)
+                            
+        return lines_without_materials, elements_without_cross_sections
 
     def check_fluid_and_cross_section_in_all_elements(self):
         """
@@ -217,41 +246,60 @@ class BeforeRun:
         """
         self.check_set_fluid = False
         self.check_set_crossSection = False
+        lines_without_fluids = []
+        lines_without_cross_sections = []
+        elements_without_cross_sections = defaultdict(list)
         for element in self.acoustic_elements.values():
-            
+            line_id = self.preprocessor.elements_to_line[element.index]
             if element.fluid is None:
                 if 'pipe_' in self.structural_elements[element.index].element_type:
                     self.check_set_fluid = True
-                    return
-
+                    if line_id not in lines_without_fluids:
+                        lines_without_fluids.append(line_id)
+                    
             if element.cross_section is None:
                 self.check_set_crossSection = True
-                return
-
-            if self.structural_elements[element.index].element_type == 'expansion_joint':
-                if element.cross_section.area_fluid == 0:
-                    self.check_set_crossSection = True
-                    return
-            else:    
-                if element.cross_section.thickness == 0:
-                    if element.cross_section.area == 0:
+                if element.index not in elements_without_cross_sections[line_id]:
+                    elements_without_cross_sections[line_id].append(element.index)
+                if line_id not in lines_without_cross_sections:
+                        lines_without_cross_sections.append(line_id)
+            else:
+                if self.structural_elements[element.index].element_type == 'expansion_joint':
+                    if element.cross_section.area_fluid == 0:
                         self.check_set_crossSection = True
-                        return
-
+                        if element.index not in elements_without_cross_sections[line_id]:
+                            elements_without_cross_sections[line_id].append(element.index)
+                        if line_id not in lines_without_cross_sections:
+                            lines_without_cross_sections.append(line_id)     
+                else:    
+                    if element.cross_section.thickness == 0:
+                        if element.cross_section.area == 0:
+                            self.check_set_crossSection = True
+                            if element.index not in elements_without_cross_sections[line_id]:
+                                elements_without_cross_sections[line_id].append(element.index)
+                            if line_id not in lines_without_cross_sections:
+                                lines_without_cross_sections.append(line_id)
+                        
+        return lines_without_fluids, elements_without_cross_sections
 
     def check_fluid_inputs_in_all_elements(self):
         """
         This method checks if each acoustic element has the necessary fluid data to evaluate the analysis according to its element type.
         """
         self.check_all_fluid_inputs = False
+        lines_without_fluids = []
         for element in self.acoustic_elements.values():
+            line_id = self.preprocessor.elements_to_line[element.index]
             if element.element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
                 if 'pipe_' in self.structural_elements[element.index].element_type:
                     _list = [   element.fluid.isentropic_exponent, element.fluid.thermal_conductivity, 
                                 element.fluid.specific_heat_Cp, element.fluid.dynamic_viscosity   ]
                     if None in _list:
                         self.check_all_fluid_inputs = True
-                        return
+                        if line_id not in lines_without_fluids:
+                            lines_without_fluids.append(line_id)
+                        
+        return lines_without_fluids
 
 
     def check_nodes_attributes(self, acoustic=False, structural=False, coupled=False):
@@ -347,46 +395,95 @@ class BeforeRun:
 
         title = " Insufficient model inputs "
 
-        cross_section_message = "You should to set a Cross-Section to all\n elements before trying to run any Analysis!"
-        material_message = "You should to set a Material to all elements\n before trying to run any Analysis!"
-        fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!"
-        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF \nfluid equivalent and LRF full acoustic element types."
+        cross_section_message = "You should set a Cross-Section to all elements \nbefore proceeding with the model solution.!\n\n"
+        #
+        material_message = "You should to set a Material to all elements\n before trying to run any Analysis!\n\n"
+        material_message += "Lines without material assignment: \n{}"
+        #
+        fluid_message = "You should to set a Fluid to all elements\n before trying to run any Analysis!\n\n"
+        fluid_message += "Lines without fluid assignment: \n{}"
+        #
+        all_fluid_inputs_message = "You should insert all fluid properties for wide-duct, LRF \nfluid equivalent and " 
+        all_fluid_inputs_message += "LRF full acoustic element types \n before proceeding with the model solution.\n\n"
+        all_fluid_inputs_message += "Lines with incomplete fluid properties: \n{}"
+        #
         structural_message = "You should to apply an external load to the model or prescribe a \nnon-null DOF value before trying to solve the Harmonic Analysis!"
         acoustic_message = "You should to insert a Volume Velocity or prescribe an Acoustic \nPressure to a node before trying to solve the Harmonic Analysis!"
     
         if analysis_ID == 2:
-            self.check_material_and_cross_section_in_all_elements()
+            lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             if self.check_set_material:
-                PrintMessageInput([title, material_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
                 return True
             elif self.check_set_crossSection:
+                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if list_elements == []:  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}\n"                 
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                elif list_lines == []:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n"
+                    self.opv.opvRenderer.highlight_elements(list_elements)
+                else:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
                 PrintMessageInput([title, cross_section_message, window_title_1])
                 return True
         
         elif analysis_ID == 4:
-            self.check_material_all_elements()
-            self.check_fluid_and_cross_section_in_all_elements()
-            self.check_fluid_inputs_in_all_elements()
+            lines_without_materials = self.check_material_all_elements()
+            lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
+            lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             if self.check_set_material:
-                PrintMessageInput([title, material_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
                 return True
             elif self.check_set_fluid:
-                PrintMessageInput([title, fluid_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
                 return True
             elif self.check_all_fluid_inputs:
-                PrintMessageInput([title, all_fluid_inputs_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
                 return True
             elif self.check_set_crossSection:
+                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if list_elements == []:  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                elif list_lines == []:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
+                    self.opv.opvRenderer.highlight_elements(list_elements)
+                else:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
                 PrintMessageInput([title, cross_section_message, window_title_1])
                 return True
 
         elif analysis_ID == 0 or analysis_ID == 1:
-            self.check_material_and_cross_section_in_all_elements()
+            lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
             self.check_nodes_attributes(structural=True)
             if self.check_set_material:
-                PrintMessageInput([title, material_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
                 return True
             elif self.check_set_crossSection:
+                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if list_elements == []:  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                elif list_lines == []:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
+                    self.opv.opvRenderer.highlight_elements(list_elements)
+                else:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
                 PrintMessageInput([title, cross_section_message, window_title_1])
                 return True
             elif not self.is_there_loads:
@@ -395,20 +492,35 @@ class BeforeRun:
                     return True
     
         elif analysis_ID == 3:
-            self.check_material_all_elements()
-            self.check_fluid_and_cross_section_in_all_elements()
-            self.check_fluid_inputs_in_all_elements()
+            lines_without_materials = self.check_material_all_elements()
+            lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
+            lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(acoustic=True)
             if self.check_set_fluid:
-                PrintMessageInput([title, fluid_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
                 return True
             elif self.check_all_fluid_inputs:
-                PrintMessageInput([title, all_fluid_inputs_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
                 return True
             elif self.check_set_material:
-                PrintMessageInput([title, material_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
                 return True
             elif self.check_set_crossSection:
+                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if list_elements == []:  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                elif list_lines == []:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
+                    self.opv.opvRenderer.highlight_elements(list_elements)
+                else:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
                 PrintMessageInput([title, cross_section_message, window_title_1])
                 return True
             elif not self.is_there_volume_velocity:
@@ -417,23 +529,49 @@ class BeforeRun:
                     return True
 
         elif analysis_ID == 5 or analysis_ID == 6:
-            self.check_material_and_cross_section_in_all_elements()
-            self.check_fluid_and_cross_section_in_all_elements()
-            self.check_fluid_inputs_in_all_elements()
+            lines_without_materials, elements_without_cross_sections = self.check_material_and_cross_section_in_all_elements()
+            lines_without_fluids, elements_without_cross_sections = self.check_fluid_and_cross_section_in_all_elements()
+            lines_without_all_fluids_inputs = self.check_fluid_inputs_in_all_elements()
             self.check_nodes_attributes(coupled=True)
             if self.check_set_material:
-                PrintMessageInput([title, material_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_materials)
+                PrintMessageInput([title, material_message.format(lines_without_materials), window_title_1])
                 return True
             elif self.check_set_fluid:
-                PrintMessageInput([title, fluid_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_fluids)
+                PrintMessageInput([title, fluid_message.format(lines_without_fluids), window_title_1])
                 return True
             elif self.check_all_fluid_inputs:
-                PrintMessageInput([title, all_fluid_inputs_message, window_title_1])
+                self.opv.opvRenderer.highlight_lines(lines_without_all_fluids_inputs)
+                PrintMessageInput([title, all_fluid_inputs_message.format(lines_without_all_fluids_inputs), window_title_1])
                 return True
-            elif self.check_set_crossSection:
+            elif self.check_set_crossSection:  
+                list_lines, list_elements = self.check_cross_section_in_lines_and_elements(elements_without_cross_sections)
+                if list_elements == []:  
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"                 
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                elif list_lines == []:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}"
+                    self.opv.opvRenderer.highlight_elements(list_elements)
+                else:
+                    cross_section_message += f"Elements without cross-section assignment: \n\n{list_elements}\n\n"
+                    cross_section_message += f"Lines without cross-section assignment: \n\n{list_lines}"
+                    self.opv.opvRenderer.highlight_lines(list_lines)
+                    self.opv.opvRenderer.highlight_elements(list_elements, reset_colors=False)
                 PrintMessageInput([title, cross_section_message, window_title_1])
                 return True
             elif not self.is_there_volume_velocity:
                 if not self.is_there_acoustic_pressure:
                     PrintMessageInput([title, acoustic_message, window_title_1])
                     return True
+    
+    def check_cross_section_in_lines_and_elements(self, data):
+        list_lines = []
+        list_elements = []
+        for line_id, element_ids in data.items():
+            if list(np.sort(element_ids)) == list(np.sort(self.preprocessor.line_to_elements[line_id])):
+                list_lines.append(line_id)
+            else:
+                for element_id in element_ids:
+                    list_elements.append(element_id)
+        return list_lines, list_elements

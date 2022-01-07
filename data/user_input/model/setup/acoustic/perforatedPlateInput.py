@@ -80,7 +80,9 @@ class PerforatedPlateInput(QDialog):
 
         self.frequencies = project.frequencies
         self.acoustic_elements = project.preprocessor.acoustic_elements
-        self.dict_group_elements = project.preprocessor.group_elements_with_perforated_plate
+        self.structural_elements = project.preprocessor.structural_elements
+        self.group_elements_with_perforated_plates = project.preprocessor.group_elements_with_perforated_plate
+        self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
         self.elements_id = self.opv.getListPickedElements()
         
         if self.valve_ids:
@@ -231,6 +233,8 @@ class PerforatedPlateInput(QDialog):
         self.treeWidget_perforated_plate_remove.itemClicked.connect(self.on_click_item)
         self.treeWidget_perforated_plate_remove.itemDoubleClicked.connect(self.on_doubleclick_item_remove)
 
+        self.checkBox_remove_valve_structural_effects = self.findChild(QCheckBox, 'checkBox_remove_valve_structural_effects')
+
         self.update()
         self.load_elements_info()
         self.exec_()
@@ -325,7 +329,7 @@ class PerforatedPlateInput(QDialog):
             
             self.lineEdit_thickness.setText("")
             self.lineEdit_porosity.setText("")
-            self.lineEdit_discharge.setText("1")
+            self.lineEdit_discharge.setText("")
             self.lineEdit_thickness.setDisabled(True)
             self.lineEdit_porosity.setDisabled(True)
             self.lineEdit_discharge.setDisabled(True)
@@ -341,17 +345,17 @@ class PerforatedPlateInput(QDialog):
             try:
                 value = float(string)
                 if value < 0:
-                    message = "The {} must be a positive number.".format(label)
+                    message = f"The {label} must be a positive number."
                     PrintMessageInput([title, message, window_title_1])
                     return True
                 else:
                     self.value = value
             except Exception:
-                message = "You have typed an invalid value to the {}.".format(label)
+                message = f"You have typed an invalid value to the {label}."
                 PrintMessageInput([title, message, window_title_1])
                 return True
         elif not_None:
-            message = "The {} must be given.".format(label)
+            message = f"The {label} must be given."
             PrintMessageInput([title, message, window_title_1])
             return True
         else:
@@ -528,80 +532,90 @@ class PerforatedPlateInput(QDialog):
                 return False
             self.dict_inputs['hole diameter'] = self.value
         
-        # Check plate thickness
-        if self.check_input_parameters(self.lineEdit_thickness.text(), 'plate thickness', True):
-            self.lineEdit_thickness.setFocus()
-            return True
+        if self.dict_inputs['type'] == 2:
+            self.dict_inputs['plate thickness'] = round(min(elements_lengths), 6)
+            self.dict_inputs['area porosity'] = 0
+            self.dict_inputs['discharge coefficient'] = 0
+            self.dict_inputs['nonlinear effects'] = 0
+            self.dict_inputs['nonlinear discharge coefficient'] = 0
+            self.dict_inputs['correction factor'] = 0
+            self.dict_inputs['bias flow effects'] = 0
+            self.dict_inputs['bias flow coefficient'] = 0
         else:
-            aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
-            if not all(aux):
-                title = "Plate thickness different from element length"
-                message = "If possible, use plate thickness equal to the element length for better precision."
-                PrintMessageInput([title, message, "WARNING MESSAGE"])
+            # Check plate thickness
+            if self.check_input_parameters(self.lineEdit_thickness.text(), 'plate thickness', True):
                 self.lineEdit_thickness.setFocus()
-            self.dict_inputs['plate thickness'] = self.value
-
-        # Check area porosity
-        if self.check_input_parameters(self.lineEdit_porosity.text(), 'area porosity', True):
-            self.lineEdit_porosity.setFocus()
-            return True
-        else:
-            if self.value >= 1:
-                title = "Invalid area porosity value"
-                message = "The area porosity must be less than 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_porosity.setFocus()
-                return False
-            self.dict_inputs['area porosity'] = self.value
-
-        # Check discharge coefficient
-        if self.check_input_parameters(self.lineEdit_discharge.text(), 'discharge coefficient'):
-            self.lineEdit_discharge.setFocus()
-            return True
-        else:
-            if self.value > 1:
-                title = "Invalid discharge coefficient value"
-                message = "The discharge coefficient must be less than or equal to 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_discharge.setFocus()
-                return False
-            self.dict_inputs['discharge coefficient'] = self.value
-
-        self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
-
-        # Check nonlinear discharge coefficient
-        if self.check_input_parameters(self.lineEdit_nonlinDischarge.text(), 'nonlinear discharge coefficient'):
-            self.lineEdit_nonlinDischarge.setFocus()
-            return True
-        else:
-            if self.value > 1:
-                title = "Invalid nonlinear discharge coefficient value"
-                message = "The nonlinear discharge coefficient must be less than or equal to 1."
-                PrintMessageInput([title, message, window_title_1])
-                self.lineEdit_nonlinDischarge.setFocus()
-                return False
-            self.dict_inputs['nonlinear discharge coefficient'] = self.value
-
-        # Check correction factor
-        if self.check_input_parameters(self.lineEdit_correction.text(), 'correction factor'):
-            self.lineEdit_correction.setFocus()
-            return True
-        else:
-            self.dict_inputs['correction factor'] = self.value
-
-        self.dict_inputs['bias flow effects'] = self.flag_bias
-
-        # Check bias flow
-        if self.check_input_parameters(self.lineEdit_bias.text(), 'bias flow coefficient'):
-            self.lineEdit_bias.setFocus()
-            return True
-        else:
-            self.dict_inputs['bias flow coefficient'] = self.value
-
-        # Check dimensionless impedance
-        if self.tabWidget_dimensionless.currentIndex()==0:
-            if self.check_svalues():
                 return True
+            else:
+                aux = np.append(np.array(elements_lengths) > self.value-self.tol, np.array(elements_lengths) < self.value+self.tol)
+                if not all(aux):
+                    title = "Plate thickness different from element length"
+                    message = "If possible, use plate thickness equal to the element length for better precision."
+                    PrintMessageInput([title, message, "WARNING MESSAGE"])
+                    self.lineEdit_thickness.setFocus()
+                self.dict_inputs['plate thickness'] = self.value
+
+            # Check area porosity
+            if self.check_input_parameters(self.lineEdit_porosity.text(), 'area porosity', True):
+                self.lineEdit_porosity.setFocus()
+                return True
+            else:
+                if self.value >= 1:
+                    title = "Invalid area porosity value"
+                    message = "The area porosity must be less than 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_porosity.setFocus()
+                    return False
+                self.dict_inputs['area porosity'] = self.value
+
+            # Check discharge coefficient
+            if self.check_input_parameters(self.lineEdit_discharge.text(), 'discharge coefficient'):
+                self.lineEdit_discharge.setFocus()
+                return True
+            else:
+                if self.value > 1:
+                    title = "Invalid discharge coefficient value"
+                    message = "The discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_discharge.setFocus()
+                    return False
+                self.dict_inputs['discharge coefficient'] = self.value
+
+            self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
+
+            # Check nonlinear discharge coefficient
+            if self.check_input_parameters(self.lineEdit_nonlinDischarge.text(), 'nonlinear discharge coefficient'):
+                self.lineEdit_nonlinDischarge.setFocus()
+                return True
+            else:
+                if self.value > 1:
+                    title = "Invalid nonlinear discharge coefficient value"
+                    message = "The nonlinear discharge coefficient must be less than or equal to 1."
+                    PrintMessageInput([title, message, window_title_1])
+                    self.lineEdit_nonlinDischarge.setFocus()
+                    return False
+                self.dict_inputs['nonlinear discharge coefficient'] = self.value
+
+            # Check correction factor
+            if self.check_input_parameters(self.lineEdit_correction.text(), 'correction factor'):
+                self.lineEdit_correction.setFocus()
+                return True
+            else:
+                self.dict_inputs['correction factor'] = self.value
+
+            self.dict_inputs['bias flow effects'] = self.flag_bias
+
+            # Check bias flow
+            if self.check_input_parameters(self.lineEdit_bias.text(), 'bias flow coefficient'):
+                self.lineEdit_bias.setFocus()
+                return True
+            else:
+                self.dict_inputs['bias flow coefficient'] = self.value
+
+            # Check dimensionless impedance
+            if self.tabWidget_dimensionless.currentIndex()==0:
+                if self.check_svalues():
+                    return True
         
         self.dict_inputs['single hole'] = self.flag_single_hole
 
@@ -642,7 +656,7 @@ class PerforatedPlateInput(QDialog):
             
             self.set_perforated_plate_to_elements(section, _print=True, remove_tables=True)
             self.replaced = False
-            temp_dict = self.dict_group_elements.copy()
+            temp_dict = self.group_elements_with_perforated_plates.copy()
 
             for key, values in temp_dict.items():
                 if self.elements_typed == list(np.sort(values[1])):
@@ -741,7 +755,7 @@ class PerforatedPlateInput(QDialog):
         else:
             message = None
 
-        [_, list_elements] = self.dict_group_elements[section]
+        [_, list_elements] = self.group_elements_with_perforated_plates[section]
         key_strings = ['perforated plate data', 'dimensionless impedance', 'list of elements']
         remove_bc_from_file([section], self.elements_info_path, key_strings, message)
         # self.remove_perforated_plate_table_files_attributed_to_elements(list_elements)
@@ -750,22 +764,24 @@ class PerforatedPlateInput(QDialog):
         else:
             if section in self.preprocessor.group_elements_with_perforated_plate.keys():
                 self.preprocessor.group_elements_with_perforated_plate.pop(section) 
+        if self.checkBox_remove_valve_structural_effects.isChecked():
+            self.check_if_is_there_a_valve_and_remove_it(list_elements)
         self.load_elements_info()
 
     def remove_perforated_plate_by_group(self):
         key = self.dict_label.format(self.lineEdit_elementID.text())
-        [perforated_plate, _] = self.dict_group_elements[key]
+        [perforated_plate, _] = self.group_elements_with_perforated_plates[key]
         table_name = perforated_plate.dimensionless_impedance_table_name
         self.process_table_file_removal(table_name)
-        if key in self.dict_group_elements.keys():
+        if key in self.group_elements_with_perforated_plates.keys():
             self.remove_function(key)
         self.lineEdit_elementID.setText("")
     
     def remove_all_perforated_plate(self):
-        temp_dict = self.dict_group_elements.copy()
+        temp_dict = self.group_elements_with_perforated_plates.copy()
         _keys = temp_dict.keys()
         for key in _keys:
-            [perforated_plate, _] = self.dict_group_elements[key]
+            [perforated_plate, _] = self.group_elements_with_perforated_plates[key]
             table_name = perforated_plate.dimensionless_impedance_table_name
             self.process_table_file_removal(table_name)
             self.remove_function(key, message_print=False)
@@ -788,10 +804,10 @@ class PerforatedPlateInput(QDialog):
         self.lineEdit_elementID.setText(item.text(0))
         selected_key = self.dict_label.format(self.lineEdit_elementID.text())
         if "Selection-" in selected_key:
-            value = self.dict_group_elements[selected_key]
-            self.label_elementID_plot.setText(str(value[1]))
-            if len(value[1]) == 1:
-                self.lineEdit_specify_elementID.setText(str(value[1][0]))
+            [_, list_elements] = self.group_elements_with_perforated_plates[selected_key]
+            self.label_elementID_plot.setText(str(list_elements))
+            if len(list_elements) == 1:
+                self.lineEdit_specify_elementID.setText(str(list_elements[0]))
             else:
                 self.lineEdit_specify_elementID.setText('')
     
@@ -814,8 +830,10 @@ class PerforatedPlateInput(QDialog):
     def check_select_element(self):        
         selected_key = self.dict_label.format(self.lineEdit_elementID.text())
         if "Selection-" in selected_key:
-            value = self.dict_group_elements[selected_key]
+            value = self.group_elements_with_perforated_plates[selected_key]
             tokens = self.lineEdit_specify_elementID.text().strip().split(',')
+            if value[0].type == 2:
+                return True
             try:
                 tokens.remove('')
             except:     
@@ -874,6 +892,7 @@ class PerforatedPlateInput(QDialog):
         self.plot()
 
     def plot(self):
+        
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
@@ -905,7 +924,7 @@ class PerforatedPlateInput(QDialog):
 
     def load_elements_info(self):
         self.treeWidget_perforated_plate_plot.clear()
-        for section, value in self.dict_group_elements.items():
+        for section, value in self.group_elements_with_perforated_plates.items():
             text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
@@ -917,7 +936,7 @@ class PerforatedPlateInput(QDialog):
         self.treeWidget_perforated_plate_plot.setStyleSheet('font: 16px; font-size: 9pt; font-family: Arial;')
 
         self.treeWidget_perforated_plate_remove.clear()
-        for section, value in self.dict_group_elements.items():
+        for section, value in self.group_elements_with_perforated_plates.items():
             text = "d_h: {}m; t_p: {}m; φ: {}".format(value[0].hole_diameter, value[0].thickness, value[0].porosity)
             key = section.split(" || ")[1]
             new = QTreeWidgetItem([key, text])
@@ -933,7 +952,7 @@ class PerforatedPlateInput(QDialog):
         try:
             selected_key = self.dict_label.format(self.lineEdit_elementID.text())
             if "Selection-" in selected_key:
-                value = self.dict_group_elements[selected_key]
+                value = self.group_elements_with_perforated_plates[selected_key]
                 GetInformationOfGroup(value, selected_key)
             else:
                 title = "ERROR IN GROUP SELECTION"
@@ -970,6 +989,7 @@ class PerforatedPlateInput(QDialog):
         
         if self.elements_id != []:
             self.elements_id.sort()
+            self.write_ids(self.elements_id)
             
             element_id = self.elements_id[0]
             element = self.preprocessor.acoustic_elements[element_id]
@@ -979,19 +999,23 @@ class PerforatedPlateInput(QDialog):
                 
                 self.reset_input_fields(force_reset=True)
                 
-                if perforated_plate.type == 0:
-                    self.radioButton_OpenPulse.setChecked(True)
-                elif perforated_plate.type == 1:
-                    self.radioButton_melling.setChecked(True)
-                
                 self.lineEdit_HoleDiameter.setText(str(perforated_plate.hole_diameter))
                 self.lineEdit_thickness.setText(str(perforated_plate.thickness))
                 self.lineEdit_porosity.setText(str(perforated_plate.porosity))
 
+                if perforated_plate.type == 0:
+                    self.radioButton_OpenPulse.setChecked(True)
+                elif perforated_plate.type == 1:
+                    self.radioButton_melling.setChecked(True)
+                elif perforated_plate.type == 2:
+                    self.radioButton_common_pipe_section.setChecked(True)
+                    self.radioButtonEvent_setup()
+
                 if perforated_plate.nonlinear_effect:
                     self.lineEdit_nonlinDischarge.setText(str(perforated_plate.nonlinear_discharge_coefficient))
                 else:
-                    self.lineEdit_discharge.setText(str(perforated_plate.linear_discharge_coefficient))
+                    if perforated_plate.linear_discharge_coefficient:
+                        self.lineEdit_discharge.setText(str(perforated_plate.linear_discharge_coefficient))
                 
                 if perforated_plate.bias_effect:
                     self.lineEdit_bias.setText(str(perforated_plate.bias_coefficient))
@@ -1013,8 +1037,6 @@ class PerforatedPlateInput(QDialog):
             else:
                 self.reset_input_fields()
 
-            self.write_ids(self.elements_id)    
-
     def write_ids(self, list_elements_ids):
         text = ""
         for _id in list_elements_ids:
@@ -1029,6 +1051,42 @@ class PerforatedPlateInput(QDialog):
         else:
             self.tab_remove.setDisabled(False)
             self.tab_preview.setDisabled(False)
+
+    def check_if_is_there_a_valve_and_remove_it(self, perforated_plate_elements):
+        _update_renderer = False
+        temp_dict = self.group_elements_with_valves.copy()
+        for key, data in temp_dict.items():
+            [valve_elements, valve_parameters] = data
+            for element_id in perforated_plate_elements:
+                if element_id in valve_elements:
+                    self.project.add_valve_by_elements(valve_elements, None)
+                    #
+                    lists_element_indexes = []
+                    first_element_id = min(valve_elements)
+                    last_element_id = max(valve_elements)
+                    lists_element_indexes.append([  first_element_id-1, first_element_id+1, 
+                                                    last_element_id-1, last_element_id+1  ])
+                    #
+                    line_id = self.preprocessor.elements_to_line[valve_elements[0]]
+                    first_element_id_from_line = self.preprocessor.line_to_elements[line_id][0]
+                    last_element_id_from_line = self.preprocessor.line_to_elements[line_id][-1]
+                    lists_element_indexes.append([  first_element_id_from_line-1, first_element_id_from_line+1, 
+                                                    last_element_id_from_line-1, last_element_id_from_line+1  ])
+                    #
+                    for element_indexes in lists_element_indexes:
+                        for _element_id in element_indexes:
+                            if _element_id not in valve_elements:
+                                cross = self.structural_elements[_element_id].cross_section
+                                element_type = self.structural_elements[_element_id].element_type
+                                if element_type in ['pipe_1', 'pipe_2']:
+                                    if cross:
+                                        self.project.set_cross_section_by_elements(valve_elements, cross)
+                                        self.project.add_cross_sections_expansion_joints_valves_in_file(valve_elements)
+                                        _update_renderer = True
+                                        
+        if _update_renderer:
+            self.opv.opvRenderer.plot()
+            self.opv.changePlotToEntitiesWithCrossSection()
 
         
 class GetInformationOfGroup(QDialog):
@@ -1080,8 +1138,17 @@ class GetInformationOfGroup(QDialog):
         
         self.Label_dh.setText(str(self.perforated_plate.hole_diameter))
         self.Label_tp.setText(str(self.perforated_plate.thickness))
-        self.Label_phi.setText(str(self.perforated_plate.porosity))
-        self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
+        
+        if self.perforated_plate.porosity:
+            self.Label_phi.setText(str(self.perforated_plate.porosity))
+        else:
+            self.Label_phi.setText("___")
+            
+        if self.perforated_plate.linear_discharge_coefficient:
+            self.Label_sigma.setText(str(self.perforated_plate.linear_discharge_coefficient))
+        else:
+            self.Label_sigma.setText("___")
+
         self.Label_single_hole.setText(str(self.perforated_plate.single_hole))
         if self.perforated_plate.nonlinear_effect:
             self.Label_nl_effects.setText("On")
@@ -1111,39 +1178,3 @@ class GetInformationOfGroup(QDialog):
     
     def force_to_close(self):
         self.close()
-
-    # def remove_perforated_plate_table_files_attributed_to_elements(self, elements_id):
-    #     if isinstance(elements_id, int):
-    #         elements_id = [elements_id]
-    #     for element_id in elements_id:
-    #         folder_table_name = "perforated_plate_files"
-    #         element = self.preprocessor.acoustic_elements[element_id]
-    #         if element.perforated_plate is not None:
-    #             label = "Perforated plate"
-    #             str_key = "dimensionless impedance"                
-    #             if element.perforated_plate.dimensionless_impedance_table_name is not None:
-    #                 table_name = element.perforated_plate.dimensionless_impedance_table_name
-    #                 if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                         folder_table_name, node_info=False, label=label   ):
-    #                     self.process_table_file_removal(table_name)  
-    #             elif len(self.list_dimensionless_impedance_table_names) > 0:
-    #                 for table_name in self.list_dimensionless_impedance_table_names:
-    #                     if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                             folder_table_name, node_info=False, label=label   ):
-    #                         self.process_table_file_removal(table_name)   
-
-    # def remove_tables_from_selected_elements(self):
-    #     folder_table_name = "perforated_plate_files"
-    #     str_key = "dimensionless impedance"
-    #     label = "Perforated plate"
-    #     self.list_dimensionless_impedance_table_names = self.get_dimensionless_impedance_table_names_in_typed_elements()
-    #     if self.lineEdit_load_table_path.text() != "":
-    #         if self.basename in self.list_dimensionless_impedance_table_names:
-    #             self.list_dimensionless_impedance_table_names.remove(self.basename)
-    #     for table_name in self.list_dimensionless_impedance_table_names:
-    #         self.process_table_file_removal(table_name)
-    #         for element_id in self.elements_typed:
-    #             if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   element_id, str_key, table_name,
-    #                                                                                     folder_table_name, node_info=False, label=label   ):
-                    
-    #                 self.process_table_file_removal(table_name)
