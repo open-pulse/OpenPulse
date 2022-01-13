@@ -43,6 +43,10 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
+        self.hidden_nodes    = set()
+        self.hidden_elements = set()
+        self.hidden_lines = set()
+
         self._plotFilter = 0
         self._selectionFilter = 0
     
@@ -107,6 +111,175 @@ class opvRenderer(vtkRendererBase):
         self.opvStructuralNodesSymbols.build()
         self.opvStructuralElementsSymbols.build()
     
+    def hide_selection(self):
+        if self.selectionToNodes():
+            self.hide_nodes(self.getListPickedPoints())
+
+        if self.selectionToLines():
+            lines = self.getListPickedLines()
+            if self.opv.change_plot_to_entities_with_cross_section:
+                _elements = [element_id for line_id in lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(_elements)  
+            self.hide_lines(lines)
+
+        if self.selectionToElements():
+            self.hide_elements(self.getListPickedElements())
+
+        self.clearSelection()
+        self.update()
+
+    def unhide_all(self):
+        self.unhide_nodes()
+        self.unhide_lines()
+        self.unhide_elements()
+        self.opvTubes.build()
+        self.opvLines.build()
+        self.opvNodes.build()
+        self.clearSelection()
+        self.update()
+
+    def hide_nodes(self, nodes, _update_Renderer=False):
+        self.hidden_nodes |= set(nodes)
+        self.opvNodes.hidden_nodes = self.hidden_nodes
+        self.opvNodes.build()
+        
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_lines(self, lines, _update_Renderer=False):
+        self.hidden_lines |= set(lines)
+        for i in lines:
+            el = set(self.lineToElements[i])
+            self.hidden_elements |= el
+
+        self.opvLines.hidden_elements = self.hidden_elements
+        # self.opvTubes.hidden_elements = self.hidden_elements
+        self.opvLines.build()
+        # self.opvTubes.build()        
+        
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_elements(self, elements, _update_Renderer=False):
+        self.hidden_elements |= set(elements)
+        # self.opvLines.hidden_elements = self.hidden_elements
+        self.opvTubes.hidden_elements = self.hidden_elements
+
+        # self.opvLines.build()
+        self.opvTubes.build()
+
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_show_lines(self, _show):
+        if _show:
+            self.unhide_lines(_update_Renderer=True)
+        else:
+            picked_lines = self.getListPickedLines()
+            picked_elements = self.getListPickedElements()
+            if picked_lines:
+                self.hide_lines(picked_lines, _update_Renderer=True)
+            elif picked_elements:
+                _lines = []
+                for element_id in picked_elements:
+                    line_id = self.preprocessor.elements_to_line[element_id]
+                    if line_id not in _lines:
+                        _lines.append(line_id)
+                self.hide_lines(_lines, _update_Renderer=True)
+            else:
+                _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+                self.hide_lines(_lines, _update_Renderer=True)
+            
+    def hide_show_elements_and_nodes(self, _show):
+        if _show:
+            self.unhide_elements(_update_Renderer=True)
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            picked_elements = self.getListPickedElements()
+            picked_lines = self.getListPickedLines()
+            if picked_elements:
+                self.hide_elements(picked_elements, _update_Renderer=False)
+            elif picked_lines:
+                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(picked_elements, _update_Renderer=False)
+            else:
+                _elements = list(self.preprocessor.structural_elements.keys())
+                self.hide_elements(_elements, _update_Renderer=False)
+
+            picked_nodes = self.getListPickedPoints()
+            if picked_nodes:
+                self.hide_nodes(picked_nodes, _update_Renderer=True)
+            else:
+                _nodes = list(self.preprocessor.nodes.keys())
+                self.hide_nodes(_nodes, _update_Renderer=True)
+
+    def hide_show_elements(self, _show):
+        if _show:
+            self.unhide_elements(_update_Renderer=True)
+        else:
+            picked_elements = self.getListPickedElements()
+            picked_lines = self.getListPickedLines()
+            if picked_elements:
+                self.hide_elements(picked_elements, _update_Renderer=True)
+            elif picked_lines:
+                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(picked_elements, _update_Renderer=True)
+            else:
+                _elements = list(self.preprocessor.structural_elements.keys())
+                self.hide_elements(_elements, _update_Renderer=True)           
+
+    def hide_show_nodes(self, _show):
+        if _show:
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            picked_nodes = self.getListPickedPoints()
+            if picked_nodes:
+                self.hide_nodes(picked_nodes, _update_Renderer=True)
+            else:
+                _nodes = list(self.preprocessor.nodes.keys())
+                self.hide_nodes(_nodes, _update_Renderer=True)
+
+    def hide_show_acoustic_symbols(self):
+        pass
+
+    def hide_show_structural_symbols(self):
+        pass
+
+    def unhide_nodes(self, nodes=None, _update_Renderer=False):
+        if not nodes:
+            self.hidden_nodes.clear()
+        else:
+            self.hidden_nodes -= set(nodes)
+        if _update_Renderer:
+            self.opvNodes.build()
+            self.clearSelection()
+            self.update()
+
+    def unhide_lines(self, lines=None, _update_Renderer=False):
+        if not lines:
+            self.hidden_lines.clear()
+            self.opvLines.hidden_elements.clear()
+        else:
+            self.hidden_lines -= set(lines)
+        
+        if _update_Renderer:
+            self.opvLines.build()
+            self.clearSelection()
+            self.update()
+
+    def unhide_elements(self, elements=None, _update_Renderer=False):
+        if not elements:
+            self.hidden_elements.clear()
+        else:
+            self.hidden_elements -= set(elements)
+        if _update_Renderer:
+            self.opvTubes.build()
+            self.clearSelection()
+            self.update()
+
     def setPlotFilter(self, plot_filter):
         self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
         self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
@@ -132,7 +305,7 @@ class opvRenderer(vtkRendererBase):
     def selectionToElements(self):
         return self._selectionFilter & SelectionFilter.elements 
 
-    def selectionToEntities(self):
+    def selectionToLines(self):
         return self._selectionFilter & SelectionFilter.entities
 
     def clearSelection(self):
@@ -186,9 +359,9 @@ class opvRenderer(vtkRendererBase):
         else:
             return []
 
-    def getListPickedEntities(self):
-        if self.selectionToEntities():
-            return self._style.getListPickedEntities()
+    def getListPickedLines(self):
+        if self.selectionToLines():
+            return self._style.getListPickedLines()
         else:
             return []
 
@@ -217,7 +390,7 @@ class opvRenderer(vtkRendererBase):
 
         selectedNodes = self.getListPickedPoints()
         selectedElements = self.getListPickedElements()
-        selectedEntities = self.getListPickedEntities()
+        selectedLines = self.getListPickedLines()
         
         self.updateColors()  # clear colors
         selectionColor = (255, 0, 0)
@@ -232,16 +405,17 @@ class opvRenderer(vtkRendererBase):
             self.opvTubes.setColor(selectionColor, keys=selectedElements)
             _update = True
 
-        if selectedEntities and self.selectionToEntities():
-            elementsFromEntities = set()
-            for i in selectedEntities:
+        if selectedLines and self.selectionToLines():
+            elementsFromLines = set()
+            for i in selectedLines:
                 elements = self.lineToElements[i]
-                elementsFromEntities = elementsFromEntities.union(elements)
+                elementsFromLines = elementsFromLines.union(elements)
 
-            self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
-            self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
+            self.opvLines.setColor(selectionColor, keys=elementsFromLines)
+            self.opvTubes.setColor(selectionColor, keys=elementsFromLines)
             _update = True
-
+        
+        # self.opv.parent.update_toolbar_radioButtons(selectedNodes, selectedElements, selectedLines)
         if _update:
             self.call_update_in_QDialogs_if_highlighted()
 
@@ -308,7 +482,6 @@ class opvRenderer(vtkRendererBase):
     def setPlotRadius(self, *args, **kwargs):
         pass
 
-    # TODO: clean-up the below methods
     def updateInfoText(self, obj, event):
         text = ''
         if self.selectionToNodes() and self.getListPickedPoints():
@@ -317,7 +490,7 @@ class opvRenderer(vtkRendererBase):
         if self.selectionToElements() and self.getListPickedElements():
             text += self.getElementsInfoText() + '\n'
         
-        if self.selectionToEntities() and self.getListPickedEntities():
+        if self.selectionToLines() and self.getListPickedLines():
             text += self.getEntityInfoText()  + '\n'
             
         self.createInfoText(text)
@@ -591,7 +764,7 @@ class opvRenderer(vtkRendererBase):
         return text
 
     def getEntityInfoText(self):
-        line_ids = self.getListPickedEntities()
+        line_ids = self.getListPickedLines()
         text = ''
         if len(line_ids) == 0: 
             return

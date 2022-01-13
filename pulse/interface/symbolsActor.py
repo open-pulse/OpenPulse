@@ -31,11 +31,12 @@ class SymbolsActorBase(vtkActorBase):
         super().__init__()
         
         self.project = project 
+        self.preprocessor = project.preprocessor
         self.deformed = deformed
         self.scaleFactor = 0.3
 
         self._connections = self._createConnections()
-        self._sequence = self._createSequence()
+        # self._sequence = self._createSequence()
 
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkGlyph3DMapper()
@@ -58,15 +59,15 @@ class SymbolsActorBase(vtkActorBase):
 
         return []
     
-    @abstractmethod
-    def _createSequence(self):
-        '''
-        Every function of how to display a symbol will be applied to some sequence
-        like nodes, elements, or whatever our creative minds come up with. Here you define the 
-        sequence of things you want those functions to map.
-        '''
+    # @abstractmethod
+    # def _createSequence(self):
+    #     '''
+    #     Every function of how to display a symbol will be applied to some sequence
+    #     like nodes, elements, or whatever our creative minds come up with. Here you define the 
+    #     sequence of things you want those functions to map.
+    #     '''
 
-        return []
+    #     return []
 
     def source(self):
         self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
@@ -75,10 +76,9 @@ class SymbolsActorBase(vtkActorBase):
         self._createArrays()
         self._loadSources()
 
-        for data in self._sequence:
-            for i, (func, symb) in enumerate(self._connections):
-                for transform in func(data):
-                    self._createSymbol(i, transform)
+        for i, (transforms, symb) in enumerate(self._connections):
+            for transform in transforms:
+                self._createSymbol(i, transform)
 
         self._populateData()
     

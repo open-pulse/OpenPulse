@@ -73,7 +73,7 @@ class Preprocessor:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
-        self.element_with_perforated_plate = []
+        self.elements_with_perforated_plate = []
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
@@ -2242,15 +2242,17 @@ class Preprocessor:
     def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate
+            if element not in self.elements_with_perforated_plate:
+                self.elements_with_perforated_plate.append(element)
+            if perforated_plate is None:
+                if element in self.elements_with_perforated_plate:
+                    self.elements_with_perforated_plate.remove(element)
+                    
         for element in slicer(self.acoustic_elements, elements):
             element.perforated_plate = perforated_plate
             element.delta_pressure = 0
             element.pp_impedance = None
-            if element not in self.element_with_perforated_plate:
-                self.element_with_perforated_plate.append(element)
-            if perforated_plate is None:
-                if element in self.element_with_perforated_plate:
-                    self.element_with_perforated_plate.remove(element)
+
         if delete_from_dict:
             self.group_elements_with_perforated_plate.pop(section) 
         else:

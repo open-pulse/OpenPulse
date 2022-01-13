@@ -348,5 +348,5 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
     def getListPickedElements(self):
         return list(self.__selectedElements)
     
-    def getListPickedEntities(self):
+    def getListPickedLines(self):
         return list(self.__selectedEntities)

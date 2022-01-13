@@ -29,7 +29,7 @@ class StressStiffeningInput(QDialog):
         
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
@@ -122,7 +122,7 @@ class StressStiffeningInput(QDialog):
 
     def update(self):
 
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
 
         if self.lines_id != []:

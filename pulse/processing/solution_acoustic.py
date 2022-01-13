@@ -42,7 +42,7 @@ class SolutionAcoustic:
         self.max_iter = 100
         self.target = 10/100
 
-        self.elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
+        self.group_elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
         self.solution_nm1 = None
         self.convergence_dataLog = None
 
@@ -203,9 +203,9 @@ class SolutionAcoustic:
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
         
-        if self.elements_with_perforated_plate:
+        if self.group_elements_with_perforated_plate:
                         
-            values = self.elements_with_perforated_plate.values()
+            values = self.group_elements_with_perforated_plate.values()
             elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
             
             self.non_linear = False

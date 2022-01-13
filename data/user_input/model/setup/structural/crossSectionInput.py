@@ -35,7 +35,7 @@ class CrossSectionInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
 
         self.project = project
@@ -556,7 +556,7 @@ class CrossSectionInput(QDialog):
 
     def update(self):
 
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
         self.elements_id = self.opv.getListPickedElements()
         self.update_QDialog_info()
 

@@ -81,7 +81,7 @@ class FlangesInput(QDialog):
         self.lineEdit_insulation_thickness = self.findChild(QLineEdit, 'lineEdit_insulation_thickness')
         self.lineEdit_insulation_density = self.findChild(QLineEdit, 'lineEdit_insulation_density')
 
-        self.line_id = self.opv.getListPickedEntities()
+        self.line_id = self.opv.getListPickedLines()
         self.node_id = self.opv.getListPickedPoints()
         self.element_id = self.opv.getListPickedElements()
         
@@ -220,8 +220,8 @@ class FlangesInput(QDialog):
             PrintMessageInput([title, message, window_title_1])
             return True
 
-        elif self.opv.getListPickedEntities() != []:
-            self.line_id = self.opv.getListPickedEntities()
+        elif self.opv.getListPickedLines() != []:
+            self.line_id = self.opv.getListPickedLines()
             self.node_id = []
             self.element_id = []
 

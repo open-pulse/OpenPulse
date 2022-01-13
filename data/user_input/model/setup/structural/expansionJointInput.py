@@ -64,7 +64,7 @@ class ExpansionJointInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
         self.node_id = self.opv.getListPickedPoints()
-        self.line_id = self.opv.getListPickedEntities()
+        self.line_id = self.opv.getListPickedLines()
         self.element_id = self.opv.getListPickedElements()
 
         self.project = project
@@ -297,7 +297,7 @@ class ExpansionJointInput(QDialog):
     def update_selected_id(self):
         
         self.node_id = self.opv.getListPickedPoints()
-        self.line_id = self.opv.getListPickedEntities()
+        self.line_id = self.opv.getListPickedLines()
         self.element_id = self.opv.getListPickedElements()
         
         if self.previous_flag:

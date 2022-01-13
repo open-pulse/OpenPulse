@@ -24,7 +24,7 @@ class AcousticElementTypeInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -109,7 +109,7 @@ class AcousticElementTypeInput(QDialog):
         self.lineEdit_selected_ID.setText(text)
 
     def update(self):
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
 
         if self.lines_id != []:
             self.write_ids(self.lines_id)
@@ -123,7 +123,7 @@ class AcousticElementTypeInput(QDialog):
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelection = self.radioButton_selected_lines.isChecked()
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
         if self.flagSelection:
             self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:

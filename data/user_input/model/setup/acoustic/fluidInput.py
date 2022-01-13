@@ -38,7 +38,7 @@ class FluidInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_ids = opv.getListPickedEntities()
+        self.lines_ids = opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -272,7 +272,7 @@ class FluidInput(QDialog):
     #     self.reset_remove_texts()
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedEntities()
+        self.lines_ids = self.opv.getListPickedLines()
         if self.lines_ids != []:
             self.write_lines(self.lines_ids)
             self.radioButton_selected_lines.setChecked(True)
@@ -845,7 +845,7 @@ class FluidInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
         if self.flagSelection:
             self.lineEdit_selected_ID.setEnabled(True)
-            self.lines_ids = self.opv.getListPickedEntities()
+            self.lines_ids = self.opv.getListPickedLines()
             if self.lines_ids != []:
                 self.write_lines(self.lines_ids)
             else:

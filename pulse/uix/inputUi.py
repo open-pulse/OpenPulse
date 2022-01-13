@@ -53,7 +53,7 @@ from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import Pl
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
-from data.user_input.plots.render.meshSetupVisibilityInput import MeshSetupVisibilityInput
+from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 #
@@ -159,7 +159,7 @@ class InputUi:
         self.processInput(PlotCrossSectionInput, self.project, self.opv)
 
     def mesh_setup_visibility(self):
-        self.processInput(MeshSetupVisibilityInput, self.project, self.opv)
+        self.processInput(RendererUserPreferencesInput, self.project, self.opv)
         
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)

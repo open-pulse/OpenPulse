@@ -36,7 +36,7 @@ class MaterialInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_ids = self.opv.getListPickedEntities()
+        self.lines_ids = self.opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -168,7 +168,7 @@ class MaterialInput(QDialog):
         self.lineEdit_selected_ID.setText(text)
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedEntities()
+        self.lines_ids = self.opv.getListPickedLines()
         if self.lines_ids != []:
             self.write_ids(self.lines_ids)
             self.radioButton_selected_lines.setChecked(True)

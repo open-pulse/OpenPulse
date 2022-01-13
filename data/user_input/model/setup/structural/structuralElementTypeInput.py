@@ -27,7 +27,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
@@ -145,7 +145,7 @@ class StructuralElementTypeInput(QDialog):
         self.lineEdit_selected_ID.setText(text)
 
     def update(self):
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
 
         if self.lines_id != []:
             self.write_ids(self.lines_id)
@@ -159,7 +159,7 @@ class StructuralElementTypeInput(QDialog):
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
         if self.flagEntity:
             self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:
