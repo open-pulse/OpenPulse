@@ -77,9 +77,10 @@ class SymbolsActorBase(vtkActorBase):
     def source(self):
 
         self._createArrays()
-        self._loadSources()
+        # self._loadSources()
 
         for i, (transforms, symb) in enumerate(self._connections):
+            self._mapper.SetSourceData(i, symb)
             for transform in transforms:
                 self._createSymbol(i, transform)
 
@@ -126,9 +127,9 @@ class SymbolsActorBase(vtkActorBase):
         self._data.GetPointData().AddArray(self._scales)
         self._data.GetPointData().SetScalars(self._colors)
 
-    def _loadSources(self):
-        for i, (func, symb) in enumerate(self._connections):
-            self._mapper.SetSourceData(i, symb)
+    # def _loadSources(self):
+    #     for i, (func, symb) in enumerate(self._connections):
+    #         self._mapper.SetSourceData(i, symb)
 
     def _createSymbol(self, src, symbol):
         self._sources.InsertNextTuple1(src)
