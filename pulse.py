@@ -25,7 +25,7 @@ def init():
             Fix the HighDPI part to not blurry the screen. See more by searching "PyQt5 HighDPI".
     """
     
-    # disables vtk terrible error threatment
+    # disables vtk terrible error handler
     # you may want to enable them while debugging something
     vtk.vtkObject.GlobalWarningDisplayOff() 
 
