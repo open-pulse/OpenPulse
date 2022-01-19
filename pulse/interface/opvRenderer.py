@@ -285,10 +285,28 @@ class opvRenderer(vtkRendererBase):
             self.update()
 
     def setPlotFilter(self, plot_filter):
-        self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
-        self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
-        self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
-        self.opvTubes.transparent = plot_filter & PlotFilter.transparent
+        if (plot_filter & PlotFilter.nodes):
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            _nodes = list(self.preprocessor.nodes.keys())
+            self.hide_nodes(_nodes, _update_Renderer=True)
+
+        if (plot_filter & PlotFilter.lines):
+            self.unhide_lines(_update_Renderer=True)
+        else:
+            _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+            self.hide_lines(_lines, _update_Renderer=True)
+
+        if (plot_filter & PlotFilter.tubes):
+            self.unhide_elements(_update_Renderer=True)
+        else:
+            _elements = list(self.preprocessor.structural_elements.keys())
+            self.hide_elements(_elements, _update_Renderer=True)           
+
+        # self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
+        # self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
+        # self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
+        # self.opvTubes.transparent = plot_filter & PlotFilter.transparent
 
         self.buildSymbols()
 
