@@ -576,6 +576,10 @@ class MainWindow(QMainWindow):
         self.hide_selection_action.setFont(radioButton_font)
         self.hide_selection_action.setShortcut('H')
         self.hide_selection_action.triggered.connect(self.hide_selection)
+        
+        # you need to add the action to the main window to make the shortcut work 
+        # without creating a button
+        self.addAction(self.hide_selection_action)
 
         self.show_all_action = QAction('&Show \nall', self)
         self.show_all_action.setFont(radioButton_font)
@@ -611,17 +615,16 @@ class MainWindow(QMainWindow):
         self.toolbar_hide_show.addAction(self.show_elements_and_nodes_action)
         self.toolbar_hide_show.addAction(self.show_elements_action)
         self.toolbar_hide_show.addAction(self.show_nodes_action)
-        self.toolbar_hide_show.addAction(self.hide_selection_action)
         self.toolbar_hide_show.addAction(self.show_all_action)
         self.toolbar_hide_show.addAction(self.acoustic_symbols_action)
         self.toolbar_hide_show.addAction(self.structural_symbols_action)
 
-        widget_hide_selection = self.toolbar_hide_show.widgetForAction(self.hide_selection_action)
+        # widget_hide_selection = self.toolbar_hide_show.widgetForAction(self.hide_selection_action)
         widget_show_all = self.toolbar_hide_show.widgetForAction(self.show_all_action)
         widget_acoustic_symbols = self.toolbar_hide_show.widgetForAction(self.acoustic_symbols_action)
         widget_structural_symbols = self.toolbar_hide_show.widgetForAction(self.structural_symbols_action)
 
-        widget_hide_selection.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
+        # widget_hide_selection.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
         widget_show_all.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
         widget_acoustic_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
         widget_structural_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
