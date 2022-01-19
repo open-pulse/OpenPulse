@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 import os
+import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -320,7 +321,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         return output_data
 
     def plot(self):
-
         fig = plt.figure(figsize=[12,7])
         ax = fig.add_subplot(1,1,1)
 
@@ -353,10 +353,6 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         elif self.plotImag:
             response = np.imag(response)
             ax.set_ylabel(("Structural Response - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
-   
-        #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
-        plt.connect('motion_notify_event', cursor.mouse_move)
 
         legend_label = "Response {} at node {}".format(self.localdof_label, self.node_ID)
 
@@ -387,5 +383,9 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+   
+        #cursor = Cursor(ax)
+        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
+        plt.canvas.connect('motion_notify_event', cursor.mouse_move)
 
-        plt.show()
+        fig.show()
