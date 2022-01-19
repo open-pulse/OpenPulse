@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel
+from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QPushButton
 
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
@@ -8,6 +8,7 @@ from pulse.uix.opvUi import OPVUi
 from pulse.project import Project
 from pulse.uix.config import Config
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
 import sys
 from os.path import expanduser, basename, exists, dirname
@@ -338,23 +339,19 @@ class MainWindow(QMainWindow):
         self.animationSettings_action.setStatusTip('Animation Settings')
         self.animationSettings_action.triggered.connect(self.getInputWidget().animationSettings)
 
+        # Hide show actions
         self.show_lines_action = QAction(self.lines_only_icon, '&Hide/Show lines', self)
-        # self.show_lines_action.setShortcut('')
+        self.show_lines_action.setCheckable(True)
         self.show_lines_action.setStatusTip('Hide/Show lines')
         self.show_lines_action.triggered.connect(self.hide_show_lines)
 
-        self.show_elements_and_nodes_action = QAction(self.elements_and_nodes_icon, '&Hide/Show elements and nodes', self)
-        # self.show_elements_and_nodes_action.setShortcut('')
-        self.show_elements_and_nodes_action.setStatusTip('Hide/Show elements and nodes')
-        self.show_elements_and_nodes_action.triggered.connect(self.hide_show_elements_and_nodes)
-
         self.show_elements_action = QAction(self.elements_only_icon, '&Hide/Show elements', self)
-        # self.show_elements_action.setShortcut('')
+        self.show_elements_action.setCheckable(True)
         self.show_elements_action.setStatusTip('Hide/Show elements')
         self.show_elements_action.triggered.connect(self.hide_show_elements)
 
         self.show_nodes_action = QAction(self.nodes_only_icon, '&Hide/Show nodes', self)
-        # self.show_nodes_action.setShortcut('')
+        self.show_nodes_action.setCheckable(True)
         self.show_nodes_action.setStatusTip('Hide/Show nodes')
         self.show_nodes_action.triggered.connect(self.hide_show_nodes)
 
@@ -563,14 +560,9 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(self.saveAsPng_action)
 
     def _createHideShowToolBar(self):
-
+        # usefull stuff
         label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
         radioButton_font = self._getFont(9, bold=True, italic=True, family_type="Arial")
-
-        self.toolbar_hide_show = QToolBar("Hide/Show toolbar")
-        self.toolbar_hide_show.setIconSize(QSize(30,30))
-        self.toolbar_hide_show.setMovable(True)
-        self.addToolBar(self.toolbar_hide_show)
 
         self.hide_selection_action = QAction('&Hide \nselection', self)
         self.hide_selection_action.setFont(radioButton_font)
@@ -583,48 +575,69 @@ class MainWindow(QMainWindow):
         self.show_all_action.triggered.connect(self.unhide_selection)
 
         self.acoustic_symbols_action = QAction('&Acoustic \nsymbols', self)
+        self.acoustic_symbols_action.setCheckable(True)
         self.acoustic_symbols_action.setFont(radioButton_font)
-        # self.acoustic_symbols_action.setShortcut('U')
         self.acoustic_symbols_action.triggered.connect(self.hide_show_acoustic_symbols)
 
         self.structural_symbols_action = QAction('&Structural \nsymbols', self)
+        self.structural_symbols_action.setCheckable(True)
         self.structural_symbols_action.setFont(radioButton_font)
-        # self.structural_symbols_action.setShortcut('U')
         self.structural_symbols_action.triggered.connect(self.hide_show_structural_symbols)
-        
-        self.label_hide_show_controls = QLabel(' Hide/Show controls:  ', self)
-        self.label_hide_show_controls.setFont(label_font)
 
-        self.radioButton_hide = QRadioButton("Hide ", self)
-        self.radioButton_show = QRadioButton("Show ", self)
-        self.radioButton_hide.setChecked(True)
-        self.radioButton_hide.setFont(radioButton_font)
-        self.radioButton_show.setFont(radioButton_font)
 
-        # self.toolbar_hide_show.addAction("")
-        self.toolbar_hide_show.addWidget(self.label_hide_show_controls)
-        self.toolbar_hide_show.addWidget(self.radioButton_hide)
-        self.toolbar_hide_show.addWidget(self.radioButton_show)
+        # actual toolbar creation
+        self.toolbar_hide_show = QToolBar("Hide/Show toolbar")
+        self.toolbar_hide_show.setIconSize(QSize(30,30))
+        self.toolbar_hide_show.setMovable(True)
+        self.addToolBar(self.toolbar_hide_show)
 
-        self.toolbar_hide_show.addSeparator()
         self.toolbar_hide_show.addAction(self.show_lines_action)
-        self.toolbar_hide_show.addAction(self.show_elements_and_nodes_action)
         self.toolbar_hide_show.addAction(self.show_elements_action)
         self.toolbar_hide_show.addAction(self.show_nodes_action)
+
+        self.toolbar_hide_show.addSeparator()
+
         self.toolbar_hide_show.addAction(self.hide_selection_action)
         self.toolbar_hide_show.addAction(self.show_all_action)
         self.toolbar_hide_show.addAction(self.acoustic_symbols_action)
         self.toolbar_hide_show.addAction(self.structural_symbols_action)
 
-        widget_hide_selection = self.toolbar_hide_show.widgetForAction(self.hide_selection_action)
-        widget_show_all = self.toolbar_hide_show.widgetForAction(self.show_all_action)
-        widget_acoustic_symbols = self.toolbar_hide_show.widgetForAction(self.acoustic_symbols_action)
-        widget_structural_symbols = self.toolbar_hide_show.widgetForAction(self.structural_symbols_action)
+        # Não entendi direito por que esses widgets extras existem, e nem a parte do stylesheet
+        # vou deixar tudo comentado por aqui pra ser fácil de colocar de novo
 
-        widget_hide_selection.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_show_all.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_acoustic_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
-        widget_structural_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
+        # self.label_hide_show_controls = QLabel(' Hide/Show controls:  ', self)
+        # self.label_hide_show_controls.setFont(label_font)
+
+        # self.radioButton_hide = QRadioButton("Hide ", self)
+        # self.radioButton_show = QRadioButton("Show ", self)
+        # self.radioButton_hide.setChecked(True)
+        # self.radioButton_hide.setFont(radioButton_font)
+        # self.radioButton_show.setFont(radioButton_font)
+
+        # # self.toolbar_hide_show.addAction("")
+        # self.toolbar_hide_show.addWidget(self.label_hide_show_controls)
+        # self.toolbar_hide_show.addWidget(self.radioButton_hide)
+        # self.toolbar_hide_show.addWidget(self.radioButton_show)
+
+        # self.toolbar_hide_show.addSeparator()
+        # self.toolbar_hide_show.addAction(self.show_lines_action)
+        # self.toolbar_hide_show.addAction(self.show_elements_action)
+        # self.toolbar_hide_show.addAction(self.show_nodes_action)
+        # self.toolbar_hide_show.addAction(self.show_elements_and_nodes_action)
+        # self.toolbar_hide_show.addAction(self.hide_selection_action)
+        # self.toolbar_hide_show.addAction(self.show_all_action)
+        # self.toolbar_hide_show.addAction(self.acoustic_symbols_action)
+        # self.toolbar_hide_show.addAction(self.structural_symbols_action)
+
+        # widget_hide_selection = self.toolbar_hide_show.widgetForAction(self.hide_selection_action)
+        # widget_show_all = self.toolbar_hide_show.widgetForAction(self.show_all_action)
+        # widget_acoustic_symbols = self.toolbar_hide_show.widgetForAction(self.acoustic_symbols_action)
+        # widget_structural_symbols = self.toolbar_hide_show.widgetForAction(self.structural_symbols_action)
+
+        # widget_hide_selection.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
+        # widget_show_all.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
+        # widget_acoustic_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
+        # widget_structural_symbols.setStyleSheet("QWidget { border: 1px solid rgb(200,200,200); }")
 
         # widths = []
         # widths.append(widget_hide_selection.width())
@@ -732,31 +745,46 @@ class MainWindow(QMainWindow):
         self.opv_widget.opvRenderer.unhide_all()
 
     def hide_show_lines(self):
-        self.opv_widget.opvRenderer.hide_show_lines(self.radioButton_show.isChecked())
-
-    def hide_show_elements_and_nodes(self):
-        self.opv_widget.opvRenderer.hide_show_elements_and_nodes(self.radioButton_show.isChecked())
+        checked = self.show_lines_action.isChecked()
+        self.opv_widget.opvRenderer.hide_show_lines(checked)
 
     def hide_show_elements(self):
-        self.opv_widget.opvRenderer.hide_show_elements(self.radioButton_show.isChecked())
-            
-    def hide_show_nodes(self):
-        self.opv_widget.opvRenderer.hide_show_nodes(self.radioButton_show.isChecked())
+        checked = self.show_elements_action.isChecked()
+        self.opv_widget.opvRenderer.hide_show_elements(checked)
 
+    def hide_show_nodes(self):
+        checked = self.show_nodes_action.isChecked()
+        self.opv_widget.opvRenderer.hide_show_nodes(checked)
+        
     def hide_show_acoustic_symbols(self):
-        self.opv_widget.opvRenderer.hide_show_acoustic_symbols()
+        checked = self.acoustic_symbols_action.isChecked()
+        self.opv_widget.opvRenderer.hide_show_acoustic_symbols(checked)
 
     def hide_show_structural_symbols(self):
-        self.opv_widget.opvRenderer.hide_show_structural_symbols()
+        checked = self.structural_symbols_action.isChecked()
+        self.opv_widget.opvRenderer.hide_show_structural_symbols(checked)
+
+    def update_hide_show_toolbar(self):
+        plot_filter = self.opv_widget.opvRenderer._plotFilter
+
+        self.show_nodes_action.setChecked(PlotFilter.nodes & plot_filter)
+        self.show_elements_action.setChecked(PlotFilter.tubes & plot_filter)
+        self.show_lines_action.setChecked(PlotFilter.lines & plot_filter)
+
+        self.acoustic_symbols_action.setChecked(PlotFilter.acoustic_symbols & plot_filter)
+        self.structural_symbols_action.setChecked(PlotFilter.structural_symbols & plot_filter)
 
     def plot_entities(self):
         self.opv_widget.changePlotToEntities()
+        self.update_hide_show_toolbar()
 
     def plot_entities_with_cross_section(self):
         self.opv_widget.changePlotToEntitiesWithCrossSection()
+        self.update_hide_show_toolbar()
 
     def plot_mesh(self):
         self.opv_widget.changePlotToMesh()
+        self.update_hide_show_toolbar()
 
     def draw(self):
         self.opv_widget.updatePlots()

@@ -138,16 +138,16 @@ class opvRenderer(vtkRendererBase):
         self.clearSelection()
         self.update()
 
-    def hide_nodes(self, nodes, _update_Renderer=False):
+    def hide_nodes(self, nodes, _update_renderer=False):
         self.hidden_nodes |= set(nodes)
         self.opvNodes.hidden_nodes = self.hidden_nodes
         self.opvNodes.build()
         
-        if _update_Renderer:
+        if _update_renderer:
             self.clearSelection()
             self.update()
 
-    def hide_lines(self, lines, _update_Renderer=False):
+    def hide_lines(self, lines, _update_renderer=False):
         self.hidden_lines |= set(lines)
         for i in lines:
             el = set(self.lineToElements[i])
@@ -158,11 +158,11 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.build()
         # self.opvTubes.build()        
         
-        if _update_Renderer:
+        if _update_renderer:
             self.clearSelection()
             self.update()
 
-    def hide_elements(self, elements, _update_Renderer=False):
+    def hide_elements(self, elements, _update_renderer=False):
         self.hidden_elements |= set(elements)
         # self.opvLines.hidden_elements = self.hidden_elements
         self.opvTubes.hidden_elements = self.hidden_elements
@@ -170,116 +170,122 @@ class opvRenderer(vtkRendererBase):
         # self.opvLines.build()
         self.opvTubes.build()
 
-        if _update_Renderer:
+        if _update_renderer:
             self.clearSelection()
             self.update()
 
     def hide_show_lines(self, _show):
         if _show:
-            self.unhide_lines(_update_Renderer=True)
+            self.unhide_lines(_update_renderer=True)
         else:
             picked_lines = self.getListPickedLines()
             picked_elements = self.getListPickedElements()
             if picked_lines:
-                self.hide_lines(picked_lines, _update_Renderer=True)
+                self.hide_lines(picked_lines, _update_renderer=True)
             elif picked_elements:
                 _lines = []
                 for element_id in picked_elements:
                     line_id = self.preprocessor.elements_to_line[element_id]
                     if line_id not in _lines:
                         _lines.append(line_id)
-                self.hide_lines(_lines, _update_Renderer=True)
+                self.hide_lines(_lines, _update_renderer=True)
             else:
                 _lines = list(self.preprocessor.dict_tag_to_entity.keys())
-                self.hide_lines(_lines, _update_Renderer=True)
+                self.hide_lines(_lines, _update_renderer=True)
             
     def hide_show_elements_and_nodes(self, _show):
         if _show:
-            self.unhide_elements(_update_Renderer=True)
-            self.unhide_nodes(_update_Renderer=True)
+            self.unhide_elements(_update_renderer=True)
+            self.unhide_nodes(_update_renderer=True)
         else:
             picked_elements = self.getListPickedElements()
             picked_lines = self.getListPickedLines()
             if picked_elements:
-                self.hide_elements(picked_elements, _update_Renderer=False)
+                self.hide_elements(picked_elements, _update_renderer=False)
             elif picked_lines:
                 picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
-                self.hide_elements(picked_elements, _update_Renderer=False)
+                self.hide_elements(picked_elements, _update_renderer=False)
             else:
                 _elements = list(self.preprocessor.structural_elements.keys())
-                self.hide_elements(_elements, _update_Renderer=False)
+                self.hide_elements(_elements, _update_renderer=False)
 
             picked_nodes = self.getListPickedPoints()
             if picked_nodes:
-                self.hide_nodes(picked_nodes, _update_Renderer=True)
+                self.hide_nodes(picked_nodes, _update_renderer=True)
             else:
                 _nodes = list(self.preprocessor.nodes.keys())
-                self.hide_nodes(_nodes, _update_Renderer=True)
+                self.hide_nodes(_nodes, _update_renderer=True)
 
     def hide_show_elements(self, _show):
         if _show:
-            self.unhide_elements(_update_Renderer=True)
+            self.unhide_elements(_update_renderer=True)
         else:
             picked_elements = self.getListPickedElements()
             picked_lines = self.getListPickedLines()
             if picked_elements:
-                self.hide_elements(picked_elements, _update_Renderer=True)
+                self.hide_elements(picked_elements, _update_renderer=True)
             elif picked_lines:
                 picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
-                self.hide_elements(picked_elements, _update_Renderer=True)
+                self.hide_elements(picked_elements, _update_renderer=True)
             else:
                 _elements = list(self.preprocessor.structural_elements.keys())
-                self.hide_elements(_elements, _update_Renderer=True)           
+                self.hide_elements(_elements, _update_renderer=True)           
 
     def hide_show_nodes(self, _show):
         if _show:
-            self.unhide_nodes(_update_Renderer=True)
+            self.unhide_nodes(_update_renderer=True)
         else:
             picked_nodes = self.getListPickedPoints()
             if picked_nodes:
-                self.hide_nodes(picked_nodes, _update_Renderer=True)
+                self.hide_nodes(picked_nodes, _update_renderer=True)
             else:
                 _nodes = list(self.preprocessor.nodes.keys())
-                self.hide_nodes(_nodes, _update_Renderer=True)
+                self.hide_nodes(_nodes, _update_renderer=True)
 
-    def hide_show_acoustic_symbols(self):
-        # bitwise xor to toogle bit
-        _filter = self._plotFilter ^ PlotFilter.acoustic_symbols
+    def hide_show_acoustic_symbols(self, cond):
+        # bitwise witchcraft
+        if cond:
+            _filter = self._plotFilter | PlotFilter.acoustic_symbols
+        else:
+            _filter = self._plotFilter & ~PlotFilter.acoustic_symbols
         self.setPlotFilter(_filter)
 
-    def hide_show_structural_symbols(self):
-        # bitwise xor to toogle bit
-        _filter = self._plotFilter ^ PlotFilter.structural_symbols
+    def hide_show_structural_symbols(self, cond):
+        # bitwise witchcraft
+        if cond:
+            _filter = self._plotFilter | PlotFilter.structural_symbols
+        else:
+            _filter = self._plotFilter & ~PlotFilter.structural_symbols
         self.setPlotFilter(_filter)
 
-    def unhide_nodes(self, nodes=None, _update_Renderer=False):
+    def unhide_nodes(self, nodes=None, _update_renderer=False):
         if not nodes:
             self.hidden_nodes.clear()
         else:
             self.hidden_nodes -= set(nodes)
-        if _update_Renderer:
+        if _update_renderer:
             self.opvNodes.build()
             self.clearSelection()
             self.update()
 
-    def unhide_lines(self, lines=None, _update_Renderer=False):
+    def unhide_lines(self, lines=None, _update_renderer=False):
         if not lines:
             self.hidden_lines.clear()
             self.opvLines.hidden_elements.clear()
         else:
             self.hidden_lines -= set(lines)
         
-        if _update_Renderer:
+        if _update_renderer:
             self.opvLines.build()
             self.clearSelection()
             self.update()
 
-    def unhide_elements(self, elements=None, _update_Renderer=False):
+    def unhide_elements(self, elements=None, _update_renderer=False):
         if not elements:
             self.hidden_elements.clear()
         else:
             self.hidden_elements -= set(elements)
-        if _update_Renderer:
+        if _update_renderer:
             self.opvTubes.build()
             self.clearSelection()
             self.update()
