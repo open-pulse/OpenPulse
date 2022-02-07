@@ -71,7 +71,7 @@ class PerforatedPlateInput(QDialog):
         self.valve_ids = valve_ids
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
         
         self.userPath = os.path.expanduser('~')
         self.project_folder_path = project.project_folder_path

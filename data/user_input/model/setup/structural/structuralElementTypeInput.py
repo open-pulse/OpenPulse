@@ -31,7 +31,7 @@ class StructuralElementTypeInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.index = 0

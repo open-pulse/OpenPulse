@@ -35,7 +35,7 @@ class ElasticNodalLinksInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
 
         self.structural_bc_info_path = project.file._node_structural_path

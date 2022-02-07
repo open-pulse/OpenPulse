@@ -37,7 +37,7 @@ class CompressorModelInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.nodes = self.preprocessor.nodes
-        self.before_run = project.get_model_checks()    
+        self.before_run = project.get_pre_solution_model_checks()    
 
         self.project_folder_path = project.file._project_path  
         self.node_acoustic_path = self.project.file._node_acoustic_path   

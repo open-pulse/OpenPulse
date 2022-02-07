@@ -7,6 +7,7 @@ from pulse.preprocessing.entity import Entity
 from pulse.preprocessing.cross_section import CrossSection
 from pulse.projectFile import ProjectFile
 from data.user_input.model.setup.structural.expansionJointInput import get_list_cross_sections_to_plot_expansion_joint
+from pulse.preprocessing.after_run import AfterRun
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.loadingScreen import LoadingScreen
@@ -1679,8 +1680,11 @@ class Project:
     def get_analysis_method_label(self):
         return self.analysis_method_label
 
-    def get_model_checks(self, opv=None):
+    def get_pre_solution_model_checks(self, opv=None):
         return BeforeRun(self, opv)
+
+    def get_post_solution_model_checks(self, opv=None):
+        return AfterRun(self, opv)
 
     def set_damping(self, value):
         self.global_damping = value

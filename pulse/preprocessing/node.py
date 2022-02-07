@@ -94,6 +94,7 @@ class Node:
         self.deformed_displacements_xyz_gcs = None
         self.nodal_solution_gcs = None
         self.static_nodal_solution_gcs = None
+        self.acoustic_solution = None
 
     @property
     def coordinates(self):

@@ -465,6 +465,13 @@ class opvRenderer(vtkRendererBase):
         self.opvLines.setColor(selectionColor, keys=element_ids)
         self.opvTubes.setColor(selectionColor, keys=element_ids)
 
+    def highlight_nodes(self, node_ids, reset_colors=True, color=(255,0,0)):
+        if reset_colors:
+            self.updateColors()  # clear colors
+        selectionColor = color
+
+        self.opvNodes.setColor(selectionColor, keys=node_ids)
+
     def showElementAxes(self, obj, event):
         self._renderer.RemoveActor(self.elementAxes)
         self.update()

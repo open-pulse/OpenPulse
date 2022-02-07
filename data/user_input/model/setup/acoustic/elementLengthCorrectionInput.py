@@ -29,7 +29,7 @@ class AcousticElementLengthCorrectionInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()   
+        self.before_run = project.get_pre_solution_model_checks()   
 
         self.acoustic_elements = project.preprocessor.acoustic_elements
         self.dict_group_elements = project.preprocessor.group_elements_with_length_correction

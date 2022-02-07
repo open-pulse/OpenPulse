@@ -42,7 +42,7 @@ class FluidInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         self.fluid_path = project.get_fluid_list_path()
 

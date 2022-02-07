@@ -3093,12 +3093,7 @@ class Preprocessor:
                     previous_distance = distance
                     output_indexes = [element_start, element_end]
      
-        return min(output_indexes), max(output_indexes)
-
-
-    # def get_model_checks(self):
-    #     return BeforeRun(self)
-                
+        return min(output_indexes), max(output_indexes)             
 
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes

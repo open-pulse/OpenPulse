@@ -69,7 +69,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
 
         self.projec = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
         self.nodes = self.preprocessor.nodes
         
         self.analysisMethod = analysisMethod

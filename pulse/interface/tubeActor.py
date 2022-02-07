@@ -17,7 +17,7 @@ class TubeActor(vtkActorBase):
         self.hidden_elements = kwargs.get('hidden_elements', set())
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
-        # self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
+        self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
 
         self.transparent = True
         self.bff = 5  # bug fix factor 

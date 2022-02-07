@@ -279,7 +279,7 @@ class InputUi:
             PrintMessageInput([title, message, window_title_1])
             return
 
-        self.before_run = self.project.get_model_checks(opv=self.opv)
+        self.before_run = self.project.get_pre_solution_model_checks(opv=self.opv)
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
@@ -290,6 +290,9 @@ class InputUi:
                 self.before_run.check_modal_analysis_imported_data()
             elif self.analysis_ID in [3,5,6]:
                 self.before_run.check_all_acoustic_criteria()
+
+            self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
+            self.after_run.check_all_acoustic_criterias()
         
     def plotStructuralModeShapes(self):
         self.project.set_min_max_type_stresses("", "", "")
