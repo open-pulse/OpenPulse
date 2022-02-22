@@ -19,7 +19,7 @@ class Entity:
         self.variable_cross_section_data = None
         self.beam_xaxis_rotation = None
         self.acoustic_element_type = None
-        self.mean_velocity = None
+        self.vol_flow = None
         self.proportional_damping = None
         self.structural_element_type = None
         self.structural_element_wall_formulation = None

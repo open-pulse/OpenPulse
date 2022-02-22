@@ -777,8 +777,8 @@ class opvRenderer(vtkRendererBase):
                 if acoustic_element.element_type is not None:
                     text += f'Acoustic element type: {acoustic_element_type} \n'
                     if acoustic_element.element_type in ["undamped mean flow", "peters", "howe"]:
-                        if acoustic_element.mean_velocity:
-                            text += f'Mean velocity: {acoustic_element.mean_velocity} [m/s]\n'
+                        if acoustic_element.vol_flow:
+                            text += f'Volume flow rate: {acoustic_element.vol_flow} [m³/s]\n'
                     elif acoustic_element.element_type in ["proportional"]:
                         if acoustic_element.proportional_damping:
                             text += f'Proportional damping: {acoustic_element.proportional_damping}\n'   
@@ -878,8 +878,8 @@ class opvRenderer(vtkRendererBase):
                 if entity.acoustic_element_type is not None:
                     text += f'\nAcoustic element type: {acoustic_element_type}'
                 if entity.acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                    if entity.mean_velocity:
-                        text += f'\nMean velocity: {entity.mean_velocity} [m/s]'
+                    if entity.vol_flow:
+                        text += f'\nVolume flow rate: {entity.vol_flow} [m³/s]'
                 elif entity.acoustic_element_type in ["proportional"]:
                     if entity.proportional_damping:
                         text += f'\nProportional damping: {entity.proportional_damping}'        
@@ -939,8 +939,8 @@ class opvRenderer(vtkRendererBase):
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
                         if entity.acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                            if entity.mean_velocity:
-                                text += f'\nMean velocity: {entity.mean_velocity} [m/s]'
+                            if entity.vol_flow:
+                                text += f'\nVolume flow rate: {entity.vol_flow} [m³/s]'
                         elif entity.acoustic_element_type in ["proportional"]:
                             if entity.proportional_damping:
                                 text += f'\nProportional damping: {entity.proportional_damping}' 

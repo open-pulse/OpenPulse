@@ -374,9 +374,9 @@ class AssemblyStructural:
             for element in self.preprocessor.structural_elements.values():
                 pressure_first = self.acoustic_solution[element.first_node.global_index, :]
                 pressure_last = self.acoustic_solution[element.last_node.global_index, :]
-                pressure_avg = (pressure_first + pressure_last) / 2
+                pressure = np.c_[pressure_first, pressure_last].T
                 position = element.global_dof
-                pressure_loads[position, :] += element.force_vector_acoustic_gcs(self.frequencies, pressure_avg, pressure_external)
+                pressure_loads[position, :] += element.force_vector_acoustic_gcs(self.frequencies, pressure, pressure_external)
         
         pressure_loads = pressure_loads[self.unprescribed_indexes,:]
 

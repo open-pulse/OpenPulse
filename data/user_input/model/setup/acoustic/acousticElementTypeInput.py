@@ -42,8 +42,8 @@ class AcousticElementTypeInput(QDialog):
         self.checkBox_flow_effects.toggled.connect(self.checkBoxEvent_flow_effects)
         self.flow_effects = self.checkBox_flow_effects.isChecked()
 
-        self.label_mean_velocity = self.findChild(QLabel, 'label_mean_velocity')
-        self.lineEdit_mean_velocity = self.findChild(QLineEdit, 'lineEdit_mean_velocity')
+        self.label_vol_flow = self.findChild(QLabel, 'label_vol_flow')
+        self.lineEdit_vol_flow = self.findChild(QLineEdit, 'lineEdit_vol_flow')
         self.label_ms_unit = self.findChild(QLabel, 'label_ms_unit')
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
@@ -169,8 +169,8 @@ class AcousticElementTypeInput(QDialog):
 
     def checkBoxEvent_flow_effects(self):
         self.flow_effects = self.checkBox_flow_effects.isChecked()
-        self.label_mean_velocity.setDisabled(not self.flow_effects)
-        self.lineEdit_mean_velocity.setDisabled(not self.flow_effects)
+        self.label_vol_flow.setDisabled(not self.flow_effects)
+        self.lineEdit_vol_flow.setDisabled(not self.flow_effects)
         self.label_ms_unit.setDisabled(not self.flow_effects)
         self.comboBox.clear()
 
@@ -220,11 +220,11 @@ class AcousticElementTypeInput(QDialog):
             proportional_damping = None
 
         if self.flow_effects:
-            if self.check_input_parameters(self.lineEdit_mean_velocity.text(), "mean velocity"):
+            if self.check_input_parameters(self.lineEdit_vol_flow.text(), "Volume flow rate"):
                 return
-            mean_velocity = self.value
+            vol_flow = self.value
         else:
-            mean_velocity = None
+            vol_flow = None
 
         if self.flagSelection:
             lineEdit = self.lineEdit_selected_ID.text()
@@ -240,7 +240,7 @@ class AcousticElementTypeInput(QDialog):
             lines = self.project.preprocessor.all_lines
             print(f"[Set Acoustic Element Type] - {self.element_type} assigned in all the entities")
         
-        self.project.set_acoustic_element_type_by_lines(lines, self.element_type, proportional_damping = proportional_damping, mean_velocity = mean_velocity)
+        self.project.set_acoustic_element_type_by_lines(lines, self.element_type, proportional_damping = proportional_damping, vol_flow = vol_flow)
         self.complete = True
         self.close()
     
@@ -251,17 +251,17 @@ class AcousticElementTypeInput(QDialog):
         self.treeWidget_element_type.clear()
         header = self.treeWidget_element_type.headerItem()
         header.setText(0, "Element type")
-        header.setText(1, "Mean velocity")
+        header.setText(1, "Volume flow rate")
         header.setText(2, "Lines")
         header.setTextAlignment(0, Qt.AlignCenter)
         header.setTextAlignment(1, Qt.AlignCenter)
         header.setTextAlignment(2, Qt.AlignCenter)
         for key, lines in self.project.preprocessor.dict_acoustic_element_type_to_lines.items():
-            mean_velocity = [self.dict_tag_to_entity[line].mean_velocity for line in lines]
-            if None in mean_velocity:
+            vol_flow = [self.dict_tag_to_entity[line].vol_flow for line in lines]
+            if None in vol_flow:
                 new = QTreeWidgetItem([str(key), str('---'), str(lines)])
             else:
-                new = QTreeWidgetItem([str(key), str(mean_velocity), str(lines)])
+                new = QTreeWidgetItem([str(key), str(vol_flow), str(lines)])
             new.setTextAlignment(0, Qt.AlignCenter)
             new.setTextAlignment(1, Qt.AlignCenter)
             new.setTextAlignment(2, Qt.AlignCenter)
@@ -312,7 +312,7 @@ class GetInformationOfGroup(QDialog):
             self.treeWidget_group_info.setColumnWidth(1, 130)
             self.treeWidget_group_info.setColumnWidth(2, 150)
         elif self.key in ["undamped mean flow", "peters", "howe"]:
-            header.setText(2, "Mean velocity")
+            header.setText(2, "Volume mean flow")
             header.setTextAlignment(2, Qt.AlignCenter)
             self.treeWidget_group_info.setColumnWidth(0, 90)
             self.treeWidget_group_info.setColumnWidth(1, 130)
@@ -339,8 +339,8 @@ class GetInformationOfGroup(QDialog):
                 new = QTreeWidgetItem([str(line), self.key, str(damping)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             elif self.key in ["undamped mean flow", "peters", "howe"]:
-                mean_velocity = self.dict_tag_to_entity[line].mean_velocity
-                new = QTreeWidgetItem([str(line), self.key, str(mean_velocity)])
+                vol_flow = self.dict_tag_to_entity[line].vol_flow
+                new = QTreeWidgetItem([str(line), self.key, str(vol_flow)])
                 new.setTextAlignment(2, Qt.AlignCenter)
             else:
                 new = QTreeWidgetItem([str(line), self.key])

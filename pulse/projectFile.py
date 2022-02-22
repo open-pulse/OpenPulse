@@ -318,8 +318,8 @@ class ProjectFile:
                         proportional_damping = entityFile[entity]['proportional damping']
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping), None]
                     elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                        mean_velocity = entityFile[entity]['mean velocity']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(mean_velocity)]
+                        vol_flow = entityFile[entity]['volume flow rate']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(vol_flow)]
                     else:
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, None]
                     self.element_type_is_acoustic = True
@@ -1318,7 +1318,7 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, mean_velocity=None):
+    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
         
         if isinstance(lines, int):
             lines = [lines]
@@ -1337,10 +1337,10 @@ class ProjectFile:
                 config.remove_option(section=_section, option='proportional damping')  
 
             if element_type in ["undamped mean flow", "peters", "howe"]:
-                config[_section]['mean velocity'] = str(mean_velocity)
+                config[_section]['volume flow rate'] = str(vol_flow)
 
-            if element_type not in ["undamped mean flow", "peters", "howe"] and 'mean velocity' in config[_section].keys():
-                config.remove_option(section=_section, option='mean velocity')  
+            if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
+                config.remove_option(section=_section, option='volume flow rate')  
     
         self.write_data_in_file(self._entity_path, config)
 

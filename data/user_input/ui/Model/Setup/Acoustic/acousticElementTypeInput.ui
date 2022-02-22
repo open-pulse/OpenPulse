@@ -408,7 +408,7 @@ color: rgb(0, 0, 255);</string>
             <enum>QLayout::SetNoConstraint</enum>
            </property>
            <item>
-            <widget class="QLineEdit" name="lineEdit_mean_velocity">
+            <widget class="QLineEdit" name="lineEdit_vol_flow">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -558,7 +558,7 @@ color: rgb(0, 0, 255);</string>
             <number>6</number>
            </property>
            <item>
-            <widget class="QLabel" name="label_mean_velocity">
+            <widget class="QLabel" name="label_vol_flow">
              <property name="enabled">
               <bool>false</bool>
              </property>
@@ -589,7 +589,7 @@ color: rgb(0, 0, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>Mean velocity</string>
+              <string>Volume flow rate</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
@@ -635,7 +635,7 @@ color: rgb(0, 0, 255);</string>
               </font>
              </property>
              <property name="text">
-              <string>[m/s]</string>
+              <string>[m³/s]</string>
              </property>
              <property name="alignment">
               <set>Qt::AlignCenter</set>
