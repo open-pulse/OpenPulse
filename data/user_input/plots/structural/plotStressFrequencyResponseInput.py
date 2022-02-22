@@ -358,4 +358,4 @@ class PlotStressFrequencyResponseInput(QDialog):
         ax.set_title(('{} STRESS FREQUENCY RESPONSE - {}').format(self.stress_label.upper(), self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
-        plt.show()
+        self.fig.show()

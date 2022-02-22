@@ -400,4 +400,4 @@ class Plot_TL_NR_Input(QDialog):
             ax.set_ylabel(("Transmission Loss [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
         elif self.flagNR:
             ax.set_ylabel(("Attenuation [{}]").format(unit_label), fontsize = 14, fontweight = 'bold')
-        plt.show()
+        self.fig.show()

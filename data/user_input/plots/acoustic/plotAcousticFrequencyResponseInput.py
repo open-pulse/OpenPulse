@@ -322,4 +322,4 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         ax.set_title(('ACOUSTIC FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
 
-        plt.show()
+        self.fig.show()

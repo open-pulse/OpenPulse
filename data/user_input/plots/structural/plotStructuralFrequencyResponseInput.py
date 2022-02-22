@@ -388,4 +388,4 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
         self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
-        plt.show()
+        self.fig.show()
