@@ -102,6 +102,8 @@ class FluidInput(QDialog):
         self.lineEdit_thermal_conductivity = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity')
         self.lineEdit_specific_heat_Cp = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp')
         self.lineEdit_dynamic_viscosity = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity')
+        self.lineEdit_temperature = self.findChild(QLineEdit, 'lineEdit_temperature')
+        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
         #
         self.lineEdit_name_rp = self.findChild(QLineEdit, 'lineEdit_name_rp')
         self.lineEdit_id_rp = self.findChild(QLineEdit, 'lineEdit_id_rp')
@@ -126,6 +128,8 @@ class FluidInput(QDialog):
         self.lineEdit_thermal_conductivity_edit = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_edit')
         self.lineEdit_specific_heat_Cp_edit = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_edit')
         self.lineEdit_dynamic_viscosity_edit = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_edit')
+        self.lineEdit_temperature_edit = self.findChild(QLineEdit, 'lineEdit_temperature_edit')
+        self.lineEdit_pressure_edit = self.findChild(QLineEdit, 'lineEdit_pressure_edit')
         #       
         self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
         self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
@@ -136,7 +140,9 @@ class FluidInput(QDialog):
         self.lineEdit_isentropic_exponent_remove = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_remove')
         self.lineEdit_thermal_conductivity_remove = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_remove')
         self.lineEdit_specific_heat_Cp_remove = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_remove')
-        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove')    
+        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove') 
+        self.lineEdit_temperature_remove = self.findChild(QLineEdit, 'lineEdit_temperature_remove')
+        self.lineEdit_pressure_remove = self.findChild(QLineEdit, 'lineEdit_pressure_remove')   
         #
         self.create_lists_of_lineEdit()
 
@@ -229,12 +235,12 @@ class FluidInput(QDialog):
                 data = self.fluid_data_REFPROP[key]
                 if isinstance(data, float):
                     if key in ["thermal conductivity", "dynamic viscosity"]:
-                        data = round(data, 9)
+                        _data = round(data, 9)
                     elif key in ["temperature", "pressure"]:
-                        data = round(data, 4)
+                        _data = round(data, 4)
                     else:
-                        data = round(data, 6)
-                self.list_add_lineEdit_rp[index].setText(str(data))
+                        _data = round(data, 6)
+                self.list_add_lineEdit_rp[index].setText(str(_data))
 
     def disable_lineEdits(self):
         lineEdits = [   self.lineEdit_fluid_density_rp,
@@ -298,7 +304,9 @@ class FluidInput(QDialog):
                                     self.lineEdit_isentropic_exponent,
                                     self.lineEdit_thermal_conductivity,
                                     self.lineEdit_specific_heat_Cp,
-                                    self.lineEdit_dynamic_viscosity ]  
+                                    self.lineEdit_dynamic_viscosity,
+                                    self.lineEdit_temperature,
+                                    self.lineEdit_pressure ]  
 
         self.list_add_lineEdit_rp = [   self.lineEdit_name_rp,
                                         self.lineEdit_id_rp,
@@ -322,7 +330,9 @@ class FluidInput(QDialog):
                                     self.lineEdit_isentropic_exponent_edit,
                                     self.lineEdit_thermal_conductivity_edit,
                                     self.lineEdit_specific_heat_Cp_edit,
-                                    self.lineEdit_dynamic_viscosity_edit ]  
+                                    self.lineEdit_dynamic_viscosity_edit,
+                                    self.lineEdit_temperature_edit,
+                                    self.lineEdit_pressure_edit ]  
         
         self.list_remove_lineEdit = [   self.lineEdit_name_remove,
                                         self.lineEdit_id_remove,
@@ -333,7 +343,9 @@ class FluidInput(QDialog):
                                         self.lineEdit_isentropic_exponent_remove,
                                         self.lineEdit_thermal_conductivity_remove,
                                         self.lineEdit_specific_heat_Cp_remove,
-                                        self.lineEdit_dynamic_viscosity_remove ]  
+                                        self.lineEdit_dynamic_viscosity_remove,
+                                        self.lineEdit_temperature_remove,
+                                        self.lineEdit_pressure_remove ]  
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
@@ -451,7 +463,7 @@ class FluidInput(QDialog):
         
         return False
 
-    def check_input_parameters(self, input_string, label, _float=True):
+    def check_input_parameters(self, input_string, label, _float=True, allow_empty_entry=True):
         title = "INPUT ERROR"
         value_string = input_string
         if value_string != "":
@@ -472,7 +484,12 @@ class FluidInput(QDialog):
                 return True
         else:
             self.value = None
-        return False
+            if allow_empty_entry:
+                return False
+            else:
+                message = f"An empty entry has been detected at the '{label}' input field. You should insert a valid entry to proceed."
+                PrintMessageInput([title, message, window_title1])
+                return True
 
     def check_all_inputs(self):
 
@@ -545,6 +562,18 @@ class FluidInput(QDialog):
         else:
             self.list_empty_inputs.append('dynamic viscosity')
             self.incomplete_inputs = True
+        
+        if self.check_input_parameters(self.temperature_string, 'temperature', allow_empty_entry=False):
+            return True
+        else:
+            temperature = self.value
+            self.dict_inputs['temperature'] = temperature
+    
+        if self.check_input_parameters(self.pressure_string, 'pressure', allow_empty_entry=False):
+            return True
+        else:
+            pressure = self.value
+            self.dict_inputs['pressure'] = pressure
 
         if self.lineEdit_temperature_rp.text() != "":
             self.dict_inputs['temperature'] = self.fluid_data_REFPROP["temperature"]
@@ -569,7 +598,9 @@ class FluidInput(QDialog):
             self.isentropic_exponent_string,
             self.thermal_conductivity_string,
             self.specific_heat_Cp_string,
-            self.dynamic_viscosity_string, *args  ] = parameters
+            self.dynamic_viscosity_string, 
+            self.temperature_string,
+            self.pressure_string  ] = parameters
 
         self.dict_inputs = {}
 
@@ -582,6 +613,12 @@ class FluidInput(QDialog):
         if self.check_input_color(color_string):
             return True
 
+        if self.check_all_inputs():
+            # self.list_names.remove(name_string)
+            # self.list_ids.remove(self.fluid_id)
+            # self.list_colors.remove(self.colorRGB)
+            return True
+        
         if name_string not in self.list_names:
             self.list_names.append(name_string)
 
@@ -591,10 +628,8 @@ class FluidInput(QDialog):
         if self.colorRGB not in self.list_colors:
             self.list_colors.append(self.colorRGB)
 
-        if self.check_all_inputs():
-            return True
-        
         try:
+            
             fluid_name = self.dict_inputs["name"]
             config = configparser.ConfigParser()
             config.read(self.fluid_path)
@@ -665,6 +700,12 @@ class FluidInput(QDialog):
             elif self.flag_all_fluid_inputs:
                 list_empty_inputs.append("dynamic viscosity")    
 
+            if self.clicked_item.text(10) != "":
+                temperature = float(self.clicked_item.text(10))
+
+            if self.clicked_item.text(11) != "":
+                pressure = float(self.clicked_item.text(11))
+
             if list_empty_inputs != []:                
                 for label in list_empty_inputs:
                     message += "\n{}".format(label)  
@@ -679,7 +720,9 @@ class FluidInput(QDialog):
                                 isentropic_exponent = isentropic_exponent,
                                 thermal_conductivity = thermal_conductivity,
                                 specific_heat_Cp = specific_heat_Cp,
-                                dynamic_viscosity = dynamic_viscosity )
+                                dynamic_viscosity = dynamic_viscosity,
+                                temperature = temperature,
+                                pressure = pressure )
 
             if self.flagSelection:
                 if self.lineEdit_selected_ID.text() == "":
@@ -740,11 +783,11 @@ class FluidInput(QDialog):
                 
                 temperature = None
                 if 'temperature' in keys:
-                    temperature = float(str(rFluid['temperature']))
+                    temperature = str(rFluid['temperature'])
 
                 pressure = None
                 if 'pressure' in keys:
-                    pressure = float(str(rFluid['pressure']))
+                    pressure = str(rFluid['pressure'])
 
                 key_mixture = None
                 if 'key mixture' in keys:
@@ -754,7 +797,7 @@ class FluidInput(QDialog):
                 if 'molar fractions' in keys:
                     str_molar_fractions = str(rFluid['molar fractions'])
                     molar_fractions = self.project.file._get_list_of_values_from_string(str_molar_fractions, are_values_int=False)
-                
+
                 if not None in [temperature, pressure, key_mixture, molar_fractions]:
                     self.fluid_name_to_REFPROP_data[name] = [name, temperature, pressure, key_mixture, molar_fractions]
 
@@ -767,7 +810,9 @@ class FluidInput(QDialog):
                                                 isentropic_exponent,
                                                 thermal_conductivity,
                                                 specific_heat_Cp,
-                                                dynamic_viscosity  ])
+                                                dynamic_viscosity,
+                                                temperature,
+                                                pressure  ])
                 colorRGB = getColorRGB(color)
                 self.list_names.append(name)
                 self.list_ids.append(int(identifier))
@@ -860,10 +905,12 @@ class FluidInput(QDialog):
         self.pushButton_edit_fluid_in_refprop.setVisible(False)
         self.clicked_item = item
         N = len(self.list_add_lineEdit)
+
         for i in range(N):
             self.list_add_lineEdit[i].setText(item.text(i))
             self.list_edit_lineEdit[i].setText(item.text(i))
             self.list_remove_lineEdit[i].setText(item.text(i))
+        
         self.temp_fluid_color = item.text(2)   
 
         fluid_name = item.text(0)

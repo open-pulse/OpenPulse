@@ -696,7 +696,8 @@ class opvRenderer(vtkRendererBase):
             acoustic_element_type = acoustic_element.element_type
 
             material = structural_element.material
-            fluid = structural_element.fluid
+            # fluid = structural_element.fluid
+            fluid = acoustic_element.fluid
             
             if structural_element_type is None:
                 structural_element_type = "undefined"
@@ -713,6 +714,8 @@ class opvRenderer(vtkRendererBase):
                 fluid_name = 'undefined'
             else:
                 fluid_name = fluid.name
+                fluid_temperature = fluid.temperature
+                fluid_pressure = fluid.pressure
 
             if structural_element.cross_section is None: 
                 outer_diameter = 'undefined'
@@ -765,7 +768,12 @@ class opvRenderer(vtkRendererBase):
                     text += f'Insulation density: {insulation_density} [kg/m³]\n'
 
                 if acoustic_element.fluid is not None:
-                    text += f'\nFluid: {fluid_name} \n'                                
+                    text += f'\nFluid: {fluid_name} \n'
+                    if fluid_temperature is not None:
+                        text += f'\nTemperature: {fluid_temperature} [K]'
+                    if fluid_pressure is not None:
+                        text += f'\nPressure: {fluid_pressure} [Pa] \n' 
+
                 if acoustic_element.element_type is not None:
                     text += f'Acoustic element type: {acoustic_element_type} \n'
                     if acoustic_element.element_type in ["undamped mean flow", "peters", "howe"]:
@@ -810,15 +818,17 @@ class opvRenderer(vtkRendererBase):
             structural_element_type = entity.structural_element_type
             acoustic_element_type = entity.acoustic_element_type
 
-            if entity.material is None:
+            if material is None:
                 material_name = 'undefined'    
             else:
                 material_name = material.name
 
-            if entity.fluid is None:
+            if fluid is None:
                 fluid_name = 'undefined'    
             else:
                 fluid_name = fluid.name
+                fluid_temperature = fluid.temperature
+                fluid_pressure = fluid.pressure
 
             if entity.structural_element_type is None:
                 structural_element_type = 'undefined'
@@ -860,6 +870,11 @@ class opvRenderer(vtkRendererBase):
               
                 if entity.fluid is not None:
                     text += f'\nFluid: {fluid_name}' 
+                    if fluid_temperature is not None:
+                        text += f'\nTemperature: {fluid_temperature} [K]'
+                    if fluid_pressure is not None:
+                        text += f'\nPressure: {fluid_pressure} [Pa] \n' 
+
                 if entity.acoustic_element_type is not None:
                     text += f'\nAcoustic element type: {acoustic_element_type}'
                 if entity.acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
@@ -915,6 +930,10 @@ class opvRenderer(vtkRendererBase):
                                                    
                         if entity.fluid is not None:
                             text += f'\nFluid: {entity.fluid.name}' 
+                            if fluid_temperature is not None:
+                                text += f'\nTemperature: {fluid_temperature} [K]'
+                            if fluid_pressure is not None:
+                                text += f'\nPressure: {fluid_pressure} [Pa] \n' 
 
                         if entity.acoustic_element_type is not None:
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'

@@ -64,6 +64,7 @@ def default_fluid_library(path):
 
     # References:   Incropera, et al. FUNDAMENTALS OF HEAT AND MASS TRANSFER. 6th edition. 
     #               Çengel, Yunus A., Boles, Michael A. THERMODYNAMICS. 5th edition. 
+    # TODO: check the fluids pressure state
 
     config = configparser.ConfigParser()
 
@@ -77,7 +78,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.400, 
                             'Thermal conductivity': 0.0263,
                             'Specific heat Cp': 1007,
-                            'Dynamic viscosity': float(184.6e-7) }      
+                            'Dynamic viscosity': float(184.6e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 }      
 
     config['Air @400K'] = {
                             'Name': 'Air @400K',
@@ -89,7 +92,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.395, 
                             'Thermal conductivity': 0.0338,
                             'Specific heat Cp': 1013,
-                            'Dynamic viscosity': float(230.1e-7) }     
+                            'Dynamic viscosity': float(230.1e-7),
+                            'Temperature' : 400,
+                            'Pressure' : 101325 }     
 
     config['Hydrogen @300K'] = {
                             'Name': 'Hydrogen @300K',
@@ -101,7 +106,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.405, 
                             'Thermal conductivity': float(183e-3),
                             'Specific heat Cp': 14307,
-                            'Dynamic viscosity': float(89.6e-7) } 
+                            'Dynamic viscosity': float(89.6e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 } 
     
     config['Hydrogen @400K'] = {
                             'Name': 'Hydrogen @400K',
@@ -113,7 +120,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.398, 
                             'Thermal conductivity': float(226e-3),
                             'Specific heat Cp': 14476,
-                            'Dynamic viscosity': float(108.2e-7) } 
+                            'Dynamic viscosity': float(108.2e-7),
+                            'Temperature' : 400,
+                            'Pressure' : 101325 } 
     
     config['Methane @300K'] = {
                             'Name': 'Methane @300K',
@@ -125,7 +134,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.299, 
                             'Thermal conductivity': 0.0339,
                             'Specific heat Cp': 2232,
-                            'Dynamic viscosity': float(110e-7) }   
+                            'Dynamic viscosity': float(110e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 }   
 
     with open(path, 'w') as config_file:
         config.write(config_file)

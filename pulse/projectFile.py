@@ -611,9 +611,17 @@ class ProjectFile:
                         if int(fluid_list[fluid]['identifier']) == fluid_id:
                             name = fluid_list[fluid]['name']
                             identifier = fluid_list[fluid]['identifier']
-                            fluid_density =  fluid_list[fluid]['fluid density']
-                            speed_of_sound =  fluid_list[fluid]['speed of sound']
-                            
+                            fluid_density =  float(fluid_list[fluid]['fluid density'])
+                            speed_of_sound =  float(fluid_list[fluid]['speed of sound'])
+
+                            temperature = None
+                            if 'temperature' in keys:
+                                temperature = float(fluid_list[fluid]['temperature'])
+
+                            pressure = None
+                            if 'pressure' in keys:
+                                pressure = float(fluid_list[fluid]['pressure'])
+
                             isentropic_exponent = None
                             if 'isentropic exponent' in keys:
                                 isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
@@ -632,14 +640,17 @@ class ProjectFile:
                             
                             # acoustic_impedance =  fluid_list[fluid]['impedance']
                             color =  fluid_list[fluid]['color']
-                            temp_fluid = Fluid(name,
-                                            float(fluid_density),
-                                            float(speed_of_sound),
-                                            isentropic_exponent = isentropic_exponent,
-                                            thermal_conductivity = thermal_conductivity,
-                                            specific_heat_Cp = specific_heat_Cp,
-                                            dynamic_viscosity = dynamic_viscosity,
-                                            color=color, identifier=int(identifier))
+                            temp_fluid = Fluid( name,
+                                                fluid_density,
+                                                speed_of_sound,
+                                                isentropic_exponent = isentropic_exponent,
+                                                thermal_conductivity = thermal_conductivity,
+                                                specific_heat_Cp = specific_heat_Cp,
+                                                dynamic_viscosity = dynamic_viscosity,
+                                                color=color, identifier = int(identifier),
+                                                temperature = temperature,
+                                                pressure = pressure )
+
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
             if 'capped end' in entityFile[entity].keys():
