@@ -110,7 +110,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
         self.checkBox_cursor.clicked.connect(self.update_cursor)
 
         self.radioButton_normal_axial = self.findChild(QRadioButton, 'radioButton_normal_axial')
@@ -167,7 +167,7 @@ class PlotStressFrequencyResponseInput(QDialog):
         self.exec_()
 
     def update_cursor(self):
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
     
     def _update_damping_effect(self):
         self.flag_damping_effect = self.checkBox_damping_effect.isChecked()
@@ -306,8 +306,8 @@ class PlotStressFrequencyResponseInput(QDialog):
 
     def plot(self):
 
-        fig = plt.figure(figsize=[12,7])
-        ax = fig.add_subplot(1,1,1)
+        self.fig = plt.figure(figsize=[12,7])
+        ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
         response = get_stress_spectrum_data(self.stress_data, self.elementID, self.stress_key, absolute=self.plotAbs, real=self.plotReal, imaginary=self.plotImag)
@@ -320,8 +320,8 @@ class PlotStressFrequencyResponseInput(QDialog):
             ax.set_ylabel(("Stress - Imaginary [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
 
         #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
-        plt.connect('motion_notify_event', cursor.mouse_move)
+        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
+        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         legend_label = "{} stress at element {}".format(self.stress_label, self.elementID)
         if self.imported_data is None:

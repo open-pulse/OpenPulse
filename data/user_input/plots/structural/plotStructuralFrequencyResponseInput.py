@@ -100,7 +100,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.lineEdit_skiprows = self.findChild(QSpinBox, 'spinBox')
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
         self.checkBox_cursor.clicked.connect(self.update_cursor)
 
         self.radioButton_ux = self.findChild(QRadioButton, 'radioButton_ux')
@@ -154,7 +154,7 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         self.exec_()
 
     def update_cursor(self):
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
 
     def reset_imported_data(self):
         self.imported_data = None
@@ -321,8 +321,8 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         return output_data
 
     def plot(self):
-        fig = plt.figure(figsize=[12,7])
-        ax = fig.add_subplot(1,1,1)
+        self.fig = plt.figure(figsize=[12,7])
+        ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
         response = self.get_response()
@@ -384,8 +384,8 @@ class PlotStructuralFrequencyResponseInput(QDialog):
         ax.set_title(('STRUCTURAL FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
    
-        #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
-        plt.canvas.connect('motion_notify_event', cursor.mouse_move)
+        #self.use_cursor = Cursor(ax)
+        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
+        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
-        fig.show()
+        plt.show()

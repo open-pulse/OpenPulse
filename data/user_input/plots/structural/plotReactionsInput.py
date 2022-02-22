@@ -119,7 +119,7 @@ class PlotReactionsInput(QDialog):
                                     self.radioButton_Mx, self.radioButton_My, self.radioButton_Mz   ]
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
         self.checkBox_cursor.clicked.connect(self.update_cursor)
 
         self.radioButton_plotAbs = self.findChild(QRadioButton, 'radioButton_plotAbs')
@@ -176,7 +176,7 @@ class PlotReactionsInput(QDialog):
         self.exec_()
 
     def update_cursor(self):
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
 
     def reset_imported_data(self):
         self.imported_data = None
@@ -424,8 +424,8 @@ class PlotReactionsInput(QDialog):
  
     def plot(self):
 
-        fig = plt.figure(figsize=[12,7])
-        ax = fig.add_subplot(1,1,1)
+        self.fig = plt.figure(figsize=[12,7])
+        ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
         response = get_reactions(   self.preprocessor, 
@@ -446,10 +446,6 @@ class PlotReactionsInput(QDialog):
             ax.set_ylabel(("{} - Real [{}]").format(self.reaction_label, self.unit_label), fontsize = 14, fontweight = 'bold')
         elif self.plotImag:
             ax.set_ylabel(("{} - Imaginary [{}]").format(self.reaction_label, self.unit_label), fontsize = 14, fontweight = 'bold')
-
-        #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, response, self.cursor)
-        plt.connect('motion_notify_event', cursor.mouse_move)
 
         legend_label = "Reaction {} at node {}".format(self.localdof_label, self.node_ID)
         if self.imported_data is None:
@@ -485,5 +481,9 @@ class PlotReactionsInput(QDialog):
 
         ax.set_title(('REACTIONS FREQUENCY RESPONSE - {}').format(self.analysisMethod.upper()), fontsize = 16, fontweight = 'bold')
         ax.set_xlabel(('Frequency [Hz]'), fontsize = 14, fontweight = 'bold')
+
+        #self.cursor = Cursor(ax)
+        self.cursor = SnaptoCursor(ax, frequencies, response, self.use_cursor)
+        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
 
         plt.show()

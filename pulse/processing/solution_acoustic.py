@@ -5,7 +5,7 @@ from numpy.linalg import norm
 from scipy.sparse.linalg import eigs, spsolve
 
 import matplotlib
-matplotlib.use("Qt5Agg")
+# matplotlib.use("Qt5Agg")
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 

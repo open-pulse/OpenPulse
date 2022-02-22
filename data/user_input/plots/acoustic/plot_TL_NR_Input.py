@@ -117,7 +117,7 @@ class Plot_TL_NR_Input(QDialog):
         self.flagNR = self.radioButton_NR.isChecked()
 
         self.checkBox_cursor = self.findChild(QCheckBox, 'checkBox_cursor')
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
         self.checkBox_cursor.clicked.connect(self.update_cursor)
 
         self.pushButton_AddImportedPlot = self.findChild(QPushButton, 'pushButton_AddImportedPlot')
@@ -157,7 +157,7 @@ class Plot_TL_NR_Input(QDialog):
         self.writeNodes(self.opv.getListPickedPoints())
 
     def update_cursor(self):
-        self.cursor = self.checkBox_cursor.isChecked()
+        self.use_cursor = self.checkBox_cursor.isChecked()
 
     def check_node(self, node_string):
         try:
@@ -357,8 +357,8 @@ class Plot_TL_NR_Input(QDialog):
     def plot(self):
 
         plt.close()
-        fig = plt.figure(figsize=[12,7])
-        ax = fig.add_subplot(1,1,1)
+        self.fig = plt.figure(figsize=[12,7])
+        ax = self.fig.add_subplot(1,1,1)
 
         frequencies = self.frequencies
         results = self.get_TL_NR()
@@ -378,8 +378,9 @@ class Plot_TL_NR_Input(QDialog):
         # mng.window.state('zoomed')
 
         #cursor = Cursor(ax)
-        cursor = SnaptoCursor(ax, frequencies, results, self.cursor)
-        plt.connect('motion_notify_event', cursor.mouse_move)
+        self.cursor = SnaptoCursor(ax, frequencies, results, self.use_cursor)
+        self.mouse_connection = self.fig.canvas.mpl_connect(s='motion_notify_event', func=self.cursor.mouse_move)
+
         unit_label = "dB"
         legend_label = "Input Node ID: {} || Output Node ID: {}".format(self.input_node_ID, self.output_node_ID)
 
