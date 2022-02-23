@@ -90,6 +90,7 @@ class Preprocessor:
 
         self.nodes_with_elastic_link_stiffness = {}
         self.nodes_with_elastic_link_dampings = {}
+        self.lines_with_structural_element_force_offset = {}
         self.lines_with_structural_element_wall_formulation = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
@@ -952,6 +953,29 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
+    def set_structural_element_force_offset_by_elements(self, elements, force_offset, remove=False):
+        """
+        This method assigns a structural element wall formulation to a list of selected elements.
+
+        Parameters
+        ----------
+        elements : list
+            Structural elements indexes.
+            
+        force_offset : int, [0, 1]
+            Structural element type to be attributed to the listed elements.
+            
+        remove : bool, optional
+            True if the element_force_offset should to be removed from the _________ dictionary. False otherwise.
+            Default is False.
+        """
+        for element in slicer(self.structural_elements, elements):
+            element.force_offset = force_offset
+        #TODO: check if it is necessary
+        # if remove:
+        #     return
+            # self.dict_structural_element_force_offset_to_lines.pop(force_offset)
+
     def set_structural_element_wall_formulation_by_elements(self, elements, wall_formulation, remove=False):
         """
         This method assigns a structural element wall formulation to a list of selected elements.
@@ -1708,6 +1732,36 @@ class Preprocessor:
     #     if value:
     #         for line in self.all_lines:
     #             self.lines_with_capped_end.append(line)
+
+    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
+        """
+        This method assign a strutural element force offset to the selected lines.
+
+        Parameters
+        ----------
+        lines : list
+            Lines/entities indexes.
+            
+        force offset : int, [0, 1]
+            Structural element force offset to be attributed to the listed elements. 
+        """
+        try:
+            if isinstance(lines, int):
+                lines = [lines]
+
+            for elements in slicer(self.line_to_elements, lines):
+                for element in slicer(self.structural_elements, elements):
+                    element.force_offset = force_offset
+            
+            for line in lines:
+                if force_offset is None:
+                    list_lines = list(self.lines_with_structural_element_force_offset.keys())
+                    if line in list_lines:
+                        self.lines_with_structural_element_force_offset.pop(line)
+                else:
+                    self.lines_with_structural_element_force_offset[line] = force_offset
+        except Exception as _error:
+            print(str(_error))
 
     def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """

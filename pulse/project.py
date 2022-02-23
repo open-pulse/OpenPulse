@@ -306,6 +306,7 @@ class Project:
             self.number_sections_by_line = {}
             self.file.get_dict_of_entities_from_file()
             dict_structural_element_type = self.file.dict_structural_element_type
+            dict_structural_element_force_offset = self.file.dict_structural_element_force_offset
             dict_structural_element_wall_formulation = self.file.dict_structural_element_wall_formulation
             dict_acoustic_element_types = self.file.dict_acoustic_element_type
             dict_element_length_correction = self.file.dict_length_correction
@@ -330,6 +331,14 @@ class Project:
                     else:
                         line_id = int(key)
                         self.load_structural_element_type_by_line(line_id, etype_data) 
+
+            # Structural element force offset to the entities
+            for key, force_offset_data in dict_structural_element_force_offset.items():
+                if "-" in key:
+                    self.load_structural_element_force_offset_by_elements(force_offset_data[0], force_offset_data[1])
+                else:
+                    line_id = int(key)
+                    self.load_structural_element_force_offset_by_line(line_id, force_offset_data)
 
             # Structural element wall formulation to the entities
             for key, wall_formulation_data in dict_structural_element_wall_formulation.items():
@@ -1308,6 +1317,17 @@ class Project:
         self.preprocessor.set_structural_element_type_by_element(list_elements, element_type)
         # self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
+    def load_structural_element_force_offset_by_line(self, line_id, force_offset):
+        if self.file.get_import_type() == 0:
+            self.preprocessor.set_structural_element_force_offset_by_lines(line_id, force_offset)
+        elif self.file.get_import_type() == 1:
+            all_lines = self.preprocessor.all_lines
+            self.preprocessor.set_structural_element_type_by_element(all_lines, force_offset)
+        self._set_structural_element_force_offset_to_lines(line_id, force_offset)
+
+    def load_structural_element_force_offset_by_elements(self, list_elements, force_offset):
+        self.preprocessor.set_structural_element_force_offset_by_elements(list_elements, force_offset)
+
     def load_structural_element_wall_formulation_by_line(self, line_id, formulation):
         if self.file.get_import_type() == 0:
             self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, formulation)
@@ -1561,12 +1581,26 @@ class Project:
         self._set_structural_element_wall_formulation_to_lines(lines, formulation)
         self.file.modify_structural_element_wall_formulation_in_file(lines, formulation)  
 
+    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
+        if isinstance(lines, int):
+            lines = [lines]
+        self.preprocessor.set_structural_element_force_offset_by_lines(lines, force_offset)
+        self._set_structural_element_force_offset_to_lines(lines, force_offset)
+        self.file.modify_structural_element_force_offset_in_file(lines, force_offset) 
+
     def _set_structural_element_wall_formulation_to_lines(self, lines, formulation):
         if isinstance(lines, int):
             lines = [lines]
         for line in lines:
             entity = self.preprocessor.dict_tag_to_entity[line] 
-            entity.wall_formulation = formulation
+            entity.structural_element_wall_formulation = formulation
+
+    def _set_structural_element_force_offset_to_lines(self, lines, force_offset):
+        if isinstance(lines, int):
+            lines = [lines]
+        for line in lines:
+            entity = self.preprocessor.dict_tag_to_entity[line] 
+            entity.force_offset = force_offset
 
     def _set_capped_end_to_lines(self, lines, value):
         if isinstance(lines, int):

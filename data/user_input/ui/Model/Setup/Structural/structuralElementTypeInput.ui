@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>443</height>
+    <height>475</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>400</width>
-    <height>443</height>
+    <height>475</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>400</width>
-    <height>443</height>
+    <height>475</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -46,7 +46,7 @@
      <x>0</x>
      <y>56</y>
      <width>400</width>
-     <height>387</height>
+     <height>419</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -64,7 +64,7 @@
    <property name="maximumSize">
     <size>
      <width>400</width>
-     <height>387</height>
+     <height>587</height>
     </size>
    </property>
    <property name="font">
@@ -85,7 +85,7 @@
       <x>10</x>
       <y>10</y>
       <width>383</width>
-      <height>369</height>
+      <height>403</height>
      </rect>
     </property>
     <property name="minimumSize">
@@ -120,7 +120,7 @@
       <property name="geometry">
        <rect>
         <x>114</x>
-        <y>298</y>
+        <y>334</y>
         <width>150</width>
         <height>30</height>
        </rect>
@@ -243,7 +243,7 @@ color: rgb(0, 0, 255);</string>
         <x>18</x>
         <y>80</y>
         <width>343</width>
-        <height>205</height>
+        <height>245</height>
        </rect>
       </property>
       <property name="minimumSize">
@@ -255,7 +255,7 @@ color: rgb(0, 0, 255);</string>
       <property name="maximumSize">
        <size>
         <width>343</width>
-        <height>205</height>
+        <height>400</height>
        </size>
       </property>
       <property name="currentIndex">
@@ -269,7 +269,7 @@ color: rgb(0, 0, 255);</string>
         <property name="geometry">
          <rect>
           <x>124</x>
-          <y>100</y>
+          <y>118</y>
           <width>90</width>
           <height>30</height>
          </rect>
@@ -342,7 +342,7 @@ color: rgb(0, 0, 255);</string>
         <property name="geometry">
          <rect>
           <x>24</x>
-          <y>34</y>
+          <y>38</y>
           <width>290</width>
           <height>32</height>
          </rect>
@@ -389,70 +389,24 @@ color: rgb(0, 0, 255);</string>
        <attribute name="title">
         <string>Element options</string>
        </attribute>
-       <widget class="QLabel" name="label_5">
+       <widget class="QFrame" name="frame_4">
         <property name="geometry">
          <rect>
-          <x>44</x>
-          <y>14</y>
-          <width>241</width>
-          <height>32</height>
+          <x>8</x>
+          <y>10</y>
+          <width>320</width>
+          <height>197</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>241</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>241</width>
-          <height>32</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <family>Arial</family>
-          <pointsize>12</pointsize>
-          <weight>75</weight>
-          <italic>false</italic>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <property name="midLineWidth">
-         <number>0</number>
-        </property>
-        <property name="text">
-         <string>Element setup</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-       <widget class="QFrame" name="frame_3">
-        <property name="geometry">
-         <rect>
-          <x>44</x>
-          <y>44</y>
-          <width>241</width>
-          <height>115</height>
-         </rect>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>241</width>
+          <width>320</width>
           <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>241</width>
+          <width>320</width>
           <height>16777215</height>
          </size>
         </property>
@@ -462,10 +416,340 @@ color: rgb(0, 0, 255);</string>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <widget class="QRadioButton" name="radioButton_thin_wall_formulation">
+        <widget class="QLabel" name="label_5">
          <property name="geometry">
           <rect>
-           <x>30</x>
+           <x>0</x>
+           <y>0</y>
+           <width>320</width>
+           <height>38</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>38</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>320</width>
+           <height>38</height>
+          </size>
+         </property>
+         <property name="font">
+          <font>
+           <family>Arial</family>
+           <pointsize>12</pointsize>
+           <weight>75</weight>
+           <italic>false</italic>
+           <bold>true</bold>
+          </font>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <property name="midLineWidth">
+          <number>0</number>
+         </property>
+         <property name="text">
+          <string>Element setup</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+        <widget class="QFrame" name="frame_wall_formulation">
+         <property name="geometry">
+          <rect>
+           <x>8</x>
+           <y>79</y>
+           <width>150</width>
+           <height>104</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>104</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>104</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <widget class="QRadioButton" name="radioButton_thick_wall_formulation">
+          <property name="geometry">
+           <rect>
+            <x>38</x>
+            <y>72</y>
+            <width>90</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>90</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>Thick</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButton_thin_wall_formulation">
+          <property name="geometry">
+           <rect>
+            <x>38</x>
+            <y>36</y>
+            <width>90</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>90</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>90</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>Thin</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_wall_formulation">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>150</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="midLineWidth">
+           <number>0</number>
+          </property>
+          <property name="text">
+           <string>Wall formulation</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QFrame" name="frame_force_offset">
+         <property name="geometry">
+          <rect>
+           <x>164</x>
+           <y>79</y>
+           <width>150</width>
+           <height>104</height>
+          </rect>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>104</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>104</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <widget class="QRadioButton" name="radioButton_force_offset_off">
+          <property name="geometry">
+           <rect>
+            <x>40</x>
+            <y>72</y>
+            <width>80</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>No</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+         <widget class="QRadioButton" name="radioButton_force_offset_on">
+          <property name="geometry">
+           <rect>
+            <x>40</x>
+            <y>36</y>
+            <width>80</width>
+            <height>28</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>28</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <pointsize>12</pointsize>
+            <italic>true</italic>
+           </font>
+          </property>
+          <property name="text">
+           <string>Yes</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+         <widget class="QLabel" name="label_7">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>150</width>
+            <height>32</height>
+           </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>150</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>150</width>
+            <height>32</height>
+           </size>
+          </property>
+          <property name="font">
+           <font>
+            <family>Arial</family>
+            <pointsize>12</pointsize>
+            <weight>75</weight>
+            <italic>false</italic>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::Box</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="midLineWidth">
+           <number>0</number>
+          </property>
+          <property name="text">
+           <string>Force offset</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </widget>
+        <widget class="QCheckBox" name="checkBox_capped_end">
+         <property name="geometry">
+          <rect>
+           <x>68</x>
            <y>44</y>
            <width>180</width>
            <height>28</height>
@@ -481,74 +765,6 @@ color: rgb(0, 0, 255);</string>
           <size>
            <width>180</width>
            <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="text">
-          <string>Thin wall fomulation</string>
-         </property>
-         <property name="checked">
-          <bool>false</bool>
-         </property>
-        </widget>
-        <widget class="QRadioButton" name="radioButton_thick_wall_formulation">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>78</y>
-           <width>180</width>
-           <height>28</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>180</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>180</width>
-           <height>28</height>
-          </size>
-         </property>
-         <property name="font">
-          <font>
-           <pointsize>12</pointsize>
-           <italic>true</italic>
-          </font>
-         </property>
-         <property name="text">
-          <string>Thick wall fomulation</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="checkBox_capped_end">
-         <property name="geometry">
-          <rect>
-           <x>30</x>
-           <y>10</y>
-           <width>180</width>
-           <height>30</height>
-          </rect>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>180</width>
-           <height>30</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>180</width>
-           <height>30</height>
           </size>
          </property>
          <property name="text">

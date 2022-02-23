@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
+from data.user_input.model.setup.acoustic.fluidInput import FluidInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -473,6 +474,12 @@ class CompressorModelInput(QDialog):
 
         self.compressor = CompressorModel(list_parameters)
         self.compressor.number_of_cylinders = self.parameters['number of cylinders']
+
+        self.T_suction = self.parameters['temperature at suction']
+        self.P_suction = self.parameters['pressure at suction']*6894.7573
+        
+        self.T_discharge = self.compressor.T_disc
+        self.P_discharge = self.parameters['pressure ratio']*self.P_suction
         
         if 'cylinder label' in self.parameters.keys():
             self.compressor.active_cylinder = self.parameters['cylinder label']
@@ -566,7 +573,25 @@ class CompressorModelInput(QDialog):
             freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
             table_name = self.get_table_name(self.suction_node_ID, 'suction')
             data = [in_flow_rate, table_name]
+
+            if self.suction_node_ID in self.preprocessor.dict_first_node_to_element_index.keys():
+                element_suction = self.preprocessor.dict_first_node_to_element_index[self.suction_node_ID]
+                line_suction_node_ID = self.preprocessor.elements_to_line[element_suction[0]]
             
+            elif self.suction_node_ID in self.preprocessor.dict_last_node_to_element_index.keys():
+                element_suction = self.preprocessor.dict_last_node_to_element_index[self.suction_node_ID]
+                line_suction_node_ID = self.preprocessor.elements_to_line[element_suction[0]]     
+
+            if self.connection_at_suction:
+                compressor_info = { "temperature" : self.T_suction,
+                                    "pressure" : self.P_suction,
+                                    "line_id" : [line_suction_node_ID],
+                                    "connection_type" : "suction" }
+
+            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info) 
+            if not read.complete:
+                return
+                        
             node = self.preprocessor.nodes[self.suction_node_ID]
             if node.volume_velocity_table_name is not None:
                 self.remove_volume_velocity_table_files(self.suction_node_ID, node.volume_velocity_table_name)
@@ -581,7 +606,25 @@ class CompressorModelInput(QDialog):
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
             table_name = self.get_table_name(self.discharge_node_ID, 'discharge')
             data = [out_flow_rate, table_name]
+
+            if self.discharge_node_ID in self.preprocessor.dict_first_node_to_element_index.keys():
+                element_discharge = self.preprocessor.dict_first_node_to_element_index[self.discharge_node_ID]
+                line_discharge_node_ID = self.preprocessor.elements_to_line[element_discharge[0]]
             
+            elif self.discharge_node_ID in self.preprocessor.dict_last_node_to_element_index.keys():
+                element_discharge = self.preprocessor.dict_last_node_to_element_index[self.discharge_node_ID]
+                line_discharge_node_ID = self.preprocessor.elements_to_line[element_discharge[0]]            
+
+            if self.connection_at_discharge:
+                compressor_info = { "temperature" : self.T_discharge,
+                                    "pressure" : self.P_discharge,
+                                    "line_id" : [line_discharge_node_ID],
+                                    "connection_type" : "discharge" }
+            
+            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info)
+            if not read.complete:
+                return
+                
             node = self.preprocessor.nodes[self.discharge_node_ID]
             if node.volume_velocity_table_name is not None:
                 self.remove_volume_velocity_table_files(self.discharge_node_ID, node.volume_velocity_table_name)
@@ -594,6 +637,9 @@ class CompressorModelInput(QDialog):
 
         self.opv.updateRendererMesh()
         self.close()
+
+    def call_set_fluid(self, compressor_info):
+        FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info)
 
     def remove_volume_velocity_table_files(self, node_id, table_name):
         str_key = "volume velocity"

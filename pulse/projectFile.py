@@ -264,6 +264,7 @@ class ProjectFile:
         self.dict_valve_sections = {}
         self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
+        self.dict_structural_element_force_offset = {}
         self.dict_structural_element_wall_formulation = {}
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
@@ -310,6 +311,20 @@ class ProjectFile:
                     self.element_type_is_structural = True
                 else:
                     self.dict_structural_element_wall_formulation[entity] = 'thick_wall'
+
+            if 'force offset' in entityFile[entity].keys():
+                force_offset = entityFile[entity]['force offset']
+                if force_offset != "":
+                    if "-" in entity:
+                        if 'list of elements' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements']
+                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            self.dict_structural_element_force_offset[entity] = [list_elements, int(force_offset)]
+                    else:
+                        self.dict_structural_element_force_offset[entity] = int(force_offset)
+                    self.element_type_is_structural = True
+                else:
+                    self.dict_structural_element_force_offset[entity] = None
 
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
@@ -1315,6 +1330,24 @@ class ProjectFile:
                 config.remove_option(section=str_line, option=str_key)
             else:
                 config[str_line]['structural element wall formulation'] = formulation
+
+        self.write_data_in_file(self._entity_path, config)
+
+    def modify_structural_element_force_offset_in_file(self, lines, force_offset):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            str_line = str(line_id)     
+            if force_offset is None:
+                str_key = 'force offset'
+                config.remove_option(section=str_line, option=str_key)
+            else:
+                config[str_line]['force offset'] = str(force_offset)
 
         self.write_data_in_file(self._entity_path, config)
 

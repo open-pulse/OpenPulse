@@ -96,6 +96,7 @@ class InputUi:
             title = "Error detected in processInput method"
             message = str(log_error)
             PrintMessageInput([title, message, window_title_1])
+            # return read
 
     def new_project(self, config):
         new_project_input = self.processInput(NewProjectInput, self.project, config)

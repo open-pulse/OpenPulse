@@ -927,7 +927,7 @@ class opvRenderer(vtkRendererBase):
                         if insulation_thickness != 0 or insulation_density != 0: 
                             text += f'Insulation thickness: {insulation_thickness} [m]\n'
                             text += f'Insulation density: {int(insulation_density)} [kg/m³]\n'
-                                                   
+                                                                           
                         if entity.fluid is not None:
                             text += f'\nFluid: {entity.fluid.name}' 
                             if fluid_temperature is not None:

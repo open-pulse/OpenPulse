@@ -26,7 +26,7 @@ def getColorRGB(color):
 
 class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui', self)
         
         icons_path = 'data\\icons\\'
@@ -43,6 +43,7 @@ class FluidInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.before_run = project.get_pre_solution_model_checks()
+        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", {})
 
         self.fluid_path = project.get_fluid_list_path()
 
@@ -54,6 +55,7 @@ class FluidInput(QDialog):
         self.fluid = None
         self.flagAll = False
         self.flagSelection = False
+        self.complete = False
 
         self.adding = False
         self.editing = False
@@ -214,6 +216,8 @@ class FluidInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
 
         self.loadList()
+        if self.compressor_thermodynamic_state:
+            self.check_compressor_inputs()
         self.exec_()
 
     def edit_REFPROP_fluid(self):
@@ -352,6 +356,34 @@ class FluidInput(QDialog):
             self.confirm_fluid_attribution()
         elif event.key() == Qt.Key_Escape:
             self.close() 
+
+    def check_compressor_inputs(self):
+        if self.compressor_thermodynamic_state:
+
+            self.radioButton_selected_lines.setChecked(True)
+            self.radioButton_selected_lines.setDisabled(True)
+            self.radioButton_all.setDisabled(True)
+
+            self.connection_type = self.compressor_thermodynamic_state['connection_type']
+            self.temperature_comp = self.compressor_thermodynamic_state['temperature']
+            self.pressure_comp = self.compressor_thermodynamic_state['pressure']
+            self.line_id_comp = self.compressor_thermodynamic_state['line_id']
+
+            self.write_lines(self.line_id_comp)
+            self.lineEdit_selected_ID.setDisabled(True)
+
+            temperature_lineEdits = [   self.lineEdit_temperature_rp, self.lineEdit_temperature, self.lineEdit_temperature_edit   ]
+            pressure_lineEdits = [  self.lineEdit_pressure_rp, self.lineEdit_pressure, self.lineEdit_pressure_edit  ]
+
+            for temperature_lineEdit in temperature_lineEdits:
+                temperature_lineEdit.setText(str(round(self.temperature_comp,4)))
+                temperature_lineEdit.setDisabled(True)
+
+            for pressure_lineEdit in pressure_lineEdits:
+                pressure_lineEdit.setText(str(round(self.pressure_comp,4)))
+                pressure_lineEdit.setDisabled(True)
+
+            self.treeWidget_fluids.setDisabled(True)
 
     def check_input_name(self, name_string):
         if name_string == "":
@@ -576,10 +608,12 @@ class FluidInput(QDialog):
             self.dict_inputs['pressure'] = pressure
 
         if self.lineEdit_temperature_rp.text() != "":
-            self.dict_inputs['temperature'] = self.fluid_data_REFPROP["temperature"]
+            if 'temperature' in self.fluid_data_REFPROP.keys():
+                self.dict_inputs['temperature'] = self.fluid_data_REFPROP["temperature"]
 
         if self.lineEdit_pressure_rp.text() != "":
-            self.dict_inputs['pressure'] = self.fluid_data_REFPROP["pressure"]   
+            if 'pressure' in self.fluid_data_REFPROP.keys():
+                self.dict_inputs['pressure'] = self.fluid_data_REFPROP["pressure"]   
 
         if self.REFPROP is not None:
             [key_mixture, molar_fractions] = self.fluid_setup
@@ -740,6 +774,7 @@ class FluidInput(QDialog):
                 # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
 
             self.project.set_fluid_by_lines(lines, self.fluid)
+            self.complete = True
             self.close()
 
         except Exception as log_error:
