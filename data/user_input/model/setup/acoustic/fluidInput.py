@@ -360,6 +360,22 @@ class FluidInput(QDialog):
     def check_compressor_inputs(self):
         if self.compressor_thermodynamic_state:
 
+            width = 800
+            height = 720
+
+            self.setMinimumWidth(width)
+            self.setMinimumHeight(height)
+            self.setMaximumWidth(width)
+            self.setMaximumHeight(height)
+
+            self.tabWidget_fluid.removeTab(1)
+            self.tabWidget_fluid.removeTab(1)
+            self.tabWidget_fluid.removeTab(1)
+
+            self.pushButton_confirm_add_fluid.setText("Attribute fluid")
+            self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
+            self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
+
             self.radioButton_selected_lines.setChecked(True)
             self.radioButton_selected_lines.setDisabled(True)
             self.radioButton_all.setDisabled(True)
@@ -687,6 +703,9 @@ class FluidInput(QDialog):
 
     def confirm_fluid_attribution(self):
 
+        if self.compressor_thermodynamic_state:
+            self.clicked_item = self.treeWidget_fluids.topLevelItem(len(self.sections))
+
         if self.clicked_item is None:
             title = "Empty fluid selection"
             message = "Select a fluid in the list before trying to attribute a fluid to the lines."
@@ -793,7 +812,9 @@ class FluidInput(QDialog):
             config = configparser.ConfigParser()
             config.read(self.fluid_path)
 
-            for fluid in config.sections():
+            self.sections = config.sections()
+
+            for fluid in self.sections:
 
                 rFluid = config[fluid]
                 keys = config[fluid].keys()
@@ -848,6 +869,7 @@ class FluidInput(QDialog):
                                                 dynamic_viscosity,
                                                 temperature,
                                                 pressure  ])
+
                 colorRGB = getColorRGB(color)
                 self.list_names.append(name)
                 self.list_ids.append(int(identifier))
