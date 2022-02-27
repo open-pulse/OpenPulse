@@ -970,7 +970,7 @@ class Preprocessor:
             Default is False.
         """
         for element in slicer(self.structural_elements, elements):
-            element.force_offset = force_offset
+            element.force_offset = bool(force_offset)
         #TODO: check if it is necessary
         # if remove:
         #     return
@@ -1751,7 +1751,7 @@ class Preprocessor:
 
             for elements in slicer(self.line_to_elements, lines):
                 for element in slicer(self.structural_elements, elements):
-                    element.force_offset = force_offset
+                    element.force_offset = bool(force_offset)
             
             for line in lines:
                 if force_offset is None:

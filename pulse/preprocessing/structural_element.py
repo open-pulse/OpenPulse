@@ -135,6 +135,7 @@ class StructuralElement:
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
         self.wall_formutation_type = kwargs.get('wall_formutation_type', "thick wall")
+        self.force_offset = True
 
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
@@ -738,7 +739,10 @@ class StructuralElement:
         else:
             raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
-        return principal_axis.T @ Fe
+        if self.force_offset:
+            return principal_axis.T @ Fe
+        else:
+            return Fe
 
     def force_vector_acoustic_gcs(self, frequencies, pressures, pressure_external):
         """
@@ -787,7 +791,18 @@ class StructuralElement:
         aux[0,:] = -force[0,:]
         aux[6,:] =  force[1,:]
         R = self.element_rotation_matrix
-        return R.T @ aux 
+        
+        if self.element_type == 'pipe_1':
+            principal_axis = self.cross_section.principal_axis
+        elif self.element_type == 'pipe_2':
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+        
+        if self.force_offset:
+            return R.T @ principal_axis.T @ aux
+        else:
+            return R.T @ aux
 
     def force_vector_stress_stiffening(self, vector_gcs=True):
         """
@@ -821,15 +836,19 @@ class StructuralElement:
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        else:
+        elif self.element_type == 'pipe_2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
 
         aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix
 
         if vector_gcs:
-            # aux = R.T @ (principal_axis.T @ aux)
-            aux = R.T @ aux
+            if self.force_offset:
+                aux = R.T @ (principal_axis.T @ aux)
+            else:
+                aux = R.T @ aux
         else:
             aux = 1
             capped_end = 0
