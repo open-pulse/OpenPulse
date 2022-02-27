@@ -354,8 +354,8 @@ class SetFluidCompositionInput(QDialog):
                     self.fluid_properties["pressure"] = pressure_Pa
 
                 self.fluid_properties["fluid name"] = self.lineEdit_fluid_name.text()
-                self.fluid_properties["id"] = ""
-                self.fluid_properties["color"] = ""
+                # self.fluid_properties["id"] = ""
+                # self.fluid_properties["color"] = ""
                 
                 for key_prop in ["D", "CV", "CP", "CP/CV", "W", "VIS", "TCX"]:#, "PRANDTL", "TD", "KV"]:
                     read = self.RefProp.REFPROPdll( fluids_string, "TP", key_prop, units, 0, 0, 
@@ -366,7 +366,7 @@ class SetFluidCompositionInput(QDialog):
                     
                     self.fluid_properties[self.map_properties[key_prop]] = read.Output[0]
 
-                self.fluid_properties["impedance"] = self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"]
+                self.fluid_properties["impedance"] = round(self.fluid_properties["fluid density"]*self.fluid_properties["speed of sound"],6)
                 self.fluid_setup = [fluids_string, molar_fractions]
                 
                 if self.process_errors():

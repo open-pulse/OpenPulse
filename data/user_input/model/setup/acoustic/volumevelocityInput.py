@@ -151,6 +151,9 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_nodeID.setFocus()
             return
 
+        self.project.remove_acoustic_pressure_table_files(self.nodes_typed)
+        self.project.remove_compressor_excitation_table_files(self.nodes_typed)
+
         volume_velocity = self.check_complex_entries(self.lineEdit_volume_velocity_real, self.lineEdit_volume_velocity_imag)
  
         if self.stop:
@@ -161,7 +164,6 @@ class VolumeVelocityInput(QDialog):
             data = [self.volume_velocity, None]
             list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
             self.process_table_file_removal(list_table_names) 
-            self.check_remove_compressor_excitation_files()
             self.project.set_volume_velocity_bc_by_node(self.nodes_typed, data, False)
             self.opv.updateRendererMesh()
             print(f"[Set Volume Velocity] - defined at node(s) {self.nodes_typed}")
@@ -258,6 +260,9 @@ class VolumeVelocityInput(QDialog):
             self.lineEdit_nodeID.setFocus()
             return
 
+        self.project.remove_acoustic_pressure_table_files(self.nodes_typed)
+        self.project.remove_compressor_excitation_table_files(self.nodes_typed)
+
         list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
         if self.lineEdit_load_table_path != "":
             for node_id in self.nodes_typed:
@@ -296,13 +301,6 @@ class VolumeVelocityInput(QDialog):
                     list_table_names.append(table_name)
         return list_table_names
 
-    def check_remove_compressor_excitation_files(self):
-        folder_table_name = "compressor_excitation_files"
-        for node_id in self.nodes_typed:
-            node = self.preprocessor.nodes[node_id]
-            if node.compressor_excitation_table_names != []:
-                for _table_name in node.compressor_excitation_table_names:
-                    self.project.remove_acoustic_table_files_from_folder(_table_name, folder_table_name)
 
     def text_label(self, value):
         text = ""

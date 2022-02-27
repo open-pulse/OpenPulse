@@ -15,6 +15,7 @@ class Entity:
         self.elements = []
         self.material = None
         self.fluid = None
+        self.compressor_info = {}
         self.cross_section = None
         self.variable_cross_section_data = None
         self.beam_xaxis_rotation = None

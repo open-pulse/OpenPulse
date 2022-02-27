@@ -268,6 +268,7 @@ class ProjectFile:
         self.dict_structural_element_wall_formulation = {}
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
+        self.compressor_info = {}
         self.dict_length_correction = {}
         self.dict_perforated_plate = {}
         self.temp_dict = {}
@@ -341,6 +342,14 @@ class ProjectFile:
                 else:
                     self.dict_acoustic_element_type[int(entity)] = 'undamped'
 
+            if 'compressor info' in entityFile[entity].keys():
+                str_compressor_info = entityFile[entity]['compressor info']
+                _data = self._get_list_of_values_from_string(str_compressor_info, are_values_int=False)
+                self.compressor_info[int(entity)] = {   "temperature" : _data[0],
+                                                        "pressure" : _data[1],
+                                                        "line_id" : int(_data[2]),
+                                                        "node_id" : int(_data[3])   }
+            
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
@@ -1403,6 +1412,24 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
+    def modify_compressor_info_in_file(self, lines, compressor_info={}):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            if compressor_info:
+                config[str(line_id)]['compressor info'] = str(list(compressor_info.values()))
+            else:
+                _section = str(line_id)
+                if 'compressor info' in config[str(line_id)].keys():
+                    config.remove_option(section=_section, option='compressor info')  
+
+        self.write_data_in_file(self._entity_path, config) 
+
     def get_dict_of_structural_bc_from_file(self):
 
         node_structural_list = configparser.ConfigParser()
@@ -1897,7 +1924,20 @@ class ProjectFile:
                         if table_name_info_file == table_name:
                             return False
         return True
-                        
+
+    def get_dict_of_compressor_excitation_from_file(self):
+        config = configparser.ConfigParser()
+        config.read(self._node_acoustic_path)
+        sections = config.sections()
+        dict_node_to_compressor_excitation = defaultdict(list)  
+        for node_id in sections:
+            keys = list(config[node_id].keys())
+            for key in keys:
+                if "compressor excitation - " in key:
+                    table_file_name = config[node_id][key]
+                    dict_node_to_compressor_excitation[int(node_id)].append([key, table_file_name])   
+        return dict_node_to_compressor_excitation
+
     # def check_if_table_can_be_removed_in_structural_model(self, node_id, str_keys, table_name, folder_table_name, node_info=True, labels=["", ""]):
     #     config = configparser.ConfigParser()
     #     if node_info:
