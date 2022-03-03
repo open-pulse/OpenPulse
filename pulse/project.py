@@ -237,11 +237,12 @@ class Project:
 
     def remove_acoustic_table_files_from_folder(self, filename, folder_name, remove_empty_files=True):
         _folder_path = get_new_path(self.file._acoustic_imported_data_folder_path, folder_name)
-        list_filenames = os.listdir(_folder_path).copy()
-        if filename in list_filenames:
-            file_path = get_new_path(_folder_path, filename)
-            if os.path.exists(file_path):
-                os.remove(file_path)
+        if os.path.exists(_folder_path):
+            list_filenames = os.listdir(_folder_path).copy()
+            if filename in list_filenames:
+                file_path = get_new_path(_folder_path, filename)
+                if os.path.exists(file_path):
+                    os.remove(file_path)
 
         if remove_empty_files:
             if os.path.exists(_folder_path):
@@ -790,7 +791,7 @@ class Project:
     def set_material_to_all_lines(self, material):
         self.preprocessor.set_material_by_element('all', material)
         self._set_material_to_all_lines(material)
-        self.file.add_material_in_file(self.preprocessor.all_lines, material.identifier)
+        self.file.add_material_in_file(self.preprocessor.all_lines, material)
 
     def set_material_by_lines(self, lines, material):
         if self.file.get_import_type() == 0:
@@ -799,7 +800,7 @@ class Project:
             self.preprocessor.set_material_by_element('all', material)
 
         self._set_material_to_selected_lines(lines, material)
-        self.file.add_material_in_file(lines, material.identifier)
+        self.file.add_material_in_file(lines, material)
 
     def set_cross_section_by_line(self, lines, cross_section):
         self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
@@ -1434,25 +1435,18 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         for line_id in lines:
-            entity = self.preprocessor.dict_tag_to_entity[line_id] 
-            if entity.structural_element_type in ['beam_1']:
-                entity.compressor_info =  {}
-            else:  
-                entity.compressor_info = compressor_info
-
-    def _reset_compressor_info_to_selected_line(self, lines):
-        if isinstance(lines, int):
-            lines = [lines]
-        for line_id in lines:
             entity = self.preprocessor.dict_tag_to_entity[line_id]
-            if entity.compressor_info:
-                node_id = entity.compressor_info['node_id']
-                self.remove_compressor_excitation_table_files([node_id])
-                self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
-                # dict_node_to_compressor_excitation = self.file.get_dict_of_compressor_excitation_from_file()
-                # for [str_key, _] in dict_node_to_compressor_excitation[node_id]:
-                #     remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None)
-                entity.compressor_info = {}
+            if compressor_info:
+                if entity.structural_element_type in ['beam_1']:
+                    entity.compressor_info =  {}
+                else:  
+                    entity.compressor_info = compressor_info 
+            else:
+                if entity.compressor_info:
+                    node_id = entity.compressor_info['node_id']
+                    self.remove_compressor_excitation_table_files([node_id])
+                    self.preprocessor.set_compressor_excitation_bc_by_node([node_id], [None, None])
+                    entity.compressor_info = {}
 
     def _set_fluid_to_all_lines(self, fluid):
         for entity in self.entities:
@@ -1530,31 +1524,27 @@ class Project:
     def get_nodes_with_prescribed_dofs_bc(self):
         return self.preprocessor.nodes_with_prescribed_dofs
 
-    def set_fluid_by_lines(self, lines, fluid, compressor_info={}):
+    def set_fluid_by_lines(self, lines, fluid):
         if self.file.get_import_type() == 0:
             self.preprocessor.set_fluid_by_lines(lines, fluid)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_selected_lines(lines, fluid)
-        
-        if fluid is None:
-            self.file.add_fluid_in_file(lines, "")
-        else:
-            self.file.add_fluid_in_file(lines, fluid.identifier)
-        print("passei 1")
+        self.file.add_fluid_in_file(lines, fluid)
 
+    def set_compressor_info_by_lines(self, lines, compressor_info={}):
         self.file.modify_compressor_info_in_file(lines, compressor_info=compressor_info)
-        print("passei 2")
-        self._reset_compressor_info_to_selected_line(lines)
-        print("passei 3")
         self._set_compressor_info_to_selected_lines(lines, compressor_info=compressor_info)
-        print("passei 4")
+
+    def reset_compressor_info_by_node(self, node_id):
+        line_id = self.preprocessor.get_line_from_node_id(node_id)
+        self.set_compressor_info_by_lines(line_id, compressor_info={})
 
     def set_fluid_to_all_lines(self, fluid):
         self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_all_lines(fluid)
         for line in self.preprocessor.all_lines:
-            self.file.add_fluid_in_file(line, fluid.identifier)
+            self.file.add_fluid_in_file(line, fluid)
 
     def set_acoustic_pressure_bc_by_node(self, node_ids, data, imported_table):
         label = ["acoustic pressure"] 
@@ -1632,7 +1622,6 @@ class Project:
             node_ids = [node_ids]
         for node_id in node_ids:
             node = self.preprocessor.nodes[node_id]
-            print(node.compressor_excitation_table_names)
             for table_name in node.compressor_excitation_table_names:
                 if table_name is not None:
                     if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
@@ -1641,6 +1630,22 @@ class Project:
                                                                                     folder_table_name   ):
                         self.remove_acoustic_table_files_from_folder(table_name, "compressor_excitation_files")
             remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None)
+
+    def remove_specific_impedance_table_files(self, node_ids):
+        str_key = "specific impedance"
+        folder_table_name = "specific_impedance_files"
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
+        for node_id in node_ids:
+            node = self.preprocessor.nodes[node_id]
+            if node.specific_impedance_table_name is not None:
+                table_name = node.acoustic_pressure_table_name
+                if self.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
+                                                                                str_key,
+                                                                                table_name, 
+                                                                                folder_table_name   ):
+                    self.remove_acoustic_table_files_from_folder(table_name, "acoustic_pressure_files")  
+            remove_bc_from_file(node_id, self.file._node_acoustic_path, [str_key], None, equals_keys=True)
 
     def set_element_length_correction_by_elements(self, elements, value, section):
         # label = ["acoustic element length correction"] 

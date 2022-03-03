@@ -345,11 +345,17 @@ class ProjectFile:
             if 'compressor info' in entityFile[entity].keys():
                 str_compressor_info = entityFile[entity]['compressor info']
                 _data = self._get_list_of_values_from_string(str_compressor_info, are_values_int=False)
-                self.compressor_info[int(entity)] = {   "temperature" : _data[0],
-                                                        "pressure" : _data[1],
-                                                        "line_id" : int(_data[2]),
-                                                        "node_id" : int(_data[3])   }
-            
+                self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
+                                                        "pressure (suction)" : _data[1],
+                                                        "temperature (discharge)" : _data[2],
+                                                        "pressure (discharge)" : _data[3],
+                                                        "line_id" : int(_data[4]),
+                                                        "node_id" : int(_data[5]),
+                                                        "isentropic exponent" : _data[6],
+                                                        "pressure ratio" : _data[7],
+                                                        "molar mass" : _data[8],
+                                                        "connection type" : int(_data[9])   }
+                                                        
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
@@ -1386,10 +1392,15 @@ class ProjectFile:
     
         self.write_data_in_file(self._entity_path, config)
 
-    def add_material_in_file(self, lines, material_id):
+    def add_material_in_file(self, lines, material):
 
         if isinstance(lines, int):
             lines = [lines]
+        
+        if material is None:
+            material_id = ""
+        else:
+            material_id = material.identifier
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -1399,10 +1410,15 @@ class ProjectFile:
             
         self.write_data_in_file(self._entity_path, config)
 
-    def add_fluid_in_file(self, lines, fluid_id):
+    def add_fluid_in_file(self, lines, fluid):
         
         if isinstance(lines, int):
             lines = [lines]
+
+        if fluid is None:
+            fluid_id = ""
+        else:
+            fluid_id = fluid.identifier
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)

@@ -669,7 +669,7 @@ class opvRenderer(vtkRendererBase):
         if aditional_info is not None:
             text += aditional_info
         if isinstance(value, np.ndarray):
-            text += f'  {label} <--> Table of values \n'
+            text += f'  {label} = Table of values \n'
         else:
             unit = f'{unit_label}'
             text += f'  {label} = {value} {unit} \n'

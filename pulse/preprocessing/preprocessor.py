@@ -579,7 +579,27 @@ class Preprocessor:
             message += f"List of disconnected node(s): \n{list_node_ids}"
             PrintMessageInput([title, message, window_title_1])                
         
+
+    def get_line_from_node_id(self, node_ids):
+
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
+        
+        line_ids = []
+        for node_id in node_ids:
+
+            if node_id in self.dict_first_node_to_element_index.keys():
+                element_id = self.dict_first_node_to_element_index[node_id]
+                line_id = self.elements_to_line[element_id[0]]
+            
+            elif node_id in self.dict_last_node_to_element_index.keys():
+                element_id = self.dict_last_node_to_element_index[node_id]
+                line_id = self.elements_to_line[element_id[0]]
+            line_ids.append(line_id)  
+
+        return line_ids
  
+
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.

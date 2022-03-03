@@ -502,11 +502,15 @@
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string/>
@@ -789,6 +793,10 @@
           <italic>false</italic>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string/>
@@ -1311,11 +1319,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
           <height>26</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="whatsThis">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);</string>
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="maxVisibleItems">
          <number>100</number>
@@ -1878,7 +1896,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);</string>
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string/>
@@ -2054,7 +2073,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
@@ -2688,11 +2707,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
           <height>26</height>
          </rect>
         </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
         <property name="whatsThis">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);</string>
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="maxVisibleItems">
          <number>100</number>

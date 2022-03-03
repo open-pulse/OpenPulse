@@ -57,8 +57,8 @@ class CompressorModel:
            TDC_crank_angle_1,                  # Crank angle (degrees) at which piston is at top dead center
            rotational_speed,                   # Compressor rotation speed (rpm)
            capacity,                           # Capacity of compression stage (%)
-           isentropic_coefficient,             # Compressed gas isentropic exponent
            molar_mass,                         # Molar mass [kg/kmol]
+           isentropic_exponent,                # Compressed gas isentropic exponent
            pressure_at_suction,                # Pressure at suction
            temperature_at_suction,             # Temperature at suction
            double_acting  ] = parameters       # Compressor is double effect (bool)
@@ -77,7 +77,7 @@ class CompressorModel:
         self.tdc1 = TDC_crank_angle_1*np.pi/180
         self.rpm = rotational_speed
         self.capacity = capacity/100
-        self.k = isentropic_coefficient
+        self.k = isentropic_exponent
         self.molar_mass = molar_mass
         self.p_suc = pressure_at_suction
         self.T_suc = temperature_at_suction

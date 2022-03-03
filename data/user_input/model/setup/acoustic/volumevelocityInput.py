@@ -153,6 +153,7 @@ class VolumeVelocityInput(QDialog):
 
         self.project.remove_acoustic_pressure_table_files(self.nodes_typed)
         self.project.remove_compressor_excitation_table_files(self.nodes_typed)
+        self.project.reset_compressor_info_by_node(self.nodes_typed)
 
         volume_velocity = self.check_complex_entries(self.lineEdit_volume_velocity_real, self.lineEdit_volume_velocity_imag)
  
@@ -261,7 +262,7 @@ class VolumeVelocityInput(QDialog):
             return
 
         self.project.remove_acoustic_pressure_table_files(self.nodes_typed)
-        self.project.remove_compressor_excitation_table_files(self.nodes_typed)
+        self.project.reset_compressor_info_by_node(self.nodes_typed)
 
         list_table_names = self.get_list_table_names_from_selected_nodes(self.nodes_typed)
         if self.lineEdit_load_table_path != "":

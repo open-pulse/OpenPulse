@@ -1907,7 +1907,7 @@ background-color: rgb(255, 255, 255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_isentropic_coefficient">
+        <widget class="QLineEdit" name="lineEdit_isentropic_exponent">
          <property name="minimumSize">
           <size>
            <width>110</width>
