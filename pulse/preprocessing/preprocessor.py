@@ -134,6 +134,7 @@ class Preprocessor:
 
         # t0 = time()
         self._order_global_indexes()
+        self._mapping_nodes_indexes()
         # dt = time() - t0
         # print(f"Time to process _order_global_indexes: {dt}")
         
@@ -671,8 +672,8 @@ class Preprocessor:
                         #     if len(self.neighbors[node]) == 1:
                         #         stack.appendleft(node)   
 
-        # dt = time()-t0
-        # print("Time to process the global matrices bandwidth reduction: ", dt)
+    def _mapping_nodes_indexes(self):
+        self.map_global_to_external_index = {node.global_index:node.external_index for node in self.nodes.values()}
 
 
     def load_mesh(self, coordinates, connectivity):
