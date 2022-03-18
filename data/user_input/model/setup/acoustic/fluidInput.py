@@ -159,7 +159,7 @@ class FluidInput(QDialog):
         #
         self.create_lists_of_lineEdit()
         #
-        self.lineEdit_name.editingFinished.connect(self.check_add_input_fluid_name)
+        # self.lineEdit_name.editingFinished.connect(self.check_add_input_fluid_name)
         # self.lineEdit_id.editingFinished.connect(self.check_add_input_fluid_id)
         self.lineEdit_color.editingFinished.connect(self.check_add_input_fluid_color)
         self.lineEdit_fluid_density.editingFinished.connect(self.check_add_input_fluid_density)
@@ -304,6 +304,8 @@ class FluidInput(QDialog):
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color.setText(str_color)
+            if self.check_add_input_fluid_color():
+                self.lineEdit_color.setText("")
         return read.complete
 
     def pick_color_add_refprop(self):
@@ -311,6 +313,8 @@ class FluidInput(QDialog):
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_rp.setText(str_color)
+            if self.check_add_input_fluid_color():
+                self.lineEdit_color_rp.setText("")
         return read.complete
 
     def pick_color_edit(self):
@@ -318,6 +322,8 @@ class FluidInput(QDialog):
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_edit.setText(str_color)
+            if self.check_edit_input_fluid_color():
+                self.lineEdit_color_edit.setText("")
 
     def update(self):
         self.lines_ids = self.opv.getListPickedLines()
@@ -550,9 +556,9 @@ class FluidInput(QDialog):
 
     def check_add_input_fluid_id(self):
         if self.REFPROP is None:
-            self.dict_inputs['identifier'] = self.fluid_id_rp
-        else:
             self.dict_inputs['identifier'] = self.fluid_id
+        else:
+            self.dict_inputs['identifier'] = self.fluid_id_rp
 
     def check_add_input_fluid_color(self):
 
@@ -914,20 +920,12 @@ class FluidInput(QDialog):
         
         if self.adding:
 
-            if 'name' not in self.dict_inputs.keys():
-                self.force_check = True
-                if self.check_add_input_fluid_name():
-                    return True
-            
-            if 'identifier' not in self.dict_inputs.keys():
-                self.force_check = True
-                if self.check_add_input_fluid_id():
-                    return True
-
-            if 'color' not in self.dict_inputs.keys():
-                self.force_check = True
-                if self.check_add_input_fluid_color():
-                    return True
+            self.force_check = True
+            if self.check_add_input_fluid_name():
+                return True
+        
+            if self.check_add_input_fluid_color():
+                return True
 
         elif self.editing:
 
@@ -1211,6 +1209,7 @@ class FluidInput(QDialog):
         index_rp = self.comboBox_fluid_id_rp.currentIndex()
         self.fluid_id = self.available_indexes[index]
         self.fluid_id_rp = self.available_indexes[index_rp]
+        self.check_add_input_fluid_id()
 
     def check_add_fluid(self):
     
@@ -1408,6 +1407,7 @@ class FluidInput(QDialog):
             self.reset_add_texts()
             self.reset_edit_texts() 
             self.reset_remove_texts()
+            self.opv.updateRendererMesh()
     
     def reset_add_texts(self):
         for lineEdit in self.list_add_lineEdit:

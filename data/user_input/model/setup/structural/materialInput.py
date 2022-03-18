@@ -235,19 +235,25 @@ class MaterialInput(QDialog):
 
     def pick_color_add(self):
         read = PickColorInput()
+        self.adding = True
+        self.editing = False
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color.setText(str_color)
-            # if self.check_color_input(self.lineEdit_color):
-            #     PrintMessageInput([self.title, self.message, window_title])
+            if self.check_color_input(self.lineEdit_color):
+                self.lineEdit_color.setText("")
+                PrintMessageInput([self.title, self.message, window_title])
 
     def pick_color_edit(self):
         read = PickColorInput()
+        self.adding = False
+        self.editing = True
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_edit.setText(str_color)
-            # if self.check_color_input(self.lineEdit_color_edit):
-            #     PrintMessageInput([self.title, self.message, window_title])
+            if self.check_color_input(self.lineEdit_color_edit):
+                self.lineEdit_color_edit.setText("")
+                PrintMessageInput([self.title, self.message, window_title])
 
     def confirm_material_attribution(self):
 
