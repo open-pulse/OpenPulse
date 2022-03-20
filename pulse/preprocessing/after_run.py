@@ -19,15 +19,19 @@ class AfterRun:
         # self.acoustic_criteria = defaultdict(list)
 
     def check_the_acoustic_criterias_related_to_elements(self, nl_criteria=0.08):
-        # pass
         list_non_linear = []
         if self.solution_acoustic is None:
             pass
         else:
             static_pressure = [[] for _ in range(len(self.nodes))]
             for element in self.acoustic_elements.values():
-                static_pressure[element.first_node.global_index].append(element.fluid.pressure)
-                static_pressure[element.last_node.global_index].append(element.fluid.pressure)
+                if element.fluid is None:
+                    static_pressure[element.first_node.global_index].append(1e6)
+                    static_pressure[element.last_node.global_index].append(1e6)
+                else:
+                    static_pressure[element.first_node.global_index].append(element.fluid.pressure)
+                    static_pressure[element.last_node.global_index].append(element.fluid.pressure)
+
             aux = [min(p0) for p0 in static_pressure]
             static_pressure = np.array(aux).reshape(-1,1)
             pressure_ratio = np.abs(self.solution_acoustic/static_pressure)
