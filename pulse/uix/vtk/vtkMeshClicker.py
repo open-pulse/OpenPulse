@@ -175,7 +175,8 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         self.selectActors()
 
     def rightButtonPressEvent(self, obj, event):
-        if self.__altKeyClicked:
+        altPressed = bool(self.GetInteractor().GetAltKey())
+        if altPressed:
             self.StartDolly()
         else:
             self.StartRotate()
@@ -245,7 +246,9 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
 
         controlPressed = bool(self.GetInteractor().GetControlKey())
         shiftPressed = bool(self.GetInteractor().GetShiftKey())
-        altPressed = self.__altKeyClicked
+        altPressed = bool(self.GetInteractor().GetAltKey())
+        # altPressed = self.__altKeyClicked
+        # altPressed = self.GetInteractor().GetKeySym() in ['Alt_L', 'Alt_R']
 
         pickedPoints = self.pickPoints(x0,y0,x1,y1)
         pickedElements = self.pickElements(x0,y0,x1,y1)

@@ -6,6 +6,9 @@ from PyQt5 import Qt, QtCore, QtWidgets
 
 from pulse.uix.mainWindow import MainWindow
 
+import matplotlib
+matplotlib.use("Qt5Agg")
+
 def init():
     """ OpenPulse init
         The init function starts the OpenPulse software.
