@@ -26,8 +26,8 @@ class AfterRun:
             static_pressure = [[] for _ in range(len(self.nodes))]
             for element in self.acoustic_elements.values():
                 if element.fluid is None:
-                    static_pressure[element.first_node.global_index].append(1e6)
-                    static_pressure[element.last_node.global_index].append(1e6)
+                    static_pressure[element.first_node.global_index].append(1e9)
+                    static_pressure[element.last_node.global_index].append(1e9)
                 else:
                     static_pressure[element.first_node.global_index].append(element.fluid.pressure)
                     static_pressure[element.last_node.global_index].append(element.fluid.pressure)
