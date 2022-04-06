@@ -105,6 +105,7 @@ class Preprocessor:
         
         self.beam_gdofs = None
         self.pipe_gdofs = None
+        self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
     def generate(self, path, element_size, tolerance=1e-6):
@@ -3224,6 +3225,12 @@ class Preprocessor:
         # print(f"acoustic elements data: {acoustic_etype_to_number_elements}")
         # print(f"structural elements data: {structural_etype_to_number_elements}")
         return structural_etype_to_number_elements, acoustic_etype_to_number_elements
+
+    def set_unprescribed_pipe_indexes(self, indexes):
+        self.unprescribed_pipe_indexes = indexes
+    
+    def get_unprescribed_pipe_indexes(self):
+        return self.unprescribed_pipe_indexes
 
     #TODO: remove the following methods if they are not necessary anymore
 

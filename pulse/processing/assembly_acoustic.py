@@ -168,6 +168,7 @@ class AssemblyAcoustic:
             indexes_to_remove.append(dof)
         indexes_to_remove = list(np.sort(indexes_to_remove))
         unprescribed_pipe_indexes = np.delete(all_indexes, indexes_to_remove)
+        self.preprocessor.set_unprescribed_pipe_indexes(unprescribed_pipe_indexes)
         return unprescribed_pipe_indexes
 
     def get_length_corretion(self, element):
