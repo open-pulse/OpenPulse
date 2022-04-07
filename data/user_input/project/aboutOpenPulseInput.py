@@ -29,7 +29,7 @@ class AboutOpenPulseInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
-        version_info = "Gamma Version (v0.3.0 November 29th 2021)"
+        version_info = "v1.0 April 8th 2022"
         licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, MIT License."
         main_info = "OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. "
         main_info += "Openpulse allows the user to solve acoustic, structural, and coupled harmonic analyzes. The acoustic and structural modal analysis also can be "

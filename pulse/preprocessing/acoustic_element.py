@@ -742,6 +742,12 @@ class AcousticElement:
         rho = self.fluid.density
         c = self.speed_of_sound_corrected()
 
+        self.area_fluid = self.cross_section.area_fluid
+        if self.perforated_plate:
+            if self.perforated_plate.type in [2]:
+                d = self.perforated_plate.hole_diameter
+                self.area_fluid = pi*(d**2)/4
+
         Ke = self.area_fluid/(rho*length) * np.array([[1,-1],[-1,1]])
         Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 
         
