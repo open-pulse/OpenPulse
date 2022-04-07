@@ -794,7 +794,7 @@ class StructuralElement:
         
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        elif self.element_type == 'pipe_2':
+        elif self.element_type in ['pipe_2', 'expansion_joint', 'valve']:
             principal_axis = np.eye(DOF_PER_ELEMENT)
         else:
             raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')

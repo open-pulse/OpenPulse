@@ -137,7 +137,7 @@ class Ui_Dialog(object):
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "About OpenPulse"))
-        self.label_verison_upper.setText(_translate("Dialog", "Gamma Version"))
+        self.label_verison_upper.setText(_translate("Dialog", "v1.0"))
         self.label.setText(_translate("Dialog", "OpenPulse"))
         self.label_version_information.setText(_translate("Dialog", "Version Information"))
         self.label_main_info.setText(_translate("Dialog", "Main_information"))
