@@ -53,18 +53,15 @@ class SolutionAcoustic:
         # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
         
-        # self.fig = plt.figure(figsize=[8,6])
-        # self.ax = self.fig.add_subplot(1,1,1)
-
         self.relative_error = []
         self.deltaP_errors = []
         self.iterations = []
 
     def check_non_linear_valves(self):
+        self.non_linear = False
         if self.group_elements_with_perforated_plate:             
             values = self.group_elements_with_perforated_plate.values()
             elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
-            self.non_linear = False
             for element in elements:
                 if element.perforated_plate.nonlinear_effect:
                     self.non_linear = True
@@ -462,49 +459,6 @@ class SolutionAcoustic:
                     return True    
 
         return False
-
-    # def plot_convergence_graph(self, iterations, relative_errors, deltaP_errors=[]):
-    #     # it is no more being used
-    #     self.plt = plt
-
-    #     # self.plt.clf()
-    #     # self.plt.cla()
-        
-    #     x, y = 500, 100
-    #     backend = matplotlib.get_backend()
-    #     mngr = self.plt.get_current_fig_manager()
-
-    #     if backend == 'TkAgg':
-    #         mngr.window.wm_geometry("+%d+%d" % (x, y))
-    #     elif backend == 'WXAgg':
-    #         mngr.window.SetPosition((x, y))
-    #     else:
-    #         mngr.window.move(x, y)
-        
-    #     perc_criteria = self.target*100
-    #     first_plot, = self.plt.plot(iterations, relative_errors, color=[1,0,0], linewidth=2, marker='s', markersize=6, markerfacecolor=[0,0,1])
-    #     second_plot, = self.plt.plot([1, max(iterations)], [perc_criteria, perc_criteria], color=[0,0,0], linewidth=2, linestyle="--")
-    #     if deltaP_errors:
-    #         third_plot, = self.plt.plot(iterations, deltaP_errors, color=[0,0,1], linewidth=2, marker='s', markersize=6, markerfacecolor=[1,0,0])
-
-    #     first_plot_label = "Pressure residues"
-    #     third_plot_label = "Delta pressure residues"
-    #     second_plot_label = f'Target: {perc_criteria}%'
-    #     if deltaP_errors:
-    #         _legends = self.plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label], loc='upper right')
-    #     else:
-    #         _legends = self.plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
-    #     self.plt.gca().add_artist(_legends)
-
-    #     self.ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
-    #     self.ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
-    #     self.ax.set_ylabel("Relative error [%]", fontsize = 14, fontweight = 'bold')
-
-    #     self.plt.xlim(1, max(iterations))
-    #     self.plt.draw()
-    #     self.plt.pause(0.001)
-   
-    #     self.ax = self.fig.add_subplot(1,1,1)
 
     def stop_processing(self):
         if self.preprocessor.stop_processing:
