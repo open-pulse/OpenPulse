@@ -277,7 +277,7 @@ class SolutionAcoustic:
                             cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
                             cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
                                         
-                        if count >= 10:
+                        if count >= 5:
                             if len(cache_delta) == len(self.valve_elements):                                
                                 if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
                                     if index in freq_indexes.keys():
@@ -430,33 +430,32 @@ class SolutionAcoustic:
     
             if pressure_residues[-1] < 100*self.target:
                 if len(delta_residues) >= 4:
-                        if max(delta_residues[-5:]) <= 10:
-                            if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
-                                if max(pressure_residues[-3:]) <= 10:
-                                    if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
-                                        # self.plt.close()
-                                        final_log = f"The solution converged after {count} iterations with the following observations:"
-                                        if len(self.unstable_frequencies):
-                                            list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
-                                            final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"                   
-                                        final_log += "\nPressure residues criteria: converged"
-                                        final_log += "\nDelta pressure residues criteria: converged\n"
-                                        print(final_log)
-                                        return True        
-                
+                        if max(delta_residues[-5:]) <= 100*self.target:
+                            # if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
+                            if max(pressure_residues[-3:]) <= 10:
+                                if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                                
+                                    final_log = f"The solution converged after {count} iterations with the following observations:"
+                                    if len(self.unstable_frequencies):
+                                        list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                                        final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"                   
+                                    final_log += "\nPressure residues criteria: converged"
+                                    final_log += "\nDelta pressure residues criteria: converged\n"
+                                    print(final_log)
+                                    return True
+            
         else: 
 
             if max(pressure_residues[-5:]) <= 100*self.target:
-                if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
-                    # self.plt.close()
-                    final_log = f"The solution converged after {count} iterations with the following observations:"
-                    if len(self.unstable_frequencies):
-                        list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
-                        final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
-                    final_log += "\nPressure residues criteria: converged"
-                    final_log += "\nDelta pressure residues criteria: not converged\n"
-                    print(final_log)
-                    return True    
+                # if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                final_log = f"The solution converged after {count} iterations with the following observations:"
+                if len(self.unstable_frequencies):
+                    list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                    final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
+                final_log += "\nPressure residues criteria: converged"
+                final_log += "\nDelta pressure residues criteria: not converged\n"
+                print(final_log)
+                return True
 
         return False
 

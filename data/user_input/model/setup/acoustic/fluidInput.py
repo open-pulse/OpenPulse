@@ -161,7 +161,7 @@ class FluidInput(QDialog):
         #
         # self.lineEdit_name.editingFinished.connect(self.check_add_input_fluid_name)
         # self.lineEdit_id.editingFinished.connect(self.check_add_input_fluid_id)
-        self.lineEdit_color.editingFinished.connect(self.check_add_input_fluid_color)
+        # self.lineEdit_color.editingFinished.connect(self.check_add_input_fluid_color)
         self.lineEdit_fluid_density.editingFinished.connect(self.check_add_input_fluid_density)
         self.lineEdit_speed_of_sound.editingFinished.connect(self.check_add_input_speed_of_sound)
 
@@ -313,8 +313,10 @@ class FluidInput(QDialog):
         if read.complete:
             str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_rp.setText(str_color)
+            self.refprop_fluid = True
             if self.check_add_input_fluid_color():
                 self.lineEdit_color_rp.setText("")
+            self.refprop_fluid = False
         return read.complete
 
     def pick_color_edit(self):
@@ -570,10 +572,8 @@ class FluidInput(QDialog):
 
             if self.refprop_fluid:
                 fluid_color = self.lineEdit_color_rp.text()
-                _lineEdit_color = self.lineEdit_color_rp
             else:
                 fluid_color = self.lineEdit_color.text()
-                _lineEdit_color = self.lineEdit_color
 
             if fluid_color == "":
                 PrintMessageInput([title, message_empty, window_title1])
