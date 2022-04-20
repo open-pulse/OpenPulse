@@ -73,7 +73,7 @@ class Preprocessor:
         self.nodes_with_specific_impedance = []
         self.nodes_with_radiation_impedance = []
         self.element_with_length_correction = []
-        self.element_with_perforated_plate = []
+        self.elements_with_perforated_plate = []
         self.element_with_capped_end = []
         self.dict_elements_with_B2PX_rotation_decoupling = defaultdict(list)
         self.dict_nodes_with_B2PX_rotation_decoupling = defaultdict(list)
@@ -90,6 +90,7 @@ class Preprocessor:
 
         self.nodes_with_elastic_link_stiffness = {}
         self.nodes_with_elastic_link_dampings = {}
+        self.lines_with_structural_element_force_offset = {}
         self.lines_with_structural_element_wall_formulation = {}
         self.lines_with_capped_end = []
         self.lines_with_stress_stiffening = []
@@ -104,6 +105,7 @@ class Preprocessor:
         
         self.beam_gdofs = None
         self.pipe_gdofs = None
+        self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
     def generate(self, path, element_size, tolerance=1e-6):
@@ -133,6 +135,7 @@ class Preprocessor:
 
         # t0 = time()
         self._order_global_indexes()
+        self._mapping_nodes_indexes()
         # dt = time() - t0
         # print(f"Time to process _order_global_indexes: {dt}")
         
@@ -578,7 +581,27 @@ class Preprocessor:
             message += f"List of disconnected node(s): \n{list_node_ids}"
             PrintMessageInput([title, message, window_title_1])                
         
+
+    def get_line_from_node_id(self, node_ids):
+
+        if isinstance(node_ids, int):
+            node_ids = [node_ids]
+        
+        line_ids = []
+        for node_id in node_ids:
+
+            if node_id in self.dict_first_node_to_element_index.keys():
+                element_id = self.dict_first_node_to_element_index[node_id]
+                line_id = self.elements_to_line[element_id[0]]
+            
+            elif node_id in self.dict_last_node_to_element_index.keys():
+                element_id = self.dict_last_node_to_element_index[node_id]
+                line_id = self.elements_to_line[element_id[0]]
+            line_ids.append(line_id)  
+
+        return line_ids
  
+
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.
@@ -650,8 +673,8 @@ class Preprocessor:
                         #     if len(self.neighbors[node]) == 1:
                         #         stack.appendleft(node)   
 
-        # dt = time()-t0
-        # print("Time to process the global matrices bandwidth reduction: ", dt)
+    def _mapping_nodes_indexes(self):
+        self.map_global_to_external_index = {node.global_index:node.external_index for node in self.nodes.values()}
 
 
     def load_mesh(self, coordinates, connectivity):
@@ -952,6 +975,29 @@ class Preprocessor:
         if remove:
             self.dict_structural_element_type_to_lines.pop(element_type)
     
+    def set_structural_element_force_offset_by_elements(self, elements, force_offset, remove=False):
+        """
+        This method assigns a structural element wall formulation to a list of selected elements.
+
+        Parameters
+        ----------
+        elements : list
+            Structural elements indexes.
+            
+        force_offset : int, [0, 1]
+            Structural element type to be attributed to the listed elements.
+            
+        remove : bool, optional
+            True if the element_force_offset should to be removed from the _________ dictionary. False otherwise.
+            Default is False.
+        """
+        for element in slicer(self.structural_elements, elements):
+            element.force_offset = bool(force_offset)
+        #TODO: check if it is necessary
+        # if remove:
+        #     return
+            # self.dict_structural_element_force_offset_to_lines.pop(force_offset)
+
     def set_structural_element_wall_formulation_by_elements(self, elements, wall_formulation, remove=False):
         """
         This method assigns a structural element wall formulation to a list of selected elements.
@@ -975,7 +1021,7 @@ class Preprocessor:
         #     return
             # self.dict_structural_element_wall_formulation_to_lines.pop(wall_formulation)
 
-    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, mean_velocity=None, remove=False):
+    def set_acoustic_element_type_by_element(self, elements, element_type, proportional_damping=None, vol_flow=None, remove=False):
         """
         This method attributes acoustic element type to a list of elements.
 
@@ -998,7 +1044,7 @@ class Preprocessor:
         for element in slicer(self.acoustic_elements, elements):
             element.element_type = element_type
             element.proportional_damping = proportional_damping
-            element.mean_velocity = mean_velocity
+            element.vol_flow = vol_flow
         if remove:
             self.dict_acoustic_element_type_to_lines.pop(element_type)
     
@@ -1157,7 +1203,7 @@ class Preprocessor:
                         if self.dict_structural_element_type_to_lines[key] == []:
                             self.dict_structural_element_type_to_lines.pop(key)
 
-    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, mean_velocity=None, remove=False):
+    def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping=None, vol_flow=None, remove=False):
         """
         This method attributes acoustic element type to all elements that belongs to a line/entity.
 
@@ -1183,7 +1229,7 @@ class Preprocessor:
         for elements in slicer(self.line_to_elements, lines):
             self.set_acoustic_element_type_by_element(  elements, element_type, 
                                                         proportional_damping = proportional_damping, 
-                                                        mean_velocity = mean_velocity  )
+                                                        vol_flow = vol_flow  )
         
         for line in lines:
             if remove:
@@ -1709,6 +1755,36 @@ class Preprocessor:
     #         for line in self.all_lines:
     #             self.lines_with_capped_end.append(line)
 
+    def set_structural_element_force_offset_by_lines(self, lines, force_offset):
+        """
+        This method assign a strutural element force offset to the selected lines.
+
+        Parameters
+        ----------
+        lines : list
+            Lines/entities indexes.
+            
+        force offset : int, [0, 1]
+            Structural element force offset to be attributed to the listed elements. 
+        """
+        try:
+            if isinstance(lines, int):
+                lines = [lines]
+
+            for elements in slicer(self.line_to_elements, lines):
+                for element in slicer(self.structural_elements, elements):
+                    element.force_offset = bool(force_offset)
+            
+            for line in lines:
+                if force_offset is None:
+                    list_lines = list(self.lines_with_structural_element_force_offset.keys())
+                    if line in list_lines:
+                        self.lines_with_structural_element_force_offset.pop(line)
+                else:
+                    self.lines_with_structural_element_force_offset[line] = force_offset
+        except Exception as _error:
+            print(str(_error))
+
     def set_stress_stiffening_by_line(self, lines, pressures, remove=False):
         """
         This method .
@@ -2228,29 +2304,31 @@ class Preprocessor:
             PrintMessageInput([title, message, window_title_1])
             return True  
 
-    def set_mean_velocity_by_element(self, elements, mean_velocity):
+    def set_vol_flow_by_element(self, elements, vol_flow):
         for element in slicer(self.acoustic_elements, elements):
             if 'beam_1' not in self.structural_elements[element.index].element_type:
-                element.mean_velocity = mean_velocity
+                element.vol_flow = vol_flow
             else:
-                element.mean_velocity = None
+                element.vol_flow = None
     
-    def set_mean_velocity_by_line(self, lines, mean_velocity):
+    def set_vol_flow_by_line(self, lines, vol_flow):
         for elements in slicer(self.line_to_elements, lines):
-            self.set_mean_velocity_by_element(elements, mean_velocity)
+            self.set_vol_flow_by_element(elements, vol_flow)
 
     def set_perforated_plate_by_elements(self, elements, perforated_plate, section, delete_from_dict=False):
         for element in slicer(self.structural_elements, elements):
             element.perforated_plate = perforated_plate
+            if element not in self.elements_with_perforated_plate:
+                self.elements_with_perforated_plate.append(element)
+            if perforated_plate is None:
+                if element in self.elements_with_perforated_plate:
+                    self.elements_with_perforated_plate.remove(element)
+                    
         for element in slicer(self.acoustic_elements, elements):
             element.perforated_plate = perforated_plate
             element.delta_pressure = 0
             element.pp_impedance = None
-            if element not in self.element_with_perforated_plate:
-                self.element_with_perforated_plate.append(element)
-            if perforated_plate is None:
-                if element in self.element_with_perforated_plate:
-                    self.element_with_perforated_plate.remove(element)
+
         if delete_from_dict:
             self.group_elements_with_perforated_plate.pop(section) 
         else:
@@ -3091,12 +3169,7 @@ class Preprocessor:
                     previous_distance = distance
                     output_indexes = [element_start, element_end]
      
-        return min(output_indexes), max(output_indexes)
-
-
-    # def get_model_checks(self):
-    #     return BeforeRun(self)
-                
+        return min(output_indexes), max(output_indexes)             
 
     def deformed_amplitude_control_in_expansion_joints(self):
         """This method evaluates the deformed amplitudes in expansion joints nodes
@@ -3152,6 +3225,12 @@ class Preprocessor:
         # print(f"acoustic elements data: {acoustic_etype_to_number_elements}")
         # print(f"structural elements data: {structural_etype_to_number_elements}")
         return structural_etype_to_number_elements, acoustic_etype_to_number_elements
+
+    def set_unprescribed_pipe_indexes(self, indexes):
+        self.unprescribed_pipe_indexes = indexes
+    
+    def get_unprescribed_pipe_indexes(self):
+        return self.unprescribed_pipe_indexes
 
     #TODO: remove the following methods if they are not necessary anymore
 

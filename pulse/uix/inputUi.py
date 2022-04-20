@@ -53,7 +53,7 @@ from data.user_input.plots.acoustic.plotPerforatedPlateConvergenceData import Pl
 #
 from data.user_input.plots.animation.animationSettingsInput import AnimationSettingsInput
 from data.user_input.plots.structural.plotCrossSectionInput import PlotCrossSectionInput
-from data.user_input.plots.render.meshSetupVisibilityInput import MeshSetupVisibilityInput
+from data.user_input.plots.render.rendererUserPreferencesInput import RendererUserPreferencesInput
 from data.user_input.model.info.structuralModel_InfoInput import StructuralModelInfoInput
 from data.user_input.model.info.acousticModel_InfoInput import AcousticModelInfoInput
 #
@@ -96,6 +96,7 @@ class InputUi:
             title = "Error detected in processInput method"
             message = str(log_error)
             PrintMessageInput([title, message, window_title_1])
+            # return read
 
     def new_project(self, config):
         new_project_input = self.processInput(NewProjectInput, self.project, config)
@@ -159,7 +160,7 @@ class InputUi:
         self.processInput(PlotCrossSectionInput, self.project, self.opv)
 
     def mesh_setup_visibility(self):
-        self.processInput(MeshSetupVisibilityInput, self.project, self.opv)
+        self.processInput(RendererUserPreferencesInput, self.project, self.opv)
         
     def set_beam_xaxis_rotation(self):
         self.processInput(BeamXaxisRotationInput, self.project, self.opv)
@@ -279,7 +280,7 @@ class InputUi:
             PrintMessageInput([title, message, window_title_1])
             return
 
-        self.before_run = self.project.get_model_checks(opv=self.opv)
+        self.before_run = self.project.get_pre_solution_model_checks(opv=self.opv)
         if self.before_run.check_is_there_a_problem(self.analysis_ID):
             return
         # self.project.time_to_checking_entries = time()-t0
@@ -290,6 +291,9 @@ class InputUi:
                 self.before_run.check_modal_analysis_imported_data()
             elif self.analysis_ID in [3,5,6]:
                 self.before_run.check_all_acoustic_criteria()
+
+            self.after_run = self.project.get_post_solution_model_checks(opv=self.opv)
+            self.after_run.check_all_acoustic_criterias()
         
     def plotStructuralModeShapes(self):
         self.project.set_min_max_type_stresses("", "", "")

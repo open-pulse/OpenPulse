@@ -73,7 +73,7 @@ class LoadingScreen(QDialog):
         self.movie.stop()
 
     def configWindow(self):
-        self.setWindowTitle("OpenPulse @Gamma version (2021)")
+        self.setWindowTitle("OpenPulse v1.0 (April, 2022)")
         self.setMinimumSize(QSize(400, 250))
         self.setMaximumSize(QSize(400, 250))
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

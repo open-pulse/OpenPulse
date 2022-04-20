@@ -8,6 +8,7 @@ from PyQt5 import uic
 from time import time, sleep
 import configparser
 from threading import Thread
+from time import time
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -50,7 +51,6 @@ class RunAnalysisInput(QDialog):
         self.convergence_dataLog = None
         self.natural_frequencies_acoustic = []
         self.natural_frequencies_structural = []
-
         self.complete = False
 
         LoadingScreen('SOLUTION IN PROGRESS', 'Processing the cross-sections',  target=self.process_cross_sections, project=project)
@@ -58,18 +58,12 @@ class RunAnalysisInput(QDialog):
             self.project.preprocessor.stop_processing = False
             return
 
-        LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)
-
-        if isinstance(self.solve, SolutionAcoustic):
-            fig = plt.figure(figsize=[8,6])
-            ax  = fig.add_subplot(1,1,1)
-            anime = FuncAnimation(fig, self.solve.graph_callback, fargs=(fig,ax), interval=3000)
-            anime._start()
-            plt.ion()
-            plt.show()
+        LoadingScreen('SOLUTION IN PROGRESS', 'Preparing the model to solve', target=self.preparing_mathematical_model_to_solve)  
+        self.pre_non_linear_convergence_plot()
 
         LoadingScreen('SOLUTION IN PROGRESS', 'Solving the analysis',  target=self.process_analysis, project=project)
-        
+        self.post_non_linear_convergence_plot()  
+
         if self.project.preprocessor.stop_processing:
             self.reset_all_results()
             self.project.preprocessor.stop_processing = False
@@ -77,6 +71,23 @@ class RunAnalysisInput(QDialog):
             LoadingScreen('SOLUTION IN PROGRESS', 'Post-processing the obtained results', target=self.post_process_results)
             self.exec()
             self.check_warnings()
+
+    def pre_non_linear_convergence_plot(self):
+        if isinstance(self.solve, SolutionAcoustic):
+            if self.analysis_ID in [3,5,6]:
+                if self.solve.non_linear:
+                    fig = plt.figure(figsize=[8,6])
+                    ax  = fig.add_subplot(1,1,1)
+                    self.anime = FuncAnimation(fig, self.solve.graph_callback, fargs=(fig,ax), interval=2000)
+                    self.anime._start()
+                    plt.ion()
+                    plt.show()
+
+    def post_non_linear_convergence_plot(self):
+        if isinstance(self.solve, SolutionAcoustic):
+            if self.analysis_ID in [3,5,6]:
+                if self.solve.non_linear:
+                    self.anime._stop()
 
     def process_cross_sections(self):
 
@@ -168,6 +179,11 @@ class RunAnalysisInput(QDialog):
             self.natural_frequencies_acoustic, self.solution_acoustic = self.solve.modal_analysis(modes = self.modes, sigma=self.project.sigma)
         
         self.project.time_to_solve_model = time() - t0
+
+        if isinstance(self.solve, SolutionAcoustic):
+            if self.analysis_ID in [3,5,6]:
+                if self.solve.non_linear:
+                    sleep(2)
 
     def post_process_results(self): 
 

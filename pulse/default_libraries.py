@@ -3,8 +3,8 @@ import configparser
 def default_material_library(path):
     config = configparser.ConfigParser()
 
-    config['STEEL'] = { 
-                            'Name': 'steel',
+    config['Steel'] = { 
+                            'Name': 'Steel',
                             'Identifier': 1,
                             'Color': '[170,170,170]', #Light Gray
                             'Density': 7860,
@@ -12,8 +12,8 @@ def default_material_library(path):
                             'Poisson': 0.3,
                             'Thermal expansion coefficient': 1.2e-5 }
 
-    config['STAINLESS_STEEL'] = {  
-                            'Name': 'stainless_steel',
+    config['Stainless_steel'] = {  
+                            'Name': 'Stainless_steel',
                             'Identifier': 2,
                             'Color': '[126,46,31]', #Wood color
                             'Density': 7750,
@@ -21,7 +21,7 @@ def default_material_library(path):
                             'Poisson': 0.31,
                             'Thermal expansion coefficient': 1.7e-5 }
 
-    config['NI-CO-CR_ALLOY'] = {   
+    config['Ni-Co-Cr_alloy'] = {   
                             'Name': 'Ni-Co-Cr_alloy',
                             'Identifier': 3,
                             'Color': '[0,255,255]', #Cyan
@@ -30,8 +30,8 @@ def default_material_library(path):
                             'Poisson': 0.315,
                             'Thermal expansion coefficient': 1.2e-5 }
 
-    config['CAST_IRON'] = { 
-                            'Name': 'cast_iron',
+    config['Cast_iron'] = { 
+                            'Name': 'Cast_iron',
                             'Identifier': 4,
                             'Color': '[50,50,50]', #Dark Grey
                             'Density': 7200,
@@ -39,8 +39,8 @@ def default_material_library(path):
                             'Poisson': 0.28,
                             'Thermal expansion coefficient': 1.1e-5 }
 
-    config['ALUMINUM'] = {  
-                            'Name': 'aluminum',
+    config['Aluminum'] = {  
+                            'Name': 'Aluminum',
                             'Identifier': 5,
                             'Color': '[255,255,255]', #White
                             'Density': 2770,
@@ -48,8 +48,8 @@ def default_material_library(path):
                             'Poisson': 0.333,
                             'Thermal expansion coefficient': 2.3e-5 }
 
-    config['BRASS'] = { 
-                            'Name': 'brass',
+    config['Brass'] = { 
+                            'Name': 'Brass',
                             'Identifier': 6,
                             'Color': '[181,166,66]', #Brass color
                             'Density': 8150,
@@ -64,6 +64,7 @@ def default_fluid_library(path):
 
     # References:   Incropera, et al. FUNDAMENTALS OF HEAT AND MASS TRANSFER. 6th edition. 
     #               Çengel, Yunus A., Boles, Michael A. THERMODYNAMICS. 5th edition. 
+    # TODO: check the fluids pressure state
 
     config = configparser.ConfigParser()
 
@@ -77,7 +78,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.400, 
                             'Thermal conductivity': 0.0263,
                             'Specific heat Cp': 1007,
-                            'Dynamic viscosity': float(184.6e-7) }      
+                            'Dynamic viscosity': float(184.6e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 }      
 
     config['Air @400K'] = {
                             'Name': 'Air @400K',
@@ -89,7 +92,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.395, 
                             'Thermal conductivity': 0.0338,
                             'Specific heat Cp': 1013,
-                            'Dynamic viscosity': float(230.1e-7) }     
+                            'Dynamic viscosity': float(230.1e-7),
+                            'Temperature' : 400,
+                            'Pressure' : 101325 }     
 
     config['Hydrogen @300K'] = {
                             'Name': 'Hydrogen @300K',
@@ -101,7 +106,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.405, 
                             'Thermal conductivity': float(183e-3),
                             'Specific heat Cp': 14307,
-                            'Dynamic viscosity': float(89.6e-7) } 
+                            'Dynamic viscosity': float(89.6e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 } 
     
     config['Hydrogen @400K'] = {
                             'Name': 'Hydrogen @400K',
@@ -113,7 +120,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.398, 
                             'Thermal conductivity': float(226e-3),
                             'Specific heat Cp': 14476,
-                            'Dynamic viscosity': float(108.2e-7) } 
+                            'Dynamic viscosity': float(108.2e-7),
+                            'Temperature' : 400,
+                            'Pressure' : 101325 } 
     
     config['Methane @300K'] = {
                             'Name': 'Methane @300K',
@@ -125,7 +134,9 @@ def default_fluid_library(path):
                             'Isentropic exponent': 1.299, 
                             'Thermal conductivity': 0.0339,
                             'Specific heat Cp': 2232,
-                            'Dynamic viscosity': float(110e-7) }   
+                            'Dynamic viscosity': float(110e-7),
+                            'Temperature' : 300,
+                            'Pressure' : 101325 }   
 
     with open(path, 'w') as config_file:
         config.write(config_file)

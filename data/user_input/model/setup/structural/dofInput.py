@@ -29,7 +29,7 @@ class DOFInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         self.userPath = os.path.expanduser('~')
         self.new_load_path_table = ""

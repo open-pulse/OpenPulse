@@ -26,11 +26,11 @@ class BeamXaxisRotationInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         # self.typed_lines = []
         self.dict_entities = project.preprocessor.dict_tag_to_entity
@@ -118,7 +118,7 @@ class BeamXaxisRotationInput(QDialog):
             self.close()
 
     def update(self):
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
 
         if self.lines_id != []:
             self.write_ids(self.lines_id)
@@ -130,7 +130,7 @@ class BeamXaxisRotationInput(QDialog):
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
         if self.flagEntity:
             if self.lines_id != []:
                 self.write_ids(self.lines_id)

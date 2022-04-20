@@ -68,7 +68,7 @@ class Plot_TL_NR_Input(QDialog):
 
         self.projec = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         self.elements = self.preprocessor.acoustic_elements
         self.dict_elements_diameter = self.preprocessor.neighbor_elements_diameter()

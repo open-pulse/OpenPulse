@@ -135,6 +135,7 @@ class StructuralElement:
         self.capped_end = kwargs.get('capped_end', False)
         self.stress_intensification = kwargs.get('stress_intensification', True)
         self.wall_formutation_type = kwargs.get('wall_formutation_type', "thick wall")
+        self.force_offset = True
 
         self.section_rotation_xyz_undeformed = None
         self.deformed_rotation_xyz = None
@@ -738,9 +739,12 @@ class StructuralElement:
         else:
             raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
         
-        return principal_axis.T @ Fe
+        if self.force_offset:
+            return principal_axis.T @ Fe
+        else:
+            return Fe
 
-    def force_vector_acoustic_gcs(self, frequencies, pressure_avg, pressure_external):
+    def force_vector_acoustic_gcs(self, frequencies, pressures, pressure_external):
         """
         This method returns the element load vector due to the internal acoustic pressure field in the global coordinate system. The loads are forces and moments according to the degree of freedom. 
 
@@ -763,35 +767,42 @@ class StructuralElement:
         Di = self.cross_section.inner_diameter
         
         nu = self.material.poisson_ratio
+        A = self.cross_section.area
 
-        if self.element_type in ['pipe_1', 'pipe_2']:
-            A = self.cross_section.area
-            stress_axial = (pressure_avg * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
-        elif self.element_type in ['expansion_joint','valve']:
-            nu = 0
-            A = self.cross_section.area_fluid
-            stress_axial = pressure_avg
-        else:
-            return np.zeros((rows, cols))
-
-        aux = np.zeros([rows, 1])
-        aux[0], aux[6] = -1, 1
-        R = self.element_rotation_matrix
-
-        # if self.element_type in ['pipe_1']:
-        #     principal_axis = self.cross_section.principal_axis
-        # elif self.element_type in ['pipe_2']:
-        #     principal_axis = np.eye(rows)
-
+        # p_avg = (pressures[0]+pressures[1])/2
         if self.capped_end:
             capped_end = 1
         else:
             capped_end = 0
 
-        # aux = R.T @ principal_axis.T @ aux
-        aux = R.T @ aux 
+        if self.element_type in ['pipe_1', 'pipe_2']:
+            stress_axial = (pressures * Di**2 - pressure_external * Do**2) / (Do**2 - Di**2)
+            if self.wall_formutation_type == "thick wall": 
+                force = A * (capped_end - 2*nu)* stress_axial
+            elif self.wall_formutation_type == "thin wall":
+                force = A * (capped_end*stress_axial - nu*pressures*(Do/(Do-Di) - 1))
+        elif self.element_type in ['expansion_joint','valve']:
+            nu = 0
+            force = (capped_end - 2*nu)* A *pressures
+        else:
+            return np.zeros((rows, cols))
 
-        return (capped_end - 2*nu)* A * aux @ stress_axial.reshape([1,-1])
+        aux = np.zeros((rows, cols), dtype=complex)
+        aux[0,:] = -force[0,:]
+        aux[6,:] =  force[1,:]
+        R = self.element_rotation_matrix
+        
+        if self.element_type == 'pipe_1':
+            principal_axis = self.cross_section.principal_axis
+        elif self.element_type in ['pipe_2', 'expansion_joint', 'valve']:
+            principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
+        
+        if self.force_offset:
+            return R.T @ principal_axis.T @ aux
+        else:
+            return R.T @ aux
 
     def force_vector_stress_stiffening(self, vector_gcs=True):
         """
@@ -825,15 +836,19 @@ class StructuralElement:
 
         if self.element_type == 'pipe_1':
             principal_axis = self.cross_section.principal_axis
-        else:
+        elif self.element_type == 'pipe_2':
             principal_axis = np.eye(DOF_PER_ELEMENT)
+        else:
+            raise TypeError('Only pipe_1 and pipe_2 element types are allowed.')
 
         aux[0], aux[6] = -1, 1
         R = self.element_rotation_matrix
 
         if vector_gcs:
-            # aux = R.T @ (principal_axis.T @ aux)
-            aux = R.T @ aux
+            if self.force_offset:
+                aux = R.T @ (principal_axis.T @ aux)
+            else:
+                aux = R.T @ aux
         else:
             aux = 1
             capped_end = 0

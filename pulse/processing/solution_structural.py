@@ -622,6 +622,7 @@ class SolutionStructural:
                 Iy = element.cross_section.second_moment_area_y
                 Iz = element.cross_section.second_moment_area_z
                 J = element.cross_section.polar_moment_area
+                nu = element.material.poisson_ratio
 
                 acoustic_dofs = np.r_[element.first_node.global_index, element.last_node.global_index]
                 
@@ -630,15 +631,21 @@ class SolutionStructural:
                 else:
                     p = np.zeros((2, len(self.frequencies)))
                 pm = np.sum(p,axis=0)/2
-                hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
+
+                if element.wall_formutation_type == "thick wall":
+                    hoop_stress = (2*pm*di**2 - p0*(do**2 + di**2))/(do**2 - di**2)
+                    radial_stress =  -2*nu*(pm*di**2 - p0*do**2)/(do**2 - di**2)
+                if element.wall_formutation_type == "thin wall":
+                    hoop_stress = pm
+                    radial_stress = -nu*pi*(do/(do-di) - 1)
                    
-                stress_data = np.c_[    element.internal_load[0]/area,
-                                        element.internal_load[2] * ro/Iy,
-                                        element.internal_load[1] * ro/Iz,
-                                        hoop_stress,
-                                        element.internal_load[3] * ro/J,
-                                        element.internal_load[4]/area,
-                                        element.internal_load[5]/area   ].T
+                stress_data = np.c_[element.internal_load[0]/area - radial_stress,
+                                    element.internal_load[2] * ro/Iy,
+                                    element.internal_load[1] * ro/Iz,
+                                    hoop_stress,
+                                    element.internal_load[3] * ro/J,
+                                    element.internal_load[4]/area,
+                                    element.internal_load[5]/area   ].T
                 
                 if _real_values:
                     element.stress = np.real(stress_data)

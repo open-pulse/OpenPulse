@@ -15,7 +15,7 @@ class RendererEntity(vtkRendererBase):
         self.defaultRadius = None
 
     def updateInfoText(self):
-        listActorsIDs = self.getListPickedEntities()
+        listActorsIDs = self.getListPickedLines()
         text = ''
         if len(listActorsIDs) == 0: 
             text = ''
@@ -168,7 +168,7 @@ class RendererEntity(vtkRendererBase):
             actor.GetProperty().SetColor(color)
         self.updateInfoText()
 
-    def getListPickedEntities(self):
+    def getListPickedLines(self):
         return self._style.getListPickedActors()
 
     def update(self):

@@ -43,7 +43,8 @@ class SolutionAcoustic:
         self.max_iter = 100
         self.target = 10/100
 
-        self.elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
+        self.group_elements_with_perforated_plate = preprocessor.group_elements_with_perforated_plate
+        self.valve_elements = self.check_non_linear_valves()
         self.solution_nm1 = None
         self.convergence_dataLog = None
 
@@ -52,13 +53,21 @@ class SolutionAcoustic:
         # self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()
         self.get_pipe_and_unprescribed_indexes = self.assembly.get_pipe_and_unprescribed_indexes()
         
-        # self.fig = plt.figure(figsize=[8,6])
-        # self.ax = self.fig.add_subplot(1,1,1)
-
         self.relative_error = []
         self.deltaP_errors = []
         self.iterations = []
 
+    def check_non_linear_valves(self):
+        self.non_linear = False
+        if self.group_elements_with_perforated_plate:             
+            values = self.group_elements_with_perforated_plate.values()
+            elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
+            for element in elements:
+                if element.perforated_plate.nonlinear_effect:
+                    self.non_linear = True
+                    break
+            return elements
+            
     def get_global_matrices(self):
         """
         This method updates the acoustic global matrices.
@@ -211,23 +220,12 @@ class SolutionAcoustic:
         cols = len(self.frequencies)
         solution = np.zeros((rows, cols), dtype=complex)
         
-        if self.elements_with_perforated_plate:
+        if self.group_elements_with_perforated_plate:
                         
-            values = self.elements_with_perforated_plate.values()
-            elements = [self.acoustic_elements[_ids] for [_, elements_ids] in values for _ids in elements_ids]
-            
-            self.non_linear = False
-            for element in elements:
-                if element.perforated_plate.nonlinear_effect:
-                    self.non_linear = True
-                    break
-
             self.solution_nm1 = np.zeros((rows, cols), dtype=complex)
             vect_freqs = list(np.arange(cols, dtype=int))[1:]
 
             self.plt = plt
-            # self.fig = self.plt.figure(figsize=[8,6])
-            # self.ax = self.fig.add_subplot(1,1,1)
 
             # self.iterations = []
             pressure_residues = []
@@ -247,7 +245,6 @@ class SolutionAcoustic:
                 while relative_difference > self.target or not converged:
 
                     if self.stop_processing():
-                        # self.plt.close()
                         return None, None
 
                     self.get_global_matrices()
@@ -261,7 +258,7 @@ class SolutionAcoustic:
                     cache_delta_residues = []
                     cache_pressure_residues = np.array([])
 
-                    for i, element in enumerate(elements):
+                    for i, element in enumerate(self.valve_elements):
                         element.update_pressure(solution)
                         first = element.first_node.global_index
                         last = element.last_node.global_index
@@ -272,7 +269,7 @@ class SolutionAcoustic:
                         index = np.argmax(np.abs(element.delta_pressure[vect_freqs]))
                         max_value = np.max(np.abs(element.delta_pressure[vect_freqs]))
 
-                        if len(delta_pressures) == len(elements):
+                        if len(delta_pressures) == len(self.valve_elements):
                             delta_pressures[i] = element.delta_pressure[1:]
                             cache_delta_residues[i] = relative_error(delta_pressures[i], cache_delta_pressures[i])
                         else:
@@ -280,8 +277,8 @@ class SolutionAcoustic:
                             cache_delta_pressures.append(np.zeros_like(element.delta_pressure[1:], dtype=complex))
                             cache_delta_residues.append(relative_error(delta_pressures[i], cache_delta_pressures[i]))
                                         
-                        if count >= 10:
-                            if len(cache_delta) == len(elements):                                
+                        if count >= 5:
+                            if len(cache_delta) == len(self.valve_elements):                                
                                 if abs((cache_delta[i]-max_value)/cache_delta[i]) > 0.5:
                                     if index in freq_indexes.keys():
                                         freq_indexes[index] += 1
@@ -337,12 +334,14 @@ class SolutionAcoustic:
             return solution, self.convergence_dataLog
 
     def graph_callback(self, interval, fig, ax):  
+
         if (len(self.iterations) < 2) or (len(self.relative_error) < 2):
-            xlim = (1, 2)
-            ylim = (1, 2)
+            xlim = (1, 10)
+            ylim = (0, 120)
         else:
+            dy = 20
             xlim = (1, max(self.iterations))
-            ylim = (1, max(self.relative_error))
+            ylim = (0, (round(max(self.relative_error)/dy,0)+1)*dy)
 
         ax.set_xlim(*xlim)
         ax.set_ylim(*ylim)
@@ -365,6 +364,7 @@ class SolutionAcoustic:
         else:
             _legends = plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
         plt.gca().add_artist(_legends)
+        # plt.grid()
 
         ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
         ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
@@ -430,77 +430,34 @@ class SolutionAcoustic:
     
             if pressure_residues[-1] < 100*self.target:
                 if len(delta_residues) >= 4:
-                        if max(delta_residues[-5:]) <= 10:
-                            if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
-                                if max(pressure_residues[-3:]) <= 10:
-                                    if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
-                                        # self.plt.close()
-                                        final_log = f"The solution converged after {count} iterations with the following observations:"
-                                        if len(self.unstable_frequencies):
-                                            list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
-                                            final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"                   
-                                        final_log += "\nPressure residues criteria: converged"
-                                        final_log += "\nDelta pressure residues criteria: converged\n"
-                                        print(final_log)
-                                        return True        
-                
+                        if max(delta_residues[-5:]) <= 100*self.target:
+                            # if (delta_residues[-5] >= delta_residues[-4] >= delta_residues[-3] >= delta_residues[-2] >= delta_residues[-1]):
+                            if max(pressure_residues[-3:]) <= 10:
+                                if pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                                
+                                    final_log = f"The solution converged after {count} iterations with the following observations:"
+                                    if len(self.unstable_frequencies):
+                                        list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                                        final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"                   
+                                    final_log += "\nPressure residues criteria: converged"
+                                    final_log += "\nDelta pressure residues criteria: converged\n"
+                                    print(final_log)
+                                    return True
+            
         else: 
 
             if max(pressure_residues[-5:]) <= 100*self.target:
-                if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
-                    # self.plt.close()
-                    final_log = f"The solution converged after {count} iterations with the following observations:"
-                    if len(self.unstable_frequencies):
-                        list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
-                        final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
-                    final_log += "\nPressure residues criteria: converged"
-                    final_log += "\nDelta pressure residues criteria: not converged\n"
-                    print(final_log)
-                    return True    
+                # if pressure_residues[-5] >= pressure_residues[-4] >= pressure_residues[-3] >= pressure_residues[-2] >= pressure_residues[-1]: 
+                final_log = f"The solution converged after {count} iterations with the following observations:"
+                if len(self.unstable_frequencies):
+                    list_freqs = str(list(self.unstable_frequencies.values()))[1:-1]
+                    final_log += f"\nList of unstable frequencies: {list_freqs} [Hz]"  
+                final_log += "\nPressure residues criteria: converged"
+                final_log += "\nDelta pressure residues criteria: not converged\n"
+                print(final_log)
+                return True
 
         return False
-
-    def plot_convergence_graph(self, iterations, relative_errors, deltaP_errors=[]):
-        # it is no more being used
-
-        # self.plt.clf()
-        # self.plt.cla()
-        
-        x, y = 500, 100
-        backend = matplotlib.get_backend()
-        mngr = self.plt.get_current_fig_manager()
-
-        if backend == 'TkAgg':
-            mngr.window.wm_geometry("+%d+%d" % (x, y))
-        elif backend == 'WXAgg':
-            mngr.window.SetPosition((x, y))
-        else:
-            mngr.window.move(x, y)
-        
-        perc_criteria = self.target*100
-        first_plot, = self.plt.plot(iterations, relative_errors, color=[1,0,0], linewidth=2, marker='s', markersize=6, markerfacecolor=[0,0,1])
-        second_plot, = self.plt.plot([1, max(iterations)], [perc_criteria, perc_criteria], color=[0,0,0], linewidth=2, linestyle="--")
-        if deltaP_errors:
-            third_plot, = self.plt.plot(iterations, deltaP_errors, color=[0,0,1], linewidth=2, marker='s', markersize=6, markerfacecolor=[1,0,0])
-
-        first_plot_label = "Pressure residues"
-        third_plot_label = "Delta pressure residues"
-        second_plot_label = f'Target: {perc_criteria}%'
-        if deltaP_errors:
-            _legends = self.plt.legend(handles=[first_plot, third_plot, second_plot], labels=[first_plot_label, third_plot_label, second_plot_label], loc='upper right')
-        else:
-            _legends = self.plt.legend(handles=[first_plot, second_plot], labels=[first_plot_label, second_plot_label], loc='upper right')
-        self.plt.gca().add_artist(_legends)
-
-        self.ax.set_title('PERFORATED PLATE: CONVERGENCE PLOT', fontsize = 16, fontweight = 'bold')
-        self.ax.set_xlabel('Iteration [n]', fontsize = 14, fontweight = 'bold')
-        self.ax.set_ylabel("Relative error [%]", fontsize = 14, fontweight = 'bold')
-
-        self.plt.xlim(1, max(iterations))
-        self.plt.draw()
-        self.plt.pause(0.001)
-   
-        self.ax = self.fig.add_subplot(1,1,1)
 
     def stop_processing(self):
         if self.preprocessor.stop_processing:

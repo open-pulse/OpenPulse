@@ -1,9 +1,11 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView, QWidget
+from PyQt5.QtWidgets import QLineEdit, QDialog, QTreeWidget, QRadioButton, QMessageBox, QTreeWidgetItem, QPushButton, QTabWidget, QHeaderView, QWidget, QComboBox, QFrame
 from PyQt5.QtGui import QIcon, QColor, QBrush, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 from time import time
+from matplotlib.style import available
+import numpy as np
 
 # from PyQt5.uic.uiparser import QtWidgets
 
@@ -26,7 +28,7 @@ def getColorRGB(color):
 
 class FluidInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__()
         uic.loadUi('data/user_input/ui/Model/Setup/Acoustic/fluidlnput.ui', self)
         
         icons_path = 'data\\icons\\'
@@ -35,18 +37,21 @@ class FluidInput(QDialog):
 
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
+        self.setWindowTitle("Set: fluid")
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_ids = opv.getListPickedEntities()
+        self.lines_ids = opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
+        self.compressor_thermodynamic_state = kwargs.get("compressor_thermodynamic_state", {})
 
         self.fluid_path = project.get_fluid_list_path()
 
         self.dict_tag_to_entity = self.project.preprocessor.dict_tag_to_entity
+        self.dict_inputs = {}
         self.REFPROP = None
         self.fluid_data_REFPROP = {}
         self.fluid_name_to_REFPROP_data = {}
@@ -54,23 +59,28 @@ class FluidInput(QDialog):
         self.fluid = None
         self.flagAll = False
         self.flagSelection = False
+        self.complete = False
+        self.refprop_fluid = False
+        self.list_ids = []
 
         self.adding = False
         self.editing = False
+        self.force_check = False
         self.temp_fluid_color = ""
+        self.fluid_density = 0
+        self.speed_of_sound = 0
 
         self.fluid_data_keys = ["fluid name", 
-                                "id", 
-                                "color", 
                                 "fluid density", 
                                 "speed of sound", 
                                 "impedance", 
-                                "isentropic coefficient", 
+                                "isentropic exponent", 
                                 "thermal conductivity", 
                                 "specific heat Cp", 
                                 "dynamic viscosity",
                                 "temperature",
-                                "pressure"]
+                                "pressure",
+                                "molar mass"]
 
         self.treeWidget_fluids = self.findChild(QTreeWidget, 'treeWidget_fluids')
         header = self.treeWidget_fluids.headerItem()
@@ -93,7 +103,6 @@ class FluidInput(QDialog):
         self.treeWidget_fluids.itemDoubleClicked.connect(self.on_doubleclick_item)
         #
         self.lineEdit_name = self.findChild(QLineEdit, 'lineEdit_name')
-        self.lineEdit_id = self.findChild(QLineEdit, 'lineEdit_id')
         self.lineEdit_color = self.findChild(QLineEdit, 'lineEdit_color')
         self.lineEdit_fluid_density = self.findChild(QLineEdit, 'lineEdit_fluid_density')
         self.lineEdit_speed_of_sound = self.findChild(QLineEdit, 'lineEdit_speed_of_sound')
@@ -102,6 +111,8 @@ class FluidInput(QDialog):
         self.lineEdit_thermal_conductivity = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity')
         self.lineEdit_specific_heat_Cp = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp')
         self.lineEdit_dynamic_viscosity = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity')
+        self.lineEdit_temperature = self.findChild(QLineEdit, 'lineEdit_temperature')
+        self.lineEdit_pressure = self.findChild(QLineEdit, 'lineEdit_pressure')
         #
         self.lineEdit_name_rp = self.findChild(QLineEdit, 'lineEdit_name_rp')
         self.lineEdit_id_rp = self.findChild(QLineEdit, 'lineEdit_id_rp')
@@ -126,6 +137,8 @@ class FluidInput(QDialog):
         self.lineEdit_thermal_conductivity_edit = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_edit')
         self.lineEdit_specific_heat_Cp_edit = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_edit')
         self.lineEdit_dynamic_viscosity_edit = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_edit')
+        self.lineEdit_temperature_edit = self.findChild(QLineEdit, 'lineEdit_temperature_edit')
+        self.lineEdit_pressure_edit = self.findChild(QLineEdit, 'lineEdit_pressure_edit')
         #       
         self.lineEdit_name_remove = self.findChild(QLineEdit, 'lineEdit_name_remove')
         self.lineEdit_id_remove = self.findChild(QLineEdit, 'lineEdit_id_remove')
@@ -136,9 +149,28 @@ class FluidInput(QDialog):
         self.lineEdit_isentropic_exponent_remove = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent_remove')
         self.lineEdit_thermal_conductivity_remove = self.findChild(QLineEdit, 'lineEdit_thermal_conductivity_remove')
         self.lineEdit_specific_heat_Cp_remove = self.findChild(QLineEdit, 'lineEdit_specific_heat_Cp_remove')
-        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove')    
+        self.lineEdit_dynamic_viscosity_remove = self.findChild(QLineEdit, 'lineEdit_dynamic_viscosity_remove') 
+        self.lineEdit_temperature_remove = self.findChild(QLineEdit, 'lineEdit_temperature_remove')
+        self.lineEdit_pressure_remove = self.findChild(QLineEdit, 'lineEdit_pressure_remove')   
+        #
+        self.lineEdit_color.setDisabled(True)
+        self.lineEdit_color_rp.setDisabled(True)
+        self.lineEdit_color_edit.setDisabled(True)
         #
         self.create_lists_of_lineEdit()
+        #
+        # self.lineEdit_name.editingFinished.connect(self.check_add_input_fluid_name)
+        # self.lineEdit_id.editingFinished.connect(self.check_add_input_fluid_id)
+        # self.lineEdit_color.editingFinished.connect(self.check_add_input_fluid_color)
+        self.lineEdit_fluid_density.editingFinished.connect(self.check_add_input_fluid_density)
+        self.lineEdit_speed_of_sound.editingFinished.connect(self.check_add_input_speed_of_sound)
+
+        self.lineEdit_color_edit.editingFinished.connect(self.check_edit_input_fluid_color)
+        self.lineEdit_fluid_density_edit.editingFinished.connect(self.check_edit_input_fluid_density)
+        self.lineEdit_speed_of_sound_edit.editingFinished.connect(self.check_edit_input_speed_of_sound)
+
+        # self.lineEdit_speed_of_sound.textEdited.connect(self.update_impedance_lineEdit)
+        # self.lineEdit_fluid_density.textEdited.connect(self.update_impedance_lineEdit)
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_selected_lines')
@@ -146,6 +178,7 @@ class FluidInput(QDialog):
         self.radioButton_selected_lines.toggled.connect(self.radioButtonEvent)
 
         self.lineEdit_selected_ID = self.findChild(QLineEdit, 'lineEdit_selected_ID')
+        self.lineEdit_selected_fluid_name = self.findChild(QLineEdit, 'lineEdit_selected_fluid_name')
 
         if self.lines_ids != []:
             self.write_lines(self.lines_ids)
@@ -206,16 +239,23 @@ class FluidInput(QDialog):
         
         self.flagAll = self.radioButton_all.isChecked()
         self.flagSelection = self.radioButton_selected_lines.isChecked()
-
+        
         self.loadList()
+        self.comboBox_fluid_id = self.findChild(QComboBox, 'comboBox_fluid_id')    
+        self.comboBox_fluid_id_rp = self.findChild(QComboBox, 'comboBox_fluid_id_rp')  
+        self.comboBox_fluid_id.currentIndexChanged.connect(self.get_comboBox_index)   
+        self.comboBox_fluid_id_rp.currentIndexChanged.connect(self.get_comboBox_index)
+        
+        if self.compressor_thermodynamic_state:
+            self.check_compressor_inputs()
         self.exec_()
 
     def edit_REFPROP_fluid(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid)
+        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, selected_fluid_to_edit=self.selected_REFPROP_fluid, compressor_info=self.compressor_thermodynamic_state)
         self.after_get_fluid_properties_from_REFPROP()
 
     def call_refprop_interface(self):
-        self.REFPROP = SetFluidCompositionInput(self.project, self.opv)
+        self.REFPROP = SetFluidCompositionInput(self.project, self.opv, compressor_info=self.compressor_thermodynamic_state)
         self.after_get_fluid_properties_from_REFPROP()
 
     def after_get_fluid_properties_from_REFPROP(self):
@@ -227,14 +267,25 @@ class FluidInput(QDialog):
             self.fluid_setup = self.REFPROP.fluid_setup
             for index, key in enumerate(self.fluid_data_keys):
                 data = self.fluid_data_REFPROP[key]
+                if key == "molar mass":
+                    continue
                 if isinstance(data, float):
                     if key in ["thermal conductivity", "dynamic viscosity"]:
-                        data = round(data, 9)
+                        _data = round(data, 9)
                     elif key in ["temperature", "pressure"]:
-                        data = round(data, 4)
+                        _data = round(data, 4)
                     else:
-                        data = round(data, 6)
-                self.list_add_lineEdit_rp[index].setText(str(data))
+                        _data = round(data, 6)
+                elif isinstance(data, str):
+                    _data = data
+                self.list_add_lineEdit_rp[index].setText(str(_data))
+
+            self.temperature_comp = self.fluid_data_REFPROP["temperature"]
+            self.pressure_comp = self.fluid_data_REFPROP["pressure"]
+            self.update_compressor_fluid_temperature_and_pressure()
+       
+        else:
+            self.REFPROP = None
 
     def disable_lineEdits(self):
         lineEdits = [   self.lineEdit_fluid_density_rp,
@@ -251,28 +302,33 @@ class FluidInput(QDialog):
     def pick_color_add_user_defined(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color)[1:-1]
+            str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color.setText(str_color)
+            if self.check_add_input_fluid_color():
+                self.lineEdit_color.setText("")
+        return read.complete
 
     def pick_color_add_refprop(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color)[1:-1]
+            str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_rp.setText(str_color)
+            self.refprop_fluid = True
+            if self.check_add_input_fluid_color():
+                self.lineEdit_color_rp.setText("")
+            self.refprop_fluid = False
+        return read.complete
 
     def pick_color_edit(self):
         read = PickColorInput()
         if read.complete:
-            str_color = str(read.color)[1:-1]
+            str_color = str(read.color).replace(" ", "")#[1:-1]
             self.lineEdit_color_edit.setText(str_color)
-
-    # def tab_event_update(self):
-    #     self.reset_add_texts()
-    #     self.reset_edit_texts()
-    #     self.reset_remove_texts()
+            if self.check_edit_input_fluid_color():
+                self.lineEdit_color_edit.setText("")
 
     def update(self):
-        self.lines_ids = self.opv.getListPickedEntities()
+        self.lines_ids = self.opv.getListPickedLines()
         if self.lines_ids != []:
             self.write_lines(self.lines_ids)
             self.radioButton_selected_lines.setChecked(True)
@@ -282,15 +338,14 @@ class FluidInput(QDialog):
             self.radioButton_all.setChecked(True)
             self.lineEdit_selected_ID.setEnabled(False)
 
-    def write_lines(self, list_node_ids):
+    def write_lines(self, list_ids):
         text = ""
-        for node in list_node_ids:
-            text += "{}, ".format(node)
+        for _id in list_ids:
+            text += "{}, ".format(_id)
         self.lineEdit_selected_ID.setText(text)
-
+    
     def create_lists_of_lineEdit(self):
         self.list_add_lineEdit = [  self.lineEdit_name,
-                                    self.lineEdit_id,
                                     self.lineEdit_color,
                                     self.lineEdit_fluid_density,
                                     self.lineEdit_speed_of_sound,
@@ -298,11 +353,11 @@ class FluidInput(QDialog):
                                     self.lineEdit_isentropic_exponent,
                                     self.lineEdit_thermal_conductivity,
                                     self.lineEdit_specific_heat_Cp,
-                                    self.lineEdit_dynamic_viscosity ]  
+                                    self.lineEdit_dynamic_viscosity,
+                                    self.lineEdit_temperature,
+                                    self.lineEdit_pressure ]  
 
         self.list_add_lineEdit_rp = [   self.lineEdit_name_rp,
-                                        self.lineEdit_id_rp,
-                                        self.lineEdit_color_rp,
                                         self.lineEdit_fluid_density_rp,
                                         self.lineEdit_speed_of_sound_rp,
                                         self.lineEdit_impedance_rp,
@@ -311,7 +366,8 @@ class FluidInput(QDialog):
                                         self.lineEdit_specific_heat_Cp_rp,
                                         self.lineEdit_dynamic_viscosity_rp,
                                         self.lineEdit_temperature_rp,
-                                        self.lineEdit_pressure_rp   ]  
+                                        self.lineEdit_pressure_rp,
+                                        self.lineEdit_color_rp   ]  
 
         self.list_edit_lineEdit = [ self.lineEdit_name_edit,
                                     self.lineEdit_id_edit,
@@ -322,7 +378,9 @@ class FluidInput(QDialog):
                                     self.lineEdit_isentropic_exponent_edit,
                                     self.lineEdit_thermal_conductivity_edit,
                                     self.lineEdit_specific_heat_Cp_edit,
-                                    self.lineEdit_dynamic_viscosity_edit ]  
+                                    self.lineEdit_dynamic_viscosity_edit,
+                                    self.lineEdit_temperature_edit,
+                                    self.lineEdit_pressure_edit ]  
         
         self.list_remove_lineEdit = [   self.lineEdit_name_remove,
                                         self.lineEdit_id_remove,
@@ -333,98 +391,74 @@ class FluidInput(QDialog):
                                         self.lineEdit_isentropic_exponent_remove,
                                         self.lineEdit_thermal_conductivity_remove,
                                         self.lineEdit_specific_heat_Cp_remove,
-                                        self.lineEdit_dynamic_viscosity_remove ]  
+                                        self.lineEdit_dynamic_viscosity_remove,
+                                        self.lineEdit_temperature_remove,
+                                        self.lineEdit_pressure_remove ]  
 
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_fluid_attribution()
+            if self.compressor_thermodynamic_state == {}:
+                self.confirm_fluid_attribution()
+            else:
+                title = "Aditional action required"
+                message = "Press the 'Attribute fluid' button to proceed with fluid assignment."
+                PrintMessageInput([title, message, window_title2])
         elif event.key() == Qt.Key_Escape:
             self.close() 
 
-    def check_input_name(self, name_string):
-        if name_string == "":
-            title = 'Empty fluid name'
-            message = "Please, insert a valid fluid name."
-            PrintMessageInput([title, message, window_title1])
-            return True
-        else:
-            if self.adding:
-                if name_string in self.list_names:
-                    title = 'Invalid fluid name'
-                    message = "Please, inform a different fluid name. It is already being used by other fluid!"
-                    PrintMessageInput([title, message, window_title1])
-                    return True
+    def check_compressor_inputs(self):
+        if self.compressor_thermodynamic_state:
 
-                if self.lineEdit_temperature_rp.text() != "":
-                    _temperature = self.lineEdit_temperature_rp.text()
-                    name_string += f" @ {_temperature}K"
-                if self.lineEdit_pressure_rp.text() != "":
-                    _pressure = self.lineEdit_pressure_rp.text()
-                    name_string += f" & {_pressure}Pa"
+            # width = 800
+            # height = 720
 
-            self.dict_inputs['name'] = name_string
-        
-    def check_input_fluid_id(self, id_string):
-        if id_string == "":
-            title = 'Empty fluid ID'
-            message = "Please, insert a valid fluid ID."
-            PrintMessageInput([title, message, window_title1])
-            return True
-        else:
-            try:
-                self.fluid_id = int(id_string)
-                if self.adding:
-                    if self.fluid_id in self.list_ids:
-                        title = 'Invalid fluid name'
-                        message = "Please, inform a different fluid ID. It is already being used by other fluid."
-                        PrintMessageInput([title, message, window_title1])
-                        return True
-                      
-            except Exception as log_error:
-                title = "Invalid fluid ID"
-                message = str(log_error)
-                PrintMessageInput([title, message, window_title1])
-                return True
-            self.dict_inputs['identifier'] = id_string
-    
-    def check_input_color(self, color_string):
-        if color_string == "":
-            title = "Empty 'r, g, b' color"
-            message = "Please, insert a valid 'r, g, b' color to the fluid."
-            PrintMessageInput([title, message, window_title1])
-            return True
-        else:
+            # self.setMinimumWidth(width)
+            # self.setMinimumHeight(height)
+            # self.setMaximumWidth(width)
+            # self.setMaximumHeight(height)
+
+            self.tabWidget_fluid.removeTab(1)
+            self.tabWidget_fluid.removeTab(1)
+            self.tabWidget_fluid.removeTab(1)
+
+            # self.pushButton_confirm_add_fluid.setText("Attribute fluid")
+            # self.pushButton_confirm_add_fluid_rp.setText("Attribute fluid")
+            # self.pushButton_confirm_add_fluid.clicked.connect(self.check_add_fluid)
+            # self.pushButton_confirm.clicked.connect(self.confirm_fluid_attribution)
+
+            self.radioButton_selected_lines.setChecked(True)
+            self.radioButton_selected_lines.setDisabled(True)
+            self.radioButton_all.setDisabled(True)
+
+            self.line_id_comp = self.compressor_thermodynamic_state['line_id']
+            self.node_id_comp = self.compressor_thermodynamic_state['node_id']
+
+            self.connection_type_comp = self.compressor_thermodynamic_state['connection type']
+            self.connection_label = "discharge" if self.connection_type_comp else "suction"
+
+            self.temperature_comp = self.compressor_thermodynamic_state[f'temperature ({self.connection_label})']
+            self.pressure_comp = self.compressor_thermodynamic_state[f'pressure ({self.connection_label})']
             
-            message = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
-            try:
-                self.colorRGB = getColorRGB(color_string)
-                title = "Invalid 'r, g, b' color"
-                message_color = (" The RGB color {} was already used.\n Please, input a different color.").format(self.colorRGB)
+            self.setWindowTitle(f"Set a fluid thermodynamic state at the compressor {self.connection_label}")
 
-                if len(self.colorRGB)!=3:
-                    PrintMessageInput([title, message, window_title1])
-                    return True
+            self.write_lines([self.line_id_comp])
+            self.lineEdit_selected_ID.setDisabled(True)
 
-                if self.editing:
-                    temp_colorRGB = getColorRGB(self.temp_fluid_color)
-                    if temp_colorRGB != self.colorRGB:
-                        if self.colorRGB in self.list_colors:
-                            PrintMessageInput([title, message_color, window_title1])
-                            return True 
-                        else:
-                            self.list_colors.remove(temp_colorRGB)
-                            
-                elif self.adding:
-                    if self.colorRGB in self.list_colors:
-                        PrintMessageInput([title, message_color, window_title1])
-                        return True
+            self.update_compressor_fluid_temperature_and_pressure()
 
-            except Exception as log_error:
-                message = str(log_error)
-                PrintMessageInput([title, message, window_title1])
-                return True
-            self.dict_inputs['color'] = color_string
-       
+    def update_compressor_fluid_temperature_and_pressure(self):
+
+        temperature_lineEdits = [self.lineEdit_temperature, self.lineEdit_temperature_rp]
+        pressure_lineEdits = [self.lineEdit_pressure, self.lineEdit_pressure_rp]
+
+        for temperature_lineEdit in temperature_lineEdits:
+            temperature_lineEdit.setText(str(round(self.temperature_comp,4)))
+            temperature_lineEdit.setDisabled(True)
+
+        for pressure_lineEdit in pressure_lineEdits:
+            pressure_lineEdit.setText(str(round(self.pressure_comp,4)))
+            pressure_lineEdit.setDisabled(True)
+
     def check_element_type_of_lines(self):
 
         self.flag_all_fluid_inputs = False
@@ -439,7 +473,7 @@ class FluidInput(QDialog):
             for line in self.lines_typed:
                 _line = self.dict_tag_to_entity[line]
                 if _line.acoustic_element_type in ['wide-duct', 'LRF fluid equivalent', 'LRF full']:
-                    self.flag_all_fluid_inputs = True 
+                    self.flag_all_fluid_inputs = True
                     break
           
         elif self.flagAll:
@@ -451,9 +485,10 @@ class FluidInput(QDialog):
         
         return False
 
-    def check_input_parameters(self, input_string, label, _float=True):
+    def check_input_parameters(self, lineEdit, label, _float=True, _positive=False, allow_empty_entry=True):
         title = "INPUT ERROR"
-        value_string = input_string
+        self.value = None
+        value_string = lineEdit.text()
         if value_string != "":
             try:
                 if _float:
@@ -463,51 +498,357 @@ class FluidInput(QDialog):
                 if value < 0:
                     message = "You cannot input a negative value to the {}.".format(label)
                     PrintMessageInput([title, message, window_title1])
+                    lineEdit.setFocus()
+                    return True
+                elif value == 0 and _positive:
+                    message = "You cannot input a zero value to the {}.".format(label)
+                    PrintMessageInput([title, message, window_title1])
+                    lineEdit.setFocus()
                     return True
                 else:
                     self.value = value
             except Exception:
                 message = "You have typed an invalid value to the {}.".format(label)
                 PrintMessageInput([title, message, window_title1])
+                lineEdit.setFocus()
                 return True
         else:
-            self.value = None
-        return False
+            # self.value = None
+            if allow_empty_entry:
+                return False
+            else:
+                message = f"An empty entry has been detected at the '{label.capitalize()}' input field. \nYou should insert a valid entry to proceed."
+                PrintMessageInput([title, message, window_title1])
+                lineEdit.setFocus()
+                return True
 
-    def check_all_inputs(self):
+    def check_add_input_fluid_name(self):
+        try:
+            if self.refprop_fluid:
+                fluid_name = self.lineEdit_name_rp.text()
+                _lineEdit = self.lineEdit_name_rp
+            else:
+                fluid_name = self.lineEdit_name.text()
+                _lineEdit = self.lineEdit_name
+        
+            if fluid_name == "":
+                title = "Empty fluid name"
+                message = f"An empty entry has been detected at the 'Fluid name' input field. \nYou should insert a valid entry to proceed."
+                PrintMessageInput([title, message, window_title1])
+                _lineEdit.setFocus()
+                return True
+    
+            elif fluid_name != "" or self.force_check:
+
+                if fluid_name in self.list_names:
+                    title = 'Invalid fluid name'
+                    message = f"Please, inform a different fluid name. The '{fluid_name}' is already \nbeing used by another fluid."
+                    PrintMessageInput([title, message, window_title1])
+                    _lineEdit.setText("")
+                    _lineEdit.setFocus()
+                    return True
+                else:
+                    self.dict_inputs['name'] = fluid_name
+
+        except Exception as error_log:
+            title = 'Invalid fluid name'
+            message = str(error_log)
+            PrintMessageInput([title, message, window_title1])
+            return True
+
+    def check_add_input_fluid_id(self):
+        if self.REFPROP is None:
+            self.dict_inputs['identifier'] = self.fluid_id
+        else:
+            self.dict_inputs['identifier'] = self.fluid_id_rp
+
+    def check_add_input_fluid_color(self):
+
+        title = "Invalid 'r, g, b' color" 
+        message_empty = "An empty entry was detected at the 'Color [r,g,b]' input field. \nYou should to select a color to proceed."
+        message_invalid = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
+
+        try:
+
+            if self.refprop_fluid:
+                fluid_color = self.lineEdit_color_rp.text()
+            else:
+                fluid_color = self.lineEdit_color.text()
+
+            if fluid_color == "":
+                PrintMessageInput([title, message_empty, window_title1])
+                return True
+
+            elif fluid_color != "" or self.force_check:
+
+                self.colorRGB = getColorRGB(fluid_color)
+                message_color = f" The RGB color {self.colorRGB} was already used.\n Please, input a different color."
+
+                if len(self.colorRGB) != 3:
+                    PrintMessageInput([title, message_invalid, window_title1])
+                    return True
+
+                if self.colorRGB in self.list_colors:
+                    PrintMessageInput([title, message_color, window_title1])
+                    return True
+
+                self.dict_inputs['color'] = fluid_color
+
+        except Exception as log_error:
+            message_invalid += "\n\n" + str(log_error)
+            PrintMessageInput([title, message_invalid, window_title1])
+            return True
+
+    def check_edit_input_fluid_color(self):
+
+        title = "Invalid 'r, g, b' color" 
+        message_empty = "An empty entry was detected at the 'Color [r,g,b]' input field. \nYou should to select a color to proceed."
+        message_invalid = " Invalid color RGB input! You must input: [value1, value2, value3] \nand the values must be inside [0, 255] interval."
+
+        try:
+
+            fluid_color = self.lineEdit_color_edit.text()
+
+            if fluid_color == "":
+                PrintMessageInput([title, message_empty, window_title1])
+                return True
+
+            if fluid_color != "" or self.force_check:
+                            
+                self.colorRGB = getColorRGB(fluid_color)
+                message_color = f" The RGB color {self.colorRGB} was already used.\n Please, input a different color."
+
+                if len(self.colorRGB) != 3:
+                    PrintMessageInput([title, message_invalid, window_title1])
+                    self.lineEdit_color_edit.setText("")
+                    return True
+
+                temp_colorRGB = getColorRGB(self.temp_fluid_color)
+                if temp_colorRGB != self.colorRGB:
+                    if self.colorRGB in self.list_colors:
+                        PrintMessageInput([title, message_color, window_title1])
+                        self.lineEdit_color_edit.setText("")
+                        return True 
+                    else:
+                        self.list_colors.remove(temp_colorRGB)
+
+                self.dict_inputs['color'] = fluid_color
+                            
+        except Exception as log_error:
+            message_invalid += "\n\n" + str(log_error)
+            PrintMessageInput([title, message_invalid, window_title1])
+            self.lineEdit_color_edit.setText("")
+            return True
+    
+    def check_add_input_fluid_density(self):
+        try:
+            if self.refprop_fluid:
+                str_fluid_density = self.lineEdit_fluid_density_rp.text()
+                _lineEdit_fluid_density = self.lineEdit_fluid_density_rp
+                _lineEdit_speed_of_sound = self.lineEdit_speed_of_sound_rp
+            else:
+                str_fluid_density = self.lineEdit_fluid_density.text()
+                _lineEdit_fluid_density = self.lineEdit_fluid_density
+                _lineEdit_speed_of_sound = self.lineEdit_speed_of_sound
+
+            if str_fluid_density != "" or self.force_check:
+                if self.check_input_parameters(_lineEdit_fluid_density, 'fluid density', _positive=True, allow_empty_entry=False):
+                    _lineEdit_fluid_density.setText("")
+                    _lineEdit_fluid_density.setFocus()
+                    return True
+                else:
+                    fluid_density = self.value
+                    if fluid_density > 2000:
+                        title = "Invalid density value"
+                        message = "The input value for fluid density must be a positive number less than 2000."
+                        PrintMessageInput([title, message, window_title1])
+                        _lineEdit_fluid_density.setText("")
+                        _lineEdit_fluid_density.setFocus()
+                        return False
+
+                    if _lineEdit_speed_of_sound.text() != "":
+                        speed_of_sound = float(_lineEdit_speed_of_sound.text())
+                        impedance = round(fluid_density*speed_of_sound, 6)
+                        if self.lineEdit_impedance_rp.text() == "":
+                            self.lineEdit_impedance.setText(str(impedance))
+                        self.dict_inputs['impedance'] = impedance
+                
+                self.dict_inputs['fluid density'] = fluid_density
+
+        except Exception as error_log:
+            title = 'Invalid fluid density'
+            message = str(error_log)
+            PrintMessageInput([title, message, window_title1])
+            return True
+
+    def check_add_input_speed_of_sound(self):
+        try:
+            if self.refprop_fluid:
+                str_speed_of_sound = self.lineEdit_speed_of_sound_rp.text()
+                _lineEdit_speed_of_sound = self.lineEdit_speed_of_sound_rp
+                _lineEdit_fluid_density = self.lineEdit_fluid_density_rp
+            else:
+                str_speed_of_sound = self.lineEdit_speed_of_sound.text()
+                _lineEdit_speed_of_sound = self.lineEdit_speed_of_sound
+                _lineEdit_fluid_density = self.lineEdit_fluid_density
+
+            if str_speed_of_sound != "" or self.force_check:
+                if self.check_input_parameters(_lineEdit_speed_of_sound, 'speed of sound', _positive=True, allow_empty_entry=False):
+                    _lineEdit_speed_of_sound.setText("")
+                    _lineEdit_speed_of_sound.setFocus()
+                    return True
+                else:
+                    speed_of_sound = self.value
+                    if speed_of_sound is None:
+                        _lineEdit_speed_of_sound.setText("")
+                        _lineEdit_speed_of_sound.setFocus()
+                        return False
+                        
+                    if _lineEdit_fluid_density.text() != "":
+                        fluid_density = float(_lineEdit_fluid_density.text())
+                        impedance = round(fluid_density*speed_of_sound, 6)
+                        if self.lineEdit_impedance_rp.text() == "":
+                            self.lineEdit_impedance.setText(str(impedance))
+                        self.dict_inputs['impedance'] = impedance
+                
+                self.dict_inputs['speed of sound'] = speed_of_sound
+
+        except Exception as error_log:
+            title = 'Invalid speed of sound'
+            message = str(error_log)
+            PrintMessageInput([title, message, window_title1])
+            return True
+
+    def check_edit_input_fluid_density(self):
+        try:
+            str_fluid_density = self.lineEdit_fluid_density_edit.text()
+            if str_fluid_density != "" or self.force_check:
+                if self.check_input_parameters(self.lineEdit_fluid_density_edit, 'fluid density', _positive=True, allow_empty_entry=False):
+                    self.lineEdit_fluid_density_edit.setText("")
+                    self.lineEdit_fluid_density_edit.setFocus()
+                    return True
+                else:
+                    fluid_density = self.value
+                    if fluid_density > 2000:
+                        title = "Invalid density value"
+                        message = "The input value for fluid density must be a positive number less than 2000."
+                        PrintMessageInput([title, message, window_title1])
+                        self.lineEdit_fluid_density_edit.setText("")
+                        self.lineEdit_fluid_density_edit.setFocus()
+                        return False
+
+                    if self.lineEdit_speed_of_sound_edit.text() != "":
+                        speed_of_sound = float(self.lineEdit_speed_of_sound_edit.text())
+                        impedance = round(fluid_density*speed_of_sound, 6)                
+                        if self.lineEdit_impedance_rp.text() == "":
+                            self.lineEdit_impedance_edit.setText(str(impedance))
+                        self.dict_inputs['impedance'] = impedance
+
+                self.dict_inputs['fluid density'] = fluid_density
+
+        except Exception as error_log:
+            title = 'Invalid fluid density'
+            message = str(error_log)
+            PrintMessageInput([title, message, window_title1])
+            return True
+
+    def check_edit_input_speed_of_sound(self):
+        try:
+            str_speed_of_sound = self.lineEdit_speed_of_sound_edit.text()
+            if str_speed_of_sound != "" or self.force_check:
+                if self.check_input_parameters(self.lineEdit_speed_of_sound_edit, 'speed of sound', _positive=True, allow_empty_entry=False):
+                    self.lineEdit_speed_of_sound_edit.setText("")
+                    self.lineEdit_speed_of_sound_edit.setFocus()
+                    return True
+                else:
+                    speed_of_sound = self.value
+                    if speed_of_sound is None:
+                        self.lineEdit_speed_of_sound_edit.setText("")
+                        self.lineEdit_speed_of_sound_edit.setFocus()
+                        return False
+                
+                    if self.lineEdit_fluid_density_edit.text() != "":
+                        fluid_density = float(self.lineEdit_fluid_density_edit.text())
+                        impedance = round(fluid_density*speed_of_sound, 6)
+                        if self.lineEdit_impedance_rp.text() == "":
+                            self.lineEdit_impedance_edit.setText(str(impedance))
+                        self.dict_inputs['impedance'] = impedance
+
+                self.dict_inputs['speed of sound'] = speed_of_sound
+
+        except Exception as error_log:
+            title = 'Invalid speed of sound'
+            message = str(error_log)
+            PrintMessageInput([title, message, window_title1])
+            return True
+    
+    def check_all_inputs(self, parameters):
+
+        [   self.isentropic_exponent,
+            self.thermal_conductivity,
+            self.specific_heat_Cp,
+            self.dynamic_viscosity, 
+            self.temperature,
+            self.pressure  ] = list(parameters.values())
 
         self.incomplete_inputs = False
 
-        if self.check_input_parameters(self.fluid_density_string, 'fluid density'):
-            return True
-        else:
-            fluid_density = self.value
-            if fluid_density > 2000:
-                title = "Invalid density value"
-                message = "The input value for fluid density must be a positive number less than 2000."
-                PrintMessageInput([title, message, window_title1])
-                return False
-            self.dict_inputs['fluid density'] = fluid_density
+        if self.adding:
 
-        if self.check_input_parameters(self.speed_of_sound_string, 'speed of sound'):
-            return True
-        else:
-            speed_of_sound = self.value
-            self.dict_inputs['speed of sound'] = speed_of_sound
+            if 'fluid density' in self.dict_inputs.keys():
+                try:
+                    float(self.dict_inputs['fluid density'])
+                except Exception:
+                    self.force_check = True
+                    if self.check_add_input_fluid_density():
+                        return True
+            else:
+                self.force_check = True
+                if self.check_add_input_fluid_density():
+                    return True
 
-            impedance = round(fluid_density*speed_of_sound, 4)
-            impedance_string = str(fluid_density*speed_of_sound)
-            if self.adding:
-                if self.lineEdit_impedance_rp.text() == "":
-                    self.lineEdit_impedance.setText(impedance_string)
-            elif self.editing:
-                self.lineEdit_impedance_edit.setText(impedance_string)
-            self.dict_inputs['impedance'] = impedance
-        
+            if 'speed of sound' in self.dict_inputs.keys():
+                try:
+                    float(self.dict_inputs['speed of sound'])
+                except Exception:
+                    self.force_check = True
+                    if self.check_add_input_speed_of_sound():
+                        return True
+            else:
+                self.force_check = True
+                if self.check_add_input_speed_of_sound():
+                    return True
+
+        elif self.editing:
+
+            if 'fluid density' in self.dict_inputs.keys():
+                try:
+                    float(self.dict_inputs['fluid density'])
+                except Exception:
+                    self.force_check = True
+                    if self.check_edit_input_fluid_density():
+                        return True
+            else:
+                self.force_check = True
+                if self.check_edit_input_fluid_density():
+                    return True
+
+            if 'speed of sound' in self.dict_inputs.keys():
+                try:
+                    float(self.dict_inputs['speed of sound'])
+                except Exception:
+                    self.force_check = True
+                    if self.check_edit_input_speed_of_sound():
+                        return True
+            else:
+                self.force_check = True
+                if self.check_edit_input_speed_of_sound():
+                    return True
+                    
         self.list_empty_inputs = []
 
-        if self.isentropic_exponent_string != "":     
-            if self.check_input_parameters(self.isentropic_exponent_string, 'isentropic exponent'):
+        if self.isentropic_exponent.text() != "":     
+            if self.check_input_parameters(self.isentropic_exponent, 'isentropic exponent', allow_empty_entry=False):
                 return True
             else:
                 isentropic_exponent = self.value
@@ -516,8 +857,8 @@ class FluidInput(QDialog):
             self.list_empty_inputs.append('isentropic exponent')
             self.incomplete_inputs = True
 
-        if self.thermal_conductivity_string != "":    
-            if self.check_input_parameters(self.thermal_conductivity_string, 'thermal conductivity'):
+        if self.thermal_conductivity.text() != "":    
+            if self.check_input_parameters(self.thermal_conductivity, 'thermal conductivity', allow_empty_entry=False):
                 return True
             else:
                 thermal_conductivity = self.value 
@@ -526,8 +867,8 @@ class FluidInput(QDialog):
             self.list_empty_inputs.append('thermal conductivity')
             self.incomplete_inputs = True
 
-        if self.specific_heat_Cp_string != "":
-            if self.check_input_parameters(self.specific_heat_Cp_string, 'specific heat Cp'):
+        if self.specific_heat_Cp.text() != "":
+            if self.check_input_parameters(self.specific_heat_Cp, 'specific heat Cp', allow_empty_entry=False):
                 return True
             else:
                 specific_heat_Cp = self.value 
@@ -536,8 +877,8 @@ class FluidInput(QDialog):
             self.list_empty_inputs.append('specific heat Cp')
             self.incomplete_inputs = True
 
-        if self.dynamic_viscosity_string != "":           
-            if self.check_input_parameters(self.dynamic_viscosity_string, 'dinamic viscosity'):
+        if self.dynamic_viscosity.text() != "":           
+            if self.check_input_parameters(self.dynamic_viscosity, 'dinamic viscosity', allow_empty_entry=False):
                 return True
             else:
                 dynamic_viscosity = self.value 
@@ -545,56 +886,74 @@ class FluidInput(QDialog):
         else:
             self.list_empty_inputs.append('dynamic viscosity')
             self.incomplete_inputs = True
+        
+        if self.check_input_parameters(self.temperature, 'temperature', allow_empty_entry=False):
+            return True
+        else:
+            temperature = self.value
+            self.dict_inputs['temperature'] = temperature
+    
+        if self.check_input_parameters(self.pressure, 'pressure', allow_empty_entry=False):
+            return True
+        else:
+            pressure = self.value
+            self.dict_inputs['pressure'] = pressure
 
         if self.lineEdit_temperature_rp.text() != "":
-            self.dict_inputs['temperature'] = self.fluid_data_REFPROP["temperature"]
+            if 'temperature' in self.fluid_data_REFPROP.keys():
+                self.dict_inputs['temperature'] = round(self.fluid_data_REFPROP["temperature"], 4)
 
         if self.lineEdit_pressure_rp.text() != "":
-            self.dict_inputs['pressure'] = self.fluid_data_REFPROP["pressure"]   
+            if 'pressure' in self.fluid_data_REFPROP.keys():
+                self.dict_inputs['pressure'] = round(self.fluid_data_REFPROP["pressure"], 4)   
 
         if self.REFPROP is not None:
             [key_mixture, molar_fractions] = self.fluid_setup
             self.dict_inputs['key mixture'] = key_mixture
             self.dict_inputs['molar fractions'] = molar_fractions
+            self.dict_inputs['molar mass'] = round(self.fluid_data_REFPROP['molar mass'], 6)
 
         if self.incomplete_inputs:
             self.all_fluid_properties_message()
 
     def check_add_edit(self, parameters):
+        
+        if self.adding:
 
-        [   name_string, id_string, color_string,
-            self.fluid_density_string,
-            self.speed_of_sound_string,
-            self.impedance_string,
-            self.isentropic_exponent_string,
-            self.thermal_conductivity_string,
-            self.specific_heat_Cp_string,
-            self.dynamic_viscosity_string, *args  ] = parameters
+            self.force_check = True
+            if self.check_add_input_fluid_name():
+                return True
+        
+            if self.check_add_input_fluid_color():
+                return True
 
-        self.dict_inputs = {}
+        elif self.editing:
 
-        if self.check_input_name(name_string):
-            return True           
-
-        if self.check_input_fluid_id(id_string):
-            return True
-
-        if self.check_input_color(color_string):
-            return True
-
-        if name_string not in self.list_names:
-            self.list_names.append(name_string)
-
-        if self.fluid_id not in self.list_ids:
-            self.list_ids.append(self.fluid_id)
-
-        if self.colorRGB not in self.list_colors:
-            self.list_colors.append(self.colorRGB)
-
-        if self.check_all_inputs():
+            self.dict_inputs['name'] = self.lineEdit_name_edit.text()
+            self.dict_inputs['identifier'] = self.lineEdit_id_edit.text()
+            
+            if 'color' not in self.dict_inputs.keys():
+                self.force_check = True
+                if self.check_edit_input_fluid_color():
+                    return True
+                
+        if self.check_all_inputs(parameters):
             return True
         
+        fluid_name = self.dict_inputs['name']
+        if fluid_name not in self.list_names:
+            self.list_names.append(fluid_name)
+
+        fluid_id = self.dict_inputs['identifier']
+        if fluid_id not in self.list_ids:
+            self.list_ids.append(fluid_id)
+        
+        color = self.dict_inputs['color']
+        if color not in self.list_colors:
+            self.list_colors.append(color)
+
         try:
+            
             fluid_name = self.dict_inputs["name"]
             config = configparser.ConfigParser()
             config.read(self.fluid_path)
@@ -614,9 +973,12 @@ class FluidInput(QDialog):
             self.loadList()
             self.adding = False
             self.editing = False
+            self.reset_add_texts()
             self.reset_edit_texts()
 
+
     def confirm_fluid_attribution(self):
+
 
         if self.clicked_item is None:
             title = "Empty fluid selection"
@@ -628,6 +990,7 @@ class FluidInput(QDialog):
             return
         
         try:
+
             isentropic_exponent = None
             thermal_conductivity = None
             specific_heat_Cp = None
@@ -644,7 +1007,7 @@ class FluidInput(QDialog):
             message = "Please, it is necessary update the fluid properties or select another fluid in the list " 
             message += "before trying to attribute a fluid to the lines."
             message += "\n\nEmpty entries:\n"
-            
+
             if self.clicked_item.text(6) != "":
                 isentropic_exponent = float(self.clicked_item.text(6))
             elif self.flag_all_fluid_inputs:
@@ -665,6 +1028,12 @@ class FluidInput(QDialog):
             elif self.flag_all_fluid_inputs:
                 list_empty_inputs.append("dynamic viscosity")    
 
+            if self.clicked_item.text(10) != "":
+                temperature = float(self.clicked_item.text(10))
+
+            if self.clicked_item.text(11) != "":
+                pressure = float(self.clicked_item.text(11))
+
             if list_empty_inputs != []:                
                 for label in list_empty_inputs:
                     message += "\n{}".format(label)  
@@ -679,7 +1048,9 @@ class FluidInput(QDialog):
                                 isentropic_exponent = isentropic_exponent,
                                 thermal_conductivity = thermal_conductivity,
                                 specific_heat_Cp = specific_heat_Cp,
-                                dynamic_viscosity = dynamic_viscosity )
+                                dynamic_viscosity = dynamic_viscosity,
+                                temperature = temperature,
+                                pressure = pressure )
 
             if self.flagSelection:
                 if self.lineEdit_selected_ID.text() == "":
@@ -695,8 +1066,13 @@ class FluidInput(QDialog):
                 lines = self.project.preprocessor.all_lines
                 print("[Set Fluid] - {} defined at all lines.".format(self.fluid.name))
                 # self.opv.changeColorEntities(lines, self.fluid.getNormalizedColorRGB())
-
+            
             self.project.set_fluid_by_lines(lines, self.fluid)
+            self.update_compressor_info()
+            self.project.set_compressor_info_by_lines(lines, compressor_info=self.compressor_thermodynamic_state)
+
+            self.complete = True
+            self.opv.updateRendererMesh()
             self.close()
 
         except Exception as log_error:
@@ -705,6 +1081,13 @@ class FluidInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
 
+    def update_compressor_info(self):
+        if self.compressor_thermodynamic_state:
+            if self.REFPROP is not None:
+                if self.REFPROP.complete:
+                    self.compressor_thermodynamic_state["temperature (discharge)"] = round(self.fluid_data_REFPROP["temperature"], 4)
+                    self.compressor_thermodynamic_state["molar mass"] = self.fluid_data_REFPROP["molar mass"]
+        
     def loadList(self):
 
         self.list_names = []
@@ -715,7 +1098,9 @@ class FluidInput(QDialog):
             config = configparser.ConfigParser()
             config.read(self.fluid_path)
 
-            for fluid in config.sections():
+            self.sections = config.sections()
+
+            for fluid in self.sections:
 
                 rFluid = config[fluid]
                 keys = config[fluid].keys()
@@ -740,11 +1125,11 @@ class FluidInput(QDialog):
                 
                 temperature = None
                 if 'temperature' in keys:
-                    temperature = float(str(rFluid['temperature']))
+                    temperature = str(rFluid['temperature'])
 
                 pressure = None
                 if 'pressure' in keys:
-                    pressure = float(str(rFluid['pressure']))
+                    pressure = str(rFluid['pressure'])
 
                 key_mixture = None
                 if 'key mixture' in keys:
@@ -754,7 +1139,7 @@ class FluidInput(QDialog):
                 if 'molar fractions' in keys:
                     str_molar_fractions = str(rFluid['molar fractions'])
                     molar_fractions = self.project.file._get_list_of_values_from_string(str_molar_fractions, are_values_int=False)
-                
+
                 if not None in [temperature, pressure, key_mixture, molar_fractions]:
                     self.fluid_name_to_REFPROP_data[name] = [name, temperature, pressure, key_mixture, molar_fractions]
 
@@ -767,7 +1152,10 @@ class FluidInput(QDialog):
                                                 isentropic_exponent,
                                                 thermal_conductivity,
                                                 specific_heat_Cp,
-                                                dynamic_viscosity  ])
+                                                dynamic_viscosity,
+                                                temperature,
+                                                pressure  ])
+
                 colorRGB = getColorRGB(color)
                 self.list_names.append(name)
                 self.list_ids.append(int(identifier))
@@ -784,21 +1172,70 @@ class FluidInput(QDialog):
             message = str(log_error)
             PrintMessageInput([title, message, window_title1])
             self.close()
+
+        self.update_fluid_id_selector()
+        self.lineEdit_selected_fluid_name.setText("")
+        self.pushButton_edit_fluid_in_refprop.setVisible(False)
         
+    def update_fluid_id_selector(self):
+
+        font = QFont()
+        font.setFamily("Arial")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.comboBox_fluid_id.setFont(font)
+        self.comboBox_fluid_id.setStyleSheet("color: rgb(0, 0, 255);")
+        self.comboBox_fluid_id_rp.setFont(font)
+        self.comboBox_fluid_id_rp.setStyleSheet("color: rgb(0, 0, 255);")
+
+        N = 100
+        self.available_indexes = list(np.arange(1,N+1))
+        for _id in self.list_ids:
+            if _id in self.available_indexes:
+                self.available_indexes.remove(_id)
+
+        self.comboBox_fluid_id.clear()
+        self.comboBox_fluid_id_rp.clear()
+        for fluid_id in self.available_indexes:
+            text = f"         {fluid_id}"
+            self.comboBox_fluid_id.addItem(text)
+            self.comboBox_fluid_id_rp.addItem(text)
+
+        self.get_comboBox_index()
+
+    def get_comboBox_index(self):
+        index = self.comboBox_fluid_id.currentIndex()
+        index_rp = self.comboBox_fluid_id_rp.currentIndex()
+        self.fluid_id = self.available_indexes[index]
+        self.fluid_id_rp = self.available_indexes[index_rp]
+        self.check_add_input_fluid_id()
+
     def check_add_fluid(self):
-        parameters = []
-        for lineEdit in self.list_add_lineEdit:
-            parameters.append(lineEdit.text())
+    
+        parameters = {  "isentropic exponent" : self.lineEdit_isentropic_exponent, 
+                        "thermal conductivity" : self.lineEdit_thermal_conductivity, 
+                        "specific heat Cp" : self.lineEdit_specific_heat_Cp, 
+                        "dynamic viscosity" : self.lineEdit_dynamic_viscosity,
+                        "temperature" : self.lineEdit_temperature,
+                        "pressure" : self.lineEdit_pressure  }
+
         self.adding = True
         self.editing = False
         self.check_add_edit( parameters )
 
     def check_add_fluid_refprop(self):
-        parameters = []
-        for lineEdit in self.list_add_lineEdit_rp:
-            parameters.append(lineEdit.text())
+
+        parameters = {  "isentropic exponent" : self.lineEdit_isentropic_exponent_rp, 
+                        "thermal conductivity" : self.lineEdit_thermal_conductivity_rp, 
+                        "specific heat Cp" : self.lineEdit_specific_heat_Cp_rp, 
+                        "dynamic viscosity" : self.lineEdit_dynamic_viscosity_rp,
+                        "temperature" : self.lineEdit_temperature_rp,
+                        "pressure" : self.lineEdit_pressure_rp  }
+
         self.adding = True
         self.editing = False
+        self.refprop_fluid = True
         if not self.check_add_edit( parameters ):
             self.reset_add_texts_rp()
     
@@ -832,9 +1269,14 @@ class FluidInput(QDialog):
             PrintMessageInput([title, message, window_title2])
             self.hightlight()
             return
-        parameters = []
-        for lineEdit in self.list_edit_lineEdit:
-            parameters.append(lineEdit.text())
+
+        parameters = {  "isentropic exponent" : self.lineEdit_isentropic_exponent_edit, 
+                        "thermal conductivity" : self.lineEdit_thermal_conductivity_edit, 
+                        "specific heat Cp" : self.lineEdit_specific_heat_Cp_edit, 
+                        "dynamic viscosity" : self.lineEdit_dynamic_viscosity_edit,
+                        "temperature" : self.lineEdit_temperature_edit,
+                        "pressure" : self.lineEdit_pressure_edit  }
+
         self.adding = False
         self.editing = True
         self.remove_hightlight()
@@ -845,7 +1287,7 @@ class FluidInput(QDialog):
         self.flagSelection = self.radioButton_selected_lines.isChecked()
         if self.flagSelection:
             self.lineEdit_selected_ID.setEnabled(True)
-            self.lines_ids = self.opv.getListPickedEntities()
+            self.lines_ids = self.opv.getListPickedLines()
             if self.lines_ids != []:
                 self.write_lines(self.lines_ids)
             else:
@@ -855,15 +1297,25 @@ class FluidInput(QDialog):
             self.lineEdit_selected_ID.setText("All lines")
 
     def on_click_item(self, item):
-        # self.current_index = self.tabWidget_fluid.currentIndex()
-        self.tabWidget_add.setCurrentIndex(0)
+        self.lineEdit_selected_fluid_name.setText("")
+        self.pushButton_confirm.setVisible(False)
+        if self.compressor_thermodynamic_state:
+            if str(round(self.temperature_comp,4)) != item.text(10):
+                return
+            if str(round(self.pressure_comp,4)) != item.text(11):
+                return
+        else:
+            if self.tabWidget_fluid.currentIndex() == 0:
+                self.tabWidget_fluid.setCurrentIndex(1)
+        self.pushButton_confirm.setVisible(True)
         self.pushButton_edit_fluid_in_refprop.setVisible(False)
         self.clicked_item = item
-        N = len(self.list_add_lineEdit)
+        N = len(self.list_edit_lineEdit)
+
         for i in range(N):
-            self.list_add_lineEdit[i].setText(item.text(i))
             self.list_edit_lineEdit[i].setText(item.text(i))
             self.list_remove_lineEdit[i].setText(item.text(i))
+        
         self.temp_fluid_color = item.text(2)   
 
         fluid_name = item.text(0)
@@ -876,6 +1328,8 @@ class FluidInput(QDialog):
             self.selected_REFPROP_fluid = self.fluid_name_to_REFPROP_data[fluid_name]   
         else:
             self.tabWidget_add.setCurrentIndex(0)
+
+        self.lineEdit_selected_fluid_name.setText(fluid_name)
 
     def on_doubleclick_item(self, item):
         self.clicked_item = item
@@ -900,10 +1354,11 @@ class FluidInput(QDialog):
                 with open(self.fluid_path, 'w') as config_file:
                     config.write(config_file)
 
-                for tag, line in self.dict_tag_to_entity.items():
-                    if line.fluid is not None:
-                        if line.fluid.name == self.lineEdit_name_remove.text():
-                            self.project.set_fluid_by_lines(tag, None)
+                for line_id, entity in self.dict_tag_to_entity.items():
+                    if entity.fluid is not None:
+                        if entity.fluid.name == self.lineEdit_name_remove.text():
+                            self.project.set_fluid_by_lines(line_id, None)
+                            self.project.set_compressor_info_by_lines(line_id, compressor_info={})
 
                 self.treeWidget_fluids.clear()
                 self.clicked_item = None
@@ -927,12 +1382,32 @@ class FluidInput(QDialog):
             return
 
         if read._continue:
+
+            config_cache = configparser.ConfigParser()
+            config_cache.read(self.fluid_path)  
+            sections_cache = config_cache.sections()
+            
             default_fluid_library(self.fluid_path)
+            config = configparser.ConfigParser()
+            config.read(self.fluid_path)
+
+            fluid_names = []
+            for section_cache in sections_cache:
+                if section_cache not in config.sections():
+                    fluid_names.append(config_cache[section_cache]["name"])
+
+            for line_id, entity in self.dict_tag_to_entity.items():
+                if entity.fluid is not None:
+                    if entity.fluid.name in fluid_names:
+                        self.project.set_fluid_by_lines(line_id, None)
+                        self.project.set_compressor_info_by_lines(line_id, compressor_info={})
+
             self.treeWidget_fluids.clear()
             self.loadList()
             self.reset_add_texts()
             self.reset_edit_texts() 
-            self.reset_remove_texts() 
+            self.reset_remove_texts()
+            self.opv.updateRendererMesh()
     
     def reset_add_texts(self):
         for lineEdit in self.list_add_lineEdit:
@@ -943,6 +1418,7 @@ class FluidInput(QDialog):
             lineEdit.setText("")
         self.tabWidget_add.removeTab(1)
         self.tabWidget_add.addTab(self.tab_refprop_button, "REFPROP")
+        self.refprop_fluid = False
 
     def reset_edit_texts(self):
         for lineEdit in self.list_edit_lineEdit:
@@ -951,3 +1427,8 @@ class FluidInput(QDialog):
     def reset_remove_texts(self):
         for lineEdit in self.list_remove_lineEdit:
             lineEdit.setText("")
+
+    # def tab_event_update(self):
+    #     self.reset_add_texts()
+    #     self.reset_edit_texts()
+    #     self.reset_remove_texts()

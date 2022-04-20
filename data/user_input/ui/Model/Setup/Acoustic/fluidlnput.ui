@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>800</width>
-    <height>777</height>
+    <height>802</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,7 +28,7 @@
   <property name="maximumSize">
    <size>
     <width>800</width>
-    <height>777</height>
+    <height>900</height>
    </size>
   </property>
   <property name="contextMenuPolicy">
@@ -123,21 +123,21 @@
        <widget class="QLabel" name="density_label">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>150</y>
-          <width>135</width>
+          <x>6</x>
+          <y>128</y>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -152,7 +152,7 @@
         <property name="geometry">
          <rect>
           <x>144</x>
-          <y>66</y>
+          <y>52</y>
           <width>110</width>
           <height>26</height>
          </rect>
@@ -188,21 +188,21 @@
        <widget class="QLabel" name="color_label_2">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>108</y>
-          <width>135</width>
+          <x>6</x>
+          <y>90</y>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -216,8 +216,8 @@
        <widget class="QLineEdit" name="lineEdit_isentropic_exponent">
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>66</y>
+          <x>546</x>
+          <y>90</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -250,8 +250,8 @@
        <widget class="QLabel" name="density_label_4">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>150</y>
+          <x>652</x>
+          <y>166</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -275,8 +275,8 @@
        <widget class="QLabel" name="density_label_11">
         <property name="geometry">
          <rect>
-          <x>256</x>
-          <y>150</y>
+          <x>258</x>
+          <y>128</y>
           <width>60</width>
           <height>26</height>
          </rect>
@@ -304,7 +304,7 @@
         <property name="geometry">
          <rect>
           <x>144</x>
-          <y>150</y>
+          <y>128</y>
           <width>110</width>
           <height>26</height>
          </rect>
@@ -340,8 +340,8 @@
        <widget class="QLabel" name="coefficient_mK_8">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>66</y>
+          <x>652</x>
+          <y>90</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -365,21 +365,21 @@
        <widget class="QLabel" name="YoungMod_label">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>192</y>
-          <width>135</width>
+          <x>366</x>
+          <y>14</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -398,8 +398,8 @@
        <widget class="QLabel" name="density_label_13">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>22</y>
+          <x>652</x>
+          <y>52</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -426,21 +426,21 @@
        <widget class="QLabel" name="YoungMod_label_4">
         <property name="geometry">
          <rect>
-          <x>364</x>
-          <y>66</y>
-          <width>170</width>
+          <x>366</x>
+          <y>90</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -456,8 +456,8 @@
        <widget class="QLabel" name="coefficient_mK_7">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>192</y>
+          <x>652</x>
+          <y>204</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -482,7 +482,7 @@
         <property name="geometry">
          <rect>
           <x>144</x>
-          <y>22</y>
+          <y>14</y>
           <width>200</width>
           <height>26</height>
          </rect>
@@ -502,11 +502,15 @@
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
          </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string/>
@@ -518,21 +522,21 @@
        <widget class="QLabel" name="density_label_14">
         <property name="geometry">
          <rect>
-          <x>384</x>
-          <y>150</y>
-          <width>150</width>
+          <x>366</x>
+          <y>166</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>150</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -543,8 +547,8 @@
        <widget class="QLabel" name="poisson_label_2">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>108</y>
+          <x>652</x>
+          <y>128</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -572,7 +576,7 @@
         <property name="geometry">
          <rect>
           <x>240</x>
-          <y>238</y>
+          <y>242</y>
           <width>260</width>
           <height>35</height>
          </rect>
@@ -636,8 +640,8 @@
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>22</y>
+          <x>546</x>
+          <y>52</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -673,26 +677,26 @@
        <widget class="QLabel" name="Name_label">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>22</y>
-          <width>135</width>
+          <x>6</x>
+          <y>14</y>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Fluid name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -701,21 +705,21 @@
        <widget class="QLineEdit" name="lineEdit_speed_of_sound">
         <property name="geometry">
          <rect>
-          <x>144</x>
-          <y>192</y>
-          <width>110</width>
+          <x>546</x>
+          <y>14</y>
+          <width>100</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>110</width>
+          <width>100</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>110</width>
+          <width>100</width>
           <height>26</height>
          </size>
         </property>
@@ -738,21 +742,21 @@
        <widget class="QLabel" name="coefficient_mK">
         <property name="geometry">
          <rect>
-          <x>374</x>
-          <y>192</y>
-          <width>160</width>
+          <x>366</x>
+          <y>204</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>160</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -764,7 +768,7 @@
         <property name="geometry">
          <rect>
           <x>144</x>
-          <y>108</y>
+          <y>90</y>
           <width>110</width>
           <height>26</height>
          </rect>
@@ -790,6 +794,10 @@
           <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -800,21 +808,21 @@
        <widget class="QLabel" name="poisson_label">
         <property name="geometry">
          <rect>
-          <x>404</x>
-          <y>22</y>
-          <width>130</width>
+          <x>366</x>
+          <y>52</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>130</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -825,8 +833,8 @@
        <widget class="QLineEdit" name="lineEdit_dynamic_viscosity">
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>192</y>
+          <x>546</x>
+          <y>204</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -859,26 +867,26 @@
        <widget class="QLabel" name="ID_label">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>66</y>
-          <width>135</width>
+          <x>6</x>
+          <y>52</y>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Fluid ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -887,8 +895,8 @@
        <widget class="QLineEdit" name="lineEdit_thermal_conductivity">
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>108</y>
+          <x>546</x>
+          <y>128</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -925,7 +933,7 @@
         <property name="geometry">
          <rect>
           <x>8</x>
-          <y>244</y>
+          <y>248</y>
           <width>120</width>
           <height>30</height>
          </rect>
@@ -986,8 +994,8 @@
        <widget class="QLineEdit" name="lineEdit_specific_heat_Cp">
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>150</y>
+          <x>546</x>
+          <y>166</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -1020,21 +1028,21 @@
        <widget class="QLabel" name="density_label_12">
         <property name="geometry">
          <rect>
-          <x>256</x>
-          <y>192</y>
-          <width>60</width>
+          <x>652</x>
+          <y>14</y>
+          <width>66</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>60</width>
+          <width>66</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>60</width>
+          <width>66</width>
           <height>26</height>
          </size>
         </property>
@@ -1048,21 +1056,21 @@
        <widget class="QLabel" name="poisson_label_11">
         <property name="geometry">
          <rect>
-          <x>364</x>
-          <y>108</y>
-          <width>170</width>
+          <x>366</x>
+          <y>128</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -1073,8 +1081,8 @@
        <widget class="QPushButton" name="pushButton_pickColor_add_user_defined">
         <property name="geometry">
          <rect>
-          <x>258</x>
-          <y>108</y>
+          <x>260</x>
+          <y>90</y>
           <width>90</width>
           <height>26</height>
          </rect>
@@ -1107,6 +1115,254 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         <property name="text">
          <string>Pick color</string>
         </property>
+       </widget>
+       <widget class="QLabel" name="YoungMod_label_8">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>166</y>
+          <width>130</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>130</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <italic>false</italic>
+         </font>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Temperature:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="density_label_28">
+        <property name="geometry">
+         <rect>
+          <x>258</x>
+          <y>166</y>
+          <width>60</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;[K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_pressure">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>204</y>
+          <width>110</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(30, 30, 30);</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLineEdit" name="lineEdit_temperature">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>166</y>
+          <width>110</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>110</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>110</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>false</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(30, 30, 30);</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+       <widget class="QLabel" name="coefficient_mK_6">
+        <property name="geometry">
+         <rect>
+          <x>6</x>
+          <y>204</y>
+          <width>130</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>130</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>130</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Pressure:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="coefficient_mK_16">
+        <property name="geometry">
+         <rect>
+          <x>258</x>
+          <y>204</y>
+          <width>60</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>60</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>60</width>
+          <height>26</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;[Pa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+       </widget>
+       <widget class="QComboBox" name="comboBox_fluid_id">
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>52</y>
+          <width>110</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="whatsThis">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="maxVisibleItems">
+         <number>100</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </item>
        </widget>
       </widget>
       <widget class="QWidget" name="tab_refprop_button">
@@ -1282,26 +1538,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="Name_label_4">
         <property name="geometry">
          <rect>
-          <x>2</x>
+          <x>6</x>
           <y>14</y>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Fluid name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1313,8 +1569,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>14</y>
+          <x>546</x>
+          <y>52</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -1353,21 +1609,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>144</x>
-          <y>166</y>
-          <width>110</width>
+          <x>546</x>
+          <y>14</y>
+          <width>100</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>110</width>
+          <width>100</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>110</width>
+          <width>100</width>
           <height>26</height>
          </size>
         </property>
@@ -1396,8 +1652,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>52</y>
+          <x>546</x>
+          <y>90</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -1433,21 +1689,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="YoungMod_label_5">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>166</y>
-          <width>135</width>
+          <x>366</x>
+          <y>14</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -1466,7 +1722,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_23">
         <property name="geometry">
          <rect>
-          <x>256</x>
+          <x>258</x>
           <y>128</y>
           <width>60</width>
           <height>26</height>
@@ -1494,21 +1750,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_24">
         <property name="geometry">
          <rect>
-          <x>384</x>
-          <y>128</y>
-          <width>150</width>
+          <x>366</x>
+          <y>166</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>150</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>150</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -1522,8 +1778,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>90</y>
+          <x>546</x>
+          <y>128</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -1559,21 +1815,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_25">
         <property name="geometry">
          <rect>
-          <x>256</x>
-          <y>166</y>
-          <width>60</width>
+          <x>652</x>
+          <y>14</y>
+          <width>66</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>60</width>
+          <width>66</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>60</width>
+          <width>66</width>
           <height>26</height>
          </size>
         </property>
@@ -1587,8 +1843,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_5">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>128</y>
+          <x>652</x>
+          <y>166</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -1640,7 +1896,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">color: rgb(0, 0, 255);</string>
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="text">
          <string/>
@@ -1652,21 +1909,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_6">
         <property name="geometry">
          <rect>
-          <x>2</x>
+          <x>6</x>
           <y>128</y>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -1680,21 +1937,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="coefficient_mK_4">
         <property name="geometry">
          <rect>
-          <x>374</x>
-          <y>166</y>
-          <width>160</width>
+          <x>366</x>
+          <y>204</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>160</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -1705,8 +1962,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="coefficient_mK_13">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>52</y>
+          <x>652</x>
+          <y>90</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -1816,7 +2073,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         <property name="font">
          <font>
           <family>Arial</family>
-          <pointsize>10</pointsize>
+          <pointsize>11</pointsize>
           <weight>75</weight>
           <italic>false</italic>
           <bold>true</bold>
@@ -1835,21 +2092,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="YoungMod_label_6">
         <property name="geometry">
          <rect>
-          <x>364</x>
-          <y>52</y>
-          <width>170</width>
+          <x>366</x>
+          <y>90</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -1868,8 +2125,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>128</y>
+          <x>546</x>
+          <y>166</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -1905,26 +2162,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="ID_label_4">
         <property name="geometry">
          <rect>
-          <x>2</x>
+          <x>6</x>
           <y>52</y>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Fluid ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -1933,21 +2190,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="poisson_label_3">
         <property name="geometry">
          <rect>
-          <x>404</x>
-          <y>14</y>
-          <width>130</width>
+          <x>366</x>
+          <y>52</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>130</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>130</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -2001,21 +2258,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="poisson_label_14">
         <property name="geometry">
          <rect>
-          <x>364</x>
-          <y>90</y>
-          <width>170</width>
+          <x>366</x>
+          <y>128</y>
+          <width>172</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>170</width>
+          <width>172</width>
           <height>26</height>
          </size>
         </property>
@@ -2026,8 +2283,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_26">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>14</y>
+          <x>652</x>
+          <y>52</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -2057,8 +2314,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
-          <y>166</y>
+          <x>546</x>
+          <y>204</y>
           <width>100</width>
           <height>26</height>
          </rect>
@@ -2094,8 +2351,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="coefficient_mK_14">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>166</y>
+          <x>652</x>
+          <y>204</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -2119,8 +2376,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="poisson_label_6">
         <property name="geometry">
          <rect>
-          <x>648</x>
-          <y>90</y>
+          <x>652</x>
+          <y>128</y>
           <width>66</width>
           <height>26</height>
          </rect>
@@ -2184,21 +2441,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="color_label_5">
         <property name="geometry">
          <rect>
-          <x>2</x>
+          <x>6</x>
           <y>90</y>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -2212,21 +2469,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="coefficient_mK_15">
         <property name="geometry">
          <rect>
-          <x>648</x>
+          <x>258</x>
           <y>204</y>
-          <width>66</width>
+          <width>60</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>66</width>
+          <width>60</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>66</width>
+          <width>60</width>
           <height>26</height>
          </size>
         </property>
@@ -2237,8 +2494,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="density_label_27">
         <property name="geometry">
          <rect>
-          <x>256</x>
-          <y>204</y>
+          <x>258</x>
+          <y>166</y>
           <width>60</width>
           <height>26</height>
          </rect>
@@ -2265,21 +2522,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="coefficient_mK_5">
         <property name="geometry">
          <rect>
-          <x>374</x>
+          <x>6</x>
           <y>204</y>
-          <width>160</width>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>160</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>160</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -2290,21 +2547,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QLabel" name="YoungMod_label_7">
         <property name="geometry">
          <rect>
-          <x>2</x>
-          <y>204</y>
-          <width>135</width>
+          <x>6</x>
+          <y>166</y>
+          <width>130</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>135</width>
+          <width>130</width>
           <height>26</height>
          </size>
         </property>
@@ -2327,7 +2584,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         <property name="geometry">
          <rect>
           <x>144</x>
-          <y>204</y>
+          <y>166</y>
           <width>110</width>
           <height>26</height>
          </rect>
@@ -2369,21 +2626,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
         </property>
         <property name="geometry">
          <rect>
-          <x>542</x>
+          <x>144</x>
           <y>204</y>
-          <width>100</width>
+          <width>110</width>
           <height>26</height>
          </rect>
         </property>
         <property name="minimumSize">
          <size>
-          <width>100</width>
+          <width>110</width>
           <height>26</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>100</width>
+          <width>110</width>
           <height>26</height>
          </size>
         </property>
@@ -2406,7 +2663,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <widget class="QPushButton" name="pushButton_pickColor_add_refprop">
         <property name="geometry">
          <rect>
-          <x>258</x>
+          <x>260</x>
           <y>90</y>
           <width>90</width>
           <height>26</height>
@@ -2441,6 +2698,60 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
          <string>Pick color</string>
         </property>
        </widget>
+       <widget class="QComboBox" name="comboBox_fluid_id_rp">
+        <property name="geometry">
+         <rect>
+          <x>144</x>
+          <y>52</y>
+          <width>110</width>
+          <height>26</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Arial</family>
+          <pointsize>11</pointsize>
+          <weight>75</weight>
+          <italic>true</italic>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="whatsThis">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(0, 0, 255);
+background-color: rgb(255, 255, 255);</string>
+        </property>
+        <property name="maxVisibleItems">
+         <number>100</number>
+        </property>
+        <item>
+         <property name="text">
+          <string>1</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>2</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>3</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>4</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>5</string>
+         </property>
+        </item>
+       </widget>
       </widget>
      </widget>
     </widget>
@@ -2455,7 +2766,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>256</x>
-        <y>278</y>
+        <y>280</y>
         <width>260</width>
         <height>35</height>
        </rect>
@@ -2517,7 +2828,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>174</y>
+        <y>148</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -2554,7 +2865,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>24</y>
+        <y>60</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -2587,8 +2898,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="coefficient_mK_9">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>224</y>
+        <x>654</x>
+        <y>236</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -2612,26 +2923,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="Name_label_2">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>24</y>
-        <width>135</width>
+        <x>10</x>
+        <y>16</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Fluid name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -2641,20 +2952,20 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>260</x>
-        <y>174</y>
-        <width>60</width>
+        <y>148</y>
+        <width>66</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
@@ -2668,21 +2979,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_16">
       <property name="geometry">
        <rect>
-        <x>260</x>
-        <y>224</y>
-        <width>60</width>
+        <x>654</x>
+        <y>16</y>
+        <width>66</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
@@ -2697,7 +3008,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>124</y>
+        <y>104</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -2730,8 +3041,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="coefficient_mK_10">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>74</y>
+        <x>654</x>
+        <y>104</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -2755,8 +3066,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="YoungMod_label_2">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>224</y>
+        <x>404</x>
+        <y>16</y>
         <width>135</width>
         <height>26</height>
        </rect>
@@ -2789,7 +3100,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>224</y>
+        <y>236</y>
         <width>160</width>
         <height>26</height>
        </rect>
@@ -2813,26 +3124,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="ID_label_2">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>74</y>
-        <width>135</width>
+        <x>10</x>
+        <y>60</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Fluid ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -2845,7 +3156,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>24</y>
+        <y>16</y>
         <width>200</width>
         <height>26</height>
        </rect>
@@ -2879,7 +3190,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>174</y>
+        <y>192</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -2913,7 +3224,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>368</x>
-        <y>124</y>
+        <y>148</y>
         <width>170</width>
         <height>26</height>
        </rect>
@@ -2938,7 +3249,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>368</x>
-        <y>74</y>
+        <y>104</y>
         <width>170</width>
         <height>26</height>
        </rect>
@@ -2967,21 +3278,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_2">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>174</y>
-        <width>135</width>
+        <x>10</x>
+        <y>148</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
@@ -2995,8 +3306,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_9">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>174</y>
+        <x>654</x>
+        <y>192</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3021,7 +3332,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>224</y>
+        <y>236</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3055,7 +3366,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>124</y>
+        <y>148</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3089,7 +3400,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>408</x>
-        <y>24</y>
+        <y>60</y>
         <width>130</width>
         <height>26</height>
        </rect>
@@ -3113,8 +3424,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_17">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>24</y>
+        <x>654</x>
+        <y>60</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3142,7 +3453,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>388</x>
-        <y>174</y>
+        <y>192</y>
         <width>150</width>
         <height>26</height>
        </rect>
@@ -3166,21 +3477,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLineEdit" name="lineEdit_speed_of_sound_edit">
       <property name="geometry">
        <rect>
-        <x>148</x>
-        <y>224</y>
-        <width>110</width>
+        <x>546</x>
+        <y>16</y>
+        <width>100</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>110</width>
+        <width>100</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>110</width>
+        <width>100</width>
         <height>26</height>
        </size>
       </property>
@@ -3204,7 +3515,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>74</y>
+        <y>60</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -3237,21 +3548,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="color_label_3">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>124</y>
-        <width>135</width>
+        <x>10</x>
+        <y>104</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
@@ -3266,7 +3577,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>74</y>
+        <y>104</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3299,8 +3610,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="poisson_label_5">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>124</y>
+        <x>654</x>
+        <y>148</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3324,8 +3635,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QPushButton" name="pushButton_pickColor_edit">
       <property name="geometry">
        <rect>
-        <x>262</x>
-        <y>124</y>
+        <x>264</x>
+        <y>104</y>
         <width>90</width>
         <height>26</height>
        </rect>
@@ -3359,6 +3670,200 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
        <string>Pick color</string>
       </property>
      </widget>
+     <widget class="QLabel" name="YoungMod_label_11">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>192</y>
+        <width>130</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Temperature:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_temperature_edit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>148</x>
+        <y>192</y>
+        <width>110</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(30, 30, 30);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_pressure_edit">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>148</x>
+        <y>236</y>
+        <width>110</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(30, 30, 30);</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="density_label_29">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>192</y>
+        <width>66</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;[K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="coefficient_mK_17">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>236</y>
+        <width>130</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Pressure:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="coefficient_mK_18">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>236</y>
+        <width>66</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;[Pa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
     </widget>
     <widget class="QWidget" name="tab_remove_fluid">
      <attribute name="title">
@@ -3371,7 +3876,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>256</x>
-        <y>278</y>
+        <y>280</y>
         <width>260</width>
         <height>35</height>
        </rect>
@@ -3436,7 +3941,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>174</y>
+        <y>148</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -3473,7 +3978,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>24</y>
+        <y>60</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3506,8 +4011,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="coefficient_mK_11">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>224</y>
+        <x>654</x>
+        <y>236</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3531,26 +4036,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="Name_label_3">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>24</y>
-        <width>135</width>
+        <x>10</x>
+        <y>16</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Fluid name:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -3560,20 +4065,20 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>260</x>
-        <y>174</y>
-        <width>60</width>
+        <y>148</y>
+        <width>66</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
@@ -3587,21 +4092,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_20">
       <property name="geometry">
        <rect>
-        <x>260</x>
-        <y>224</y>
-        <width>60</width>
+        <x>654</x>
+        <y>16</y>
+        <width>66</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>60</width>
+        <width>66</width>
         <height>26</height>
        </size>
       </property>
@@ -3619,7 +4124,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>124</y>
+        <y>104</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -3652,8 +4157,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="coefficient_mK_12">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>74</y>
+        <x>654</x>
+        <y>104</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3677,8 +4182,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="YoungMod_label_3">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>224</y>
+        <x>404</x>
+        <y>16</y>
         <width>135</width>
         <height>26</height>
        </rect>
@@ -3711,7 +4216,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>378</x>
-        <y>224</y>
+        <y>236</y>
         <width>160</width>
         <height>26</height>
        </rect>
@@ -3735,26 +4240,26 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="ID_label_3">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>74</y>
-        <width>135</width>
+        <x>10</x>
+        <y>60</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="text">
-       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;Fluid ID:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -3767,7 +4272,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>24</y>
+        <y>16</y>
         <width>200</width>
         <height>26</height>
        </rect>
@@ -3804,7 +4309,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>174</y>
+        <y>192</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3838,7 +4343,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>368</x>
-        <y>124</y>
+        <y>148</y>
         <width>170</width>
         <height>26</height>
        </rect>
@@ -3863,7 +4368,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>368</x>
-        <y>74</y>
+        <y>104</y>
         <width>170</width>
         <height>26</height>
        </rect>
@@ -3892,21 +4397,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_3">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>174</y>
-        <width>135</width>
+        <x>10</x>
+        <y>148</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
@@ -3920,8 +4425,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_10">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>174</y>
+        <x>654</x>
+        <y>192</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -3949,7 +4454,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>224</y>
+        <y>236</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -3986,7 +4491,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>124</y>
+        <y>148</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -4020,7 +4525,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>408</x>
-        <y>24</y>
+        <y>60</y>
         <width>130</width>
         <height>26</height>
        </rect>
@@ -4044,8 +4549,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="density_label_21">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>24</y>
+        <x>654</x>
+        <y>60</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -4073,7 +4578,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>388</x>
-        <y>174</y>
+        <y>192</y>
         <width>150</width>
         <height>26</height>
        </rect>
@@ -4100,21 +4605,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       </property>
       <property name="geometry">
        <rect>
-        <x>148</x>
-        <y>224</y>
-        <width>110</width>
+        <x>546</x>
+        <y>16</y>
+        <width>100</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>110</width>
+        <width>100</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>110</width>
+        <width>100</width>
         <height>26</height>
        </size>
       </property>
@@ -4138,7 +4643,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>148</x>
-        <y>74</y>
+        <y>60</y>
         <width>110</width>
         <height>26</height>
        </rect>
@@ -4171,21 +4676,21 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="color_label_4">
       <property name="geometry">
        <rect>
-        <x>6</x>
-        <y>124</y>
-        <width>135</width>
+        <x>10</x>
+        <y>104</y>
+        <width>130</width>
         <height>26</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
-        <width>135</width>
+        <width>130</width>
         <height>26</height>
        </size>
       </property>
@@ -4203,7 +4708,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       <property name="geometry">
        <rect>
         <x>546</x>
-        <y>74</y>
+        <y>104</y>
         <width>100</width>
         <height>26</height>
        </rect>
@@ -4236,8 +4741,8 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <widget class="QLabel" name="poisson_label_10">
       <property name="geometry">
        <rect>
-        <x>652</x>
-        <y>124</y>
+        <x>654</x>
+        <y>148</y>
         <width>66</width>
         <height>26</height>
        </rect>
@@ -4256,6 +4761,200 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
       </property>
       <property name="text">
        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;[W/mK]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_pressure_remove">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>148</x>
+        <y>236</y>
+        <width>110</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="YoungMod_label_12">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>192</y>
+        <width>130</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <italic>false</italic>
+       </font>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt;&quot;&gt;Temperature:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLineEdit" name="lineEdit_temperature_remove">
+      <property name="enabled">
+       <bool>false</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>148</x>
+        <y>192</y>
+        <width>110</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>110</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>11</pointsize>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="density_label_30">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>192</y>
+        <width>66</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;[K]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="coefficient_mK_19">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>236</y>
+        <width>130</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>130</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:normal;&quot;&gt;Pressure:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="coefficient_mK_20">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>236</y>
+        <width>66</width>
+        <height>26</height>
+       </rect>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>66</width>
+        <height>26</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-style:normal;&quot;&gt;[Pa]&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
       </property>
      </widget>
     </widget>
@@ -4365,19 +5064,19 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
      <x>0</x>
      <y>396</y>
      <width>800</width>
-     <height>381</height>
+     <height>406</height>
     </rect>
    </property>
    <property name="minimumSize">
     <size>
      <width>800</width>
-     <height>381</height>
+     <height>406</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
      <width>800</width>
-     <height>381</height>
+     <height>406</height>
     </size>
    </property>
    <property name="frameShape">
@@ -4396,7 +5095,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
     <property name="geometry">
      <rect>
       <x>4</x>
-      <y>64</y>
+      <y>94</y>
       <width>792</width>
       <height>250</height>
      </rect>
@@ -4619,7 +5318,7 @@ font: 75 italic bold 12pt &quot;Arial&quot;;</string>
     <property name="geometry">
      <rect>
       <x>222</x>
-      <y>328</y>
+      <y>356</y>
       <width>355</width>
       <height>39</height>
      </rect>
@@ -4656,19 +5355,19 @@ selection-background-color: rgb(62, 255, 62);</string>
       <x>0</x>
       <y>0</y>
       <width>800</width>
-      <height>47</height>
+      <height>87</height>
      </rect>
     </property>
     <property name="minimumSize">
      <size>
       <width>800</width>
-      <height>0</height>
+      <height>87</height>
      </size>
     </property>
     <property name="maximumSize">
      <size>
       <width>800</width>
-      <height>16777215</height>
+      <height>87</height>
      </size>
     </property>
     <property name="frameShape">
@@ -4748,7 +5447,7 @@ selection-background-color: rgb(62, 255, 62);</string>
      <property name="geometry">
       <rect>
        <x>22</x>
-       <y>10</y>
+       <y>12</y>
        <width>197</width>
        <height>28</height>
       </rect>
@@ -4762,13 +5461,13 @@ selection-background-color: rgb(62, 255, 62);</string>
       </font>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Attribute fluid to:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Attribute fluid to:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
      </property>
      <property name="alignment">
-      <set>Qt::AlignCenter</set>
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
     <widget class="QLineEdit" name="lineEdit_selected_ID">
@@ -4778,7 +5477,7 @@ selection-background-color: rgb(62, 255, 62);</string>
      <property name="geometry">
       <rect>
        <x>230</x>
-       <y>10</y>
+       <y>12</y>
        <width>280</width>
        <height>26</height>
       </rect>
@@ -4816,6 +5515,80 @@ color: rgb(0, 0, 255);</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLineEdit" name="lineEdit_selected_fluid_name">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="geometry">
+      <rect>
+       <x>230</x>
+       <y>50</y>
+       <width>280</width>
+       <height>26</height>
+      </rect>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>280</width>
+       <height>26</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>280</width>
+       <height>26</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>11</pointsize>
+       <weight>75</weight>
+       <italic>true</italic>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::ClickFocus</enum>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: rgb(255, 255, 255);
+color: rgb(0, 0, 255);</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_3">
+     <property name="geometry">
+      <rect>
+       <x>22</x>
+       <y>50</y>
+       <width>197</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="font">
+      <font>
+       <family>Arial</family>
+       <pointsize>14</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;right&quot;&gt;Selected fluid:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
      </property>
     </widget>
    </widget>

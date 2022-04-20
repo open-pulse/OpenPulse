@@ -264,9 +264,11 @@ class ProjectFile:
         self.dict_valve_sections = {}
         self.dict_beam_xaxis_rotation = {}
         self.dict_structural_element_type = {}
+        self.dict_structural_element_force_offset = {}
         self.dict_structural_element_wall_formulation = {}
         self.dict_acoustic_element_type = {}
         self.dict_fluid = {}
+        self.compressor_info = {}
         self.dict_length_correction = {}
         self.dict_perforated_plate = {}
         self.temp_dict = {}
@@ -311,6 +313,20 @@ class ProjectFile:
                 else:
                     self.dict_structural_element_wall_formulation[entity] = 'thick_wall'
 
+            if 'force offset' in entityFile[entity].keys():
+                force_offset = entityFile[entity]['force offset']
+                if force_offset != "":
+                    if "-" in entity:
+                        if 'list of elements' in entityFile[entity].keys():
+                            str_list_elements = entityFile[entity]['list of elements']
+                            list_elements = self._get_list_of_values_from_string(str_list_elements)
+                            self.dict_structural_element_force_offset[entity] = [list_elements, int(force_offset)]
+                    else:
+                        self.dict_structural_element_force_offset[entity] = int(force_offset)
+                    self.element_type_is_structural = True
+                else:
+                    self.dict_structural_element_force_offset[entity] = None
+
             if 'acoustic element type' in entityFile[entity].keys():
                 acoustic_element_type = entityFile[entity]['acoustic element type']
                 if acoustic_element_type != "":
@@ -318,14 +334,28 @@ class ProjectFile:
                         proportional_damping = entityFile[entity]['proportional damping']
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, float(proportional_damping), None]
                     elif acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                        mean_velocity = entityFile[entity]['mean velocity']
-                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(mean_velocity)]
+                        vol_flow = entityFile[entity]['volume flow rate']
+                        self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, float(vol_flow)]
                     else:
                         self.dict_acoustic_element_type[int(entity)] = [acoustic_element_type, None, None]
                     self.element_type_is_acoustic = True
                 else:
                     self.dict_acoustic_element_type[int(entity)] = 'undamped'
 
+            if 'compressor info' in entityFile[entity].keys():
+                str_compressor_info = entityFile[entity]['compressor info']
+                _data = self._get_list_of_values_from_string(str_compressor_info, are_values_int=False)
+                self.compressor_info[int(entity)] = {   "temperature (suction)" : _data[0],
+                                                        "pressure (suction)" : _data[1],
+                                                        "temperature (discharge)" : _data[2],
+                                                        "pressure (discharge)" : _data[3],
+                                                        "line_id" : int(_data[4]),
+                                                        "node_id" : int(_data[5]),
+                                                        "isentropic exponent" : _data[6],
+                                                        "pressure ratio" : _data[7],
+                                                        "molar mass" : _data[8],
+                                                        "connection type" : int(_data[9])   }
+                                                        
             str_joint_parameters = ""
             if 'expansion joint parameters' in entityFile[entity].keys():
                 str_joint_parameters = entityFile[entity]['expansion joint parameters']
@@ -611,9 +641,17 @@ class ProjectFile:
                         if int(fluid_list[fluid]['identifier']) == fluid_id:
                             name = fluid_list[fluid]['name']
                             identifier = fluid_list[fluid]['identifier']
-                            fluid_density =  fluid_list[fluid]['fluid density']
-                            speed_of_sound =  fluid_list[fluid]['speed of sound']
-                            
+                            fluid_density =  float(fluid_list[fluid]['fluid density'])
+                            speed_of_sound =  float(fluid_list[fluid]['speed of sound'])
+
+                            temperature = None
+                            if 'temperature' in keys:
+                                temperature = float(fluid_list[fluid]['temperature'])
+
+                            pressure = None
+                            if 'pressure' in keys:
+                                pressure = float(fluid_list[fluid]['pressure'])
+
                             isentropic_exponent = None
                             if 'isentropic exponent' in keys:
                                 isentropic_exponent =  float(fluid_list[fluid]['isentropic exponent'])
@@ -632,14 +670,17 @@ class ProjectFile:
                             
                             # acoustic_impedance =  fluid_list[fluid]['impedance']
                             color =  fluid_list[fluid]['color']
-                            temp_fluid = Fluid(name,
-                                            float(fluid_density),
-                                            float(speed_of_sound),
-                                            isentropic_exponent = isentropic_exponent,
-                                            thermal_conductivity = thermal_conductivity,
-                                            specific_heat_Cp = specific_heat_Cp,
-                                            dynamic_viscosity = dynamic_viscosity,
-                                            color=color, identifier=int(identifier))
+                            temp_fluid = Fluid( name,
+                                                fluid_density,
+                                                speed_of_sound,
+                                                isentropic_exponent = isentropic_exponent,
+                                                thermal_conductivity = thermal_conductivity,
+                                                specific_heat_Cp = specific_heat_Cp,
+                                                dynamic_viscosity = dynamic_viscosity,
+                                                color=color, identifier = int(identifier),
+                                                temperature = temperature,
+                                                pressure = pressure )
+
                             self.dict_fluid[int(entity)] = temp_fluid
                                 
             if 'capped end' in entityFile[entity].keys():
@@ -1307,7 +1348,25 @@ class ProjectFile:
 
         self.write_data_in_file(self._entity_path, config)
 
-    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, mean_velocity=None):
+    def modify_structural_element_force_offset_in_file(self, lines, force_offset):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            str_line = str(line_id)     
+            if force_offset is None:
+                str_key = 'force offset'
+                config.remove_option(section=str_line, option=str_key)
+            else:
+                config[str_line]['force offset'] = str(force_offset)
+
+        self.write_data_in_file(self._entity_path, config)
+
+    def modify_acoustic_element_type_in_file(self, lines, element_type, proportional_damping=None, vol_flow=None):
         
         if isinstance(lines, int):
             lines = [lines]
@@ -1326,17 +1385,22 @@ class ProjectFile:
                 config.remove_option(section=_section, option='proportional damping')  
 
             if element_type in ["undamped mean flow", "peters", "howe"]:
-                config[_section]['mean velocity'] = str(mean_velocity)
+                config[_section]['volume flow rate'] = str(vol_flow)
 
-            if element_type not in ["undamped mean flow", "peters", "howe"] and 'mean velocity' in config[_section].keys():
-                config.remove_option(section=_section, option='mean velocity')  
+            if element_type not in ["undamped mean flow", "peters", "howe"] and 'volume flow rate' in config[_section].keys():
+                config.remove_option(section=_section, option='volume flow rate')  
     
         self.write_data_in_file(self._entity_path, config)
 
-    def add_material_in_file(self, lines, material_id):
+    def add_material_in_file(self, lines, material):
 
         if isinstance(lines, int):
             lines = [lines]
+        
+        if material is None:
+            material_id = ""
+        else:
+            material_id = material.identifier
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -1346,10 +1410,15 @@ class ProjectFile:
             
         self.write_data_in_file(self._entity_path, config)
 
-    def add_fluid_in_file(self, lines, fluid_id):
+    def add_fluid_in_file(self, lines, fluid):
         
         if isinstance(lines, int):
             lines = [lines]
+
+        if fluid is None:
+            fluid_id = ""
+        else:
+            fluid_id = fluid.identifier
 
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -1358,6 +1427,24 @@ class ProjectFile:
             config[str(line_id)]['fluid id'] = str(fluid_id)
 
         self.write_data_in_file(self._entity_path, config)
+
+    def modify_compressor_info_in_file(self, lines, compressor_info={}):
+        
+        if isinstance(lines, int):
+            lines = [lines]
+        
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for line_id in lines:
+            if compressor_info:
+                config[str(line_id)]['compressor info'] = str(list(compressor_info.values()))
+            else:
+                _section = str(line_id)
+                if 'compressor info' in config[str(line_id)].keys():
+                    config.remove_option(section=_section, option='compressor info')  
+
+        self.write_data_in_file(self._entity_path, config) 
 
     def get_dict_of_structural_bc_from_file(self):
 
@@ -1853,7 +1940,20 @@ class ProjectFile:
                         if table_name_info_file == table_name:
                             return False
         return True
-                        
+
+    def get_dict_of_compressor_excitation_from_file(self):
+        config = configparser.ConfigParser()
+        config.read(self._node_acoustic_path)
+        sections = config.sections()
+        dict_node_to_compressor_excitation = defaultdict(list)  
+        for node_id in sections:
+            keys = list(config[node_id].keys())
+            for key in keys:
+                if "compressor excitation - " in key:
+                    table_file_name = config[node_id][key]
+                    dict_node_to_compressor_excitation[int(node_id)].append([key, table_file_name])   
+        return dict_node_to_compressor_excitation
+
     # def check_if_table_can_be_removed_in_structural_model(self, node_id, str_keys, table_name, folder_table_name, node_info=True, labels=["", ""]):
     #     config = configparser.ConfigParser()
     #     if node_info:

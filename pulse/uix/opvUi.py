@@ -235,8 +235,8 @@ class OPVUi(QVTKRenderWindowInteractor):
     def getListPickedElements(self):
         return self.opvRenderer.getListPickedElements()
 
-    def getListPickedEntities(self):
-        return self.opvRenderer.getListPickedEntities()
+    def getListPickedLines(self):
+        return self.opvRenderer.getListPickedLines()
 
     def updateEntityRadius(self, *args, **kwargs):
         self.opvRenderer.plot()

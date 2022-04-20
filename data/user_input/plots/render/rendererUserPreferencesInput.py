@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QRadioButton
+from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialog, QTabWidget, QLabel, QCheckBox, QRadioButton, QWidget
 from data.user_input.project.printMessageInput import PrintMessageInput
 from PyQt5.QtGui import QIcon
 from PyQt5 import uic
@@ -8,10 +8,10 @@ import numpy as np
 
 from pulse.interface.opvRenderer import PlotFilter, SelectionFilter
 
-class MeshSetupVisibilityInput(QDialog):
+class RendererUserPreferencesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        uic.loadUi('data/user_input/ui/Plots/Render/meshSetupVisibilityInput.ui', self)
+        uic.loadUi('data/user_input/ui/Plots/Render/rendererUserPreferencesInput.ui', self)
         
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
@@ -41,19 +41,25 @@ class MeshSetupVisibilityInput(QDialog):
         self.checkBox_OpenPulse_logo = self.findChild(QCheckBox, 'checkBox_OpenPulse_logo')
         self.checkBox_MOPT_logo = self.findChild(QCheckBox, 'checkBox_MOPT_logo')
         self.checkBox_reference_scale = self.findChild(QCheckBox, 'checkBox_reference_scale')
+
+        self.tabWidget_main = self.findChild(QTabWidget, 'tabWidget_main')
+        self.tab_hide_show = self.tabWidget_main.findChild(QWidget, 'tab_hide_show')
+        self.tab_user_preferences = self.tabWidget_main.findChild(QWidget, 'tab_user_preferences')
+        self.tabWidget_main.removeTab(0)
         
         self.toolButton_confirm = self.findChild(QToolButton, 'toolButton_confirm')
-        self.toolButton_confirm.clicked.connect(self.confirm_and_update_mesh_visibility)
+        self.toolButton_confirm.clicked.connect(self.confirm_and_update_user_preferences)
         self.load_background_color_state()
         self.load_logo_state()
         self.load_reference_scale_state()
-        self.load_plot_state()
-        self.load_selection_state()
+        # self.load_plot_state()
+        # self.load_selection_state()
         self.exec()
 
+    
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            self.confirm_and_update_mesh_visibility()
+            self.confirm_and_update_user_preferences()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
@@ -181,7 +187,7 @@ class MeshSetupVisibilityInput(QDialog):
         self.opv.opvRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
         self.opv.opvAnalysisRenderer._createLogos(OpenPulse=self.opv.add_OpenPulse_logo, MOPT=self.opv.add_MOPT_logo)
 
-    def confirm_and_update_mesh_visibility(self):
+    def confirm_and_update_user_preferences(self):
         self.update_plot_state()
         self.update_selection_state()
         self.update_logo_state()

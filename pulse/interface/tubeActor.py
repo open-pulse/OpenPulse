@@ -7,13 +7,14 @@ from pulse.interface.vtkActorBase import vtkActorBase
 
 
 class TubeActor(vtkActorBase):
-    def __init__(self, elements, project, **kwargs):
+    def __init__(self, elements, project, *args, **kwargs):
         super().__init__()
 
         self.elements = elements
         self.project = project
         self.preprocessor = project.preprocessor
 
+        self.hidden_elements = kwargs.get('hidden_elements', set())
         self.pressure_plot = kwargs.get('pressure_plot', False)
         
         self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
@@ -52,11 +53,15 @@ class TubeActor(vtkActorBase):
         rotations.SetNumberOfComponents(3)
         rotations.SetName('rotations')
 
+        visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
+        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+
         self.updateBff()
         cache = dict()
         counter = 0
         # t0 = time()
-        for element in self.elements.values():
+
+        for i, element in visible_elements.items():
             
             radius = None
             max_min = None
@@ -110,9 +115,16 @@ class TubeActor(vtkActorBase):
         c = vtk.vtkUnsignedCharArray()
         c.DeepCopy(self._colors)
         keys = keys if keys else self.elements.keys()
+        
         for key in keys:
-            index = self._key_index[key]
-            c.SetTuple(index, color)
+            index = self._key_index.get(key)
+            if index is not None:
+                c.SetTuple(index, color)
+
+        # for key in keys:
+        #     index = self._key_index[key]
+        #     c.SetTuple(index, color)
+
         self._data.GetPointData().SetScalars(c)
         self._colors = c
         self._mapper.Update()

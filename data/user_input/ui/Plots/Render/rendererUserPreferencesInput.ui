@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Mesh setup visibility</string>
+   <string>User preferences</string>
   </property>
   <widget class="QFrame" name="frame">
    <property name="geometry">
@@ -145,7 +145,7 @@
      <string>Confirm</string>
     </property>
    </widget>
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabWidget_main">
     <property name="geometry">
      <rect>
       <x>28</x>
@@ -166,7 +166,7 @@
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_hide_show">
      <attribute name="title">
       <string>Model</string>
      </attribute>
@@ -570,9 +570,9 @@
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="tab_user_preferences">
      <attribute name="title">
-      <string>Advanced</string>
+      <string>Settings</string>
      </attribute>
      <widget class="QFrame" name="frame_6">
       <property name="geometry">

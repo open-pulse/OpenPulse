@@ -1,9 +1,6 @@
-import os
-from os.path import basename
 from PyQt5.QtWidgets import QDialog, QColorDialog, QVBoxLayout, QWidget, QPushButton
 from PyQt5.QtCore import Qt, QSize, QRect, QPoint, QObject, QThread, pyqtSignal
 from PyQt5.QtGui import QIcon
-from PyQt5 import uic
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
@@ -30,7 +27,7 @@ class PickColorInput(QColorDialog):
     def confirm_color(self):
         color = self.currentColor().getRgb()
         self.complete = True
-        self.color = color[0:3] 
+        self.color = list(color[0:3])
         self.close()
 
     def configWindow(self):

@@ -43,6 +43,10 @@ class opvRenderer(vtkRendererBase):
         self.elementsBounds = dict()
         self.lineToElements = dict()
 
+        self.hidden_nodes    = set()
+        self.hidden_elements = set()
+        self.hidden_lines = set()
+
         self._plotFilter = 0
         self._selectionFilter = 0
     
@@ -107,10 +111,203 @@ class opvRenderer(vtkRendererBase):
         self.opvStructuralNodesSymbols.build()
         self.opvStructuralElementsSymbols.build()
     
+    def hide_selection(self):
+        if self.selectionToNodes():
+            self.hide_nodes(self.getListPickedPoints())
+
+        if self.selectionToLines():
+            lines = self.getListPickedLines()
+            if self.opv.change_plot_to_entities_with_cross_section:
+                _elements = [element_id for line_id in lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(_elements)  
+            self.hide_lines(lines)
+
+        if self.selectionToElements():
+            self.hide_elements(self.getListPickedElements())
+
+        self.clearSelection()
+        self.update()
+
+    def unhide_all(self):
+        self.unhide_nodes()
+        self.unhide_lines()
+        self.unhide_elements()
+        self.opvTubes.build()
+        self.opvLines.build()
+        self.opvNodes.build()
+        self.clearSelection()
+        self.update()
+
+    def hide_nodes(self, nodes, _update_Renderer=False):
+        self.hidden_nodes |= set(nodes)
+        self.opvNodes.hidden_nodes = self.hidden_nodes
+        self.opvNodes.build()
+        
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_lines(self, lines, _update_Renderer=False):
+        self.hidden_lines |= set(lines)
+        for i in lines:
+            el = set(self.lineToElements[i])
+            self.hidden_elements |= el
+
+        self.opvLines.hidden_elements = self.hidden_elements
+        # self.opvTubes.hidden_elements = self.hidden_elements
+        self.opvLines.build()
+        # self.opvTubes.build()        
+        
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_elements(self, elements, _update_Renderer=False):
+        self.hidden_elements |= set(elements)
+        # self.opvLines.hidden_elements = self.hidden_elements
+        self.opvTubes.hidden_elements = self.hidden_elements
+
+        # self.opvLines.build()
+        self.opvTubes.build()
+
+        if _update_Renderer:
+            self.clearSelection()
+            self.update()
+
+    def hide_show_lines(self, _show):
+        if _show:
+            self.unhide_lines(_update_Renderer=True)
+        else:
+            picked_lines = self.getListPickedLines()
+            picked_elements = self.getListPickedElements()
+            if picked_lines:
+                self.hide_lines(picked_lines, _update_Renderer=True)
+            elif picked_elements:
+                _lines = []
+                for element_id in picked_elements:
+                    line_id = self.preprocessor.elements_to_line[element_id]
+                    if line_id not in _lines:
+                        _lines.append(line_id)
+                self.hide_lines(_lines, _update_Renderer=True)
+            else:
+                _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+                self.hide_lines(_lines, _update_Renderer=True)
+            
+    def hide_show_elements_and_nodes(self, _show):
+        if _show:
+            self.unhide_elements(_update_Renderer=True)
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            picked_elements = self.getListPickedElements()
+            picked_lines = self.getListPickedLines()
+            if picked_elements:
+                self.hide_elements(picked_elements, _update_Renderer=False)
+            elif picked_lines:
+                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(picked_elements, _update_Renderer=False)
+            else:
+                _elements = list(self.preprocessor.structural_elements.keys())
+                self.hide_elements(_elements, _update_Renderer=False)
+
+            picked_nodes = self.getListPickedPoints()
+            if picked_nodes:
+                self.hide_nodes(picked_nodes, _update_Renderer=True)
+            else:
+                _nodes = list(self.preprocessor.nodes.keys())
+                self.hide_nodes(_nodes, _update_Renderer=True)
+
+    def hide_show_elements(self, _show):
+        if _show:
+            self.unhide_elements(_update_Renderer=True)
+        else:
+            picked_elements = self.getListPickedElements()
+            picked_lines = self.getListPickedLines()
+            if picked_elements:
+                self.hide_elements(picked_elements, _update_Renderer=True)
+            elif picked_lines:
+                picked_elements = [element_id for line_id in picked_lines for element_id in self.preprocessor.line_to_elements[line_id]]
+                self.hide_elements(picked_elements, _update_Renderer=True)
+            else:
+                _elements = list(self.preprocessor.structural_elements.keys())
+                self.hide_elements(_elements, _update_Renderer=True)           
+
+    def hide_show_nodes(self, _show):
+        if _show:
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            picked_nodes = self.getListPickedPoints()
+            if picked_nodes:
+                self.hide_nodes(picked_nodes, _update_Renderer=True)
+            else:
+                _nodes = list(self.preprocessor.nodes.keys())
+                self.hide_nodes(_nodes, _update_Renderer=True)
+
+    def hide_show_acoustic_symbols(self):
+        # bitwise xor to toogle bit
+        _filter = self._plotFilter ^ PlotFilter.acoustic_symbols
+        self.setPlotFilter(_filter)
+
+    def hide_show_structural_symbols(self):
+        # bitwise xor to toogle bit
+        _filter = self._plotFilter ^ PlotFilter.structural_symbols
+        self.setPlotFilter(_filter)
+
+    def unhide_nodes(self, nodes=None, _update_Renderer=False):
+        if not nodes:
+            self.hidden_nodes.clear()
+        else:
+            self.hidden_nodes -= set(nodes)
+        if _update_Renderer:
+            self.opvNodes.build()
+            self.clearSelection()
+            self.update()
+
+    def unhide_lines(self, lines=None, _update_Renderer=False):
+        if not lines:
+            self.hidden_lines.clear()
+            self.opvLines.hidden_elements.clear()
+        else:
+            self.hidden_lines -= set(lines)
+        
+        if _update_Renderer:
+            self.opvLines.build()
+            self.clearSelection()
+            self.update()
+
+    def unhide_elements(self, elements=None, _update_Renderer=False):
+        if not elements:
+            self.hidden_elements.clear()
+        else:
+            self.hidden_elements -= set(elements)
+        if _update_Renderer:
+            self.opvTubes.build()
+            self.clearSelection()
+            self.update()
+
     def setPlotFilter(self, plot_filter):
-        self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
-        self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
-        self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
+        if (plot_filter & PlotFilter.nodes):
+            self.unhide_nodes(_update_Renderer=True)
+        else:
+            _nodes = list(self.preprocessor.nodes.keys())
+            self.hide_nodes(_nodes, _update_Renderer=True)
+
+        if (plot_filter & PlotFilter.lines):
+            self.unhide_lines(_update_Renderer=True)
+        else:
+            _lines = list(self.preprocessor.dict_tag_to_entity.keys())
+            self.hide_lines(_lines, _update_Renderer=True)
+
+        if (plot_filter & PlotFilter.tubes):
+            self.unhide_elements(_update_Renderer=True)
+        else:
+            _elements = list(self.preprocessor.structural_elements.keys())
+            self.hide_elements(_elements, _update_Renderer=True)           
+
+
+        # self.opvNodes.setVisibility(plot_filter & PlotFilter.nodes)
+        # self.opvLines.setVisibility(plot_filter & PlotFilter.lines)
+        # self.opvTubes.setVisibility(plot_filter & PlotFilter.tubes)
+        
         self.opvTubes.transparent = plot_filter & PlotFilter.transparent
 
         self.buildSymbols()
@@ -121,6 +318,7 @@ class opvRenderer(vtkRendererBase):
         self.opvStructuralElementsSymbols.setVisibility(plot_filter & PlotFilter.structural_symbols)
 
         self._plotFilter = plot_filter
+        self.update()
 
     def setSelectionFilter(self, selection_filter):
         self.clearSelection()
@@ -132,7 +330,7 @@ class opvRenderer(vtkRendererBase):
     def selectionToElements(self):
         return self._selectionFilter & SelectionFilter.elements 
 
-    def selectionToEntities(self):
+    def selectionToLines(self):
         return self._selectionFilter & SelectionFilter.entities
 
     def clearSelection(self):
@@ -186,9 +384,9 @@ class opvRenderer(vtkRendererBase):
         else:
             return []
 
-    def getListPickedEntities(self):
-        if self.selectionToEntities():
-            return self._style.getListPickedEntities()
+    def getListPickedLines(self):
+        if self.selectionToLines():
+            return self._style.getListPickedLines()
         else:
             return []
 
@@ -217,7 +415,7 @@ class opvRenderer(vtkRendererBase):
 
         selectedNodes = self.getListPickedPoints()
         selectedElements = self.getListPickedElements()
-        selectedEntities = self.getListPickedEntities()
+        selectedLines = self.getListPickedLines()
         
         self.updateColors()  # clear colors
         selectionColor = (255, 0, 0)
@@ -232,16 +430,17 @@ class opvRenderer(vtkRendererBase):
             self.opvTubes.setColor(selectionColor, keys=selectedElements)
             _update = True
 
-        if selectedEntities and self.selectionToEntities():
-            elementsFromEntities = set()
-            for i in selectedEntities:
+        if selectedLines and self.selectionToLines():
+            elementsFromLines = set()
+            for i in selectedLines:
                 elements = self.lineToElements[i]
-                elementsFromEntities = elementsFromEntities.union(elements)
+                elementsFromLines = elementsFromLines.union(elements)
 
-            self.opvLines.setColor(selectionColor, keys=elementsFromEntities)
-            self.opvTubes.setColor(selectionColor, keys=elementsFromEntities)
+            self.opvLines.setColor(selectionColor, keys=elementsFromLines)
+            self.opvTubes.setColor(selectionColor, keys=elementsFromLines)
             _update = True
-
+        
+        # self.opv.parent.update_toolbar_radioButtons(selectedNodes, selectedElements, selectedLines)
         if _update:
             self.call_update_in_QDialogs_if_highlighted()
 
@@ -265,6 +464,13 @@ class opvRenderer(vtkRendererBase):
 
         self.opvLines.setColor(selectionColor, keys=element_ids)
         self.opvTubes.setColor(selectionColor, keys=element_ids)
+
+    def highlight_nodes(self, node_ids, reset_colors=True, color=(255,0,0)):
+        if reset_colors:
+            self.updateColors()  # clear colors
+        selectionColor = color
+
+        self.opvNodes.setColor(selectionColor, keys=node_ids)
 
     def showElementAxes(self, obj, event):
         self._renderer.RemoveActor(self.elementAxes)
@@ -308,7 +514,6 @@ class opvRenderer(vtkRendererBase):
     def setPlotRadius(self, *args, **kwargs):
         pass
 
-    # TODO: clean-up the below methods
     def updateInfoText(self, obj, event):
         text = ''
         if self.selectionToNodes() and self.getListPickedPoints():
@@ -317,7 +522,7 @@ class opvRenderer(vtkRendererBase):
         if self.selectionToElements() and self.getListPickedElements():
             text += self.getElementsInfoText() + '\n'
         
-        if self.selectionToEntities() and self.getListPickedEntities():
+        if self.selectionToLines() and self.getListPickedLines():
             text += self.getEntityInfoText()  + '\n'
             
         self.createInfoText(text)
@@ -464,7 +669,7 @@ class opvRenderer(vtkRendererBase):
         if aditional_info is not None:
             text += aditional_info
         if isinstance(value, np.ndarray):
-            text += f'  {label} <--> Table of values \n'
+            text += f'  {label} = Table of values \n'
         else:
             unit = f'{unit_label}'
             text += f'  {label} = {value} {unit} \n'
@@ -491,7 +696,8 @@ class opvRenderer(vtkRendererBase):
             acoustic_element_type = acoustic_element.element_type
 
             material = structural_element.material
-            fluid = structural_element.fluid
+            # fluid = structural_element.fluid
+            fluid = acoustic_element.fluid
             
             if structural_element_type is None:
                 structural_element_type = "undefined"
@@ -508,6 +714,8 @@ class opvRenderer(vtkRendererBase):
                 fluid_name = 'undefined'
             else:
                 fluid_name = fluid.name
+                fluid_temperature = fluid.temperature
+                fluid_pressure = fluid.pressure
 
             if structural_element.cross_section is None: 
                 outer_diameter = 'undefined'
@@ -560,12 +768,17 @@ class opvRenderer(vtkRendererBase):
                     text += f'Insulation density: {insulation_density} [kg/m³]\n'
 
                 if acoustic_element.fluid is not None:
-                    text += f'\nFluid: {fluid_name} \n'                                
+                    text += f'\nFluid: {fluid_name} \n'
+                    if fluid_temperature is not None:
+                        text += f'\nTemperature: {fluid_temperature} [K]'
+                    if fluid_pressure is not None:
+                        text += f'\nPressure: {fluid_pressure} [Pa] \n' 
+
                 if acoustic_element.element_type is not None:
                     text += f'Acoustic element type: {acoustic_element_type} \n'
                     if acoustic_element.element_type in ["undamped mean flow", "peters", "howe"]:
-                        if acoustic_element.mean_velocity:
-                            text += f'Mean velocity: {acoustic_element.mean_velocity} [m/s]\n'
+                        if acoustic_element.vol_flow:
+                            text += f'Volume flow rate: {acoustic_element.vol_flow} [m³/s]\n'
                     elif acoustic_element.element_type in ["proportional"]:
                         if acoustic_element.proportional_damping:
                             text += f'Proportional damping: {acoustic_element.proportional_damping}\n'   
@@ -591,7 +804,7 @@ class opvRenderer(vtkRendererBase):
         return text
 
     def getEntityInfoText(self):
-        line_ids = self.getListPickedEntities()
+        line_ids = self.getListPickedLines()
         text = ''
         if len(line_ids) == 0: 
             return
@@ -605,15 +818,17 @@ class opvRenderer(vtkRendererBase):
             structural_element_type = entity.structural_element_type
             acoustic_element_type = entity.acoustic_element_type
 
-            if entity.material is None:
+            if material is None:
                 material_name = 'undefined'    
             else:
                 material_name = material.name
 
-            if entity.fluid is None:
+            if fluid is None:
                 fluid_name = 'undefined'    
             else:
                 fluid_name = fluid.name
+                fluid_temperature = fluid.temperature
+                fluid_pressure = fluid.pressure
 
             if entity.structural_element_type is None:
                 structural_element_type = 'undefined'
@@ -655,11 +870,16 @@ class opvRenderer(vtkRendererBase):
               
                 if entity.fluid is not None:
                     text += f'\nFluid: {fluid_name}' 
+                    if fluid_temperature is not None:
+                        text += f'\nTemperature: {fluid_temperature} [K]'
+                    if fluid_pressure is not None:
+                        text += f'\nPressure: {fluid_pressure} [Pa] \n' 
+
                 if entity.acoustic_element_type is not None:
                     text += f'\nAcoustic element type: {acoustic_element_type}'
                 if entity.acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                    if entity.mean_velocity:
-                        text += f'\nMean velocity: {entity.mean_velocity} [m/s]'
+                    if entity.vol_flow:
+                        text += f'\nVolume flow rate: {entity.vol_flow} [m³/s]'
                 elif entity.acoustic_element_type in ["proportional"]:
                     if entity.proportional_damping:
                         text += f'\nProportional damping: {entity.proportional_damping}'        
@@ -707,16 +927,20 @@ class opvRenderer(vtkRendererBase):
                         if insulation_thickness != 0 or insulation_density != 0: 
                             text += f'Insulation thickness: {insulation_thickness} [m]\n'
                             text += f'Insulation density: {int(insulation_density)} [kg/m³]\n'
-                                                   
+                                                                           
                         if entity.fluid is not None:
                             text += f'\nFluid: {entity.fluid.name}' 
+                            if fluid_temperature is not None:
+                                text += f'\nTemperature: {fluid_temperature} [K]'
+                            if fluid_pressure is not None:
+                                text += f'\nPressure: {fluid_pressure} [Pa] \n' 
 
                         if entity.acoustic_element_type is not None:
                             text += f'\nAcoustic element type: {entity.acoustic_element_type}'
 
                         if entity.acoustic_element_type in ["undamped mean flow", "peters", "howe"]:
-                            if entity.mean_velocity:
-                                text += f'\nMean velocity: {entity.mean_velocity} [m/s]'
+                            if entity.vol_flow:
+                                text += f'\nVolume flow rate: {entity.vol_flow} [m³/s]'
                         elif entity.acoustic_element_type in ["proportional"]:
                             if entity.proportional_damping:
                                 text += f'\nProportional damping: {entity.proportional_damping}' 

@@ -28,13 +28,13 @@ class DecouplingRotationDOFsInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.line_id = self.opv.getListPickedEntities()
+        self.line_id = self.opv.getListPickedLines()
         self.element_id = self.opv.getListPickedElements()
         self.node_id = self.opv.getListPickedPoints()
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks() 
+        self.before_run = project.get_pre_solution_model_checks() 
 
         self.nodes = self.preprocessor.nodes
         self.structural_elements = self.preprocessor.structural_elements

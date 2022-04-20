@@ -12,11 +12,15 @@ import matplotlib.pyplot as plt
 
 from pulse.utils import get_new_path, remove_bc_from_file
 from pulse.preprocessing.compressor_model import CompressorModel
+from data.user_input.model.setup.acoustic.fluidInput import FluidInput
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
 window_title_1 = "ERROR MESSAGE"
 window_title_2 = "WARNING MESSAGE"
+
+psi_to_Pa = 0.45359237*9.80665/((0.0254)**2)
+kgf_cm2_to_Pa = 9.80665e4
 
 class CompressorModelInput(QDialog):
     def __init__(self, project,  opv, *args, **kwargs):
@@ -37,12 +41,12 @@ class CompressorModelInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.nodes = self.preprocessor.nodes
-        self.before_run = project.get_model_checks()    
+        self.before_run = project.get_pre_solution_model_checks()    
 
         self.project_folder_path = project.file._project_path  
         self.node_acoustic_path = self.project.file._node_acoustic_path   
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
-        self.acoustic_pressure_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
+        self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
         
         self.stop = False
         self.complete = False
@@ -69,7 +73,7 @@ class CompressorModelInput(QDialog):
         self.lineEdit_number_of_pistons = self.findChild(QLineEdit, 'lineEdit_number_of_pistons')
         self.lineEdit_rotational_speed = self.findChild(QLineEdit, 'lineEdit_rotational_speed')
         self.lineEdit_capacity = self.findChild(QLineEdit, 'lineEdit_capacity')
-        self.lineEdit_isentropic_coefficient = self.findChild(QLineEdit, 'lineEdit_isentropic_coefficient')
+        self.lineEdit_isentropic_exponent = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent')
         self.lineEdit_molar_mass = self.findChild(QLineEdit, 'lineEdit_molar_mass')
         self.lineEdit_pressure_at_suction = self.findChild(QLineEdit, 'lineEdit_pressure_at_suction')
         self.lineEdit_temperature_at_suction = self.findChild(QLineEdit, 'lineEdit_temperature_at_suction')
@@ -426,11 +430,11 @@ class CompressorModelInput(QDialog):
         else:
             self.parameters['molar mass'] = self.value
 
-        if self.check_input_parameters(self.lineEdit_isentropic_coefficient, "ISENTROPIC COEFFICIENT"):
-            self.lineEdit_isentropic_coefficient.setFocus()
+        if self.check_input_parameters(self.lineEdit_isentropic_exponent, "ISENTROPIC EXPONENT"):
+            self.lineEdit_isentropic_exponent.setFocus()
             return True
         else:
-            self.parameters['isentropic coefficient'] = self.value
+            self.parameters['isentropic exponent'] = self.value
 
         if self.check_input_parameters(self.lineEdit_pressure_at_suction, "PRESSURE AT SUCTION"):
             self.lineEdit_pressure_at_suction.setFocus()
@@ -473,6 +477,12 @@ class CompressorModelInput(QDialog):
 
         self.compressor = CompressorModel(list_parameters)
         self.compressor.number_of_cylinders = self.parameters['number of cylinders']
+
+        self.T_suction = self.parameters['temperature at suction'] + 273.15
+        self.P_suction = self.parameters['pressure at suction']*kgf_cm2_to_Pa
+        
+        self.T_discharge = self.compressor.T_disc
+        self.P_discharge = self.parameters['pressure ratio']*self.P_suction
         
         if 'cylinder label' in self.parameters.keys():
             self.compressor.active_cylinder = self.parameters['cylinder label']
@@ -531,7 +541,7 @@ class CompressorModelInput(QDialog):
             self.project.set_frequencies(frequencies, f_min, f_max, f_step)
 
         self.project.create_folders_acoustic("compressor_excitation_files")
-        self.new_load_path_table = get_new_path(self.acoustic_pressure_tables_folder_path, basename)
+        self.new_load_path_table = get_new_path(self.compressor_excitation_tables_folder_path, basename)
 
         real_values = np.real(complex_values)
         imag_values = np.imag(complex_values)
@@ -566,10 +576,34 @@ class CompressorModelInput(QDialog):
             freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
             table_name = self.get_table_name(self.suction_node_ID, 'suction')
             data = [in_flow_rate, table_name]
-            
-            node = self.preprocessor.nodes[self.suction_node_ID]
-            if node.volume_velocity_table_name is not None:
-                self.remove_volume_velocity_table_files(self.suction_node_ID, node.volume_velocity_table_name)
+
+            line_suction_node_ID = self.preprocessor.get_line_from_node_id(self.suction_node_ID)
+
+            compressor_info = { "temperature (suction)" : self.T_suction,
+                                "pressure (suction)" : self.P_suction,
+                                "temperature (discharge)" : self.T_discharge,
+                                "pressure (discharge)" : self.P_discharge,
+                                "line_id" : line_suction_node_ID[0],
+                                "node_id" : self.suction_node_ID,
+                                "isentropic exponent" : self.parameters['isentropic exponent'],
+                                "pressure ratio" : self.parameters['pressure ratio'],
+                                "molar mass" : self.parameters['molar mass'],
+                                "connection type" : 0 }
+
+            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info) 
+            if not read.complete:
+                return
+            else:
+                if read.REFPROP is not None:
+                    if read.REFPROP.complete:
+                        self.parameters['molar mass'] = round(read.fluid_data_REFPROP["molar mass"], 6)
+                        self.parameters['isentropic exponent'] = round(read.fluid_data_REFPROP["isentropic exponent"], 6)
+                        self.parameters['fluid properties source'] = "REFPROP"
+                else:
+                    self.parameters['fluid properties source'] = "user-defined"
+           
+            self.project.remove_acoustic_pressure_table_files(self.suction_node_ID)
+            self.project.remove_volume_velocity_table_files(self.suction_node_ID)
 
             if self.project.set_compressor_excitation_bc_by_node([self.suction_node_ID], data, self.size, 'suction'):
                 return
@@ -581,10 +615,34 @@ class CompressorModelInput(QDialog):
             freq, out_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'out_flow') 
             table_name = self.get_table_name(self.discharge_node_ID, 'discharge')
             data = [out_flow_rate, table_name]
+
+            line_discharge_node_ID = self.preprocessor.get_line_from_node_id(self.discharge_node_ID)
+
+            compressor_info = { "temperature (suction)" : self.T_suction,
+                                "pressure (suction)" : self.P_suction,
+                                "temperature (discharge)" : self.T_discharge,
+                                "pressure (discharge)" : self.P_discharge,
+                                "line_id" : line_discharge_node_ID[0],
+                                "node_id" : self.discharge_node_ID,
+                                "isentropic exponent" : self.parameters['isentropic exponent'],
+                                "pressure ratio" : self.parameters['pressure ratio'],
+                                "molar mass" : self.parameters['molar mass'],
+                                "connection type" : 1 }
             
-            node = self.preprocessor.nodes[self.discharge_node_ID]
-            if node.volume_velocity_table_name is not None:
-                self.remove_volume_velocity_table_files(self.discharge_node_ID, node.volume_velocity_table_name)
+            read = FluidInput(self.project, self.opv, compressor_thermodynamic_state=compressor_info)
+            if not read.complete:
+                return
+            else:
+                if read.REFPROP is not None:
+                    if read.REFPROP.complete:
+                        self.parameters['molar mass'] = round(read.fluid_data_REFPROP["molar mass"], 6)
+                        self.parameters['isentropic exponent'] = round(read.fluid_data_REFPROP["isentropic exponent"], 6)
+                        self.parameters['fluid properties source'] = "REFPROP"
+                else:
+                    self.parameters['fluid properties source'] = "user-defined"
+           
+            self.project.remove_acoustic_pressure_table_files(self.discharge_node_ID)
+            self.project.remove_volume_velocity_table_files(self.discharge_node_ID)
 
             if self.project.set_compressor_excitation_bc_by_node([self.discharge_node_ID], data, self.size, 'discharge'):
                 return
@@ -596,18 +654,8 @@ class CompressorModelInput(QDialog):
         self.close()
 
     def remove_volume_velocity_table_files(self, node_id, table_name):
-        str_key = "volume velocity"
-        folder_table_name = "volume_velocity_files"
-        if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-                                                                                str_key,
-                                                                                table_name, 
-                                                                                folder_table_name   ):
-            self.process_table_file_removal(table_name)   
-
-    def process_table_file_removal(self, table_name):
-        if table_name is not None:
-            self.project.remove_acoustic_table_files_from_folder(table_name, "volume_velocity_files")
-
+        self.project.remove_volume_velocity_table_files(node_id, table_name)
+    
     def spinBox_event_number_of_points(self):
         if self.aquisition_parameters_processed:
             self.process_aquisition_parameters()
@@ -732,20 +780,8 @@ class CompressorModelInput(QDialog):
         self.compressor.plot_crank_end_volume_vs_angle()
         return    
 
-    def get_dict_of_compressor_excitation_from_file(self):
-        config = configparser.ConfigParser()
-        config.read(self.node_acoustic_path)
-        sections = config.sections()
-        self.dict_node_to_compressor_excitation = defaultdict(list)  
-        for node_id in sections:
-            keys = list(config[node_id].keys())
-            for key in keys:
-                if "compressor excitation - " in key:
-                    table_file_name = config[node_id][key]
-                    self.dict_node_to_compressor_excitation[int(node_id)].append([key, table_file_name])
-
     def reset_node(self):
-        self.get_dict_of_compressor_excitation_from_file()
+        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
         if self.node_ID_remove is None:    
             node_id = self.lineEdit_node_ID_info.text()
             if node_id == "":
@@ -757,12 +793,11 @@ class CompressorModelInput(QDialog):
                 self.selected_node = int(node_id)
         else:
             self.selected_node = self.node_ID_remove
-        try:  
-            self.remove_compressor_excitation_table_files([self.selected_node])
-            self.preprocessor.set_compressor_excitation_bc_by_node(self.selected_node, [None, None])
-            path = self.node_acoustic_path
-            for [str_key, _] in self.dict_node_to_compressor_excitation[self.selected_node]:
-                remove_bc_from_file([self.selected_node], path, [str_key], None)
+        
+        try:
+
+            self.project.reset_compressor_info_by_node(self.selected_node)  
+    
             if self.remove_message:
                 title = "Compressor excitation removal finished"
                 message = f"The compressor excitation attributed to \n"
@@ -770,6 +805,7 @@ class CompressorModelInput(QDialog):
                 PrintMessageInput([title, message, window_title_2])
             self.load_compressor_excitation_tables_info()
             self.opv.updateRendererMesh()
+        
         except Exception as log_error:
             title = "Error while removing compressor excitation from node"
             message = "An error has been detected during the compressor \n"
@@ -779,7 +815,7 @@ class CompressorModelInput(QDialog):
         self.remove_message = True
 
     def remove_table(self):
-        self.get_dict_of_compressor_excitation_from_file()
+        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
         self.selected_node = self.lineEdit_node_ID_info.text()
         self.selected_table = self.lineEdit_table_name_info.text()
         if self.selected_node == "":
@@ -804,11 +840,13 @@ class CompressorModelInput(QDialog):
                 [str_key, table_name_file] = list_data
                 if self.selected_table in table_name_file:
                     remove_bc_from_file([node_id], self.node_acoustic_path, [str_key], None)
+
             title = "Compressor excitation table removal finished"
             message = f"The following compressor excitation table attributed to \n"
             message += f"the {node_id} node has been removed from the model:\n\n"
             message += f"{self.selected_table}"
             PrintMessageInput([title, message, window_title_2])
+
             self.load_compressor_excitation_tables_info()
             self.reset_node_and_reload(node_id)
     
@@ -825,11 +863,14 @@ class CompressorModelInput(QDialog):
                 self.preprocessor.set_compressor_excitation_bc_by_node( node_id, 
                                                                         [compressor_excitation, table_name], 
                                                                         connection_info=connection_info )
+        else:
+            self.project.reset_compressor_info_by_node(node_id)
 
         if self.project.file.check_if_table_can_be_removed_in_acoustic_model( node_id, "compressor excitation",
                                                                               self.selected_table, "compressor_excitation_files" ):
             self.project.remove_acoustic_table_files_from_folder( self.selected_table, "compressor_excitation_files" )
             self.load_compressor_excitation_tables_info()
+        self.opv.updateRendererMesh()
 
     def reset_all(self):
         if len(self.preprocessor.nodes_with_compressor_excitation) > 0:
@@ -845,7 +886,7 @@ class CompressorModelInput(QDialog):
                 return
 
             if read._continue:
-                self.get_dict_of_compressor_excitation_from_file()
+                self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
                 for node_id in self.dict_node_to_compressor_excitation.keys():
                     self.remove_message = False
                     self.node_ID_remove = node_id
@@ -857,7 +898,7 @@ class CompressorModelInput(QDialog):
 
     def load_compressor_excitation_tables_info(self):
         self.treeWidget_compressor_excitation.clear()
-        self.get_dict_of_compressor_excitation_from_file()
+        self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
         for node_ID, tables_info in self.dict_node_to_compressor_excitation.items():
             for _, table_str in tables_info:
                 table_name = table_str[1:-1]       
@@ -894,13 +935,4 @@ class CompressorModelInput(QDialog):
         return list_table_names
 
     def remove_compressor_excitation_table_files(self, list_node_ids):
-        str_key = "compressor excitation -"
-        folder_table_name = "compressor_excitation_files"
-        for node_id in list_node_ids:
-            node = self.preprocessor.nodes[node_id]
-            for table_name in node.compressor_excitation_table_names:
-                if self.project.file.check_if_table_can_be_removed_in_acoustic_model(   node_id, 
-                                                                                        str_key,
-                                                                                        table_name, 
-                                                                                        folder_table_name   ):
-                    self.project.remove_acoustic_table_files_from_folder(table_name, "compressor_excitation_files")
+        self.project.remove_compressor_excitation_table_files(list_node_ids)

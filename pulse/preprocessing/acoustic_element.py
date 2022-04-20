@@ -1,6 +1,6 @@
-from math import sqrt, pi
+from numpy import sqrt, pi
 import numpy as np
-from scipy.special import jv, struve, hankel1
+from scipy.special import jv, hankel1
 from scipy.optimize import root
 from pulse.preprocessing.perforated_plate import Foks_function
 from pulse.preprocessing.node import distance
@@ -110,7 +110,7 @@ class AcousticElement:
         self.cross_section_points = kwargs.get('cross_section_points', None)
         self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
-        self.mean_velocity = kwargs.get('mean_velocity', 0)
+        self.vol_flow = kwargs.get('vol_flow', 0)
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
 
         self.delta_pressure = 0
@@ -118,11 +118,7 @@ class AcousticElement:
 
         self.element_type = kwargs.get('element_type', 'undamped')
 
-        self.flag_plane_wave = False
-        self.flag_wide_duct = False
-        self.flag_lrf_fluid_eq = False
-        self.flag_lrf_full = False
-        self.flag_unflanged_radiation_impedance = False
+        self.reset()
 
     @property
     def length(self):
@@ -162,7 +158,17 @@ class AcousticElement:
 
     @property
     def mach(self):
-        return self.mean_velocity / self.speed_of_sound_corrected()
+        return self.vol_flow / (self.speed_of_sound_corrected()*self.area_fluid)
+    
+    def reset(self):
+        self.flag_plane_wave = False
+        self.flag_wide_duct = False
+        self.flag_lrf_fluid_eq = False
+        self.flag_lrf_full = False
+        self.flag_unflanged_radiation_impedance = False
+
+        self.max_valid_freq = np.inf
+        self.min_valid_freq = 0
 
     def update_pressure(self, solution):
         pressure_first = solution[self.first_node.global_index, :]
@@ -237,6 +243,7 @@ class AcousticElement:
             Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
         """
         self.area_fluid = self.cross_section.area_fluid
+        self.reset()
         if self.perforated_plate:
             if self.perforated_plate.type in [0,1]:
                 return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
@@ -301,19 +308,21 @@ class AcousticElement:
         kappa_real = omega/c0
         radius = self.cross_section.inner_diameter / 2
         if self.element_type == 'undamped':
-            criterion = np.real(kappa_real[-1] * radius) > 1.84118
-            if criterion:
+            aux = np.real(kappa_real * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
+                self.max_valid_freq = np.min(frequencies[aux])
             return kappa_real, c0 * rho_0
 
         elif self.element_type == 'proportional':
             hysteresis = (1 - 1j*self.proportional_damping)
             kappa_complex = kappa_real * hysteresis
             impedance_complex = c0 * rho_0 * hysteresis
-            
-            criterion = np.real(kappa_real[-1] * radius) > 1.84118
-            if criterion:
+
+            aux = np.real(kappa_real * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
+                self.max_valid_freq = np.min(frequencies[aux])
             return kappa_complex, impedance_complex
 
         elif self.element_type == 'wide-duct':
@@ -321,20 +330,25 @@ class AcousticElement:
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
             k0 = self.fluid.thermal_conductivity
-            
-            omega_min = max([min(omega), 1])
-            omega_max = max(omega)
 
-            criterion_1 = radius * sqrt(omega_min / (2 * nu) ) < 10
-            criterion_2 = radius * sqrt(omega_min / (2 * k0) ) < 10
-            criterion_3 = c0 / sqrt(omega_max * nu) > 10
+            aux_wd1 = radius < 10*sqrt(2*nu/omega) 
+            aux_wd2 = radius < 10*sqrt(2*k0/omega) 
+            aux = np.any(np.array([aux_wd1, aux_wd2]), axis=0)
 
-            if np.any(np.array([criterion_1, criterion_2, criterion_3])):
+            aux_wd3 = sqrt(2*omega * nu)/c0 > 1/10
+
+            if np.any(aux):
+                self.min_valid_freq = np.max(frequencies[aux])
                 self.flag_wide_duct = True
 
-            criterion = np.real(kappa_real[-1] * radius) > 1.84118
-            if criterion:
+            if np.any(aux_wd3):
+                self.max_valid_freq = np.min(frequencies[aux_wd3])
+                self.flag_wide_duct = True
+
+            aux = np.real(kappa_real * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
+                self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
 
             const = 1 - 1j* np.sqrt(nu/(2*omega)) * ((1 + (gamma-1)/sqrt(pr))/radius)
 
@@ -352,9 +366,12 @@ class AcousticElement:
             kappa_v = aux * np.sqrt(-1j / nu)
             kappa_t = aux * np.sqrt(-1j / alpha)
 
-            criterion_1 = np.abs(kappa_t[-1] / kappa_real[-1]) < 10
-            criterion_2 = np.abs(kappa_v[-1] / kappa_real[-1]) < 10
-            if np.any(np.array([criterion_1, criterion_2])):
+            aux_lrfeq1 = np.abs(kappa_t / kappa_real) < 10
+            aux_lrfeq2 = np.abs(kappa_v / kappa_real) < 10
+            aux = np.any(np.array([aux_lrfeq1, aux_lrfeq2]), axis=0)
+
+            if np.any(aux):
+                self.max_valid_freq = np.min(frequencies[aux]) 
                 self.flag_lrf_fluid_eq = True
 
             y_v = - j2j0(kappa_v * radius)
@@ -363,9 +380,10 @@ class AcousticElement:
             kappa_complex = kappa_real * np.sqrt(y_t / y_v)
             impedance_complex = c0 * rho_0 / np.sqrt(y_t * y_v)
 
-            # criterion = np.real(kappa_real[-1] * radius)  > 1
-            # if criterion:
-            #     self.flag_plane_wave = True
+            aux = np.real(kappa_complex * radius) > 1.84118
+            if np.any(aux):
+                self.flag_plane_wave = True
+                self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
 
             return kappa_complex, impedance_complex
 
@@ -401,9 +419,10 @@ class AcousticElement:
         s = radius * np.sqrt(omega / nu)
         sigma = sqrt(pr)
 
-        criterion_1 = s[-1] / (kappa_real[-1]*radius) < 10
-        criterion_2 = s[0]< 4
-        if np.any(np.array([criterion_1, criterion_2])):
+        aux_lrft2 = s < 4
+
+        if np.any(aux_lrft2):
+            self.min_valid_freq = np.max(frequencies[aux_lrft2])
             self.flag_lrf_full = True
 
         aux1 = j2j0(1j**(3/2) * s * sigma)
@@ -424,9 +443,10 @@ class AcousticElement:
 
         matrix = - ((self.area_fluid * G / (impedance_complex * sinh)) * np.array([cosh, -ones, -ones, cosh])).T
 
-        # criterion = np.real(kappa_complex[-1] * radius) > 1
-        # if criterion:
-        #     self.flag_plane_wave = True
+        aux = np.real(kappa_complex * radius) > 1.84118
+        if np.any(aux):
+            self.flag_plane_wave = True
+            self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
         return matrix  
   
     def fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
@@ -450,9 +470,10 @@ class AcousticElement:
         di = self.cross_section.inner_diameter
         radius = di / 2
         if self.element_type == 'undamped mean flow':
-            criterion = np.real(kappa_real[-1]*(1-self.mach**2) * radius) > 1.84118
-            if criterion:
+            aux = np.real(kappa_real*(1-self.mach**2) * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
+                self.max_valid_freq = np.min(frequencies[aux])
             return kappa_real, c0 * rho_0, self.mach
 
         elif self.element_type == 'howe':
@@ -460,7 +481,7 @@ class AcousticElement:
             alpha = self.fluid.thermal_diffusivity
             pr = self.fluid.prandtl
             gamma = self.fluid.isentropic_exponent
-            U = self.mean_velocity
+            U = self.mach * self.speed_of_sound_corrected()
             Karmank = 0.41
 
             # TODO: prt warning por pr<0.5
@@ -492,9 +513,10 @@ class AcousticElement:
             z = rho_0 * c
             mach_ef = U/c
 
-            criterion = np.real(kappa[-1]*(1-mach_ef[-1]**2) * radius) > 1.84118
-            if criterion:
+            aux = np.real(kappa*(1-mach_ef**2) * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
+                self.max_valid_freq = np.min(frequencies[aux])
 
             return kappa, z, mach_ef
 
@@ -503,7 +525,7 @@ class AcousticElement:
             gamma = self.fluid.isentropic_exponent
             pr = self.fluid.prandtl
 
-            U = self.mean_velocity
+            U = self.mach * self.speed_of_sound_corrected()
             ur = np.sqrt(0.03955) * (nu/di)**(1/8) * U**(7/8)
 
             delta_vs = 12.5
@@ -522,10 +544,10 @@ class AcousticElement:
             z = rho_0 * c
             mach_ef = U/c
 
-            criterion = np.real(kappa[-1]*(1-mach_ef[-1]**2) * radius) > 1.84118
-            if criterion:
+            aux = np.real(kappa*(1-mach_ef**2) * radius) > 1.84118
+            if np.any(aux):
                 self.flag_plane_wave = True
-
+                self.max_valid_freq = np.min(frequencies[aux])
             return kappa, z, mach_ef
 
     def update_pp_impedance(self, frequencies, nonlinear_effect):
@@ -719,6 +741,12 @@ class AcousticElement:
         length = self.length + length_correction
         rho = self.fluid.density
         c = self.speed_of_sound_corrected()
+
+        self.area_fluid = self.cross_section.area_fluid
+        if self.perforated_plate:
+            if self.perforated_plate.type in [2]:
+                d = self.perforated_plate.hole_diameter
+                self.area_fluid = pi*(d**2)/4
 
         Ke = self.area_fluid/(rho*length) * np.array([[1,-1],[-1,1]])
         Me = self.area_fluid * length / (6*rho*c**2) * np.array([[2,1],[1,2]]) 

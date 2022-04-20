@@ -1,5 +1,5 @@
 from types import prepare_class
-from PyQt5.QtWidgets import  QDialog, QWidget, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QCheckBox
+from PyQt5.QtWidgets import  QDialog, QWidget, QComboBox, QPushButton, QRadioButton, QLineEdit, QTreeWidget, QTreeWidgetItem, QTabWidget, QCheckBox, QFrame
 from os.path import basename
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
@@ -27,11 +27,11 @@ class StructuralElementTypeInput(QDialog):
 
         self.opv = opv
         self.opv.setInputObject(self)
-        self.lines_id = self.opv.getListPickedEntities()
+        self.lines_id = self.opv.getListPickedLines()
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
 
         self.dict_tag_to_entity = project.preprocessor.dict_tag_to_entity
         self.index = 0
@@ -59,14 +59,20 @@ class StructuralElementTypeInput(QDialog):
 
         self.radioButton_thick_wall_formulation = self.findChild(QRadioButton, 'radioButton_thick_wall_formulation')
         self.radioButton_thin_wall_formulation = self.findChild(QRadioButton, 'radioButton_thin_wall_formulation')
+        self.radioButton_force_offset_off = self.findChild(QRadioButton, 'radioButton_force_offset_off')
+        self.radioButton_force_offset_on = self.findChild(QRadioButton, 'radioButton_force_offset_on')
+      
         self.thick_wall_formulation = self.radioButton_thick_wall_formulation.isChecked()
         self.thin_wall_formulation = self.radioButton_thin_wall_formulation.isChecked()
         self.radioButton_thick_wall_formulation.clicked.connect(self.radioButton_formulation_Event)
         self.radioButton_thin_wall_formulation.clicked.connect(self.radioButton_formulation_Event)
-        if self.thick_wall_formulation:
-            self.wall_formulation = "thick_wall"
-        else:
-            self.wall_formulation = "thin_wall"
+        self.check_wall_formulation()
+    
+        self.force_offset_off = self.radioButton_force_offset_off.isChecked()
+        self.force_offset_on = self.radioButton_force_offset_on.isChecked()
+        self.radioButton_force_offset_off.clicked.connect(self.radioButton_force_offset_Event)
+        self.radioButton_force_offset_on.clicked.connect(self.radioButton_force_offset_Event)
+        self.check_force_offset()
 
         self.checkBox_capped_end = self.findChild(QCheckBox, 'checkBox_capped_end')
         self.checkBox_capped_end.clicked.connect(self.checkBox_Event)
@@ -103,8 +109,9 @@ class StructuralElementTypeInput(QDialog):
         self.pushButton_get_information = self.findChild(QPushButton, 'pushButton_get_information')
         self.pushButton_get_information.clicked.connect(self.get_information)
         self.pushButton_confirm = self.findChild(QPushButton, 'pushButton_confirm')
-        self.pushButton_confirm.clicked.connect(self.button_clicked)
+        self.pushButton_confirm.clicked.connect(self.confirm_button_clicked)
         self.pushButton_get_information.setDisabled(True)
+        self.frame_wall_formulation = self.findChild(QFrame, 'frame_wall_formulation')
         # self.pushButton_remove.setDisabled(True)
 
         self.update()
@@ -117,7 +124,12 @@ class StructuralElementTypeInput(QDialog):
     def radioButton_formulation_Event(self):
         self.thick_wall_formulation = self.radioButton_thick_wall_formulation.isChecked()
         self.thin_wall_formulation = self.radioButton_thin_wall_formulation.isChecked()
+        self.check_wall_formulation()
    
+    def radioButton_force_offset_Event(self):
+        self.force_offset_on = self.radioButton_force_offset_on.isChecked()
+        self.check_force_offset()
+
     # def reset_all(self):
     #     temp_dict = self.project.preprocessor.dict_structural_element_type_to_lines
     #     element_type = ""
@@ -145,12 +157,38 @@ class StructuralElementTypeInput(QDialog):
         self.lineEdit_selected_ID.setText(text)
 
     def update(self):
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
 
         if self.lines_id != []:
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
             self.lineEdit_selected_ID.setDisabled(False)
+
+            if len(self.lines_id) == 1:
+                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+
+                _element_type = entity.structural_element_type
+                if _element_type == 'pipe_1':
+                    self.comboBox.setCurrentIndex(0)
+                elif _element_type == 'pipe_2':
+                    self.comboBox.setCurrentIndex(1)
+                elif _element_type == 'beam_1':
+                    self.comboBox.setCurrentIndex(2)
+                
+                _wall_formulation = entity.structural_element_wall_formulation
+                if _wall_formulation == 'thick_wall':
+                    self.radioButton_thick_wall_formulation.setChecked(True)
+                elif _wall_formulation == 'thin_wall': 
+                    if not self.radioButton_thin_wall_formulation.isChecked():
+                        self.radioButton_thin_wall_formulation.setChecked(True)
+
+                _force_offset = entity.force_offset
+                if _force_offset == 0:
+                    self.radioButton_force_offset_off.setChecked(True)
+                elif _force_offset == 1:
+                    if not self.radioButton_force_offset_on.isChecked():
+                        self.radioButton_force_offset_on.setChecked(True)
+
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
@@ -159,7 +197,7 @@ class StructuralElementTypeInput(QDialog):
     def radioButtonEvent(self):
         self.flagAll = self.radioButton_all.isChecked()
         self.flagEntity = self.radioButton_selected_lines.isChecked()
-        self.lines_id  = self.opv.getListPickedEntities()
+        self.lines_id  = self.opv.getListPickedLines()
         if self.flagEntity:
             self.lineEdit_selected_ID.setDisabled(False)
             if self.lines_id != []:
@@ -199,6 +237,12 @@ class StructuralElementTypeInput(QDialog):
             self.wall_formulation = "thick_wall"
         else:
             self.wall_formulation = "thin_wall"
+
+    def check_force_offset(self):
+        if self.force_offset_on:
+            self.force_offset = 1
+        else:
+            self.force_offset = 0
 
     def check_element_type_changes(self):
 
@@ -260,13 +304,20 @@ class StructuralElementTypeInput(QDialog):
             self.element_type = 'pipe_2'
         elif self.index ==2:
             self.element_type = 'beam_1'
-
+        
         if self.index in [2]:
-            self.tabWidget_selection_options.removeTab(1)
+            self.frame_wall_formulation.setDisabled(True)
+            self.checkBox_capped_end.setDisabled(True)
         else:
-            self.tabWidget_selection_options.addTab(self.tab_element_options, 'Element options')
+            self.frame_wall_formulation.setDisabled(False)
+            self.checkBox_capped_end.setDisabled(False)
 
-    def button_clicked(self):
+        # if self.index in [2]:
+        #     self.tabWidget_selection_options.removeTab(1)
+        # else:
+        #     self.tabWidget_selection_options.addTab(self.tab_element_options, 'Element options')
+
+    def confirm_button_clicked(self):
         if self.flagEntity:
             lineEdit_lineID = self.lineEdit_selected_ID.text()
             self.stop, self.typed_lines = self.before_run.check_input_LineID(lineEdit_lineID)
@@ -290,6 +341,7 @@ class StructuralElementTypeInput(QDialog):
         else:
             self.project.set_structural_element_wall_formulation_by_lines(lines, None)
             self.project.set_capped_end_by_lines(lines, False)
+        self.project.set_structural_element_force_offset_by_lines(lines, self.force_offset)
 
         self.complete = True
         self.close()

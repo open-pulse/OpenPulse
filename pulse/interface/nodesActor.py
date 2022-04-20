@@ -5,14 +5,15 @@ from time import time
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class NodesActor(vtkActorBase):
-    def __init__(self, nodes, project, color=(255,255,63)):
+    def __init__(self, nodes, project, color=(255,255,63), *args, **kwargs):
         super().__init__()
 
         self.nodes = nodes 
         self.project = project
         # self.nodes = project.preprocessor.nodes
+        self.hidden_nodes = kwargs.get('hidden_nodes', set())
 
-        self._key_index = {j:i for i,j in enumerate(self.nodes.keys())}
+        # self._key_index = {j:i for i,j in enumerate(self.nodes.keys())}
         self._data = vtk.vtkPolyData()
         self._mapper = vtk.vtkPolyDataMapper()
         self._colors = vtk.vtkUnsignedCharArray()
@@ -22,7 +23,11 @@ class NodesActor(vtkActorBase):
     def source(self):
         points = vtk.vtkPoints()
         data = vtk.vtkPolyData()
-        for index, node in self.nodes.items():
+
+        visible_nodes = {i:e for i,e in self.nodes.items() if (i not in self.hidden_nodes)}
+        self._key_index = {j:i for i,j in enumerate(visible_nodes)}
+
+        for index, node in visible_nodes.items():
             x,y,z = node.x, node.y, node.z
             points.InsertNextPoint(x,y,z)
             self._colors.InsertNextTuple((255,255,255))
@@ -50,7 +55,8 @@ class NodesActor(vtkActorBase):
         c.DeepCopy(self._colors)
         keys = keys if keys else self.nodes.keys()
         for key in keys:
-            index = self._key_index[key]
-            c.SetTuple(index, color)
+            index = self._key_index.get(key)
+            if index is not None:
+                c.SetTuple(index, color)
         self._data.GetPointData().SetScalars(c)
         self._colors = c

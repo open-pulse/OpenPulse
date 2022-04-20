@@ -15,7 +15,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.window_title = kwargs.get('window_title', 'OpenPulse Beta Version (August, 2021)')
+        self.window_title = kwargs.get('window_title', 'OpenPulse v1.0 (April, 2022)')
 
         # self.setWindowFlag(Qt.WindowCloseButtonHint, False)
         # self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)

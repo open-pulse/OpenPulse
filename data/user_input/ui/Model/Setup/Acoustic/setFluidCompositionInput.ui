@@ -585,7 +585,7 @@ background-color: rgb(255, 255, 255);</string>
        <font>
         <family>Arial</family>
         <pointsize>11</pointsize>
-        <italic>true</italic>
+        <italic>false</italic>
        </font>
       </property>
       <property name="alignment">
@@ -691,8 +691,13 @@ background-color: rgb(255, 255, 255);</string>
        <font>
         <family>Arial</family>
         <pointsize>11</pointsize>
-        <italic>true</italic>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);</string>
       </property>
       <property name="text">
        <string/>
@@ -702,6 +707,9 @@ background-color: rgb(255, 255, 255);</string>
       </property>
      </widget>
      <widget class="QLineEdit" name="lineEdit_pressure">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="geometry">
        <rect>
         <x>750</x>
@@ -726,8 +734,13 @@ background-color: rgb(255, 255, 255);</string>
        <font>
         <family>Arial</family>
         <pointsize>11</pointsize>
-        <italic>true</italic>
+        <weight>75</weight>
+        <italic>false</italic>
+        <bold>true</bold>
        </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color: rgb(0, 0, 0);</string>
       </property>
       <property name="text">
        <string/>
@@ -918,7 +931,7 @@ background-color: rgb(255, 255, 255);</string>
        <font>
         <family>Arial</family>
         <pointsize>11</pointsize>
-        <italic>true</italic>
+        <italic>false</italic>
        </font>
       </property>
       <property name="text">
@@ -989,7 +1002,7 @@ background-color: rgb(255, 255, 255);</string>
        <font>
         <family>Arial</family>
         <pointsize>11</pointsize>
-        <italic>true</italic>
+        <italic>false</italic>
        </font>
       </property>
       <property name="text">

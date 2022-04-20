@@ -478,6 +478,10 @@ def _transformation_matrix_Nx3x3_by_angles(gamma, epsilon, delta):
 
 def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys=False):
     try:
+
+        if isinstance(typed_values, int):
+            typed_values = [typed_values]
+
         bc_removed = False
         config = configparser.ConfigParser()
         config.read(path)
@@ -494,7 +498,7 @@ def remove_bc_from_file(typed_values, path, keys_to_remove, message, equals_keys
                                     continue
                             bc_removed = True
                             config.remove_option(section=_typed_value, option=key)
-                            if list(config[_typed_value].keys())==[]:
+                            if list(config[_typed_value].keys()) == []:
                                 config.remove_section(section=_typed_value)
                                         
             if bc_removed:

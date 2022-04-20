@@ -5,14 +5,15 @@ from time import time
 from pulse.interface.vtkActorBase import vtkActorBase
 
 class LinesActor(vtkActorBase):
-    def __init__(self, elements, project):
+    def __init__(self, elements, project, *args, **kwargs):
         super().__init__()
 
         self.elements = elements 
         self.project = project
         # self.elements = project.preprocessor.structural_elements
+        self.hidden_elements = kwargs.get('hidden_elements', set())
 
-        self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
+        # self._key_index = {j:i for i,j in enumerate(self.elements.keys())}
         self._data = vtk.vtkPolyData()
         self._source = vtk.vtkAppendPolyData()
         self._mapper = vtk.vtkPolyDataMapper()
@@ -25,8 +26,11 @@ class LinesActor(vtkActorBase):
         points = vtk.vtkPoints()
         lines = vtk.vtkCellArray() 
 
+        visible_elements = {i:e for i, e in self.elements.items() if (i not in self.hidden_elements)}
+        self._key_index  = {j:i for i,j in enumerate(visible_elements)}
+
         current_point = 0
-        for key, element in self.elements.items():
+        for key, element in visible_elements.items():
             points.InsertPoint(current_point, *element.first_node.coordinates)
             points.InsertPoint(current_point + 1, *element.last_node.coordinates)
             
@@ -59,7 +63,8 @@ class LinesActor(vtkActorBase):
         c.DeepCopy(self._colors)
         keys = keys if keys else self.elements.keys()
         for key in keys:
-            index = self._key_index[key]
-            c.SetTuple(index, color)
+            index = self._key_index.get(key)
+            if index is not None:
+                c.SetTuple(index, color)
         self._data.GetCellData().SetScalars(c)
         self._colors = c

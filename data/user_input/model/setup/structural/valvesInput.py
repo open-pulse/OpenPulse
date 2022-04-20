@@ -39,7 +39,7 @@ class ValvesInput(QDialog):
 
         self.project = project
         self.preprocessor = project.preprocessor
-        self.before_run = project.get_model_checks()
+        self.before_run = project.get_pre_solution_model_checks()
         self.nodes = self.project.preprocessor.nodes
         self.preprocessor._map_lines_to_nodes()
         self.group_elements_with_valves = self.preprocessor.group_elements_with_valves
@@ -58,7 +58,7 @@ class ValvesInput(QDialog):
         self.list_frequencies = []
         self.flange_outer_diameter = None
 
-        self.line_id = self.opv.getListPickedEntities()
+        self.line_id = self.opv.getListPickedLines()
         self.element_id = self.opv.getListPickedElements()
 
         self.main_frame = self.findChild(QFrame, 'main_frame')
@@ -233,8 +233,8 @@ class ValvesInput(QDialog):
         self.update_selection_texts_info()
                     
     def update_selected_id(self): 
-        if self.opv.getListPickedEntities() != []:
-            self.line_id = self.opv.getListPickedEntities()
+        if self.opv.getListPickedLines() != []:
+            self.line_id = self.opv.getListPickedLines()
             self.element_id = []
         elif self.opv.getListPickedElements() != []:
             self.element_id = self.opv.getListPickedElements()

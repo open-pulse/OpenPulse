@@ -366,28 +366,57 @@ class BeforeRun:
         message_lrf_full = "The Low Reduced Frequency (LRF) acoustic damping model is out of its validity frequency range. It is recommended to check the results carefully."
         message_unflanged_radiation_impedance  = "The unflanged radiation impedance model is out of its validity frequency range. It is recommended to check the results carefully."
 
-        for element in self.acoustic_elements.values():
+        list_plane_wave = []
+        list_wide_duct = []
+        list_lrf_fluid_eq = []
+        list_lrf_full = []
+        list_max_valid_freq = []
+        list_min_valid_freq = []
 
-            if element.flag_plane_wave and not flag_plane_wave:
-                flag_plane_wave = True
-                
-            if element.flag_wide_duct and not flag_wide_duct:
-                flag_wide_duct = True
-                
-            if element.flag_lrf_fluid_eq and not flag_lrf_fluid_eq:
-                flag_lrf_fluid_eq = True
-                
-            if element.flag_lrf_full and not flag_lrf_full:
-                flag_lrf_full = True
+        for element in self.acoustic_elements.values():
+            if element.flag_plane_wave:
+                list_plane_wave.append(element.index)
+            if element.flag_wide_duct:
+                list_wide_duct.append(element.index)
+            if element.flag_lrf_fluid_eq:
+                list_lrf_fluid_eq.append(element.index)
+            if element.flag_lrf_full:
+                list_lrf_full.append(element.index)
+            list_max_valid_freq.append(element.max_valid_freq) 
+            list_min_valid_freq.append(element.min_valid_freq)
                 
             if element.flag_unflanged_radiation_impedance and not flag_unflanged_radiation_impedance:
                 flag_unflanged_radiation_impedance = True
 
+        self.dict_criterias = {}
+
+        if len(list_plane_wave)>=1:
+            flag_plane_wave = True
+            self.dict_criterias['Plane wave'] = list_plane_wave
+        if len(list_wide_duct)>=1:
+            flag_wide_duct = True
+            self.dict_criterias['Wide duct'] = list_wide_duct
+        if len(list_lrf_fluid_eq)>=1:
+            flag_lrf_fluid_eq = True
+            self.dict_criterias['LRF fluid eq'] = list_lrf_fluid_eq
+        if len(list_lrf_full)>=1:
+            flag_lrf_full = True
+            self.dict_criterias['LRF full'] = list_lrf_full
+        
+        self.max_valid_freq = np.array(list_max_valid_freq)[np.array(list_max_valid_freq)!=None]
+        self.min_valid_freq = np.array(list_min_valid_freq)[np.array(list_min_valid_freq)!=None]
+
+        self.max_valid_freq = np.min(self.max_valid_freq)
+        self.min_valid_freq = np.max(self.min_valid_freq)
+
         list_flags = [flag_plane_wave, flag_wide_duct, flag_lrf_fluid_eq, flag_lrf_full, flag_unflanged_radiation_impedance]
         list_messages = [message_plane_wave, message_wide_duct, message_lrf_fluid_eq, message_lrf_full, message_unflanged_radiation_impedance]
+        lists_elements = [list_plane_wave, list_wide_duct, list_lrf_fluid_eq, list_lrf_full, []]
 
         for index, flag in enumerate(list_flags):
             if flag:
+                self.opv.changePlotToMesh()
+                self.opv.opvRenderer.highlight_elements(lists_elements[index])
                 PrintMessageInput([title, list_messages[index], window_title])
 
 
