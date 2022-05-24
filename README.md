@@ -86,7 +86,7 @@ and then ```envpulse/Scripts/activate```.
 
 ## Next events
 
-- 12o Congresso Iberoamericano de Acústica. August 28 - 31, 2022. [FIA2020/2022](https://fia2022.com.br/).
+- 12o Congresso Iberoamericano de Acústica. August 28 - 31, 2022. [FIA2020/2022](https://fia2022.com.br).
 
 ## Questions
 If you have any questions you can open a new issue with the tag 'question'.
