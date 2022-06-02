@@ -95,6 +95,7 @@ class SetFluidCompositionInput(QDialog):
 
         self.comboBox_temperature_units = self.findChild(QComboBox, 'comboBox_temperature_units')
         self.comboBox_pressure_units = self.findChild(QComboBox, 'comboBox_pressure_units')
+
         self.comboBox_temperature_units_test = self.findChild(QComboBox, 'comboBox_temperature_units_test')
         self.comboBox_pressure_units_test = self.findChild(QComboBox, 'comboBox_pressure_units_test')
         self.comboBox_temperature_units_test.currentIndexChanged.connect(self.update_state_treeWidget_info)
@@ -383,8 +384,8 @@ class SetFluidCompositionInput(QDialog):
                     molar_fractions.append(_fraction)
                 fluids_string = fluids_string[:-1]
 
-                self.unit_temperature_update(self.comboBox_temperature_units_test)
-                self.unit_pressure_update(self.comboBox_pressure_units_test)
+                self.unit_temperature_update(self.comboBox_temperature_units)
+                self.unit_pressure_update(self.comboBox_pressure_units)
                 values = self.check_input_values_with_units(self.lineEdit_temperature, self.lineEdit_pressure)
 
                 if values is None:
@@ -571,12 +572,11 @@ class SetFluidCompositionInput(QDialog):
             return None
 
         if self.unit_temperature == "°C" :
-            temperature = _temperature_value + 273.15
+            _temperature_value += 273.15
         elif self.unit_temperature == "°F" :
-            temperature = (_temperature_value-32)*(5/9) + 273.15
-        else:
-            temperature = _temperature_value
-        if temperature < 0:
+            _temperature_value = (_temperature_value-32)*(5/9) + 273.15
+        
+        if _temperature_value < 0:
             title = "Invalid entry to the temperature"
             message = "The typed value at temperature input field reaches a negative value in Kelvin scale."
             message += "It is necessary to enter a value that maintains the physicall coherence and consistence "
@@ -594,9 +594,8 @@ class SetFluidCompositionInput(QDialog):
             _pressure_value *= 101325
         elif self.unit_pressure == "psi":
             _pressure_value *= 6894.75729
-        else:
-            pressure = _pressure_value
-        if pressure < 0:
+       
+        if _pressure_value < 0:
             title = "Invalid entry to the pressure"
             message = "The typed value at pressure input field reaches a negative value in Pascal scale."
             message += "It is necessary to enter a value that maintains the physicall coherence and consistence "
@@ -604,7 +603,7 @@ class SetFluidCompositionInput(QDialog):
             PrintMessageInput([title, message, window_title_1])
             return None
 
-        return [round(temperature, 5), round(pressure, 5)]
+        return [round(_temperature_value, 5), round(_pressure_value, 5)]
 
     def update_fluid_state_header(self):
         self.unit_temperature_update(self.comboBox_temperature_units_test)
@@ -725,9 +724,9 @@ class SetFluidCompositionInput(QDialog):
 
     def default_library_gases(self):
         try:
-
+            
             from ctREFPROP.ctREFPROP import REFPROPFunctionLibrary
-
+            
             self.list_gases = {}
             self.fluid_file_to_final_name = {}
             refProp_path = os.environ['RPPREFIX']
@@ -774,7 +773,9 @@ class SetFluidCompositionInput(QDialog):
 
         except Exception as log_error:
             title = "Error while loading REFPROP"
-            message = "An error has been reached while trying to load REFPROP data."
+            message = "An error has been reached while trying to load REFPROP data. If the REFPROP module has already been "
+            message += "installed we recommend running the 'pip install ctREFPROP' command at the terminal to install the "
+            message += "necessary libraries."
             message += f"\n\n{str(log_error)}"
             PrintMessageInput([title, message, "ERROR"])
             return True
