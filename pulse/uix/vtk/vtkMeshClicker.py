@@ -1,5 +1,5 @@
 import vtk 
-import PyQt5
+from PyQt5 import Qt, QtCore
 
 from functools import partial
 from math import sqrt
@@ -244,11 +244,11 @@ class vtkMeshClicker(vtk.vtkInteractorStyleTrackballCamera):
         x0, y0 = self.clickPosition
         x1, y1 = self.mousePosition
 
-        controlPressed = bool(self.GetInteractor().GetControlKey())
-        shiftPressed = bool(self.GetInteractor().GetShiftKey())
-        altPressed = bool(self.GetInteractor().GetAltKey())
-        # altPressed = self.__altKeyClicked
-        # altPressed = self.GetInteractor().GetKeySym() in ['Alt_L', 'Alt_R']
+        modifiers = Qt.QApplication.keyboardModifiers()
+
+        controlPressed = modifiers == QtCore.Qt.ControlModifier
+        shiftPressed = modifiers == QtCore.Qt.ShiftModifier
+        altPressed = modifiers == QtCore.Qt.AltModifier
 
         pickedPoints = self.pickPoints(x0,y0,x1,y1)
         pickedElements = self.pickElements(x0,y0,x1,y1)
