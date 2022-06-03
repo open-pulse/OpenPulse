@@ -343,10 +343,10 @@ class PlotStructuralFrequencyResponseInput(QDialog):
             ax.set_ylabel(("Structural Response - Absolute [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')
             if not float(0) in response:
                 if self.imported_data is None:
-                    ax.set_yscale('log', nonposy='clip')
+                    ax.set_yscale('log', nonpositive='clip')
                 else:
                     if not float(0) in imported_Yvalues:
-                        ax.set_yscale('log', nonposy='clip')
+                        ax.set_yscale('log', nonpositive='clip')
         elif self.plotReal:
             response = np.real(response)
             ax.set_ylabel(("Structural Response - Real [{}]").format(self.unit_label), fontsize = 14, fontweight = 'bold')

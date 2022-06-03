@@ -158,7 +158,7 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_av.setFocus()
                 return True
 
-            self.check_inputs(self.lineEdit_bv, "'proportional viscous damping (beta_v)'", zero_included=True,  _float=True)
+            beta_v = self.check_inputs(self.lineEdit_bv, "'proportional viscous damping (beta_v)'", zero_included=True,  _float=True)
             if self.stop:
                 self.lineEdit_bv.setFocus()
                 return True
@@ -168,7 +168,7 @@ class AnalysisSetupInput(QDialog):
                 self.lineEdit_ah.setFocus()
                 return True
 
-            self.check_inputs(self.lineEdit_bh, "'proportional hysteretic damping (beta_h)'", zero_included=True,  _float=True)
+            beta_h = self.check_inputs(self.lineEdit_bh, "'proportional hysteretic damping (beta_h)'", zero_included=True,  _float=True)
             if self.stop:
                 self.lineEdit_bh.setFocus()
                 return True
