@@ -160,7 +160,7 @@ class RadiationImpedanceInput(QDialog):
         key_strings = ["radiation impedance"]
         message = "The radiation impedance attributed to the {} node(s) have been removed.".format(self.nodes_typed)
         remove_bc_from_file(self.nodes_typed, self.acoustic_bc_info_path, key_strings, message)
-        self.project.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
+        self.preprocessor.set_radiation_impedance_bc_by_node(self.nodes_typed, None)
         self.opv.updateRendererMesh()
         self.load_nodes_info()
         # self.close()
@@ -194,7 +194,7 @@ class RadiationImpedanceInput(QDialog):
 
     def load_nodes_info(self):
         self.treeWidget_radiation_impedance.clear()
-        for node in self.project.preprocessor.nodes_with_radiation_impedance:
+        for node in self.preprocessor.nodes_with_radiation_impedance:
             if node.radiation_impedance_type == 0:
                 text = "Anechoic"
             elif node.radiation_impedance_type == 1:

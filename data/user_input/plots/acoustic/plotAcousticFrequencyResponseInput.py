@@ -285,6 +285,8 @@ class PlotAcousticFrequencyResponseInput(QDialog):
         
         if self.imported_data is None:
 
+            response += np.ones(len(response), dtype=float)*(1e-12)
+
             if self.plotAbs and not self.scale_dB and not complex(0) in response:
                 first_plot, = plt.semilogy(frequencies, response, color=[1,0,0], linewidth=2, label=legend_label)
             else:
@@ -297,9 +299,9 @@ class PlotAcousticFrequencyResponseInput(QDialog):
             imported_Xvalues = data[:,0]
             
             if self.plotAbs:
-                imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2]) 
+                imported_Yvalues = np.abs(data[:,1] + 1j*data[:,2])
                 if complex(0) in imported_Yvalues:
-                    imported_Yvalues += np.ones(len(imported_Yvalues), dtype=float)*(1e-8)
+                    imported_Yvalues += np.ones(len(imported_Yvalues), dtype=float)*(1e-12)
 
                 if self.scale_dB :
                     imported_Yvalues = self.dB(imported_Yvalues)

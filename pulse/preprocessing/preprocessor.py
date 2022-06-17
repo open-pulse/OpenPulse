@@ -2476,6 +2476,7 @@ class Preprocessor:
                 if impedance_type is None:
                     if node in self.nodes_with_radiation_impedance:
                         self.nodes_with_radiation_impedance.remove(node)
+                    node.radiation_impedance = None
                 if node in self.nodes_with_specific_impedance:
                     self.nodes_with_specific_impedance.remove(node)
 
