@@ -8,6 +8,7 @@ from PyQt5 import uic
 
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
+from pulse import __version__, __release_date__
 
 class AboutOpenPulseInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -29,7 +30,7 @@ class AboutOpenPulseInput(QDialog):
         self.opv = opv
         self.opv.setInputObject(self)
 
-        version_info = "v1.0 April 8th 2022"
+        version_info = f"v{__version__} {__release_date__}"
         licensing_info = "Copyright (c) 2020 Project OpenPulse Contributors, MIT License."
         main_info = "OpenPulse is a software written in Python for numerical modelling of low-frequency acoustically induced vibration in gas pipeline systems. "
         main_info += "Openpulse allows the user to solve acoustic, structural, and coupled harmonic analyzes. The acoustic and structural modal analysis also can be "
