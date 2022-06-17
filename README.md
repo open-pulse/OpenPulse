@@ -50,6 +50,7 @@ python pulse.py
     vtk
     gmsh-sdk
     h5py
+    ctREFPROP
 
 ## Build your own version
 
