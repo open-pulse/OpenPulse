@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QWidget, QDialog, QLabel, QHBoxLayout, QVBoxLayout, 
 from PyQt5.QtGui import QMovie, QFont, QIcon
 
 from data.user_input.project.printMessageInput import PrintMessageInput
+from pulse import __version__, __release_date__
 
 
 class QWorker(QObject):
@@ -73,7 +74,7 @@ class LoadingScreen(QDialog):
         self.movie.stop()
 
     def configWindow(self):
-        self.setWindowTitle("OpenPulse v1.0 (April, 2022)")
+        self.setWindowTitle(f"OpenPulse v{__version__} ({__release_date__})")
         self.setMinimumSize(QSize(400, 250))
         self.setMaximumSize(QSize(400, 250))
         self.setWindowFlags(Qt.WindowStaysOnTopHint)

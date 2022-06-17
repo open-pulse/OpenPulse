@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QDialog, QPushButton, QLabel
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
+from pulse import __version__, __release_date__
 # import os
 # import configparser
 # from shutil import copyfile
@@ -15,7 +16,7 @@ class CallDoubleConfirmationInput(QDialog):
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
         self.setWindowModality(Qt.WindowModal)
 
-        self.window_title = kwargs.get('window_title', 'OpenPulse v1.0 (April, 2022)')
+        self.window_title = kwargs.get('window_title', f'OpenPulse v{__version__} ({__release_date__})')
 
         # self.setWindowFlag(Qt.WindowCloseButtonHint, False)
         # self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
