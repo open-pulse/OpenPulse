@@ -89,7 +89,7 @@ class SolutionAcoustic:
             True if the modal analysis was evaluated.
 
         Returns
-        ----------
+        -------
         array
             Solution of all the degrees of freedom.
         """
@@ -112,7 +112,7 @@ class SolutionAcoustic:
         This method adds the effects of prescribed acoustic pressure into volume velocity global vector.
 
         Returns
-        ----------
+        -------
         array
             Volume velocity. Each column corresponds to a frequency of analysis.
         """
@@ -171,7 +171,7 @@ class SolutionAcoustic:
             Default is 0.01.
 
         Returns
-        ----------
+        -------
         natural_frequencies : array
             Natural frequencies.
 
@@ -209,7 +209,7 @@ class SolutionAcoustic:
         This method evaluate the FETM acoustic solution through direct method.
 
         Returns
-        ----------
+        -------
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """

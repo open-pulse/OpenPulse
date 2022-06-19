@@ -64,7 +64,7 @@ class SolutionStructural:
             True if the modal analysis was evaluated.
 
         Returns
-        ----------
+        -------
         array
             Solution of all the degrees of freedom.
         """
@@ -91,7 +91,7 @@ class SolutionStructural:
             Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
 
         Returns
-        ----------
+        -------
         array
             Force and moment global loads. Each column corresponds to a frequency of analysis.
         """
@@ -179,7 +179,7 @@ class SolutionStructural:
             Default is False.
 
         Returns
-        ----------
+        -------
         natural_frequencies : array
             Natural frequencies.
 
@@ -236,7 +236,7 @@ class SolutionStructural:
             Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
 
         Returns
-        ----------
+        -------
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
@@ -299,7 +299,7 @@ class SolutionStructural:
             Default True.
 
         Returns
-        ----------
+        -------
         array
             Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.
         """
@@ -381,7 +381,7 @@ class SolutionStructural:
         global_damping : list of floats.
             Damping coefficients alpha viscous, beta viscous, alpha histeretic and beta histeretic.
         Returns
-        ----------
+        -------
         ????
             Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. 
         """
@@ -433,7 +433,7 @@ class SolutionStructural:
             Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.
 
         Returns
-        ----------
+        -------
         array
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.
         """
@@ -493,7 +493,7 @@ class SolutionStructural:
         This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.
 
         Returns
-        ----------
+        -------
         array
             Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a spring and damper.
         """
@@ -564,7 +564,7 @@ class SolutionStructural:
             Default is False
 
         Returns
-        ----------
+        -------
         array
             Stresses. Each column corresponds to a element. The rows corresponds to the:
                 Normal axial stress

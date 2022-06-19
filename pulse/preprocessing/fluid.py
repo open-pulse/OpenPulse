@@ -65,7 +65,7 @@ class Fluid:
         This method evaluates the fluid specific impedance.
 
         Returns
-        ----------
+        -------
         float
             Fluid specific impedance.
         """
@@ -77,7 +77,7 @@ class Fluid:
         This method evaluates the fluid Bulk modulus.
 
         Returns
-        ----------
+        -------
         float
             Fluid Bulk modulus.
         """
@@ -89,7 +89,7 @@ class Fluid:
         This method evaluates the fluid kinematic viscosity.
 
         Returns
-        ----------
+        -------
         float
             Fluid kinematic viscosity.
         """
@@ -101,7 +101,7 @@ class Fluid:
         This method evaluates the fluid thermal diffusivity.
 
         Returns
-        ----------
+        -------
         float
             Fluid thermal diffusivity.
         """
@@ -113,7 +113,7 @@ class Fluid:
         This method evaluates the fluid Prandtl number.
 
         Returns
-        ----------
+        -------
         float
             Fluid Prandtl number.
         """
@@ -124,7 +124,7 @@ class Fluid:
         This method returns the fluid color.
 
         Returns
-        ----------
+        -------
         tuple
             Fluid color.
         """
@@ -137,7 +137,7 @@ class Fluid:
         This method returns the fluid normalized color.
 
         Returns
-        ----------
+        -------
         tuple
             Fluid color.
         """
@@ -153,7 +153,7 @@ class Fluid:
         This method returns the fluid name.
 
         Returns
-        ----------
+        -------
         str
             Fluid name.
         """

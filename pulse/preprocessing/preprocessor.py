@@ -158,7 +158,7 @@ class Preprocessor:
         This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.
 
         Returns
-        ----------
+        -------
         dict
             Outer diameters at a certain node. Giving a node external index, returns a list of diameters.
         """
@@ -183,7 +183,7 @@ class Preprocessor:
         This method maps the elements inner diameters that each node belongs to. The maping is done according to the node global index.
 
         Returns
-        ----------
+        -------
         Dict
             Inner diameters at a certain node. Giving a node global index, returns a list of diameters.
         """
@@ -209,7 +209,7 @@ class Preprocessor:
             Node external indexes.
 
         Returns
-        ----------
+        -------
         List
             List of acoustic elements indexes.
         """
@@ -827,7 +827,7 @@ class Preprocessor:
         This method returns the placement of the rows and columns of the structural global degrees of freedom in the global matrices.
 
         Returns
-        ----------
+        -------
         row : array.
             Integers that place the rows.
             
@@ -848,7 +848,7 @@ class Preprocessor:
         This method returns the placement of the rows and columns of the acoustic global degrees of freedom in the global matrices.
 
         Returns
-        ----------
+        -------
         row : array.
             Integers that place the rows.
             
@@ -878,7 +878,7 @@ class Preprocessor:
         ----------
 
         Returns
-        ---------- 
+        -------
 
         """ 
         half_length = (length/2) + tolerance
@@ -917,7 +917,7 @@ class Preprocessor:
         ---------- 
 
         Returns
-        ---------- 
+        -------
                                
         """         
         node_id = self.structural_elements[element_id].first_node.external_index
@@ -2495,7 +2495,7 @@ class Preprocessor:
         This method updates and returns the ????.
 
         Returns
-        ----------
+        -------
         dictionary
             Radius at certain node.
         """
@@ -2521,7 +2521,7 @@ class Preprocessor:
         This method helps to exclude those degrees of freedom from acoustic analysis.
 
         Returns
-        ----------
+        -------
         list
             Acoustic global degrees of freedom associated to beam element.
         """
@@ -2541,7 +2541,7 @@ class Preprocessor:
         This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements. This method helps to keep only those degrees of freedom in acoustic analysis.
 
         Returns
-        ----------
+        -------
         list
             Acoustic global degrees of freedom associated to pipe element.
         """
@@ -2557,7 +2557,7 @@ class Preprocessor:
         This method ?????.
 
         Returns
-        ----------
+        -------
         bool
             ?????
         """
@@ -2572,7 +2572,7 @@ class Preprocessor:
         This method returns a list of acoustic elements.
 
         Returns
-        ----------
+        -------
         list
             Acoustic elements list.
         """
@@ -2591,7 +2591,7 @@ class Preprocessor:
         This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.
 
         Returns
-        ----------
+        -------
         list
             Dictionary of nodes relative to the acoustic elements.
         """
@@ -2611,7 +2611,7 @@ class Preprocessor:
         This method returns a list of structural beam elements objects.
 
         Returns
-        ----------
+        -------
         list
             Beam elements objects.
         """
@@ -2653,7 +2653,7 @@ class Preprocessor:
             Node 2 external index.
 
         Returns
-        ----------
+        -------
         reord_gdofs : list
             Global degrees of freedom ordered according to its indexes.
 

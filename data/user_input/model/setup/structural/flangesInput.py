@@ -633,11 +633,7 @@ class FlangesInput(QDialog):
                                                 "insulation_density" : insulation_density  }             
                     
         for element_id in list_elements:
-
-            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                    "section_parameters" : section_parameters[element_id]  }
-
-            self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
+            self.cross_section = CrossSection(pipe_section_info=section_parameters[element_id])
             self.project.set_cross_section_by_elements([element_id], self.cross_section)
 
         return False

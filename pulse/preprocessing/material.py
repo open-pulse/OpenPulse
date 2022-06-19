@@ -50,7 +50,7 @@ class Material:
         This method evaluates the Lamé's second parameter `mu`.
 
         Returns
-        ----------
+        -------
         float
             Lamé constant `mu`.
 
@@ -66,7 +66,7 @@ class Material:
         This method evaluates the Lamé's first parameter `lambda`.
 
         Returns
-        ----------
+        -------
         float
             Lamé constant `lambda`.
 
@@ -105,7 +105,7 @@ class Material:
         This method returns the material color.
 
         Returns
-        ----------
+        -------
         tuple
             Material color.
         """
@@ -118,7 +118,7 @@ class Material:
         This method returns the material normalized color.
 
         Returns
-        ----------
+        -------
         tuple
             Material color.
         """
@@ -134,7 +134,7 @@ class Material:
         This method returns the material name.
 
         Returns
-        ----------
+        -------
         str
             Mataerial name.
         """

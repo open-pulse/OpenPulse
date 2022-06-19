@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import configparser
 
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties, get_points_to_plot_section
+from pulse.preprocessing.cross_section import CrossSection, get_points_to_plot_section
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import get_linear_distribution
 
@@ -434,11 +434,8 @@ class CrossSectionInput(QDialog):
                                     "offset_z" : list_offset_z[index], 
                                     "insulation_thickness" : insulation_thickness, 
                                     "insulation_density" : insulation_density }
-            
-            pipe_section_info = {   "section_type_label" : self.section_label ,
-                                    "section_parameters" : section_parameters }
 
-            self.cross_section = CrossSection(pipe_section_info=pipe_section_info)
+            self.cross_section = CrossSection(pipe_section_info=section_parameters)
             self.project.set_cross_section_by_elements([element_id], self.cross_section)
         
         self.project.add_cross_sections_expansion_joints_valves_in_file(self.list_elements)
@@ -741,7 +738,7 @@ class CrossSectionInput(QDialog):
 
         if plot:
             return
-        self.cross_section = CrossSection(pipe_section_info=self.pipe_section_info)
+        self.cross_section = CrossSection(pipe_section_info=self.section_parameters)
         self.set_cross_sections()
         self.actions_to_finalize()
 
@@ -829,19 +826,15 @@ class CrossSectionInput(QDialog):
                     self.section_label = "Generic section"
                     self.section_parameters = None
                     _section_properties = [area, Iyy, Izz, Iyz, shear_coefficient, 0, 0]
-
-                    self.section_properties = get_beam_section_properties(self.section_label, _section_properties)
+                    self.cross_section = CrossSection(generic_section_info=_section_properties)
                 
             else:
-
                 if self.check_beam_inputs_common_sections():
                     return
+                self.beam_section_info = {  "section_type_label" : self.section_label,
+                                            "section_parameters" : self.section_parameters }
+                self.cross_section = CrossSection(beam_section_info=self.beam_section_info)
             
-            self.beam_section_info = {  "section_type_label" : self.section_label,
-                                        "section_parameters" : self.section_parameters,
-                                        "section_properties" : self.section_properties  }
-       
-            self.cross_section = CrossSection(beam_section_info=self.beam_section_info)
             self.set_cross_sections()
             self.project.set_capped_end_by_lines(self.lines_typed, False)
             self.project.set_structural_element_wall_formulation_by_lines(self.lines_typed, None)
@@ -1117,8 +1110,6 @@ class CrossSectionInput(QDialog):
                 return True
 
             self.section_parameters = [h, w1, t1, tw, offset_y, offset_z]
-
-        self.section_properties = get_beam_section_properties(self.section_label, self.section_parameters)
         
         return False
                 

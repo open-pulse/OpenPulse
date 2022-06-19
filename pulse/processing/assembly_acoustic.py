@@ -90,7 +90,7 @@ class AssemblyAcoustic:
         This method returns all the indexes of the acoustic degrees of freedom with prescribed pressure boundary condition.
 
         Returns
-        ----------
+        -------
         array
             Indexes of the acoustic degrees with prescribed pressure boundary conditions.
 
@@ -112,7 +112,7 @@ class AssemblyAcoustic:
         This method returns all the values of the prescribed pressure boundary condition.
 
         Returns
-        ----------
+        -------
         array
             Values of the prescribed pressure boundary condition.
 
@@ -133,7 +133,7 @@ class AssemblyAcoustic:
         This method returns all the indexes of the free acoustic degrees of freedom.
 
         Returns
-        ----------
+        -------
         array
             Indexes of the free acoustic degrees of freedom.
 
@@ -152,7 +152,7 @@ class AssemblyAcoustic:
         This method returns all the indexes of the free acoustic degrees of freedom.
 
         Returns
-        ----------
+        -------
         array
             Indexes of the free acoustic degrees of freedom.
 
@@ -181,7 +181,7 @@ class AssemblyAcoustic:
             Acoustic element.
 
         Returns
-        ----------
+        -------
         float
             Length correction.
         """
@@ -229,7 +229,7 @@ class AssemblyAcoustic:
         This method perform the assembly process of the acoustic FETM matrices.
 
         Returns
-        ----------
+        -------
         K : list
             List of admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
 
@@ -265,7 +265,7 @@ class AssemblyAcoustic:
         This method perform the assembly process of the acoustic FETM lumped matrices.
 
         Returns
-        ----------
+        -------
         K_lump : list
             List of lumped admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
 
@@ -322,7 +322,7 @@ class AssemblyAcoustic:
         This method perform the assembly process of the acoustic FEM matrices.
 
         Returns
-        ----------
+        -------
         K : sparse csr_matrix
             Acoustic stiffness matrix.
 
@@ -356,7 +356,7 @@ class AssemblyAcoustic:
         This method perform the assembly process of the acoustic load, volume velocity.
 
         Returns
-        ----------
+        -------
         volume_velocity : array
             Volume velocity load.
         """

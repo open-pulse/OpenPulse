@@ -1,0 +1,1225 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Processing &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Theory reference" href="../theory_reference/index.html" />
+    <link rel="prev" title="Preprocessor" href="Preprocessor.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+ </li>
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#assembly-acoustic">
+   Assembly Acoustic
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#assembly-structural">
+   Assembly Structural
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#solution-acoustic">
+   Solution Acoustic
+  </a>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#solution-structural">
+   Solution Structural
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/processing.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="processing">
+<h1>Processing<a class="headerlink" href="#processing" title="Permalink to this headline">#</a></h1>
+<div class="section" id="assembly-acoustic">
+<h2>Assembly Acoustic<a class="headerlink" href="#assembly-acoustic" title="Permalink to this headline">#</a></h2>
+<blockquote>
+<div><span class="target" id="module-pulse.processing.assembly_acoustic"></span><dl class="py class">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.processing.assembly_acoustic.</span></span><span class="sig-name descname"><span class="pre">AssemblyAcoustic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates a acoustic assembly object from input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mesh</strong><span class="classifier">Mesh object</span></dt><dd><p>Acoustic finite element preprocessor.</p>
+</dd>
+<dt><strong>frequencies</strong><span class="classifier">array</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_matrices</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the acoustic FETM matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices_modal" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices_modal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_matrices_modal</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the acoustic FEM matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_volume_velocity" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_volume_velocity</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the acoustic load, volume velocity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_length_corretion" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_length_corretion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_length_corretion</span></code></a>(element)</p></td>
+<td><p>This method evaluate the acoustic length correction for an element.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_lumped_matrices" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_lumped_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lumped_matrices</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the acoustic FETM lumped matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_pipe_and_unprescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_pipe_and_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pipe_and_unprescribed_indexes</span></code></a>()</p></td>
+<td><p>This method returns all the indexes of the free acoustic degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a>()</p></td>
+<td><p>This method returns all the indexes of the acoustic degrees of freedom with prescribed pressure boundary condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a>()</p></td>
+<td><p>This method returns all the values of the prescribed pressure boundary condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a>()</p></td>
+<td><p>This method returns all the indexes of the free acoustic degrees of freedom.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices">
+<span class="sig-name descname"><span class="pre">get_global_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_global_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the acoustic FETM matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>K</strong><span class="classifier">list</span></dt><dd><p>List of admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>Kr</strong><span class="classifier">list</span></dt><dd><p>List of admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices_modal">
+<span class="sig-name descname"><span class="pre">get_global_matrices_modal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_global_matrices_modal"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices_modal" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the acoustic FEM matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>K</strong><span class="classifier">sparse csr_matrix</span></dt><dd><p>Acoustic stiffness matrix.</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">sparse csr_matrix</span></dt><dd><p>Acoustic inertia matrix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_volume_velocity">
+<span class="sig-name descname"><span class="pre">get_global_volume_velocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_global_volume_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_volume_velocity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the acoustic load, volume velocity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>volume_velocity</strong><span class="classifier">array</span></dt><dd><p>Volume velocity load.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_length_corretion">
+<span class="sig-name descname"><span class="pre">get_length_corretion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_length_corretion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_length_corretion" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>element: Acoustic element object</strong></dt><dd><p>Acoustic element.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Length correction.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_lumped_matrices">
+<span class="sig-name descname"><span class="pre">get_lumped_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_lumped_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_lumped_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the acoustic FETM lumped matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>K_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>Kr_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_pipe_and_unprescribed_indexes">
+<span class="sig-name descname"><span class="pre">get_pipe_and_unprescribed_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_pipe_and_unprescribed_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_pipe_and_unprescribed_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the indexes of the free acoustic degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Indexes of the free acoustic degrees of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a></dt><dd><p>Values of the prescribed pressure boundary condition.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a></dt><dd><p>Indexes of the acoustic degrees with prescribed pressure boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes">
+<span class="sig-name descname"><span class="pre">get_prescribed_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_prescribed_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the indexes of the acoustic degrees of freedom with prescribed pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Indexes of the acoustic degrees with prescribed pressure boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a></dt><dd><p>Values of the prescribed pressure boundary condition.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a></dt><dd><p>Indexes of the free acoustic degrees of freedom.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values">
+<span class="sig-name descname"><span class="pre">get_prescribed_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_prescribed_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the values of the prescribed pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Values of the prescribed pressure boundary condition.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a></dt><dd><p>Indexes of the acoustic degrees with prescribed pressure boundary conditions.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a></dt><dd><p>Indexes of the free acoustic degrees of freedom.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes">
+<span class="sig-name descname"><span class="pre">get_unprescribed_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#AssemblyAcoustic.get_unprescribed_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the indexes of the free acoustic degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Indexes of the free acoustic degrees of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a></dt><dd><p>Values of the prescribed pressure boundary condition.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes" title="pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a></dt><dd><p>Indexes of the acoustic degrees with prescribed pressure boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.length_correction_branch">
+<span class="sig-prename descclassname"><span class="pre">pulse.processing.assembly_acoustic.</span></span><span class="sig-name descname"><span class="pre">length_correction_branch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">branch_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">principal_diameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#length_correction_branch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.length_correction_branch" title="Permalink to this definition">#</a></dt>
+<dd><p>This function returns the acoustic length correction due to sidebranch in the acoustic domain. This discontinuity is characterized by three elements, two with the same diameters in line, and the other with different diameter connected to these two.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>smaller_diameter: float</strong></dt><dd><p>Smaller diameter between the two elements diameters.</p>
+</dd>
+<dt><strong>larger_diameter: float</strong></dt><dd><p>Larger diameter between the two elements diameters.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Length correction due to side branch.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.length_correction_expansion" title="pulse.processing.assembly_acoustic.length_correction_expansion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">length_correction_expansion</span></code></a></dt><dd><p>Length correction due to expansion in the acoustic domain.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.processing.assembly_acoustic.length_correction_expansion">
+<span class="sig-prename descclassname"><span class="pre">pulse.processing.assembly_acoustic.</span></span><span class="sig-name descname"><span class="pre">length_correction_expansion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">smaller_diameter</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">larger_diameter</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_acoustic.html#length_correction_expansion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_acoustic.length_correction_expansion" title="Permalink to this definition">#</a></dt>
+<dd><p>This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>smaller_diameter: float</strong></dt><dd><p>Smaller diameter between the two elements diameters.</p>
+</dd>
+<dt><strong>larger_diameter: float</strong></dt><dd><p>Larger diameter between the two elements diameters.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Length correction due to expansion.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_acoustic.length_correction_branch" title="pulse.processing.assembly_acoustic.length_correction_branch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">length_correction_branch</span></code></a></dt><dd><p>Length correction due to sidebranch in the acoustic domain.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div></blockquote>
+</div>
+<div class="section" id="assembly-structural">
+<h2>Assembly Structural<a class="headerlink" href="#assembly-structural" title="Permalink to this headline">#</a></h2>
+<blockquote>
+<div><span class="target" id="module-pulse.processing.assembly_structural"></span><dl class="py class">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.processing.assembly_structural.</span></span><span class="sig-name descname"><span class="pre">AssemblyStructural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates a structural assembly object from input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>preprocessor</strong><span class="classifier">Preprocessor object</span></dt><dd><p>Acoustic finite element preprocessor.</p>
+</dd>
+<dt><strong>frequencies</strong><span class="classifier">array</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+<dt><strong>acoustic_solution</strong><span class="classifier">array, optional</span></dt><dd><p>Solution of the acoustic FETM model. This solution is need to solve the coupled problem.
+Default is None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_bc_array_for_all_frequencies" title="pulse.processing.assembly_structural.AssemblyStructural.get_bc_array_for_all_frequencies"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bc_array_for_all_frequencies</span></code></a>(...)</p></td>
+<td><p>This method perform the assembly process of the structural FEM force and moment loads.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_global_loads" title="pulse.processing.assembly_structural.AssemblyStructural.get_global_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_loads</span></code></a>([pressure_external, ...])</p></td>
+<td><p>This method perform the assembly process of the structural FEM force and moment loads.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_global_matrices" title="pulse.processing.assembly_structural.AssemblyStructural.get_global_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_matrices</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the structural FEM matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_lumped_matrices" title="pulse.processing.assembly_structural.AssemblyStructural.get_lumped_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lumped_matrices</span></code></a>()</p></td>
+<td><p>This method perform the assembly process of the structural FEM lumped matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a>()</p></td>
+<td><p>This method returns all the indexes of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a>()</p></td>
+<td><p>This method returns all the values of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a>()</p></td>
+<td><p>This method returns all the indexes of the structural free degrees of freedom.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 80%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_expansion_joint_global_matrices</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_bc_array_for_all_frequencies">
+<span class="sig-name descname"><span class="pre">get_bc_array_for_all_frequencies</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loaded_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_bc_array_for_all_frequencies"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_bc_array_for_all_frequencies" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the structural FEM force and moment loads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pressure_external</strong><span class="classifier">float, optional</span></dt><dd><p>Static pressure difference between atmosphere and the fluid in the pipeline.
+Default is 0.</p>
+</dd>
+<dt><strong>loads_matrix3D</strong><span class="classifier">boll, optional</span></dt><dd><p>Default is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Loads vectors. Each column corresponds to a frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_global_loads">
+<span class="sig-name descname"><span class="pre">get_global_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pressure_external</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loads_matrix3D</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_global_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_global_loads" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the structural FEM force and moment loads.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>pressure_external</strong><span class="classifier">float, optional</span></dt><dd><p>Static pressure difference between atmosphere and the fluid in the pipeline.
+Default is 0.</p>
+</dd>
+<dt><strong>loads_matrix3D</strong><span class="classifier">boll, optional</span></dt><dd><p>Default is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Loads vectors. Each column corresponds to a frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_global_matrices">
+<span class="sig-name descname"><span class="pre">get_global_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_global_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_global_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the structural FEM matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>K</strong><span class="classifier">list</span></dt><dd><p>List of stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.</p>
+</dd>
+<dt><strong>M</strong><span class="classifier">list</span></dt><dd><p>List of mass matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.</p>
+</dd>
+<dt><strong>Kr</strong><span class="classifier">list</span></dt><dd><p>List of stiffness matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.</p>
+</dd>
+<dt><strong>Mr</strong><span class="classifier">list</span></dt><dd><p>List of mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_lumped_matrices">
+<span class="sig-name descname"><span class="pre">get_lumped_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_lumped_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_lumped_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method perform the assembly process of the structural FEM lumped matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>K_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>M_lump</strong><span class="classifier">list</span></dt><dd><p>List of mass matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>C_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped damping matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>Kr_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped stiffness matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>Mr_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped mass matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>Cr_lump</strong><span class="classifier">list</span></dt><dd><p>List of lumped damping matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</p>
+</dd>
+<dt><strong>flag_Clump</strong><span class="classifier">boll</span></dt><dd><p>This flag returns True if the damping matrices are non zero, and False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes">
+<span class="sig-name descname"><span class="pre">get_prescribed_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_prescribed_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the indexes of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a></dt><dd><p>Vaslues of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a></dt><dd><p>Indexes of the structural free degrees of freedom.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values">
+<span class="sig-name descname"><span class="pre">get_prescribed_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_prescribed_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the values of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a></dt><dd><p>Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_unprescribed_indexes</span></code></a></dt><dd><p>Indexes of the structural free degrees of freedom.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes">
+<span class="sig-name descname"><span class="pre">get_unprescribed_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/assembly_structural.html#AssemblyStructural.get_unprescribed_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.assembly_structural.AssemblyStructural.get_unprescribed_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns all the indexes of the structural free degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Indexes of the structural free degrees of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_indexes</span></code></a></dt><dd><p>Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values" title="pulse.processing.assembly_structural.AssemblyStructural.get_prescribed_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_values</span></code></a></dt><dd><p>Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+</div>
+<div class="section" id="solution-acoustic">
+<h2>Solution Acoustic<a class="headerlink" href="#solution-acoustic" title="Permalink to this headline">#</a></h2>
+<blockquote>
+<div><span class="target" id="module-pulse.processing.solution_structural"></span><dl class="py class">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.processing.solution_structural.</span></span><span class="sig-name descname"><span class="pre">SolutionStructural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates a Structural Solution object from input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>preprocessor</strong><span class="classifier">Preprocessor object</span></dt><dd><p>Structural finite element preprocessor.</p>
+</dd>
+<dt><strong>frequencies</strong><span class="classifier">array</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+<dt><strong>acoustic_solution</strong><span class="classifier">array, optional</span></dt><dd><p>Solution of the acoustic FETM model. This solution is need to solve the coupled problem.
+Default is None.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.direct_method" title="pulse.processing.solution_structural.SolutionStructural.direct_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">direct_method</span></code></a>(global_damping)</p></td>
+<td><p>This method evaluates the harmonic analysis through direct method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.get_combined_loads" title="pulse.processing.solution_structural.SolutionStructural.get_combined_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_combined_loads</span></code></a>(global_damping[, ...])</p></td>
+<td><p>This method adds the effects of prescribed displacement and rotation into global loads vector.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_fixed_nodes" title="pulse.processing.solution_structural.SolutionStructural.get_reactions_at_fixed_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reactions_at_fixed_nodes</span></code></a>([...])</p></td>
+<td><p>This method evaluates reaction forces and moments at fixed nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_springs_and_dampers" title="pulse.processing.solution_structural.SolutionStructural.get_reactions_at_springs_and_dampers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_reactions_at_springs_and_dampers</span></code></a>()</p></td>
+<td><p>This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.modal_analysis" title="pulse.processing.solution_structural.SolutionStructural.modal_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_analysis</span></code></a>([K, M, modes, which, sigma, ...])</p></td>
+<td><p>This method evaluates the FEM acoustic modal analysis.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.mode_superposition" title="pulse.processing.solution_structural.SolutionStructural.mode_superposition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mode_superposition</span></code></a>(modes, global_damping[, ...])</p></td>
+<td><p>This method evaluates the harmonic analysis through mode superposition method.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.static_analysis_for_stress_stiffening" title="pulse.processing.solution_structural.SolutionStructural.static_analysis_for_stress_stiffening"><code class="xref py py-obj docutils literal notranslate"><span class="pre">static_analysis_for_stress_stiffening</span></code></a>(...)</p></td>
+<td><p>This method evaluates the static analysis through the direct method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_structural.SolutionStructural.stress_calculate" title="pulse.processing.solution_structural.SolutionStructural.stress_calculate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stress_calculate</span></code></a>(global_damping[, ...])</p></td>
+<td><p>This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 75%" />
+<col style="width: 25%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>stop_processing</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>update_global_matrices</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>update_nodal_solution_info</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural._reinsert_prescribed_dofs">
+<span class="sig-name descname"><span class="pre">_reinsert_prescribed_dofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modal_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural._reinsert_prescribed_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural._reinsert_prescribed_dofs" title="Permalink to this definition">#</a></dt>
+<dd><p>This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>solution</strong><span class="classifier">array</span></dt><dd><p>Solution data from the direct method, modal superposition or modal shapes from modal analysis.</p>
+</dd>
+<dt><strong>modal_analysis</strong><span class="classifier">boll, optional</span></dt><dd><p>True if the modal analysis was evaluated.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Solution of all the degrees of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.direct_method">
+<span class="sig-name descname"><span class="pre">direct_method</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_damping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.direct_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.direct_method" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the harmonic analysis through direct method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>global_damping</strong><span class="classifier">list of floats.</span></dt><dd><p>Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.get_combined_loads">
+<span class="sig-name descname"><span class="pre">get_combined_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_damping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">static_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.get_combined_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.get_combined_loads" title="Permalink to this definition">#</a></dt>
+<dd><p>This method adds the effects of prescribed displacement and rotation into global loads vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>global_damping</strong><span class="classifier">list of floats.</span></dt><dd><p>Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Force and moment global loads. Each column corresponds to a frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.get_reactions_at_fixed_nodes">
+<span class="sig-name descname"><span class="pre">get_reactions_at_fixed_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_damping_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">0,</span> <span class="pre">0,</span> <span class="pre">0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.get_reactions_at_fixed_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_fixed_nodes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates reaction forces and moments at fixed nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>global_damping</strong><span class="classifier">list of floats.</span></dt><dd><p>Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.get_reactions_at_springs_and_dampers">
+<span class="sig-name descname"><span class="pre">get_reactions_at_springs_and_dampers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.get_reactions_at_springs_and_dampers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_springs_and_dampers" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a spring and damper.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.modal_analysis">
+<span class="sig-name descname"><span class="pre">modal_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">K</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">M</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">harmonic_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.modal_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.modal_analysis" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>modes</strong><span class="classifier">int, optional</span></dt><dd><p>Number of acoustic modes to be evaluated.
+Default is 20.</p>
+</dd>
+<dt><strong>which</strong><span class="classifier">str, [‘LM’ | ‘SM’ | ‘LR’ | ‘SR’ | ‘LI’ | ‘SI’], optional</span></dt><dd><dl class="simple">
+<dt>Which <em class="xref py py-obj">k</em> eigenvectors and eigenvalues to find:</dt><dd><p>‘LM’ : largest magnitude
+‘SM’ : smallest magnitude
+‘LR’ : largest real part
+‘SR’ : smallest real part
+‘LI’ : largest imaginary part
+‘SI’ : smallest imaginary part</p>
+</dd>
+</dl>
+<p>Default is ‘LM’.</p>
+</dd>
+<dt><strong>sigma</strong><span class="classifier">float, optional</span></dt><dd><p>Find eigenvalues near sigma in (rad/s)^2 using shift-invert mode.</p>
+</dd>
+<dt><strong>harmonic_analysis</strong><span class="classifier">boll, optional</span></dt><dd><p>True when the modal analysis is used to perform mode superposition. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>natural_frequencies</strong><span class="classifier">array</span></dt><dd><p>Natural frequencies.</p>
+</dd>
+<dt><strong>modal_shapes</strong><span class="classifier">array</span></dt><dd><p>Modal shapes</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.mode_superposition">
+<span class="sig-name descname"><span class="pre">mode_superposition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">global_damping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">F_loaded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fastest</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.mode_superposition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.mode_superposition" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>global_damping</strong><span class="classifier">list of floats.</span></dt><dd><p>Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</p>
+</dd>
+<dt><strong>F_loaded</strong><span class="classifier">,optional.</span></dt><dd><p>Default None.</p>
+</dd>
+<dt><strong>fastest</strong><span class="classifier">boll, optional.</span></dt><dd><p>True if 3D matrix solution procedure must be used. False otherwise.
+Default True.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.static_analysis_for_stress_stiffening">
+<span class="sig-name descname"><span class="pre">static_analysis_for_stress_stiffening</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_damping</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.static_analysis_for_stress_stiffening"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.static_analysis_for_stress_stiffening" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the static analysis through the direct method. This method is evaluated whenever stress stiffening effects are enabled.
+:param global_damping: Damping coefficients alpha viscous, beta viscous, alpha histeretic and beta histeretic.
+:type global_damping: list of floats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_structural.SolutionStructural.stress_calculate">
+<span class="sig-name descname"><span class="pre">stress_calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">global_damping</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_external</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">damping_flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_real_values</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_structural.html#SolutionStructural.stress_calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_structural.SolutionStructural.stress_calculate" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>global_damping</strong><span class="classifier">list of floats.</span></dt><dd><p>Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</p>
+</dd>
+<dt><strong>pressure_external</strong><span class="classifier">float, optional</span></dt><dd><p>Static pressure difference between atmosphere and the fluid in the pipeline.
+Default is 0.</p>
+</dd>
+<dt><strong>damping_flag</strong><span class="classifier">boll, optional.</span></dt><dd><p>True if the damping must be considered when evaluating the stresses. False otherwise.
+Default is False</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><dl class="simple">
+<dt>Stresses. Each column corresponds to a element. The rows corresponds to the:</dt><dd><p>Normal axial stress
+Normal bending-y stress
+Normal bending-z stress
+Hoop stress
+Torsional shear
+Transversal-xy shear
+Transversal-xz shear</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+</div>
+<div class="section" id="solution-structural">
+<h2>Solution Structural<a class="headerlink" href="#solution-structural" title="Permalink to this headline">#</a></h2>
+<blockquote>
+<div><span class="target" id="module-pulse.processing.solution_acoustic"></span><dl class="py class">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.processing.solution_acoustic.</span></span><span class="sig-name descname"><span class="pre">SolutionAcoustic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preprocessor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates a Acoustic Solution object from input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>preprocessor</strong><span class="classifier">Preprocessor object</span></dt><dd><p>Acoustic finite element preprocessor.</p>
+</dd>
+<dt><strong>frequencies</strong><span class="classifier">array</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_acoustic.SolutionAcoustic.direct_method" title="pulse.processing.solution_acoustic.SolutionAcoustic.direct_method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">direct_method</span></code></a>()</p></td>
+<td><p>This method evaluate the FETM acoustic solution through direct method.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_acoustic.SolutionAcoustic.get_combined_volume_velocity" title="pulse.processing.solution_acoustic.SolutionAcoustic.get_combined_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_combined_volume_velocity</span></code></a>()</p></td>
+<td><p>This method adds the effects of prescribed acoustic pressure into volume velocity global vector.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.processing.solution_acoustic.SolutionAcoustic.get_global_matrices" title="pulse.processing.solution_acoustic.SolutionAcoustic.get_global_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_matrices</span></code></a>()</p></td>
+<td><p>This method updates the acoustic global matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.processing.solution_acoustic.SolutionAcoustic.modal_analysis" title="pulse.processing.solution_acoustic.SolutionAcoustic.modal_analysis"><code class="xref py py-obj docutils literal notranslate"><span class="pre">modal_analysis</span></code></a>([modes, which, sigma])</p></td>
+<td><p>This method evaluate the FEM acoustic modal analysis.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 76%" />
+<col style="width: 24%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>check_convergence_criterias</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>plot_convergence_graph</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>stop_processing</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic._reinsert_prescribed_dofs">
+<span class="sig-name descname"><span class="pre">_reinsert_prescribed_dofs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modal_analysis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic._reinsert_prescribed_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic._reinsert_prescribed_dofs" title="Permalink to this definition">#</a></dt>
+<dd><p>This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>solution</strong><span class="classifier">array</span></dt><dd><p>Solution data from the direct method, modal superposition or modal shapes from modal analysis.</p>
+</dd>
+<dt><strong>modal_analysis</strong><span class="classifier">boll, optional</span></dt><dd><p>True if the modal analysis was evaluated.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Solution of all the degrees of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic.direct_method">
+<span class="sig-name descname"><span class="pre">direct_method</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic.direct_method"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic.direct_method" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluate the FETM acoustic solution through direct method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic.get_combined_volume_velocity">
+<span class="sig-name descname"><span class="pre">get_combined_volume_velocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic.get_combined_volume_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic.get_combined_volume_velocity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method adds the effects of prescribed acoustic pressure into volume velocity global vector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Volume velocity. Each column corresponds to a frequency of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic.get_global_matrices">
+<span class="sig-name descname"><span class="pre">get_global_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic.get_global_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic.get_global_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the acoustic global matrices.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.processing.solution_acoustic.SolutionAcoustic.modal_analysis">
+<span class="sig-name descname"><span class="pre">modal_analysis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'LM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.01</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/processing/solution_acoustic.html#SolutionAcoustic.modal_analysis"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.processing.solution_acoustic.SolutionAcoustic.modal_analysis" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluate the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>modes</strong><span class="classifier">int, optional</span></dt><dd><p>Number of acoustic modes to be evaluated.
+Default is 20.</p>
+</dd>
+<dt><strong>which</strong><span class="classifier">str, [‘LM’ | ‘SM’ | ‘LR’ | ‘SR’ | ‘LI’ | ‘SI’], optional</span></dt><dd><dl class="simple">
+<dt>Which <em class="xref py py-obj">k</em> eigenvectors and eigenvalues to find:</dt><dd><p>‘LM’ : largest magnitude
+‘SM’ : smallest magnitude
+‘LR’ : largest real part
+‘SR’ : smallest real part
+‘LI’ : largest imaginary part
+‘SI’ : smallest imaginary part</p>
+</dd>
+</dl>
+<p>Default is ‘LM’.</p>
+</dd>
+<dt><strong>sigma</strong><span class="classifier">float, optional</span></dt><dd><p>Find eigenvalues near sigma (in (rad/s)^2) using shift-invert mode.
+Default is 0.01.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>natural_frequencies</strong><span class="classifier">array</span></dt><dd><p>Natural frequencies.</p>
+</dd>
+<dt><strong>modal_shapes</strong><span class="classifier">array</span></dt><dd><p>Modal shapes</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div></blockquote>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Preprocessor.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Preprocessor</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="../theory_reference/index.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Theory reference</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

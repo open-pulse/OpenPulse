@@ -800,8 +800,7 @@ class ValvesInput(QDialog):
                 return True
 
     def set_cross_section_to_list_elements(self, list_elements, section_parameters, valve_diameters): 
-        valve_section_info = {   "section_type_label" : "Valve section" ,
-                                    "section_parameters" : section_parameters   }
+        valve_section_info = {"section_parameters" : section_parameters}
         list_cross_sections = []
         for element_id in list_elements:             
             valve_section_info["diameters_to_plot"] = valve_diameters[element_id] 

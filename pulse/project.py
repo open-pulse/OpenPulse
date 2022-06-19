@@ -514,14 +514,11 @@ class Project:
                                     "insulation_thickness" : vals[6], 
                                     "insulation_density" : vals[7] }
     
-            if el_type in ['pipe_1', 'pipe_2']:
-                pipe_section_info = {   "section_type_label" : "Pipe section",
-                                        "section_parameters" : section_parameters   }   
-                cross_section = CrossSection(pipe_section_info=pipe_section_info)                             
+            if el_type in ['pipe_1', 'pipe_2']:   
+                cross_section = CrossSection(pipe_section_info=section_parameters)                             
 
             elif el_type in ['valve']:
-                valve_section_info = {  "section_type_label" : "Valve section",
-                                        "section_parameters" : section_parameters,  
+                valve_section_info = {  "section_parameters" : section_parameters,  
                                         "diameters_to_plot" : [None, None] }
                 cross_section = CrossSection(valve_section_info=valve_section_info)            
 

@@ -177,7 +177,7 @@ class Node:
         This method returns the node's structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.
 
         Returns
-        ----------
+        -------
         boundary_condition : array
             The boundary conditions prescribed into the node.
 
@@ -192,7 +192,7 @@ class Node:
         This method returns the node's lumped dampings in the local coordinate system according to the degrees of freedom.
 
         Returns
-        ----------
+        -------
         lumped_dampings : array
             The lumped dampings prescribed into the node.
         """
@@ -203,7 +203,7 @@ class Node:
         This method returns the node's lumped stiffness in the local coordinate system according to the degrees of freedom.
 
         Returns
-        ----------
+        -------
         lumped_stiffness : array
             The lumped stiffness prescribed into the node.
         """
@@ -214,7 +214,7 @@ class Node:
         This method returns the index(es) of the degrees of freedom in the local coordinate system which has(have) prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_values array.
 
         Returns
-        ----------
+        -------
         indexes : array
             Index(es) of the degrees of freedom which has(have) prescribed structural boundary conditions.
 
@@ -229,7 +229,7 @@ class Node:
         This method returns the value(s) of the prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_indexes array.
 
         Returns
-        ----------
+        -------
         indexes : array
             Value(s) of the prescribed structural boundary conditions.
 
@@ -259,7 +259,7 @@ class Node:
         This method returns the prescribed nodal forces and moments load in the local coordinate system according to the the degrees of freedom.
 
         Returns
-        ----------
+        -------
         indexes : array
             Value(s) of the prescribed nodal force and moments boundary conditions.
 
@@ -290,7 +290,7 @@ class Node:
         This method returns the node's acoustic pressure boundary condition.
 
         Returns
-        ----------
+        -------
         acoustic_boundary_condition : complex
             The acoustic pressure boundary condition prescribed into the node.
 
@@ -308,7 +308,7 @@ class Node:
         This method returns the index of the acoustic degrees of freedom with prescribed pressure boundary condition.
 
         Returns
-        ----------
+        -------
         indexes : 0 or None
             Index of the acoustic degrees with prescribed pressure boundary conditions.
 
@@ -323,7 +323,7 @@ class Node:
         This method returns the value of the acoustic pressure boundary condition if it is prescribed.
 
         Returns
-        ----------
+        -------
         value : complex or None
             Acoustic pressure boundary condition if it is prescribed.
 
@@ -338,7 +338,7 @@ class Node:
         This method evaluates the existence of acoustic pressure boundary condition.
 
         Returns
-        ----------
+        -------
         bool
             True when there is acoustic pressure boundary condition prescribed into the node.
         """
@@ -369,7 +369,7 @@ class Node:
             Frequencies of analysis.
 
         Returns
-        ----------
+        -------
         complex array
             The acoustic volume velocity boundary condition prescribed into the node.
         
@@ -396,7 +396,7 @@ class Node:
         This method evaluates the existence of volume velocity pressure boundary condition.
 
         Returns
-        ----------
+        -------
         bool
             True when there is volume velocity pressure boundary condition prescribed into the node, False otherwise.
         """
@@ -415,7 +415,7 @@ class Node:
             Frequencies of analysis.
 
         Returns
-        ----------
+        -------
         complex array
             Lumped acoustic admittance
         

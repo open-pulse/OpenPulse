@@ -1,0 +1,833 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Node &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cross Section" href="CrossSection.html" />
+    <link rel="prev" title="Preprocessing" href="preprocessing.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Node
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="CrossSection.html">
+     Cross Section
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Material.html">
+     Material
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Fluid.html">
+     Fluid
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="StructuralElement.html">
+     Structural Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="AcousticElement.html">
+     Acoustic Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Entity.html">
+     Entity
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Preprocessor.html">
+     Preprocessor
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="processing.html">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/Node.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pulse.preprocessing.node">
+<span id="node"></span><h1>Node<a class="headerlink" href="#module-pulse.preprocessing.node" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.node.</span></span><span class="sig-name descname"><span class="pre">Node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node" title="Permalink to this definition">#</a></dt>
+<dd><p>A node class.
+This class creates a node object from input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>x</strong><span class="classifier">float</span></dt><dd><p>Node x coordinate.</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">float</span></dt><dd><p>node y coordinate.</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">float</span></dt><dd><p>Node z coordinate.</p>
+</dd>
+<dt><strong>global_index</strong><span class="classifier">int, optional</span></dt><dd><p>Internal node index used for computing.
+Default is None.</p>
+</dd>
+<dt><strong>external_index</strong><span class="classifier">int</span></dt><dd><p>Node index displayed to the user.
+Default is None.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.coordinates" title="pulse.preprocessing.node.Node.coordinates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">coordinates</span></code></a></dt><dd><p>This method returns the node’s coordinates as a array.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.global_dof" title="pulse.preprocessing.node.Node.global_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_dof</span></code></a></dt><dd><p>This method returns the node’s structural degrees of freedom in the global coordinate system.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.local_dof" title="pulse.preprocessing.node.Node.local_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_dof</span></code></a></dt><dd><p>This method returns the node’s structural degrees of freedom in the local coordinate system.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.admittance" title="pulse.preprocessing.node.Node.admittance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">admittance</span></code></a>(area_fluid, frequencies)</p></td>
+<td><p>This method returns the node's lumped acoustic admittance according to either prescribed specific impedance or prescribed radiation impedance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.distance_to" title="pulse.preprocessing.node.Node.distance_to"><code class="xref py py-obj docutils literal notranslate"><span class="pre">distance_to</span></code></a>(other)</p></td>
+<td><p>This method returns the distance between the actual node and other one.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.getAcousticBoundaryCondition" title="pulse.preprocessing.node.Node.getAcousticBoundaryCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAcousticBoundaryCondition</span></code></a>()</p></td>
+<td><p>This method returns the node's acoustic pressure boundary condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes" title="pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_acoustic_boundary_condition_indexes</span></code></a>()</p></td>
+<td><p>This method returns the index of the acoustic degrees of freedom with prescribed pressure boundary condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values" title="pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_acoustic_pressure_bc_values</span></code></a>()</p></td>
+<td><p>This method returns the value of the acoustic pressure boundary condition if it is prescribed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_lumped_dampings" title="pulse.preprocessing.node.Node.get_lumped_dampings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lumped_dampings</span></code></a>()</p></td>
+<td><p>This method returns the node's lumped dampings in the local coordinate system according to the degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_lumped_stiffness" title="pulse.preprocessing.node.Node.get_lumped_stiffness"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_lumped_stiffness</span></code></a>()</p></td>
+<td><p>This method returns the node's lumped stiffness in the local coordinate system according to the degrees of freedom.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs" title="pulse.preprocessing.node.Node.get_prescribed_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs</span></code></a>()</p></td>
+<td><p>This method returns the node's structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes" title="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs_bc_indexes</span></code></a>()</p></td>
+<td><p>This method returns the index(es) of the degrees of freedom in the local coordinate system which has(have) prescribed structural displacement or rotation boundary conditions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values" title="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs_bc_values</span></code></a>()</p></td>
+<td><p>This method returns the value(s) of the prescribed structural displacement or rotation boundary conditions.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_loads" title="pulse.preprocessing.node.Node.get_prescribed_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_loads</span></code></a>()</p></td>
+<td><p>This method returns the prescribed nodal forces and moments load in the local coordinate system according to the the degrees of freedom.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.get_volume_velocity" title="pulse.preprocessing.node.Node.get_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_volume_velocity</span></code></a>(frequencies)</p></td>
+<td><p>This method returns the node's acoustic volume velocity boundary condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.haveAcousticBoundaryCondition" title="pulse.preprocessing.node.Node.haveAcousticBoundaryCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">haveAcousticBoundaryCondition</span></code></a>()</p></td>
+<td><p>This method evaluates the existence of acoustic pressure boundary condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.haveVolumeVelocity" title="pulse.preprocessing.node.Node.haveVolumeVelocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">haveVolumeVelocity</span></code></a>()</p></td>
+<td><p>This method evaluates the existence of volume velocity pressure boundary condition.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.set_acoustic_boundary_condition" title="pulse.preprocessing.node.Node.set_acoustic_boundary_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_acoustic_boundary_condition</span></code></a>(...)</p></td>
+<td><p>This method attributes the node's acoustic pressure boundary condition.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_dofs_bc" title="pulse.preprocessing.node.Node.set_prescribed_dofs_bc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_dofs_bc</span></code></a>(boundary_condition)</p></td>
+<td><p>This method attributes the node's structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_loads" title="pulse.preprocessing.node.Node.set_prescribed_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_loads</span></code></a>(values)</p></td>
+<td><p>This method attributes the nodal force and moment loads in the local coordinate system according to the the degrees of freedom.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_volume_velocity" title="pulse.preprocessing.node.Node.set_prescribed_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_volume_velocity</span></code></a>(volume_velocity)</p></td>
+<td><p>This method attributes the node's acoustic volume velocity boundary condition.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 77%" />
+<col style="width: 23%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>getStructuralBondaryCondition</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.admittance">
+<span class="sig-name descname"><span class="pre">admittance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">area_fluid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.admittance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.admittance" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s lumped acoustic admittance according to either prescribed specific impedance or prescribed radiation impedance. The admittance array has the same length as the frequencies array. In terms of analysis, if admittance is constant in the frequency domain, the method returns an array filled with the constant value with the same length as the frequencies array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>area_fluid</strong><span class="classifier">float</span></dt><dd><p>Acoustic fluid cross section area.</p>
+</dd>
+<dt><strong>frequencies</strong><span class="classifier">list</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>complex array</dt><dd><p>Lumped acoustic admittance</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>The Specific Impedance array and frequencies array must have
+the same length.</p>
+</dd>
+<dt>TypeError</dt><dd><p>The Radiation Impedance array and frequencies array must have
+the same length.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.coordinates">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coordinates</span></span><a class="headerlink" href="#pulse.preprocessing.node.Node.coordinates" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s coordinates as a array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>array</dt><dd><p>Node coordinates</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.distance_to">
+<span class="sig-name descname"><span class="pre">distance_to</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.distance_to"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.distance_to" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the distance between the actual node and other one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>other</strong><span class="classifier">Node object</span></dt><dd><p>The node to calculate the distance to.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>float</dt><dd><p>Distance between the nodes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.getAcousticBoundaryCondition">
+<span class="sig-name descname"><span class="pre">getAcousticBoundaryCondition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.getAcousticBoundaryCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.getAcousticBoundaryCondition" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s acoustic pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>acoustic_boundary_condition</strong><span class="classifier">complex</span></dt><dd><p>The acoustic pressure boundary condition prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.set_acoustic_boundary_condition" title="pulse.preprocessing.node.Node.set_acoustic_boundary_condition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_acoustic_boundary_condition</span></code></a></dt><dd><p>Attributes the acoustic pressure boundary condition into the node.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes">
+<span class="sig-name descname"><span class="pre">get_acoustic_boundary_condition_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_acoustic_boundary_condition_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the index of the acoustic degrees of freedom with prescribed pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">0 or None</span></dt><dd><p>Index of the acoustic degrees with prescribed pressure boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values" title="pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_acoustic_pressure_bc_values</span></code></a></dt><dd><p>Acoustic pressure boundary condition if it is prescribed.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values">
+<span class="sig-name descname"><span class="pre">get_acoustic_pressure_bc_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_acoustic_pressure_bc_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the value of the acoustic pressure boundary condition if it is prescribed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>value</strong><span class="classifier">complex or None</span></dt><dd><p>Acoustic pressure boundary condition if it is prescribed.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes" title="pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_acoustic_boundary_condition_indexes</span></code></a></dt><dd><p>Index of the acoustic degrees if it has prescribed pressure boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_lumped_dampings">
+<span class="sig-name descname"><span class="pre">get_lumped_dampings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_lumped_dampings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_lumped_dampings" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s lumped dampings in the local coordinate system according to the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lumped_dampings</strong><span class="classifier">array</span></dt><dd><p>The lumped dampings prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_lumped_stiffness">
+<span class="sig-name descname"><span class="pre">get_lumped_stiffness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_lumped_stiffness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_lumped_stiffness" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s lumped stiffness in the local coordinate system according to the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lumped_stiffness</strong><span class="classifier">array</span></dt><dd><p>The lumped stiffness prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_prescribed_dofs">
+<span class="sig-name descname"><span class="pre">get_prescribed_dofs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_prescribed_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_prescribed_dofs" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>boundary_condition</strong><span class="classifier">array</span></dt><dd><p>The boundary conditions prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_dofs_bc" title="pulse.preprocessing.node.Node.set_prescribed_dofs_bc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_dofs_bc</span></code></a></dt><dd><p>Attributes the structural boundary conditions into the node.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes">
+<span class="sig-name descname"><span class="pre">get_prescribed_dofs_bc_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_prescribed_dofs_bc_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the index(es) of the degrees of freedom in the local coordinate system which has(have) prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_values array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">array</span></dt><dd><p>Index(es) of the degrees of freedom which has(have) prescribed structural boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values" title="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs_bc_values</span></code></a></dt><dd><p>Value(s) of the prescribed boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values">
+<span class="sig-name descname"><span class="pre">get_prescribed_dofs_bc_values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_prescribed_dofs_bc_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the value(s) of the prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_indexes array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">array</span></dt><dd><p>Value(s) of the prescribed structural boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes" title="pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs_bc_indexes</span></code></a></dt><dd><p>Index(es) of the degrees of freedom which has(have) prescribed boundary conditions.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_prescribed_loads">
+<span class="sig-name descname"><span class="pre">get_prescribed_loads</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_prescribed_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_prescribed_loads" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the prescribed nodal forces and moments load in the local coordinate system according to the the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">array</span></dt><dd><p>Value(s) of the prescribed nodal force and moments boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_loads" title="pulse.preprocessing.node.Node.set_prescribed_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_loads</span></code></a></dt><dd><p>Attributes nodal loads in the local coordinate system.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.get_volume_velocity">
+<span class="sig-name descname"><span class="pre">get_volume_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.get_volume_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.get_volume_velocity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s acoustic volume velocity boundary condition. The volume velocity array has the same length as the frequencies array. In terms of analysis, if volume velocity is constant in the frequency domain, the method returns a array filled with the constant value with the same length as the frequencies array.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">list</span></dt><dd><p>Frequencies of analysis.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>complex array</dt><dd><p>The acoustic volume velocity boundary condition prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>TypeError</dt><dd><p>The frequencies array must have the same length of the volume velocity array when a table is prescribed.
+Please, check the frequency analysis setup.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.set_prescribed_volume_velocity" title="pulse.preprocessing.node.Node.set_prescribed_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_volume_velocity</span></code></a></dt><dd><p>Attributes the node’s acoustic volume velocity boundary condition.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.global_dof">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">global_dof</span></span><a class="headerlink" href="#pulse.preprocessing.node.Node.global_dof" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s structural degrees of freedom in the global coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node’s translations and the three node’s rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Node’s structural degrees of freedom in the global coordinate system</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.local_dof" title="pulse.preprocessing.node.Node.local_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">local_dof</span></code></a></dt><dd><p>Structural degrees of freedom in the local coordinate system.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.haveAcousticBoundaryCondition">
+<span class="sig-name descname"><span class="pre">haveAcousticBoundaryCondition</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.haveAcousticBoundaryCondition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.haveAcousticBoundaryCondition" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the existence of acoustic pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True when there is acoustic pressure boundary condition prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.haveVolumeVelocity">
+<span class="sig-name descname"><span class="pre">haveVolumeVelocity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.haveVolumeVelocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.haveVolumeVelocity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the existence of volume velocity pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd><p>True when there is volume velocity pressure boundary condition prescribed into the node, False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.local_dof">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local_dof</span></span><a class="headerlink" href="#pulse.preprocessing.node.Node.local_dof" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the node’s structural degrees of freedom in the local coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node’s translations and the three node’s rotations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Node’s structural degrees of freedom in the local coordinate system.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.global_dof" title="pulse.preprocessing.node.Node.global_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_dof</span></code></a></dt><dd><p>Structural degrees of freedom in the global coordinate system.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.set_acoustic_boundary_condition">
+<span class="sig-name descname"><span class="pre">set_acoustic_boundary_condition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">acoustic_boundary_condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.set_acoustic_boundary_condition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.set_acoustic_boundary_condition" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes the node’s acoustic pressure boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>acoustic_boundary_condition</strong><span class="classifier">complex</span></dt><dd><p>The acoustic pressure boundary condition to be prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.getAcousticBoundaryCondition" title="pulse.preprocessing.node.Node.getAcousticBoundaryCondition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getAcousticBoundaryCondition</span></code></a></dt><dd><p>Returns the acoustic pressure boundary condition prescribed into the node.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.set_prescribed_dofs_bc">
+<span class="sig-name descname"><span class="pre">set_prescribed_dofs_bc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_condition</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.set_prescribed_dofs_bc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.set_prescribed_dofs_bc" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes the node’s structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>boundary_condition</strong><span class="classifier">array</span></dt><dd><p>The structural boundary conditions to be prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_dofs" title="pulse.preprocessing.node.Node.get_prescribed_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_dofs</span></code></a></dt><dd><p>Returns the structural boundary conditions prescribed into the node.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.set_prescribed_loads">
+<span class="sig-name descname"><span class="pre">set_prescribed_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.set_prescribed_loads"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.set_prescribed_loads" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes the nodal force and moment loads in the local coordinate system according to the the degrees of freedom.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">array</span></dt><dd><p>Value(s) of the nodal force and moments to be prescribed boundary conditions.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_prescribed_loads" title="pulse.preprocessing.node.Node.get_prescribed_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prescribed_loads</span></code></a></dt><dd><p>Prescribed nodal loads in the local coordinate system.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.node.Node.set_prescribed_volume_velocity">
+<span class="sig-name descname"><span class="pre">set_prescribed_volume_velocity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">volume_velocity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/node.html#Node.set_prescribed_volume_velocity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.node.Node.set_prescribed_volume_velocity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes the node’s acoustic volume velocity boundary condition.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>volume_velocity</strong><span class="classifier">complex</span></dt><dd><p>The acoustic volume velocity boundary condition to be prescribed into the node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.node.Node.get_volume_velocity" title="pulse.preprocessing.node.Node.get_volume_velocity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_volume_velocity</span></code></a></dt><dd><p>Returns the volume velocity boundary condition prescribed into the node.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="preprocessing.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Preprocessing</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="CrossSection.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Cross Section</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

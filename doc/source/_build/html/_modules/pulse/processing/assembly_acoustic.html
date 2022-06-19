@@ -1,0 +1,556 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pulse.processing.assembly_acoustic &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../../index.html">
+  <img src="../../../_static/logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pulse.processing.assembly_acoustic</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse</span> <span class="kn">import</span> <span class="n">csr_matrix</span><span class="p">,</span> <span class="n">csc_matrix</span>
+
+<span class="kn">from</span> <span class="nn">pulse.preprocessing.node</span> <span class="kn">import</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span>
+<span class="kn">from</span> <span class="nn">pulse.preprocessing.acoustic_element</span> <span class="kn">import</span> <span class="n">ENTRIES_PER_ELEMENT</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span>
+
+<div class="viewcode-block" id="length_correction_expansion"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.length_correction_expansion">[docs]</a><span class="k">def</span> <span class="nf">length_correction_expansion</span><span class="p">(</span><span class="n">smaller_diameter</span><span class="p">,</span> <span class="n">larger_diameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function returns the acoustic length correction due to expansion in the acoustic domain. This discontinuity is characterized by two elements in line with different diameters.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    smaller_diameter: float</span>
+<span class="sd">        Smaller diameter between the two elements diameters.</span>
+
+<span class="sd">    larger_diameter: float</span>
+<span class="sd">        Larger diameter between the two elements diameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Length correction due to expansion.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    length_correction_branch : Length correction due to sidebranch in the acoustic domain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xi</span> <span class="o">=</span> <span class="n">smaller_diameter</span> <span class="o">/</span> <span class="n">larger_diameter</span>
+    <span class="k">if</span> <span class="n">xi</span> <span class="o">&lt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mf">1.238</span> <span class="o">*</span> <span class="n">xi</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mi">8</span> <span class="o">/</span> <span class="p">(</span><span class="mi">3</span> <span class="o">*</span> <span class="n">pi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">0.875</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">xi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mf">1.371</span> <span class="o">-</span> <span class="n">xi</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">smaller_diameter</span> <span class="o">*</span> <span class="n">factor</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="length_correction_branch"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.length_correction_branch">[docs]</a><span class="k">def</span> <span class="nf">length_correction_branch</span><span class="p">(</span><span class="n">branch_diameter</span><span class="p">,</span> <span class="n">principal_diameter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; This function returns the acoustic length correction due to sidebranch in the acoustic domain. This discontinuity is characterized by three elements, two with the same diameters in line, and the other with different diameter connected to these two.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    smaller_diameter: float</span>
+<span class="sd">        Smaller diameter between the two elements diameters.</span>
+
+<span class="sd">    larger_diameter: float</span>
+<span class="sd">        Larger diameter between the two elements diameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Length correction due to side branch.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    length_correction_expansion : Length correction due to expansion in the acoustic domain.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">xi</span> <span class="o">=</span> <span class="n">branch_diameter</span> <span class="o">/</span> <span class="n">principal_diameter</span>
+    <span class="k">if</span> <span class="n">xi</span> <span class="o">&lt;=</span> <span class="mf">0.4</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">0.8216</span> <span class="o">-</span> <span class="mf">0.0644</span> <span class="o">*</span> <span class="n">xi</span> <span class="o">-</span> <span class="mf">0.694</span> <span class="o">*</span> <span class="n">xi</span><span class="o">**</span><span class="mi">2</span>
+    <span class="k">elif</span> <span class="n">xi</span> <span class="o">&gt;</span> <span class="mf">0.4</span><span class="p">:</span>
+        <span class="n">factor</span> <span class="o">=</span> <span class="mf">0.9326</span> <span class="o">-</span> <span class="mf">0.6196</span> <span class="o">*</span> <span class="n">xi</span>
+    <span class="k">return</span> <span class="n">branch_diameter</span> <span class="o">*</span> <span class="n">factor</span> <span class="o">/</span> <span class="mi">2</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic">[docs]</a><span class="k">class</span> <span class="nc">AssemblyAcoustic</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; This class creates a acoustic assembly object from input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    mesh : Mesh object</span>
+<span class="sd">        Acoustic finite element preprocessor.</span>
+
+<span class="sd">    frequencies : array</span>
+<span class="sd">        Frequencies of analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">preprocessor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">beam_gdofs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beam_gdofs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">get_beam_and_non_beam_elements_global_dofs</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beam_gdofs</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">beam_gdofs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">pipe_gdofs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">get_acoustic_elements</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">total_dof</span> <span class="o">=</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">neighbor_diameters</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">neighbor_elements_diameter_global</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prescribed_indexes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_prescribed_indexes"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns all the indexes of the acoustic degrees of freedom with prescribed pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Indexes of the acoustic degrees with prescribed pressure boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_values : Values of the prescribed pressure boundary condition.</span>
+
+<span class="sd">        get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">global_prescribed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">starting_position</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">global_index</span> <span class="o">*</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span>
+            <span class="n">dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get_acoustic_boundary_condition_indexes</span><span class="p">())</span> <span class="o">+</span> <span class="n">starting_position</span>
+            <span class="n">global_prescribed</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">dofs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">global_prescribed</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_prescribed_values"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_prescribed_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns all the values of the prescribed pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Values of the prescribed pressure boundary condition.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.</span>
+
+<span class="sd">        get_unprescribed_indexes : Indexes of the free acoustic degrees of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">global_prescribed</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">acoustic_pressure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">global_prescribed</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">node</span><span class="o">.</span><span class="n">acoustic_pressure</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">global_prescribed</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_unprescribed_indexes"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_unprescribed_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_unprescribed_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns all the indexes of the free acoustic degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Indexes of the free acoustic degrees of freedom.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_values : Values of the prescribed pressure boundary condition.</span>
+
+<span class="sd">        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_dof</span><span class="p">)</span>
+        <span class="n">unprescribed_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">all_indexes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unprescribed_indexes</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_pipe_and_unprescribed_indexes"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_pipe_and_unprescribed_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_pipe_and_unprescribed_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns all the indexes of the free acoustic degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Indexes of the free acoustic degrees of freedom.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_values : Values of the prescribed pressure boundary condition.</span>
+
+<span class="sd">        get_prescribed_indexes : Indexes of the acoustic degrees with prescribed pressure boundary conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">all_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_dof</span><span class="p">)</span>
+        <span class="n">indexes_to_remove</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">dof</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">beam_gdofs</span><span class="p">):</span>
+            <span class="n">indexes_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dof</span><span class="p">)</span>
+        <span class="n">indexes_to_remove</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">indexes_to_remove</span><span class="p">))</span>
+        <span class="n">unprescribed_pipe_indexes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">all_indexes</span><span class="p">,</span> <span class="n">indexes_to_remove</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">unprescribed_pipe_indexes</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_length_corretion"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_length_corretion">[docs]</a>    <span class="k">def</span> <span class="nf">get_length_corretion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluate the acoustic length correction for an element. The necessary conditions and the type of correction are checked.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        element: Acoustic element object</span>
+<span class="sd">            Acoustic element.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        float</span>
+<span class="sd">            Length correction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length_correction</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span>
+            <span class="n">last</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span>
+
+            <span class="n">di_actual</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span>
+
+            <span class="n">diameters_first</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_diameters</span><span class="p">[</span><span class="n">first</span><span class="p">])</span>
+            <span class="n">diameters_last</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">neighbor_diameters</span><span class="p">[</span><span class="n">last</span><span class="p">])</span>
+
+            <span class="n">corrections_first</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">corrections_last</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">di</span> <span class="ow">in</span> <span class="n">diameters_first</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">di_actual</span> <span class="o">&lt;</span> <span class="n">di</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                        <span class="n">correction</span> <span class="o">=</span> <span class="n">length_correction_expansion</span><span class="p">(</span><span class="n">di_actual</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">element</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">=</span> <span class="n">length_correction_branch</span><span class="p">(</span><span class="n">di_actual</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diameters_first</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Expansion identified in acoustic </span><span class="se">\n</span><span class="s2">domain is being corrected as side branch.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Datatype not understood&quot;</span><span class="p">)</span>
+                    <span class="n">corrections_first</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">correction</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">_</span><span class="p">,</span><span class="n">_</span><span class="p">,</span><span class="n">di</span> <span class="ow">in</span> <span class="n">diameters_last</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">di_actual</span> <span class="o">&lt;</span> <span class="n">di</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">]:</span>
+                        <span class="n">correction</span> <span class="o">=</span> <span class="n">length_correction_expansion</span><span class="p">(</span><span class="n">di_actual</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">element</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                        <span class="n">correction</span> <span class="o">=</span> <span class="n">length_correction_branch</span><span class="p">(</span><span class="n">di_actual</span><span class="p">,</span> <span class="n">di</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diameters_last</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Warning: Expansion identified in acoustic </span><span class="se">\n</span><span class="s2">domain is being corrected as side branch.&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Datatype not understood&quot;</span><span class="p">)</span>
+                    <span class="n">corrections_last</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">correction</span><span class="p">)</span>
+            <span class="n">length_correction</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">corrections_first</span><span class="p">)</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">corrections_last</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">length_correction</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_global_matrices"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method perform the assembly process of the acoustic FETM matrices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        K : list</span>
+<span class="sd">            List of admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</span>
+
+<span class="sd">        Kr : list</span>
+<span class="sd">            List of admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_dof</span> <span class="o">=</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">total_entries</span> <span class="o">=</span> <span class="n">ENTRIES_PER_ELEMENT</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">acoustic_elements</span><span class="p">)</span>
+
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">get_global_acoustic_indexes</span><span class="p">()</span>
+        <span class="n">data_k</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">total_entries</span><span class="p">],</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">)</span>
+        
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span><span class="p">:</span>
+            
+            <span class="n">index</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">index</span>
+
+            <span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">ENTRIES_PER_ELEMENT</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="n">start</span> <span class="o">+</span> <span class="n">ENTRIES_PER_ELEMENT</span>
+
+            <span class="n">length_correction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_length_corretion</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="n">data_k</span><span class="p">[:,</span> <span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span> <span class="o">=</span> <span class="n">length_correction</span><span class="p">)</span>
+
+        <span class="n">full_K</span> <span class="o">=</span> <span class="p">[</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">total_dof</span><span class="p">,</span> <span class="n">total_dof</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">data_k</span><span class="p">]</span>
+
+        <span class="n">K</span> <span class="o">=</span> <span class="p">[</span><span class="n">full</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">]</span> <span class="k">for</span> <span class="n">full</span> <span class="ow">in</span> <span class="n">full_K</span><span class="p">]</span>
+        <span class="n">Kr</span> <span class="o">=</span> <span class="p">[</span><span class="n">full</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">]</span> <span class="k">for</span> <span class="n">full</span> <span class="ow">in</span> <span class="n">full_K</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">Kr</span></div>
+            
+<div class="viewcode-block" id="AssemblyAcoustic.get_lumped_matrices"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_lumped_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">get_lumped_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method perform the assembly process of the acoustic FETM lumped matrices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        K_lump : list</span>
+<span class="sd">            List of lumped admittance matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</span>
+
+<span class="sd">        Kr_lump : list</span>
+<span class="sd">            List of lumped admittance matrices of the prescribed degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_dof</span> <span class="o">=</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        
+        <span class="n">data_Klump</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">ind_Klump</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">area_fluid</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span>
+
+        <span class="c1"># processing external elements by node</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">specific_impedance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node_specific_impedance</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_specific_impedance</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">specific_impedance</span>
+
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">node_radiation_impedance</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">node_radiation_impedance</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">radiation_impedance</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">node_specific_impedance</span> <span class="o">+</span> <span class="n">node_radiation_impedance</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">global_index</span>
+
+                <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span> <span class="o">==</span> <span class="n">position</span> <span class="ow">or</span> <span class="n">element</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span> <span class="o">==</span> <span class="n">position</span><span class="p">:</span>
+                        <span class="n">area_fluid</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">area_fluid</span>
+
+                <span class="n">ind_Klump</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data_Klump</span> <span class="o">==</span> <span class="p">[]:</span>
+                    <span class="n">data_Klump</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">admittance</span><span class="p">(</span><span class="n">area_fluid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">data_Klump</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">data_Klump</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">admittance</span><span class="p">(</span><span class="n">area_fluid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)]</span>
+
+        <span class="k">if</span> <span class="n">area_fluid</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">full_K</span> <span class="o">=</span> <span class="p">[</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">total_dof</span><span class="p">,</span> <span class="n">total_dof</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">full_K</span> <span class="o">=</span> <span class="p">[</span><span class="n">csr_matrix</span><span class="p">((</span><span class="n">data</span><span class="p">,</span> <span class="p">(</span><span class="n">ind_Klump</span><span class="p">,</span> <span class="n">ind_Klump</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">total_dof</span><span class="p">,</span> <span class="n">total_dof</span><span class="p">])</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">data_Klump</span><span class="p">]</span>
+        
+        <span class="n">K_lump</span> <span class="o">=</span> <span class="p">[</span><span class="n">full</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">]</span> <span class="k">for</span> <span class="n">full</span> <span class="ow">in</span> <span class="n">full_K</span><span class="p">]</span>
+        <span class="n">Kr_lump</span> <span class="o">=</span> <span class="p">[</span><span class="n">full</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">]</span> <span class="k">for</span> <span class="n">full</span> <span class="ow">in</span> <span class="n">full_K</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">K_lump</span><span class="p">,</span> <span class="n">Kr_lump</span>  </div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_global_matrices_modal"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_matrices_modal">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_matrices_modal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method perform the assembly process of the acoustic FEM matrices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        K : sparse csr_matrix</span>
+<span class="sd">            Acoustic stiffness matrix.</span>
+
+<span class="sd">        M : sparse csr_matrix</span>
+<span class="sd">            Acoustic inertia matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_dof</span> <span class="o">=</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">number_elements</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">acoustic_elements</span><span class="p">)</span>
+
+        <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">get_global_acoustic_indexes</span><span class="p">()</span>
+        <span class="n">mat_Ke</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_elements</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">mat_Me</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">number_elements</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+        <span class="c1"># for index, element in enumerate(self.preprocessor.acoustic_elements.values()):</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span><span class="p">:</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">length_correction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_length_corretion</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+            <span class="n">mat_Ke</span><span class="p">[</span><span class="n">index</span><span class="p">,:,:],</span> <span class="n">mat_Me</span><span class="p">[</span><span class="n">index</span><span class="p">,:,:]</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">fem_1d_matrix</span><span class="p">(</span><span class="n">length_correction</span><span class="p">)</span>            
+
+        <span class="n">full_K</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">((</span><span class="n">mat_Ke</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">total_dof</span><span class="p">,</span> <span class="n">total_dof</span><span class="p">])</span>
+        <span class="n">full_M</span> <span class="o">=</span> <span class="n">csr_matrix</span><span class="p">((</span><span class="n">mat_Me</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span> <span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)),</span> <span class="n">shape</span><span class="o">=</span><span class="p">[</span><span class="n">total_dof</span><span class="p">,</span> <span class="n">total_dof</span><span class="p">])</span>
+        
+        <span class="n">K</span> <span class="o">=</span> <span class="n">full_K</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">]</span>
+        <span class="n">M</span> <span class="o">=</span> <span class="n">full_M</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:][:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">K</span><span class="p">,</span> <span class="n">M</span></div>
+
+<div class="viewcode-block" id="AssemblyAcoustic.get_global_volume_velocity"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.assembly_acoustic.AssemblyAcoustic.get_global_volume_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_volume_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method perform the assembly process of the acoustic load, volume velocity.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        volume_velocity : array</span>
+<span class="sd">            Volume velocity load.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">total_dof</span> <span class="o">=</span> <span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="n">volume_velocity</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">([</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">total_dof</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">volume_velocity</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">position</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">global_index</span>
+                <span class="n">volume_velocity</span><span class="p">[:,</span> <span class="n">position</span><span class="p">]</span> <span class="o">+=</span> <span class="n">node</span><span class="o">.</span><span class="n">get_volume_velocity</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+        
+        <span class="n">volume_velocity</span> <span class="o">=</span> <span class="n">volume_velocity</span><span class="p">[:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">volume_velocity</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

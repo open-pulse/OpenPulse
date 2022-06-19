@@ -1,0 +1,820 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acoustic Element &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Entity" href="Entity.html" />
+    <link rel="prev" title="Structural Element" href="StructuralElement.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Node.html">
+     Node
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="CrossSection.html">
+     Cross Section
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Material.html">
+     Material
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Fluid.html">
+     Fluid
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="StructuralElement.html">
+     Structural Element
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Acoustic Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Entity.html">
+     Entity
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Preprocessor.html">
+     Preprocessor
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="processing.html">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/AcousticElement.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pulse.preprocessing.acoustic_element">
+<span id="acoustic-element"></span><h1>Acoustic Element<a class="headerlink" href="#module-pulse.preprocessing.acoustic_element" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.acoustic_element.</span></span><span class="sig-name descname"><span class="pre">AcousticElement</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">first_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_node</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates an acoustic element from input data. The FETM element formulation has two <strong>nodes</strong> (<strong>first</strong> and <strong>last</strong> nodes), where pressure is evaluated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n0</span><span class="o">-----------</span><span class="n">n1</span> <span class="o">--&gt;</span> <span class="n">x</span>
+</pre></div>
+</div>
+<p>The acoustic domain is delimited by its <strong>nodes</strong> and <strong>cross section</strong>. Externally, there is an associated <strong>structural element</strong> (pipe), whose domain is constituted by a <strong>material</strong>. Futhermore, the acoustic domain is constituted by a <strong>fluid</strong> and, if it is moving, the <strong>volumetric flow rate</strong> must be set. The FETM formulation implemented in OpenPulse can model damping through several theories, namely <strong>proportional</strong>, <strong>wide-duct</strong>, <strong>LRF fluid equivalent</strong>, <strong>LRF full</strong>, <strong>peters</strong>, and <strong>howe</strong>. Peters’ and Howe’s models are suitable for mean flow systems, i.e., <strong>volumetric flow rate</strong> not equal to 0.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>first_node</strong><span class="classifier">Node object</span></dt><dd><p>Element’s first node.</p>
+</dd>
+<dt><strong>last_node</strong><span class="classifier">Node object</span></dt><dd><p>Element’s last node.</p>
+</dd>
+<dt><strong>index</strong><span class="classifier">int</span></dt><dd><p>Element’s index.</p>
+</dd>
+<dt><strong>element_type</strong><span class="classifier">[‘undamped’, ‘proportional’, ‘wide-duct’, ‘LRF fluid equivalent’, ‘LRF full’, ‘undamped mean flow’,’peters’,’howe’], optional</span></dt><dd><p>Element damping formulation. When <code class="docutils literal notranslate"><span class="pre">'undamped</span> <span class="pre">mean</span> <span class="pre">flow'</span></code>, <code class="docutils literal notranslate"><span class="pre">'peters'</span></code> or <code class="docutils literal notranslate"><span class="pre">'howe'</span></code> is set, the volumetric flow rate must be set, i.e., <code class="docutils literal notranslate"><span class="pre">vol_flow</span> <span class="pre">!=0</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">'undamped'</span></code>.</p>
+</dd>
+<dt><strong>proportional_damping</strong><span class="classifier">float, optional</span></dt><dd><p>Proportional damping coefficient. Set this parameter when <code class="docutils literal notranslate"><span class="pre">element_type</span> <span class="pre">=</span> <span class="pre">'proportional'</span></code>. Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+<dt><strong>material</strong><span class="classifier">Material object, optional</span></dt><dd><p>Structural domain material. Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+<dt><strong>fluid</strong><span class="classifier">Fluid object, optional</span></dt><dd><p>Acoustic domain fluid. Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+<dt><strong>cross_section</strong><span class="classifier">CrossSection object, optional</span></dt><dd><p>Element’s cross section. Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+<dt><strong>perforated_plate</strong><span class="classifier">PerforatedPlate object, optional</span></dt><dd><p>Element’s perforated plate. Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+<dt><strong>vol_flow</strong><span class="classifier">float, optional</span></dt><dd><p>Volumetric flow rate in the element’s acoustic domain. Default <code class="docutils literal notranslate"><span class="pre">0</span></code>.</p>
+</dd>
+<dt><strong>loaded_pressure</strong><span class="classifier">(2,) array, optional</span></dt><dd><p>Acoustic pressure on the nodes. Default is <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">0]</span></code>.</p>
+</dd>
+<dt><strong>acoustic_length_correction</strong><span class="classifier">[0, 1, 2], optional</span></dt><dd><p>Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kc">None</span> <span class="p">:</span> <span class="n">disable</span>
+<span class="mi">0</span> <span class="p">:</span> <span class="n">expansion</span>
+<span class="mi">1</span> <span class="p">:</span> <span class="n">side_branch</span>
+<span class="mi">2</span> <span class="p">:</span> <span class="n">loop</span>
+</pre></div>
+</div>
+<p>Default is <code class="docutils literal notranslate"><span class="pre">'None'</span></code>.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.global_dof" title="pulse.preprocessing.acoustic_element.AcousticElement.global_dof"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_dof</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">(2,) array</dt>
+<dd class="field-odd"><p>Element’s global degree of freedom indexes.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.impedance" title="pulse.preprocessing.acoustic_element.AcousticElement.impedance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impedance</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Element’s acoustic impedance based on its fluid and cross section.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.length" title="pulse.preprocessing.acoustic_element.AcousticElement.length"><code class="xref py py-obj docutils literal notranslate"><span class="pre">length</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Element’s length.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.mach" title="pulse.preprocessing.acoustic_element.AcousticElement.mach"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mach</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Mach number in the element domain.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.orientation" title="pulse.preprocessing.acoustic_element.AcousticElement.orientation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">orientation</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">(3,) array</dt>
+<dd class="field-odd"><p>Element’s axial orientation in the global coordinate system.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.fem_1d_matrix" title="pulse.preprocessing.acoustic_element.AcousticElement.fem_1d_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fem_1d_matrix</span></code></a>([length_correction])</p></td>
+<td><p>This method computes the FEM acoustic 1D elementary matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.global_matrix_indexes" title="pulse.preprocessing.acoustic_element.AcousticElement.global_matrix_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">global_matrix_indexes</span></code></a>()</p></td>
+<td><p>This method returns the rows' and columns' indexes that place the element's matrices in the global matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.matrix" title="pulse.preprocessing.acoustic_element.AcousticElement.matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">matrix</span></code></a>(frequencies[, length_correction])</p></td>
+<td><p>This method computes the element's admittance matrix for each frequency of analysis according to the element type.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.perforated_plate_matrix" title="pulse.preprocessing.acoustic_element.AcousticElement.perforated_plate_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">perforated_plate_matrix</span></code></a>(frequencies, ...)</p></td>
+<td><p>This method computes the Perforated Plate 1D elementary admittance matrix for each frequency of analysis.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.radiation_impedance" title="pulse.preprocessing.acoustic_element.AcousticElement.radiation_impedance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">radiation_impedance</span></code></a>(kappa_complex, ...)</p></td>
+<td><p>This method attributes the radiation impedance to the element nodes according to the <em class="xref py py-obj">anechoic</em>, <em class="xref py py-obj">flanged</em>, and <em class="xref py py-obj">unflanged</em> prescription.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.speed_of_sound_corrected" title="pulse.preprocessing.acoustic_element.AcousticElement.speed_of_sound_corrected"><code class="xref py py-obj docutils literal notranslate"><span class="pre">speed_of_sound_corrected</span></code></a>()</p></td>
+<td><p>This method computes the corrected speed of sound due to the mechanical compliance of the pipe wall.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.acoustic_element.AcousticElement.update_pressure" title="pulse.preprocessing.acoustic_element.AcousticElement.update_pressure"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_pressure</span></code></a>(solution)</p></td>
+<td><p>Auxiliary method used in the perforated plate model.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._fetm_damping_models">
+<span class="sig-name descname"><span class="pre">_fetm_damping_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._fetm_damping_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._fetm_damping_models" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the wavenumber and fluid impedance for the FETM 1D theory according to the element’s damping model (element type). The damping models compatible with FETM 1D are <code class="docutils literal notranslate"><span class="pre">'undamped'</span></code>, <code class="docutils literal notranslate"><span class="pre">'proportional'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wide-duct'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'LRF</span> <span class="pre">fluid</span> <span class="pre">equivalent'</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>kappa</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic wavenumber.</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic impedance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._fetm_matrix">
+<span class="sig-name descname"><span class="pre">_fetm_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._fetm_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._fetm_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the FETM 1D element’s admittance matrix for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (<em class="xref py py-obj">loop</em>, <em class="xref py py-obj">expansion</em>, <em class="xref py py-obj">side branch</em>). The damping models compatible with FETM 1D are <code class="docutils literal notranslate"><span class="pre">'undamped'</span></code>, <code class="docutils literal notranslate"><span class="pre">'proportional'</span></code>, <code class="docutils literal notranslate"><span class="pre">'wide-duct'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'LRF</span> <span class="pre">fluid</span> <span class="pre">equivalent'</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>length_correction</strong><span class="classifier">float, optional</span></dt><dd><p>Element length correction to be added into the element length.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N, 4) array</dt><dd><p>Element’s admittance matrix. Each row of the output array <code class="docutils literal notranslate"><span class="pre">matrix[i,:]</span></code> may be rewritten to a 2-by-2 element’s admittance matrix corresponding to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th frequency of analysis <code class="docutils literal notranslate"><span class="pre">frequencies[i]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._fetm_mean_flow_damping_models">
+<span class="sig-name descname"><span class="pre">_fetm_mean_flow_damping_models</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._fetm_mean_flow_damping_models"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._fetm_mean_flow_damping_models" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the wavenumber, fluid impedance and mach number for the FETM 1D theory including the mean flow velocity effects in the acoustic domain according to the element’s damping model (element type). The damping models compatible with mean flow FETM 1D are <code class="docutils literal notranslate"><span class="pre">'undamped</span> <span class="pre">mean</span> <span class="pre">flow'</span></code>, <code class="docutils literal notranslate"><span class="pre">'howe'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'peters'</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>kappa</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic wavenumber.</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic impedance.</p>
+</dd>
+<dt><strong>mach</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex mach number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._fetm_mean_flow_matrix">
+<span class="sig-name descname"><span class="pre">_fetm_mean_flow_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._fetm_mean_flow_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._fetm_mean_flow_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the FETM 1D elementary admittance matrix including the acoustic domain mean flow velocity effects in the formulation, for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (<em class="xref py py-obj">loop</em>, <em class="xref py py-obj">expansion</em>, <em class="xref py py-obj">side branch</em>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>length_correction</strong><span class="classifier">float, optional</span></dt><dd><p>Element length correction to be added into the element length.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N, 4) array</dt><dd><p>Element’s admittance matrix. Each row of the output array <code class="docutils literal notranslate"><span class="pre">matrix[i,:]</span></code> may be rewritten to a 2-by-2 element’s admittance matrix corresponding to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th frequency of analysis <code class="docutils literal notranslate"><span class="pre">frequencies[i]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._flanged_termination_impedance">
+<span class="sig-name descname"><span class="pre">_flanged_termination_impedance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa_complex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impedance_complex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._flanged_termination_impedance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._flanged_termination_impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the radiation impedance according to the <em class="xref py py-obj">flanged</em> model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kappa_complex</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic wavenumber.</p>
+</dd>
+<dt><strong>impedance_complex</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic impedance.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N,) array</dt><dd><p>Flanged pipe termination impedance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._lrf_thermoviscous_matrix">
+<span class="sig-name descname"><span class="pre">_lrf_thermoviscous_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._lrf_thermoviscous_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._lrf_thermoviscous_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the LRF thermoviscous 1D elementary admittance matrix for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (<em class="xref py py-obj">loop</em>, <em class="xref py py-obj">expansion</em>, <em class="xref py py-obj">side branch</em>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>length_correction</strong><span class="classifier">float, optional</span></dt><dd><p>Element length correction to be added into the element length.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N, 4) array</dt><dd><p>Element’s admittance matrix. Each row of the output array <code class="docutils literal notranslate"><span class="pre">matrix[i,:]</span></code> may be rewritten to a 2-by-2 element’s admittance matrix corresponding to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th frequency of analysis <code class="docutils literal notranslate"><span class="pre">frequencies[i]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._reset_flags">
+<span class="sig-name descname"><span class="pre">_reset_flags</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._reset_flags"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._reset_flags" title="Permalink to this definition">#</a></dt>
+<dd><p>This method reset element’s check flags.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._unflanged_termination_impedance">
+<span class="sig-name descname"><span class="pre">_unflanged_termination_impedance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa_complex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impedance_complex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._unflanged_termination_impedance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._unflanged_termination_impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the radiation impedance according to the <em class="xref py py-obj">unflanged</em> model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kappa_complex</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic wavenumber.</p>
+</dd>
+<dt><strong>impedance_complex</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic impedance.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N,) array</dt><dd><p>Unflanged pipe termination impedance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement._update_pp_impedance">
+<span class="sig-name descname"><span class="pre">_update_pp_impedance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_effect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement._update_pp_impedance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement._update_pp_impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>Auxiliary method used to update the perforated plate impedance model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>nonlinear_effect</strong><span class="classifier">bool</span></dt><dd><p>If true, include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.fem_1d_matrix">
+<span class="sig-name descname"><span class="pre">fem_1d_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.fem_1d_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.fem_1d_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the FEM acoustic 1D elementary matrices. It allows to include the length correction due to acoustic discontinuities (<em class="xref py py-obj">loop</em>, <em class="xref py py-obj">expansion</em>, <em class="xref py py-obj">side branch</em>). The FEM is not compatible with any damping model.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In OpenPulse, this formulation is only used to evaluate the acoustic modal analysis.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>length_correction</strong><span class="classifier">float, optional</span></dt><dd><p>Element length correction to be added into the element length.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>Ke</strong><span class="classifier">2D array</span></dt><dd><p>Element acoustic stiffness matrix.</p>
+</dd>
+<dt><strong>Me</strong><span class="classifier">2D array</span></dt><dd><p>Element acoustic inertia matrix.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.global_dof">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">global_dof</span></span><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.global_dof" title="Permalink to this definition">#</a></dt>
+<dd><p>Element’s global degree of freedom indexes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>(2,) array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.global_matrix_indexes">
+<span class="sig-name descname"><span class="pre">global_matrix_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.global_matrix_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.global_matrix_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the rows’ and columns’ indexes that place the element’s matrices in the global matrices. The created array are appropriated to generate sparse matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>rows</strong><span class="classifier">(2,2) array</span></dt><dd><p>Indexes of the global matrices’ rows where the element’s matrices have to be added.</p>
+</dd>
+<dt><strong>cols</strong><span class="classifier">(2,2) array</span></dt><dd><p>Indexes of the global matrices’ columns where the element’s matrices have to be added.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.impedance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">impedance</span></span><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>Element’s acoustic impedance based on its fluid and cross section.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.length">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">length</span></span><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.length" title="Permalink to this definition">#</a></dt>
+<dd><p>Element’s length.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.mach">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mach</span></span><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.mach" title="Permalink to this definition">#</a></dt>
+<dd><p>Mach number in the element domain.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.matrix">
+<span class="sig-name descname"><span class="pre">matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length_correction</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the element’s admittance matrix for each frequency of analysis according to the element type. It allows to include the length correction due to acoustic discontinuities (<code class="docutils literal notranslate"><span class="pre">'loop'</span></code>, <code class="docutils literal notranslate"><span class="pre">'expansion'</span></code>, <code class="docutils literal notranslate"><span class="pre">'side</span> <span class="pre">branch'</span></code>).</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>length_correction</strong><span class="classifier">float, optional</span></dt><dd><p>Element length correction to be added into the element length.
+Default is 0.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl>
+<dt>(N, 4) array</dt><dd><p>Element’s admittance matrix. Each row of the output array <code class="docutils literal notranslate"><span class="pre">matrix[i,:]</span></code> may be rewritten to a 2-by-2 element’s admittance matrix corresponding to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th frequency of analysis <code class="docutils literal notranslate"><span class="pre">frequencies[i]</span></code>.</p>
+<p>The vector to vector mapping is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">+-</span>                                <span class="o">-+</span>        <span class="o">+-</span>                <span class="o">-+</span>
+<span class="o">|</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>   <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>  <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>   <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="o">|</span>  <span class="o">&lt;--&gt;</span>  <span class="o">|</span> <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>   <span class="n">M</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>  <span class="o">|</span>
+<span class="o">+-</span>                                <span class="o">-+</span>        <span class="o">|</span> <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>   <span class="n">M</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>  <span class="o">|</span>
+                                            <span class="o">+-</span>                <span class="o">-+</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.orientation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">orientation</span></span><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.orientation" title="Permalink to this definition">#</a></dt>
+<dd><p>Element’s axial orientation in the global coordinate system.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>(3,) array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.perforated_plate_matrix">
+<span class="sig-name descname"><span class="pre">perforated_plate_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">frequencies</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nonlinear_effect</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.perforated_plate_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.perforated_plate_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the Perforated Plate 1D elementary admittance matrix for each frequency of analysis. The setup is done through the element <code class="docutils literal notranslate"><span class="pre">perforated_plate</span></code> attribute.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>frequencies</strong><span class="classifier">(N,) array</span></dt><dd><p>Frequencies of analysis in Hz.</p>
+</dd>
+<dt><strong>nonlinear_effect</strong><span class="classifier">bool</span></dt><dd><p>If true include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>(N, 4) array</dt><dd><p>Element’s admittance matrix. Each row of the output array <code class="docutils literal notranslate"><span class="pre">matrix[i,:]</span></code> may be rewritten to a 2-by-2 element’s admittance matrix corresponding to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th frequency of analysis <code class="docutils literal notranslate"><span class="pre">frequencies[i]</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.radiation_impedance">
+<span class="sig-name descname"><span class="pre">radiation_impedance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kappa_complex</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impedance_complex</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.radiation_impedance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.radiation_impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes the radiation impedance to the element nodes according to the <em class="xref py py-obj">anechoic</em>, <em class="xref py py-obj">flanged</em>, and <em class="xref py py-obj">unflanged</em> prescription.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>kappa</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic wavenumber.</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">(N,) complex-array</span></dt><dd><p>Complex acoustic impedance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.speed_of_sound_corrected">
+<span class="sig-name descname"><span class="pre">speed_of_sound_corrected</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.speed_of_sound_corrected"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.speed_of_sound_corrected" title="Permalink to this definition">#</a></dt>
+<dd><p>This method computes the corrected speed of sound due to the mechanical compliance of the pipe wall.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Speed of sound in the element.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<ol class="upperalpha simple" start="20">
+<li><ol class="upperalpha simple" start="3">
+<li><p>Lin and G. W. Morgan, <em>Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell,</em> The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.</p></li>
+</ol>
+</li>
+</ol>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.AcousticElement.update_pressure">
+<span class="sig-name descname"><span class="pre">update_pressure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#AcousticElement.update_pressure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.AcousticElement.update_pressure" title="Permalink to this definition">#</a></dt>
+<dd><p>Auxiliary method used in the perforated plate model.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>solution</strong><span class="classifier">(N, M) array</span></dt><dd><p>System’s acoustic solution. <code class="docutils literal notranslate"><span class="pre">N</span></code> is the number of acoustic degree of freedom and <code class="docutils literal notranslate"><span class="pre">M</span></code> is the number of frequencies of analysis.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.j2j0">
+<span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.acoustic_element.</span></span><span class="sig-name descname"><span class="pre">j2j0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#j2j0"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.j2j0" title="Permalink to this definition">#</a></dt>
+<dd><p>Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the imaginary part of input z reaches 700, the following syntonic approximation is used:</p>
+<div class="math notranslate nohighlight">
+\[\frac{J_2(z)}{J_0(z)} = -1, \quad \text{if } \Im\{z\} &gt; 700.\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>array</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.preprocessing.acoustic_element.poly_function">
+<span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.acoustic_element.</span></span><span class="sig-name descname"><span class="pre">poly_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/acoustic_element.html#poly_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.acoustic_element.poly_function" title="Permalink to this definition">#</a></dt>
+<dd><p>Auxiliary polynomial function to define the unflanged radiation impedance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>array</strong></dt><dd><p>Independent variable.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>array</dt><dd><p>Polynomial output.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="StructuralElement.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Structural Element</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Entity.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Entity</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

@@ -16,7 +16,7 @@ def gauss_quadrature(integration_points):
     This method returns the Gauss quadrature data.  
 
     Parameters
-    -------
+    ----------
     integration_points : int
         Number of integration points.
 
@@ -884,7 +884,7 @@ class StructuralElement:
         A   = self.cross_section.area
         I_2 = self.cross_section.second_moment_area_y
         I_3 = self.cross_section.second_moment_area_z
-        J   = self.cross_section._polar_moment_area()
+        J   = self.cross_section.polar_moment_area
 
         # Process cross-section offset
         self.cross_section.offset_rotation(el_type = 'beam_1')
@@ -975,7 +975,7 @@ class StructuralElement:
         A   = self.cross_section.area
         I_2 = self.cross_section.second_moment_area_y
         I_3 = self.cross_section.second_moment_area_z
-        J   = self.cross_section._polar_moment_area()
+        J   = self.cross_section.polar_moment_area
 
         # Process cross-section offset
         self.cross_section.offset_rotation(el_type = 'beam_1')
@@ -1069,7 +1069,7 @@ class StructuralElement:
         This method returns the shear coefficient according to the beam cross section. This coefficient is traditionally introduced in the Timoshenko beam theory.
 
         Parameters
-        -------
+        ----------
         section_info : 
             Beam cross section data.
 

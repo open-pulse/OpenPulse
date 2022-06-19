@@ -1,0 +1,845 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pulse.processing.solution_structural &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../../index.html">
+  <img src="../../../_static/logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pulse.processing.solution_structural</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">pi</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">spsolve</span>
+<span class="kn">from</span> <span class="nn">pulse.processing.assembly_structural</span> <span class="kn">import</span> <span class="n">AssemblyStructural</span>
+<span class="kn">from</span> <span class="nn">data.user_input.project.printMessageInput</span> <span class="kn">import</span> <span class="n">PrintMessageInput</span>
+
+<div class="viewcode-block" id="SolutionStructural"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural">[docs]</a><span class="k">class</span> <span class="nc">SolutionStructural</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; This class creates a Structural Solution object from input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    preprocessor : Preprocessor object</span>
+<span class="sd">        Structural finite element preprocessor.</span>
+
+<span class="sd">    frequencies : array</span>
+<span class="sd">        Frequencies of analysis.</span>
+
+<span class="sd">    acoustic_solution : array, optional</span>
+<span class="sd">        Solution of the acoustic FETM model. This solution is need to solve the coupled problem.</span>
+<span class="sd">        Default is None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_solution</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;acoustic_solution&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span> <span class="o">=</span> <span class="n">AssemblyStructural</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">acoustic_solution</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">acoustic_solution</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">preprocessor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">C_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Cr_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_Clump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_lumped_matrices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_matrices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr_exp_joint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr_exp_joint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_expansion_joint_global_matrices</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_connected_to_springs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">nodes_connected_to_springs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_with_lumped_masses</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">nodes_with_lumped_masses</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodes_connected_to_dampers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">nodes_connected_to_dampers</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_prescribed_indexes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_prescribed_values</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_unprescribed_indexes</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_Modal_prescribed_NonNull_DOFs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_ModeSup_prescribed_NonNull_DOFs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warning_Clump</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warning_ModeSup_prescribedDOFs</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">warning_Modal_prescribedDOFs</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset_stress_stiffening</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">update_global_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_matrices</span><span class="p">()</span> 
+
+<div class="viewcode-block" id="SolutionStructural._reinsert_prescribed_dofs"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural._reinsert_prescribed_dofs">[docs]</a>    <span class="k">def</span> <span class="nf">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">modal_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : array</span>
+<span class="sd">            Solution data from the direct method, modal superposition or modal shapes from modal analysis.</span>
+
+<span class="sd">        modal_analysis : boll, optional</span>
+<span class="sd">            True if the modal analysis was evaluated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Solution of all the degrees of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">full_solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">solution</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">modal_analysis</span><span class="p">:</span>
+                <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">),</span><span class="n">cols</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">:</span><span class="n">cols</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">full_solution</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.get_combined_loads"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.get_combined_loads">[docs]</a>    <span class="k">def</span> <span class="nf">get_combined_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_damping</span><span class="p">,</span> <span class="n">static_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method adds the effects of prescribed displacement and rotation into global loads vector.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Force and moment global loads. Each column corresponds to a frequency of analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># t0 = time()</span>
+        <span class="n">alphaV</span><span class="p">,</span> <span class="n">betaV</span><span class="p">,</span> <span class="n">alphaH</span><span class="p">,</span> <span class="n">betaH</span> <span class="o">=</span> <span class="n">global_damping</span>
+
+        <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_loads</span><span class="p">(</span><span class="n">static_analysis</span><span class="o">=</span><span class="n">static_analysis</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">static_analysis</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">F</span>
+
+        <span class="n">unprescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unprescribed_indexes</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">unprescribed_indexes</span><span class="p">)</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+        <span class="n">F_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span><span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+            
+            <span class="n">Kr_add_lump</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">Mr_add_lump</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">Cr_add_lump</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            
+            <span class="n">Kr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kr</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span>
+            <span class="n">_Mr</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mr</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mr_exp_joint</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span>
+            
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">):</span>
+                
+                <span class="n">_Kr</span> <span class="o">=</span> <span class="n">Kr</span> <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kr_exp_joint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> 
+
+                <span class="n">Kr_lump_i</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kr_lump</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">Mr_lump_i</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Mr_lump</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">Cr_lump_i</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Cr_lump</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="n">unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span>
+
+                <span class="n">Kr_add</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">_Kr</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">Mr_add</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">_Mr</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_connected_to_springs</span> <span class="o">!=</span> <span class="p">[]:</span>
+                    <span class="n">Kr_add_lump</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Kr_lump_i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_with_lumped_masses</span> <span class="o">!=</span> <span class="p">[]:</span>
+                    <span class="n">Mr_add_lump</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Mr_lump_i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_connected_to_dampers</span> <span class="o">!=</span> <span class="p">[]:</span>
+                    <span class="n">Cr_add_lump</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">Cr_lump_i</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+                <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span>
+                <span class="n">F_Kadd</span> <span class="o">=</span> <span class="n">Kr_add</span> <span class="o">+</span> <span class="n">Kr_add_lump</span>
+                <span class="n">F_Madd</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="n">Mr_add</span> <span class="o">+</span> <span class="n">Mr_add_lump</span><span class="p">)</span> 
+                <span class="n">F_Cadd</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span><span class="n">betaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">betaV</span><span class="p">)</span><span class="o">*</span><span class="n">Kr_add</span> <span class="o">+</span> <span class="p">(</span><span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span><span class="p">)</span><span class="o">*</span><span class="n">Mr_add</span><span class="p">)</span>
+                <span class="n">F_Cadd_lump</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">Cr_add_lump</span>
+                <span class="n">F_eq</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">F_Kadd</span> <span class="o">+</span> <span class="n">F_Madd</span> <span class="o">+</span> <span class="n">F_Cadd</span> <span class="o">+</span> <span class="n">F_Cadd_lump</span>
+
+        <span class="c1"># dt = time()-t0</span>
+        <span class="c1"># print(&quot;Time elapsed: {}[s]&quot;.format(dt))</span>
+
+        <span class="n">F_combined</span> <span class="o">=</span> <span class="n">F</span> <span class="o">-</span> <span class="n">F_eq</span>
+
+        <span class="k">return</span> <span class="n">F_combined</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.modal_analysis"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.modal_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">modal_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="o">=</span><span class="p">[],</span> <span class="n">M</span><span class="o">=</span><span class="p">[],</span> <span class="n">modes</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;LM&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">harmonic_analysis</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        modes : int, optional</span>
+<span class="sd">            Number of acoustic modes to be evaluated.</span>
+<span class="sd">            Default is 20.</span>
+
+<span class="sd">        which : str, [&#39;LM&#39; | &#39;SM&#39; | &#39;LR&#39; | &#39;SR&#39; | &#39;LI&#39; | &#39;SI&#39;], optional</span>
+<span class="sd">            Which `k` eigenvectors and eigenvalues to find:</span>
+<span class="sd">                &#39;LM&#39; : largest magnitude</span>
+<span class="sd">                &#39;SM&#39; : smallest magnitude</span>
+<span class="sd">                &#39;LR&#39; : largest real part</span>
+<span class="sd">                &#39;SR&#39; : smallest real part</span>
+<span class="sd">                &#39;LI&#39; : largest imaginary part</span>
+<span class="sd">                &#39;SI&#39; : smallest imaginary part</span>
+<span class="sd">            Default is &#39;LM&#39;.</span>
+
+<span class="sd">        sigma : float, optional</span>
+<span class="sd">            Find eigenvalues near sigma in (rad/s)^2 using shift-invert mode. </span>
+
+<span class="sd">        harmonic_analysis : boll, optional</span>
+<span class="sd">            True when the modal analysis is used to perform mode superposition. False otherwise.</span>
+<span class="sd">            Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        natural_frequencies : array</span>
+<span class="sd">            Natural frequencies.</span>
+
+<span class="sd">        modal_shapes : array</span>
+<span class="sd">            Modal shapes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">K</span><span class="o">==</span><span class="p">[]</span> <span class="ow">and</span> <span class="n">M</span><span class="o">==</span><span class="p">[]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">stress_stiffening_enabled</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">static_analysis_for_stress_stiffening</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+  
+            <span class="n">Kadd_lump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">Madd_lump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="c1"># else:</span>
+            <span class="c1">#     #Note: stiffness and mass/moment of inertia parameters imported from tables are not considered in modal analysis, only single values are allowable.</span>
+            <span class="c1">#     Kadd_lump = self.K + self.K_exp_joint[0]</span>
+            <span class="c1">#     Madd_lump = self.M + self.M_exp_joint</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Kadd_lump</span> <span class="o">=</span> <span class="n">K</span>
+            <span class="n">Madd_lump</span> <span class="o">=</span> <span class="n">M</span>
+
+        <span class="n">eigen_values</span><span class="p">,</span> <span class="n">eigen_vectors</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">(</span><span class="n">Kadd_lump</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">Madd_lump</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">modes</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="n">which</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+        <span class="n">positive_real</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">eigen_values</span><span class="p">))</span>
+        <span class="n">natural_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">positive_real</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">modal_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">eigen_vectors</span><span class="p">)</span>
+
+        <span class="n">index_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">)</span>
+        <span class="n">natural_frequencies</span> <span class="o">=</span> <span class="n">natural_frequencies</span><span class="p">[</span><span class="n">index_order</span><span class="p">]</span>
+        <span class="n">modal_shape</span> <span class="o">=</span> <span class="n">modal_shape</span><span class="p">[:,</span> <span class="n">index_order</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">harmonic_analysis</span><span class="p">:</span>
+            <span class="n">modal_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">modal_shape</span><span class="p">,</span> <span class="n">modal_analysis</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">complex</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">flag_Modal_prescribed_NonNull_DOFs</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">warning_Modal_prescribedDOFs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;The Prescribed DOFs of non-zero values have been ignored in the modal analysis.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                                                            <span class="s2">&quot;The null value has been attributed to those DOFs with non-zero values.&quot;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>        
+        
+        <span class="k">return</span> <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">modal_shape</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.direct_method"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.direct_method">[docs]</a>    <span class="k">def</span> <span class="nf">direct_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_damping</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the harmonic analysis through direct method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">alphaV</span><span class="p">,</span> <span class="n">betaV</span><span class="p">,</span> <span class="n">alphaH</span><span class="p">,</span> <span class="n">betaH</span> <span class="o">=</span> <span class="n">global_damping</span>
+        
+        <span class="c1"># t0 = time()</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_combined_loads</span><span class="p">(</span><span class="n">global_damping</span><span class="p">)</span>
+        <span class="c1"># dt = time() - t0</span>
+        <span class="c1"># print(&quot;Time elapsed: {}[s]&quot;.format(dt))</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">stress_stiffening_enabled</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">static_analysis_for_stress_stiffening</span><span class="p">(</span><span class="n">global_damping</span><span class="p">)</span>
+
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+    
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">):</span>
+
+            <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span>
+            
+            <span class="c1"># F_K = (self.K + self.K_lump[i])</span>
+            <span class="c1"># F_M =  (-(omega**2))*(self.M + self.M_lump[i])</span>
+            <span class="c1"># F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)</span>
+
+            <span class="n">F_K</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">F_M</span> <span class="o">=</span>  <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_lump</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">F_C</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span> <span class="n">betaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">betaV</span> <span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span> <span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span> <span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span><span class="p">))</span>
+
+            <span class="n">F_Clump</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">C_lump</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            
+            <span class="n">A</span> <span class="o">=</span> <span class="n">F_K</span> <span class="o">+</span> <span class="n">F_M</span> <span class="o">+</span> <span class="n">F_C</span> <span class="o">+</span> <span class="n">F_Clump</span>
+            <span class="n">solution</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">F</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.mode_superposition"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.mode_superposition">[docs]</a>    <span class="k">def</span> <span class="nf">mode_superposition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modes</span><span class="p">,</span> <span class="n">global_damping</span><span class="p">,</span> <span class="n">F_loaded</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fastest</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the harmonic analysis through mode superposition method. It is suitable for Viscous Proportional and Hysteretic Proportional damping models.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</span>
+
+<span class="sd">        F_loaded : ,optional.</span>
+<span class="sd">            </span>
+<span class="sd">            Default None.</span>
+
+<span class="sd">        fastest : boll, optional.</span>
+<span class="sd">            True if 3D matrix solution procedure must be used. False otherwise.</span>
+<span class="sd">            Default True.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">alphaV</span><span class="p">,</span> <span class="n">betaV</span><span class="p">,</span> <span class="n">alphaH</span><span class="p">,</span> <span class="n">betaH</span> <span class="o">=</span> <span class="n">global_damping</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">direct_method</span><span class="p">(</span><span class="n">global_damping</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flag_ModeSup_prescribed_NonNull_DOFs</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warning_ModeSup_prescribedDOFs</span> <span class="o">=</span> <span class="s2">&quot;The Harmonic Analysis of prescribed DOF&#39;s problems </span><span class="se">\n</span><span class="s2">had been solved through the Direct Method!&quot;</span>
+            <span class="k">return</span> <span class="n">solution</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_loads</span><span class="p">(</span><span class="n">loads_matrix3D</span><span class="o">=</span><span class="n">fastest</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">stress_stiffening_enabled</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">static_analysis_for_stress_stiffening</span><span class="p">(</span><span class="n">global_damping</span><span class="p">)</span>
+            <span class="c1"># Kadd_lump = self.K + self.K_lump[0]</span>
+            <span class="c1"># Madd_lump = self.M + self.M_lump[0]</span>
+            <span class="n">Kadd_lump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">Madd_lump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">no_table</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1">#TODO: in the future version implement lets F_loaded operational</span>
+
+        <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">modal_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">modal_analysis</span><span class="p">(</span><span class="n">K</span><span class="o">=</span><span class="n">Kadd_lump</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">Madd_lump</span><span class="p">,</span> <span class="n">modes</span><span class="o">=</span><span class="n">modes</span><span class="p">,</span> <span class="n">harmonic_analysis</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">Kadd_lump</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">fastest</span><span class="p">:</span>    
+        
+            <span class="n">number_modes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">)</span>
+            <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">omega_n</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">natural_frequencies</span>
+            <span class="n">F_kg</span> <span class="o">=</span> <span class="p">(</span><span class="n">omega_n</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">F_mg</span> <span class="o">=</span>  <span class="o">-</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">F_cg</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span><span class="n">betaH</span> <span class="o">+</span> <span class="n">betaV</span><span class="o">*</span><span class="n">omega</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">omega_n</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span><span class="p">))</span> 
+            <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">F_kg</span> <span class="o">+</span> <span class="n">F_mg</span> <span class="o">+</span> <span class="n">F_cg</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">number_modes</span><span class="p">)</span>
+            <span class="n">F_aux</span> <span class="o">=</span> <span class="n">modal_shape</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">F</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">modal_shape</span> <span class="o">@</span> <span class="p">(</span><span class="n">diag</span> <span class="o">@</span> <span class="n">F_aux</span><span class="p">)</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">T</span> 
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+                <span class="k">return</span> <span class="kc">None</span>
+        
+        <span class="k">else</span><span class="p">:</span>
+        
+            <span class="n">solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+            <span class="n">F_aux</span> <span class="o">=</span> <span class="n">modal_shape</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">F</span>
+            <span class="n">omega_n</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">natural_frequencies</span>
+            <span class="n">F_kg</span> <span class="o">=</span> <span class="p">(</span><span class="n">omega_n</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">):</span>
+
+                <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span>
+                <span class="n">F_mg</span> <span class="o">=</span>  <span class="o">-</span> <span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="n">F_cg</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span><span class="n">betaH</span> <span class="o">+</span> <span class="n">betaV</span><span class="o">*</span><span class="n">omega</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">omega_n</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span><span class="p">))</span> 
+                <span class="n">data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="n">F_kg</span> <span class="o">+</span> <span class="n">F_mg</span> <span class="o">+</span> <span class="n">F_cg</span><span class="p">))</span>
+                <span class="n">diag</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                <span class="n">solution</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">modal_shape</span> <span class="o">@</span> <span class="p">(</span><span class="n">diag</span> <span class="o">@</span> <span class="n">F_aux</span><span class="p">[:,</span><span class="n">i</span><span class="p">])</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+                    <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flag_Clump</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">warning_Clump</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;There are external dampers connecting nodes to the ground. The damping,</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                                    <span class="s2">&quot;treated as a viscous non-proportional model, will be ignored in mode </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                                    <span class="s2">&quot;superposition. It&#39;s recommended to solve the harmonic analysis through </span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                                    <span class="s2">&quot;direct method if you want to get more accurate results!&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span></div>
+
+<div class="viewcode-block" id="SolutionStructural.static_analysis_for_stress_stiffening"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.static_analysis_for_stress_stiffening">[docs]</a>    <span class="k">def</span> <span class="nf">static_analysis_for_stress_stiffening</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_damping</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the static analysis through the direct method. This method is evaluated whenever stress stiffening effects are enabled.</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic and beta histeretic.</span>
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ????</span>
+<span class="sd">            Gets the nodal results at the global coordinate system and updates the global matrices to get into account the stress stiffening effect. </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+       
+        <span class="c1"># t0 = time()</span>
+        <span class="n">alphaV</span><span class="p">,</span> <span class="n">betaV</span><span class="p">,</span> <span class="n">alphaH</span><span class="p">,</span> <span class="n">betaH</span> <span class="o">=</span> <span class="n">global_damping</span>
+        <span class="n">F</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_combined_loads</span><span class="p">(</span><span class="n">global_damping</span><span class="p">,</span> <span class="n">static_analysis</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># dt = time() - t0</span>
+        <span class="c1"># print(&quot;Time elapsed: {}[s]&quot;.format(dt))</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># F_K = (self.K + self.K_lump[0])</span>
+        <span class="c1"># F_M =  (-(omega**2))*(self.M + self.M_lump[0])</span>
+        <span class="c1"># F_C = 1j*(( betaH + omega*betaV )*self.K + ( alphaH + omega*alphaV )*self.M)</span>
+
+        <span class="n">F_K</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">F_M</span> <span class="o">=</span>  <span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">F_C</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span> <span class="n">betaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">betaV</span> <span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_exp_joint</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="p">(</span> <span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span> <span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">M</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">M_exp_joint</span><span class="p">))</span>
+        
+        <span class="n">F_Clump</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">C_lump</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        
+        <span class="n">A</span> <span class="o">=</span> <span class="n">F_K</span> <span class="o">+</span> <span class="n">F_M</span> <span class="o">+</span> <span class="n">F_C</span> <span class="o">+</span> <span class="n">F_Clump</span>
+
+        <span class="n">solution</span><span class="p">[:,</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsolve</span><span class="p">(</span><span class="n">A</span><span class="p">,</span> <span class="n">F</span><span class="p">[:,</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">static_solution_all_dofs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_nodal_solution_info</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">static_solution_all_dofs</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_global_matrices</span><span class="p">()</span></div>
+  
+    <span class="k">def</span> <span class="nf">update_nodal_solution_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodal_solution</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>  
+            <span class="n">global_indexes</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">global_dof</span>
+            <span class="n">node</span><span class="o">.</span><span class="n">static_nodal_solution_gcs</span> <span class="o">=</span> <span class="n">nodal_solution</span><span class="p">[</span><span class="n">global_indexes</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">structural_elements</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">element</span><span class="o">.</span><span class="n">static_analysis_evaluated</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="SolutionStructural.get_reactions_at_fixed_nodes"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_fixed_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">get_reactions_at_fixed_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_damping_values</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates reaction forces and moments at fixed nodes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a fixed degree of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">alphaH</span><span class="p">,</span> <span class="n">betaH</span><span class="p">,</span> <span class="n">alphaV</span><span class="p">,</span> <span class="n">betaV</span> <span class="o">=</span> <span class="n">global_damping_values</span>
+        <span class="n">load_reactions</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>    
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span> <span class="o">==</span> <span class="p">[]</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr</span> <span class="o">==</span> <span class="p">[]:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">rows</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+                <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">)</span>
+                <span class="n">_reactions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+                <span class="n">Ut</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="o">.</span><span class="n">T</span>
+                <span class="n">Kr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+                <span class="n">Mr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">Mr_exp_joint</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+                <span class="n">Ut_Mr</span> <span class="o">=</span> <span class="n">Ut</span><span class="nd">@Mr</span>
+
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">freq</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">):</span>
+                    
+                    <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="n">freq</span>
+                    <span class="c1"># Ut_Kr = Ut@(Kr+self.Kr_exp_joint[j].toarray())</span>
+
+                    <span class="c1"># F_K = Ut_Kr[j,:]</span>
+                    <span class="c1"># F_M = -(omega**2)*Ut_Mr[j,:]</span>
+                    <span class="c1"># F_C = 1j*((betaH + omega*betaV)*Ut_Kr[j,:] + (alphaH + omega*alphaV)*Ut_Mr[j,:])</span>
+
+                    <span class="n">Ut_Kr</span> <span class="o">=</span> <span class="n">Ut</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span><span class="o">@</span><span class="p">(</span><span class="n">Kr</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">Kr_exp_joint</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">toarray</span><span class="p">())</span>
+                    <span class="n">F_K</span> <span class="o">=</span> <span class="n">Ut_Kr</span>
+                    <span class="n">F_M</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">omega</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="n">Ut_Mr</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span>
+                    <span class="n">F_C</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">((</span><span class="n">betaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">betaV</span><span class="p">)</span><span class="o">*</span><span class="n">Ut_Kr</span> <span class="o">+</span> <span class="p">(</span><span class="n">alphaH</span> <span class="o">+</span> <span class="n">omega</span><span class="o">*</span><span class="n">alphaV</span><span class="p">)</span><span class="o">*</span><span class="n">Ut_Mr</span><span class="p">[</span><span class="n">j</span><span class="p">,:])</span>
+                    <span class="n">_reactions</span><span class="p">[</span><span class="n">j</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">F_K</span> <span class="o">+</span> <span class="n">F_M</span> <span class="o">+</span> <span class="n">F_C</span>
+                
+                <span class="c1"># Mr = self.Mr.toarray()</span>
+                <span class="c1"># Ut_Kr = Ut@Kr</span>
+                <span class="c1"># Ut_Mr = Ut@Mr</span>
+                
+                <span class="c1"># omega = 2*np.pi*self.frequencies</span>
+                <span class="c1"># omega = omega.reshape(rows,1)</span>
+                    
+                <span class="c1"># F_K = Ut_Kr</span>
+                <span class="c1"># F_M = -(omega**2)*Ut_Mr</span>
+                <span class="c1"># F_C = 1j*((betaH + omega*betaV)*Ut_Kr + (alphaH + omega*alphaV)*Ut_Mr)</span>
+                <span class="c1"># _reactions = F_K + F_M + F_C</span>
+
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">prescribed_index</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">):</span>
+                    <span class="n">load_reactions</span><span class="p">[</span><span class="n">prescribed_index</span><span class="p">]</span> <span class="o">=</span>  <span class="n">_reactions</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+                <span class="k">return</span> <span class="n">load_reactions</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.get_reactions_at_springs_and_dampers"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.get_reactions_at_springs_and_dampers">[docs]</a>    <span class="k">def</span> <span class="nf">get_reactions_at_springs_and_dampers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Reactions. Each column corresponds to a frequency of analysis. Each row corresponds to a spring and damper.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">dict_reactions_at_springs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">dict_reactions_at_dampers</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span> 
+
+            <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span>
+            <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+
+            <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span>
+
+            <span class="n">global_dofs_of_springs</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">global_dofs_of_dampers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">springs_stiffness</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">dampers_dampings</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes_connected_to_springs</span><span class="p">:</span>
+                <span class="n">global_dofs_of_springs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">global_dof</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">loaded_table_for_lumped_stiffness</span><span class="p">:</span>
+                    <span class="n">springs_stiffness</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">lumped_stiffness</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">springs_stiffness</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span><span class="o">*</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">lumped_stiffness</span><span class="p">])</span>
+
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes_connected_to_dampers</span><span class="p">:</span>
+                <span class="n">global_dofs_of_dampers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">global_dof</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">loaded_table_for_lumped_dampings</span><span class="p">:</span>
+                    <span class="n">dampers_dampings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">lumped_dampings</span><span class="p">])</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dampers_dampings</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span><span class="o">*</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">lumped_dampings</span><span class="p">])</span>
+
+            <span class="k">if</span> <span class="n">springs_stiffness</span> <span class="o">!=</span> <span class="p">[]:</span>
+                <span class="n">global_dofs_of_springs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">global_dofs_of_springs</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">springs_stiffness</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">springs_stiffness</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">cols</span><span class="p">)</span>
+                <span class="n">reactions_at_springs</span> <span class="o">=</span> <span class="n">springs_stiffness</span><span class="o">*</span><span class="n">U</span><span class="p">[</span><span class="n">global_dofs_of_springs</span><span class="p">,:]</span>
+
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gdof</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">global_dofs_of_springs</span><span class="p">):</span>
+                    <span class="n">dict_reactions_at_springs</span><span class="p">[</span><span class="n">gdof</span><span class="p">]</span> <span class="o">=</span> <span class="n">reactions_at_springs</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+
+            <span class="k">if</span> <span class="n">dampers_dampings</span> <span class="o">!=</span> <span class="p">[]:</span>
+                <span class="n">global_dofs_of_dampers</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">global_dofs_of_dampers</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+                <span class="n">dampers_dampings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">dampers_dampings</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="n">cols</span><span class="p">)</span>
+                <span class="n">reactions_at_dampers</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="p">)</span><span class="o">*</span><span class="n">dampers_dampings</span><span class="o">*</span><span class="n">U</span><span class="p">[</span><span class="n">global_dofs_of_dampers</span><span class="p">,:]</span>
+            
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">gdof</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">global_dofs_of_dampers</span><span class="p">):</span>
+                    <span class="n">dict_reactions_at_dampers</span><span class="p">[</span><span class="n">gdof</span><span class="p">]</span> <span class="o">=</span> <span class="n">reactions_at_dampers</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span>
+
+            <span class="k">return</span> <span class="n">dict_reactions_at_springs</span><span class="p">,</span> <span class="n">dict_reactions_at_dampers</span></div>
+
+
+<div class="viewcode-block" id="SolutionStructural.stress_calculate"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_structural.SolutionStructural.stress_calculate">[docs]</a>    <span class="k">def</span> <span class="nf">stress_calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">global_damping</span><span class="p">,</span> <span class="n">pressure_external</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">damping_flag</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">_real_values</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates reaction forces and moments at lumped springs and dampers connected the structure and the ground.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        global_damping : list of floats.</span>
+<span class="sd">            Damping coefficients alpha viscous, beta viscous, alpha histeretic, and beta histeretic.</span>
+
+<span class="sd">        pressure_external : float, optional</span>
+<span class="sd">            Static pressure difference between atmosphere and the fluid in the pipeline.</span>
+<span class="sd">            Default is 0.</span>
+<span class="sd">            </span>
+<span class="sd">        damping_flag : boll, optional.</span>
+<span class="sd">            True if the damping must be considered when evaluating the stresses. False otherwise.</span>
+<span class="sd">            Default is False</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Stresses. Each column corresponds to a element. The rows corresponds to the:</span>
+<span class="sd">                Normal axial stress</span>
+<span class="sd">                Normal bending-y stress </span>
+<span class="sd">                Normal bending-z stress </span>
+<span class="sd">                Hoop stress</span>
+<span class="sd">                Torsional shear</span>
+<span class="sd">                Transversal-xy shear</span>
+<span class="sd">                Transversal-xz shear</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">stress_field_dict</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">damping_flag</span><span class="p">:</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">betaH</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">betaV</span> <span class="o">=</span> <span class="n">global_damping</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">betaH</span> <span class="o">=</span> <span class="n">betaV</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">structural_elements</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">damping</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">6</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span> <span class="o">@</span>  <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span> <span class="n">betaH</span> <span class="o">+</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">betaV</span> <span class="p">))</span>
+        <span class="n">p0</span> <span class="o">=</span> <span class="n">pressure_external</span>
+
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+
+            <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;beam_1&#39;</span><span class="p">,</span> <span class="s1">&#39;expansion_joint&#39;</span><span class="p">,</span> <span class="s1">&#39;valve&#39;</span><span class="p">]:</span>
+                <span class="n">element</span><span class="o">.</span><span class="n">stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">7</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)))</span>
+            
+            <span class="k">elif</span> <span class="n">element</span><span class="o">.</span><span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;pipe_1&#39;</span><span class="p">,</span> <span class="s1">&#39;pipe_2&#39;</span><span class="p">]:</span>
+                <span class="c1"># Internal Loads</span>
+                <span class="n">structural_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_dof</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_dof</span><span class="p">]</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">window_title</span> <span class="o">=</span> <span class="s2">&quot;ERROR&quot;</span>
+                    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Empty solution&quot;</span>
+                    <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;A strutural analysis must be performed to obtain the stress field.&quot;</span>
+                    <span class="n">PrintMessageInput</span><span class="p">([</span><span class="n">title</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">window_title</span><span class="p">])</span>
+                    <span class="k">return</span>
+
+                <span class="n">u</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution</span><span class="p">[</span><span class="n">structural_dofs</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="n">Dab</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">_Dab</span>
+                <span class="n">Bab</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">_Bab</span>
+
+                <span class="n">Dts</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">_Dts</span>
+                <span class="n">Bts</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">_Bts</span>
+
+                <span class="n">rot</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">_rot</span>
+                <span class="n">T</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">principal_axis_translation</span>
+                
+                <span class="n">normal</span> <span class="o">=</span> <span class="n">Dab</span> <span class="o">@</span> <span class="n">Bab</span> <span class="o">@</span> <span class="n">T</span> <span class="o">@</span> <span class="n">rot</span> <span class="o">@</span> <span class="n">u</span>
+                <span class="n">shear</span> <span class="o">=</span> <span class="n">Dts</span> <span class="o">@</span> <span class="n">Bts</span> <span class="o">@</span> <span class="n">T</span> <span class="o">@</span> <span class="n">rot</span> <span class="o">@</span> <span class="n">u</span>
+
+                <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">multiply</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">normal</span><span class="p">,</span> <span class="n">shear</span><span class="p">],</span><span class="n">damping</span><span class="p">)</span>
+                <span class="c1"># Stress</span>
+                <span class="n">do</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">outer_diameter</span>
+                <span class="n">di</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span>
+                <span class="n">ro</span> <span class="o">=</span> <span class="n">do</span><span class="o">/</span><span class="mi">2</span>
+                <span class="n">area</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">area</span>
+                <span class="n">Iy</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">second_moment_area_y</span>
+                <span class="n">Iz</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">second_moment_area_z</span>
+                <span class="n">J</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">polar_moment_area</span>
+                <span class="n">nu</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">poisson_ratio</span>
+
+                <span class="n">acoustic_dofs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span><span class="p">]</span>
+                
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_solution</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_solution</span><span class="p">[</span><span class="n">acoustic_dofs</span><span class="p">,</span> <span class="p">:]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">p</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">2</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)))</span>
+                <span class="n">pm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">p</span><span class="p">,</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+
+                <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">wall_formutation_type</span> <span class="o">==</span> <span class="s2">&quot;thick wall&quot;</span><span class="p">:</span>
+                    <span class="n">hoop_stress</span> <span class="o">=</span> <span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">pm</span><span class="o">*</span><span class="n">di</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">p0</span><span class="o">*</span><span class="p">(</span><span class="n">do</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">di</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">do</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">di</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="n">radial_stress</span> <span class="o">=</span>  <span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="n">nu</span><span class="o">*</span><span class="p">(</span><span class="n">pm</span><span class="o">*</span><span class="n">di</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">p0</span><span class="o">*</span><span class="n">do</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">do</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">di</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">wall_formutation_type</span> <span class="o">==</span> <span class="s2">&quot;thin wall&quot;</span><span class="p">:</span>
+                    <span class="n">hoop_stress</span> <span class="o">=</span> <span class="n">pm</span>
+                    <span class="n">radial_stress</span> <span class="o">=</span> <span class="o">-</span><span class="n">nu</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">do</span><span class="o">/</span><span class="p">(</span><span class="n">do</span><span class="o">-</span><span class="n">di</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                   
+                <span class="n">stress_data</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">/</span><span class="n">area</span> <span class="o">-</span> <span class="n">radial_stress</span><span class="p">,</span>
+                                    <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">*</span> <span class="n">ro</span><span class="o">/</span><span class="n">Iy</span><span class="p">,</span>
+                                    <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">ro</span><span class="o">/</span><span class="n">Iz</span><span class="p">,</span>
+                                    <span class="n">hoop_stress</span><span class="p">,</span>
+                                    <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">*</span> <span class="n">ro</span><span class="o">/</span><span class="n">J</span><span class="p">,</span>
+                                    <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">/</span><span class="n">area</span><span class="p">,</span>
+                                    <span class="n">element</span><span class="o">.</span><span class="n">internal_load</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">/</span><span class="n">area</span>   <span class="p">]</span><span class="o">.</span><span class="n">T</span>
+                
+                <span class="k">if</span> <span class="n">_real_values</span><span class="p">:</span>
+                    <span class="n">element</span><span class="o">.</span><span class="n">stress</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">stress_data</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">element</span><span class="o">.</span><span class="n">stress</span> <span class="o">=</span> <span class="n">stress_data</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">stress_field_dict</span><span class="p">[</span><span class="n">element</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">stress</span>
+            
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">stress_field_dict</span></div>
+
+    <span class="k">def</span> <span class="nf">stop_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing interruption was requested by the user. </span><span class="se">\n</span><span class="s2">Solution interruped.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

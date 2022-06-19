@@ -64,7 +64,7 @@ class Entity:
         This method returns the list of nodes that belong to the entity.
 
         Returns
-        ----------
+        -------
         list
             Nodes that belong to the entity.
 
@@ -79,7 +79,7 @@ class Entity:
         This method returns the list of elements that belong to the entity.
 
         Returns
-        ----------
+        -------
         list
             Elements that belong to the entity.
 
@@ -94,7 +94,7 @@ class Entity:
         This method returns entity tag.
 
         Returns
-        ----------
+        -------
         int
             Entity tag.
         """
@@ -105,7 +105,7 @@ class Entity:
         This method returns entity color.
 
         Returns
-        ----------
+        -------
         tuple
             Entity color.
 
@@ -122,7 +122,7 @@ class Entity:
         This method returns normalized entity color.
 
         Returns
-        ----------
+        -------
         tuple
             Normalized entity color.
 
@@ -139,7 +139,7 @@ class Entity:
         This method returns entity cross section.
 
         Returns
-        ----------
+        -------
         CrossSection object
             Entity cross section.
         """
@@ -150,7 +150,7 @@ class Entity:
         This method returns entity structural element type.
 
         Returns
-        ----------
+        -------
         int
             structural element type.
         """
@@ -161,7 +161,7 @@ class Entity:
         This method returns entity material.
 
         Returns
-        ----------
+        -------
         Material object
             Entity material.
         """
@@ -172,7 +172,7 @@ class Entity:
         This method returns entity fluid.
 
         Returns
-        ----------
+        -------
         Fluid object
             Entity fluid.
         """
@@ -183,7 +183,7 @@ class Entity:
         This method returns entity capped end configuration.
 
         Returns
-        ----------
+        -------
         boll
             Capped end configuration.
         """

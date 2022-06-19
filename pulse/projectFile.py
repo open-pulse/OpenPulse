@@ -1,7 +1,7 @@
 import re
 from pulse.preprocessing.material import Material
 from pulse.preprocessing.fluid import Fluid
-from pulse.preprocessing.cross_section import CrossSection, get_beam_section_properties
+from pulse.preprocessing.cross_section import CrossSection
 from pulse.preprocessing.perforated_plate import PerforatedPlate
 from data.user_input.project.printMessageInput import PrintMessageInput
 from pulse.utils import *
@@ -412,11 +412,8 @@ class ProjectFile:
                                                     "offset_z" : offset_z, 
                                                     "insulation_thickness" : insulation_thickness, 
                                                     "insulation_density" : insulation_density }
-            
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
 
-                            cross = CrossSection(pipe_section_info=pipe_section_info)
+                            cross = CrossSection(pipe_section_info=section_parameters)
                             
                             self.dict_cross[entity] = [cross, list_elements]
                         except Exception as log_error:
@@ -442,20 +439,16 @@ class ProjectFile:
                         if section_type == "Generic section":                 
                             if 'section properties' in entityFile[entity].keys():
                                 str_section_properties =  entityFile[entity]['section properties']
-                                section_properties = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
-                                section_properties = get_beam_section_properties(section_type, section_properties)
-                                section_parameters = None
+                                section_properties_list = self._get_list_of_values_from_string(str_section_properties, are_values_int=False)
+                                cross = CrossSection(generic_section_info=section_properties_list)
                         else:
                             if 'section parameters' in entityFile[entity].keys():
                                 str_section_parameters = entityFile[entity]['section parameters']
                                 section_parameters = self._get_list_of_values_from_string(str_section_parameters, are_values_int=False)
-                                section_properties = get_beam_section_properties(section_type, section_parameters)
     
-                        beam_section_info = {   "section_type_label" : section_type,
-                                                "section_parameters" : section_parameters,
-                                                "section_properties" : section_properties   }
-
-                        cross = CrossSection(beam_section_info=beam_section_info)
+                                beam_section_info = {   "section_type_label" : section_type,
+                                                        "section_parameters" : section_parameters  }
+                                cross = CrossSection(beam_section_info=beam_section_info)
                         self.dict_cross[entity] = cross
                         
                     except Exception as err:
@@ -492,11 +485,8 @@ class ProjectFile:
                                                     "offset_z" : float(offset_z), 
                                                     "insulation_thickness" : float(insulation_thickness), 
                                                     "insulation_density" : float(insulation_density) }
-        
-                            pipe_section_info = {   "section_type_label" : "Pipe section" ,
-                                                    "section_parameters" : section_parameters  }
 
-                            cross = CrossSection(pipe_section_info=pipe_section_info)
+                            cross = CrossSection(pipe_section_info=section_parameters)
 
                             self.dict_cross[entity] = cross
 
@@ -553,8 +543,7 @@ class ProjectFile:
                 cross_section_labels = ["outer_diameter", "thickness", "offset_y", "offset_z", "insulation_thickness", "insulation_density"]
                 if len(valve_section_parameters) == 6:
                     valve_data["valve_section_parameters"] = dict(zip(cross_section_labels, valve_section_parameters))
-                    valve_section_info = {  "section_type_label" : "Valve section",
-                                            "section_parameters" : valve_data["valve_section_parameters"]  }
+                    valve_section_info = {  "section_parameters" : valve_data["valve_section_parameters"]  }
                                         
                     list_valve_elements = valve_data["valve_elements"]
                     valve_thickness = valve_section_parameters[1]
@@ -590,8 +579,7 @@ class ProjectFile:
                 
                 if len(flange_section_parameters) == 6:
                     valve_data["flange_section_parameters"] = dict(zip(cross_section_labels, flange_section_parameters))
-                    flange_section_info = { "section_type_label" : "Valve section",
-                                            "section_parameters" : valve_data["flange_section_parameters"]  }
+                    flange_section_info = { "section_parameters" : valve_data["flange_section_parameters"]  }
 
                     for _id in list_flange_elements:
                         dict_element_to_diameters[_id] = [dict_outer_diameters[_id], dict_inner_diameters[_id]]   

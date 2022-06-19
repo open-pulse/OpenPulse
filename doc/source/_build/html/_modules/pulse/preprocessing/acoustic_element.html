@@ -1,0 +1,1007 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pulse.preprocessing.acoustic_element &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../../index.html">
+  <img src="../../../_static/logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pulse.preprocessing.acoustic_element</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">pi</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy.special</span> <span class="kn">import</span> <span class="n">jv</span><span class="p">,</span> <span class="n">hankel1</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">root</span>
+<span class="kn">from</span> <span class="nn">pulse.preprocessing.perforated_plate</span> <span class="kn">import</span> <span class="n">Foks_function</span>
+<span class="kn">from</span> <span class="nn">pulse.preprocessing.node</span> <span class="kn">import</span> <span class="n">distance</span>
+
+<span class="n">DOF_PER_NODE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">NODES_PER_ELEMENT</span> <span class="o">=</span> <span class="mi">2</span>
+<span class="n">DOF_PER_ELEMENT</span> <span class="o">=</span> <span class="n">DOF_PER_NODE</span> <span class="o">*</span> <span class="n">NODES_PER_ELEMENT</span>
+<span class="n">ENTRIES_PER_ELEMENT</span> <span class="o">=</span> <span class="n">DOF_PER_ELEMENT</span> <span class="o">**</span> <span class="mi">2</span>
+
+<span class="k">def</span> <span class="nf">f_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">jv</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">jv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">H1</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mi">2</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">jv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="mi">16</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="mi">12</span> <span class="o">-</span> <span class="mi">36</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span>
+
+<div class="viewcode-block" id="poly_function"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.poly_function">[docs]</a><span class="k">def</span> <span class="nf">poly_function</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Auxiliary polynomial function to define the unflanged radiation impedance.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array</span>
+<span class="sd">        Independent variable. </span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array</span>
+<span class="sd">        Polynomial output.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.6110035017201978</span><span class="p">,</span> <span class="mf">0.028476407937161143</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.26371506544764184</span><span class="p">,</span> <span class="mf">0.24363292796929378</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.11627424586622058</span><span class="p">,</span> <span class="mf">0.027516286514019005</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.00254838451051438</span><span class="p">])</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span><span class="mi">7</span><span class="p">])</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="n">b</span> <span class="p">)</span> <span class="o">@</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="j2j0"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.j2j0">[docs]</a><span class="k">def</span> <span class="nf">j2j0</span><span class="p">(</span><span class="n">z</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the imaginary part of input z reaches 700, the following syntonic approximation is used:</span>
+<span class="sd">    </span>
+<span class="sd">    .. math::</span>
+<span class="sd">        \frac{J_2(z)}{J_0(z)} = -1, \quad \text{if } \Im\{z\} &gt; 700.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">imag</span><span class="p">(</span><span class="n">z</span><span class="p">))</span><span class="o">&lt;</span><span class="mi">700</span>
+    <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">dtype</span> <span class="o">=</span> <span class="nb">complex</span><span class="p">)</span>
+    <span class="n">value</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">jv</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span> <span class="o">/</span> <span class="n">jv</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">z</span><span class="p">[</span><span class="n">mask</span><span class="p">])</span>
+    <span class="n">value</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="AcousticElement"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement">[docs]</a><span class="k">class</span> <span class="nc">AcousticElement</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class creates an acoustic element from input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    first_node : Node object</span>
+<span class="sd">        Element&#39;s first node.</span>
+
+<span class="sd">    last_node : Node object</span>
+<span class="sd">        Element&#39;s last node.</span>
+
+<span class="sd">    index : int</span>
+<span class="sd">        Element index.</span>
+
+<span class="sd">    element_type : [&#39;undamped&#39;, &#39;proportional&#39;, &#39;wide-duct&#39;, &#39;LRF fluid equivalent&#39;, &#39;LRF full&#39;], optional</span>
+<span class="sd">        Element type. Default is &#39;undamped&#39;.</span>
+
+<span class="sd">    proportional_damping : float, optional</span>
+<span class="sd">        Proportional damping coefficient. Default is &#39;None&#39;.</span>
+
+<span class="sd">    material : Material object, optional</span>
+<span class="sd">        Element structural material. Default is &#39;None&#39;.</span>
+
+<span class="sd">    fluid : Fluid object, optional</span>
+<span class="sd">        Element acoustic fluid. Default is &#39;None&#39;.</span>
+
+<span class="sd">    cross_section : CrossSection object, optional</span>
+<span class="sd">        Element cross section. Default is &#39;None&#39;.</span>
+
+<span class="sd">    perforated_plate : PerforatedPlate object, optional</span>
+<span class="sd">        Element perforated plate. Default is &#39;None&#39;.</span>
+
+<span class="sd">    vol_flow : float, optional</span>
+<span class="sd">        Volumetric flow rate in the element&#39;s acoustic domain. Default 0.</span>
+
+<span class="sd">    loaded_pressure : array, optional</span>
+<span class="sd">        Acoustic pressure on the nodes. Default is [0, 0].</span>
+
+<span class="sd">    acoustic_length_correction : [0, 1, 2], optional</span>
+<span class="sd">        Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling: ::</span>
+
+<span class="sd">            None: disable</span>
+<span class="sd">            0 : expansion</span>
+<span class="sd">            1 : side_branch</span>
+<span class="sd">            2 : loop </span>
+
+<span class="sd">        Default is &#39;None&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">first_node</span><span class="p">,</span> <span class="n">last_node</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span> <span class="o">=</span> <span class="n">first_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span> <span class="o">=</span> <span class="n">last_node</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;element_type&#39;</span><span class="p">,</span> <span class="s1">&#39;undamped&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">proportional_damping</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;proportional_damping&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">material</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;material&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;fluid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cross_section&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;perforated_plate&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vol_flow</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;vol_flow&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_pressure</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;loaded_forces&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">DOF_PER_NODE</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_length_correction</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;acoustic_length_correction&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cross_section_points</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_pressure</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pp_impedance</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">length</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Element&#39;s length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="p">)</span> 
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">orientation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (3,) array</span>
+<span class="sd">            Element&#39;s axial orientation in the global coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">coordinates</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Element&#39;s acoustic impedance based on its fluid and cross section.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">impedance</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mach</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Mach number in the element domain.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vol_flow</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">global_dof</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Element&#39;s global degree of freedom indexes.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (2,) array</span>
+<span class="sd">            </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">global_dof</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">DOF_PER_ELEMENT</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">)</span>
+        <span class="n">global_dof</span><span class="p">[:</span><span class="n">DOF_PER_NODE</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span>
+        <span class="n">global_dof</span><span class="p">[</span><span class="n">DOF_PER_NODE</span><span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span>
+        <span class="k">return</span> <span class="n">global_dof</span>
+    
+<div class="viewcode-block" id="AcousticElement._reset"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement._reset">[docs]</a>    <span class="k">def</span> <span class="nf">_reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method reset element&#39;s check flags.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_wide_duct</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_lrf_fluid_eq</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_lrf_full</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flag_unflanged_radiation_impedance</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_valid_freq</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="AcousticElement.update_pressure"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.update_pressure">[docs]</a>    <span class="k">def</span> <span class="nf">update_pressure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Auxiliary method used in the perforated plate model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : (N, M) array</span>
+<span class="sd">            System&#39;s acoustic solution. ``N`` is the number of acoustic degree of freedom and ``M`` is the number of frequencies of analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pressure_first</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="n">pressure_last</span> <span class="o">=</span> <span class="n">solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">delta_pressure</span> <span class="o">=</span>  <span class="n">pressure_last</span> <span class="o">-</span> <span class="n">pressure_first</span></div>
+
+<div class="viewcode-block" id="AcousticElement.global_matrix_indexes"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.global_matrix_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">global_matrix_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the rows&#39; and columns&#39; indexes that place the element&#39;s matrices in the global matrices. The created array are appropriated to generate sparse matrices.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rows : (2,2) array</span>
+<span class="sd">            Indexes of the global matrices&#39; rows where the element&#39;s matrices have to be added.</span>
+
+<span class="sd">        cols : (2,2) array</span>
+<span class="sd">            Indexes of the global matrices&#39; columns where the element&#39;s matrices have to be added.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_dof</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">DOF_PER_ELEMENT</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="n">DOF_PER_ELEMENT</span><span class="p">))</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">rows</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span></div>
+
+<div class="viewcode-block" id="AcousticElement.speed_of_sound_corrected"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.speed_of_sound_corrected">[docs]</a>    <span class="k">def</span> <span class="nf">speed_of_sound_corrected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the corrected speed of sound due to the mechanical compliance of the pipe wall.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Speed of sound in the element.</span>
+<span class="sd">            </span>
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. T. C. Lin and G. W. Morgan, &quot;Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell,&quot; The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">section_label</span> <span class="o">==</span> <span class="s1">&#39;Expansion joint section&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">speed_of_sound</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">factor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">bulk_modulus</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">material</span><span class="o">.</span><span class="n">young_modulus</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">thickness</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">factor</span><span class="p">))</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">speed_of_sound</span></div>
+        
+<div class="viewcode-block" id="AcousticElement.matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.matrix">[docs]</a>    <span class="k">def</span> <span class="nf">matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the element&#39;s admittance matrix for each frequency of analysis according to the element type. The method allows to include the length correction due to acoustic discontinuities (``&#39;loop&#39;``, ``&#39;expansion&#39;``, ``&#39;side branch&#39;``).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+
+<span class="sd">        length_correction : float, optional</span>
+<span class="sd">            Element length correction to be added into the element length.</span>
+<span class="sd">            Default is 0.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N, 4) array </span>
+<span class="sd">            Element&#39;s admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element&#39;s admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">area_fluid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">type</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate_matrix</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">nonlinear_effect</span><span class="p">)</span>  
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">hole_diameter</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">=</span> <span class="n">pi</span><span class="o">*</span><span class="p">(</span><span class="n">d</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">4</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;undamped mean flow&#39;</span><span class="p">,</span><span class="s1">&#39;peters&#39;</span><span class="p">,</span><span class="s1">&#39;howe&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetm_mean_flow_matrix</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;undamped&#39;</span><span class="p">,</span><span class="s1">&#39;proportional&#39;</span><span class="p">,</span><span class="s1">&#39;wide-duct&#39;</span><span class="p">,</span><span class="s1">&#39;LRF fluid equivalent&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetm_matrix</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;LRF full&#39;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lrf_thermoviscous_matrix</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span><span class="p">)</span>  </div>
+    
+<div class="viewcode-block" id="AcousticElement.fetm_matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.fetm_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">fetm_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the FETM 1D element&#39;s admittance matrix for each frequency of analysis. The method allows to include the length correction due to acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are ``&#39;undamped&#39;``, ``&#39;proportional&#39;``, ``&#39;wide-duct&#39;``, and ``&#39;LRF fluid equivalent&#39;``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        length_correction : float, optional</span>
+<span class="sd">            Element length correction to be added into the element length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N, 4) array </span>
+<span class="sd">            Element&#39;s admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element&#39;s admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetm_damping_models</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span>
+        
+        <span class="n">kappaLe</span> <span class="o">=</span> <span class="n">kappa_complex</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">length_correction</span><span class="p">)</span>
+        <span class="n">sine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">kappaLe</span><span class="p">)</span>
+        <span class="n">cossine</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">kappaLe</span><span class="p">)</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="o">/</span><span class="p">(</span><span class="n">sine</span><span class="o">*</span><span class="n">impedance_complex</span><span class="p">))</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="n">cossine</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="n">ones</span><span class="p">,</span> <span class="o">-</span><span class="n">cossine</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="AcousticElement._fetm_damping_models"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement._fetm_damping_models">[docs]</a>    <span class="k">def</span> <span class="nf">_fetm_damping_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element&#39;s damping model (element type). The damping models compatible with FETM 1D are ``&#39;undamped&#39;``, ``&#39;proportional&#39;``, ``&#39;wide-duct&#39;``, and ``&#39;LRF fluid equivalent&#39;``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        kappa : (N,) complex-array</span>
+<span class="sd">            Complex acoustic wavenumber.</span>
+
+<span class="sd">        z : (N,) complex-array</span>
+<span class="sd">            Complex acoustic impedance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span>
+        <span class="n">c0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+        <span class="n">rho_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">kappa_real</span> <span class="o">=</span> <span class="n">omega</span><span class="o">/</span><span class="n">c0</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;undamped&#39;</span><span class="p">:</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_real</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">kappa_real</span><span class="p">,</span> <span class="n">c0</span> <span class="o">*</span> <span class="n">rho_0</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;proportional&#39;</span><span class="p">:</span>
+            <span class="n">hysteresis</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">proportional_damping</span><span class="p">)</span>
+            <span class="n">kappa_complex</span> <span class="o">=</span> <span class="n">kappa_real</span> <span class="o">*</span> <span class="n">hysteresis</span>
+            <span class="n">impedance_complex</span> <span class="o">=</span> <span class="n">c0</span> <span class="o">*</span> <span class="n">rho_0</span> <span class="o">*</span> <span class="n">hysteresis</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_real</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;wide-duct&#39;</span><span class="p">:</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+            <span class="n">pr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">prandtl</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+            <span class="n">k0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">thermal_conductivity</span>
+
+            <span class="n">aux_wd1</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nu</span><span class="o">/</span><span class="n">omega</span><span class="p">)</span> 
+            <span class="n">aux_wd2</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="o">*</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">k0</span><span class="o">/</span><span class="n">omega</span><span class="p">)</span> 
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">aux_wd1</span><span class="p">,</span> <span class="n">aux_wd2</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">aux_wd3</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">omega</span> <span class="o">*</span> <span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="n">c0</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="o">/</span><span class="mi">10</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">min_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_wide_duct</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux_wd3</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux_wd3</span><span class="p">])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_wide_duct</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_real</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span><span class="p">])</span> 
+
+            <span class="n">const</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">omega</span><span class="p">))</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pr</span><span class="p">))</span><span class="o">/</span><span class="n">radius</span><span class="p">)</span>
+
+            <span class="n">kappa_complex</span> <span class="o">=</span> <span class="n">kappa_real</span><span class="o">*</span><span class="n">const</span>
+            <span class="n">impedance_complex</span> <span class="o">=</span> <span class="n">rho_0</span><span class="o">*</span><span class="n">c0</span><span class="o">*</span><span class="n">const</span>
+            <span class="k">return</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;LRF fluid equivalent&#39;</span><span class="p">:</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">thermal_diffusivity</span>
+            <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">omega</span><span class="p">)</span>
+            <span class="n">kappa_v</span> <span class="o">=</span> <span class="n">aux</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span>
+            <span class="n">kappa_t</span> <span class="o">=</span> <span class="n">aux</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">/</span> <span class="n">alpha</span><span class="p">)</span>
+
+            <span class="n">aux_lrfeq1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kappa_t</span> <span class="o">/</span> <span class="n">kappa_real</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span>
+            <span class="n">aux_lrfeq2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kappa_v</span> <span class="o">/</span> <span class="n">kappa_real</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">10</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">aux_lrfeq1</span><span class="p">,</span> <span class="n">aux_lrfeq2</span><span class="p">]),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span> 
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_lrf_fluid_eq</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="n">y_v</span> <span class="o">=</span> <span class="o">-</span> <span class="n">j2j0</span><span class="p">(</span><span class="n">kappa_v</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span>
+            <span class="n">y_t</span> <span class="o">=</span>   <span class="n">j2j0</span><span class="p">(</span><span class="n">kappa_t</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">gamma</span>
+
+            <span class="n">kappa_complex</span> <span class="o">=</span> <span class="n">kappa_real</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_t</span> <span class="o">/</span> <span class="n">y_v</span><span class="p">)</span>
+            <span class="n">impedance_complex</span> <span class="o">=</span> <span class="n">c0</span> <span class="o">*</span> <span class="n">rho_0</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">y_t</span> <span class="o">*</span> <span class="n">y_v</span><span class="p">)</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span><span class="p">])</span> 
+
+            <span class="k">return</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span></div>
+
+<div class="viewcode-block" id="AcousticElement.lrf_thermoviscous_matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.lrf_thermoviscous_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">lrf_thermoviscous_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the LRF thermoviscous 1D elementary admittance matrix for each frequency of analysis. The method allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        length_correction : float, optional</span>
+<span class="sd">            Element length correction to be added into the element length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N, 4) array </span>
+<span class="sd">            Element&#39;s admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element&#39;s admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float64&#39;</span><span class="p">)</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+        <span class="n">pr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">prandtl</span>
+        
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">length_correction</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">kappa_real</span> <span class="o">=</span> <span class="n">omega</span> <span class="o">/</span> <span class="n">c</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">omega</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="n">sqrt</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+
+        <span class="n">aux_lrft2</span> <span class="o">=</span> <span class="n">s</span> <span class="o">&lt;</span> <span class="mi">4</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux_lrft2</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux_lrft2</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flag_lrf_full</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">aux1</span> <span class="o">=</span> <span class="n">j2j0</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">**</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span> <span class="o">*</span> <span class="n">sigma</span><span class="p">)</span>
+        <span class="n">aux2</span> <span class="o">=</span> <span class="n">j2j0</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">**</span><span class="p">(</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">s</span><span class="p">)</span>
+        
+        <span class="n">n</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">aux1</span> <span class="o">*</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">gamma</span>
+
+        <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="n">aux2</span> <span class="p">)</span>
+
+        <span class="n">kappa_complex</span> <span class="o">=</span> <span class="n">T</span> <span class="o">*</span> <span class="n">kappa_real</span>
+        <span class="n">impedance_complex</span> <span class="o">=</span> <span class="n">c</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">/</span> <span class="n">T</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span>
+
+        <span class="n">G</span> <span class="o">=</span> <span class="o">-</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">gamma</span> <span class="o">*</span> <span class="n">n</span> <span class="o">/</span> <span class="n">T</span>
+
+        <span class="n">sinh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+        <span class="n">cosh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cosh</span><span class="p">(</span><span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">length</span><span class="p">)</span>
+
+        <span class="n">matrix</span> <span class="o">=</span> <span class="o">-</span> <span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">*</span> <span class="n">G</span> <span class="o">/</span> <span class="p">(</span><span class="n">impedance_complex</span> <span class="o">*</span> <span class="n">sinh</span><span class="p">))</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cosh</span><span class="p">,</span> <span class="o">-</span><span class="n">ones</span><span class="p">,</span> <span class="o">-</span><span class="n">ones</span><span class="p">,</span> <span class="n">cosh</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">]),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span><span class="p">])</span> 
+        <span class="k">return</span> <span class="n">matrix</span>  </div>
+  
+<div class="viewcode-block" id="AcousticElement.fetm_mean_flow_matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.fetm_mean_flow_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">fetm_mean_flow_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">length_correction</span> <span class="o">=</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the FETM 1D elementary admittance matrix including the acoustic domain mean flow velocity effects in the formulation, for each frequency of analysis. The method allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        length_correction : float, optional</span>
+<span class="sd">            Element length correction to be added into the element length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N, 4) array </span>
+<span class="sd">            Element&#39;s admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element&#39;s admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">k</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetm_mean_flow_damping_models</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">z</span><span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">M</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        
+        <span class="n">kLe</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">length_correction</span><span class="p">)</span>
+        <span class="n">cotanh</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kLe</span><span class="p">)</span>
+        <span class="n">sineh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sinh</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kLe</span><span class="p">)</span>
+        <span class="n">exp_neg_sin</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kLe</span><span class="o">*</span><span class="n">M</span><span class="p">)</span><span class="o">/</span><span class="n">sineh</span>
+        <span class="n">exp_sin</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">kLe</span><span class="o">*</span><span class="n">M</span><span class="p">)</span><span class="o">/</span><span class="n">sineh</span>
+        <span class="n">adm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">/</span> <span class="p">(</span><span class="n">z</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">M</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+        <span class="n">matrix</span> <span class="o">=</span> <span class="p">(</span><span class="n">adm</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">cotanh</span> <span class="o">-</span> <span class="n">M</span><span class="p">,</span> <span class="n">exp_neg_sin</span><span class="p">,</span> <span class="n">exp_sin</span><span class="p">,</span> <span class="n">cotanh</span> <span class="o">+</span> <span class="n">M</span><span class="p">]))</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">return</span> <span class="n">matrix</span></div>
+
+<div class="viewcode-block" id="AcousticElement._fetm_mean_flow_damping_models"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement._fetm_mean_flow_damping_models">[docs]</a>    <span class="k">def</span> <span class="nf">_fetm_mean_flow_damping_models</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns wavenumber, fluid impedance and mach number for the FETM 1D theory including the acoustic domain mean flow velocity effects and according to the element&#39;s damping model (element type). The damping models compatible with mean flow FETM 1D are ``&#39;undamped mean flow&#39;``, ``&#39;howe&#39;``, and ``&#39;peters&#39;``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        kappa : (N,) complex-array</span>
+<span class="sd">            Complex acoustic wavenumber.</span>
+
+<span class="sd">        z : (N,) complex-array</span>
+<span class="sd">            Complex acoustic impedance.</span>
+
+<span class="sd">        mach : (N,) complex-array</span>
+<span class="sd">            Complex mach number.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span>
+        <span class="n">c0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+        <span class="n">rho_0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">kappa_real</span> <span class="o">=</span> <span class="n">omega</span><span class="o">/</span><span class="n">c0</span>
+        <span class="n">di</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_diameter</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="n">di</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;undamped mean flow&#39;</span><span class="p">:</span>
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa_real</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">kappa_real</span><span class="p">,</span> <span class="n">c0</span> <span class="o">*</span> <span class="n">rho_0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">mach</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;howe&#39;</span><span class="p">:</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+            <span class="n">alpha</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">thermal_diffusivity</span>
+            <span class="n">pr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">prandtl</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+            <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mach</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+            <span class="n">Karmank</span> <span class="o">=</span> <span class="mf">0.41</span>
+
+            <span class="c1"># TODO: prt warning por pr&lt;0.5</span>
+            <span class="n">prt</span> <span class="o">=</span> <span class="mf">0.87</span>
+            <span class="n">transc</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">U</span><span class="o">/</span><span class="n">x</span> <span class="o">-</span> <span class="p">(</span><span class="mf">2.44</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">di</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nu</span><span class="p">))</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span><span class="o">**</span><span class="mi">2</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">root</span><span class="p">(</span><span class="n">transc</span><span class="p">,</span> <span class="mf">1e-4</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;hybr&#39;</span><span class="p">)</span>
+
+            <span class="n">ur</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">w_ast</span> <span class="o">=</span> <span class="mf">0.01</span><span class="o">*</span><span class="n">ur</span><span class="o">**</span><span class="mi">2</span><span class="o">/</span><span class="n">nu</span>
+            <span class="n">delta_vs</span> <span class="o">=</span> <span class="n">nu</span><span class="o">/</span><span class="n">ur</span><span class="o">*</span><span class="mf">6.5</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mf">1.7</span><span class="o">*</span><span class="p">(</span><span class="n">omega</span><span class="o">/</span><span class="n">w_ast</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="p">(</span><span class="n">omega</span><span class="o">/</span><span class="n">w_ast</span><span class="p">)</span><span class="o">**</span><span class="mi">3</span><span class="p">))</span>
+
+            <span class="n">aux1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">Karmank</span><span class="o">*</span><span class="n">ur</span><span class="p">)</span>
+            <span class="n">aux2</span> <span class="o">=</span> <span class="n">delta_vs</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">/</span><span class="n">nu</span><span class="p">)</span>
+            <span class="n">aux3</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">*</span><span class="n">alpha</span><span class="p">)</span><span class="o">*</span><span class="n">prt</span><span class="o">/</span><span class="p">(</span><span class="n">Karmank</span><span class="o">*</span><span class="n">ur</span><span class="p">)</span>
+            <span class="n">aux4</span> <span class="o">=</span> <span class="n">delta_vs</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span><span class="o">/</span><span class="n">alpha</span><span class="p">)</span>
+
+            <span class="n">F1</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">hankel1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">aux1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">aux2</span><span class="p">)</span> <span class="o">-</span>  <span class="n">hankel1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">aux1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">aux2</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">hankel1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">aux1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">aux2</span><span class="p">)</span> <span class="o">+</span>  <span class="n">hankel1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">aux1</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">aux2</span><span class="p">))</span>
+            <span class="n">F2</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="p">(</span><span class="n">hankel1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">aux3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">aux4</span><span class="p">)</span> <span class="o">-</span>  <span class="n">hankel1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">aux3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">aux4</span><span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="n">hankel1</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">aux3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">aux4</span><span class="p">)</span> <span class="o">+</span>  <span class="n">hankel1</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">aux3</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">aux4</span><span class="p">))</span>
+
+            <span class="n">aux1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">omega</span><span class="o">*</span><span class="n">nu</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">c0</span><span class="o">*</span><span class="n">di</span><span class="p">)</span>
+            <span class="n">aux2_m</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">F1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">F2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">alpha</span><span class="o">/</span><span class="n">nu</span><span class="p">))</span>
+            <span class="n">aux2_M</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">conj</span><span class="p">(</span><span class="n">F1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">F2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">alpha</span><span class="o">/</span><span class="n">nu</span><span class="p">))</span>
+
+            <span class="n">kappa_m</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">kappa_real</span> <span class="o">+</span> <span class="n">aux1</span><span class="o">*</span><span class="n">aux2_m</span><span class="p">)</span>
+            <span class="n">kappa_M</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">kappa_real</span> <span class="o">+</span> <span class="n">aux1</span><span class="o">*</span><span class="n">aux2_M</span><span class="p">)</span>
+
+            <span class="n">kappa</span> <span class="o">=</span> <span class="p">(</span><span class="n">kappa_M</span> <span class="o">+</span> <span class="n">kappa_m</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">omega</span><span class="o">/</span><span class="n">kappa</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">rho_0</span> <span class="o">*</span> <span class="n">c</span>
+            <span class="n">mach_ef</span> <span class="o">=</span> <span class="n">U</span><span class="o">/</span><span class="n">c</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mach_ef</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+
+            <span class="k">return</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mach_ef</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_type</span> <span class="o">==</span> <span class="s1">&#39;peters&#39;</span><span class="p">:</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+            <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+            <span class="n">pr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">prandtl</span>
+
+            <span class="n">U</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mach</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+            <span class="n">ur</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">0.03955</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">nu</span><span class="o">/</span><span class="n">di</span><span class="p">)</span><span class="o">**</span><span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="n">U</span><span class="o">**</span><span class="p">(</span><span class="mi">7</span><span class="o">/</span><span class="mi">8</span><span class="p">)</span>
+
+            <span class="n">delta_vs</span> <span class="o">=</span> <span class="mf">12.5</span>
+            <span class="n">delta_a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">nu</span><span class="o">/</span><span class="n">omega</span><span class="p">)</span>
+            <span class="n">delta_ap</span> <span class="o">=</span> <span class="n">delta_a</span><span class="o">*</span><span class="n">ur</span><span class="o">/</span><span class="n">nu</span>
+
+            <span class="n">aux1</span> <span class="o">=</span> <span class="n">delta_a</span><span class="o">/</span><span class="n">di</span>
+            <span class="n">aux2</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">delta_vs</span> <span class="o">/</span> <span class="n">delta_ap</span><span class="p">)</span> <span class="o">-</span><span class="mi">200</span><span class="n">j</span><span class="o">/</span><span class="n">delta_ap</span><span class="o">**</span><span class="mi">2</span> <span class="p">))</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="p">(</span><span class="n">delta_vs</span> <span class="o">/</span> <span class="n">delta_ap</span><span class="p">)))</span>
+            <span class="n">aux3</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pr</span><span class="p">))</span>
+
+            <span class="n">kappa_m</span> <span class="o">=</span> <span class="n">kappa_real</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span> <span class="o">-</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">aux1</span><span class="o">*</span><span class="n">aux2</span><span class="o">*</span><span class="n">aux3</span><span class="p">)</span>
+            <span class="n">kappa_M</span> <span class="o">=</span> <span class="n">kappa_real</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span><span class="o">+</span><span class="bp">self</span><span class="o">.</span><span class="n">mach</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span> <span class="o">+</span><span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="p">)</span><span class="o">*</span><span class="n">aux1</span><span class="o">*</span><span class="n">aux2</span><span class="o">*</span><span class="n">aux3</span><span class="p">)</span>
+
+            <span class="n">kappa</span> <span class="o">=</span> <span class="p">(</span><span class="n">kappa_M</span> <span class="o">-</span> <span class="n">kappa_m</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span>
+            <span class="n">c</span> <span class="o">=</span> <span class="n">omega</span><span class="o">/</span><span class="n">kappa</span>
+            <span class="n">z</span> <span class="o">=</span> <span class="n">rho_0</span> <span class="o">*</span> <span class="n">c</span>
+            <span class="n">mach_ef</span> <span class="o">=</span> <span class="n">U</span><span class="o">/</span><span class="n">c</span>
+
+            <span class="n">aux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">kappa</span><span class="o">*</span><span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">mach_ef</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">radius</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">1.84118</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">aux</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">flag_plane_wave</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">max_valid_freq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">frequencies</span><span class="p">[</span><span class="n">aux</span><span class="p">])</span>
+            <span class="k">return</span> <span class="n">kappa</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">mach_ef</span></div>
+
+<div class="viewcode-block" id="AcousticElement._update_pp_impedance"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement._update_pp_impedance">[docs]</a>    <span class="k">def</span> <span class="nf">_update_pp_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">nonlinear_effect</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Auxiliary method used to updated the perforated plate impedance model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        nonlinear_effect : bool</span>
+<span class="sd">            If true include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">)</span>
+
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">mu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">dynamic_viscosity</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">isentropic_exponent</span>
+        <span class="n">kappa</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">thermal_conductivity</span>
+        <span class="n">c_p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">specific_heat_Cp</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">impedance</span>
+
+        <span class="c1"># Perforated plate physical quantities</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">hole_diameter</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">thickness</span>
+        <span class="n">sigma</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">porosity</span>
+        <span class="n">t_foks</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">foks_delta</span>
+        <span class="n">c_l</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">linear_discharge_coefficient</span>
+
+        <span class="n">omega</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">pi</span> <span class="o">*</span> <span class="n">frequencies</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">omega</span> <span class="o">/</span> <span class="n">c</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_impedance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="n">u_n</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">delta_pressure</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">pp_impedance</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">u_n</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">u_n</span> <span class="o">=</span> <span class="n">u_n</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">theta_rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+            <span class="c1">#TODO: use mach number as input when the formulation is validated</span>
+            <span class="c1"># theta_flow = self.perforated_plate.flow_impedance(0) </span>
+            <span class="n">theta_flow</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1">#TODO: use mach number as input when the formulation is validated</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">bias_effect</span><span class="p">:</span>
+                <span class="n">theta_g</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">bias_impedance</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">theta_g</span> <span class="o">=</span> <span class="mi">0</span>
+            
+            <span class="k">if</span> <span class="n">nonlinear_effect</span><span class="p">:</span>
+                <span class="n">theta_nl</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">nonlinear_impedance</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">u_n</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">theta_nl</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">dimensionless_impedance</span><span class="p">,</span> <span class="p">(</span><span class="nb">complex</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                <span class="n">theta_user</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">dimensionless_impedance</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">theta_user</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="n">k_viscous</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">/</span> <span class="n">mu</span><span class="p">)</span>
+            <span class="n">mean_viscous_field</span> <span class="o">=</span> <span class="o">-</span> <span class="n">j2j0</span><span class="p">(</span><span class="n">k_viscous</span><span class="o">*</span><span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span>
+            
+            <span class="n">k_thermal</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">omega</span> <span class="o">*</span> <span class="n">rho</span> <span class="o">*</span> <span class="n">c_p</span> <span class="o">/</span> <span class="n">kappa</span><span class="p">)</span>
+            <span class="n">mean_thermal_field</span> <span class="o">=</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">+</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span><span class="n">j2j0</span><span class="p">(</span><span class="n">k_thermal</span><span class="o">*</span><span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span> 
+
+            <span class="n">k_vt</span> <span class="o">=</span> <span class="n">k</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_thermal_field</span><span class="o">/</span><span class="n">mean_viscous_field</span><span class="p">)</span> 
+            <span class="n">z_vt</span> <span class="o">=</span> <span class="n">z</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">mean_thermal_field</span> <span class="o">*</span> <span class="n">mean_viscous_field</span><span class="p">)</span>
+
+            <span class="n">theta</span> <span class="o">=</span> <span class="o">-</span> <span class="n">z</span> <span class="o">*</span><span class="p">(</span><span class="n">theta_rad</span> <span class="o">+</span> <span class="n">theta_flow</span> <span class="o">+</span> <span class="n">theta_g</span> <span class="o">+</span> <span class="n">theta_nl</span> <span class="o">+</span> <span class="n">theta_user</span><span class="p">)</span>
+
+            <span class="n">z_orif</span> <span class="o">=</span> <span class="o">-</span> <span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">z_vt</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">k_vt</span> <span class="o">*</span> <span class="n">t_foks</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">c_l</span><span class="p">)</span> <span class="o">+</span> <span class="n">theta</span>
+
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># Melling&#39;s model</span>
+            <span class="n">nu</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">kinematic_viscosity</span>
+
+            <span class="n">k_stokes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span> <span class="o">/</span> <span class="n">nu</span><span class="p">)</span>
+            <span class="n">k_ef</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span> <span class="o">-</span><span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">omega</span> <span class="o">/</span> <span class="p">(</span><span class="mf">2.179</span> <span class="o">*</span> <span class="n">nu</span><span class="p">))</span>
+            <span class="n">foks_porosity</span> <span class="o">=</span> <span class="n">Foks_function</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sigma</span><span class="p">))</span>
+
+            <span class="n">xi_l</span> <span class="o">=</span> <span class="mi">1</span><span class="n">j</span><span class="o">*</span><span class="n">k</span><span class="o">/</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">c_l</span><span class="p">)</span><span class="o">*</span><span class="p">(</span> <span class="n">t</span> <span class="o">/</span> <span class="n">f_function</span><span class="p">(</span><span class="n">k_ef</span> <span class="o">*</span> <span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">8</span><span class="o">*</span> <span class="n">d</span><span class="o">/</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">pi</span> <span class="o">*</span> <span class="n">f_function</span><span class="p">(</span><span class="n">k_stokes</span> <span class="o">*</span> <span class="n">d</span><span class="o">/</span><span class="mi">2</span><span class="p">))</span><span class="o">*</span><span class="n">foks_porosity</span> <span class="p">)</span>
+            <span class="n">xi_nl</span> <span class="o">=</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">u_n</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">sigma</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">3</span><span class="o">*</span><span class="n">pi</span><span class="o">*</span><span class="n">c</span><span class="o">*</span><span class="p">(</span><span class="n">sigma</span><span class="o">*</span><span class="n">c_l</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">z_orif</span> <span class="o">=</span> <span class="o">-</span> <span class="p">(</span><span class="n">xi_l</span> <span class="o">+</span> <span class="n">xi_nl</span><span class="p">)</span> <span class="o">*</span> <span class="n">z</span> 
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">pp_impedance</span> <span class="o">=</span> <span class="n">z_orif</span></div>
+
+<div class="viewcode-block" id="AcousticElement.perforated_plate_matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.perforated_plate_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">perforated_plate_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">,</span> <span class="n">nonlinear_effect</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the Perforated Plate 1D elementary admittance matrix for each frequency of analysis. The setup is done through the element ``perforated_plate`` attribute.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : (N,) array</span>
+<span class="sd">            Frequencies of analysis in Hz.</span>
+<span class="sd">            </span>
+<span class="sd">        nonlinear_effect : bool</span>
+<span class="sd">            If true include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N, 4) array </span>
+<span class="sd">            Element&#39;s admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element&#39;s admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_pp_impedance</span><span class="p">(</span><span class="n">frequencies</span><span class="p">,</span> <span class="n">nonlinear_effect</span><span class="p">)</span>
+        <span class="n">admittance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">pp_impedance</span>
+        
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="o">-</span> <span class="n">admittance</span><span class="p">,</span> <span class="n">admittance</span><span class="p">,</span> <span class="n">admittance</span><span class="p">,</span> <span class="o">-</span> <span class="n">admittance</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="AcousticElement.radiation_impedance"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.radiation_impedance">[docs]</a>    <span class="k">def</span> <span class="nf">radiation_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method attributes the radiation impedance to the element nodes according to the `anechoic`, `flanged`, and `unflanged` prescription.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kappa : (N,) complex-array</span>
+<span class="sd">            Complex acoustic wavenumber.</span>
+
+<span class="sd">        z : (N,) complex-array</span>
+<span class="sd">            Complex acoustic impedance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="n">impedance_complex</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflanged_termination_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flanged_termination_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="n">impedance_complex</span> <span class="o">+</span> <span class="mi">0</span><span class="n">j</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unflanged_termination_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flanged_termination_impedance</span><span class="p">(</span><span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AcousticElement.unflanged_termination_impedance"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.unflanged_termination_impedance">[docs]</a>    <span class="k">def</span> <span class="nf">unflanged_termination_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the radiation impedance according to the `unflanged` model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kappa_complex : (N,) complex-array</span>
+<span class="sd">            Complex acoustic wavenumber.</span>
+
+<span class="sd">        impedance_complex : (N,) complex-array</span>
+<span class="sd">            Complex acoustic impedance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N,) array</span>
+<span class="sd">            Unflanged pipe termination impedance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_radius</span>
+        
+        <span class="n">kr</span> <span class="o">=</span> <span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">radius</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="n">kr</span><span class="o">&lt;=</span><span class="mi">1</span>
+        
+        <span class="n">kr_less_t_1</span> <span class="o">=</span> <span class="n">kr</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="mf">0.5772</span><span class="p">)</span>
+        <span class="n">aux_1_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">((</span><span class="o">-</span><span class="n">kr_less_t_1</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">kr_less_t_1</span><span class="o">**</span><span class="mi">4</span> <span class="o">/</span> <span class="mi">6</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="p">(</span><span class="n">gamma</span> <span class="o">*</span> <span class="n">kr_less_t_1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">19</span><span class="o">/</span><span class="mi">12</span><span class="p">)))</span>
+
+        <span class="n">kr_great_t_1</span> <span class="o">=</span> <span class="n">kr</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">kr_great_t_1</span> <span class="o">&gt;</span> <span class="mf">1.84118</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">flag_unflanged_radiation_impedance</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">aux_1_2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">pi</span> <span class="o">*</span> <span class="n">kr_great_t_1</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">kr_great_t_1</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">3</span> <span class="o">/</span> <span class="p">(</span><span class="mi">32</span> <span class="o">*</span> <span class="n">kr_great_t_1</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+        <span class="n">aux_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">aux_1_1</span><span class="p">,</span> <span class="n">aux_1_2</span><span class="p">]</span>
+        <span class="n">aux_2</span> <span class="o">=</span> <span class="o">-</span> <span class="n">aux_1</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span> <span class="o">-</span><span class="mi">2</span><span class="n">j</span> <span class="o">*</span> <span class="n">kr</span> <span class="o">*</span> <span class="n">poly_function</span><span class="p">(</span><span class="n">kr</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">impedance_complex</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">aux_2</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">aux_2</span><span class="p">)</span> <span class="o">+</span><span class="mi">0</span><span class="n">j</span></div>
+
+<div class="viewcode-block" id="AcousticElement.flanged_termination_impedance"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.flanged_termination_impedance">[docs]</a>    <span class="k">def</span> <span class="nf">flanged_termination_impedance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kappa_complex</span><span class="p">,</span> <span class="n">impedance_complex</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the radiation impedance according to the `flanged` model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        kappa_complex : (N,) complex-array</span>
+<span class="sd">            Complex acoustic wavenumber.</span>
+
+<span class="sd">        impedance_complex : (N,) complex-array</span>
+<span class="sd">            Complex acoustic impedance.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        (N,) array</span>
+<span class="sd">            Flanged pipe termination impedance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">radius</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cross_section</span><span class="o">.</span><span class="n">inner_radius</span>
+        <span class="n">kr</span> <span class="o">=</span> <span class="n">kappa_complex</span> <span class="o">*</span> <span class="n">radius</span>
+        <span class="k">return</span> <span class="n">impedance_complex</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">jv</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="o">*</span><span class="n">kr</span><span class="p">)</span><span class="o">/</span> <span class="n">kr</span>  <span class="o">+</span> <span class="mi">1</span><span class="n">j</span> <span class="o">*</span> <span class="n">H1</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">kr</span><span class="p">)</span><span class="o">/</span> <span class="n">kr</span>  <span class="p">)</span> <span class="o">+</span><span class="mi">0</span><span class="n">j</span> </div>
+
+<div class="viewcode-block" id="AcousticElement.fem_1d_matrix"><a class="viewcode-back" href="../../../code_reference/AcousticElement.html#pulse.preprocessing.acoustic_element.AcousticElement.fem_1d_matrix">[docs]</a>    <span class="k">def</span> <span class="nf">fem_1d_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length_correction</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the FEM acoustic 1D elementary matrices. The method allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`). The FEM is not compatible with any damping model.</span>
+<span class="sd">        </span>
+<span class="sd">        **Obs.**: In OpenPulse, this formulation is only used to evaluate the acoustic modal analysis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        length_correction : float, optional</span>
+<span class="sd">            Element length correction to be added into the element length.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Ke : 2D array</span>
+<span class="sd">            Element acoustic stiffness matrix.</span>
+
+<span class="sd">        Me : 2D array</span>
+<span class="sd">            Element acoustic inertia matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">length</span> <span class="o">+</span> <span class="n">length_correction</span>
+        <span class="n">rho</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluid</span><span class="o">.</span><span class="n">density</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed_of_sound_corrected</span><span class="p">()</span>
+
+        <span class="n">Ke</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span><span class="o">/</span><span class="p">(</span><span class="n">rho</span><span class="o">*</span><span class="n">length</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]])</span>
+        <span class="n">Me</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_fluid</span> <span class="o">*</span> <span class="n">length</span> <span class="o">/</span> <span class="p">(</span><span class="mi">6</span><span class="o">*</span><span class="n">rho</span><span class="o">*</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">],[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]])</span> 
+        
+        <span class="k">return</span> <span class="n">Ke</span><span class="p">,</span> <span class="n">Me</span></div></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

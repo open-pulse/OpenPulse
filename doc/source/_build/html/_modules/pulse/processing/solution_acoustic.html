@@ -1,0 +1,649 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pulse.processing.solution_acoustic &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../../index.html">
+  <img src="../../../_static/logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pulse.processing.solution_acoustic</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">time</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy.lib.type_check</span> <span class="kn">import</span> <span class="n">real</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="kn">import</span> <span class="n">norm</span>
+<span class="kn">from</span> <span class="nn">scipy.sparse.linalg</span> <span class="kn">import</span> <span class="n">eigs</span><span class="p">,</span> <span class="n">spsolve</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="n">matplotlib</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;Qt5Agg&quot;</span><span class="p">)</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="kn">from</span> <span class="nn">pulse.processing.assembly_acoustic</span> <span class="kn">import</span> <span class="n">AssemblyAcoustic</span>
+<span class="kn">from</span> <span class="nn">data.user_input.project.printMessageInput</span> <span class="kn">import</span> <span class="n">PrintMessageInput</span>
+
+<span class="k">def</span> <span class="nf">relative_error</span><span class="p">(</span><span class="n">vect_1</span><span class="p">,</span> <span class="n">vect_2</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">norm</span><span class="p">((</span><span class="n">vect_2</span><span class="o">-</span><span class="n">vect_1</span><span class="p">))</span><span class="o">/</span><span class="n">norm</span><span class="p">(</span><span class="n">vect_1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SolutionAcoustic"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic">[docs]</a><span class="k">class</span> <span class="nc">SolutionAcoustic</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot; This class creates a Acoustic Solution object from input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    preprocessor : Preprocessor object</span>
+<span class="sd">        Acoustic finite element preprocessor.</span>
+
+<span class="sd">    frequencies : array</span>
+<span class="sd">        Frequencies of analysis.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">preprocessor</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span> <span class="o">=</span> <span class="n">preprocessor</span>
+
+        <span class="k">if</span> <span class="n">frequencies</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">elif</span> <span class="n">frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span>
+            <span class="n">frequencies</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mf">1e-4</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">all_dofs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span> <span class="o">=</span> <span class="n">AssemblyAcoustic</span><span class="p">(</span><span class="n">preprocessor</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">acoustic_elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span> <span class="o">=</span> <span class="n">frequencies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span> <span class="o">=</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="mi">10</span><span class="o">/</span><span class="mi">100</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">group_elements_with_perforated_plate</span> <span class="o">=</span> <span class="n">preprocessor</span><span class="o">.</span><span class="n">group_elements_with_perforated_plate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">convergence_dataLog</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_prescribed_indexes</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_prescribed_values</span><span class="p">()</span>
+        <span class="c1"># self.unprescribed_indexes = self.assembly.get_unprescribed_indexes()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span><span class="p">()</span>
+
+<div class="viewcode-block" id="SolutionAcoustic.get_global_matrices"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic.get_global_matrices">[docs]</a>    <span class="k">def</span> <span class="nf">get_global_matrices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method updates the acoustic global matrices.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_matrices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr_lump</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_lumped_matrices</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">Kadd_lump</span> <span class="o">=</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_lump</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">))]</span></div>
+
+<div class="viewcode-block" id="SolutionAcoustic._reinsert_prescribed_dofs"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic._reinsert_prescribed_dofs">[docs]</a>    <span class="k">def</span> <span class="nf">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">solution</span><span class="p">,</span> <span class="n">modal_analysis</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method reinsert the value of the prescribed degree of freedom in the solution. If modal analysis is performed, the values are zeros.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        solution : array</span>
+<span class="sd">            Solution data from the direct method, modal superposition or modal shapes from modal analysis.</span>
+
+<span class="sd">        modal_analysis : boll, optional</span>
+<span class="sd">            True if the modal analysis was evaluated.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Solution of all the degrees of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_dofs</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">solution</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">full_solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">solution</span>
+
+        <span class="k">if</span> <span class="n">modal_analysis</span><span class="p">:</span>
+            <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">),</span><span class="n">cols</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">full_solution</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span>
+        
+        <span class="k">return</span> <span class="n">full_solution</span></div>
+
+<div class="viewcode-block" id="SolutionAcoustic.get_combined_volume_velocity"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic.get_combined_volume_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_combined_volume_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method adds the effects of prescribed acoustic pressure into volume velocity global vector.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Volume velocity. Each column corresponds to a frequency of analysis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">volume_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_volume_velocity</span><span class="p">()</span>
+                
+        <span class="n">Kr</span> <span class="o">=</span> <span class="p">[(</span><span class="n">sparse_matrix</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">sparse_matrix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr</span><span class="p">]</span>
+
+        <span class="n">Kr_lump</span> <span class="o">=</span> <span class="p">[(</span><span class="n">sparse_matrix</span><span class="o">.</span><span class="n">toarray</span><span class="p">())[</span><span class="bp">self</span><span class="o">.</span><span class="n">get_pipe_and_unprescribed_indexes</span><span class="p">,</span> <span class="p">:]</span> <span class="k">for</span> <span class="n">sparse_matrix</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">Kr_lump</span><span class="p">]</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">Kr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+ 
+        <span class="n">aux_ones</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">volume_velocity_eq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span><span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>  
+            <span class="n">list_prescribed_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
+                    <span class="n">list_prescribed_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">aux_ones</span><span class="o">*</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                    <span class="n">list_prescribed_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+      
+            <span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">list_prescribed_values</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                <span class="n">volume_velocity_eq</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">((</span><span class="n">Kr</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">Kr_lump</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">array_prescribed_values</span><span class="p">[:,</span><span class="n">i</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        
+        <span class="n">volume_velocity_combined</span> <span class="o">=</span> <span class="n">volume_velocity</span><span class="o">.</span><span class="n">T</span> <span class="o">-</span> <span class="n">volume_velocity_eq</span>
+        
+        <span class="k">return</span> <span class="n">volume_velocity_combined</span></div>
+
+<div class="viewcode-block" id="SolutionAcoustic.modal_analysis"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic.modal_analysis">[docs]</a>    <span class="k">def</span> <span class="nf">modal_analysis</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modes</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;LM&#39;</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluate the FEM acoustic modal analysis. The FETM formulation is not suitable to performe modal analysis.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        modes : int, optional</span>
+<span class="sd">            Number of acoustic modes to be evaluated.</span>
+<span class="sd">            Default is 20.</span>
+
+<span class="sd">        which : str, [&#39;LM&#39; | &#39;SM&#39; | &#39;LR&#39; | &#39;SR&#39; | &#39;LI&#39; | &#39;SI&#39;], optional</span>
+<span class="sd">            Which `k` eigenvectors and eigenvalues to find:</span>
+<span class="sd">                &#39;LM&#39; : largest magnitude</span>
+<span class="sd">                &#39;SM&#39; : smallest magnitude</span>
+<span class="sd">                &#39;LR&#39; : largest real part</span>
+<span class="sd">                &#39;SR&#39; : smallest real part</span>
+<span class="sd">                &#39;LI&#39; : largest imaginary part</span>
+<span class="sd">                &#39;SI&#39; : smallest imaginary part</span>
+<span class="sd">            Default is &#39;LM&#39;.</span>
+
+<span class="sd">        sigma : float, optional</span>
+<span class="sd">            Find eigenvalues near sigma (in (rad/s)^2) using shift-invert mode. </span>
+<span class="sd">            Default is 0.01.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        natural_frequencies : array</span>
+<span class="sd">            Natural frequencies.</span>
+
+<span class="sd">        modal_shapes : array</span>
+<span class="sd">            Modal shapes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">K</span><span class="p">,</span> <span class="n">M</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">assembly</span><span class="o">.</span><span class="n">get_global_matrices_modal</span><span class="p">()</span>
+        
+        <span class="n">eigen_values</span><span class="p">,</span> <span class="n">eigen_vectors</span> <span class="o">=</span> <span class="n">eigs</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">M</span><span class="o">=</span><span class="n">M</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="n">modes</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="n">which</span><span class="p">,</span> <span class="n">sigma</span><span class="o">=</span><span class="n">sigma</span><span class="p">)</span>
+
+        <span class="n">positive_real</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">absolute</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">eigen_values</span><span class="p">))</span>
+        <span class="n">natural_frequencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">positive_real</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span>
+        <span class="n">modal_shape</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">real</span><span class="p">(</span><span class="n">eigen_vectors</span><span class="p">)</span>
+
+        <span class="n">index_order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">natural_frequencies</span><span class="p">)</span>
+        <span class="n">natural_frequencies</span> <span class="o">=</span> <span class="n">natural_frequencies</span><span class="p">[</span><span class="n">index_order</span><span class="p">]</span>
+        <span class="n">modal_shape</span> <span class="o">=</span> <span class="n">modal_shape</span><span class="p">[:,</span> <span class="n">index_order</span><span class="p">]</span>
+
+        <span class="n">modal_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">modal_shape</span><span class="p">,</span> <span class="n">modal_analysis</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_values</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">complex</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">sum</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">complex</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">flag_Modal_prescribed_NonNull_DOFs</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">warning_Modal_prescribedDOFs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;The Prescribed DOFs of non-zero values have been ignored in the modal analysis.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">+</span>
+                                                        <span class="s2">&quot;The null value has been attributed to those DOFs with non-zero values.&quot;</span><span class="p">]</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">natural_frequencies</span><span class="p">,</span> <span class="n">modal_shape</span></div>
+
+<div class="viewcode-block" id="SolutionAcoustic.direct_method"><a class="viewcode-back" href="../../../code_reference/processing.html#pulse.processing.solution_acoustic.SolutionAcoustic.direct_method">[docs]</a>    <span class="k">def</span> <span class="nf">direct_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluate the FETM acoustic solution through direct method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        array</span>
+<span class="sd">            Solution. Each column corresponds to a frequency of analysis. Each row corresponds to a degree of freedom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_global_matrices</span><span class="p">()</span>
+        <span class="n">volume_velocity</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_combined_volume_velocity</span><span class="p">()</span>
+
+        <span class="n">rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">)</span>
+        <span class="n">solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_elements_with_perforated_plate</span><span class="p">:</span>
+                        
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">group_elements_with_perforated_plate</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+            <span class="n">elements</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">acoustic_elements</span><span class="p">[</span><span class="n">_ids</span><span class="p">]</span> <span class="k">for</span> <span class="p">[</span><span class="n">_</span><span class="p">,</span> <span class="n">elements_ids</span><span class="p">]</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">for</span> <span class="n">_ids</span> <span class="ow">in</span> <span class="n">elements_ids</span><span class="p">]</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">non_linear</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">element</span><span class="o">.</span><span class="n">perforated_plate</span><span class="o">.</span><span class="n">nonlinear_effect</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">non_linear</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+            <span class="n">vect_freqs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">cols</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">))[</span><span class="mi">1</span><span class="p">:]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">plt</span> <span class="o">=</span> <span class="n">plt</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">[</span><span class="mi">8</span><span class="p">,</span><span class="mi">6</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">pressure_residues</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">delta_residues</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">cache_delta_pressures</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">cache_delta</span> <span class="o">=</span> <span class="p">[]</span>
+            
+            <span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">freq_indexes</span> <span class="o">=</span> <span class="p">{}</span>
+
+            <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">relative_difference</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">converged</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_linear</span><span class="p">:</span>
+                <span class="k">while</span> <span class="n">relative_difference</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">converged</span><span class="p">:</span>
+
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+                    <span class="bp">self</span><span class="o">.</span><span class="n">get_global_matrices</span><span class="p">()</span>
+
+                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                        <span class="n">solution</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kadd_lump</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">volume_velocity</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+
+                    <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+                    
+                    <span class="n">delta_pressures</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">cache_delta_residues</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">cache_pressure_residues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">element</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
+                        <span class="n">element</span><span class="o">.</span><span class="n">update_pressure</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+                        <span class="n">first</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">first_node</span><span class="o">.</span><span class="n">global_index</span>
+                        <span class="n">last</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">last_node</span><span class="o">.</span><span class="n">global_index</span>
+                        <span class="n">pressure_residue_first</span> <span class="o">=</span> <span class="n">relative_error</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">vect_freqs</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span><span class="p">[</span><span class="n">first</span><span class="p">,</span> <span class="n">vect_freqs</span><span class="p">])</span>
+                        <span class="n">pressure_residue_last</span> <span class="o">=</span> <span class="n">relative_error</span><span class="p">(</span><span class="n">solution</span><span class="p">[</span><span class="n">last</span><span class="p">,</span> <span class="n">vect_freqs</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span><span class="p">[</span><span class="n">last</span><span class="p">,</span> <span class="n">vect_freqs</span><span class="p">])</span>
+                        <span class="n">cache_pressure_residues</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span> <span class="n">cache_pressure_residues</span><span class="p">,</span> <span class="n">pressure_residue_first</span><span class="p">,</span> <span class="n">pressure_residue_last</span> <span class="p">]</span> 
+        
+                        <span class="n">index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">delta_pressure</span><span class="p">[</span><span class="n">vect_freqs</span><span class="p">]))</span>
+                        <span class="n">max_value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">delta_pressure</span><span class="p">[</span><span class="n">vect_freqs</span><span class="p">]))</span>
+
+                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_pressures</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>
+                            <span class="n">delta_pressures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">delta_pressure</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+                            <span class="n">cache_delta_residues</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">relative_error</span><span class="p">(</span><span class="n">delta_pressures</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cache_delta_pressures</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">delta_pressures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">delta_pressure</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+                            <span class="n">cache_delta_pressures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">delta_pressure</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">))</span>
+                            <span class="n">cache_delta_residues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">relative_error</span><span class="p">(</span><span class="n">delta_pressures</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cache_delta_pressures</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                                        
+                        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cache_delta</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">elements</span><span class="p">):</span>                                
+                                <span class="k">if</span> <span class="nb">abs</span><span class="p">((</span><span class="n">cache_delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">max_value</span><span class="p">)</span><span class="o">/</span><span class="n">cache_delta</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mf">0.5</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">freq_indexes</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                                        <span class="n">freq_indexes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                                    <span class="k">else</span><span class="p">:</span>
+                                        <span class="n">freq_indexes</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                                <span class="n">cache_delta</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_value</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">cache_delta</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+
+                    <span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">relative_difference</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cache_pressure_residues</span><span class="p">)</span>
+                    <span class="n">pressure_residues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="n">relative_difference</span><span class="p">)</span>
+                    <span class="n">delta_residues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">cache_delta_residues</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">count</span><span class="p">)</span>
+
+                    <span class="n">cache_delta_pressures</span> <span class="o">=</span> <span class="n">delta_pressures</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span> <span class="o">=</span> <span class="n">solution</span>
+                    <span class="n">solution</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+                    <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">repetitions</span> <span class="ow">in</span> <span class="n">freq_indexes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">repetitions</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">ind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">:</span>
+                                <span class="n">_frequencies</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">frequencies</span><span class="p">[</span><span class="n">vect_freqs</span><span class="p">]</span>
+                                <span class="n">freq</span> <span class="o">=</span> <span class="n">_frequencies</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span> <span class="o">=</span> <span class="n">freq</span>
+                                <span class="n">vect_freqs</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
+                                <span class="n">message</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The </span><span class="si">{</span><span class="n">freq</span><span class="si">}</span><span class="s2">Hz frequency step produces unstable results, therefore &quot;</span>
+                                <span class="n">message</span> <span class="o">+=</span> <span class="s2">&quot;it will be excluded from the calculation of the residue convergence criteria.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>  
+
+                    <span class="n">converged</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_convergence_criterias</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">,</span> <span class="n">delta_residues</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">converged</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">convergence_dataLog</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">,</span> <span class="n">pressure_residues</span><span class="p">,</span> <span class="n">delta_residues</span><span class="p">,</span> <span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+                        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">solution_nm1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_dataLog</span>
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                    <span class="n">solution</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kadd_lump</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">volume_velocity</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">():</span>
+                        <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">solution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_dataLog</span>                     
+                                
+        <span class="k">else</span><span class="p">:</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+                <span class="n">solution</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">spsolve</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Kadd_lump</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">volume_velocity</span><span class="p">[:,</span> <span class="n">i</span><span class="p">])</span>
+            <span class="n">solution</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reinsert_prescribed_dofs</span><span class="p">(</span><span class="n">solution</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">solution</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">convergence_dataLog</span></div>
+
+    <span class="k">def</span> <span class="nf">check_convergence_criterias</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pressure_residues</span><span class="p">,</span> <span class="n">delta_residues</span><span class="p">,</span> <span class="n">delta_residue_criteria</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">ordinal</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span><span class="s2">&quot;st&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span><span class="s2">&quot;nd&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span><span class="s2">&quot;rd&quot;</span><span class="p">}</span>
+        <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># delta_residue_criteria = False</span>
+
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">remainder</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">plot_convergence_graph</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterations</span><span class="p">,</span> <span class="n">pressure_residues</span><span class="p">,</span> <span class="n">delta_residues</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">_label</span> <span class="o">=</span>  <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">      ---------------------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">_label</span> <span class="o">+=</span> <span class="s2">&quot;      ||&gt;&gt;&gt;&gt;&gt;    PERFORATED PLATE: CONVERGENCE INFORMATION    &lt;&lt;&lt;&lt;&lt;||&quot;</span>
+            <span class="n">_label</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">      ---------------------------------------------------------------</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">_label</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">ordinal</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="n">ordinal</span><span class="p">[</span><span class="n">count</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;th&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluated pressure residue criteria: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">[%] @ </span><span class="si">{</span><span class="n">count</span><span class="si">}{</span><span class="n">label</span><span class="si">}</span><span class="s2"> iteration&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Evaluated delta pressure residue criteria: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">[%] @ </span><span class="si">{</span><span class="n">count</span><span class="si">}{</span><span class="n">label</span><span class="si">}</span><span class="s2"> iteration</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span><span class="p">:</span>
+            <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+
+                <span class="n">final_log</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The solution converged after </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> iterations with the following observations:&quot;</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">):</span>
+                    <span class="n">list_freqs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">List of unstable frequencies: </span><span class="si">{</span><span class="n">list_freqs</span><span class="si">}</span><span class="s2"> [Hz]&quot;</span>  
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pressure residues criteria: converged&quot;</span>
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Delta pressure residues criteria: not converged</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">final_log</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span> 
+
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="n">final_log</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The solution did not converge after </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> iterations.&quot;</span>
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Last pressure residue criteria found: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">[%]&quot;</span>
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Last delta pressure residue criteria found: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">[%]&quot;</span>
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Target criteria: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">[%]</span><span class="se">\n</span><span class="s2">&quot;</span>
+                
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">):</span>
+                    <span class="n">list_freqs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">List of unstable frequencies: </span><span class="si">{</span><span class="n">list_freqs</span><span class="si">}</span><span class="s2"> [Hz]&quot;</span>
+                                        
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pressure residues criteria: not converged&quot;</span>
+                <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Delta pressure residues criteria: not converged</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">final_log</span><span class="p">)</span>
+                <span class="c1"># TODO: print warning message without any threading conflicts</span>
+                <span class="k">return</span> <span class="kc">True</span> 
+
+        <span class="k">elif</span> <span class="n">delta_residue_criteria</span><span class="p">:</span>
+    
+            <span class="k">if</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">delta_residues</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="p">(</span><span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">delta_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                                <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="mi">10</span><span class="p">:</span>
+                                    <span class="k">if</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                                        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> 
+                                        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                                        <span class="n">final_log</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The solution converged after </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> iterations with the following observations:&quot;</span>
+                                        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">):</span>
+                                            <span class="n">list_freqs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                                            <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">List of unstable frequencies: </span><span class="si">{</span><span class="n">list_freqs</span><span class="si">}</span><span class="s2"> [Hz]&quot;</span>                   
+                                        <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pressure residues criteria: converged&quot;</span>
+                                        <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Delta pressure residues criteria: converged</span><span class="se">\n</span><span class="s2">&quot;</span>
+                                        <span class="nb">print</span><span class="p">(</span><span class="n">final_log</span><span class="p">)</span>
+                                        <span class="k">return</span> <span class="kc">True</span>        
+                
+        <span class="k">else</span><span class="p">:</span> 
+
+            <span class="k">if</span> <span class="nb">max</span><span class="p">(</span><span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">:])</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">5</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">pressure_residues</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> 
+                    <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+                    <span class="n">final_log</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;The solution converged after </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> iterations with the following observations:&quot;</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="p">):</span>
+                        <span class="n">list_freqs</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unstable_frequencies</span><span class="o">.</span><span class="n">values</span><span class="p">()))[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">final_log</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">List of unstable frequencies: </span><span class="si">{</span><span class="n">list_freqs</span><span class="si">}</span><span class="s2"> [Hz]&quot;</span>  
+                    <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pressure residues criteria: converged&quot;</span>
+                    <span class="n">final_log</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Delta pressure residues criteria: not converged</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">final_log</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">True</span>    
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">plot_convergence_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterations</span><span class="p">,</span> <span class="n">relative_errors</span><span class="p">,</span> <span class="n">deltaP_errors</span><span class="o">=</span><span class="p">[]):</span>
+
+        <span class="c1"># self.plt.clf()</span>
+        <span class="c1"># self.plt.cla()</span>
+        
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">500</span><span class="p">,</span> <span class="mi">100</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">matplotlib</span><span class="o">.</span><span class="n">get_backend</span><span class="p">()</span>
+        <span class="n">mngr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">get_current_fig_manager</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;TkAgg&#39;</span><span class="p">:</span>
+            <span class="n">mngr</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">wm_geometry</span><span class="p">(</span><span class="s2">&quot;+</span><span class="si">%d</span><span class="s2">+</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">backend</span> <span class="o">==</span> <span class="s1">&#39;WXAgg&#39;</span><span class="p">:</span>
+            <span class="n">mngr</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">SetPosition</span><span class="p">((</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">mngr</span><span class="o">.</span><span class="n">window</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        
+        <span class="n">perc_criteria</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="o">*</span><span class="mi">100</span>
+        <span class="n">first_plot</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="n">relative_errors</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">second_plot</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">iterations</span><span class="p">)],</span> <span class="p">[</span><span class="n">perc_criteria</span><span class="p">,</span> <span class="n">perc_criteria</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deltaP_errors</span><span class="p">:</span>
+            <span class="n">third_plot</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">iterations</span><span class="p">,</span> <span class="n">deltaP_errors</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">],</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+        <span class="n">first_plot_label</span> <span class="o">=</span> <span class="s2">&quot;Pressure residues&quot;</span>
+        <span class="n">third_plot_label</span> <span class="o">=</span> <span class="s2">&quot;Delta pressure residues&quot;</span>
+        <span class="n">second_plot_label</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Target: </span><span class="si">{</span><span class="n">perc_criteria</span><span class="si">}</span><span class="s1">%&#39;</span>
+        <span class="k">if</span> <span class="n">deltaP_errors</span><span class="p">:</span>
+            <span class="n">_legends</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">first_plot</span><span class="p">,</span> <span class="n">third_plot</span><span class="p">,</span> <span class="n">second_plot</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">first_plot_label</span><span class="p">,</span> <span class="n">third_plot_label</span><span class="p">,</span> <span class="n">second_plot_label</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_legends</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="p">[</span><span class="n">first_plot</span><span class="p">,</span> <span class="n">second_plot</span><span class="p">],</span> <span class="n">labels</span><span class="o">=</span><span class="p">[</span><span class="n">first_plot_label</span><span class="p">,</span> <span class="n">second_plot_label</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">add_artist</span><span class="p">(</span><span class="n">_legends</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;PERFORATED PLATE: CONVERGENCE PLOT&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span> <span class="n">fontweight</span> <span class="o">=</span> <span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Iteration [n]&#39;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span> <span class="o">=</span> <span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Relative error [%]&quot;</span><span class="p">,</span> <span class="n">fontsize</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span> <span class="o">=</span> <span class="s1">&#39;bold&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">iterations</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">draw</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">plt</span><span class="o">.</span><span class="n">pause</span><span class="p">(</span><span class="mf">0.001</span><span class="p">)</span>
+
+        <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span>   
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">stop_processing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocessor</span><span class="o">.</span><span class="n">stop_processing</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Processing interruption was requested by the user. </span><span class="se">\n</span><span class="s2">Solution interruped.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span></div>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

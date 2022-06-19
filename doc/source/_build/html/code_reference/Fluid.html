@@ -1,0 +1,476 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fluid &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structural Element" href="StructuralElement.html" />
+    <link rel="prev" title="Material" href="Material.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Node.html">
+     Node
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="CrossSection.html">
+     Cross Section
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Material.html">
+     Material
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Fluid
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="StructuralElement.html">
+     Structural Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="AcousticElement.html">
+     Acoustic Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Entity.html">
+     Entity
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Preprocessor.html">
+     Preprocessor
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="processing.html">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/Fluid.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pulse.preprocessing.fluid">
+<span id="fluid"></span><h1>Fluid<a class="headerlink" href="#module-pulse.preprocessing.fluid" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.fluid.</span></span><span class="sig-name descname"><span class="pre">Fluid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">density</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed_of_sound</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/fluid.html#Fluid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid" title="Permalink to this definition">#</a></dt>
+<dd><p>A fluid class.
+This class creates a fluid object from fluid properties input data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Text to be used as fluid’s name.</p>
+</dd>
+<dt><strong>density</strong><span class="classifier">float</span></dt><dd><p>Fluid density.</p>
+</dd>
+<dt><strong>speed_of_sound</strong><span class="classifier">float</span></dt><dd><p>Speed of the sound wave propagating in the fluid.</p>
+</dd>
+<dt><strong>isentropic_exponent</strong><span class="classifier">float, optional</span></dt><dd><p>Fluid isentropic exponent, also know as the heat capacity ratio, the adiabatic index,  the ratio of specific heats, or Laplace’s coefficient.
+Default is None.</p>
+</dd>
+<dt><strong>thermal_conductivity</strong><span class="classifier">float, optional</span></dt><dd><p>Fluid thermal conductivity.
+Default is None.</p>
+</dd>
+<dt><strong>specific_heat_Cp</strong><span class="classifier">float, optional</span></dt><dd><p>Fluid specific heat capacity at constant pressure.
+Default is None.</p>
+</dd>
+<dt><strong>dynamic_viscosity</strong><span class="classifier">float, optional</span></dt><dd><p>Fluid dynamic viscosity.
+Default is None.</p>
+</dd>
+<dt><strong>color</strong><span class="classifier">tuple, optional</span></dt><dd><p>The color associated with the fluid. Entity objects with this fluid object attributed will be shown with this color in the UI.
+Default is None.</p>
+</dd>
+<dt><strong>identifier</strong><span class="classifier">int, optional</span></dt><dd><p>Fluid identifier displayed in the UI list of fluids.
+Default is -1.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.bulk_modulus" title="pulse.preprocessing.fluid.Fluid.bulk_modulus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bulk_modulus</span></code></a></dt><dd><p>This method evaluates the fluid Bulk modulus.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.impedance" title="pulse.preprocessing.fluid.Fluid.impedance"><code class="xref py py-obj docutils literal notranslate"><span class="pre">impedance</span></code></a></dt><dd><p>This method evaluates the fluid specific impedance.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.kinematic_viscosity" title="pulse.preprocessing.fluid.Fluid.kinematic_viscosity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">kinematic_viscosity</span></code></a></dt><dd><p>This method evaluates the fluid kinematic viscosity.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.prandtl" title="pulse.preprocessing.fluid.Fluid.prandtl"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prandtl</span></code></a></dt><dd><p>This method evaluates the fluid Prandtl number.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.thermal_diffusivity" title="pulse.preprocessing.fluid.Fluid.thermal_diffusivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">thermal_diffusivity</span></code></a></dt><dd><p>This method evaluates the fluid thermal diffusivity.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.getColorRGB" title="pulse.preprocessing.fluid.Fluid.getColorRGB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getColorRGB</span></code></a>()</p></td>
+<td><p>This method returns the fluid color.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.getName" title="pulse.preprocessing.fluid.Fluid.getName"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getName</span></code></a>()</p></td>
+<td><p>This method returns the fluid name.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.fluid.Fluid.getNormalizedColorRGB" title="pulse.preprocessing.fluid.Fluid.getNormalizedColorRGB"><code class="xref py py-obj docutils literal notranslate"><span class="pre">getNormalizedColorRGB</span></code></a>()</p></td>
+<td><p>This method returns the fluid normalized color.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.bulk_modulus">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bulk_modulus</span></span><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.bulk_modulus" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the fluid Bulk modulus.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Fluid Bulk modulus.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.getColorRGB">
+<span class="sig-name descname"><span class="pre">getColorRGB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/fluid.html#Fluid.getColorRGB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.getColorRGB" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the fluid color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>tuple</dt><dd><p>Fluid color.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.getName">
+<span class="sig-name descname"><span class="pre">getName</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/fluid.html#Fluid.getName"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.getName" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the fluid name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>str</dt><dd><p>Fluid name.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.getNormalizedColorRGB">
+<span class="sig-name descname"><span class="pre">getNormalizedColorRGB</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/fluid.html#Fluid.getNormalizedColorRGB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.getNormalizedColorRGB" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the fluid normalized color.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>tuple</dt><dd><p>Fluid color.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.impedance">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">impedance</span></span><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.impedance" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the fluid specific impedance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Fluid specific impedance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.kinematic_viscosity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">kinematic_viscosity</span></span><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.kinematic_viscosity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the fluid kinematic viscosity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Fluid kinematic viscosity.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.prandtl">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prandtl</span></span><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.prandtl" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the fluid Prandtl number.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Fluid Prandtl number.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.fluid.Fluid.thermal_diffusivity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">thermal_diffusivity</span></span><a class="headerlink" href="#pulse.preprocessing.fluid.Fluid.thermal_diffusivity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the fluid thermal diffusivity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>float</dt><dd><p>Fluid thermal diffusivity.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Material.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Material</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="StructuralElement.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Structural Element</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

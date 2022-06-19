@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pulse.preprocessing.node &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../../../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../../../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../../../index.html">
+  <img src="../../../_static/logo.png" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../../../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../../../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <h1>Source code for pulse.preprocessing.node</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">DOF_PER_NODE_STRUCTURAL</span> <span class="o">=</span> <span class="mi">6</span>
+<span class="n">DOF_PER_NODE_ACOUSTIC</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">-</span> <span class="n">b</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A node class.</span>
+<span class="sd">    This class creates a node object from input data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : float</span>
+<span class="sd">        Node x coordinate.</span>
+
+<span class="sd">    y : float</span>
+<span class="sd">        node y coordinate.</span>
+
+<span class="sd">    z : float</span>
+<span class="sd">        Node z coordinate.</span>
+
+<span class="sd">    global_index : int, optional</span>
+<span class="sd">        Internal node index used for computing.</span>
+<span class="sd">        Default is None.</span>
+
+<span class="sd">    external_index : int</span>
+<span class="sd">        Node index displayed to the user.</span>
+<span class="sd">        Default is None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;global_index&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">external_index</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;external_index&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Structural boundary conditions and external lumped elements</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodal_loads</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodal_loads_table_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_nodal_loads</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_nodal_loads</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs_table_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_prescribed_dofs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_prescribed_dofs</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_constrained_dofs</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_masses</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_masses_table_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_lumped_masses</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_lumped_masses</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_stiffness</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_stiffness_table_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_lumped_stiffness</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_lumped_stiffness</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_dampings</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lumped_dampings_table_names</span> <span class="o">=</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_lumped_dampings</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_lumped_dampings</span> <span class="o">=</span> <span class="kc">False</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">elastic_nodal_link_stiffness</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_elastic_nodal_link_stiffness</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_elastic_link_stiffness</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">elastic_nodal_link_dampings</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">there_are_elastic_nodal_link_dampings</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">loaded_table_for_elastic_link_dampings</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Acoustic boundary conditions and specific impedance</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_pressure</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_pressure_table_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity_table_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance_table_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance_type</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">compressor_excitation_table_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dict_index_to_compressor_connection_info</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">compressor_excitation_table_indexes</span> <span class="o">=</span> <span class="p">[]</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_coordinates</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_rotations_xyz_gcs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deformed_displacements_xyz_gcs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodal_solution_gcs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">static_nodal_solution_gcs</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_solution</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s coordinates as a array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        array</span>
+<span class="sd">            Node coordinates</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">local_dof</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s structural degrees of freedom in the local coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node&#39;s translations and the three node&#39;s rotations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Node&#39;s structural degrees of freedom in the local coordinate system.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        global_dof : Structural degrees of freedom in the global coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">DOF_PER_NODE_STRUCTURAL</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">global_dof</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s structural degrees of freedom in the global coordinate system. The 3D Timoshenko beam theory implemented takes into account the three node&#39;s translations and the three node&#39;s rotations.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list</span>
+<span class="sd">            Node&#39;s structural degrees of freedom in the global coordinate system</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        local_dof : Structural degrees of freedom in the local coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_dof</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">global_index</span> <span class="o">*</span> <span class="n">DOF_PER_NODE_STRUCTURAL</span>
+ 
+<div class="viewcode-block" id="Node.distance_to"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.distance_to">[docs]</a>    <span class="k">def</span> <span class="nf">distance_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the distance between the actual node and other one.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        other : Node object</span>
+<span class="sd">            The node to calculate the distance to.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Distance between the nodes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coordinates</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">coordinates</span><span class="p">)</span></div>
+
+    <span class="c1"># Structural Boundary Condition</span>
+<div class="viewcode-block" id="Node.set_prescribed_dofs_bc"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.set_prescribed_dofs_bc">[docs]</a>    <span class="k">def</span> <span class="nf">set_prescribed_dofs_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">boundary_condition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method attributes the node&#39;s structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        boundary_condition : array</span>
+<span class="sd">            The structural boundary conditions to be prescribed into the node.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_dofs : Returns the structural boundary conditions prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span> <span class="o">=</span> <span class="n">boundary_condition</span></div>
+
+<div class="viewcode-block" id="Node.get_prescribed_dofs"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_prescribed_dofs">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_dofs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s structural displacement and rotation boundary conditions in the local coordinate system according to the degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        boundary_condition : array</span>
+<span class="sd">            The boundary conditions prescribed into the node.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_prescribed_dofs_bc : Attributes the structural boundary conditions into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span></div>
+
+<div class="viewcode-block" id="Node.get_lumped_dampings"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_lumped_dampings">[docs]</a>    <span class="k">def</span> <span class="nf">get_lumped_dampings</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s lumped dampings in the local coordinate system according to the degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lumped_dampings : array</span>
+<span class="sd">            The lumped dampings prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lumped_dampings</span></div>
+
+<div class="viewcode-block" id="Node.get_lumped_stiffness"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_lumped_stiffness">[docs]</a>    <span class="k">def</span> <span class="nf">get_lumped_stiffness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s lumped stiffness in the local coordinate system according to the degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lumped_stiffness : array</span>
+<span class="sd">            The lumped stiffness prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">lumped_stiffness</span></div>
+
+<div class="viewcode-block" id="Node.get_prescribed_dofs_bc_indexes"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_dofs_bc_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the index(es) of the degrees of freedom in the local coordinate system which has(have) prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_values array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indexes : array</span>
+<span class="sd">            Index(es) of the degrees of freedom which has(have) prescribed structural boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_dofs_bc_values : Value(s) of the prescribed boundary conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span><span class="p">)</span> <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Node.get_prescribed_dofs_bc_values"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_prescribed_dofs_bc_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_dofs_bc_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the value(s) of the prescribed structural displacement or rotation boundary conditions. The array share the same structure of the get_prescribed_dofs_bc_indexes array.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indexes : array</span>
+<span class="sd">            Value(s) of the prescribed structural boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_dofs_bc_indexes : Index(es) of the degrees of freedom which has(have) prescribed boundary conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span> <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span></div>
+                
+<div class="viewcode-block" id="Node.set_prescribed_loads"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.set_prescribed_loads">[docs]</a>    <span class="k">def</span> <span class="nf">set_prescribed_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method attributes the nodal force and moment loads in the local coordinate system according to the the degrees of freedom.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indexes : array</span>
+<span class="sd">            Value(s) of the nodal force and moments to be prescribed boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_prescribed_loads : Prescribed nodal loads in the local coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nodal_loads</span> <span class="o">=</span> <span class="n">values</span></div>
+
+<div class="viewcode-block" id="Node.get_prescribed_loads"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_prescribed_loads">[docs]</a>    <span class="k">def</span> <span class="nf">get_prescribed_loads</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the prescribed nodal forces and moments load in the local coordinate system according to the the degrees of freedom.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indexes : array</span>
+<span class="sd">            Value(s) of the prescribed nodal force and moments boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_prescribed_loads : Attributes nodal loads in the local coordinate system.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodal_loads</span></div>
+    
+    <span class="c1"># Acoustic Boundary Condition</span>
+<div class="viewcode-block" id="Node.set_acoustic_boundary_condition"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.set_acoustic_boundary_condition">[docs]</a>    <span class="k">def</span> <span class="nf">set_acoustic_boundary_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">acoustic_boundary_condition</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method attributes the node&#39;s acoustic pressure boundary condition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        acoustic_boundary_condition : complex</span>
+<span class="sd">            The acoustic pressure boundary condition to be prescribed into the node.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        getAcousticBoundaryCondition : Returns the acoustic pressure boundary condition prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_boundary_condition</span> <span class="o">=</span> <span class="n">acoustic_boundary_condition</span></div>
+
+<div class="viewcode-block" id="Node.getAcousticBoundaryCondition"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.getAcousticBoundaryCondition">[docs]</a>    <span class="k">def</span> <span class="nf">getAcousticBoundaryCondition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s acoustic pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        acoustic_boundary_condition : complex</span>
+<span class="sd">            The acoustic pressure boundary condition prescribed into the node.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_acoustic_boundary_condition : Attributes the acoustic pressure boundary condition into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_boundary_condition</span></div>
+
+    <span class="k">def</span> <span class="nf">getStructuralBondaryCondition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prescribed_dofs</span>
+    
+<div class="viewcode-block" id="Node.get_acoustic_boundary_condition_indexes"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_acoustic_boundary_condition_indexes">[docs]</a>    <span class="k">def</span> <span class="nf">get_acoustic_boundary_condition_indexes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the index of the acoustic degrees of freedom with prescribed pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        indexes : 0 or None</span>
+<span class="sd">            Index of the acoustic degrees with prescribed pressure boundary conditions.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_acoustic_pressure_bc_values : Acoustic pressure boundary condition if it is prescribed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">acoustic_pressure</span><span class="p">])</span> <span class="k">if</span> <span class="n">j</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="Node.get_acoustic_pressure_bc_values"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_acoustic_pressure_bc_values">[docs]</a>    <span class="k">def</span> <span class="nf">get_acoustic_pressure_bc_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the value of the acoustic pressure boundary condition if it is prescribed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        value : complex or None</span>
+<span class="sd">            Acoustic pressure boundary condition if it is prescribed.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_acoustic_boundary_condition_indexes : Index of the acoustic degrees if it has prescribed pressure boundary conditions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">acoustic_pressure</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span></div>
+    
+<div class="viewcode-block" id="Node.haveAcousticBoundaryCondition"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.haveAcousticBoundaryCondition">[docs]</a>    <span class="k">def</span> <span class="nf">haveAcousticBoundaryCondition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the existence of acoustic pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True when there is acoustic pressure boundary condition prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">acoustic_boundary_condition</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="Node.set_prescribed_volume_velocity"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.set_prescribed_volume_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">set_prescribed_volume_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">volume_velocity</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method attributes the node&#39;s acoustic volume velocity boundary condition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        volume_velocity : complex</span>
+<span class="sd">            The acoustic volume velocity boundary condition to be prescribed into the node.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        get_volume_velocity : Returns the volume velocity boundary condition prescribed into the node.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span> <span class="o">=</span> <span class="n">volume_velocity</span></div>
+
+<div class="viewcode-block" id="Node.get_volume_velocity"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.get_volume_velocity">[docs]</a>    <span class="k">def</span> <span class="nf">get_volume_velocity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s acoustic volume velocity boundary condition. The volume velocity array has the same length as the frequencies array. In terms of analysis, if volume velocity is constant in the frequency domain, the method returns a array filled with the constant value with the same length as the frequencies array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        frequencies : list</span>
+<span class="sd">            Frequencies of analysis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        complex array</span>
+<span class="sd">            The acoustic volume velocity boundary condition prescribed into the node.</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            The frequencies array must have the same length of the volume velocity array when a table is prescribed.</span>
+<span class="sd">            Please, check the frequency analysis setup.</span>
+
+<span class="sd">        See also</span>
+<span class="sd">        --------</span>
+<span class="sd">        set_prescribed_volume_velocity : Attributes the node&#39;s acoustic volume velocity boundary condition.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">):</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The frequencies vector must have the same length of the volume velocity vector.</span><span class="se">\n</span><span class="s2"> Please, check the frequency analysis setup.&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.haveVolumeVelocity"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.haveVolumeVelocity">[docs]</a>    <span class="k">def</span> <span class="nf">haveVolumeVelocity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method evaluates the existence of volume velocity pressure boundary condition.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True when there is volume velocity pressure boundary condition prescribed into the node, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">volume_velocity</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span></div>
+    
+<div class="viewcode-block" id="Node.admittance"><a class="viewcode-back" href="../../../code_reference/Node.html#pulse.preprocessing.node.Node.admittance">[docs]</a>    <span class="k">def</span> <span class="nf">admittance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area_fluid</span><span class="p">,</span> <span class="n">frequencies</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method returns the node&#39;s lumped acoustic admittance according to either prescribed specific impedance or prescribed radiation impedance. The admittance array has the same length as the frequencies array. In terms of analysis, if admittance is constant in the frequency domain, the method returns an array filled with the constant value with the same length as the frequencies array.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        area_fluid : float</span>
+<span class="sd">            Acoustic fluid cross section area.</span>
+
+<span class="sd">        frequencies : list</span>
+<span class="sd">            Frequencies of analysis.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        ----------</span>
+<span class="sd">        complex array</span>
+<span class="sd">            Lumped acoustic admittance</span>
+<span class="sd">        </span>
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError</span>
+<span class="sd">            The Specific Impedance array and frequencies array must have</span>
+<span class="sd">            the same length.</span>
+
+<span class="sd">        TypeError</span>
+<span class="sd">            The Radiation Impedance array and frequencies array must have</span>
+<span class="sd">            the same length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">admittance_specific</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+        <span class="n">admittance_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">complex</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Z_specific</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span> <span class="o">/</span> <span class="n">area_fluid</span>
+            
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
+                <span class="n">admittance_specific</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">Z_specific</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">specific_impedance</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The Specific Impedance array and frequencies array must have </span><span class="se">\n</span><span class="s2">the same length.&quot;</span><span class="p">)</span>
+                <span class="n">admittance_specific</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Z_specific</span><span class="p">)</span>
+              
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">Z_rad</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span> <span class="o">/</span> <span class="n">area_fluid</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">,</span> <span class="nb">complex</span><span class="p">):</span>
+                <span class="n">admittance_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Z_rad</span><span class="p">)</span> 
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">radiation_impedance</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frequencies</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;The Radiation Impedance array and frequencies array must have </span><span class="se">\n</span><span class="s2">the same length.&quot;</span><span class="p">)</span>
+                <span class="n">admittance_rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">Z_rad</span><span class="p">)</span>
+        
+        <span class="n">admittance</span> <span class="o">=</span> <span class="n">admittance_specific</span> <span class="o">+</span> <span class="n">admittance_rad</span>
+        
+        <span class="k">return</span> <span class="n">admittance</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span><span class="c1">#([len(frequencies),1])</span></div></div>
+    
+    <span class="c1"># def __str__(self):</span>
+    <span class="c1">#     text = &#39;&#39;</span>
+    <span class="c1">#     text += f&#39;Node Id: {self.external_index} \n&#39;</span>
+    <span class="c1">#     text += f&#39;Position: {self.coordinates} [m]\n&#39;</span>
+    <span class="c1">#     text += f&#39;Displacement: {self.prescribed_dofs[:3]} [m]\n&#39;</span>
+    <span class="c1">#     text += f&#39;Rotation: {self.prescribed_dofs[3:]} [rad]&#39;</span>
+    <span class="c1">#     return text</span>
+</pre></div>
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

@@ -11,6 +11,13 @@ set SOURCEDIR=source
 set BUILDDIR=build
 
 if "%1" == "" goto help
+if "%1" == "clean" goto clean
+goto :run
+
+:clean
+echo.CLEAN BUILD with -E -a 
+set %TARGET% = "html"
+set %SPHINXOPTS% = "-E -a"
 
 %SPHINXBUILD% >NUL 2>NUL
 if errorlevel 9009 (

@@ -33,7 +33,7 @@ class AssemblyStructural:
         This method returns all the indexes of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.
 
         Returns
-        ----------
+        -------
         array
             Indexes of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
 
@@ -56,7 +56,7 @@ class AssemblyStructural:
         This method returns all the values of the structural degrees of freedom with prescribed structural displacement or rotation boundary conditions.
 
         Returns
-        ----------
+        -------
         array
             Values of the structural degrees of freedom with prescribed displacement or rotation boundary conditions.
 
@@ -96,7 +96,7 @@ class AssemblyStructural:
         This method returns all the indexes of the structural free degrees of freedom.
 
         Returns
-        ----------
+        -------
         array
             Indexes of the structural free degrees of freedom.
 
@@ -115,7 +115,7 @@ class AssemblyStructural:
         This method perform the assembly process of the structural FEM matrices.
 
         Returns
-        ----------
+        -------
         K : list
             List of stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix.
             
@@ -201,7 +201,7 @@ class AssemblyStructural:
         This method perform the assembly process of the structural FEM lumped matrices.
 
         Returns
-        ----------
+        -------
         K_lump : list
             List of lumped stiffness matrices of the free degree of freedom. Each item of the list is a sparse csr_matrix that corresponds to one frequency of analysis.
             
@@ -330,7 +330,7 @@ class AssemblyStructural:
             Default is False.
 
         Returns
-        ----------
+        -------
         array
             Loads vectors. Each column corresponds to a frequency of analysis.
         """
@@ -403,7 +403,7 @@ class AssemblyStructural:
             Default is False.
 
         Returns
-        ----------
+        -------
         array
             Loads vectors. Each column corresponds to a frequency of analysis.
         """

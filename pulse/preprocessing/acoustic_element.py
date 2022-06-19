@@ -18,10 +18,10 @@ def H1(x):
 
 def poly_function(x):
     """
-    This function compute a auxiliary polynomial to define the unflanged radiation impedance.
+    Auxiliary polynomial function to define the unflanged radiation impedance.
 
     Parameters
-    -------
+    ----------
     array
         Independent variable. 
 
@@ -39,11 +39,12 @@ def j2j0(z):
     """
     Auxiliary function to compute the ratio between the Bessel functions J2 and J0. When the imaginary part of input z reaches 700, the following syntonic approximation is used:
     
-    ``j2/j0 = -1``, when ``z --> \infty.``
+    .. math::
+        \\frac{J_2(z)}{J_0(z)} = -1, \\quad \\text{if } \\Im\\{z\\} > 700.
 
     Parameters
-    -------
-    z : array
+    ----------
+    array
     """
     mask = np.abs(np.imag(z))<700
     value = np.zeros_like(z, dtype = complex)
@@ -52,115 +53,114 @@ def j2j0(z):
     return value
 
 class AcousticElement:
-    """An acoustic element.
-    This class creates an acoustic element from input data.
+    """
+    This class creates an acoustic element from input data. The FETM element formulation has two **nodes** (**first** and **last** nodes), where pressure is evaluated: ::
+    
+        n0-----------n1 --> x 
+
+    The acoustic domain is delimited by its **nodes** and **cross section**. Externally, there is an associated **structural element** (pipe), whose domain is constituted by a **material**. Futhermore, the acoustic domain is constituted by a **fluid** and, if it is moving, the **volumetric flow rate** must be set. The FETM formulation implemented in OpenPulse can model damping through several theories, namely **proportional**, **wide-duct**, **LRF fluid equivalent**, **LRF full**, **peters**, and **howe**. Peters' and Howe's models are suitable for mean flow systems, i.e., **volumetric flow rate** not equal to 0.
 
     Parameters
     ----------
     first_node : Node object
-        Fist node of element.
+        Element's first node.
 
     last_node : Node object
-        Last node of element.
+        Element's last node.
 
     index : int
-        Element index.
+        Element's index.
 
-    element_type : str, ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full'], optional
-        Element type
-        Default is 'undamped'.
+    element_type : ['undamped', 'proportional', 'wide-duct', 'LRF fluid equivalent', 'LRF full', 'undamped mean flow','peters','howe'], optional
+        Element damping formulation. When ``'undamped mean flow'``, ``'peters'`` or ``'howe'`` is set, the volumetric flow rate must be set, i.e., ``vol_flow !=0``. Default is ``'undamped'``.
 
     proportional_damping : float, optional
-        Proportional damping coefficient 
-        Default is 'None'.
+        Proportional damping coefficient. Set this parameter when ``element_type = 'proportional'``. Default is ``'None'``.
 
     material : Material object, optional
-        Element structural material.
-        Default is 'None'.
+        Structural domain material. Default is ``'None'``.
 
     fluid : Fluid object, optional
-        Element acoustic fluid.
-        Default is 'None'.
+        Acoustic domain fluid. Default is ``'None'``.
 
     cross_section : CrossSection object, optional
-        Element cross section.
-        Default is 'None'.
+        Element's cross section. Default is ``'None'``.
 
-    loaded_pressure : array, optional
-        Acoustic pressure on the nodes.
-        Default is [0, 0].
+    perforated_plate : PerforatedPlate object, optional
+        Element's perforated plate. Default is ``'None'``.
 
-    acoustic_length_correction : int, [0, 1, 2], optional
-        Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling:
-        None: disable
-        0 : expansion
-        1 : side_branch
+    vol_flow : float, optional
+        Volumetric flow rate in the element's acoustic domain. Default ``0``.
+
+    loaded_pressure : (2,) array, optional
+        Acoustic pressure on the nodes. Default is ``[0, 0]``.
+
+    acoustic_length_correction : [0, 1, 2], optional
+        Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling: ::
+
+            None : disable
+            0 : expansion
+            1 : side_branch
+            2 : loop 
         2 : loop 
-        Default is None.
+            2 : loop 
+
+        Default is ``'None'``.
     """
     def __init__(self, first_node, last_node, index, **kwargs):
         self.first_node = first_node
         self.last_node = last_node
         self.index = index
+
         self.element_type = kwargs.get('element_type', 'undamped')
         self.proportional_damping = kwargs.get('proportional_damping', None)
         self.material = kwargs.get('material', None)
         self.fluid = kwargs.get('fluid', None)   
         self.cross_section = kwargs.get('cross_section', None)
-        self.cross_section_points = kwargs.get('cross_section_points', None)
-        self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.perforated_plate = kwargs.get('perforated_plate', None)
         self.vol_flow = kwargs.get('vol_flow', 0)
+
+        self.loaded_pressure = kwargs.get('loaded_forces', np.zeros(DOF_PER_NODE))
         self.acoustic_length_correction = kwargs.get('acoustic_length_correction', None)
 
+        self.cross_section_points = None
         self.delta_pressure = 0
         self.pp_impedance = None
 
-        self.element_type = kwargs.get('element_type', 'undamped')
-
-        self.reset()
+        self._reset_flags()
 
     @property
     def length(self):
-        """
-        This method returns the element's length.
-
-        Returns
-        -------
-        float
-            Element length.
-        """
+        """:float: Element's length. """
         return distance(self.first_node, self.last_node) 
 
     @property
     def orientation(self):
-        """
-        This method returns element's axial orientation in the global coordinate system.
-
-        Returns
-        -------
-        array
-            x-axis vector.
-        """
+        """:(3,) array: Element's axial orientation in the global coordinate system. """
         return self.last_node.coordinates - self.first_node.coordinates
 
     @property
     def impedance(self):
-        """
-        This method returns the element's acoustic impedance based on its fluid and cross section.
-
-        Returns
-        -------
-        float
-            The element impedance.
-        """
+        """:float: Element's acoustic impedance based on its fluid and cross section."""
         return self.fluid.impedance / self.area_fluid
 
     @property
     def mach(self):
+        """:float: Mach number in the element domain."""
         return self.vol_flow / (self.speed_of_sound_corrected()*self.area_fluid)
+
+    @property
+    def global_dof(self):
+        """:(2,) array: Element's global degree of freedom indexes."""
+        global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
+        global_dof[:DOF_PER_NODE] = self.first_node.global_index
+        global_dof[DOF_PER_NODE:] = self.last_node.global_index
+        return global_dof
     
-    def reset(self):
+    def _reset_flags(self):
+        """
+        This method reset element's check flags.
+        """
         self.flag_plane_wave = False
         self.flag_wide_duct = False
         self.flag_lrf_fluid_eq = False
@@ -171,36 +171,29 @@ class AcousticElement:
         self.min_valid_freq = 0
 
     def update_pressure(self, solution):
+        """
+        Auxiliary method used in the perforated plate model.
+
+        Parameters
+        ----------
+        solution : (N, M) array
+            System's acoustic solution. ``N`` is the number of acoustic degree of freedom and ``M`` is the number of frequencies of analysis.
+        """
         pressure_first = solution[self.first_node.global_index, :]
         pressure_last = solution[self.last_node.global_index, :]
         self.delta_pressure =  pressure_last - pressure_first
 
-    @property
-    def global_dof(self):
-        """
-        This method returns a list of the element's global degree of freedom.
-
-        Returns
-        -------
-        list
-            Indexes of the global degree of freedom.
-        """
-        global_dof = np.zeros(DOF_PER_ELEMENT, dtype=int)
-        global_dof[:DOF_PER_NODE] = self.first_node.global_index
-        global_dof[DOF_PER_NODE:] = self.last_node.global_index
-        return global_dof
-
     def global_matrix_indexes(self):
         """
-        This method returns the rows' and columns' indexes that place the element's matrices in the global matrices. The created lists are  such that the method is useful to generate sparse matrices.
+        This method returns the rows' and columns' indexes that place the element's matrices in the global matrices. The created array are appropriated to generate sparse matrices.
 
         Returns
         -------
-        rows : list
-            List of indexes of the global matrices' rows where the element's matrices have to be added.
+        rows : (2,2) array
+            Indexes of the global matrices' rows where the element's matrices have to be added.
 
-        cols : list
-            List of indexes of the global matrices' columns where the element's matrices have to be added.
+        cols : (2,2) array
+            Indexes of the global matrices' columns where the element's matrices have to be added.
         """
         rows = self.global_dof.reshape(DOF_PER_ELEMENT, 1) @ np.ones((1, DOF_PER_ELEMENT))
         cols = rows.T
@@ -208,7 +201,7 @@ class AcousticElement:
 
     def speed_of_sound_corrected(self):
         """
-        This method returns the corrected speed of sound due to the mechanical compliance of the pipe wall.
+        This method computes the corrected speed of sound due to the mechanical compliance of the pipe wall.
 
         Returns
         -------
@@ -217,7 +210,8 @@ class AcousticElement:
             
         References
         ----------
-        .. T. C. Lin and G. W. Morgan, "Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell," The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
+
+        T. C. Lin and G. W. Morgan, *Wave Propagation through Fluid Contained in a Cylindrical, Elastic Shell,* The Journal of the Acoustical Society of America 28:6, 1165-1176, 1956.
         """
         if self.cross_section.section_label == 'Expansion joint section':
             return self.fluid.speed_of_sound
@@ -227,23 +221,31 @@ class AcousticElement:
         
     def matrix(self, frequencies, length_correction=0):
         """
-        This method returns the element's admittance matrix for each frequency of analysis according to the element type. The method allows to include the length correction due to acoustic discontinuities (loop, expansion, side branch).
+        This method computes the element's admittance matrix for each frequency of analysis according to the element type. It allows to include the length correction due to acoustic discontinuities (``'loop'``, ``'expansion'``, ``'side branch'``).
 
         Parameters
         ----------
-        frequencies : array
+        frequencies : (N,) array
             Frequencies of analysis in Hz.
 
         length_correction : float, optional
             Element length correction to be added into the element length.
+            Default is 0.
 
         Returns
         -------
-        2D array
-            Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
+        (N, 4) array 
+            Element's admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element's admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.
+            
+            The vector to vector mapping is: ::
+
+                +-                                -+        +-                -+ 
+                | M[0,0]   M[0,1]  M[1,0]   M[1,1] |  <-->  | M[0,0]   M[0,1]  |   
+                +-                                -+        | M[1,0]   M[1,1]  | 
+                                                            +-                -+
         """
+        self._reset_flags()
         self.area_fluid = self.cross_section.area_fluid
-        self.reset()
         if self.perforated_plate:
             if self.perforated_plate.type in [0,1]:
                 return self.perforated_plate_matrix(frequencies, self.perforated_plate.nonlinear_effect)  
@@ -251,28 +253,28 @@ class AcousticElement:
                 d = self.perforated_plate.hole_diameter
                 self.area_fluid = pi*(d**2)/4
         if self.element_type in ['undamped mean flow','peters','howe']:
-            return self.fetm_mean_flow_matrix(frequencies, length_correction)
+            return self._fetm_mean_flow_matrix(frequencies, length_correction)
         elif self.element_type in ['undamped','proportional','wide-duct','LRF fluid equivalent']:
-            return self.fetm_matrix(frequencies, length_correction)
+            return self._fetm_matrix(frequencies, length_correction)
         elif self.element_type == 'LRF full':
-            return self.lrf_thermoviscous_matrix(frequencies, length_correction)  
+            return self._lrf_thermoviscous_matrix(frequencies, length_correction)  
     
-    def fetm_matrix(self, frequencies, length_correction = 0):
+    def _fetm_matrix(self, frequencies, length_correction = 0):
         """
-        This method returns the FETM 1D element's admittance matrix for each frequency of analysis. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
+        This method computes the FETM 1D element's admittance matrix for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`). The damping models compatible with FETM 1D are ``'undamped'``, ``'proportional'``, ``'wide-duct'``, and ``'LRF fluid equivalent'``.
 
         Parameters
         ----------
-        frequencies : array
-            Frequencies of analysis in Hertz.
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
             
         length_correction : float, optional
             Element length correction to be added into the element length.
 
         Returns
         -------
-        2D array
-            Element's admittance matrix. Each row of the output array is an element's admittance matrix corresponding to a frequency of analysis.
+        (N, 4) array 
+            Element's admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element's admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.
         """
         ones = np.ones(len(frequencies), dtype='float64')
         kappa_complex, impedance_complex = self._fetm_damping_models(frequencies)
@@ -287,20 +289,20 @@ class AcousticElement:
 
     def _fetm_damping_models(self, frequencies):
         """
-        This method returns wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are Undamped, Proportional, Wide-duct, and LRF fluid equivalent.
+        This method computes the wavenumber and fluid impedance for the FETM 1D theory according to the element's damping model (element type). The damping models compatible with FETM 1D are ``'undamped'``, ``'proportional'``, ``'wide-duct'``, and ``'LRF fluid equivalent'``.
 
         Parameters
         ----------
-        frequencies : array
+        frequencies : (N,) array
             Frequencies of analysis in Hz.
 
         Returns
         -------
-        kappa : complex-array
-            Complex wavenumber. This array have the same structure of the frequencies array.
+        kappa : (N,) complex-array
+            Complex acoustic wavenumber.
 
-        z : complex-array
-            Complex impedance. This array have the same structure of the frequencies array.
+        z : (N,) complex-array
+            Complex acoustic impedance.
         """
         omega = 2 * pi * frequencies
         c0 = self.speed_of_sound_corrected()
@@ -387,22 +389,22 @@ class AcousticElement:
 
             return kappa_complex, impedance_complex
 
-    def lrf_thermoviscous_matrix(self, frequencies, length_correction=0):
+    def _lrf_thermoviscous_matrix(self, frequencies, length_correction=0):
         """
-        This method returns the LRF thermoviscous 1D elementary admittance matrix for each frequency of analysis. The method allows to include the length correction due to acoustic discontinuities (loop, expansion, side branch).
+        This method computes the LRF thermoviscous 1D elementary admittance matrix for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`).
 
         Parameters
         ----------
-        frequencies : array
-            Frequencies of analysis in Hertz.
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
             
         length_correction : float, optional
             Element length correction to be added into the element length.
 
         Returns
         -------
-        2D array
-            Elementary admittance matrix. Each row of the output array is an element admittance matrix corresponding to a frequency of analysis.
+        (N, 4) array 
+            Element's admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element's admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.
         """
         ones = np.ones(len(frequencies), dtype='float64')
         omega = 2 * pi * frequencies
@@ -449,7 +451,23 @@ class AcousticElement:
             self.max_valid_freq = np.min([np.min(frequencies[aux]), self.max_valid_freq]) 
         return matrix  
   
-    def fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
+    def _fetm_mean_flow_matrix(self, frequencies, length_correction = 0):
+        """
+        This method computes the FETM 1D elementary admittance matrix including the acoustic domain mean flow velocity effects in the formulation, for each frequency of analysis. It allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`).
+
+        Parameters
+        ----------
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
+            
+        length_correction : float, optional
+            Element length correction to be added into the element length.
+
+        Returns
+        -------
+        (N, 4) array 
+            Element's admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element's admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.
+        """
         k, z, M = self._fetm_mean_flow_damping_models(frequencies)
         self.radiation_impedance(k, z* (1-M**2))
         
@@ -463,6 +481,25 @@ class AcousticElement:
         return matrix
 
     def _fetm_mean_flow_damping_models(self, frequencies):
+        """
+        This method computes the wavenumber, fluid impedance and mach number for the FETM 1D theory including the mean flow velocity effects in the acoustic domain according to the element's damping model (element type). The damping models compatible with mean flow FETM 1D are ``'undamped mean flow'``, ``'howe'``, and ``'peters'``.
+
+        Parameters
+        ----------
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
+
+        Returns
+        -------
+        kappa : (N,) complex-array
+            Complex acoustic wavenumber.
+
+        z : (N,) complex-array
+            Complex acoustic impedance.
+
+        mach : (N,) complex-array
+            Complex mach number.
+        """
         omega = 2 * pi * frequencies
         c0 = self.speed_of_sound_corrected()
         rho_0 = self.fluid.density
@@ -550,8 +587,18 @@ class AcousticElement:
                 self.max_valid_freq = np.min(frequencies[aux])
             return kappa, z, mach_ef
 
-    def update_pp_impedance(self, frequencies, nonlinear_effect):
-        # Fluid physical quantities
+    def _update_pp_impedance(self, frequencies, nonlinear_effect):
+        """
+        Auxiliary method used to update the perforated plate impedance model.
+
+        Parameters
+        ----------
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
+            
+        nonlinear_effect : bool
+            If true, include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.
+        """
         if frequencies[0]==0:
             frequencies[0] = float(1e-4)
 
@@ -629,53 +676,69 @@ class AcousticElement:
         self.pp_impedance = z_orif
 
     def perforated_plate_matrix(self, frequencies, nonlinear_effect):
-        self.update_pp_impedance(frequencies, nonlinear_effect)
+        """
+        This method computes the Perforated Plate 1D elementary admittance matrix for each frequency of analysis. The setup is done through the element ``perforated_plate`` attribute.
+
+        Parameters
+        ----------
+        frequencies : (N,) array
+            Frequencies of analysis in Hz.
+            
+        nonlinear_effect : bool
+            If true include nonlinear effect formulation in the analysis. This leads to a iterative process that may time a while to conclude.
+
+        Returns
+        -------
+        (N, 4) array 
+            Element's admittance matrix. Each row of the output array ``matrix[i,:]`` may be rewritten to a 2-by-2 element's admittance matrix corresponding to the ``i``-th frequency of analysis ``frequencies[i]``.
+        """
+        self._update_pp_impedance(frequencies, nonlinear_effect)
         admittance = self.area_fluid / self.pp_impedance
         
         return np.c_[- admittance, admittance, admittance, - admittance]
 
     def radiation_impedance(self, kappa_complex, impedance_complex):
         """
-        This method update the radiation impedance attributed to the element nodes according to the anechoic, flanged, and unflanged prescription.
+        This method attributes the radiation impedance to the element nodes according to the `anechoic`, `flanged`, and `unflanged` prescription.
 
         Parameters
-        -------
-        kappa : complex-array
-            Complex wavenumber.
+        ----------
+        kappa : (N,) complex-array
+            Complex acoustic wavenumber.
 
-        z : complex-array
-            Complex impedance.
+        z : (N,) complex-array
+            Complex acoustic impedance.
         """
         if self.first_node.radiation_impedance_type == 0:
             self.first_node.radiation_impedance = impedance_complex + 0j
         elif self.first_node.radiation_impedance_type == 1:
-            self.first_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
+            self.first_node.radiation_impedance = self._unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.first_node.radiation_impedance_type == 2:
-            self.first_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
+            self.first_node.radiation_impedance = self._flanged_termination_impedance(kappa_complex, impedance_complex)
 
         if self.last_node.radiation_impedance_type == 0:
             self.last_node.radiation_impedance = impedance_complex + 0j
         elif self.last_node.radiation_impedance_type == 1:
-            self.last_node.radiation_impedance = self.unflanged_termination_impedance(kappa_complex, impedance_complex)
+            self.last_node.radiation_impedance = self._unflanged_termination_impedance(kappa_complex, impedance_complex)
         elif self.last_node.radiation_impedance_type == 2:
-            self.last_node.radiation_impedance = self.flanged_termination_impedance(kappa_complex, impedance_complex)
+            self.last_node.radiation_impedance = self._flanged_termination_impedance(kappa_complex, impedance_complex)
 
-    def unflanged_termination_impedance(self, kappa_complex, impedance_complex):
+    def _unflanged_termination_impedance(self, kappa_complex, impedance_complex):
         """
-        This method updates the radiation impedance attributed to the element nodes according to the unflanged prescription.
+        This method computes the radiation impedance according to the `unflanged` model.
 
         Parameters
-        -------
-        kappa_complex : complex-array
-            Complex wavenumber.
+        ----------
+        kappa_complex : (N,) complex-array
+            Complex acoustic wavenumber.
 
-        impedance_complex : complex-array
-            Complex system impedance.
+        impedance_complex : (N,) complex-array
+            Complex acoustic impedance.
 
         Returns
         -------
-        array
-            Unflanged pipe termination impedance. The array has the same length as kappa_complex parameter.
+        (N,) array
+            Unflanged pipe termination impedance.
         """
 
         radius = self.cross_section.inner_radius
@@ -698,32 +761,33 @@ class AcousticElement:
 
         return impedance_complex * (1 + aux_2)/(1 - aux_2) +0j
 
-    def flanged_termination_impedance(self, kappa_complex, impedance_complex):
+    def _flanged_termination_impedance(self, kappa_complex, impedance_complex):
         """
-        This method updates the radiation impedance attributed to the element nodes according to the flanged prescription.
+        This method computes the radiation impedance according to the `flanged` model.
 
         Parameters
-        -------
-        kappa_complex : complex-array
-            Complex wavenumber.
+        ----------
+        kappa_complex : (N,) complex-array
+            Complex acoustic wavenumber.
 
-        impedance_complex : complex-array
-            Complex impedance.
+        impedance_complex : (N,) complex-array
+            Complex acoustic impedance.
 
         Returns
         -------
-        array
-            Flanged termination impedance. The array has the same length as kappa_complex parameter.
+        (N,) array
+            Flanged pipe termination impedance.
         """
         radius = self.cross_section.inner_radius
         kr = kappa_complex * radius
         return impedance_complex * (1 - jv(1,2*kr)/ kr  + 1j * H1(2*kr)/ kr  ) +0j 
 
-    def fem_1d_matrix(self, length_correction=0 ):
+    def fem_1d_matrix(self, length_correction=0):
         """
-        This method returns the FEM acoustic 1D elementary matrices. The method allows to include the length correction due to  acoustic discontinuities (loop, expansion, side branch). The FEM is not compatible with any damping model.
-        
-        Obs.: In the OpenPulse, this formulation is only used to evaluate the acoustic modal analysis.
+        This method computes the FEM acoustic 1D elementary matrices. It allows to include the length correction due to acoustic discontinuities (`loop`, `expansion`, `side branch`). The FEM is not compatible with any damping model.
+
+        .. note::
+            In OpenPulse, this formulation is only used to evaluate the acoustic modal analysis.
 
         Parameters
         ----------

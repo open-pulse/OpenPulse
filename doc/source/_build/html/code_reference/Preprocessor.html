@@ -1,0 +1,1802 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Preprocessor &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Processing" href="processing.html" />
+    <link rel="prev" title="Entity" href="Entity.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Node.html">
+     Node
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="CrossSection.html">
+     Cross Section
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Material.html">
+     Material
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Fluid.html">
+     Fluid
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="StructuralElement.html">
+     Structural Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="AcousticElement.html">
+     Acoustic Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Entity.html">
+     Entity
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Preprocessor
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="processing.html">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/Preprocessor.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pulse.preprocessing.preprocessor">
+<span id="preprocessor"></span><h1>Preprocessor<a class="headerlink" href="#module-pulse.preprocessing.preprocessor" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.preprocessor.</span></span><span class="sig-name descname"><span class="pre">Preprocessor</span></span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor" title="Permalink to this definition">#</a></dt>
+<dd><p>A preprocessor class.
+This class creates a acoustic and structural preprocessor object.</p>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_compressor_excitation" title="pulse.preprocessing.preprocessor.Preprocessor.add_compressor_excitation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_compressor_excitation</span></code></a>(parameters)</p></td>
+<td><p>This method ???????</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_damper_to_node" title="pulse.preprocessing.preprocessor.Preprocessor.add_damper_to_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_damper_to_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes structural lumped damping (damper) to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_elastic_nodal_link" title="pulse.preprocessing.preprocessor.Preprocessor.add_elastic_nodal_link"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_elastic_nodal_link</span></code></a>(nodeID_1, nodeID_2, data)</p></td>
+<td><p>This method ???????</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_expansion_joint_by_elements</span></code></a>(...[, ...])</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_line" title="pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_expansion_joint_by_line</span></code></a>(lines, parameters)</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_lids_to_variable_cross_sections" title="pulse.preprocessing.preprocessor.Preprocessor.add_lids_to_variable_cross_sections"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_lids_to_variable_cross_sections</span></code></a>()</p></td>
+<td><p>This method adds lids to cross_section variations and terminations.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_mass_to_node" title="pulse.preprocessing.preprocessor.Preprocessor.add_mass_to_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_mass_to_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes structural lumped mass to a list of nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_spring_to_node" title="pulse.preprocessing.preprocessor.Preprocessor.add_spring_to_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_spring_to_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes structural lumped stiffness (spring) to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_valve_by_elements</span></code></a>(list_elements, parameters)</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_line" title="pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_valve_by_line</span></code></a>(lines, parameters[, ...])</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.deformed_amplitude_control_in_expansion_joints" title="pulse.preprocessing.preprocessor.Preprocessor.deformed_amplitude_control_in_expansion_joints"><code class="xref py py-obj docutils literal notranslate"><span class="pre">deformed_amplitude_control_in_expansion_joints</span></code></a>()</p></td>
+<td><p>This method evaluates the deformed amplitudes in expansion joints nodes and reduces the amplitude through rescalling if higher levels are observed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.enable_fluid_mass_adding_effect" title="pulse.preprocessing.preprocessor.Preprocessor.enable_fluid_mass_adding_effect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">enable_fluid_mass_adding_effect</span></code></a>([reset])</p></td>
+<td><p>This method enables or disables the addition of fluid mass in the structural element mass.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.generate" title="pulse.preprocessing.preprocessor.Preprocessor.generate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate</span></code></a>(path, element_size[, tolerance])</p></td>
+<td><p>This method evaluates the Lamé's first parameter <em class="xref py py-obj">lambda</em>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_acoustic_elements" title="pulse.preprocessing.preprocessor.Preprocessor.get_acoustic_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_acoustic_elements</span></code></a>()</p></td>
+<td><p>This method returns a list of acoustic elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_beam_and_non_beam_elements_global_dofs" title="pulse.preprocessing.preprocessor.Preprocessor.get_beam_and_non_beam_elements_global_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_beam_and_non_beam_elements_global_dofs</span></code></a>()</p></td>
+<td><p>This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_beam_elements" title="pulse.preprocessing.preprocessor.Preprocessor.get_beam_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_beam_elements</span></code></a>()</p></td>
+<td><p>This method returns a list of structural beam elements objects.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_connectivity_matrix" title="pulse.preprocessing.preprocessor.Preprocessor.get_connectivity_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_connectivity_matrix</span></code></a>([reordering])</p></td>
+<td><p>This method updates the mesh connectivity data.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_dict_nodes_to_element_indexes" title="pulse.preprocessing.preprocessor.Preprocessor.get_dict_nodes_to_element_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_dict_nodes_to_element_indexes</span></code></a>()</p></td>
+<td><p>This method updates the dictionary that maps the external node to the element index.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_distantest_nodes_from_elements" title="pulse.preprocessing.preprocessor.Preprocessor.get_distantest_nodes_from_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_distantest_nodes_from_elements</span></code></a>(list_elements)</p></td>
+<td><p>&quot;This method returns the more distant nodes from selected elements</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_element_center_coordinates_matrix" title="pulse.preprocessing.preprocessor.Preprocessor.get_element_center_coordinates_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_element_center_coordinates_matrix</span></code></a>()</p></td>
+<td><p>This method updates the center coordinates matrix attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_gdofs_from_nodes" title="pulse.preprocessing.preprocessor.Preprocessor.get_gdofs_from_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_gdofs_from_nodes</span></code></a>(nodeID_1, nodeID_2)</p></td>
+<td><p>This method returns the ordered global degrees of freedom of two nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_global_acoustic_indexes" title="pulse.preprocessing.preprocessor.Preprocessor.get_global_acoustic_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_acoustic_indexes</span></code></a>()</p></td>
+<td><p>This method returns the placement of the rows and columns of the acoustic global degrees of freedom in the global matrices.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_global_structural_indexes" title="pulse.preprocessing.preprocessor.Preprocessor.get_global_structural_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_global_structural_indexes</span></code></a>()</p></td>
+<td><p>This method returns the placement of the rows and columns of the structural global degrees of freedom in the global matrices.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_neighbor_nodes_and_elements_by_element</span></code></a>(...)</p></td>
+<td><p>This method returns two lists of nodes ids and elements ids at the neighborhood of the</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_neighbor_nodes_and_elements_by_node</span></code></a>(...)</p></td>
+<td><p>This method returns two lists of nodes ids and elements ids at the neighborhood of the</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_nodal_coordinates_matrix" title="pulse.preprocessing.preprocessor.Preprocessor.get_nodal_coordinates_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_nodal_coordinates_matrix</span></code></a>([reordering])</p></td>
+<td><p>This method updates the mesh nodes coordinates data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_nodes_relative_to_acoustic_elements" title="pulse.preprocessing.preprocessor.Preprocessor.get_nodes_relative_to_acoustic_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_nodes_relative_to_acoustic_elements</span></code></a>()</p></td>
+<td><p>This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_number_of_elements_by_element_type" title="pulse.preprocessing.preprocessor.Preprocessor.get_number_of_elements_by_element_type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_number_of_elements_by_element_type</span></code></a>()</p></td>
+<td><p>&quot; This method returns</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_pipe_and_expansion_joint_elements_global_dofs" title="pulse.preprocessing.preprocessor.Preprocessor.get_pipe_and_expansion_joint_elements_global_dofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pipe_and_expansion_joint_elements_global_dofs</span></code></a>()</p></td>
+<td><p>This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_principal_diagonal_structure_parallelepiped" title="pulse.preprocessing.preprocessor.Preprocessor.get_principal_diagonal_structure_parallelepiped"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_principal_diagonal_structure_parallelepiped</span></code></a>()</p></td>
+<td><p>This method updates the principal structure diagonal parallelepiped attribute.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.get_radius" title="pulse.preprocessing.preprocessor.Preprocessor.get_radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_radius</span></code></a>()</p></td>
+<td><p>This method updates and returns the ????.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.load_mesh" title="pulse.preprocessing.preprocessor.Preprocessor.load_mesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mesh</span></code></a>(coordinates, connectivity)</p></td>
+<td><p>This method creates mesh data from nodes coordinates and connectivity matrix.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.neighboor_elements_of_node" title="pulse.preprocessing.preprocessor.Preprocessor.neighboor_elements_of_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neighboor_elements_of_node</span></code></a>(node_ID)</p></td>
+<td><p>This method returns the acoustic elements that a node belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter" title="pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neighbor_elements_diameter</span></code></a>()</p></td>
+<td><p>This method maps the elements outer diameters that each node belongs to.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter_global" title="pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter_global"><code class="xref py py-obj docutils literal notranslate"><span class="pre">neighbor_elements_diameter_global</span></code></a>()</p></td>
+<td><p>This method maps the elements inner diameters that each node belongs to.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.process_all_rotation_matrices" title="pulse.preprocessing.preprocessor.Preprocessor.process_all_rotation_matrices"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_all_rotation_matrices</span></code></a>()</p></td>
+<td><p>This method ???????</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.process_element_cross_sections_orientation_to_plot" title="pulse.preprocessing.preprocessor.Preprocessor.process_element_cross_sections_orientation_to_plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_element_cross_sections_orientation_to_plot</span></code></a>()</p></td>
+<td><p>This method ???????</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file" title="pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_elements_to_update_indexes_after_remesh_in_element_info_file</span></code></a>(...)</p></td>
+<td><p>This method ...</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file" title="pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_elements_to_update_indexes_after_remesh_in_entity_file</span></code></a>(...)</p></td>
+<td><p>This method ...</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.process_nodes_to_update_indexes_after_remesh" title="pulse.preprocessing.preprocessor.Preprocessor.process_nodes_to_update_indexes_after_remesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_nodes_to_update_indexes_after_remesh</span></code></a>(node)</p></td>
+<td><p>This method ...</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.reset_variables" title="pulse.preprocessing.preprocessor.Preprocessor.reset_variables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reset_variables</span></code></a>()</p></td>
+<td><p>This method reset the class default values.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_B2PX_rotation_decoupling" title="pulse.preprocessing.preprocessor.Preprocessor.set_B2PX_rotation_decoupling"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_B2PX_rotation_decoupling</span></code></a>(element_ID, node_ID)</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_acoustic_element_type_by_element</span></code></a>(...[, ...])</p></td>
+<td><p>This method attributes acoustic element type to a list of elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_acoustic_element_type_by_lines</span></code></a>(lines, ...)</p></td>
+<td><p>This method attributes acoustic element type to all elements that belongs to a line/entity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_pressure_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_pressure_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_acoustic_pressure_bc_by_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes acoustic pressure boundary condition to a list of nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_capped_end_by_elements</span></code></a>(elements, value, ...)</p></td>
+<td><p>This method enables or disables the capped end effect in a list of acoustic elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_capped_end_by_lines</span></code></a>(lines, value)</p></td>
+<td><p>This method enables or disables the capped end effect to all acoustic elements that belongs to a line.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_compressor_excitation_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_compressor_excitation_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_compressor_excitation_bc_by_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes compressor excitation in the form of volume velocity source to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cross_section_by_element</span></code></a>(elements, ...)</p></td>
+<td><p>This method attributes cross section object to a list of acoustic and structural elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_line" title="pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_cross_section_by_line</span></code></a>(lines, cross_section)</p></td>
+<td><p>This method attributes cross section object to all elements that belongs to a line/entity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fluid_by_element</span></code></a>(elements, fluid)</p></td>
+<td><p>This method attributes fluid object to a list of acoustic elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_fluid_by_lines</span></code></a>(lines, fluid)</p></td>
+<td><p>This method attributes fluid object to all acoustic elements that belongs to a line/entity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_length_correction_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_length_correction_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_length_correction_by_element</span></code></a>(elements, ...)</p></td>
+<td><p>This method enables or disables the acoustic length correction effect in a list of acoustic elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_material_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_material_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_material_by_element</span></code></a>(elements, material)</p></td>
+<td><p>This method attributes material object to a list of acoustic and structural elements.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_material_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_material_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_material_by_lines</span></code></a>(lines, material)</p></td>
+<td><p>This method attributes material object to all elements that belongs to a line/entity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_prescribed_dofs_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_prescribed_dofs_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_prescribed_dofs_bc_by_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes structural displacement and rotation boundary condition to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_radiation_impedance_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_radiation_impedance_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_radiation_impedance_bc_by_node</span></code></a>(nodes, ...)</p></td>
+<td><p>This method attributes acoustic lumped radiation impedance to a list of nodes according to the anechoic, flanged, and unflanged prescription.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_specific_impedance_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_specific_impedance_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_specific_impedance_bc_by_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes acoustic lumped specific impedance to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_stress_intensification_by_element</span></code></a>(...)</p></td>
+<td><p>This method enables or disables the stress intensification effect in a list of structural elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_line" title="pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_stress_intensification_by_line</span></code></a>(lines, value)</p></td>
+<td><p>This method enables or disables the stress intensification effect to all structural elements that belongs to a line.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_stress_stiffening_by_elements</span></code></a>(elements, ...)</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_line" title="pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_line"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_stress_stiffening_by_line</span></code></a>(lines, pressures)</p></td>
+<td><p>This method .</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_force_offset_by_elements</span></code></a>(...)</p></td>
+<td><p>This method assigns a structural element wall formulation to a list of selected elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_force_offset_by_lines</span></code></a>(...)</p></td>
+<td><p>This method assign a strutural element force offset to the selected lines.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_element" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_element"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_type_by_element</span></code></a>(...)</p></td>
+<td><p>This method attributes structural element type to a list of elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_type_by_lines</span></code></a>(lines, ...)</p></td>
+<td><p>This method attributes structural element type to all elements that belongs to a line/entity.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_elements" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_elements"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_wall_formulation_by_elements</span></code></a>(...)</p></td>
+<td><p>This method assigns a structural element wall formulation to a list of selected elements.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_lines" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_element_wall_formulation_by_lines</span></code></a>(...)</p></td>
+<td><p>This method assign a strutural element wall formulation to the selected lines.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_load_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_structural_load_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_structural_load_bc_by_node</span></code></a>(nodes_id, data)</p></td>
+<td><p>This method attributes structural force and moment loads to a list of nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.set_volume_velocity_bc_by_node" title="pulse.preprocessing.preprocessor.Preprocessor.set_volume_velocity_bc_by_node"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_volume_velocity_bc_by_node</span></code></a>(nodes, data)</p></td>
+<td><p>This method attributes acoustic volume velocity load to a list of nodes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.preprocessor.Preprocessor.update_element_ids_after_remesh" title="pulse.preprocessing.preprocessor.Preprocessor.update_element_ids_after_remesh"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_element_ids_after_remesh</span></code></a>(dict_cache)</p></td>
+<td><p>This method ...</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 80%" />
+<col style="width: 20%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>create_dict_lines_to_rotation_angles</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_elements_inside_nodes_boundaries</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_line_from_node_id</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_line_length</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_list_edge_nodes</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_nodes_and_elements_with_expansion</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>get_number_attributes_from_node</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>map_structural_to_acoustic_elements</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>reset_list_elements_from_line</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_beam_xaxis_rotation_by_elements</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_beam_xaxis_rotation_by_line</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_force_by_element</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_perforated_plate_by_elements</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>set_vol_flow_by_element</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><strong>set_vol_flow_by_line</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>update_node_ids_after_remesh</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._create_acoustic_elements">
+<span class="sig-name descname"><span class="pre">_create_acoustic_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_elements</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._create_acoustic_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._create_acoustic_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method generate the mesh acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">List</span></dt><dd><p>Nodes global indexes.</p>
+</dd>
+<dt><strong>connectivities</strong><span class="classifier">array</span></dt><dd><p>Connectivity matrix that relates the elements and its nodes.</p>
+</dd>
+<dt><strong>map_nodes</strong><span class="classifier">dict</span></dt><dd><p>Dictionary maps global indexes to external indexes.</p>
+</dd>
+<dt><strong>map_elements</strong><span class="classifier">dict</span></dt><dd><p>Dictionary maps global element indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._create_entities">
+<span class="sig-name descname"><span class="pre">_create_entities</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._create_entities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._create_entities" title="Permalink to this definition">#</a></dt>
+<dd><p>This method generate the mesh entities, nodes, structural elements, acoustic elements
+and their connectivity.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._create_nodes">
+<span class="sig-name descname"><span class="pre">_create_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_nodes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._create_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._create_nodes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method generate the mesh nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">List</span></dt><dd><p>Nodes global indexes.</p>
+</dd>
+<dt><strong>coords</strong><span class="classifier">array</span></dt><dd><p>Nodes coordinates.</p>
+</dd>
+<dt><strong>map_nodes</strong><span class="classifier">dict</span></dt><dd><p>Dictionary maps global indexes to external indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._create_structural_elements">
+<span class="sig-name descname"><span class="pre">_create_structural_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">indexes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivities</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_elements</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._create_structural_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._create_structural_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method generate the mesh structural elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>indexes</strong><span class="classifier">List</span></dt><dd><p>Nodes global indexes.</p>
+</dd>
+<dt><strong>connectivities</strong><span class="classifier">array</span></dt><dd><p>Connectivity matrix that relates the elements and its nodes.</p>
+</dd>
+<dt><strong>map_nodes</strong><span class="classifier">dict</span></dt><dd><p>Dictionary maps global indexes to external indexes.</p>
+</dd>
+<dt><strong>map_elements</strong><span class="classifier">dict</span></dt><dd><p>Dictionary maps global element indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._finalize_gmsh">
+<span class="sig-name descname"><span class="pre">_finalize_gmsh</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._finalize_gmsh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._finalize_gmsh" title="Permalink to this definition">#</a></dt>
+<dd><p>This method finalize the mesher gmsh algorithm.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._initialize_gmsh">
+<span class="sig-name descname"><span class="pre">_initialize_gmsh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._initialize_gmsh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._initialize_gmsh" title="Permalink to this definition">#</a></dt>
+<dd><p>This method initializes mesher algorithm gmsh.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>str</strong></dt><dd><p>CAD file path. ‘.igs’ is the only format file supported.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._load_neighbors">
+<span class="sig-name descname"><span class="pre">_load_neighbors</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._load_neighbors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._load_neighbors" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the structural elements neighbors dictionary. The dictionary’s keys and values are nodes objects.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._map_lines_to_elements">
+<span class="sig-name descname"><span class="pre">_map_lines_to_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mesh_loaded</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._map_lines_to_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._map_lines_to_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method maps entities to elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>mesh_loaded</strong><span class="classifier">bool, optional.</span></dt><dd><p>True if the mesh was already generated (internally or externally). False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._order_global_indexes">
+<span class="sig-name descname"><span class="pre">_order_global_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._order_global_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._order_global_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the nodes global indexes numbering.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._process_beam_nodes_and_indexes">
+<span class="sig-name descname"><span class="pre">_process_beam_nodes_and_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._process_beam_nodes_and_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._process_beam_nodes_and_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method ?????.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>bool</dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._reset_global_indexes">
+<span class="sig-name descname"><span class="pre">_reset_global_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._reset_global_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._reset_global_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes None to global index of all mesh nodes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor._set_gmsh_options">
+<span class="sig-name descname"><span class="pre">_set_gmsh_options</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor._set_gmsh_options"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor._set_gmsh_options" title="Permalink to this definition">#</a></dt>
+<dd><p>This method sets the mesher algorithm configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>float</strong></dt><dd><p>Element size.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_compressor_excitation">
+<span class="sig-name descname"><span class="pre">add_compressor_excitation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_compressor_excitation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_compressor_excitation" title="Permalink to this definition">#</a></dt>
+<dd><p>This method ???????</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>??????</strong></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_damper_to_node">
+<span class="sig-name descname"><span class="pre">add_damper_to_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_damper_to_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_damper_to_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural lumped damping (damper) to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Lumped damping. Complex valued input corresponds to a constant damping with respect to the frequency. Array valued input corresponds to a variable damping with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_elastic_nodal_link">
+<span class="sig-name descname"><span class="pre">add_elastic_nodal_link</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodeID_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodeID_2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_stiffness</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_elastic_nodal_link"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_elastic_nodal_link" title="Permalink to this definition">#</a></dt>
+<dd><p>This method ???????</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodeID_1</strong><span class="classifier">int</span></dt><dd><p>Node 1 external index.</p>
+</dd>
+<dt><strong>nodeID_2</strong><span class="classifier">int</span></dt><dd><p>Node 2 external index.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">??????</span></dt><dd><p>???????.</p>
+</dd>
+<dt><strong>_stiffness</strong><span class="classifier">bool, optional</span></dt><dd><p>True if ???????. False otherwise.
+Default is False.</p>
+</dd>
+<dt><strong>_damping</strong><span class="classifier">bool, optional</span></dt><dd><p>True if ???????. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_elements">
+<span class="sig-name descname"><span class="pre">add_expansion_joint_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_line_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_cross</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_expansion_joint_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Elements indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>section</strong><span class="classifier">?????</span></dt><dd><p>Default is None</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_line">
+<span class="sig-name descname"><span class="pre">add_expansion_joint_by_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_expansion_joint_by_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_expansion_joint_by_line" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_lids_to_variable_cross_sections">
+<span class="sig-name descname"><span class="pre">add_lids_to_variable_cross_sections</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_lids_to_variable_cross_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_lids_to_variable_cross_sections" title="Permalink to this definition">#</a></dt>
+<dd><p>This method adds lids to cross_section variations and terminations.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_mass_to_node">
+<span class="sig-name descname"><span class="pre">add_mass_to_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_mass_to_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_mass_to_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural lumped mass to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Lumped mass. Complex valued input corresponds to a constant mass with respect to the frequency. Array valued input corresponds to a variable mass with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_spring_to_node">
+<span class="sig-name descname"><span class="pre">add_spring_to_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_spring_to_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_spring_to_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural lumped stiffness (spring) to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Lumped stiffness. Complex valued input corresponds to a constant stiffness with respect to the frequency. Array valued input corresponds to a variable stiffness with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_elements">
+<span class="sig-name descname"><span class="pre">add_valve_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aux_line_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_cross</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_valve_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Elements indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>section</strong><span class="classifier">?????</span></dt><dd><p>Default is None</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_line">
+<span class="sig-name descname"><span class="pre">add_valve_by_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parameters</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_cross</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.add_valve_by_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.add_valve_by_line" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.deformed_amplitude_control_in_expansion_joints">
+<span class="sig-name descname"><span class="pre">deformed_amplitude_control_in_expansion_joints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.deformed_amplitude_control_in_expansion_joints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.deformed_amplitude_control_in_expansion_joints" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the deformed amplitudes in expansion joints nodes
+and reduces the amplitude through rescalling if higher levels are observed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.enable_fluid_mass_adding_effect">
+<span class="sig-name descname"><span class="pre">enable_fluid_mass_adding_effect</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.enable_fluid_mass_adding_effect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.enable_fluid_mass_adding_effect" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the addition of fluid mass in the structural element mass.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reset</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the fluid mass effect have to be disable. False to enable.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.generate">
+<span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.generate" title="Permalink to this definition">#</a></dt>
+<dd><p>This method evaluates the Lamé’s first parameter <em class="xref py py-obj">lambda</em>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>path</strong><span class="classifier">str</span></dt><dd><p>CAD file path ‘<em>.igs’ and ‘</em>.step’ are the file formats supported.</p>
+</dd>
+<dt><strong>element_size</strong><span class="classifier">float</span></dt><dd><p>Element size to be used to build the preprocessor.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_acoustic_elements">
+<span class="sig-name descname"><span class="pre">get_acoustic_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_acoustic_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_acoustic_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns a list of acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Acoustic elements list.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_beam_and_non_beam_elements_global_dofs">
+<span class="sig-name descname"><span class="pre">get_beam_and_non_beam_elements_global_dofs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_beam_and_non_beam_elements_global_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_beam_and_non_beam_elements_global_dofs" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the acoustic global degrees of freedom of the nodes associated to structural pipe elements. This method helps to keep only those degrees of freedom in acoustic analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Acoustic global degrees of freedom associated to pipe element.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_beam_elements">
+<span class="sig-name descname"><span class="pre">get_beam_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_beam_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_beam_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns a list of structural beam elements objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Beam elements objects.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_connectivity_matrix">
+<span class="sig-name descname"><span class="pre">get_connectivity_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_connectivity_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_connectivity_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the mesh connectivity data. Connectivity matrix row structure:
+‘’[Element index, first node index, last node index]’’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reordering</strong><span class="classifier">bool, optional.</span></dt><dd><p>True if the nodes numbering is according to the global indexing. False otherwise.
+Default is True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_dict_nodes_to_element_indexes">
+<span class="sig-name descname"><span class="pre">get_dict_nodes_to_element_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_dict_nodes_to_element_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_dict_nodes_to_element_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the dictionary that maps the external node to the element index.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_distantest_nodes_from_elements">
+<span class="sig-name descname"><span class="pre">get_distantest_nodes_from_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_elements</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_distantest_nodes_from_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_distantest_nodes_from_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>“This method returns the more distant nodes from selected elements</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_element_center_coordinates_matrix">
+<span class="sig-name descname"><span class="pre">get_element_center_coordinates_matrix</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_element_center_coordinates_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_element_center_coordinates_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the center coordinates matrix attribute.</p>
+<p>Element center coordinates matrix row structure:</p>
+<p>[Element index, x-element_center_coordinate, y-element_center_coordinate, z-element_center_coordinate].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_gdofs_from_nodes">
+<span class="sig-name descname"><span class="pre">get_gdofs_from_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodeID_1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nodeID_2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_gdofs_from_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_gdofs_from_nodes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the ordered global degrees of freedom of two nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodeID_1</strong><span class="classifier">int</span></dt><dd><p>Node 1 external index.</p>
+</dd>
+<dt><strong>nodeID_2</strong><span class="classifier">int</span></dt><dd><p>Node 2 external index.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>reord_gdofs</strong><span class="classifier">list</span></dt><dd><p>Global degrees of freedom ordered according to its indexes.</p>
+</dd>
+<dt><strong>first_node</strong><span class="classifier">Node object</span></dt><dd><p>First node.</p>
+</dd>
+<dt><strong>last_node</strong><span class="classifier">Node object</span></dt><dd><p>Last node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_global_acoustic_indexes">
+<span class="sig-name descname"><span class="pre">get_global_acoustic_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_global_acoustic_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_global_acoustic_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the placement of the rows and columns of the acoustic global degrees of freedom in the global matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>row</strong><span class="classifier">array.</span></dt><dd><p>Integers that place the rows.</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">array.</span></dt><dd><p>Integers that place the columns.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_global_structural_indexes">
+<span class="sig-name descname"><span class="pre">get_global_structural_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_global_structural_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_global_structural_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the placement of the rows and columns of the structural global degrees of freedom in the global matrices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>row</strong><span class="classifier">array.</span></dt><dd><p>Integers that place the rows.</p>
+</dd>
+<dt><strong>column</strong><span class="classifier">array.</span></dt><dd><p>Integers that place the columns.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_element">
+<span class="sig-name descname"><span class="pre">get_neighbor_nodes_and_elements_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_neighbor_nodes_and_elements_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_element" title="Permalink to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>This method returns two lists of nodes ids and elements ids at the neighborhood of the</dt><dd><p>element_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance
+avoids the problem of element size deviations resultant in the mesh generation algorithm.</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_node">
+<span class="sig-name descname"><span class="pre">get_neighbor_nodes_and_elements_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_neighbor_nodes_and_elements_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_neighbor_nodes_and_elements_by_node" title="Permalink to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>This method returns two lists of nodes ids and elements ids at the neighborhood of the</dt><dd><p>node_id in the range of -(length/2) - tolerance and (length/2) + tolerance. The tolerance
+avoids the problem of element size deviations resultant in the mesh generation algorithm.</p>
+</dd>
+</dl>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><blockquote>
+<div></div></blockquote>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"></dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_nodal_coordinates_matrix">
+<span class="sig-name descname"><span class="pre">get_nodal_coordinates_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reordering</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_nodal_coordinates_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_nodal_coordinates_matrix" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the mesh nodes coordinates data. Coordinates matrix row structure:
+‘’[Node index, x-coordinate, y-coordinate, z-coordinate]’’.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>reordering</strong><span class="classifier">bool, optional.</span></dt><dd><p>True if the nodes numbering is according to the global indexing. False otherwise.
+Default is True.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_nodes_relative_to_acoustic_elements">
+<span class="sig-name descname"><span class="pre">get_nodes_relative_to_acoustic_elements</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_nodes_relative_to_acoustic_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_nodes_relative_to_acoustic_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns a dictionary that maps the acoustic node indexes to the acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Dictionary of nodes relative to the acoustic elements.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_number_of_elements_by_element_type">
+<span class="sig-name descname"><span class="pre">get_number_of_elements_by_element_type</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_number_of_elements_by_element_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_number_of_elements_by_element_type" title="Permalink to this definition">#</a></dt>
+<dd><p>” This method returns</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_pipe_and_expansion_joint_elements_global_dofs">
+<span class="sig-name descname"><span class="pre">get_pipe_and_expansion_joint_elements_global_dofs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_pipe_and_expansion_joint_elements_global_dofs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_pipe_and_expansion_joint_elements_global_dofs" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the acoustic global degrees of freedom of the nodes associated to structural beam elements.
+This method helps to exclude those degrees of freedom from acoustic analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>list</dt><dd><p>Acoustic global degrees of freedom associated to beam element.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_principal_diagonal_structure_parallelepiped">
+<span class="sig-name descname"><span class="pre">get_principal_diagonal_structure_parallelepiped</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_principal_diagonal_structure_parallelepiped"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_principal_diagonal_structure_parallelepiped" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the principal structure diagonal parallelepiped attribute.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.get_radius">
+<span class="sig-name descname"><span class="pre">get_radius</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.get_radius"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.get_radius" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates and returns the ????.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dictionary</dt><dd><p>Radius at certain node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.load_mesh">
+<span class="sig-name descname"><span class="pre">load_mesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coordinates</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connectivity</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.load_mesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.load_mesh" title="Permalink to this definition">#</a></dt>
+<dd><p>This method creates mesh data from nodes coordinates and connectivity matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coordinates</strong><span class="classifier">array.</span></dt><dd><p>Nodes’ coordinates. Each row presents the nodes’ index, x-coordinate, y-coordinate, and z-coordinate. Coordinates matrix row structure:
+‘’[Node index, x-coordinate, y-coordinate, z-coordinate]’’.</p>
+</dd>
+<dt><strong>connectivity</strong><span class="classifier">array.</span></dt><dd><p>Connectivity matrix. Each row presents the elements’ index, first node index, and last node index. Connectivity matrix row structure:
+‘’[Element index, first node index, last node index]’’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.neighboor_elements_of_node">
+<span class="sig-name descname"><span class="pre">neighboor_elements_of_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_ID</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.neighboor_elements_of_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.neighboor_elements_of_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the acoustic elements that a node belongs to.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>int</strong></dt><dd><p>Node external indexes.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt>List</dt><dd><p>List of acoustic elements indexes.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter">
+<span class="sig-name descname"><span class="pre">neighbor_elements_diameter</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.neighbor_elements_diameter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter" title="Permalink to this definition">#</a></dt>
+<dd><p>This method maps the elements outer diameters that each node belongs to. The maping is done according to the node external index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>dict</dt><dd><p>Outer diameters at a certain node. Giving a node external index, returns a list of diameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter_global">
+<span class="sig-name descname"><span class="pre">neighbor_elements_diameter_global</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.neighbor_elements_diameter_global"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.neighbor_elements_diameter_global" title="Permalink to this definition">#</a></dt>
+<dd><p>This method maps the elements inner diameters that each node belongs to. The maping is done according to the node global index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>Dict</dt><dd><p>Inner diameters at a certain node. Giving a node global index, returns a list of diameters.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.process_all_rotation_matrices">
+<span class="sig-name descname"><span class="pre">process_all_rotation_matrices</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.process_all_rotation_matrices"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.process_all_rotation_matrices" title="Permalink to this definition">#</a></dt>
+<dd><p>This method ???????</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.process_element_cross_sections_orientation_to_plot">
+<span class="sig-name descname"><span class="pre">process_element_cross_sections_orientation_to_plot</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.process_element_cross_sections_orientation_to_plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.process_element_cross_sections_orientation_to_plot" title="Permalink to this definition">#</a></dt>
+<dd><p>This method ???????</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file">
+<span class="sig-name descname"><span class="pre">process_elements_to_update_indexes_after_remesh_in_element_info_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_elements</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_element_info_file" title="Permalink to this definition">#</a></dt>
+<dd><p>This method …</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file">
+<span class="sig-name descname"><span class="pre">process_elements_to_update_indexes_after_remesh_in_entity_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">list_elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reset_line</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">line_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_map_cross</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dict_map_expansion_joint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.process_elements_to_update_indexes_after_remesh_in_entity_file" title="Permalink to this definition">#</a></dt>
+<dd><p>This method …</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.process_nodes_to_update_indexes_after_remesh">
+<span class="sig-name descname"><span class="pre">process_nodes_to_update_indexes_after_remesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.process_nodes_to_update_indexes_after_remesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.process_nodes_to_update_indexes_after_remesh" title="Permalink to this definition">#</a></dt>
+<dd><p>This method …</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.reset_variables">
+<span class="sig-name descname"><span class="pre">reset_variables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.reset_variables"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.reset_variables" title="Permalink to this definition">#</a></dt>
+<dd><p>This method reset the class default values.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_B2PX_rotation_decoupling">
+<span class="sig-name descname"><span class="pre">set_B2PX_rotation_decoupling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element_ID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_ID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rotations_to_decouple</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[False,</span> <span class="pre">False,</span> <span class="pre">False]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_B2PX_rotation_decoupling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_B2PX_rotation_decoupling" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>element_ID</strong><span class="classifier">list</span></dt><dd><p>Element indexes.</p>
+</dd>
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>rotations_to_decouple</strong><span class="classifier">list of boolean, optional</span></dt><dd><p>Default is [False, False, False]</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_element">
+<span class="sig-name descname"><span class="pre">set_acoustic_element_type_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proportional_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_acoustic_element_type_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic element type to a list of elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic elements indexes.</p>
+</dd>
+<dt><strong>element_type</strong><span class="classifier">str, [‘undamped’, ‘proportional’, ‘wide-duct’, ‘LRF fluid equivalent’, ‘LRF full’]</span></dt><dd><p>Acoustic element type to be attributed to the listed elements.</p>
+</dd>
+<dt><strong>proportional_damping</strong><span class="classifier">float, optional</span></dt><dd><p>Acoustic proportional damping coefficient. It must be attributed to the elements of type ‘proportional’.
+Default is None.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_lines">
+<span class="sig-name descname"><span class="pre">set_acoustic_element_type_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proportional_damping</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vol_flow</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_acoustic_element_type_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_element_type_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic element type to all elements that belongs to a line/entity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line</strong><span class="classifier">list</span></dt><dd><p>Entities tag.</p>
+</dd>
+<dt><strong>element_type</strong><span class="classifier">str, [‘undamped’, ‘proportional’, ‘wide-duct’, ‘LRF fluid equivalent’, ‘LRF full’]</span></dt><dd><p>Acoustic element type to be attributed to the listed elements.</p>
+</dd>
+<dt><strong>proportional_damping</strong><span class="classifier">float, optional</span></dt><dd><p>Acoustic proportional damping coefficient. It must be attributed to the elements of type ‘proportional’.
+Default is None.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_type have to be removed from the acoustic element type dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_pressure_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_acoustic_pressure_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_acoustic_pressure_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_acoustic_pressure_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic pressure boundary condition to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Acoustic pressure. Complex valued input corresponds to a constant pressure boundary condition with respect to the frequency. Array valued input corresponds to a variable pressure boundary condition with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_elements">
+<span class="sig-name descname"><span class="pre">set_capped_end_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_capped_end_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the capped end effect in a list of acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic elements indexes.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">bool</span></dt><dd><p>True if the capped end effect have to be activated. False otherwise.</p>
+</dd>
+<dt><strong>selection</strong><span class="classifier">?????</span></dt><dd></dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_lines">
+<span class="sig-name descname"><span class="pre">set_capped_end_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_capped_end_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_capped_end_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the capped end effect to all acoustic elements that belongs to a line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">bool</span></dt><dd><p>True if the capped end effect have to be activated. False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_compressor_excitation_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_compressor_excitation_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">connection_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_compressor_excitation_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_compressor_excitation_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes compressor excitation in the form of volume velocity source to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Volume velocity. Array valued input corresponds to a variable volume velocity load with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_element">
+<span class="sig-name descname"><span class="pre">set_cross_section_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_cross_section</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">update_section_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_cross_section_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes cross section object to a list of acoustic and structural elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic and structural elements indexes.</p>
+</dd>
+<dt><strong>cross_section</strong><span class="classifier">Cross section object</span></dt><dd><p>Tube cross section data.</p>
+</dd>
+<dt><strong>update_cross_section</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the cross section data have to be evaluated or updated. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_line">
+<span class="sig-name descname"><span class="pre">set_cross_section_by_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cross_section</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_cross_section_by_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_cross_section_by_line" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes cross section object to all elements that belongs to a line/entity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line</strong><span class="classifier">list</span></dt><dd><p>Entities tag.</p>
+</dd>
+<dt><strong>cross_section</strong><span class="classifier">Cross section object</span></dt><dd><p>Tube cross section data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_element">
+<span class="sig-name descname"><span class="pre">set_fluid_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_fluid_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes fluid object to a list of acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic elements indexes.</p>
+</dd>
+<dt><strong>fluid</strong><span class="classifier">Fluid object</span></dt><dd><p>Fluid data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_lines">
+<span class="sig-name descname"><span class="pre">set_fluid_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fluid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_fluid_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_fluid_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes fluid object to all acoustic elements that belongs to a line/entity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line/entity</strong><span class="classifier">list</span></dt><dd><p>Lines/entities tags.</p>
+</dd>
+<dt><strong>fluid</strong><span class="classifier">Fluid object</span></dt><dd><p>Fluid data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_length_correction_by_element">
+<span class="sig-name descname"><span class="pre">set_length_correction_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_from_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_length_correction_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_length_correction_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the acoustic length correction effect in a list of acoustic elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic elements indexes.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">[None, 0, 1, 2]</span></dt><dd><p>Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling:
+None: disable
+0 : expansion
+1 : side_branch
+2 : loop</p>
+</dd>
+<dt><strong>section</strong><span class="classifier">?????</span></dt><dd></dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_material_by_element">
+<span class="sig-name descname"><span class="pre">set_material_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_material_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_material_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes material object to a list of acoustic and structural elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Acoustic and structural elements indexes.</p>
+</dd>
+<dt><strong>material</strong><span class="classifier">Material object</span></dt><dd><p>Material data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_material_by_lines">
+<span class="sig-name descname"><span class="pre">set_material_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">material</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_material_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_material_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes material object to all elements that belongs to a line/entity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line</strong><span class="classifier">list</span></dt><dd><p>Entities tag.</p>
+</dd>
+<dt><strong>material</strong><span class="classifier">Material object</span></dt><dd><p>Material data.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_prescribed_dofs_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_prescribed_dofs_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_prescribed_dofs_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_prescribed_dofs_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural displacement and rotation boundary condition to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Displacement and rotation. Complex valued input corresponds to a constant boundary condition with respect to the frequency. Array valued input corresponds to a variable boundary condition with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_radiation_impedance_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_radiation_impedance_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">impedance_type</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_radiation_impedance_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_radiation_impedance_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic lumped radiation impedance to a list of nodes according to the anechoic, flanged, and unflanged prescription.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>impedance_type</strong><span class="classifier">[None, 0, 1, 2]</span></dt><dd><p>Acoustic length correction due to acoustic discontinuities. The prescription is done through the following labeling:
+0 : anechoic termination
+1 : unflanged pipe
+2 : flanged pipe</p>
+<p>If None is attributed, then no radiation impedance is considered.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_specific_impedance_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_specific_impedance_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_specific_impedance_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_specific_impedance_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic lumped specific impedance to a list of nodes.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array, None</span></dt><dd><p>Specific impedance. Complex valued input corresponds to a constant specific impedance with respect to the frequency. Array valued input corresponds to a variable specific impedance with respect to the frequency.</p>
+<p>If None is attributed, then no specific impedance is considered.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_element">
+<span class="sig-name descname"><span class="pre">set_stress_intensification_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_stress_intensification_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the stress intensification effect in a list of structural elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Elements indexes.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">bool</span></dt><dd><p>True if the stress intensification effect have to be activated. False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_line">
+<span class="sig-name descname"><span class="pre">set_stress_intensification_by_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_stress_intensification_by_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_intensification_by_line" title="Permalink to this definition">#</a></dt>
+<dd><p>This method enables or disables the stress intensification effect to all structural elements that belongs to a line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>value</strong><span class="classifier">bool</span></dt><dd><p>True if the stress intensification effect have to be activated. False otherwise.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_elements">
+<span class="sig-name descname"><span class="pre">set_stress_stiffening_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">section</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_stress_stiffening_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Elements indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>section</strong><span class="classifier">?????</span></dt><dd><p>Default is None</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_line">
+<span class="sig-name descname"><span class="pre">set_stress_stiffening_by_line</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressures</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_stress_stiffening_by_line"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_stress_stiffening_by_line" title="Permalink to this definition">#</a></dt>
+<dd><p>This method .</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>parameters</strong><span class="classifier">list</span></dt><dd><p>????????.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the ???????? have to be removed from the ???????? dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_elements">
+<span class="sig-name descname"><span class="pre">set_structural_element_force_offset_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_offset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_force_offset_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method assigns a structural element wall formulation to a list of selected elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Structural elements indexes.</p>
+</dd>
+<dt><strong>force_offset</strong><span class="classifier">int, [0, 1]</span></dt><dd><p>Structural element type to be attributed to the listed elements.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_force_offset should to be removed from the _________ dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_lines">
+<span class="sig-name descname"><span class="pre">set_structural_element_force_offset_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_offset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_force_offset_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_force_offset_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method assign a strutural element force offset to the selected lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>force offset</strong><span class="classifier">int, [0, 1]</span></dt><dd><p>Structural element force offset to be attributed to the listed elements.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_element">
+<span class="sig-name descname"><span class="pre">set_structural_element_type_by_element</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_type_by_element"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_element" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural element type to a list of elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Structural elements indexes.</p>
+</dd>
+<dt><strong>element_type</strong><span class="classifier">str, [‘pipe_1’, ‘pipe_2’, ‘beam_1’, ‘expansion_joint’, ‘valve’]</span></dt><dd><p>Structural element type to be attributed to the listed elements.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_type have to be removed from the structural element type dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_lines">
+<span class="sig-name descname"><span class="pre">set_structural_element_type_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">element_type</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_type_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_type_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural element type to all elements that belongs to a line/entity.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>line</strong><span class="classifier">list</span></dt><dd><p>Entities tag.</p>
+</dd>
+<dt><strong>element_type</strong><span class="classifier">str, [‘pipe_1’, ‘pipe_2’, ‘beam_1’, ‘expansion_joint’, ‘valve’]</span></dt><dd><p>Structural element type to be attributed to elements.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_type have to be removed from the structural element type dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_elements">
+<span class="sig-name descname"><span class="pre">set_structural_element_wall_formulation_by_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">elements</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wall_formulation</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remove</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_wall_formulation_by_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_elements" title="Permalink to this definition">#</a></dt>
+<dd><p>This method assigns a structural element wall formulation to a list of selected elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>elements</strong><span class="classifier">list</span></dt><dd><p>Structural elements indexes.</p>
+</dd>
+<dt><strong>wall_formulation</strong><span class="classifier">str, [‘thick_wall’, ‘thin_wall’]</span></dt><dd><p>Structural element type to be attributed to the listed elements.</p>
+</dd>
+<dt><strong>remove</strong><span class="classifier">bool, optional</span></dt><dd><p>True if the element_wall_formulation should to be removed from the _________ dictionary. False otherwise.
+Default is False.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_lines">
+<span class="sig-name descname"><span class="pre">set_structural_element_wall_formulation_by_lines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lines</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formulation</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_element_wall_formulation_by_lines"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_element_wall_formulation_by_lines" title="Permalink to this definition">#</a></dt>
+<dd><p>This method assign a strutural element wall formulation to the selected lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>lines</strong><span class="classifier">list</span></dt><dd><p>Lines/entities indexes.</p>
+</dd>
+<dt><strong>wall_formulation</strong><span class="classifier">str, [‘thick_wall’, ‘thin_wall’]</span></dt><dd><p>Structural element type to be attributed to the listed elements.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_structural_load_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_structural_load_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_structural_load_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_structural_load_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes structural force and moment loads to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes_id</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Force and moment loads. Complex valued input corresponds to a constant load with respect to the frequency. Array valued input corresponds to a variable load with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.set_volume_velocity_bc_by_node">
+<span class="sig-name descname"><span class="pre">set_volume_velocity_bc_by_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.set_volume_velocity_bc_by_node"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.set_volume_velocity_bc_by_node" title="Permalink to this definition">#</a></dt>
+<dd><p>This method attributes acoustic volume velocity load to a list of nodes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>nodes</strong><span class="classifier">list</span></dt><dd><p>Nodes external indexes.</p>
+</dd>
+<dt><strong>values</strong><span class="classifier">complex or array</span></dt><dd><p>Volume velocity. Complex valued input corresponds to a constant volume velocity load with respect to the frequency. Array valued input corresponds to a variable volume velocity load with respect to the frequency.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.preprocessor.Preprocessor.update_element_ids_after_remesh">
+<span class="sig-name descname"><span class="pre">update_element_ids_after_remesh</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dict_cache</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-08</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/preprocessor.html#Preprocessor.update_element_ids_after_remesh"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.preprocessor.Preprocessor.update_element_ids_after_remesh" title="Permalink to this definition">#</a></dt>
+<dd><p>This method …</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Entity.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Entity</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="processing.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Processing</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

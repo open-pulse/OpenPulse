@@ -1,5 +1,3 @@
-from time import time
-
 import numpy as np
 from math import pi, sqrt, cos, sin, atan, isnan, isinf
 from numpy.linalg import inv, pinv, norm
@@ -8,23 +6,35 @@ from scipy.sparse.linalg import spilu, svds, splu, spsolve
 from scipy.linalg import svd
 
 rows, cols = 4, 2
-Nint_points = 4
+N_int_points = 4
 
-def gauss_quadrature2D():
+def _gauss_quadrature2D():
     """
-    This method returns the Gauss quadrature data for 2D integration and two integration points.  
+    This function returns the Gauss quadrature points and wights for a 2D integration over a square with two integration points. The nodes coordinates are :math:`n_i=\\frac{1}{\\sqrt{3}}(\\pm 1, \\pm 1)` as illustrated: ::
+
+            
+              y
+              ^
+              |
+        +-----------+       
+        |  *  |  *  |       
+        |     |     |       
+        |     +---- | --> x 
+        |           |       
+        |  *     *  |       
+        +-----------+       
 
     Returns
     -------
-    points : array
-        Integration points in the normalized domain [-1,1]x[-1,1].
+    points : (4,2) array
+        Each line corresponds to an integration points :math: `(x,y)` in the normalized domain :math:`[-1,1]\\times[-1,1]`.
 
-    weigths : array
-        Weigths of the respective integration points in the sum approximation.
+    weights : float
+        Weights of the respective integration points in the sum approximation. In this case, the weights are all equal to 1.
 
     See also
     --------
-    get_all_shape_functions : Shape function and its derivative for all the integration points.
+    _get_all_shape_functions : Shape function and its derivative for all the integration points.
     """
     c = 1/sqrt(3)
     points=np.zeros((rows, cols))
@@ -40,149 +50,361 @@ def gauss_quadrature2D():
     weight = 1
     return points, weight
 
-def shape_function(ksi,eta):
-    """ This function returns the two dimensional quadratic shape function and its derivative (9-node quadrilateral element) for one point in the dimensionless coordinate system (ksi,eta).
+def _shape_function(s,t):
+    """ This function returns the Q9 (9-node quadrilateral element) two dimensional quadratic shape function and its derivative for a given point in the normalized coordinate system :math:`(s,t) \\in [-1,1]\\times[-1,1]`. The shape functions are:
+
+    .. math::
+        \\varphi_i (s, t) &= \\frac{1}{4}(s^2 + s_i s)(t^2 + t_i t),\\; \\text{nodes } (s_i,t_i),\\; i=1,\\dots,4. \\\\
+        \\varphi_i (s, t) &= \\frac{1}{2}(1 - s^2)(t^2 + t_i t),\\; \\text{nodes } (s_i,t_i),\\; i=5,7. \\\\
+        \\varphi_i (s, t) &= \\frac{1}{2}(s^2 + s_i s)(1 - t^2),\\; \\text{nodes } (s_i,t_i),\\; i=6,8. \\\\
+        \\varphi_9 (s, t) &= (1 - s^2)(1 - t^2).
+
+    The nodes coordinates are:
+
+    ====  ===========  ===========
+    Node  :math:`s_i`  :math:`t_i`
+    ====  ===========  ===========
+    1     -1           -1
+    2     1            -1
+    3     1             1
+    4     -1            1
+    5     0            -1
+    6     1             0
+    7     0             1
+    8     -1            0
+    9     0             0
+    ====  ===========  ===========
 
     Parameters
     ----------
-    ksi : float in [-1,1]
-        Dimensionless x coordinate.
+    xi : float in :math:`[-1,1]`.
+        Dimensionless :math:`x` coordinate.
 
-    eta : float in [-1,1]
-        Dimensionless y coordinate.
+    eta : float in :math:`[-1,1]`.
+        Dimensionless :math:`y` coordinate.
 
     Returns
     -------
-    phi : array
-        One dimensional linear shape function.
+    phi : (9,) array
+        Quadratic shape functions :math:`\\varphi_i (s,t), \\; i=1,\\dots,9`.
+        
+    dphi : (9,2) array
+        Derivatives of the shape functions:
 
-    dphi : array
-        Shape function derivative.
+    .. math::
+        \\begin{bmatrix}
+        \\frac{\\partial \\varphi_1}{\\partial s} (s,t), &\\frac{\\partial \\varphi_1}{\\partial t} (s,t) \\\\
+        \\vdots & \\vdots \\\\
+        \\frac{\\partial \\varphi_9}{\\partial s} (s,t), &\\frac{\\partial \\varphi_9}{\\partial t} (s,t)
+        \\end{bmatrix}
 
     See also
     --------
-    get_all_shape_functions : Shape function and its derivative for all the integration points.
+    _get_all_shape_functions : Shape function and its derivative for all the integration points.
     """
     # Shape functions
     phi = np.zeros(9, dtype='float64') 
-    phi[0] = (ksi**2 - ksi) * (eta**2 - eta) / 4
-    phi[1] = (ksi**2 + ksi) * (eta**2 - eta) / 4
-    phi[2] = (ksi**2 + ksi) * (eta**2 + eta) / 4
-    phi[3] = (ksi**2 - ksi) * (eta**2 + eta) / 4
-    phi[4] = (1 - ksi**2) * (eta**2 - eta)  / 2
-    phi[5] = (ksi**2 + ksi) * (1 - eta**2)  / 2
-    phi[6] = (1 - ksi**2.) * (eta**2 + eta)  / 2
-    phi[7] = (ksi**2 - ksi) * (1 - eta**2)  / 2
-    phi[8] = (1 - ksi**2) * (1 - eta**2)
+    phi[0] = (s**2 - s) * (t**2 - t) / 4
+    phi[1] = (s**2 + s) * (t**2 - t) / 4
+    phi[2] = (s**2 + s) * (t**2 + t) / 4
+    phi[3] = (s**2 - s) * (t**2 + t) / 4
+    phi[4] = (1 - s**2) * (t**2 - t) / 2
+    phi[5] = (s**2 + s) * (1 - t**2) / 2
+    phi[6] = (1 - s**2) * (t**2 + t) / 2
+    phi[7] = (s**2 - s) * (1 - t**2) / 2
+    phi[8] = (1 - s**2) * (1 - t**2)
 
     # Derivatives
     dphi=np.zeros((2, 9), dtype='float64')
     # ksi Derivative
-    dphi[0,0] = (2*ksi - 1) * (eta**2 - eta) / 4
-    dphi[0,1] = (2*ksi + 1) * (eta**2 - eta) / 4 
-    dphi[0,2] = (2*ksi + 1) * (eta**2 + eta) / 4
-    dphi[0,3] = (2*ksi - 1) * (eta**2 + eta) / 4
-    dphi[0,4] = -ksi * (eta**2 - eta)
-    dphi[0,5] = (2*ksi + 1) * (1 - eta**2) / 2
-    dphi[0,6] = -ksi * (eta**2 + eta)
-    dphi[0,7] = (2*ksi - 1) * (1 - eta**2) / 2
-    dphi[0,8] = -2*ksi * (1 - eta**2)
+    dphi[0,0] = (2*s - 1) * (t**2 - t) / 4
+    dphi[0,1] = (2*s + 1) * (t**2 - t) / 4 
+    dphi[0,2] = (2*s + 1) * (t**2 + t) / 4
+    dphi[0,3] = (2*s - 1) * (t**2 + t) / 4
+    dphi[0,4] = -s * (t**2 - t)
+    dphi[0,5] = (2*s + 1) * (1 - t**2) / 2
+    dphi[0,6] = -s * (t**2 + t)
+    dphi[0,7] = (2*s - 1) * (1 - t**2) / 2
+    dphi[0,8] = -2*s * (1 - t**2)
     # eta Derivative
-    dphi[1,0] = (ksi**2 - ksi) * (2*eta - 1) / 4
-    dphi[1,1] = (ksi**2 + ksi) * (2*eta - 1) / 4
-    dphi[1,2] = (ksi**2 + ksi) * (2*eta + 1) / 4
-    dphi[1,3] = (ksi**2 - ksi) * (2*eta + 1) / 4
-    dphi[1,4] = (1 - ksi**2) * (2*eta - 1) / 2
-    dphi[1,5] = (ksi**2 + ksi) * (-2*eta) / 2
-    dphi[1,6] = (1 - ksi**2) * (2*eta + 1) / 2
-    dphi[1,7] = (ksi**2 - ksi) * (-2*eta) / 2
-    dphi[1,8] = (1 - ksi**2) * (-2*eta)
+    dphi[1,0] = (s**2 - s) * (2*t - 1) / 4
+    dphi[1,1] = (s**2 + s) * (2*t - 1) / 4
+    dphi[1,2] = (s**2 + s) * (2*t + 1) / 4
+    dphi[1,3] = (s**2 - s) * (2*t + 1) / 4
+    dphi[1,4] = (1 - s**2) * (2*t - 1) / 2
+    dphi[1,5] = (s**2 + s) * (-2*t) / 2
+    dphi[1,6] = (1 - s**2) * (2*t + 1) / 2
+    dphi[1,7] = (s**2 - s) * (-2*t) / 2
+    dphi[1,8] = (1 - s**2) * (-2*t)
     return phi, dphi
 
-def get_all_shape_functions():
-    """ This function returns the two dimensional quadratic shape function and its derivative (9-node quadrilateral element) for all Gauss quadrature 2D integration points in the dimensionless coordinate system (ksi,eta).
+def _get_all_shape_functions():
+    """ This function returns the Q9 (9-node quadrilateral element) two dimensional quadratic shape functions and its derivatives for all 2D Gauss quadrature integration points in the normalized coordinate system :math:`(s,t) \\in [-1,1]\\times[-1,1]`.
 
     Returns
     -------
-    phi : array
-        One dimensional linear shape function.
+    phi : (4,9) array
+        Quadratic shape function. The row ``phi[i,:]`` corresponds to the ``i``-th integration point and the column ``phi[:,j]`` corresponds to the ``j``-th shape function.
 
-    dphi : array
-        Shape function derivative.
+    dphi : (4,9,2) array
+        Derivatives of the shape functions. The layer ``dphi[i,:,:]`` corresponds to the ``i``-th integration point, the row ``dphi[:,j,:]`` corresponds to the ``j``-th shape function and the column ``dphi[:,:,k]`` corresponds to the derivatives:
+        
+        .. math::        
+            \\left[\\frac{\\partial \\varphi}{\\partial s} (s,t), \\frac{\\partial \\varphi}{\\partial t} (s,t)\\right].
 
     See also
     --------
-    shape_function : Shape function and its derivative for one point.
+    _shape_function : Shape function and its derivative for one point.
 
-    gauss_quadrature2D : Gauss quadrature data for 2D integration and two integration points.
+    _gauss_quadrature2D : Gauss quadrature data for 2D integration and two integration points.
     """
-    points, _ = gauss_quadrature2D()
+    points, _ = _gauss_quadrature2D()
     mat_phi = np.zeros((rows, 9), dtype='float64')
     mat_dphi = np.zeros((rows, 2, 9), dtype='float64')
     for i, (ksi, eta) in enumerate(points): 
-        mat_phi[i,:], mat_dphi[i,:,:] = shape_function(ksi,eta)
+        mat_phi[i,:], mat_dphi[i,:,:] = _shape_function(ksi,eta)
     return  mat_phi, mat_dphi
 
 class CrossSection:
-    """This class creates a tube Cross Section object from input data.
+    """
+    This class creates either a **beam** or a **pipe** cross-section object from input data. The **cross-section** defines the **structural element domain** and the Timoshenko theory makes use of several of its properties:
+
+    .. _tabDefinitions:
+
+    ===================================  ============
+           Property                       Definition
+    ===================================  ============
+    First moment of area in :math:`y`    :math:`Q_y = \\int_{A} y \mathrm{dA}`
+    First moment of area in :math:`z`    :math:`Q_z = \\int_{A} z \mathrm{dA}`
+    Second moment of area in :math:`y`   :math:`I_y = \\int_{A} y^2 \mathrm{dA}`
+    Second moment of area in :math:`z`   :math:`I_z = \\int_{A} z^2 \mathrm{dA}`
+    Second moment of area in :math:`yz`  :math:`I_{yz} = \\int_{A} yz \mathrm{dA}`
+    Polar moment of area                 :math:`J = I_y + I_z`
+    Centroid                             :math:`c = \\frac{1}{A}(Q_y, Q_z)`
+    ===================================  ============
+
+    Here, :math:`A` is the cross-section area. Those integrals area approximated by numeric integration when  or ``element_type = 'pipe_2'``. Futhermore, these formulations approximates shear properties like the shear coefficients and the shear center coordinates :math:`c_s` by solving a Differential Problem within the section. On the other hand, when ``element_type = 'beam_1'``, analytical approximation of each property is computed. The user is also allowed to provide the properties of any cross-section through the parameters ``self.area``, ``self.Iyy``, ``self.Izz``, ``self.Iyz``, and ``self.shear_coefficient``. From the acoustic point of view, the **pipes** element types also provide the acoustic cross-section area called ``self.fluid_area``.
 
     Parameters
     ----------
-    outer_diameter : float
-        Tube outer diameter.
-
-    thickness : float
-        Tube wall thickness.
-
-    offset_y : float
-        y coordinate of the tube eccentricity offset.
-
-    offset_z : float
-        z coordinate of the tube eccentricity offset.
-
-    poisson_ratio : float, optional
-        Poisson's ration of the material attributed to the tube.
-        Default is 0.
-
     element_type : ['pipe_1','pipe_2','beam_1'], optional
-        Element type of the structural elements attributed to the tube.
+        Element type of the structural elements associated to the cross-section.
         Default is 'pipe_1'.
 
+    poisson_ratio : float, optional
+        Poisson's ration of the material attributed to the structural elements. Only needed when ``element_type = 'pipe_1'``.
+        Default is 0.
+
     division_number : [8, 16, 32, 64, 128], optional
-        Cross section division number. This number is directly associated with the number of elements used in the process of approximating the cross section shear properties.
+        Cross-section division number. This number is directly associated with the number of elements used in the process of approximating the cross-section shear properties. Only needed when ``element_type = 'pipe_1'``.
         Default is 64.
+    
+    pipe_section_info : dict, optional
+        Pipe section data is stored in a dictionary with the following structure ``{"outer_diameter" : , "thickness" : , "offset_y" : , "offset_z" : , "insulation_thickness" : , "insulation_density" : }``, and whose visual definitions and orientation can be seen in the :ref:`figure <figPipe>`. The expected values, its data types and descriptions are: ::
 
-    insulation_thickness : float, optional
-        Tube insolation thickness.
-        Default is 0.
+            "outer_diameter" : float
+                Pipe outer diameter.
 
-    insulation_density : float, optional
-        Tube insolation density.
-        Default is 0.
+            "thickness" : float
+                Pipe wall thickness.
 
-    additional_section_info : , optional
-        Cross section additional infos.
-        Default is None.
+            "offset_y" : float
+                y coordinate of the pipe eccentricity offset.
 
-    area : float, optional
-        Cross section area. Only attributed if the cross section is not tubular.
-        Default is 0.
+            "offset_z" : float
+                z coordinate of the pipe eccentricity offset.
 
-    Iyy : float, optional
-        Cross section second moment of area with respect to the y direction. Only attributed if the cross section is not tubular.
-        Default is 0.
+            "insulation_thickness" : float
+                Pipe insolation thickness.
 
-    Izz : float, optional
-        Cross section second moment of area with respect to the z direction. Only attributed if the cross section is not tubular.
-        Default is 0.
+            "insulation_density" : float
+                Pipe insolation density.
+        
+        .. _figPipe:
 
-    Iyz : float, optional
-        Cross section second moment of area with respect to the yz plane. Only attributed if the cross section is not tubular.
-        Default is 0.
+        .. figure:: /figures/Pipe_section.svg
+            :align: center
 
-    shear_coefficient : float, optional
-        Cross section shear coefficient. Only attributed if the cross section is not tubular.
-        Default is 1.
+            Pipe section parameters and offset orientation.
+
+    beam_section_info : dict, optional
+        Beam section data is stored in a dictionary with the following structure ``{"section_type_label" : , "section_parameters" : }``. The pared value of ``"section_type_label"`` must be one of the following ``str``: ``'C-section', 'Circular section', 'I-section', 'Rectangular section', 'T-section'`` according to the wished beam section. And ``"section_parameters"`` is a list whose unwraping depends on the chosen one. For each section, it is shown up next the expected list structure.
+        
+        - **C-section** unwraps as follows:
+
+            >>> [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
+        
+        Their visual definitions and orientation are presented in :ref:`figure <figCsection>`, and their data types and description are: ::
+
+            h : float
+                Profile height.
+
+            w1 : float
+                Upper profile width.
+
+            t1 : float
+                Upper profile thickness.
+
+            w2 : float
+                Lower profile width.
+
+            t2 : float
+                Lower profile thickness.
+
+            tw : float
+                Thickness.
+
+            offset_y : float
+                y coordinate of the centroid offset.
+
+            offset_z : float
+                z coordinate of the centroid offset.
+        
+        .. _figCsection:
+
+        .. figure:: /figures/C_profile.svg
+            :align: center
+
+            C-section parameters and offset orientation.
+        
+        - **Circular section** unwraps as follows:
+
+            >>> [d_out, thickness, offset_y, offset_z] = section_parameters
+            
+        Their visual definitions and orientation are presented in :ref:`figure <figCircularsection>`, and their data types and description are: ::
+
+            d_out : float
+                External diameter.
+
+            thickness : float
+                Thickness.
+
+            offset_y : float
+                y coordinate of the centroid offset.
+
+            offset_z : float
+                z coordinate of the centroid offset.
+        
+        .. _figCircularsection:
+
+        .. figure:: /figures/Circular.svg
+            :align: center
+
+            Circular section parameters and offset orientation.
+        
+        - **I-section** unwraps as follows:
+        
+            >>> [h, w1, t1, w2, t2, tw, offset_y, offset_z] = section_parameters
+        
+        Their visual definitions and orientation are presented in :ref:`figure <figIsection>`, and their data types and description are: ::
+
+            h : float
+                Profile height.
+
+            w1 : float
+                Upper profile width.
+
+            t1 : float
+                Upper profile thickness.
+
+            w2 : float
+                Lower profile width.
+
+            t2 : float
+                Lower profile thickness.
+
+            tw : float
+                Thickness.
+
+            offset_y : float
+                y coordinate of the centroid offset.
+
+            offset_z : float
+                z coordinate of the centroid offset.
+        
+        .. _figIsection:
+
+        .. figure:: /figures/I_profile.svg
+            :align: center
+
+            I-section parameters and offset orientation.
+        
+        - **T-section** unwraps as follows:
+        
+            >>> [h, w1, t1, tw, offset_y, offset_z] = section_parameters
+            
+        Their visual definitions and orientation are presented in :ref:`figure <figTsection>`, and their data types and description are: ::
+
+            h : float
+                Profile height.
+
+            w1 : float
+                Upper profile width.
+
+            t1 : float
+                Upper profile thickness.
+
+            tw : float
+                Thickness.
+
+            offset_y : float
+                y coordinate of the centroid offset.
+
+            offset_z : float
+                z coordinate of the centroid offset.
+        
+        .. _figTsection:
+
+        .. figure:: /figures/T_profile.svg
+            :align: center
+
+            T-section parameters and offset orientation.
+
+    valve_section_info : dict, optional
+        Valve section data is stored in a dictionary with the following structure ``{"section_parameters" : , "diameters_to_plot" : }``. The pared value of ``"diameters_to_plot"`` are used in rendering of the UI and it's suggested to attribute ``[None, None]``. Likewise the ``pipe_section_info``, the paired value of ``"section_parameters"`` is another dictionary with the structure ``{"outer_diameter" : , "thickness" : , "offset_y" : , "offset_z" : , "insulation_thickness" : , "insulation_density" : }``, and whose visual definitions and orientation is the same as seen in the :ref:`figure <figPipe>` for the Pipe section. The expected values, its data types and descriptions are: ::
+
+            "outer_diameter" : float
+                Pipe outer diameter.
+
+            "thickness" : float
+                Pipe wall thickness.
+
+            "offset_y" : float
+                y coordinate of the pipe eccentricity offset.
+
+            "offset_z" : float
+                z coordinate of the pipe eccentricity offset.
+
+            "insulation_thickness" : float
+                Pipe insolation thickness.
+
+            "insulation_density" : float
+                Pipe insolation density.
+
+    generic_section_info : list, optional
+        Generic section data is stored in a list that unwraps as follows ``[area, Iyy, Izz, Iyz, shear_factor, Yc, Zc] = generic_section_info``. Their definitions were presented in the <table `tabDefinitions`_>, and their data types and description are: ::
+
+            "area" : float
+                cross-section area.
+
+            "Yc" : float
+                y coordinate of the centroid.
+
+            "Zc" : float
+                z coordinate of the centroid.
+
+            "Iyy" : float
+                cross-section second moment of area with respect to the y direction.
+
+            "Izz" : float
+                cross-section second moment of area with respect to the z direction.
+
+            "Iyz" : float
+                cross-section second moment of area with respect to the yz plane.
+
+            "shear_coefficient" : float
+                cross-section shear coefficient.
+        
     """
     
     def __init__(self, **kwargs):
@@ -202,12 +424,12 @@ class CrossSection:
         self.offset_virtual = None
 
         # Beam section properties
-        self.area = kwargs.get('area', 0)
+        self.area = 0
         self.first_moment_area_y = 0
         self.first_moment_area_z = 0
-        self.second_moment_area_y = kwargs.get('Iyy', 0)
-        self.second_moment_area_z = kwargs.get('Izz', 0)
-        self.second_moment_area_yz = kwargs.get('Iyz', 0)
+        self.second_moment_area_y = 0
+        self.second_moment_area_z = 0
+        self.second_moment_area_yz = 0
         self.polar_moment_area = 0
         self.y_centroid = 0
         self.z_centroid = 0
@@ -227,6 +449,7 @@ class CrossSection:
         # Input cluster data for pipe and beam sections 
         self.pipe_section_info = kwargs.get('pipe_section_info', None)
         self.beam_section_info = kwargs.get('beam_section_info', None)
+        self.generic_section_info = kwargs.get('generic_section_info', None)
         self.expansion_joint_info = kwargs.get('expansion_joint_info', None)
         self.valve_section_info = kwargs.get('valve_section_info', None)
       
@@ -236,23 +459,22 @@ class CrossSection:
 
         # Unwrap cluster data for pipe sections 
         if self.pipe_section_info:
+            self.section_label = "Pipe section"
 
-            self.section_label = self.pipe_section_info["section_type_label"]
-            self.section_parameters = self.pipe_section_info["section_parameters"]
-
-            self.outer_diameter = self.section_parameters["outer_diameter"]
-            self.thickness =  self.section_parameters["thickness"]
-            self.offset_y = self.section_parameters["offset_y"]
-            self.offset_z = self.section_parameters["offset_z"]
-            self.insulation_thickness = self.section_parameters["insulation_thickness"]
-            self.insulation_density = self.section_parameters["insulation_density"]
+            self.outer_diameter = self.pipe_section_info["outer_diameter"]
+            self.thickness =  self.pipe_section_info["thickness"]
+            self.offset_y = self.pipe_section_info["offset_y"]
+            self.offset_z = self.pipe_section_info["offset_z"]
+            self.insulation_thickness = self.pipe_section_info["insulation_thickness"]
+            self.insulation_density = self.pipe_section_info["insulation_density"]
             self.offset = [self.offset_y, self.offset_z]
-            self.section_info = self.pipe_section_info
+
+            self.section_info = {  "section_type_label" : self.section_label,
+                                   "section_parameters" : self.pipe_section_info }
 
         # Unwrap cluster data for valve sections 
         if self.valve_section_info:
-
-            self.section_label = self.valve_section_info["section_type_label"]
+            self.section_label = "Valve section"
             self.section_parameters = self.valve_section_info["section_parameters"]
 
             self.outer_diameter = self.section_parameters["outer_diameter"]
@@ -262,15 +484,24 @@ class CrossSection:
             self.insulation_thickness = self.section_parameters["insulation_thickness"]
             self.insulation_density = self.section_parameters["insulation_density"]
             self.offset = [self.offset_y, self.offset_z]
-            self.section_info = self.valve_section_info 
-            self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
+
+            self.section_info = self.valve_section_info
+            self.section_info["section_type_label"] = self.section_label
+            try:
+                self.outer_diameter_to_plot, self.inner_diameter_to_plot = self.valve_section_info["diameters_to_plot"]
+            except:
+                self.outer_diameter_to_plot, self.inner_diameter_to_plot = None, None
 
         # Unwrap cluster data for beam sections 
         if self.beam_section_info:
-           
             self.section_label = self.beam_section_info["section_type_label"]
             self.section_parameters = self.beam_section_info["section_parameters"]
-            self.section_properties = self.beam_section_info["section_properties"]
+
+            self.section_properties = get_beam_section_properties(self.section_label, self.section_parameters)
+            
+            self.section_info = {  "section_type_label" : self.section_label,
+                                   "section_parameters" : self.section_parameters,
+                                   "section_properties" : self.section_properties  }
 
             self.area = self.section_properties['area']
             self.second_moment_area_y = self.section_properties['Iyy']
@@ -279,11 +510,25 @@ class CrossSection:
             self.offset_y = self.section_properties['Yc']
             self.offset_z = self.section_properties['Zc']
             self.offset = [self.offset_y, self.offset_z]
+
+        if self.generic_section_info is not None:
+            self.section_label = "Generic section"
+            self.section_parameters = None
+
+            self.section_properties = get_beam_section_properties(self.section_label, self.generic_section_info)
             
-            if self.section_label == "Generic section":
-                self.shear_coefficient = self.section_properties['shear factor']
-            
-            self.section_info = self.beam_section_info
+            self.section_info = {  "section_type_label" : self.section_label,
+                                   "section_parameters" : self.section_parameters,
+                                   "section_properties" : self.section_properties  }
+
+            self.area = self.section_properties['area']
+            self.second_moment_area_y = self.section_properties['Iyy']
+            self.second_moment_area_z = self.section_properties['Izz']
+            self.second_moment_area_yz = self.section_properties['Iyz']
+            self.offset_y = self.section_properties['Yc']
+            self.offset_z = self.section_properties['Zc']
+            self.offset = [self.offset_y, self.offset_z]
+            self.shear_coefficient = self.section_properties['shear factor']
         
         if self.expansion_joint_info is not None:
             self.section_label = self.expansion_joint_info[0]
@@ -292,96 +537,57 @@ class CrossSection:
                     
     @property
     def outer_radius(self):
+        """:float: Cross-section outer radius
+        """
         return self.outer_diameter/2
 
     @property
     def inner_diameter(self):
+        """:float: Cross-section inner diameter
+        """
         return self.outer_diameter - 2*self.thickness
 
     @property
     def inner_radius(self):
+        """:float: Cross-section inner radius
+        """
         return self.inner_diameter/2
 
     @property
     def area_fluid(self):
-        """
-        This method returns the tube inner cross section area, which corresponds to the acoustic area.
-
-        Returns
-        -------
-        float
-            inner area.
+        """:float: Cross-section inner area, which corresponds to the acoustic domain cross-section area.
         """
         return (self.inner_diameter**2) * pi / 4
 
     @property
     def area_insulation(self):
-        """
-        This method returns the insulation cross section area.
-
-        Returns
-        -------
-        float
-            insulation cross section area.
+        """:float: Cross-section insulation area.
         """
         return (((self.outer_diameter+2*self.insulation_thickness)**2)-(self.outer_diameter**2)) * pi / 4
 
-    def getExternalDiameter(self):
-        """
-        This method returns the tube cross section outer diameter.
-
-        Returns
-        -------
-        float
-            outer diameter.
-        """
-        return self.outer_diameter
-    
-    def getExternalRadius(self):
-        """
-        This method returns the tube cross section outer radius.
-
-        Returns
-        -------
-        float
-            outer radius.
-        """
-        return self.outer_radius
-
-    def getThickness(self):
-        """
-        This method returns the tube cross section thickness.
-
-        Returns
-        -------
-        float
-            thickness.
-        """
-        return self.thickness
-
-    def getInnerDiameter(self):
-        """
-        This method returns the tube cross section inner diameter.
-
-        Returns
-        -------
-        float
-            inner diameter.
-        """
-        return self.inner_diameter
-
     def mesh_connectivity(self):
         """
-        This method returns the tube cross mesh connectivity formed by 9-node quadrilateral elements.
+        This method returns the tube cross mesh connectivity formed by Q9 (9-node quadrilateral element). The element-wise reference numbering follows the pattern: ::
+
+                 y, r
+                  ^
+                  |
+            2-----6-----3
+            |           |
+            |           |
+            5     8     7 --> x, θ
+            |           |
+            |           |
+            1-----4-----0
 
         Returns
         -------
-        array
-            Tube cross mesh connectivity.
+        (N, 9) array
+            Connectivity of the tube cross mesh, where ``N = self.division_number``.
 
         See also
         --------
-        mesh_coordinate : Tube cross mesh nodal coordinates.
+        mesh_coordinate : Nodal coordinates of the tube cross mesh.
         """
         connectivity = np.zeros([self.division_number, 9], dtype = int)
         ind = 6*np.arange(self.division_number)
@@ -393,16 +599,27 @@ class CrossSection:
     
     def mesh_coordinate(self):
         """
-        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+        This method returns nodal coordinates of the tube cross mesh formed by Q9 (9-node quadrilateral element). The node coordinates and global numbering are created following the pattern: ::
+
+                 y, r
+                  ^
+                  |
+            0-----3      N-3
+            |     |      |
+            |     |      |
+            1     4 ...  N-2   --> x, θ
+            |     |      |
+            |     |      |
+            2-----5      N-1
 
         Returns
         -------
-        array
-            Tube cross mesh nodal coordinates.
+        (N, 2) array
+            Nodal coordinates of the tube cross mesh. Here, ``N = 6*self.division_number`` because each element has 9 nodes, but it shares 3 nodes with each neighbor element. The ``i``-th row has the ``(x, y)`` coordinates of the ``i``-th node.
 
         See also
         --------
-        mesh_connectivity : Tube cross mesh connectivity.
+        mesh_connectivity : Connectivity of the tube cross mesh.
         """
         # coordinates of points on the face
         r_o = self.outer_diameter / 2
@@ -430,43 +647,43 @@ class CrossSection:
         coordinate[ind + 2, 1] = r_i * sine - offset[1]
         return coordinate
     
-    def preprocessing(self, el_type = None):
+    def preprocessing(self, el_type = 'pipe_1'):
         """
-        This method returns the tube cross mesh nodal coordinates formed by 9-node quadrilateral elements.
+        This method process the cross-section mesh to generate in advance the arrays necessary to compute the section's shear properties. The arrays have the dimension of the total number of integration points ``N = N_int_points*self.division_number``, where ``N_int_points = 4`` is standard in OpenPulse.
 
         Parameters
-        -------
-        el_type : ['pipe_1','pipe_2','beam_1'], optional
+        ----------
+        el_type : ['pipe_1','pipe_2'], optional
             Element type of the structural elements attributed to the tube.
-            Default is None.
+            Default is 'pipe_1'.
 
         Returns
         -------
-        jac : array
-            Jacobian matrix of each integration point. It's a 3D matrix such that jac[p,:] is the Jacobian matrix of the p-th integration point (in-line 2x2 matrix).
+        jac : (N, 2, 2) array
+            Jacobian matrix of each integration point. It's a 3D matrix such that ``jac[p,:,:]`` is the Jacobian matrix of the ``p``-th integration point (2-by-2 matrix).
 
-        inv_jac : array
-            Inverse of the Jacobian matrix of each element. It's a 3D matrix such that inv_jac[p,:] is the inverse of the Jacobian matrix of the p-th integration point (in-line 2x2 matrix).
+        inv_jac : (N, 2, 2) array
+            Inverse of the Jacobian matrix of integration point. It's a 3D matrix such that ``inv_jac[p,:,:]`` is the inverse of the Jacobian matrix of the ``p``-th integration point (2-by-2 matrix).
 
-        dA : array
-            Area differential of each integration point.
+        dA : (N,) array
+            Differential of area of each integration point.
 
-        y : array
-            y-coordinate in the global coordinate system of each integration point.
+        y : (N,) array
+            `y`-coordinate in the global coordinate system of each integration point.
 
-        z : array
-            z-coordinate in the global coordinate system of each integration point.
+        z : (N,) array
+            `z`-coordinate in the global coordinate system of each integration point.
         """
         
-        N = self.division_number*Nint_points
-        _, weight = gauss_quadrature2D()
+        N = self.division_number*N_int_points
+        _, weight = _gauss_quadrature2D()
         self.mesh_connectivity()
-        self.mat_phi, self.mat_dphi = get_all_shape_functions()
+        self.mat_phi, self.mat_dphi = _get_all_shape_functions()
         phi = self.mat_phi
         dphi = self.mat_dphi
 
         if el_type == 'pipe_1':
-            # for the pipe_1 element, offset and its dependence need to be updated as below
+            # for the pipe_1 element, offset and its dependence need to be updated
             self.offset_virtual = self.offset + np.array([self.y_centroid, self.z_centroid]) 
             coordinate = self.mesh_coordinate()
         else:
@@ -481,7 +698,7 @@ class CrossSection:
         ind=0
         for el in range( self.division_number ): # Integration over each element
             indexes = self.connectivity[el,:]
-            for k in range(Nint_points):   # integration points
+            for k in range(N_int_points):   # integration points
                 jac[ind,:,:] = dphi[k,:,:]@coordinate[indexes,:]
                 y[ind], z[ind] = phi[k,:]@coordinate[indexes,:]
                 inv_jac[ind,:,:] = inv(jac[ind,:,:])
@@ -490,15 +707,15 @@ class CrossSection:
         detjac = (aux[:,0]*aux[:,3])-(aux[:,1]*aux[:,2])
         return jac, inv_jac, detjac*weight, y, z
             
-    def area_properties(self, el_type):
+    def area_properties(self, el_type = 'pipe_1'):
         """
-        This method updates the tube cross area properties: area, first moment of area relative to y, first moment of area relative to z, second moment of area relative to y, second moment of area relative to z, second moment of area relative to yz, second moment of area relative to yz, second polar moment of area, and (y,z) centroid coordinate.
+        This method updates the tube cross area properties: area ``self.area``, first moment of area relative to y ``self.first_moment_area_y``, first moment of area relative to z ``self.first_moment_area_z``, second moment of area relative to y ``self.second_moment_area_y``, second moment of area relative to z ``self.second_moment_area_z``, second moment of area relative to yz ``self.second_moment_area_yz``, second polar moment of area ``self.polar_moment_area``, and centroid coordinate ``(self.y_centroid, self.z_centroid)``.
 
         Parameters
-        -------
+        ----------
         el_type : ['pipe_1','pipe_2','beam_1']
-            Element type of the structural elements attributed to the tube.
-            Default is None.
+            Element type of the structural elements attributed to the tube or beam.
+            Default is 'pipe_1'.
         """
         self.jac, self.inv_jac, self.dA, self.y, self.z = self.preprocessing(el_type = el_type)
 
@@ -520,11 +737,10 @@ class CrossSection:
 
     def assembly_indexes(self):
         """
-        This method updates the assembly process rows and columns indexing.
+        This method updates rows and columns index maps used in the assembly process. ``self.rows_ind`` and ``self.cols_ind`` are **(N,) arrays** that map all degrees of freedom onto the respective row and column of the system's global matrix. 
         """
-        rows, cols = self.division_number, 9
-        cols_dofs = self.connectivity.reshape(-1,1)
-        cols_dofs = cols_dofs.reshape(rows, cols)
+        cols = 9
+        cols_dofs = self.connectivity
         J = np.tile(cols_dofs, cols)
         I = cols_dofs.reshape(-1,1)@np.ones((1,cols), dtype=int) 
         self.rows_ind = I.reshape(-1)
@@ -532,17 +748,17 @@ class CrossSection:
                             
     def shear_properties(self, poisson_ratio = 0, el_type = 'pipe_1'):
         """
-        This method updates the tube cross shear properties: shear coefficients and (y,z) shear centroid coordinate.
+        This method updates the tube cross shear properties shear coefficients ``self.res_y``, ``self.res_z`` and ``self.res_yz``, and shear center coordinates ``(self.y_shear, self.z_shear)``.
 
         Parameters
-        -------
+        ----------
         poisson_ratio : float, optional
             Poisson's ration of the material attributed to the tube.
             Default is 0.
 
         el_type : ['pipe_1','pipe_2','beam_1'], optional
             Element type of the structural elements attributed to the tube.
-            Default is None.
+            Default is 'pipe_1'.
         """
         self.area_properties(el_type)
         self.assembly_indexes()
@@ -560,7 +776,7 @@ class CrossSection:
         Iyz = self.second_moment_area_yz
 
         NGL = self.number_nodes#*DOFS_PER_NODE
-        N = self.division_number*Nint_points
+        N = self.division_number*N_int_points
 
         # Shear Coefficients
         Fy = np.zeros(NGL)
@@ -590,30 +806,22 @@ class CrossSection:
         for el in range( self.division_number ): # Integration over each cross-sections element
             Ke =  0
             indexes = self.connectivity[el,:]
-            for _ in range(Nint_points):                                               
-                ## Previous version - Internal Loop
-                # Fy[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ d[i,:] + 2*(1 + poisson_ratio)*phi[k,:]*(Iy*y[i] - Iyz*z[i]) ) * dA[i]
-                # Fz[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ h[i,:] + 2*(1 + poisson_ratio)*phi[k,:]*(Iz*z[i] - Iyz*y[i]) ) * dA[i]
-                # FT[indexes] += (dphig_T[i,:,:] @ vec[i,:]) * dA[i]
+            for _ in range(N_int_points):
                 Ke += mat_ke[i,:,:]
                 Fy[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ d[i,:] + add_y[i])*dA[i]
                 Fz[indexes] += ( poisson_ratio/2 * dphig_T[i,:,:] @ h[i,:] + add_z[i])*dA[i]
                 FT[indexes] += ( dphig_T[i,:,:] @ vec_dA[i] )
                 i += 1
             data_ke[el,:,:] = Ke
-        # t0 = time()
-        # print(True in [True if isnan(data) or isinf(data) else False for data in data_ke.reshape(-1)])
         K_lg = coo_matrix((data_ke.reshape(-1), (self.rows_ind, self.cols_ind)), shape=(NGL+1, NGL+1), dtype='float64')
                                             
         # Pseudo inverse used to remedy numerical instability
-        inv_K_lg = pinv(K_lg.toarray())#, hermitian=True)
+        inv_K_lg = pinv(K_lg.toarray())
 
         u2 = inv_K_lg @ np.append(Fy, 0)
         u3 = inv_K_lg @ np.append(Fz, 0)
         psi_y = u2[:-1]
         psi_z = u3[:-1]
-        # dt = time()-t0
-        # print(dt)
         d_poisson = d*poisson_ratio/2
         h_poisson = h*poisson_ratio/2
         dA = dA.reshape(-1,1)
@@ -624,20 +832,9 @@ class CrossSection:
         alpha_y = alpha_z = alpha_yz = 0
         for el in range( self.division_number ): # Integration over each cross 
             indexes = self.connectivity[el,:]
-            Np = Nint_points*el
+            Np = N_int_points*el
             mat_dptemp[0+Np:4+Np,:] = (dphig[0+Np:4+Np,:,:] @ psi_y[indexes]) - d_poisson[0+Np:4+Np,:]
             mat_hptemp[0+Np:4+Np,:] = (dphig[0+Np:4+Np,:,:] @ psi_z[indexes]) - h_poisson[0+Np:4+Np,:]
-            
-            ## Previous version - Internal Loop
-            # for k in range(Nint_points):
-                
-            #     dptemp = (dphig[i,:,:] @ psi_y[indexes]) - d_poisson[i,:]
-            #     hptemp = (dphig[i,:,:] @ psi_z[indexes]) - h_poisson[i,:]
-
-            #     alpha_y += dptemp @ dptemp * dA[i]
-            #     alpha_z += hptemp @ hptemp * dA[i]
-            #     alpha_yz += dptemp @ hptemp * dA[i]
-            #     i+=1
         
         alpha_y =  np.sum( mat_dptemp*mat_dptemp*dA )
         alpha_z =  np.sum( mat_hptemp*mat_hptemp*dA )
@@ -656,13 +853,13 @@ class CrossSection:
 
     def offset_rotation(self, el_type = 'pipe_1'):
         """
-        This method updates the tube cross section rotation due to the shear effects and eccentricity offset.
+        This method updates the tube cross-section rotation due to the shear effects and eccentricity offset.
 
         Parameters
-        -------
+        ----------
         el_type : ['pipe_1','pipe_2','beam_1'], optional
             Element type of the structural elements attributed to the tube.
-            Default is None.
+            Default is 'pipe_1'.
         """
         if el_type == 'pipe_2':
             self.principal_axis = np.eye(12)
@@ -719,35 +916,28 @@ class CrossSection:
 
     def update_properties(self):
         """
-        This method updates all the tube cross section properties.
+        This method updates all the tube cross-section properties.
         """
         # self.area_properties(None)
         if self.element_type == 'pipe_1':
             self.shear_properties(poisson_ratio = 0, el_type = None)
             self.offset_rotation(el_type = 'pipe_1')
-            self.shear_properties(poisson_ratio = 0, el_type = self.element_type)
+            self.shear_properties(poisson_ratio = 0, el_type = 'pipe_1')
         else:
             self.shear_properties(poisson_ratio=self.poisson_ratio, el_type=self.element_type)
-
-    def _polar_moment_area(self):
-        """Cross section second polar moment of area [m**4]."""
-        return self.second_moment_area_y + self.second_moment_area_z
-
+    
+    ## Beam related methods
     def get_beam_shear_center(self):
-        ''' This method returns the shear center coordinates relative to the centroid of the cross-section area under
-            hypothesis so that the thickness of beams t_i -> 0. If the thickness is not small sufficiently greater. 
-            deviations are expected.
-        '''
+        """
+        """
         if self.section_label == "Rectangular section":
-            _, _, _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
 
         elif self.section_label == "Circular section":
-            _, _, offset_y, offset_z = self.section_parameters
             return 0, 0
         
         elif self.section_label == "C-section":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
+            h, w1, t1, w2, t2, tw, _, _ = self.section_parameters
 
             b1 = w1
             b2 = w2
@@ -798,7 +988,7 @@ class CrossSection:
             return e_y, e_z
 
         elif self.section_label == "I-section":
-            h, w1, t1, w2, t2, tw, offset_y, offset_z = self.section_parameters
+            h, w1, t1, w2, t2, tw, _, _ = self.section_parameters
 
             b1 = w1
             b2 = w2
@@ -849,7 +1039,7 @@ class CrossSection:
             return e_y, e_z
 
         elif self.section_label == "T-section":
-            h, w1, t1, tw, offset_y, offset_z = self.section_parameters
+            h, w1, t1, tw, _, _ = self.section_parameters
 
             b1 = w1
 
@@ -892,6 +1082,8 @@ class CrossSection:
             return e_y, e_z
     
     def get_cross_section_points(self, length):
+        """
+        """
 
         inner_points = []
         length = round(length, 4)
@@ -1065,7 +1257,7 @@ class CrossSection:
         return outer_points, inner_points, max_min
 
 def get_circular_section_points(parameters, section_label):
-    """" This method returns """
+
     N = 32 # temporary number of divisions for circular sections
     
     if section_label == "Expansion joint section":
@@ -1375,365 +1567,3 @@ def get_beam_section_properties(section_label, data):
                             "Zc" : Zc   }
     
     return section_properties
-
-
-
-
-
-
-
-
-
-
-# if __name__ == "__main__":
-
-#     outer_diameter = 0.05
-#     thickness = 0.002
-#     offset = [0, 0]
-#     cross = CrossSection(outer_diameter, thickness, offset[0], offset[1], 0.3, element_type = 'pipe', division_number = 64)
-#     cross.update_properties()
-
-    # %timeit cross.update_properties(poisson_ratio = 0.3, element_type = 'pipe_1')
-
-
-#####################################################################################################################################
-##                                                NEW CROSS-SECTION FIRST VERSION                                                  ##
-#####################################################################################################################################
-
-# import numpy as np
-# from math import pi, sqrt, cos, sin, atan
-# from numpy.linalg import inv, pinv, norm
-# from scipy.sparse import csc_matrix
-
-# def gauss_quadrature2D():
-#     c = 1/sqrt(3)
-#     points=np.zeros([4,2])
-#     points[0,0]=-c
-#     points[1,0]=c
-#     points[2,0]=c
-#     points[3,0]=-c
-
-#     points[0,1]=-c
-#     points[1,1]=-c
-#     points[2,1]=c
-#     points[3,1]=c
-#     weight = 1
-#     return points, weight
-
-# def shape_function(ksi,eta):
-#     """
-#     - Quadratic shape functions and its derivatives
-#     for calculation of section properties.
-#     - Q9 element.
-#     """
-
-#     # Shape functions
-#     phi = np.zeros(9) 
-#     phi[0] = (ksi**2 - ksi) * (eta**2 - eta) / 4
-#     phi[1] = (ksi**2 + ksi) * (eta**2 - eta) / 4
-#     phi[2] = (ksi**2 + ksi) * (eta**2 + eta) / 4
-#     phi[3] = (ksi**2 - ksi) * (eta**2 + eta) / 4
-#     phi[4] = (1 - ksi**2) * (eta**2 - eta)  / 2
-#     phi[5] = (ksi**2 + ksi) * (1 - eta**2)  / 2
-#     phi[6] = (1 - ksi**2.) * (eta**2 + eta)  / 2
-#     phi[7] = (ksi**2 - ksi) * (1 - eta**2)  / 2
-#     phi[8] = (1 - ksi**2) * (1 - eta**2)
-
-#     # Derivatives
-#     dphi=np.zeros([2, 9])
-#     # ksi Derivative
-#     dphi[0,0] = (2*ksi - 1) * (eta**2 - eta) / 4
-#     dphi[0,1] = (2*ksi + 1) * (eta**2 - eta) / 4 
-#     dphi[0,2] = (2*ksi + 1) * (eta**2 + eta) / 4
-#     dphi[0,3] = (2*ksi - 1) * (eta**2 + eta) / 4
-#     dphi[0,4] = -ksi * (eta**2 - eta)
-#     dphi[0,5] = (2*ksi + 1) * (1 - eta**2) / 2
-#     dphi[0,6] = -ksi * (eta**2 + eta)
-#     dphi[0,7] = (2*ksi - 1) * (1 - eta**2) / 2
-#     dphi[0,8] = -2*ksi * (1 - eta**2)
-#     # eta Derivative
-#     dphi[1,0] = (ksi**2 - ksi) * (2*eta - 1) / 4
-#     dphi[1,1] = (ksi**2 + ksi) * (2*eta - 1) / 4
-#     dphi[1,2] = (ksi**2 + ksi) * (2*eta + 1) / 4
-#     dphi[1,3] = (ksi**2 - ksi) * (2*eta + 1) / 4
-#     dphi[1,4] = (1 - ksi**2) * (2*eta - 1) / 2
-#     dphi[1,5] = (ksi**2 + ksi) * (-2*eta) / 2
-#     dphi[1,6] = (1 - ksi**2) * (2*eta + 1) / 2
-#     dphi[1,7] = (ksi**2 - ksi) * (-2*eta) / 2
-#     dphi[1,8] = (1 - ksi**2) * (-2*eta)
-#     return phi, dphi
-
-# class CrossSection:
-#     def __init__(self, outer_diameter, thickness, offset_y = 0, offset_z = 0, division_number = 64):
-#         self.outer_diameter = outer_diameter
-#         self.thickness = thickness
-#         self.offset = np.array([offset_y, offset_z])
-#         self.offset_virtual = None
-#         self.division_number = division_number
-
-#         self.outer_radius = outer_diameter/2
-#         self.inner_diameter = outer_diameter - 2*thickness
-
-#         # Area properties
-#         self.area = 0
-#         self.first_moment_area_y = 0
-#         self.first_moment_area_z = 0
-#         self.second_moment_area_y = 0
-#         self.second_moment_area_z = 0
-#         self.second_moment_area_yz = 0
-#         self.polar_moment_area = 0
-#         self.y_centroid = 0
-#         self.z_centroid = 0
-
-#         # Shear properties
-#         self.y_shear = 0
-#         self.z_shear = 0
-#         self.res_y = 0
-#         self.res_z = 0
-#         self.res_yz = 0
-
-#         # Principal Bending Axis Rotation
-#         self.principal_axis = None
-
-#     @property
-#     def area_fluid(self):
-#         return (self.inner_diameter**2) * pi / 4
-
-#     def getExternalDiameter(self):
-#         return self.outer_diameter
-    
-#     def getExternalRadius(self):
-#         return self.outer_radius
-
-#     def getThickness(self):
-#         return self.thickness
-
-#     def getInnerDiameter(self):
-#         return self.inner_diameter
-
-#     def mesh_connectivity(self):
-#         connectivity = np.zeros([self.division_number, 9], dtype = int)
-#         aux = 0
-#         for i in range(self.division_number - 1):
-#             connectivity[i,:] = aux + np.array([8,2,0,6,5,1,3,7,4]) 
-#             aux += 6
-        
-#         connectivity[i + 1,:] = [2,2+aux,aux,0,5+aux,1+aux,3+aux,1,4+aux]
-
-#         return connectivity
-    
-#     def mesh_coordinate(self):
-#         # coordinates of points on the face
-#         angular_increment = 2 * pi / (2 * self.division_number)
-#         theta = 0
-#         r_o = self.outer_diameter / 2
-#         r_i = self.inner_diameter / 2
-
-#         if self.offset_virtual is None:
-#             offset = self.offset
-#         else:
-#             offset = self.offset_virtual # used in element_type = 'pipe_1'
-
-#         coordinate = np.zeros([6 * self.division_number, 2])
-#         for i in range( 2 * self.division_number ):
-#             coordinate[3*i + 0, 0] = r_o * cos(theta) - offset[0]
-#             coordinate[3*i + 0, 1] = r_o * sin(theta) - offset[1]
-#             coordinate[3*i + 1, 0] = (r_o + r_i)/2 * cos(theta) - offset[0]
-#             coordinate[3*i + 1, 1] = (r_o + r_i)/2 * sin(theta) - offset[1]
-#             coordinate[3*i + 2, 0] = r_i * cos(theta) - offset[0]
-#             coordinate[3*i + 2, 1] = r_i * sin(theta) - offset[1]
-
-#             theta += angular_increment
-
-#         return coordinate
-    
-#     def area_properties(self):
-#         coordinate = self.mesh_coordinate()
-#         points, weight = gauss_quadrature2D()
-#         connectivity = self.mesh_connectivity()
-        
-#         # Geometry properties
-#         A = Iy = Iz = Iyz = Qy = Qz = 0
-#         for el in range( self.division_number ): # Integration over each element
-#             for ksi, eta in points: # integration points
-#                 phi, dphi = shape_function(ksi,eta)
-#                 jacobian = np.zeros((2,2))
-#                 y = z = 0
-#                 for i, index in enumerate(connectivity[el,:]):
-#                     jacobian[0,:] += coordinate[index, :] * dphi[0,i]
-#                     jacobian[1,:] += coordinate[index, :] * dphi[1,i]
-#                     y += coordinate[index, 0] * phi[i]
-#                     z += coordinate[index, 1] * phi[i]
-#                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-#                 dA = det_jacobian * weight
-#                 A += dA
-#                 Iy += z**2 * dA
-#                 Iz += y**2 * dA
-#                 Iyz += y * z * dA
-#                 Qy += z * dA
-#                 Qz += y * dA
-
-#         self.area = A
-#         self.first_moment_area_y = Qy
-#         self.first_moment_area_z = Qz
-#         self.second_moment_area_y = Iy
-#         self.second_moment_area_z = Iz
-#         self.second_moment_area_yz = Iyz
-#         self.polar_moment_area = Iy + Iz
-#         self.y_centroid = Qz/A
-#         self.z_centroid = Qy/A
-    
-
-#     def shear_properties(self, poisson_ratio = 0, element_type = 'pipe_1'):
-#         coordinate = self.mesh_coordinate()
-#         points, weight = gauss_quadrature2D()
-#         connectivity = self.mesh_connectivity()
-        
-
-#         if element_type == 'pipe_1':
-#             # for the pipe_1 element, offset and its dependence need to be updated as below
-#             self.offset_virtual = self.offset + np.array([self.y_centroid, self.z_centroid]) 
-#             coordinate = self.mesh_coordinate()
-#             self.area_properties()
-
-#         Iy = self.second_moment_area_y 
-#         Iz = self.second_moment_area_z
-#         Iyz = self.second_moment_area_yz
-
-#         # Shear Coefficients
-#         NGL = len(coordinate)
-#         Fy = np.zeros(NGL)
-#         Fz = np.zeros(NGL)
-#         FT = np.zeros(NGL)
-
-#         # Initializing  Lagrangian multiplier matrix construction
-#         row = np.r_[ np.arange(NGL), np.repeat(NGL, NGL)]  # list holding row indices
-#         col = np.r_[ np.repeat(NGL, NGL), np.arange(NGL)]  # list holding column indices
-#         data = np.r_[np.repeat(1, NGL), np.repeat(1, NGL)] 
-
-#         matrix_aux2 =   np.array([[Iy, -Iyz],[Iyz, Iy]])
-#         matrix_aux3 = - np.array([[Iyz, -Iz],[Iz, Iyz]])
-
-#         for el in range( self.division_number ): # Integration over each cross sections element
-#             ke =  0
-#             indexes = connectivity[el,:]
-#             for ksi, eta in points:   # integration points
-#                 phi, dphi = shape_function(ksi,eta)
-#                 jacobian = np.zeros((2,2))
-#                 y, z = 0, 0
-#                 for i, index in enumerate(connectivity[el,:]):
-#                     jacobian[0,:] += coordinate[index, [0, 1]] * dphi[0,i]
-#                     jacobian[1,:] += coordinate[index, [0, 1]] * dphi[1,i]
-#                     y += coordinate[index, 0] * phi[i]
-#                     z += coordinate[index, 1] * phi[i]
-#                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-#                 dA = det_jacobian * weight
-#                 inv_jacobian = np.linalg.inv(jacobian)
-#                 dphig = inv_jacobian @ dphi
-#                 ke +=  dphig.T @ dphig * dA
-#                 vector_aux = np.array([y**2 - z**2, 2*y * z])
-#                 d = matrix_aux2 @ vector_aux
-#                 h = matrix_aux3 @ vector_aux
-#                 vec = np.array([z, -y])
-#                 #
-#                 Fy[indexes] += ( poisson_ratio/2 * dphig.T @ d + 2*(1 + poisson_ratio)*phi*(Iy*y - Iyz*z) ) * dA
-#                 Fz[indexes] += ( poisson_ratio/2 * dphig.T @ h + 2*(1 + poisson_ratio)*phi*(Iz*z - Iyz*y) ) * dA
-#                 FT[indexes] += (dphig.T @ vec) * dA
-#             # Appending new elements to the Lagrangian Mult Matrix
-#             row = np.r_[row, np.repeat(indexes, 9) ]
-#             col = np.r_[col, np.tile(indexes, 9) ]
-#             data = np.r_[data, ke.flatten() ]
-#         #
-#         K_lg = csc_matrix((data, (row, col)), shape=(NGL+1, NGL+1))
-#         # Pseudo inverse used to remedy numerical instability
-#         inv_K_lg = pinv(K_lg.toarray()) 
-
-#         u2 = inv_K_lg @ np.append(Fy, 0)
-#         u3 = inv_K_lg @ np.append(Fz, 0)
-#         psi_y = u2[:-1]
-#         psi_z = u3[:-1]
-#         #
-#         alpha_y = alpha_z = alpha_yz = 0
-#         for el in range( self.division_number ): # Integration over each cross 
-#             psi_ye = np.zeros(9)
-#             psi_ze = np.zeros(9)
-#             for ksi, eta in points:   # integration points
-#                 phi, dphi = shape_function(ksi,eta)
-#                 jacobian = np.zeros((2,2))
-#                 y, z = 0, 0
-#                 for i, index in enumerate(connectivity[el,:]):
-#                     jacobian[0,:] += coordinate[index, [0, 1]] * dphi[0,i]
-#                     jacobian[1,:] += coordinate[index, [0, 1]] * dphi[1,i]
-#                     y += coordinate[index, 0] * phi[i]
-#                     z += coordinate[index, 1] * phi[i]
-#                     psi_ye[i] = psi_y[index]
-#                     psi_ze[i] = psi_z[index]
-#                 det_jacobian = jacobian[0,0]*jacobian[1,1] - jacobian[0,1]*jacobian[1,0]
-#                 dA = det_jacobian * weight
-#                 inv_jacobian = inv(jacobian)
-#                 dphig = inv_jacobian @ dphi
-#                 vector_aux = np.array([y**2 - z**2, 2*y * z])
-#                 d = poisson_ratio/2 * matrix_aux2 @ vector_aux
-#                 h = poisson_ratio/2 * matrix_aux3 @ vector_aux
-#                 dptemp = (dphig @ psi_ye) - d
-#                 hptemp = (dphig @ psi_ze) - h
-#                 alpha_y += dptemp @ dptemp * dA
-#                 alpha_z += hptemp @ hptemp * dA
-#                 alpha_yz += dptemp @ hptemp * dA
-        
-#         A = self.area
-#         ccg = 2 * (1 + poisson_ratio) * (Iy*Iz - (Iyz**2))
-#         self.res_y = (A/(ccg**2))*(alpha_y)
-#         self.res_z = (A/(ccg**2))*(alpha_z)
-#         self.res_yz = (A/(ccg**2))*(alpha_yz)
-
-#         # shear center
-#         self.y_shear = -(psi_z.T @ FT)/ccg
-#         self.z_shear = (psi_y.T @ FT)/ccg
-
-#     def offset_rotation(self, element_type = 'pipe_1'):
-#         if element_type is 'pipe2':
-#             self.principal_axis = np.eye(12)
-#         else:
-#             y_c = self.y_centroid
-#             z_c = self.z_centroid
-#             y_s = self.y_shear
-#             z_s = self.z_shear
-#             if norm(self.offset) > 0:
-#                 Iy = self.second_moment_area_y 
-#                 Iz = self.second_moment_area_z
-#                 Iyz = self.second_moment_area_yz
-#                 angle = atan(2*Iyz/(Iz-Iy))/2
-#                 # Rotational part of transformation matrix
-#                 rotation = np.array([[ 1. ,      0.   ,    0.    ],
-#                                     [ 0. ,cos(angle) ,sin(angle)],
-#                                     [ 0. ,-sin(angle),cos(angle)]])
-#                 # Translational part of transformation matrix
-#                 translation = np.array([[ 0  , z_c,-y_c],
-#                                         [-z_s,  0 , 0  ],
-#                                         [y_s ,  0 , 0  ]])
-#                 T = np.eye(12)
-#                 T[0:3,3:6]   = translation
-#                 T[6:9,9:12]  = translation
-#                 #
-#                 R = np.zeros([12, 12])
-#                 R[0:3, 0:3]  = R[3:6, 3:6] = R[6:9, 6:9] = R[9:12, 9:12] = rotation
-#                 self.principal_axis = R @ T
-#             else:
-#                 translation = np.array([[ 0  , z_c,-y_c],
-#                                         [-z_s,  0 , 0  ],
-#                                         [y_s ,  0 , 0  ]])
-#                 T = np.eye(12)
-#                 T[0:3,3:6]   = translation
-#                 T[6:9,9:12]  = translation
-#                 self.principal_axis = T
-    
-#     def update_properties(self, poisson_ratio = 0, element_type = 'pipe_1'):
-#         self.area_properties()
-
-#         if element_type == 'pipe_1':
-#             self.shear_properties(poisson_ratio = 0, element_type = None)
-#             self.offset_rotation(element_type = 'pipe_1')
-#             self.shear_properties(poisson_ratio = 0, element_type = element_type)
-#         else:
-#             self.shear_properties(poisson_ratio = poisson_ratio, element_type = element_type)

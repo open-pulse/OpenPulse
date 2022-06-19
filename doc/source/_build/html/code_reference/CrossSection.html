@@ -1,0 +1,1006 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cross Section &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Material" href="Material.html" />
+    <link rel="prev" title="Node" href="Node.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../theory_reference/index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Code reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active has-children">
+  <a class="reference internal" href="preprocessing.html">
+   Preprocessing
+  </a>
+  <input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/>
+  <label for="toctree-checkbox-1">
+   <i class="fas fa-chevron-down">
+   </i>
+  </label>
+  <ul class="current">
+   <li class="toctree-l2">
+    <a class="reference internal" href="Node.html">
+     Node
+    </a>
+   </li>
+   <li class="toctree-l2 current active">
+    <a class="current reference internal" href="#">
+     Cross Section
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Material.html">
+     Material
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Fluid.html">
+     Fluid
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="StructuralElement.html">
+     Structural Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="AcousticElement.html">
+     Acoustic Element
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Entity.html">
+     Entity
+    </a>
+   </li>
+   <li class="toctree-l2">
+    <a class="reference internal" href="Preprocessor.html">
+     Preprocessor
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="processing.html">
+   Processing
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+
+<nav id="bd-toc-nav">
+    
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/code_reference/CrossSection.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="module-pulse.preprocessing.cross_section">
+<span id="cross-section"></span><h1>Cross Section<a class="headerlink" href="#module-pulse.preprocessing.cross_section" title="Permalink to this headline">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.cross_section.</span></span><span class="sig-name descname"><span class="pre">CrossSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection" title="Permalink to this definition">#</a></dt>
+<dd><p>This class creates either a <strong>beam</strong> or a <strong>pipe</strong> cross-section object from input data. The <strong>cross-section</strong> defines the <strong>structural element domain</strong> and the Timoshenko theory makes use of several of its properties:</p>
+<table class="table" id="tabdefinitions">
+<colgroup>
+<col style="width: 47%" />
+<col style="width: 53%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Property</p></th>
+<th class="head"><p>Definition</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>First moment of area in <span class="math notranslate nohighlight">\(y\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Q_y = \int_{A} y \mathrm{dA}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>First moment of area in <span class="math notranslate nohighlight">\(z\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(Q_z = \int_{A} z \mathrm{dA}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Second moment of area in <span class="math notranslate nohighlight">\(y\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(I_y = \int_{A} y^2 \mathrm{dA}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Second moment of area in <span class="math notranslate nohighlight">\(z\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(I_z = \int_{A} z^2 \mathrm{dA}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Second moment of area in <span class="math notranslate nohighlight">\(yz\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(I_{yz} = \int_{A} yz \mathrm{dA}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Polar moment of area</p></td>
+<td><p><span class="math notranslate nohighlight">\(J = I_y + I_z\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Centroid</p></td>
+<td><p><span class="math notranslate nohighlight">\(c = \frac{1}{A}(Q_y, Q_z)\)</span></p></td>
+</tr>
+</tbody>
+</table>
+<p>Here, <span class="math notranslate nohighlight">\(A\)</span> is the cross-section area. Those integrals area approximated by numeric integration when  or <code class="docutils literal notranslate"><span class="pre">element_type</span> <span class="pre">=</span> <span class="pre">'pipe_2'</span></code>. Futhermore, these formulations approximates shear properties like the shear coefficients and the shear center coordinates <span class="math notranslate nohighlight">\(c_s\)</span> by solving a Differential Problem within the section. On the other hand, when <code class="docutils literal notranslate"><span class="pre">element_type</span> <span class="pre">=</span> <span class="pre">'beam_1'</span></code>, analytical approximation of each property is computed. The user is also allowed to provide the properties of any cross-section through the parameters <code class="docutils literal notranslate"><span class="pre">self.area</span></code>, <code class="docutils literal notranslate"><span class="pre">self.Iyy</span></code>, <code class="docutils literal notranslate"><span class="pre">self.Izz</span></code>, <code class="docutils literal notranslate"><span class="pre">self.Iyz</span></code>, and <code class="docutils literal notranslate"><span class="pre">self.shear_coefficient</span></code>. From the acoustic point of view, the <strong>pipes</strong> element types also provide the acoustic cross-section area called <code class="docutils literal notranslate"><span class="pre">self.fluid_area</span></code>.</p>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>element_type</strong><span class="classifier">[‘pipe_1’,’pipe_2’,’beam_1’], optional</span></dt><dd><p>Element type of the structural elements associated to the cross-section.
+Default is ‘pipe_1’.</p>
+</dd>
+<dt><strong>poisson_ratio</strong><span class="classifier">float, optional</span></dt><dd><p>Poisson’s ration of the material attributed to the structural elements. Only needed when <code class="docutils literal notranslate"><span class="pre">element_type</span> <span class="pre">=</span> <span class="pre">'pipe_1'</span></code>.
+Default is 0.</p>
+</dd>
+<dt><strong>division_number</strong><span class="classifier">[8, 16, 32, 64, 128], optional</span></dt><dd><p>Cross-section division number. This number is directly associated with the number of elements used in the process of approximating the cross-section shear properties. Only needed when <code class="docutils literal notranslate"><span class="pre">element_type</span> <span class="pre">=</span> <span class="pre">'pipe_1'</span></code>.
+Default is 64.</p>
+</dd>
+<dt><strong>pipe_section_info</strong><span class="classifier">dict, optional</span></dt><dd><p>Pipe section data is stored in a dictionary with the following structure <code class="docutils literal notranslate"><span class="pre">{&quot;outer_diameter&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;thickness&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;offset_y&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;offset_z&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;insulation_thickness&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;insulation_density&quot;</span> <span class="pre">:</span> <span class="pre">}</span></code>, and whose visual definitions and orientation can be seen in the <a class="reference internal" href="#figpipe"><span class="std std-ref">figure</span></a>. The expected values, its data types and descriptions are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;outer_diameter&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">outer</span> <span class="n">diameter</span><span class="o">.</span>
+
+<span class="s2">&quot;thickness&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">wall</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="s2">&quot;offset_y&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">pipe</span> <span class="n">eccentricity</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="s2">&quot;offset_z&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">pipe</span> <span class="n">eccentricity</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="s2">&quot;insulation_thickness&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">insolation</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="s2">&quot;insulation_density&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">insolation</span> <span class="n">density</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id1">
+<span id="figpipe"></span><img alt="../_images/Pipe_section.svg" src="../_images/Pipe_section.svg" /><p class="caption"><span class="caption-text">Pipe section parameters and offset orientation.</span><a class="headerlink" href="#id1" title="Permalink to this image">#</a></p>
+</div>
+</dd>
+<dt><strong>beam_section_info</strong><span class="classifier">dict, optional</span></dt><dd><p>Beam section data is stored in a dictionary with the following structure <code class="docutils literal notranslate"><span class="pre">{&quot;section_type_label&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;section_parameters&quot;</span> <span class="pre">:</span> <span class="pre">}</span></code>. The pared value of <code class="docutils literal notranslate"><span class="pre">&quot;section_type_label&quot;</span></code> must be one of the following <code class="docutils literal notranslate"><span class="pre">str</span></code>: <code class="docutils literal notranslate"><span class="pre">'C-section',</span> <span class="pre">'Circular</span> <span class="pre">section',</span> <span class="pre">'I-section',</span> <span class="pre">'Rectangular</span> <span class="pre">section',</span> <span class="pre">'T-section'</span></code> according to the wished beam section. And <code class="docutils literal notranslate"><span class="pre">&quot;section_parameters&quot;</span></code> is a list whose unwraping depends on the chosen one. For each section, it is shown up next the expected list structure.</p>
+<ul>
+<li><p><strong>C-section</strong> unwraps as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">tw</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">,</span> <span class="n">offset_z</span><span class="p">]</span> <span class="o">=</span> <span class="n">section_parameters</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Their visual definitions and orientation are presented in <a class="reference internal" href="#figcsection"><span class="std std-ref">figure</span></a>, and their data types and description are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Profile</span> <span class="n">height</span><span class="o">.</span>
+
+<span class="n">w1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">width</span><span class="o">.</span>
+
+<span class="n">t1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="n">w2</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Lower</span> <span class="n">profile</span> <span class="n">width</span><span class="o">.</span>
+
+<span class="n">t2</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Lower</span> <span class="n">profile</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="n">tw</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Thickness</span><span class="o">.</span>
+
+<span class="n">offset_y</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="n">offset_z</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id2">
+<span id="figcsection"></span><img alt="../_images/C_profile.svg" src="../_images/C_profile.svg" /><p class="caption"><span class="caption-text">C-section parameters and offset orientation.</span><a class="headerlink" href="#id2" title="Permalink to this image">#</a></p>
+</div>
+<ul>
+<li><p><strong>Circular section</strong> unwraps as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">d_out</span><span class="p">,</span> <span class="n">thickness</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">,</span> <span class="n">offset_z</span><span class="p">]</span> <span class="o">=</span> <span class="n">section_parameters</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Their visual definitions and orientation are presented in <a class="reference internal" href="#figcircularsection"><span class="std std-ref">figure</span></a>, and their data types and description are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">d_out</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">External</span> <span class="n">diameter</span><span class="o">.</span>
+
+<span class="n">thickness</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Thickness</span><span class="o">.</span>
+
+<span class="n">offset_y</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="n">offset_z</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id3">
+<span id="figcircularsection"></span><img alt="../_images/Circular.svg" src="../_images/Circular.svg" /><p class="caption"><span class="caption-text">Circular section parameters and offset orientation.</span><a class="headerlink" href="#id3" title="Permalink to this image">#</a></p>
+</div>
+<ul>
+<li><p><strong>I-section</strong> unwraps as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">w2</span><span class="p">,</span> <span class="n">t2</span><span class="p">,</span> <span class="n">tw</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">,</span> <span class="n">offset_z</span><span class="p">]</span> <span class="o">=</span> <span class="n">section_parameters</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Their visual definitions and orientation are presented in <a class="reference internal" href="#figisection"><span class="std std-ref">figure</span></a>, and their data types and description are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Profile</span> <span class="n">height</span><span class="o">.</span>
+
+<span class="n">w1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">width</span><span class="o">.</span>
+
+<span class="n">t1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="n">w2</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Lower</span> <span class="n">profile</span> <span class="n">width</span><span class="o">.</span>
+
+<span class="n">t2</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Lower</span> <span class="n">profile</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="n">tw</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Thickness</span><span class="o">.</span>
+
+<span class="n">offset_y</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="n">offset_z</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id4">
+<span id="figisection"></span><img alt="../_images/I_profile.svg" src="../_images/I_profile.svg" /><p class="caption"><span class="caption-text">I-section parameters and offset orientation.</span><a class="headerlink" href="#id4" title="Permalink to this image">#</a></p>
+</div>
+<ul>
+<li><p><strong>T-section</strong> unwraps as follows:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="n">h</span><span class="p">,</span> <span class="n">w1</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">tw</span><span class="p">,</span> <span class="n">offset_y</span><span class="p">,</span> <span class="n">offset_z</span><span class="p">]</span> <span class="o">=</span> <span class="n">section_parameters</span>
+</pre></div>
+</div>
+</li>
+</ul>
+<p>Their visual definitions and orientation are presented in <a class="reference internal" href="#figtsection"><span class="std std-ref">figure</span></a>, and their data types and description are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">h</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Profile</span> <span class="n">height</span><span class="o">.</span>
+
+<span class="n">w1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">width</span><span class="o">.</span>
+
+<span class="n">t1</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Upper</span> <span class="n">profile</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="n">tw</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Thickness</span><span class="o">.</span>
+
+<span class="n">offset_y</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="n">offset_z</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span> <span class="n">offset</span><span class="o">.</span>
+</pre></div>
+</div>
+<div class="figure align-center" id="id5">
+<span id="figtsection"></span><img alt="../_images/T_profile.svg" src="../_images/T_profile.svg" /><p class="caption"><span class="caption-text">T-section parameters and offset orientation.</span><a class="headerlink" href="#id5" title="Permalink to this image">#</a></p>
+</div>
+</dd>
+<dt><strong>valve_section_info</strong><span class="classifier">dict, optional</span></dt><dd><p>Valve section data is stored in a dictionary with the following structure <code class="docutils literal notranslate"><span class="pre">{&quot;section_parameters&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;diameters_to_plot&quot;</span> <span class="pre">:</span> <span class="pre">}</span></code>. The pared value of <code class="docutils literal notranslate"><span class="pre">&quot;diameters_to_plot&quot;</span></code> are used in rendering of the UI and it’s suggested to attribute <code class="docutils literal notranslate"><span class="pre">[None,</span> <span class="pre">None]</span></code>. Likewise the <code class="docutils literal notranslate"><span class="pre">pipe_section_info</span></code>, the paired value of <code class="docutils literal notranslate"><span class="pre">&quot;section_parameters&quot;</span></code> is another dictionary with the structure <code class="docutils literal notranslate"><span class="pre">{&quot;outer_diameter&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;thickness&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;offset_y&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;offset_z&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;insulation_thickness&quot;</span> <span class="pre">:</span> <span class="pre">,</span> <span class="pre">&quot;insulation_density&quot;</span> <span class="pre">:</span> <span class="pre">}</span></code>, and whose visual definitions and orientation is the same as seen in the <a class="reference internal" href="#figpipe"><span class="std std-ref">figure</span></a> for the Pipe section. The expected values, its data types and descriptions are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;outer_diameter&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">outer</span> <span class="n">diameter</span><span class="o">.</span>
+
+<span class="s2">&quot;thickness&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">wall</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="s2">&quot;offset_y&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">pipe</span> <span class="n">eccentricity</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="s2">&quot;offset_z&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">pipe</span> <span class="n">eccentricity</span> <span class="n">offset</span><span class="o">.</span>
+
+<span class="s2">&quot;insulation_thickness&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">insolation</span> <span class="n">thickness</span><span class="o">.</span>
+
+<span class="s2">&quot;insulation_density&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">Pipe</span> <span class="n">insolation</span> <span class="n">density</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>generic_section_info</strong><span class="classifier">list, optional</span></dt><dd><p>Generic section data is stored in a list that unwraps as follows <code class="docutils literal notranslate"><span class="pre">[area,</span> <span class="pre">Iyy,</span> <span class="pre">Izz,</span> <span class="pre">Iyz,</span> <span class="pre">shear_factor,</span> <span class="pre">Yc,</span> <span class="pre">Zc]</span> <span class="pre">=</span> <span class="pre">generic_section_info</span></code>. Their definitions were presented in the &lt;table <a class="reference internal" href="#tabdefinitions">tabDefinitions</a>&gt;, and their data types and description are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="s2">&quot;area&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cross</span><span class="o">-</span><span class="n">section</span> <span class="n">area</span><span class="o">.</span>
+
+<span class="s2">&quot;Yc&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span><span class="o">.</span>
+
+<span class="s2">&quot;Zc&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">z</span> <span class="n">coordinate</span> <span class="n">of</span> <span class="n">the</span> <span class="n">centroid</span><span class="o">.</span>
+
+<span class="s2">&quot;Iyy&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cross</span><span class="o">-</span><span class="n">section</span> <span class="n">second</span> <span class="n">moment</span> <span class="n">of</span> <span class="n">area</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="n">the</span> <span class="n">y</span> <span class="n">direction</span><span class="o">.</span>
+
+<span class="s2">&quot;Izz&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cross</span><span class="o">-</span><span class="n">section</span> <span class="n">second</span> <span class="n">moment</span> <span class="n">of</span> <span class="n">area</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="n">the</span> <span class="n">z</span> <span class="n">direction</span><span class="o">.</span>
+
+<span class="s2">&quot;Iyz&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cross</span><span class="o">-</span><span class="n">section</span> <span class="n">second</span> <span class="n">moment</span> <span class="n">of</span> <span class="n">area</span> <span class="k">with</span> <span class="n">respect</span> <span class="n">to</span> <span class="n">the</span> <span class="n">yz</span> <span class="n">plane</span><span class="o">.</span>
+
+<span class="s2">&quot;shear_coefficient&quot;</span> <span class="p">:</span> <span class="nb">float</span>
+    <span class="n">cross</span><span class="o">-</span><span class="n">section</span> <span class="n">shear</span> <span class="n">coefficient</span><span class="o">.</span>
+</pre></div>
+</div>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Attributes</dt>
+<dd class="field-even"><dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.area_fluid" title="pulse.preprocessing.cross_section.CrossSection.area_fluid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area_fluid</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Cross-section inner area, which corresponds to the acoustic domain cross-section area.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.area_insulation" title="pulse.preprocessing.cross_section.CrossSection.area_insulation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area_insulation</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Cross-section insulation area.</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.inner_diameter" title="pulse.preprocessing.cross_section.CrossSection.inner_diameter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inner_diameter</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Cross-section inner diameter</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.inner_radius" title="pulse.preprocessing.cross_section.CrossSection.inner_radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inner_radius</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Cross-section inner radius</p>
+</dd>
+</dl>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.outer_radius" title="pulse.preprocessing.cross_section.CrossSection.outer_radius"><code class="xref py py-obj docutils literal notranslate"><span class="pre">outer_radius</span></code></a></dt><dd><dl class="field-list simple">
+<dt class="field-odd">float</dt>
+<dd class="field-odd"><p>Cross-section outer radius</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="autosummary longtable table autosummary">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.area_properties" title="pulse.preprocessing.cross_section.CrossSection.area_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">area_properties</span></code></a>([el_type])</p></td>
+<td><p>This method updates the tube cross area properties: area <code class="docutils literal notranslate"><span class="pre">self.area</span></code>, first moment of area relative to y <code class="docutils literal notranslate"><span class="pre">self.first_moment_area_y</span></code>, first moment of area relative to z <code class="docutils literal notranslate"><span class="pre">self.first_moment_area_z</span></code>, second moment of area relative to y <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_y</span></code>, second moment of area relative to z <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_z</span></code>, second moment of area relative to yz <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_yz</span></code>, second polar moment of area <code class="docutils literal notranslate"><span class="pre">self.polar_moment_area</span></code>, and centroid coordinate <code class="docutils literal notranslate"><span class="pre">(self.y_centroid,</span> <span class="pre">self.z_centroid)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.assembly_indexes" title="pulse.preprocessing.cross_section.CrossSection.assembly_indexes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assembly_indexes</span></code></a>()</p></td>
+<td><p>This method updates rows and columns index maps used in the assembly process.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.mesh_connectivity" title="pulse.preprocessing.cross_section.CrossSection.mesh_connectivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_connectivity</span></code></a>()</p></td>
+<td><p>This method returns the tube cross mesh connectivity formed by Q9 (9-node quadrilateral element). The element-wise reference numbering follows the pattern: ::.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.mesh_coordinate" title="pulse.preprocessing.cross_section.CrossSection.mesh_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_coordinate</span></code></a>()</p></td>
+<td><p>This method returns nodal coordinates of the tube cross mesh formed by Q9 (9-node quadrilateral element). The node coordinates and global numbering are created following the pattern: ::.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.offset_rotation" title="pulse.preprocessing.cross_section.CrossSection.offset_rotation"><code class="xref py py-obj docutils literal notranslate"><span class="pre">offset_rotation</span></code></a>([el_type])</p></td>
+<td><p>This method updates the tube cross-section rotation due to the shear effects and eccentricity offset.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.preprocessing" title="pulse.preprocessing.cross_section.CrossSection.preprocessing"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocessing</span></code></a>([el_type])</p></td>
+<td><p>This method process the cross-section mesh to generate in advance the arrays necessary to compute the section's shear properties.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.shear_properties" title="pulse.preprocessing.cross_section.CrossSection.shear_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shear_properties</span></code></a>([poisson_ratio, el_type])</p></td>
+<td><p>This method updates the tube cross shear properties shear coefficients <code class="docutils literal notranslate"><span class="pre">self.res_y</span></code>, <code class="docutils literal notranslate"><span class="pre">self.res_z</span></code> and <code class="docutils literal notranslate"><span class="pre">self.res_yz</span></code>, and shear center coordinates <code class="docutils literal notranslate"><span class="pre">(self.y_shear,</span> <span class="pre">self.z_shear)</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.update_properties" title="pulse.preprocessing.cross_section.CrossSection.update_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">update_properties</span></code></a>()</p></td>
+<td><p>This method updates all the tube cross-section properties.</p></td>
+</tr>
+</tbody>
+</table>
+<table class="table">
+<colgroup>
+<col style="width: 74%" />
+<col style="width: 26%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>get_beam_shear_center</strong></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><strong>get_cross_section_points</strong></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.area_fluid">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area_fluid</span></span><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.area_fluid" title="Permalink to this definition">#</a></dt>
+<dd><p>Cross-section inner area, which corresponds to the acoustic domain cross-section area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.area_insulation">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">area_insulation</span></span><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.area_insulation" title="Permalink to this definition">#</a></dt>
+<dd><p>Cross-section insulation area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.area_properties">
+<span class="sig-name descname"><span class="pre">area_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pipe_1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.area_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.area_properties" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the tube cross area properties: area <code class="docutils literal notranslate"><span class="pre">self.area</span></code>, first moment of area relative to y <code class="docutils literal notranslate"><span class="pre">self.first_moment_area_y</span></code>, first moment of area relative to z <code class="docutils literal notranslate"><span class="pre">self.first_moment_area_z</span></code>, second moment of area relative to y <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_y</span></code>, second moment of area relative to z <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_z</span></code>, second moment of area relative to yz <code class="docutils literal notranslate"><span class="pre">self.second_moment_area_yz</span></code>, second polar moment of area <code class="docutils literal notranslate"><span class="pre">self.polar_moment_area</span></code>, and centroid coordinate <code class="docutils literal notranslate"><span class="pre">(self.y_centroid,</span> <span class="pre">self.z_centroid)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>el_type</strong><span class="classifier">[‘pipe_1’,’pipe_2’,’beam_1’]</span></dt><dd><p>Element type of the structural elements attributed to the tube or beam.
+Default is ‘pipe_1’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.assembly_indexes">
+<span class="sig-name descname"><span class="pre">assembly_indexes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.assembly_indexes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.assembly_indexes" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates rows and columns index maps used in the assembly process. <code class="docutils literal notranslate"><span class="pre">self.rows_ind</span></code> and <code class="docutils literal notranslate"><span class="pre">self.cols_ind</span></code> are <strong>(N,) arrays</strong> that map all degrees of freedom onto the respective row and column of the system’s global matrix.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.get_beam_shear_center">
+<span class="sig-name descname"><span class="pre">get_beam_shear_center</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.get_beam_shear_center"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.get_beam_shear_center" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.get_cross_section_points">
+<span class="sig-name descname"><span class="pre">get_cross_section_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.get_cross_section_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.get_cross_section_points" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.inner_diameter">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inner_diameter</span></span><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.inner_diameter" title="Permalink to this definition">#</a></dt>
+<dd><p>Cross-section inner diameter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.inner_radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">inner_radius</span></span><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.inner_radius" title="Permalink to this definition">#</a></dt>
+<dd><p>Cross-section inner radius</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.mesh_connectivity">
+<span class="sig-name descname"><span class="pre">mesh_connectivity</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.mesh_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.mesh_connectivity" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns the tube cross mesh connectivity formed by Q9 (9-node quadrilateral element). The element-wise reference numbering follows the pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">y</span><span class="p">,</span> <span class="n">r</span>
+      <span class="o">^</span>
+      <span class="o">|</span>
+<span class="mi">2</span><span class="o">-----</span><span class="mi">6</span><span class="o">-----</span><span class="mi">3</span>
+<span class="o">|</span>           <span class="o">|</span>
+<span class="o">|</span>           <span class="o">|</span>
+<span class="mi">5</span>     <span class="mi">8</span>     <span class="mi">7</span> <span class="o">--&gt;</span> <span class="n">x</span><span class="p">,</span> <span class="n">θ</span>
+<span class="o">|</span>           <span class="o">|</span>
+<span class="o">|</span>           <span class="o">|</span>
+<span class="mi">1</span><span class="o">-----</span><span class="mi">4</span><span class="o">-----</span><span class="mi">0</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>(N, 9) array</dt><dd><p>Connectivity of the tube cross mesh, where <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">self.division_number</span></code>.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.mesh_coordinate" title="pulse.preprocessing.cross_section.CrossSection.mesh_coordinate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_coordinate</span></code></a></dt><dd><p>Nodal coordinates of the tube cross mesh.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.mesh_coordinate">
+<span class="sig-name descname"><span class="pre">mesh_coordinate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.mesh_coordinate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.mesh_coordinate" title="Permalink to this definition">#</a></dt>
+<dd><p>This method returns nodal coordinates of the tube cross mesh formed by Q9 (9-node quadrilateral element). The node coordinates and global numbering are created following the pattern:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>     <span class="n">y</span><span class="p">,</span> <span class="n">r</span>
+      <span class="o">^</span>
+      <span class="o">|</span>
+<span class="mi">0</span><span class="o">-----</span><span class="mi">3</span>      <span class="n">N</span><span class="o">-</span><span class="mi">3</span>
+<span class="o">|</span>     <span class="o">|</span>      <span class="o">|</span>
+<span class="o">|</span>     <span class="o">|</span>      <span class="o">|</span>
+<span class="mi">1</span>     <span class="mi">4</span> <span class="o">...</span>  <span class="n">N</span><span class="o">-</span><span class="mi">2</span>   <span class="o">--&gt;</span> <span class="n">x</span><span class="p">,</span> <span class="n">θ</span>
+<span class="o">|</span>     <span class="o">|</span>      <span class="o">|</span>
+<span class="o">|</span>     <span class="o">|</span>      <span class="o">|</span>
+<span class="mi">2</span><span class="o">-----</span><span class="mi">5</span>      <span class="n">N</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt>(N, 2) array</dt><dd><p>Nodal coordinates of the tube cross mesh. Here, <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">6*self.division_number</span></code> because each element has 9 nodes, but it shares 3 nodes with each neighbor element. The <code class="docutils literal notranslate"><span class="pre">i</span></code>-th row has the <code class="docutils literal notranslate"><span class="pre">(x,</span> <span class="pre">y)</span></code> coordinates of the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th node.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section.CrossSection.mesh_connectivity" title="pulse.preprocessing.cross_section.CrossSection.mesh_connectivity"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mesh_connectivity</span></code></a></dt><dd><p>Connectivity of the tube cross mesh.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.offset_rotation">
+<span class="sig-name descname"><span class="pre">offset_rotation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pipe_1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.offset_rotation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.offset_rotation" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the tube cross-section rotation due to the shear effects and eccentricity offset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>el_type</strong><span class="classifier">[‘pipe_1’,’pipe_2’,’beam_1’], optional</span></dt><dd><p>Element type of the structural elements attributed to the tube.
+Default is ‘pipe_1’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.outer_radius">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">outer_radius</span></span><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.outer_radius" title="Permalink to this definition">#</a></dt>
+<dd><p>Cross-section outer radius</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.preprocessing">
+<span class="sig-name descname"><span class="pre">preprocessing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">el_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pipe_1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.preprocessing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.preprocessing" title="Permalink to this definition">#</a></dt>
+<dd><p>This method process the cross-section mesh to generate in advance the arrays necessary to compute the section’s shear properties. The arrays have the dimension of the total number of integration points <code class="docutils literal notranslate"><span class="pre">N</span> <span class="pre">=</span> <span class="pre">N_int_points*self.division_number</span></code>, where <code class="docutils literal notranslate"><span class="pre">N_int_points</span> <span class="pre">=</span> <span class="pre">4</span></code> is standard in OpenPulse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>el_type</strong><span class="classifier">[‘pipe_1’,’pipe_2’], optional</span></dt><dd><p>Element type of the structural elements attributed to the tube.
+Default is ‘pipe_1’.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>jac</strong><span class="classifier">(N, 2, 2) array</span></dt><dd><p>Jacobian matrix of each integration point. It’s a 3D matrix such that <code class="docutils literal notranslate"><span class="pre">jac[p,:,:]</span></code> is the Jacobian matrix of the <code class="docutils literal notranslate"><span class="pre">p</span></code>-th integration point (2-by-2 matrix).</p>
+</dd>
+<dt><strong>inv_jac</strong><span class="classifier">(N, 2, 2) array</span></dt><dd><p>Inverse of the Jacobian matrix of integration point. It’s a 3D matrix such that <code class="docutils literal notranslate"><span class="pre">inv_jac[p,:,:]</span></code> is the inverse of the Jacobian matrix of the <code class="docutils literal notranslate"><span class="pre">p</span></code>-th integration point (2-by-2 matrix).</p>
+</dd>
+<dt><strong>dA</strong><span class="classifier">(N,) array</span></dt><dd><p>Differential of area of each integration point.</p>
+</dd>
+<dt><strong>y</strong><span class="classifier">(N,) array</span></dt><dd><p><em class="xref py py-obj">y</em>-coordinate in the global coordinate system of each integration point.</p>
+</dd>
+<dt><strong>z</strong><span class="classifier">(N,) array</span></dt><dd><p><em class="xref py py-obj">z</em>-coordinate in the global coordinate system of each integration point.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.shear_properties">
+<span class="sig-name descname"><span class="pre">shear_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">poisson_ratio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">el_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'pipe_1'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.shear_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.shear_properties" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates the tube cross shear properties shear coefficients <code class="docutils literal notranslate"><span class="pre">self.res_y</span></code>, <code class="docutils literal notranslate"><span class="pre">self.res_z</span></code> and <code class="docutils literal notranslate"><span class="pre">self.res_yz</span></code>, and shear center coordinates <code class="docutils literal notranslate"><span class="pre">(self.y_shear,</span> <span class="pre">self.z_shear)</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>poisson_ratio</strong><span class="classifier">float, optional</span></dt><dd><p>Poisson’s ration of the material attributed to the tube.
+Default is 0.</p>
+</dd>
+<dt><strong>el_type</strong><span class="classifier">[‘pipe_1’,’pipe_2’,’beam_1’], optional</span></dt><dd><p>Element type of the structural elements attributed to the tube.
+Default is ‘pipe_1’.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section.CrossSection.update_properties">
+<span class="sig-name descname"><span class="pre">update_properties</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#CrossSection.update_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section.CrossSection.update_properties" title="Permalink to this definition">#</a></dt>
+<dd><p>This method updates all the tube cross-section properties.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section._gauss_quadrature2D">
+<span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.cross_section.</span></span><span class="sig-name descname"><span class="pre">_gauss_quadrature2D</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#_gauss_quadrature2D"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section._gauss_quadrature2D" title="Permalink to this definition">#</a></dt>
+<dd><p>This function returns the Gauss quadrature points and wights for a 2D integration over a square with two integration points. The nodes coordinates are <span class="math notranslate nohighlight">\(n_i=\frac{1}{\sqrt{3}}(\pm 1, \pm 1)\)</span> as illustrated:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>      <span class="n">y</span>
+      <span class="o">^</span>
+      <span class="o">|</span>
+<span class="o">+-----------+</span>
+<span class="o">|</span>  <span class="o">*</span>  <span class="o">|</span>  <span class="o">*</span>  <span class="o">|</span>
+<span class="o">|</span>     <span class="o">|</span>     <span class="o">|</span>
+<span class="o">|</span>     <span class="o">+----</span> <span class="o">|</span> <span class="o">--&gt;</span> <span class="n">x</span>
+<span class="o">|</span>           <span class="o">|</span>
+<span class="o">|</span>  <span class="o">*</span>     <span class="o">*</span>  <span class="o">|</span>
+<span class="o">+-----------+</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>points</strong><span class="classifier">(4,2) array</span></dt><dd><p>Each line corresponds to an integration points :math: <em class="xref py py-obj">(x,y)</em> in the normalized domain <span class="math notranslate nohighlight">\([-1,1]\times[-1,1]\)</span>.</p>
+</dd>
+<dt><strong>weights</strong><span class="classifier">float</span></dt><dd><p>Weights of the respective integration points in the sum approximation. In this case, the weights are all equal to 1.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section._get_all_shape_functions" title="pulse.preprocessing.cross_section._get_all_shape_functions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_all_shape_functions</span></code></a></dt><dd><p>Shape function and its derivative for all the integration points.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section._get_all_shape_functions">
+<span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.cross_section.</span></span><span class="sig-name descname"><span class="pre">_get_all_shape_functions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#_get_all_shape_functions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section._get_all_shape_functions" title="Permalink to this definition">#</a></dt>
+<dd><p>This function returns the Q9 (9-node quadrilateral element) two dimensional quadratic shape functions and its derivatives for all 2D Gauss quadrature integration points in the normalized coordinate system <span class="math notranslate nohighlight">\((s,t) \in [-1,1]\times[-1,1]\)</span>.</p>
+<dl class="field-list">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><dl>
+<dt><strong>phi</strong><span class="classifier">(4,9) array</span></dt><dd><p>Quadratic shape function. The row <code class="docutils literal notranslate"><span class="pre">phi[i,:]</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th integration point and the column <code class="docutils literal notranslate"><span class="pre">phi[:,j]</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">j</span></code>-th shape function.</p>
+</dd>
+<dt><strong>dphi</strong><span class="classifier">(4,9,2) array</span></dt><dd><p>Derivatives of the shape functions. The layer <code class="docutils literal notranslate"><span class="pre">dphi[i,:,:]</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">i</span></code>-th integration point, the row <code class="docutils literal notranslate"><span class="pre">dphi[:,j,:]</span></code> corresponds to the <code class="docutils literal notranslate"><span class="pre">j</span></code>-th shape function and the column <code class="docutils literal notranslate"><span class="pre">dphi[:,:,k]</span></code> corresponds to the derivatives:</p>
+<div class="math notranslate nohighlight">
+\[\left[\frac{\partial \varphi}{\partial s} (s,t), \frac{\partial \varphi}{\partial t} (s,t)\right].\]</div>
+</dd>
+</dl>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section._shape_function" title="pulse.preprocessing.cross_section._shape_function"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_shape_function</span></code></a></dt><dd><p>Shape function and its derivative for one point.</p>
+</dd>
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section._gauss_quadrature2D" title="pulse.preprocessing.cross_section._gauss_quadrature2D"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_gauss_quadrature2D</span></code></a></dt><dd><p>Gauss quadrature data for 2D integration and two integration points.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pulse.preprocessing.cross_section._shape_function">
+<span class="sig-prename descclassname"><span class="pre">pulse.preprocessing.cross_section.</span></span><span class="sig-name descname"><span class="pre">_shape_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">s</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">t</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pulse/preprocessing/cross_section.html#_shape_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pulse.preprocessing.cross_section._shape_function" title="Permalink to this definition">#</a></dt>
+<dd><p>This function returns the Q9 (9-node quadrilateral element) two dimensional quadratic shape function and its derivative for a given point in the normalized coordinate system <span class="math notranslate nohighlight">\((s,t) \in [-1,1]\times[-1,1]\)</span>. The shape functions are:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\varphi_i (s, t) &amp;= \frac{1}{4}(s^2 + s_i s)(t^2 + t_i t),\; \text{nodes } (s_i,t_i),\; i=1,\dots,4. \\
+\varphi_i (s, t) &amp;= \frac{1}{2}(1 - s^2)(t^2 + t_i t),\; \text{nodes } (s_i,t_i),\; i=5,7. \\
+\varphi_i (s, t) &amp;= \frac{1}{2}(s^2 + s_i s)(1 - t^2),\; \text{nodes } (s_i,t_i),\; i=6,8. \\
+\varphi_9 (s, t) &amp;= (1 - s^2)(1 - t^2).\end{split}\]</div>
+<p>The nodes coordinates are:</p>
+<table class="table">
+<colgroup>
+<col style="width: 15%" />
+<col style="width: 42%" />
+<col style="width: 42%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Node</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(s_i\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(t_i\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>-1</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>1</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-even"><td><p>3</p></td>
+<td><p>1</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>4</p></td>
+<td><p>-1</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-even"><td><p>5</p></td>
+<td><p>0</p></td>
+<td><p>-1</p></td>
+</tr>
+<tr class="row-odd"><td><p>6</p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>7</p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+</tr>
+<tr class="row-odd"><td><p>8</p></td>
+<td><p>-1</p></td>
+<td><p>0</p></td>
+</tr>
+<tr class="row-even"><td><p>9</p></td>
+<td><p>0</p></td>
+<td><p>0</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="field-list">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl>
+<dt><strong>xi</strong><span class="classifier">float in <span class="math notranslate nohighlight">\([-1,1]\)</span>.</span></dt><dd><p>Dimensionless <span class="math notranslate nohighlight">\(x\)</span> coordinate.</p>
+</dd>
+<dt><strong>eta</strong><span class="classifier">float in <span class="math notranslate nohighlight">\([-1,1]\)</span>.</span></dt><dd><p>Dimensionless <span class="math notranslate nohighlight">\(y\)</span> coordinate.</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><dl class="simple">
+<dt><strong>phi</strong><span class="classifier">(9,) array</span></dt><dd><p>Quadratic shape functions <span class="math notranslate nohighlight">\(\varphi_i (s,t), \; i=1,\dots,9\)</span>.</p>
+</dd>
+<dt><strong>dphi</strong><span class="classifier">(9,2) array</span></dt><dd><p>Derivatives of the shape functions:</p>
+</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+\frac{\partial \varphi_1}{\partial s} (s,t), &amp;\frac{\partial \varphi_1}{\partial t} (s,t) \\
+\vdots &amp; \vdots \\
+\frac{\partial \varphi_9}{\partial s} (s,t), &amp;\frac{\partial \varphi_9}{\partial t} (s,t)
+\end{bmatrix}\end{split}\]</div>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<dl class="simple">
+<dt><a class="reference internal" href="#pulse.preprocessing.cross_section._get_all_shape_functions" title="pulse.preprocessing.cross_section._get_all_shape_functions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_all_shape_functions</span></code></a></dt><dd><p>Shape function and its derivative for all the integration points.</p>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="Node.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Node</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="Material.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Material</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>

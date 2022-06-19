@@ -1,0 +1,711 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Acoustics &#8212; OpenPulse  documentation</title>
+    
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=1999514e3f237ded88cf" rel="stylesheet">
+
+    
+  <link rel="stylesheet"
+    href="../_static/vendor/fontawesome/5.13.0/css/all.min.css">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-solid-900.woff2">
+  <link rel="preload" as="font" type="font/woff2" crossorigin
+    href="../_static/vendor/fontawesome/5.13.0/webfonts/fa-brands-400.woff2">
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-bootstrap.5fd3999ee7762ccc51105388f4a9d115.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-main.c949a650a448cc0ae9fd3441c0e17fb0.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/panels-variables.06eb56fa6e07937060861dad626602ad.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+    
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf">
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link rel="shortcut icon" href="../_static/pulse.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structural" href="structural.html" />
+    <link rel="prev" title="Theory reference" href="index.html" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="docsearch:language" content="None">
+    
+
+    <!-- Google Analytics -->
+    
+  </head>
+  <body data-spy="scroll" data-target="#bd-toc-nav" data-offset="60">
+    
+    <div class="container-fluid" id="banner"></div>
+
+    
+    <nav class="navbar navbar-light navbar-expand-lg bg-light fixed-top bd-navbar" id="navbar-main"><div class="container-xl">
+
+  <div id="navbar-start">
+    
+    
+
+<a class="navbar-brand" href="../index.html">
+  <img src="../_static/pulse.PNG" class="logo" alt="logo">
+</a>
+
+
+    
+  </div>
+
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapsible" aria-controls="navbar-collapsible" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  
+  <div id="navbar-collapsible" class="col-lg-9 collapse navbar-collapse">
+    <div id="navbar-center" class="mr-auto">
+      
+      <div class="navbar-center-item">
+        <ul id="navbar-main-elements" class="navbar-nav">
+    <li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../installing/installing.html">
+  Installing
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../guides/index.html">
+  How-to Guides
+ </a>
+</li>
+
+<li class="toctree-l1 nav-item">
+ <a class="reference internal nav-link" href="../code_reference/index.html">
+  Code reference
+ </a>
+</li>
+
+<li class="toctree-l1 current active nav-item">
+ <a class="reference internal nav-link" href="index.html">
+  Theory reference
+ </a>
+</li>
+
+    
+</ul>
+      </div>
+      
+    </div>
+
+    <div id="navbar-end">
+      
+      <div class="navbar-end-item">
+        <ul id="navbar-icon-links" class="navbar-nav" aria-label="Icon Links">
+        <li class="nav-item">
+          <a class="nav-link" href="https://github.com/open-pulse/OpenPulse" rel="noopener" target="_blank" title="GitHub"><span><i class="fab fa-github-square"></i></span>
+            <label class="sr-only">GitHub</label></a>
+        </li>
+      </ul>
+      </div>
+      
+    </div>
+  </div>
+</div>
+    </nav>
+    
+
+    <div class="container-xl">
+      <div class="row">
+          
+            
+            <!-- Only show if we have sidebars configured, else just a small margin  -->
+            <div class="col-12 col-md-3 bd-sidebar">
+              <div class="sidebar-start-items"><form class="bd-search d-flex align-items-center" action="../search.html" method="get">
+  <i class="icon fas fa-search"></i>
+  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
+</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+  <div class="bd-toc-item active">
+    <p aria-level="2" class="caption" role="heading">
+ <span class="caption-text">
+  Theory reference
+ </span>
+</p>
+<ul class="current nav bd-sidenav">
+ <li class="toctree-l1 current active">
+  <a class="current reference internal" href="#">
+   Acoustics
+  </a>
+ </li>
+ <li class="toctree-l1">
+  <a class="reference internal" href="structural.html">
+   Structural
+  </a>
+ </li>
+</ul>
+
+  </div>
+</nav>
+              </div>
+              <div class="sidebar-end-items">
+              </div>
+            </div>
+            
+          
+
+          
+          <div class="d-none d-xl-block col-xl-2 bd-toc">
+            
+              
+              <div class="toc-item">
+                
+<div class="tocsection onthispage mt-5 pt-1 pb-3">
+    <i class="fas fa-list"></i> On this page
+</div>
+
+<nav id="bd-toc-nav">
+    <ul class="visible nav section-nav flex-column">
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#acoustic-element-types">
+   Acoustic Element Types
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#stagnant-fluid-medium">
+     Stagnant fluid medium
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#undamped">
+       Undamped
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#proportional">
+       Proportional
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#wide-duct">
+       Wide-duct
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#lrf-fluid-equivalent">
+       LRF fluid equivalent
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#lrf-full">
+       LRF full
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#moving-fluid-medium">
+     Moving fluid medium
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#id18">
+       Undamped
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#howe-model">
+       Howe model
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#peters-model">
+       Peters model
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#boundary-conditions">
+   Boundary conditions
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#acoustic-pressure">
+     Acoustic Pressure
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#volume-velocity">
+     Volume Velocity
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#specific-impedance">
+     Specific Impedance
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#radiation-impedance">
+     Radiation Impedance
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#anechoic">
+       Anechoic
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#flanged">
+       Flanged
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#unflanged">
+       Unflanged
+      </a>
+     </li>
+    </ul>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#perforated-plate">
+   Perforated Plate
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#impedance-model">
+     Impedance model
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#alc">
+     <em class="xref py py-obj">
+      ALC
+     </em>
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#resistances">
+     Resistances
+    </a>
+    <ul class="visible nav section-nav flex-column">
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#nonlinear">
+       Nonlinear
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#radiation">
+       Radiation
+      </a>
+     </li>
+     <li class="toc-h4 nav-item toc-entry">
+      <a class="reference internal nav-link" href="#bias-flow">
+       Bias flow
+      </a>
+     </li>
+    </ul>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#fetm-implementation">
+     FETM implementation
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#meelling-s-impedance-model">
+     Meelling’s impedance model
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#common-pipe-section">
+     Common pipe section
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#length-correction">
+   Length Correction
+  </a>
+  <ul class="visible nav section-nav flex-column">
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#expansion">
+     Expansion
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#side-branch">
+     Side branch
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#loop">
+     Loop
+    </a>
+   </li>
+   <li class="toc-h3 nav-item toc-entry">
+    <a class="reference internal nav-link" href="#moving-medium">
+     moving medium
+    </a>
+   </li>
+  </ul>
+ </li>
+ <li class="toc-h2 nav-item toc-entry">
+  <a class="reference internal nav-link" href="#compressor-excitation">
+   Compressor Excitation
+  </a>
+ </li>
+</ul>
+
+</nav>
+              </div>
+              
+              <div class="toc-item">
+                
+
+<div class="tocsection editthispage">
+    <a href="https://github.com/open-pulse/OpenPulse/edit/master/doc/theory_reference/acoustics.rst">
+        <i class="fas fa-pencil-alt"></i> Edit this page
+    </a>
+</div>
+
+              </div>
+              
+            
+          </div>
+          
+
+          
+          
+            
+          
+          <main class="col-12 col-md-9 col-xl-7 py-md-5 pl-md-5 pr-md-4 bd-content" role="main">
+              
+              <div>
+                
+  <div class="section" id="acoustics">
+<h1>Acoustics<a class="headerlink" href="#acoustics" title="Permalink to this headline">#</a></h1>
+<div class="section" id="acoustic-element-types">
+<h2>Acoustic Element Types<a class="headerlink" href="#acoustic-element-types" title="Permalink to this headline">#</a></h2>
+<p>In this section, <em class="xref py py-obj">MMs</em> and damping formulations are presented considering the cases of a stagnant and a moving fluid medium. The complex wavenumber and density expressions for a 1D hard-walled cylindrical waveguide element are presented.</p>
+<div class="section" id="stagnant-fluid-medium">
+<h3>Stagnant fluid medium<a class="headerlink" href="#stagnant-fluid-medium" title="Permalink to this headline">#</a></h3>
+<p>Consider a hard-walled straight uniform duct element with cross-section area <span class="math notranslate nohighlight">\(S_f\)</span> as shown in <a class="reference internal" href="#figduct-element"><span class="std std-ref">Figure</span></a>. Gas properties like mean density <span class="math notranslate nohighlight">\(\rho_f\)</span> and speed of sound <span class="math notranslate nohighlight">\(c_f\)</span> are assumed to be uniform inside the duct. The volume velocity and the pressure at the inlet of the element are denoted as <span class="math notranslate nohighlight">\(q_1\)</span> and <span class="math notranslate nohighlight">\(p_1\)</span>, while <span class="math notranslate nohighlight">\(q_2\)</span> and <span class="math notranslate nohighlight">\(p_2\)</span> denote the corresponding quantities at the outlet. <span class="math notranslate nohighlight">\(Z_f= z_f/S_f = \rho_f c_f / S_f\)</span> represents the acoustic fluid impedance of the duct element (specific impedance <span class="math notranslate nohighlight">\(z_f\)</span> divided by the duct element cross-sectional area <span class="math notranslate nohighlight">\(S_f\)</span> <a class="reference internal" href="#fundamentalsacoustics" id="id1"><span>[FundamentalsAcoustics]</span></a>).</p>
+<div class="figure align-center" id="id19">
+<span id="figduct-element"></span><img alt="../_images/duct_element.png" src="../_images/duct_element.png" />
+<p class="caption"><span class="caption-text">Uniform duct element. Figure created by the author.</span><a class="headerlink" href="#id19" title="Permalink to this image">#</a></p>
+</div>
+<p>In a stagnant fluid medium, a <em class="xref py py-obj">MM</em> is used to represent the wave propagation in a rigid walled cylindrical straight duct element as indicated in <a class="reference internal" href="#figduct-element"><span class="std std-ref">Figure</span></a>. This elemental matrix is named <span class="math notranslate nohighlight">\(\mathbf{K_{\text{A}}}^e\)</span> and is presented in the expanded form with <span class="math notranslate nohighlight">\(p, q\)</span> nodal vectors as</p>
+<div class="math notranslate nohighlight" id="equation-eq-mmm-element-expand">
+<span class="eqno">(1)<a class="headerlink" href="#equation-eq-mmm-element-expand" title="Permalink to this equation">#</a></span>\[\begin{split}    \begin{bmatrix}
+            - i \, \mathrm{cot}(k_c x)/Z_{f} &amp; i / Z_{f} \, \mathrm{sin}(k_c x) \\
+            i / Z_{f} \, \mathrm{sin}(k_c x) &amp; -i \, \mathrm{cot}(k_c x) / Z_{f}
+    \end{bmatrix}
+    \begin{bmatrix}
+            p_1 \\
+            p_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+            q_1 \\
+            q_2
+    \end{bmatrix},\end{split}\]</div>
+<p>where the definitions of <span class="math notranslate nohighlight">\(k_c\)</span> and <span class="math notranslate nohighlight">\(Z_f\)</span> will change accordingly with each damping model seen in sections <a class="reference internal" href="#proportional">proportional</a>, <a class="reference internal" href="#wide-duct">wide_duct</a> and <a class="reference internal" href="#lrf-fluid-equivalent">LRF_fluid_equivalent</a>, and as a consequence, three different <em class="xref py py-obj">MMs</em> (apart from the classical undamped wave propagation model) will be generated maintaining the same matrix structure as Eq. <a class="reference internal" href="#equation-eq-mmm-element-expand">(1)</a>.</p>
+<p>The LRF-full damping model <a class="reference internal" href="#lrf-full">LRF_full</a>, has a different <em class="xref py py-obj">MM</em> because how the viscothermal effect is represented differs from the other three presented models <a class="reference internal" href="#propagationsoundwaves" id="id2"><span>[PropagationSoundWaves]</span></a>. The expanded straight tube element matrix <span class="math notranslate nohighlight">\(\mathbf{K_{\text{A}}}^e\)</span> with <span class="math notranslate nohighlight">\(p, q\)</span> nodal vectors for this damping model is</p>
+<div class="math notranslate nohighlight" id="equation-eq-mm-system-complete-damped-lrf-full">
+<span class="eqno">(2)<a class="headerlink" href="#equation-eq-mm-system-complete-damped-lrf-full" title="Permalink to this equation">#</a></span>\[\begin{split}    \frac{i \, S \, \Gamma \, \langle \beta \rangle_r}{z_0 \, \mathrm{sinh}(\Gamma k_0 \, x)}
+    \begin{bmatrix}
+            -  \,  \cosh(\Gamma k_0 \, x)  &amp; 1 \\
+            1 &amp; - \, \cosh(\Gamma k_0 \, x)
+    \end{bmatrix}
+    \begin{bmatrix}
+            p_1 \\
+            p_2
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+            q_1 \\
+            q_2
+    \end{bmatrix}\end{split}\]</div>
+<p>To consider a damped wave propagation, different damping models are used to represent, through the complex wavenumber <span class="math notranslate nohighlight">\(k_c\)</span>, the viscothermal effect in the acoustic boundary layer. To represent a viscothermal wave propagation, the complex wavenumber is not the unique associated parameter. The complex speed of sound <span class="math notranslate nohighlight">\(c_c\)</span> and phase velocity <span class="math notranslate nohighlight">\(c_{ph}\)</span> are directly related with <span class="math notranslate nohighlight">\(k_c\)</span>. These velocities are computed as</p>
+<div class="math notranslate nohighlight" id="equation-eq-c-c">
+<span class="eqno">(3)<a class="headerlink" href="#equation-eq-c-c" title="Permalink to this equation">#</a></span>\[    c_c = \frac{\omega}{k_c},\]</div>
+<div class="math notranslate nohighlight" id="equation-eq-c-phase">
+<span class="eqno">(4)<a class="headerlink" href="#equation-eq-c-phase" title="Permalink to this equation">#</a></span>\[c_{\mathrm{ph}} = \frac{\omega}{\mathcal{R}(k_c)}\]</div>
+<p>One of the most frequently used measures of the attenuation capability of a viscothermal damping model for a stagnant fluid is the attenuation coefficient <span class="math notranslate nohighlight">\(\alpha_0\)</span>. This coefficient is obtained from the negative imaginary part of the complex wavenumber as</p>
+<div class="math notranslate nohighlight" id="equation-eq-alpha0">
+<span class="eqno">(5)<a class="headerlink" href="#equation-eq-alpha0" title="Permalink to this equation">#</a></span>\[    \alpha_0 = - \mathcal{I}(k_c).\]</div>
+<p>Other parameters that represent a viscothermal wave propagation are the shear wavenumber <span class="math notranslate nohighlight">\(s=r_i \sqrt{\omega / \nu}\)</span> (being <span class="math notranslate nohighlight">\(\nu=\mu/\rho_{\mathrm{f}}\)</span> the kinematic viscosity, <span class="math notranslate nohighlight">\(\mu\)</span> the dynamic viscosity and <span class="math notranslate nohighlight">\(\rho_{\mathrm{f}}\)</span> the fluid density), which physically represents a ratio between inertial and viscous effects and the dimensionless Helmholtz number <span class="math notranslate nohighlight">\(He = k r_i\)</span>. The inertial effect is represented by the ratio <span class="math notranslate nohighlight">\(r_i\)</span> and the viscous effect by the kinematic viscosity <span class="math notranslate nohighlight">\(\nu\)</span>. Most of the oil and gas pipe engineering applications fulfill the propagation conditions <span class="math notranslate nohighlight">\(He\ll1\)</span> (plane wave propagation) and <span class="math notranslate nohighlight">\(He/s \ll 1\)</span>, generally related with high <span class="math notranslate nohighlight">\(s\)</span> values, (i.e. dominant inertial effects, <span class="math notranslate nohighlight">\(r_i &gt; \sqrt{\omega / \nu}\)</span>, in the acoustic wave propagation and/or plane wave propagation). In addition, varying the pulsation <span class="math notranslate nohighlight">\(\omega\)</span> for a fixed fluid and duct radius, inertial or viscous effect can be dominant depending on the <span class="math notranslate nohighlight">\(\omega\)</span> value. As defined here, <em class="xref py py-obj">AIV</em> is not the exception and, in general, <span class="math notranslate nohighlight">\(s\)</span> greater than unity is expected for most practical industry applications. Physically, it means that inertial effects start to become dominant rather than viscous effect.</p>
+<p>In engineering applications, sometimes it is useful to relate length scales of an acoustic model. A comparison between the thickness of the viscous or thermal boundary layer (<span class="math notranslate nohighlight">\(\delta_v = \sqrt{2 \nu / \omega}\)</span> and <span class="math notranslate nohighlight">\(\delta_t = \delta_v / \sqrt{Pr}\)</span> respectively, being <span class="math notranslate nohighlight">\(Pr\)</span> the Prandtl number) with a physical dimension of the model (e.g., the tube inner radius <span class="math notranslate nohighlight">\(r_i\)</span>) is a frequently used length scale, which makes possible to infer the importance of viscous and thermal effects in certain acoustic models. Larger <span class="math notranslate nohighlight">\(s\)</span> values can be associated with <span class="math notranslate nohighlight">\(\delta_v \ll r_i\)</span> and <span class="math notranslate nohighlight">\(\delta_t \ll r_i\)</span> (regarding the concept of shear wavenumber previously mentioned).</p>
+<div class="section" id="undamped">
+<span id="id3"></span><h4>Undamped<a class="headerlink" href="#undamped" title="Permalink to this headline">#</a></h4>
+<p>The classical undamped model considers a purely real wavenumber and density, i.e.,</p>
+<div class="math notranslate nohighlight">
+\[k_{\mathrm{c}} = k_0 = \frac{\omega}{c_0},\]</div>
+<div class="math notranslate nohighlight">
+\[\rho_{\mathrm{c}} = \rho_0,\]</div>
+<p>where <span class="math notranslate nohighlight">\(k_0\)</span>, <span class="math notranslate nohighlight">\(c_0\)</span> and <span class="math notranslate nohighlight">\(\rho_0\)</span> are the undisturbed wavenumber, velocity and density of the fluid medium.</p>
+</div>
+<div class="section" id="proportional">
+<span id="id4"></span><h4>Proportional<a class="headerlink" href="#proportional" title="Permalink to this headline">#</a></h4>
+<p>The classical proportional damping model can be basically interpreted as a viscous-attenuation fluid property. Its value is typically obtained from experimental data and can be expressed as a part of the real value of the complex wavenumber <span class="math notranslate nohighlight">\(k_c\)</span>. Also, the proportional attenuation coefficient (referred to as the loss coefficient of the material) <span class="math notranslate nohighlight">\(\eta\)</span> could be frequency-dependent, <span class="math notranslate nohighlight">\(\eta(f)\)</span>, or frequency-independent, <span class="math notranslate nohighlight">\(\eta\)</span>. For a rightward propagating plane wave (omitting time dependence) considering proportional damping, a complex wavenumber can be assumed as</p>
+<div class="math notranslate nohighlight" id="equation-eq-complex-wavenumber-hysteretic">
+<span class="eqno">(6)<a class="headerlink" href="#equation-eq-complex-wavenumber-hysteretic" title="Permalink to this equation">#</a></span>\[k_c = k_1 + i k_2 = k_0(1 -i \eta),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\eta\)</span> is dimensionless. The proportional complex density can be computed as</p>
+<div class="math notranslate nohighlight" id="equation-eq-complex-density">
+<span class="eqno">(7)<a class="headerlink" href="#equation-eq-complex-density" title="Permalink to this equation">#</a></span>\[\rho_{c} = \rho_{0} (1-i \eta)^2.\]</div>
+<p>The proportional damping model has no limitations on its application related with the <span class="math notranslate nohighlight">\(He\)</span> or the <span class="math notranslate nohighlight">\(s\)</span> for <em class="xref py py-obj">AIV</em> problems.</p>
+</div>
+<div class="section" id="wide-duct">
+<span id="id5"></span><h4>Wide-duct<a class="headerlink" href="#wide-duct" title="Permalink to this headline">#</a></h4>
+<p>The Helmholtz-Kirchhoff wall-attenuation coefficient, also known as a wide-duct wall attenuation model, is intended to account separately viscous and thermal effects, which are then summed to obtain a total wall-attenuation in tubes with radius <span class="math notranslate nohighlight">\(r_i\)</span> relatively large and <span class="math notranslate nohighlight">\(\omega\)</span> relatively small. Under the assumption of small dissipation condition and plane-wave propagation (i.e.,  <span class="math notranslate nohighlight">\(r &lt; \lambda\)</span>, see <a class="reference internal" href="#elementsacoustics" id="id6"><span>[ElementsAcoustics]</span></a> for more theoretical details), the Helmholtz-Kirchhoff (total) wall-attenuation coefficient can be included in the complex wavenumber as</p>
+<div class="math notranslate nohighlight" id="equation-eq-complex-wavenumber-wideduct">
+<span class="eqno">(8)<a class="headerlink" href="#equation-eq-complex-wavenumber-wideduct" title="Permalink to this equation">#</a></span>\[    k_c = k_0 - i\frac{\sqrt{\omega \nu_{\mathrm{f}}} }{\sqrt{2}c_{0} r_{\mathrm{i}}} \left( 1 + \frac{\gamma-1}{\sqrt{Pr}} \right),\]</div>
+<p>where <span class="math notranslate nohighlight">\(\nu_{\mathrm{f}}\)</span> is the undisturbed fluid kinematic viscosity, and <span class="math notranslate nohighlight">\(\gamma = C_p/C_v\)</span> is the ratio of specific heats. Then, the complex fluid density for the Helmholtz-Kirchoff damping is defined as</p>
+<div class="math notranslate nohighlight">
+\[\rho_{c} = \rho_{0} \left( 1 - i \frac{ \sqrt{ \nu_{\mathrm{f}} } }{ \sqrt{2 \omega } \, c_{0} \,  r_{\mathrm{i}} } \left( 1 + \frac{\gamma-1}{\sqrt{Pr}} \right) \right)^{-2}.\]</div>
+<p>The Helmholtz-Kirchoff damping may be accurate within the following assumptions <a class="reference internal" href="#elementsacoustics" id="id7"><span>[ElementsAcoustics]</span></a>:</p>
+<div class="math notranslate nohighlight">
+\[r_{\mathrm{i}} \gg \sqrt{\frac{ 2 \nu_{\mathrm{f}} }{\omega}},\]</div>
+<div class="math notranslate nohighlight">
+\[r_{\mathrm{i}} \gg \sqrt{\frac{ 2 \kappa_{\mathrm{f}} }{\omega}},\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{\omega \nu_{\mathrm{f}} }{ c_{\mathrm{f}}^2 } \ll 0.5,\]</div>
+<p>where <span class="math notranslate nohighlight">\(\kappa_{\mathrm{f}}\)</span> is the undisturbed fluid thermal conductivity, <span class="math notranslate nohighlight">\(c_{\mathrm{f}}\)</span> is the undisturbed sound speed of the fluid  and the symbol <span class="math notranslate nohighlight">\(\gg\)</span> may be interpreted as “<em class="xref py py-obj">at least one magnitude order greater</em>” (similarly, <span class="math notranslate nohighlight">\(\ll\)</span>).</p>
+</div>
+<div class="section" id="lrf-fluid-equivalent">
+<span id="id8"></span><h4>LRF fluid equivalent<a class="headerlink" href="#lrf-fluid-equivalent" title="Permalink to this headline">#</a></h4>
+<p>The <em class="xref py py-obj">LRF</em> model (named by Tijdeman <a class="reference internal" href="#propagationsoundwaves" id="id9"><span>[PropagationSoundWaves]</span></a>) describes viscothermal acoustics in uniform tubes and layers that have a cross-section smaller than the acoustic wavelength (inside the plane wave frequency range). Inside the low-frequency range, this model covers from very narrow tubes to large ducts where the boundary layer only represents a fraction of the duct size (wide tubes).</p>
+<p>The approximate viscothermal solution obtained from solving the Eqs.3.10 in Chapter~3 in <a class="reference internal" href="#viscothermalacoustics" id="id10"><span>[ViscothermalAcoustics]</span></a> derive into the solutions for the velocity, temperature and density. The Eq.~3.28 in Chapter 3 in <a class="reference internal" href="#viscothermalacoustics" id="id11"><span>[ViscothermalAcoustics]</span></a> will allow us to calculate the <em class="xref py py-obj">LRF-EF</em> complex wavenumber <span class="math notranslate nohighlight">\(k_c\)</span> for cylindrical waveguides. With <span class="math notranslate nohighlight">\(k_c\)</span>, the viscothermal effect can be introduced onto the fluid. In <strong>OpenPulse</strong>, the <em class="xref py py-obj">LRF-EF</em> complex wavenumber <span class="math notranslate nohighlight">\(k_c\)</span> is implemented as</p>
+<div class="math notranslate nohighlight" id="equation-eq-complex-wavenumber-lrf-ef">
+<span class="eqno">(9)<a class="headerlink" href="#equation-eq-complex-wavenumber-lrf-ef" title="Permalink to this equation">#</a></span>\[    k_c= k_0 \, \sqrt{\frac{\Upsilon_t'}{\Upsilon_v} },\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Upsilon_t'=\gamma - (\gamma - 1) \Upsilon_t\)</span> is the modified cross-sectional mean thermal field, in which <span class="math notranslate nohighlight">\(\Upsilon_t\)</span> (the cross-sectional mean thermal field) and also <span class="math notranslate nohighlight">\(\Upsilon_v\)</span> (the cross-sectional mean viscous field) are defined, for cylindrical waveguides, as</p>
+<div class="math notranslate nohighlight">
+\[\Upsilon_t = -\frac{J_2(k_t r_\mathrm{i})}{J_0(k_t r_\mathrm{i})},\]</div>
+<div class="math notranslate nohighlight">
+\[\Upsilon_v = -\frac{J_2(k_v r_\mathrm{i})}{J_0(k_v r_\mathrm{i})},\]</div>
+<p>where <span class="math notranslate nohighlight">\(J_0\)</span> and  <span class="math notranslate nohighlight">\(J_2\)</span> are the Bessel function of the first kind and zeroth and second order, respectively, and <span class="math notranslate nohighlight">\(k_v = \sqrt{ -i \omega \rho_0 / \mu } \)</span> the viscous and thermal wavenumber, respectively. Considering an harmonically varying pressure <span class="math notranslate nohighlight">\(p\)</span>, the Eq. <a class="reference internal" href="#equation-eq-complex-wavenumber-lrf-ef">(9)</a> and defining the axial velocity on the form</p>
+<div class="math notranslate nohighlight">
+\[u(x) = \frac{i \Upsilon_v \nabla p}{k_0 z_0},\]</div>
+<p>the complex fluid impedance can be calculated using the impedance definition only retaining the rightward propagating pressure term (freely propagating plane wave)</p>
+<div class="math notranslate nohighlight" id="equation-eq-zc-lrfef">
+<span class="eqno">(10)<a class="headerlink" href="#equation-eq-zc-lrfef" title="Permalink to this equation">#</a></span>\[    z_c = \frac{p(x,t)}{u(x,t)} = \frac{z_0}{\sqrt{\Upsilon_v \Upsilon_t'}}.\]</div>
+<p>With Eq. <a class="reference internal" href="#equation-eq-complex-wavenumber-lrf-ef">(9)</a> and Eq. <a class="reference internal" href="#equation-eq-zc-lrfef">(10)</a>, the complex fluid density can be defined as</p>
+<div class="math notranslate nohighlight">
+\[\rho_{c} = \frac{ z_c k_c }{ \omega  } = \frac{ \rho_{0} }{ \Upsilon_v  }.\]</div>
+<p>The <em class="xref py py-obj">LRF-EF</em> damping model may be accurate within the following assumptions</p>
+<div class="math notranslate nohighlight">
+\[\frac{ k_{\text{t}} }{ k } \gg 1,\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{ k_{\text{v}} }{ k } \gg 1.\]</div>
+<p>Details about the <em class="xref py py-obj">LRF-EF</em> model and expressions for the mean thermal and viscous field (<span class="math notranslate nohighlight">\(\Upsilon_t\)</span> and <span class="math notranslate nohighlight">\(\Upsilon_v\)</span>) as well as the viscous and thermal wavenumbers (<span class="math notranslate nohighlight">\(k_v\)</span> and <span class="math notranslate nohighlight">\(k_t\)</span>) for different fluid cross-section geometries can be found in pp.62 and 63 and Appendix A in <a class="reference internal" href="#viscothermalacoustics" id="id12"><span>[ViscothermalAcoustics]</span></a> and also related papers.</p>
+</div>
+<div class="section" id="lrf-full">
+<span id="id13"></span><h4>LRF full<a class="headerlink" href="#lrf-full" title="Permalink to this headline">#</a></h4>
+<p>In this subsection, another <em class="xref py py-obj">LRF</em> model is presented, but not using the complex wavenumber as a way to introduce the viscothermal effects onto the bulk. The <em class="xref py py-obj">LRF</em>-full model presented here uses the pressure, temperature, axial velocity and density field solutions from the <em class="xref py py-obj">LRF</em> approximation for cylindrical waveguides. The denomination <em class="xref py py-obj">full</em> is related to the fact that the pressure and the axial velocity <em class="xref py py-obj">LRF</em> solution obtained by Tijdeman in <a class="reference internal" href="#propagationsoundwaves" id="id14"><span>[PropagationSoundWaves]</span></a> were used to build the <em class="xref py py-obj">MM</em> presented in Eq. <a class="reference internal" href="#equation-eq-mm-system-complete-damped-lrf-full">(2)</a>.</p>
+<p>The model is obtained assuming no-slip and isothermal <em class="xref py py-obj">BC</em>’s at the wall of the tube and also an axial symmetric velocity profile as <em class="xref py py-obj">BC</em>, and imposing a harmonic pressure perturbation as</p>
+<div class="math notranslate nohighlight" id="equation-eq-pressure-lrf-full">
+<span class="eqno">(11)<a class="headerlink" href="#equation-eq-pressure-lrf-full" title="Permalink to this equation">#</a></span>\[    p(x,t) = \frac{\rho_0 c_0^2  }{\gamma} ( A e^{\Gamma k_0 x } + B e^{- \Gamma k_0 x} ) e^{i \omega t},\]</div>
+<p>where the following dimensionless numbers are the base of this model:</p>
+<div class="math notranslate nohighlight">
+\[\Gamma = \sqrt{ J_0(i^{3/2} s)   / J_2(i^{3/2} s) } \sqrt{  \gamma / n },\]</div>
+<div class="math notranslate nohighlight">
+\[s = r_i \sqrt{\omega / \nu},\]</div>
+<div class="math notranslate nohighlight">
+\[\gamma_p = \Big[ 1 + ((\gamma-1)/\gamma) ( J_2(i^{3/2} \sigma s)   / J_0(i^{3/2} \sigma s)  )\Big]^{-1},\]</div>
+<div class="math notranslate nohighlight">
+\[\sigma = \sqrt{\mu C_p / \kappa} = \sqrt{Pr},\]</div>
+<p>where <span class="math notranslate nohighlight">\(\Gamma\)</span> is the propagation constant, <span class="math notranslate nohighlight">\(s\)</span> is the shear wave number (also referred as the Stokes number) and <span class="math notranslate nohighlight">\(\gamma_p\)</span> is the politropic constant. Consequently, the solution for the axial velocity is (omitting time dependence)</p>
+<div class="math notranslate nohighlight" id="equation-eq-velocity-lrf-full">
+<span class="eqno">(12)<a class="headerlink" href="#equation-eq-velocity-lrf-full" title="Permalink to this equation">#</a></span>\[    u(x) = \frac{i c_0 \Gamma}{\gamma} \beta ( A e^{\Gamma k_0 x } - B e^{- \Gamma k_0 x} ).\]</div>
+<p>where</p>
+<div class="math notranslate nohighlight">
+\[\beta = 1 - \frac{J_0\left(i^{\frac{3}{2}} s \zeta\right)}{J_0\left(i^{\frac{3}{2}} s\right)},\]</div>
+<p>and <span class="math notranslate nohighlight">\(\zeta = r/r_i\)</span> is a dimensionless radial coordinate for the moving parameter <span class="math notranslate nohighlight">\(r\)</span> and the fixed value of the inner tube radius <span class="math notranslate nohighlight">\(r_i\)</span> (<span class="math notranslate nohighlight">\(\eta = r/R\)</span> in Tijdeman’s notation).</p>
+<p>As can be seen, the Eq. <a class="reference internal" href="#equation-eq-pressure-lrf-full">(11)</a> and Eq. <a class="reference internal" href="#equation-eq-velocity-lrf-full">(12)</a> are radial and axial dependent. Both <em class="xref py py-obj">TMM</em> and <em class="xref py py-obj">MMM</em> are based on 1D <em class="xref py py-obj">TM</em> and <em class="xref py py-obj">MM</em>. In this case, Eq. <a class="reference internal" href="#equation-eq-pressure-lrf-full">(11)</a> and Eq. <a class="reference internal" href="#equation-eq-velocity-lrf-full">(12)</a> need to be integrated over the cross-section to obtain the 1D <em class="xref py py-obj">TM</em> and <em class="xref py py-obj">MM</em>. This integration is based on the parameter <span class="math notranslate nohighlight">\(\beta\)</span> and is executed as indicated in Eq. <a class="reference internal" href="#equation-eq-alpha-avrg">(13)</a>.</p>
+<p>The propagation constant <span class="math notranslate nohighlight">\(\Gamma = \mathcal{R}(\Gamma) + i \, \mathcal{I}(\Gamma)\)</span> is one of the dimensionless parameters used to describe a wave motion considering inertia, compressibility, viscosity, and thermal conductivity of a fluid in a cylindrical tube. The relation between <span class="math notranslate nohighlight">\(\Gamma\)</span> and <span class="math notranslate nohighlight">\(k_c\)</span> is presented as <a class="reference internal" href="#noisereduction" id="id15"><span>[NoiseReduction]</span></a> <a class="reference internal" href="#modelingacoustics" id="id16"><span>[ModelingAcoustics]</span></a></p>
+<div class="math notranslate nohighlight">
+\[k_c = -i \Gamma k_0.\]</div>
+<p>Moreover, the complex density is calculated utilizing Eq. <a class="reference internal" href="#equation-eq-complex-density">(7)</a>. Consequently,</p>
+<div class="math notranslate nohighlight">
+\[\rho_c = \frac{z_c k_c}{\omega} = \frac{\rho_0}{\langle \beta \rangle_r},\]</div>
+<p>where <span class="math notranslate nohighlight">\(z_c = i z_0 / (\Gamma \langle \beta \rangle_r)\)</span> is the medium-specific impedance of a propagating plane wave when duct viscothermal effect is included and <span class="math notranslate nohighlight">\(\langle \beta \rangle_r\)</span> is the average of <span class="math notranslate nohighlight">\(\beta\)</span> over the tube cross section, defined as</p>
+<div class="math notranslate nohighlight" id="equation-eq-alpha-avrg">
+<span class="eqno">(13)<a class="headerlink" href="#equation-eq-alpha-avrg" title="Permalink to this equation">#</a></span>\[    \langle \beta \rangle_r = \frac{1}{S_f} \int_{r} 2\pi r \beta(r) \text{d}r = 1 - \frac{2 J_1 \big( s \sigma (\sqrt{2}/2) (1 - i) \big) }{  (s \sigma (\sqrt{2}/2)  (1 - i) ) J_0 \big( s \sigma i^{3/2} \big)   }.\]</div>
+<p>The LRF-full damping model may be accurate for the following shear wave number condition</p>
+<div class="math notranslate nohighlight">
+\[s \geq 4,\]</div>
+<p>without limitations inside the plane wave frequency range (<span class="math notranslate nohighlight">\(He= k r_{\text{i}} &lt; 1.84118\)</span>). However, when <span class="math notranslate nohighlight">\(1 &lt; s &lt; 4\)</span> the following limitations related with the Helmholtz number may be considered <a class="reference internal" href="#propagationsoundwaves" id="id17"><span>[PropagationSoundWaves]</span></a></p>
+<div class="math notranslate nohighlight">
+\[He \ll 1,\]</div>
+<div class="math notranslate nohighlight">
+\[\frac{He}{s} \ll 1.\]</div>
+<dl class="citation">
+<dt class="label" id="elementsacoustics"><span class="brackets">ElementsAcoustics</span><span class="fn-backref">(<a href="#id6">1</a>,<a href="#id7">2</a>)</span></dt>
+<dd><p>Temkin, S. <strong>Elements of Acoustics.</strong> 1981. Wiley. ISBN: 9780471059905.</p>
+</dd>
+<dt class="label" id="fundamentalsacoustics"><span class="brackets"><a class="fn-backref" href="#id1">FundamentalsAcoustics</a></span></dt>
+<dd><p>Kinsler, L.E. and Frey, A.R. and Coppens, A.B. and Sanders, J.V. <strong>Fundamentals of Acoustics.</strong> 2000. Wiley. ISBN: 978-0-471-84789-2.</p>
+</dd>
+<dt class="label" id="propagationsoundwaves"><span class="brackets">PropagationSoundWaves</span><span class="fn-backref">(<a href="#id2">1</a>,<a href="#id9">2</a>,<a href="#id14">3</a>,<a href="#id17">4</a>)</span></dt>
+<dd><ol class="upperalpha simple" start="8">
+<li><p>Tijdeman. <strong>On the propagation of sound waves in cylindrical tubes.</strong> 1975. Journal of Sound and Vibration. <a class="reference external" href="https://doi.org/10.1016/S0022-460X(75)80206-9">doi.org/10.1016/S0022-460X(75)80206-9</a>.</p></li>
+</ol>
+</dd>
+<dt class="label" id="viscothermalacoustics"><span class="brackets">ViscothermalAcoustics</span><span class="fn-backref">(<a href="#id10">1</a>,<a href="#id11">2</a>,<a href="#id12">3</a>)</span></dt>
+<dd><p>W.R. Kampinga. <strong>Viscothermal acoustics using finite elements - Analysis tools for engineers.</strong> 2010. Netherlands. University of Twente. Ipskamp Printing. <a class="reference external" href="https://doi.org/10.3990/1.9789036530507">doi.org/10.3990/1.9789036530507</a>.</p>
+</dd>
+<dt class="label" id="noisereduction"><span class="brackets"><a class="fn-backref" href="#id15">NoiseReduction</a></span></dt>
+<dd><p>Van der Eerden and Fredericus Joseph Marie. <strong>Noise reduction with coupled prismatic tubes.</strong> 2000. Universiteit Twente.</p>
+</dd>
+<dt class="label" id="modelingacoustics"><span class="brackets"><a class="fn-backref" href="#id16">ModelingAcoustics</a></span></dt>
+<dd><p>Paulo H. Mareze and Eric Brandão and William D’A. Fonseca and Olavo M. Silva and Arcanjo Lenzi. <strong>Modeling of acoustic porous material absorber using rigid multiple micro-ducts network: Validation of the proposed model.</strong> 2019. Journal of Sound and Vibration. <a class="reference external" href="https://doi.org/10.1016/j.jsv.2018.11.036">doi.org/10.1016/j.jsv.2018.11.036</a>.</p>
+</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="moving-fluid-medium">
+<h3>Moving fluid medium<a class="headerlink" href="#moving-fluid-medium" title="Permalink to this headline">#</a></h3>
+<div class="section" id="id18">
+<h4>Undamped<a class="headerlink" href="#id18" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="howe-model">
+<h4>Howe model<a class="headerlink" href="#howe-model" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="peters-model">
+<h4>Peters model<a class="headerlink" href="#peters-model" title="Permalink to this headline">#</a></h4>
+</div>
+</div>
+</div>
+<div class="section" id="boundary-conditions">
+<h2>Boundary conditions<a class="headerlink" href="#boundary-conditions" title="Permalink to this headline">#</a></h2>
+<div class="section" id="acoustic-pressure">
+<h3>Acoustic Pressure<a class="headerlink" href="#acoustic-pressure" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="volume-velocity">
+<h3>Volume Velocity<a class="headerlink" href="#volume-velocity" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="specific-impedance">
+<h3>Specific Impedance<a class="headerlink" href="#specific-impedance" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="radiation-impedance">
+<h3>Radiation Impedance<a class="headerlink" href="#radiation-impedance" title="Permalink to this headline">#</a></h3>
+<div class="section" id="anechoic">
+<h4>Anechoic<a class="headerlink" href="#anechoic" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="flanged">
+<h4>Flanged<a class="headerlink" href="#flanged" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="unflanged">
+<h4>Unflanged<a class="headerlink" href="#unflanged" title="Permalink to this headline">#</a></h4>
+</div>
+</div>
+</div>
+<div class="section" id="perforated-plate">
+<h2>Perforated Plate<a class="headerlink" href="#perforated-plate" title="Permalink to this headline">#</a></h2>
+<div class="section" id="impedance-model">
+<h3>Impedance model<a class="headerlink" href="#impedance-model" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="alc">
+<h3><em class="xref py py-obj">ALC</em><a class="headerlink" href="#alc" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="resistances">
+<h3>Resistances<a class="headerlink" href="#resistances" title="Permalink to this headline">#</a></h3>
+<div class="section" id="nonlinear">
+<h4>Nonlinear<a class="headerlink" href="#nonlinear" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="radiation">
+<h4>Radiation<a class="headerlink" href="#radiation" title="Permalink to this headline">#</a></h4>
+</div>
+<div class="section" id="bias-flow">
+<h4>Bias flow<a class="headerlink" href="#bias-flow" title="Permalink to this headline">#</a></h4>
+</div>
+</div>
+<div class="section" id="fetm-implementation">
+<h3>FETM implementation<a class="headerlink" href="#fetm-implementation" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="meelling-s-impedance-model">
+<h3>Meelling’s impedance model<a class="headerlink" href="#meelling-s-impedance-model" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="common-pipe-section">
+<h3>Common pipe section<a class="headerlink" href="#common-pipe-section" title="Permalink to this headline">#</a></h3>
+</div>
+</div>
+<div class="section" id="length-correction">
+<h2>Length Correction<a class="headerlink" href="#length-correction" title="Permalink to this headline">#</a></h2>
+<div class="section" id="expansion">
+<h3>Expansion<a class="headerlink" href="#expansion" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="side-branch">
+<h3>Side branch<a class="headerlink" href="#side-branch" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="loop">
+<h3>Loop<a class="headerlink" href="#loop" title="Permalink to this headline">#</a></h3>
+</div>
+<div class="section" id="moving-medium">
+<h3>moving medium<a class="headerlink" href="#moving-medium" title="Permalink to this headline">#</a></h3>
+</div>
+</div>
+<div class="section" id="compressor-excitation">
+<h2>Compressor Excitation<a class="headerlink" href="#compressor-excitation" title="Permalink to this headline">#</a></h2>
+</div>
+</div>
+
+
+              </div>
+              
+              
+              <!-- Previous / next buttons -->
+<div class='prev-next-area'>
+    <a class='left-prev' id="prev-link" href="index.html" title="previous page">
+        <i class="fas fa-angle-left"></i>
+        <div class="prev-next-info">
+            <p class="prev-next-subtitle">previous</p>
+            <p class="prev-next-title">Theory reference</p>
+        </div>
+    </a>
+    <a class='right-next' id="next-link" href="structural.html" title="next page">
+    <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Structural</p>
+    </div>
+    <i class="fas fa-angle-right"></i>
+    </a>
+</div>
+              
+          </main>
+          
+
+      </div>
+    </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/pydata-sphinx-theme.js?digest=1999514e3f237ded88cf"></script>
+<footer class="footer mt-5 mt-md-0">
+  <div class="container">
+    
+    <div class="footer-item">
+      <p class="copyright">
+    &copy; Copyright 2020, MOPT.<br>
+</p>
+    </div>
+    
+    <div class="footer-item">
+      <p class="sphinx-version">
+Created using <a href="http://sphinx-doc.org/">Sphinx</a> 4.5.0.<br>
+</p>
+    </div>
+    
+  </div>
+</footer>
+  </body>
+</html>
