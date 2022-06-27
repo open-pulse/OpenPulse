@@ -42,6 +42,15 @@ class Config:
         with open(self.configFileName, 'w') as configfile:
             config.write(configfile)
 
+    def removePathFromConfigFile(self, dir_identifier):
+        config = configparser.ConfigParser()
+        config.read(self.configFileName)
+        if config.has_section('project'):
+            config.remove_option(section='project', option=dir_identifier)
+        with open(self.configFileName, 'w') as configfile:
+            config.write(configfile)
+        self.reset()
+
     def LoadArgs(self):
         if "--last" in sys.argv:
             self.openLastProject = True

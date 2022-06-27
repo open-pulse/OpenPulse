@@ -121,6 +121,7 @@ class Project:
             self.initial_load_project_actions(project_file_path)
             self.load_project_files()
         LoadingScreen('Loading Project', target=callback)
+        self.preprocessor.get_list_edge_nodes(self.file._element_size)
     
     def initial_load_project_actions(self, project_file_path):
         try:

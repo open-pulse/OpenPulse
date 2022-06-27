@@ -142,7 +142,7 @@ class Preprocessor:
         self.get_nodal_coordinates_matrix()
         self.get_connectivity_matrix()
         self.get_dict_nodes_to_element_indexes()
-        self.get_list_edge_nodes(element_size)
+        # self.get_list_edge_nodes(element_size)
         self.get_principal_diagonal_structure_parallelepiped()
         # self.get_dict_line_to_nodes()
         
