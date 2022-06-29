@@ -741,6 +741,7 @@ class opvRenderer(vtkRendererBase):
                         Izz = structural_element.cross_section.second_moment_area_z
                         Iyz = structural_element.cross_section.second_moment_area_yz
                         section_label = structural_element.cross_section.section_label
+                        xaxis_rotation = structural_element.xaxis_beam_rotation
 
                         structural_element_type = f"{structural_element.element_type} ({section_label.capitalize()})"               
 
@@ -788,6 +789,7 @@ class opvRenderer(vtkRendererBase):
                 text += f'Iyy:  {Iyy} [m^4]\n'
                 text += f'Izz:  {Izz} [m^4]\n'
                 text += f'Iyz:  {Iyz} [m^4]\n'
+                text += f'x-axis rotation: {xaxis_rotation} [deg]\n'
 
             elif structural_element_type == "expansion_joint":
                 text += f'Effective diameter: {effective_diameter} [m]\n'
@@ -900,6 +902,7 @@ class opvRenderer(vtkRendererBase):
                         Izz = entity.cross_section.second_moment_area_z
                         Iyz = entity.cross_section.second_moment_area_yz
                         section_label = entity.getCrossSection().section_label
+                        xaxis_rotation = entity.xaxis_beam_rotation
 
                         text += f'Structural element type:  {structural_element_type} '
                         text += f'({section_label.capitalize()})\n\n'
@@ -908,6 +911,7 @@ class opvRenderer(vtkRendererBase):
                         text += f'Iyy:  {Iyy} [m^4]\n'
                         text += f'Izz:  {Izz} [m^4]\n'
                         text += f'Iyz:  {Iyz} [m^4]\n'
+                        text += f'x-axis rotation: {xaxis_rotation} [deg]\n'
 
                     elif entity.structural_element_type in ['pipe_1', 'pipe_2', 'valve']:
 

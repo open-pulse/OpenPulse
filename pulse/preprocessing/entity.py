@@ -18,7 +18,7 @@ class Entity:
         self.compressor_info = {}
         self.cross_section = None
         self.variable_cross_section_data = None
-        self.beam_xaxis_rotation = None
+        self.xaxis_beam_rotation = 0
         self.acoustic_element_type = None
         self.vol_flow = None
         self.proportional_damping = None

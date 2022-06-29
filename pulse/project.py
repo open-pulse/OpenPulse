@@ -1494,7 +1494,7 @@ class Project:
 
     def _set_beam_xaxis_rotation_to_selected_lines(self, line_id, angle):
         entity = self.preprocessor.dict_tag_to_entity[line_id]
-        entity.beam_xaxis_rotation = angle
+        entity.xaxis_beam_rotation = angle
 
     def _set_stress_stiffening_to_selected_lines(self, lines, pressures):
         if isinstance(lines, int):

@@ -49,8 +49,10 @@ class BeamXaxisRotationInput(QDialog):
         # self.lineEdit_selected_group = self.findChild(QLineEdit, 'lineEdit_selected_group')
         # self.lineEdit_selected_group.setDisabled(True)
 
-        self.lineEdit_beam_xaxis_rotation_angle = self.findChild(QLineEdit, "lineEdit_beam_xaxis_rotation_angle")
-        self.lineEdit_beam_xaxis_rotation_angle.setDisabled(False)
+        self.lineEdit_xaxis_rotation_increment_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_increment_angle")
+        self.lineEdit_xaxis_rotation_actual_angle = self.findChild(QLineEdit, "lineEdit_xaxis_rotation_actual_angle")
+        self.lineEdit_xaxis_rotation_increment_angle.setDisabled(True)
+        self.lineEdit_xaxis_rotation_actual_angle.setDisabled(False)
 
         self.radioButton_all = self.findChild(QRadioButton, 'radioButton_all')
         self.radioButton_selected_lines = self.findChild(QRadioButton, 'radioButton_entity')
@@ -97,6 +99,10 @@ class BeamXaxisRotationInput(QDialog):
             self.write_ids(self.lines_id)
             self.radioButton_selected_lines.setChecked(True)
             self.lineEdit_selected_ID.setDisabled(False)
+            if len(self.lines_id) == 1:
+                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+                angle = entity.xaxis_beam_rotation
+                self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
@@ -119,10 +125,24 @@ class BeamXaxisRotationInput(QDialog):
 
     def update(self):
         self.lines_id  = self.opv.getListPickedLines()
+        self.pushButton_confirm.setDisabled(False)
 
         if self.lines_id != []:
-            self.write_ids(self.lines_id)
-            self.radioButton_selected_lines.setChecked(True)
+            self.radioButton_selected_lines.setChecked(True)    
+            for line_id in self.lines_id:
+                entity = self.preprocessor.dict_tag_to_entity[line_id]
+                if entity.structural_element_type != "beam_1":
+                    self.lineEdit_xaxis_rotation_actual_angle.setText("")
+                    self.lineEdit_selected_ID.setText("")
+                    self.pushButton_confirm.setDisabled(True)
+                    return
+            if len(self.lines_id) == 1:
+                entity = self.preprocessor.dict_tag_to_entity[self.lines_id[0]]
+                angle = entity.xaxis_beam_rotation
+                self.lineEdit_xaxis_rotation_actual_angle.setText(str(angle))
+            else:
+                self.lineEdit_xaxis_rotation_actual_angle.setText("")
+            self.write_ids(self.lines_id)            
         else:
             self.lineEdit_selected_ID.setText("All lines")
             self.radioButton_all.setChecked(True)
@@ -203,7 +223,7 @@ class BeamXaxisRotationInput(QDialog):
     def check_xaxis_rotation_angle(self):
         self.rotation_angle = 0
         try:
-            self.rotation_angle = float(self.lineEdit_beam_xaxis_rotation_angle.text())
+            self.rotation_angle = float(self.lineEdit_xaxis_rotation_increment_angle.text())
         except Exception as error:
             self.print_error_message()
             return True
