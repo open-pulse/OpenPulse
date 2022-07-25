@@ -529,7 +529,7 @@ class PerforatedPlateInput(QDialog):
                 message = "The hole diameter must be less than element inner diameter."
                 PrintMessageInput([title, message, window_title_1])
                 self.lineEdit_HoleDiameter.setFocus()
-                return False
+                return True
             self.dict_inputs['hole diameter'] = self.value
         
         if self.dict_inputs['type'] == 2:
@@ -565,7 +565,7 @@ class PerforatedPlateInput(QDialog):
                     message = "The area porosity must be less than 1."
                     PrintMessageInput([title, message, window_title_1])
                     self.lineEdit_porosity.setFocus()
-                    return False
+                    return True
                 self.dict_inputs['area porosity'] = self.value
 
             # Check discharge coefficient
@@ -578,7 +578,7 @@ class PerforatedPlateInput(QDialog):
                     message = "The discharge coefficient must be less than or equal to 1."
                     PrintMessageInput([title, message, window_title_1])
                     self.lineEdit_discharge.setFocus()
-                    return False
+                    return True
                 self.dict_inputs['discharge coefficient'] = self.value
 
             self.dict_inputs['nonlinear effects'] = self.flag_nonlinear
@@ -593,7 +593,7 @@ class PerforatedPlateInput(QDialog):
                     message = "The nonlinear discharge coefficient must be less than or equal to 1."
                     PrintMessageInput([title, message, window_title_1])
                     self.lineEdit_nonlinDischarge.setFocus()
-                    return False
+                    return True
                 self.dict_inputs['nonlinear discharge coefficient'] = self.value
 
             # Check correction factor
@@ -616,7 +616,7 @@ class PerforatedPlateInput(QDialog):
             if self.tabWidget_dimensionless.currentIndex()==0:
                 if self.check_svalues():
                     return True
-        
+        print("passei aqui!")
         self.dict_inputs['single hole'] = self.flag_single_hole
 
         self.perforated_plate = PerforatedPlate(self.dict_inputs['hole diameter'], 
