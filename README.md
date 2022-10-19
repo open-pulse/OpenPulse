@@ -42,7 +42,7 @@ python pulse.py
 
 ## Requirements
 
-    Python v. 3.7.7 
+    Python v. 3.9
     scipy
     matplotlib
     numpy
