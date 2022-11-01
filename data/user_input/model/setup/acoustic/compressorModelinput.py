@@ -291,11 +291,11 @@ class CompressorModelInput(QDialog):
         if self.stop:
             return True
 
-        if len(self.preprocessor.neighboor_elements_of_node(self.node_ID))>1:
-            title = "INVALID SELECTION - NODE {}".format(self.node_ID)
-            message = "The selected NODE ID must be in the beginning \nor termination of the pipelines."
-            PrintMessageInput([title, message, window_title_1])
-            return True
+        #if len(self.preprocessor.neighboor_elements_of_node(self.node_ID))>1:
+        #    title = "INVALID SELECTION - NODE {}".format(self.node_ID)
+        #    message = "The selected NODE ID must be in the beginning \nor termination of the pipelines."
+        #    PrintMessageInput([title, message, window_title_1])
+        #    return True
               
     def check_all_nodes(self, check_nodes=True):
         
