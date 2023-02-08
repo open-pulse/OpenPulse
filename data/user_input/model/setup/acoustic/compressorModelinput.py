@@ -47,13 +47,15 @@ class CompressorModelInput(QDialog):
         self.node_acoustic_path = self.project.file._node_acoustic_path   
         self.acoustic_folder_path = self.project.file._acoustic_imported_data_folder_path
         self.compressor_excitation_tables_folder_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")  
-        
+
         self.stop = False
         self.complete = False
         self.aquisition_parameters_processed = False
         self.node_ID_remove = None
         self.remove_message = True
-        
+        self.table_name = None
+        self.not_update_event = False
+
         self.lineEdit_selected_node_ID = self.findChild(QLineEdit, 'lineEdit_selected_node_ID')
         self.lineEdit_suction_node_ID = self.findChild(QLineEdit, 'lineEdit_suction_node_ID')
         self.lineEdit_discharge_node_ID = self.findChild(QLineEdit, 'lineEdit_discharge_node_ID')
@@ -70,13 +72,13 @@ class CompressorModelInput(QDialog):
         self.lineEdit_clearance = self.findChild(QLineEdit, 'lineEdit_clearance')
         self.lineEdit_TDC_crank_angle_1 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_1')
         self.lineEdit_TDC_crank_angle_2 = self.findChild(QLineEdit, 'lineEdit_TDC_crank_angle_2')
-        self.lineEdit_number_of_pistons = self.findChild(QLineEdit, 'lineEdit_number_of_pistons')
         self.lineEdit_rotational_speed = self.findChild(QLineEdit, 'lineEdit_rotational_speed')
         self.lineEdit_capacity = self.findChild(QLineEdit, 'lineEdit_capacity')
         self.lineEdit_isentropic_exponent = self.findChild(QLineEdit, 'lineEdit_isentropic_exponent')
         self.lineEdit_molar_mass = self.findChild(QLineEdit, 'lineEdit_molar_mass')
         self.lineEdit_pressure_at_suction = self.findChild(QLineEdit, 'lineEdit_pressure_at_suction')
         self.lineEdit_temperature_at_suction = self.findChild(QLineEdit, 'lineEdit_temperature_at_suction')
+        self.lineEdit_selection_info = self.findChild(QLineEdit, 'lineEdit_selection_info')
 
         self.radioButton_both_cylinders = self.findChild(QRadioButton, 'radioButton_both_cylinders')
         self.radioButton_head_end_cylinder = self.findChild(QRadioButton, 'radioButton_head_end_cylinder')
@@ -101,6 +103,10 @@ class CompressorModelInput(QDialog):
         self.comboBox_frequency_resolution = self.findChild(QComboBox, 'comboBox_frequency_resolution')
         self.comboBox_frequency_resolution.currentIndexChanged.connect(self.comboBox_event_frequency_resolution)
 
+        self.comboBox_compressors_tables = self.findChild(QComboBox, 'comboBox_compressors_tables')
+        self.comboBox_compressors_tables.setVisible(False)
+        self.comboBox_compressors_tables.currentIndexChanged.connect(self.comboBox_event_update)
+
         self.comboBox_stage = self.findChild(QComboBox, 'comboBox_stage')
         self.comboBox_stage.currentIndexChanged.connect(self.comboBox_event_stage)
         self.comboBox_event_stage()
@@ -116,6 +122,9 @@ class CompressorModelInput(QDialog):
 
         self.pushButton_flipNodes = self.findChild(QPushButton, 'pushButton_flipNodes')
         self.pushButton_flipNodes.clicked.connect(self.flip_nodes)
+
+        self.pushButton_reset_entries = self.findChild(QPushButton, 'pushButton_reset_entries')
+        self.pushButton_reset_entries.clicked.connect(self.reset_entries)
 
         self.pushButton_plot_PV_diagram_head_end = self.findChild(QPushButton, 'pushButton_plot_PV_diagram_head_end')
         self.pushButton_plot_PV_diagram_head_end.clicked.connect(self.plot_PV_diagram_head_end)
@@ -277,11 +286,163 @@ class CompressorModelInput(QDialog):
         elif len(list_node_ids) == 1:
             self.lineEdit_suction_node_ID.setText(str(list_node_ids[-1]))
             self.lineEdit_discharge_node_ID.setText("")
+            self.table_name = None
+            self.comboBox_compressors_tables.clear()
+            self.comboBox_compressors_tables.setVisible(False)
+            self.get_existing_compressor_info(list_node_ids, update_tables=True)
+
+    def comboBox_event_update(self):
+        if self.not_update_event:
+            return
+        self.currentIndex_table = self.comboBox_compressors_tables.currentIndex()
+        self.table_name = self.comboBox_compressors_tables.currentText()
+        list_node_ids = self.opv.getListPickedPoints()
+        self.get_existing_compressor_info(list_node_ids)
+        
+    def change_aquisition_parameters_controls(self, _bool):
+        self.pushButton_process_aquisition_parameters.setDisabled(_bool)
+        self.spinBox_max_frequency.setDisabled(_bool)
+        self.spinBox_number_of_points.setDisabled(_bool)
+        self.comboBox_frequency_resolution.setDisabled(_bool)
+    
+    def get_existing_compressor_info(self, list_node_ids, update_tables=False):
+        self.not_update_event = True
+        node = self.preprocessor.nodes[list_node_ids[0]]
+        self.change_aquisition_parameters_controls(False)
+        if len(node.compressor_excitation_table_names) > 0:
+            self.comboBox_compressors_tables.setVisible(True)
+            if len(node.compressor_excitation_table_names) > 1:
+                self.change_aquisition_parameters_controls(True)
+            if update_tables:
+                self.table_name = node.compressor_excitation_table_names[0]
+                for table in node.compressor_excitation_table_names:
+                    self.comboBox_compressors_tables.addItem(table)
+                if len(node.compressor_excitation_table_names) > 1:
+                    self.comboBox_compressors_tables.setCurrentIndex(0)
+            try:
+                folder_table_path = get_new_path(self.acoustic_folder_path, "compressor_excitation_files")
+                load_path_table = get_new_path(folder_table_path, self.table_name)
+                
+                if self.table_name != "":
+                    table_file = open(load_path_table, "r")
+                    lines = table_file.readlines()                
+                    compressor_info = {}
+                    for str_line in lines[2:21]:
+                        if str_line[2:-1] != "":
+                            key_value = str_line[2:-1].split(" = ")
+                            try:
+                                compressor_info[key_value[0]] = float(key_value[1])
+                            except:
+                                compressor_info[key_value[0]] = key_value[1]
+
+                    data = np.loadtxt(load_path_table, delimiter=",")
+                    compressor_info["frequencies"] = data[:,0]
+                    table_file.close()                   
+                    self.update_compressor_inputs(compressor_info)
+
+            except Exception as log_error:
+                title = f"Error while loading compressor parameters"
+                message = str(log_error) 
+                PrintMessageInput([title, message, "ERROR"])  
+
+        self.not_update_event = False
+
+    def get_aquisition_parameters(self, compressor_info):
+        frequencies = compressor_info["frequencies"]
+        rotational_speed = compressor_info["rotational speed"]
+        f_min = frequencies[0]
+        f_max = frequencies[-1]
+        df = frequencies[1]-frequencies[0]
+        N_rev = int((1/df)/(60/rotational_speed))
+        return f_min, f_max, df, N_rev
 
     def update(self):
         list_nodes = self.opv.getListPickedPoints()
         if len(list_nodes) > 0:
             self.writeNodes(list_nodes)
+
+    def update_compressor_inputs(self, compressor_info):
+
+        self.radioButton_connected_at_suction_and_discharge.setDisabled(True)
+        if 'discharge' in self.table_name:
+            self.radioButton_connected_at_discharge.setChecked(True)
+        if 'suction' in self.table_name:
+            self.radioButton_connected_at_suction.setChecked(True)
+
+        if "bore diameter" in compressor_info.keys():
+            self.lineEdit_bore_diameter.setText(str(compressor_info["bore diameter"]))
+        if "stroke" in compressor_info.keys():
+            self.lineEdit_stroke.setText(str(compressor_info["stroke"]))
+        if "connecting rod length" in compressor_info.keys():
+            self.lineEdit_connecting_rod_length.setText(str(compressor_info["connecting rod length"]))
+        if "rod diameter" in compressor_info.keys():
+            self.lineEdit_rod_diameter.setText(str(compressor_info["rod diameter"]))
+        if "pressure ratio" in compressor_info.keys():
+            self.lineEdit_pressure_ratio.setText(str(compressor_info["pressure ratio"]))
+        if "clearance" in compressor_info.keys():
+            self.lineEdit_clearance.setText(str(compressor_info["clearance"]))
+        if "TDC crank angle 1" in compressor_info.keys():
+            self.lineEdit_TDC_crank_angle_1.setText(str(compressor_info["TDC crank angle 1"]))
+        if "rotational speed" in compressor_info.keys():
+            self.lineEdit_rotational_speed.setText(str(compressor_info["rotational speed"]))
+        if "capacity" in compressor_info.keys():
+            self.lineEdit_capacity.setText(str(compressor_info["capacity"]))
+        if "isentropic exponent" in compressor_info.keys():
+            self.lineEdit_isentropic_exponent.setText(str(compressor_info["isentropic exponent"]))
+        if "molar mass" in compressor_info.keys():
+            self.lineEdit_molar_mass.setText(str(compressor_info["molar mass"]))
+        if "pressure at suction" in compressor_info.keys():
+            self.lineEdit_pressure_at_suction.setText(str(compressor_info["pressure at suction"]))
+        if "temperature at suction" in compressor_info.keys():
+            self.lineEdit_temperature_at_suction.setText(str(compressor_info["temperature at suction"]))
+               
+        if "acting label" in compressor_info.keys():
+            acting_key = float(compressor_info["acting label"])
+            if acting_key == 0:
+                self.radioButton_both_cylinders.setChecked(True)
+            else:
+                if acting_key == 1:
+                    self.radioButton_head_end_cylinder.setChecked(True)
+                elif acting_key == 2:
+                    self.radioButton_crank_end_cylinder.setChecked(True)
+
+        if "number of cylinders" in compressor_info.keys():
+            if compressor_info["number of cylinders"] == 1:
+                self.spinBox_number_of_cylinders.setValue(1)
+            elif compressor_info["number of cylinders"] == 2:
+                self.spinBox_number_of_cylinders.setValue(2)
+                if "TDC cranck angle 2" in compressor_info.keys():
+                    if "None" not in compressor_info["TDC crank angle 2"]:
+                        self.lineEdit_TDC_crank_angle_2.setText(str(compressor_info["TDC crank angle 2"]))
+        if "points per revolution" in compressor_info.keys():
+            self.spinBox_number_of_points.setValue(int(compressor_info["points per revolution"]))
+
+        f_min, f_max, df, N_rev = self.get_aquisition_parameters(compressor_info)
+        self.lineEdit_frequency_resolution.setText(str(df))
+        self.lineEdit_number_of_revolutions.setText(str(N_rev))
+        self.spinBox_max_frequency.setValue(int(f_max))
+
+    def reset_entries(self):
+        self.lineEdit_TDC_crank_angle_2.setText("90")
+        self.spinBox_number_of_cylinders.setValue(1)
+        self.comboBox_stage.setCurrentIndex(0)
+        self.lineEdit_bore_diameter.setText("")
+        self.lineEdit_stroke.setText("")
+        self.lineEdit_connecting_rod_length.setText("")
+        self.lineEdit_rod_diameter.setText("")
+        self.lineEdit_pressure_ratio.setText("")
+        self.lineEdit_clearance.setText("")
+        self.lineEdit_TDC_crank_angle_1.setText("")
+        self.lineEdit_rotational_speed.setText("")
+        self.lineEdit_capacity.setText("")
+        self.lineEdit_isentropic_exponent.setText("")
+        self.lineEdit_molar_mass.setText("")
+        self.lineEdit_pressure_at_suction.setText("")
+        self.lineEdit_temperature_at_suction.setText("")
+        self.radioButton_both_cylinders.setChecked(True)
+        self.table_name = None
+        self.comboBox_compressors_tables.clear()
+        self.comboBox_compressors_tables.setVisible(False)
 
     def check_nodeID(self, lineEdit, export=False):
         
@@ -415,7 +576,7 @@ class CompressorModelInput(QDialog):
         if self.check_input_parameters(self.lineEdit_capacity, "CAPACITY"):
             self.lineEdit_capacity.setFocus()
             return True
-        elif self.value<10:
+        elif self.value < 10:
             title = "INVALID INPUT VALUE TO THE STAGE CAPACITY"
             message = "The compressor stage capacity value must be greater or equals to 10%."
             PrintMessageInput([title, message, window_title_1])
@@ -451,6 +612,15 @@ class CompressorModelInput(QDialog):
         self.parameters['compression stage'] = self.compression_stage_index
         self.parameters['number of cylinders'] = self.number_of_cylinders
         
+        if self.double_acting:
+            self.parameters['acting label'] = 0
+        elif self.single_acting:
+            if self.head_end_cylinder:
+                cylinder_label = 1 #'HEAD END'
+            elif self.crank_end_cylinder:
+                cylinder_label = 2 #'CRANK END'
+            self.parameters['acting label'] = cylinder_label
+
         if self.number_of_cylinders > 1:    
             if self.check_input_parameters(self.lineEdit_TDC_crank_angle_2, "TOP DEAD CENTER CRANCK ANGLE 2"):
                 self.lineEdit_TDC_crank_angle_2.setFocus()
@@ -458,17 +628,8 @@ class CompressorModelInput(QDialog):
             else:
                 self.parameters['TDC crank angle 2'] = self.value
                 # self.tdc2 = self.value
-
-        if self.double_acting:
-            self.parameters['double effect'] = True
-
-        if self.single_acting:
-            if self.head_end_cylinder:
-                cylinder_label = 'HEAD END'
-            elif self.crank_end_cylinder:
-                cylinder_label = 'CRANK END'
-            self.parameters['double effect'] = False
-            self.parameters['cylinder label'] = cylinder_label
+        else:
+            self.parameters['TDC crank angle 2'] = None
 
         list_parameters = []
         for key, parameter in self.parameters.items():
@@ -484,10 +645,14 @@ class CompressorModelInput(QDialog):
         self.T_discharge = self.compressor.T_disc
         self.P_discharge = self.parameters['pressure ratio']*self.P_suction
         
-        if 'cylinder label' in self.parameters.keys():
-            self.compressor.active_cylinder = self.parameters['cylinder label']
-        if 'TDC crank angle 2' in self.parameters.keys():
+        self.compressor.active_cylinder = self.parameters['acting label']
+        if self.parameters['TDC crank angle 2'] is not None:   
             self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
+
+        # if 'cylinder label' in self.parameters.keys():
+        #     self.compressor.active_cylinder = self.parameters['cylinder label']
+        # if 'TDC crank angle 2' in self.parameters.keys():
+        #     self.compressor.tdc2 = self.parameters['TDC crank angle 2']*np.pi/180
 
         return False
     
@@ -564,6 +729,11 @@ class CompressorModelInput(QDialog):
         table_name = f"table{self.size}_node{node_id}_compressor_excitation_{label}.dat"
         return table_name
 
+    def check_existing_compressor_parameters_and_edit(self):
+        if self.table_name == self.comboBox_compressors_tables.currentText():
+            # first of all, you need to remove the existing table
+            self.remove_table()
+
     def process_all_inputs(self):
         
         if self.check_all_nodes():
@@ -571,6 +741,7 @@ class CompressorModelInput(QDialog):
         if self.check_all_parameters():
             return
         self.process_aquisition_parameters()
+        self.check_existing_compressor_parameters_and_edit()
 
         if self.connection_at_suction_and_discharge or self.connection_at_suction:
             freq, in_flow_rate = self.compressor.process_FFT_of_volumetric_flow_rate(self.N_rev, 'in_flow')
@@ -601,6 +772,7 @@ class CompressorModelInput(QDialog):
                         self.parameters['fluid properties source'] = "REFPROP"
                 else:
                     self.parameters['fluid properties source'] = "user-defined"
+                self.parameters['points per revolution'] = self.compressor.number_points
            
             self.project.remove_acoustic_pressure_table_files(self.suction_node_ID)
             self.project.remove_volume_velocity_table_files(self.suction_node_ID)
@@ -649,9 +821,21 @@ class CompressorModelInput(QDialog):
             else:
                 if self.save_table_values(freq, out_flow_rate, table_name):
                     return
-
+                    
         self.opv.updateRendererMesh()
         self.close()
+
+    # def save_compressor_parameters(self, connection_type):
+    #     parameters = []
+    #     for key, parameter in self.parameters.items():
+    #         if key == 'fluid properties source':
+    #             fluid_prop_source = parameter
+    #         else:
+    #             parameters.append(parameter)
+
+    #     compressor_parameters = parameters
+    #     compressor_fluid_prop_source = fluid_prop_source
+        
 
     def remove_volume_velocity_table_files(self, node_id, table_name):
         self.project.remove_volume_velocity_table_files(node_id, table_name)
@@ -816,8 +1000,13 @@ class CompressorModelInput(QDialog):
 
     def remove_table(self):
         self.dict_node_to_compressor_excitation = self.project.file.get_dict_of_compressor_excitation_from_file()
-        self.selected_node = self.lineEdit_node_ID_info.text()
-        self.selected_table = self.lineEdit_table_name_info.text()
+        if self.table_name == self.comboBox_compressors_tables.currentText():
+            self.selected_node = self.lineEdit_selected_node_ID.text()
+            self.selected_table = self.table_name
+        else:
+            self.selected_node = self.lineEdit_node_ID_info.text()
+            self.selected_table = self.lineEdit_table_name_info.text()
+        
         if self.selected_node == "":
             title = "EMPTY TABLE SELECTION"
             message = "You should to select a table from list before continue."

@@ -61,12 +61,17 @@ class CompressorModel:
            isentropic_exponent,                # Compressed gas isentropic exponent
            pressure_at_suction,                # Pressure at suction
            temperature_at_suction,             # Temperature at suction
-           double_acting  ] = parameters       # Compressor is double effect (bool)
+           acting_label  ] = parameters       # Compressor is double effect (bool)
 
-        if double_acting:
+        if acting_label == 0:
+            self.double_acting = True
             self.active_cylinder = None
-        else:                                  # Active cylinder (only if double effect = False): 'HEAD END' or 'CRANK END'
-            self.active_cylinder = kwargs.get('acitve_cylinder', 'HEAD END')     
+        elif acting_label == 1:
+            self.double_acting = False
+            self.active_cylinder = 'HEAD END'
+        elif acting_label == 2:
+            self.double_acting = False
+            self.active_cylinder = 'CRANK END'
 
         self.D = bore_diameter
         self.r = stroke/2
@@ -80,9 +85,7 @@ class CompressorModel:
         self.k = isentropic_exponent
         self.molar_mass = molar_mass
         self.p_suc = pressure_at_suction
-        self.T_suc = temperature_at_suction
-        self.double_acting = double_acting
-        
+        self.T_suc = temperature_at_suction          
         self.area_head_end = np.pi*(bore_diameter**2)/4
         self.area_crank_end = np.pi*((bore_diameter**2)-(rod_diameter**2))/4
         self.vr = (self.p_suc)**(-1/self.k)       # Volume ratio considering isentropic compression
