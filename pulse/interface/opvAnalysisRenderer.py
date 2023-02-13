@@ -128,7 +128,6 @@ class opvAnalysisRenderer(vtkRendererBase):
         self.updateInfoText()
         self.update_min_max_stresses_text()
         self.opv.update()
-        self._renderer.ResetCameraClippingRange()
         self.update()
 
     def updateHud(self):

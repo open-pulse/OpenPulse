@@ -764,6 +764,7 @@ class MainWindow(QMainWindow):
     def draw(self):
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
+        self.opv_widget.setCameraView(0)
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"

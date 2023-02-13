@@ -185,7 +185,7 @@ class OPVUi(QVTKRenderWindowInteractor):
         self.opvRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
         self.opvRenderer._renderer.GetActiveCamera().SetViewUp(vx, vy, vz)
         self.opvRenderer._renderer.GetActiveCamera().SetParallelProjection(True)
-        self.opvRenderer._renderer.ResetCamera()
+        self.opvRenderer._renderer.ResetCamera(*self.opvRenderer.getBounds())
         self.opvRenderer.update()
 
         self.opvAnalysisRenderer._renderer.GetActiveCamera().SetPosition(x, y, z)
