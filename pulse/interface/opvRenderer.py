@@ -71,6 +71,11 @@ class opvRenderer(vtkRendererBase):
         self.scaleBarTitleProperty.SetColor(color)
         self.scaleBarLabelProperty.SetColor(color)
         self.changeReferenceScaleFontColor(color)
+    
+    def getBounds(self):
+        if self._plotFilter & PlotFilter.tubes:
+            return self.opvTubes._actor.GetBounds()
+        return ()
 
     def plot(self):
         self.reset()
@@ -103,7 +108,6 @@ class opvRenderer(vtkRendererBase):
 
         self.updateColors()
         self.updateHud()
-        self._renderer.ResetCameraClippingRange()
 
     def buildSymbols(self):
         self.opvAcousticNodesSymbols.build()
