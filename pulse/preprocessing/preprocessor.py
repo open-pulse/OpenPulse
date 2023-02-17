@@ -17,7 +17,7 @@ from pulse.preprocessing.compressor_model import CompressorModel
 from pulse.preprocessing.before_run import BeforeRun
 from data.user_input.project.printMessageInput import PrintMessageInput
 
-from pulse.utils import split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles, check_is_there_a_group_of_elements_inside_list_elements
+from pulse.utils import *# split_sequence, m_to_mm, mm_to_m, slicer, _transformation_matrix_3x3xN, _transformation_matrix_Nx3x3_by_angles, check_is_there_a_group_of_elements_inside_list_elements
 
 window_title_1 = "ERROR"
 
@@ -37,6 +37,7 @@ class Preprocessor:
         self.structural_elements = {}
         self.acoustic_elements = {}
         # self.neighbors = {}
+        self.elements_connected_to_node = None
         self.dict_tag_to_entity = {}
         self.line_to_elements = {}
         self.dict_line_to_nodes = {}
@@ -102,13 +103,15 @@ class Preprocessor:
         self.stress_stiffening_enabled = False
         self.group_index = 0
         # self.compressor_excitation_table_indexes = []
+        self.structure_principal_diagonal = None
+        self.nodal_coordinates_matrix_external = None
         
         self.beam_gdofs = None
         self.pipe_gdofs = None
         self.unprescribed_pipe_indexes = None
         self.stop_processing = False
 
-    def generate(self, path, element_size, tolerance=1e-6):
+    def generate(self, path, element_size, tolerance=1e-6, gmsh_geometry=False):
         """
         This method evaluates the Lamé's first parameter `lambda`.
 
@@ -122,7 +125,8 @@ class Preprocessor:
         """
         self.element_size = element_size
         self.reset_variables()
-        self._initialize_gmsh(path)
+        if not gmsh_geometry:
+            self._initialize_gmsh(path)
         self._set_gmsh_options(element_size, tolerance=tolerance)
         self._create_entities()
         self._map_lines_to_elements()
@@ -151,7 +155,6 @@ class Preprocessor:
         self.create_dict_lines_to_rotation_angles()
         # dt = time() - t0
         # print("Time to process all rotations matrices: ", dt)
-        
 
     def neighbor_elements_diameter(self):
         """
@@ -464,68 +467,69 @@ class Preprocessor:
 
     def add_lids_to_variable_cross_sections(self):
         """ This method adds lids to cross_section variations and terminations."""
-        for elements in self.elements_connected_to_node.values():
+        if self.elements_connected_to_node is not None:
+            for elements in self.elements_connected_to_node.values():
 
-            element = None
-            if len(elements)==2:
-                first_element, last_element = elements
-                
-                if 'beam_1' not in [first_element.element_type, last_element.element_type]:
-                    first_cross = first_element.cross_section
-                    last_cross = last_element.cross_section
+                element = None
+                if len(elements)==2:
+                    first_element, last_element = elements
                     
-                    if not (first_cross and last_cross):
+                    if 'beam_1' not in [first_element.element_type, last_element.element_type]:
+                        first_cross = first_element.cross_section
+                        last_cross = last_element.cross_section
+                        
+                        if not (first_cross and last_cross):
+                            continue
+
+                        first_outer_diameter = first_cross.outer_diameter
+                        first_inner_diameter = first_cross.inner_diameter
+                        last_outer_diameter = last_cross.outer_diameter
+                        last_inner_diameter = last_cross.inner_diameter
+
+                        if first_outer_diameter < last_inner_diameter:
+                            inner_diameter = first_inner_diameter 
+                            element = last_element
+
+                        if last_outer_diameter < first_inner_diameter:
+                            inner_diameter = last_inner_diameter 
+                            element = first_element
+                
+                elif len(elements) == 1: 
+
+                    element = elements[0]   
+                    if element.element_type == 'beam_1':
+                        continue  
+
+                    first_node = element.first_node
+                    last_node = element.last_node  
+
+                    if element.cross_section is None:
                         continue
+                    inner_diameter = element.cross_section.inner_diameter 
 
-                    first_outer_diameter = first_cross.outer_diameter
-                    first_inner_diameter = first_cross.inner_diameter
-                    last_outer_diameter = last_cross.outer_diameter
-                    last_inner_diameter = last_cross.inner_diameter
+                    if len(self.neighbors[first_node]) == 1:
+                        if self.get_number_attributes_from_node(first_node, acoustic=True) == 0:
+                            inner_diameter = 0
 
-                    if first_outer_diameter < last_inner_diameter:
-                        inner_diameter = first_inner_diameter 
-                        element = last_element
+                    elif len(self.neighbors[last_node]) == 1: 
+                        if self.get_number_attributes_from_node(last_node, acoustic=True) == 0:
+                            inner_diameter = 0
+                
+                if element:
 
-                    if last_outer_diameter < first_inner_diameter:
-                        inner_diameter = last_inner_diameter 
-                        element = first_element
+                    cross = element.cross_section
+                    outer_diameter = cross.outer_diameter
+                    offset_y = cross.offset_y
+                    offset_z = cross.offset_z
+                    insulation_thickness = cross.insulation_thickness
+                    section_label = cross.section_label
             
-            elif len(elements) == 1: 
-
-                element = elements[0]   
-                if element.element_type == 'beam_1':
-                    continue  
-
-                first_node = element.first_node
-                last_node = element.last_node  
-
-                if element.cross_section is None:
-                    continue
-                inner_diameter = element.cross_section.inner_diameter 
-
-                if len(self.neighbors[first_node]) == 1:
-                    if self.get_number_attributes_from_node(first_node, acoustic=True) == 0:
-                        inner_diameter = 0
-
-                elif len(self.neighbors[last_node]) == 1: 
-                    if self.get_number_attributes_from_node(last_node, acoustic=True) == 0:
-                        inner_diameter = 0
-            
-            if element:
-
-                cross = element.cross_section
-                outer_diameter = cross.outer_diameter
-                offset_y = cross.offset_y
-                offset_z = cross.offset_z
-                insulation_thickness = cross.insulation_thickness
-                section_label = cross.section_label
-        
-                if element.element_type == 'expansion_joint':
-                    _key = element.cross_section.expansion_joint_plot_key
-                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
-                else:
-                    parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
-                element.cross_section_points = get_circular_section_points(parameters, section_label)
+                    if element.element_type == 'expansion_joint':
+                        _key = element.cross_section.expansion_joint_plot_key
+                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness, _key]
+                    else:
+                        parameters = [outer_diameter, inner_diameter, offset_y, offset_z, insulation_thickness]
+                    element.cross_section_points = get_circular_section_points(parameters, section_label)
                         
     def get_number_attributes_from_node(self, node, acoustic=False, structural=False):
         
@@ -552,34 +556,34 @@ class Preprocessor:
             return countS
              
     def get_list_edge_nodes(self, size, tolerance=1e-5):
-        
-        coord_matrix = self.nodal_coordinates_matrix_external
-        # self.list_edge_nodes = []
-        list_node_ids = []
-        for node, neigh_nodes in self.neighbors.items():
-            if len(neigh_nodes) == 1:
-                # self.list_edge_nodes.append(node.external_index)
-                coord = node.coordinates
-                diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
-                mask = diff < ((size/2) + tolerance)
-                if True in mask:
-                    try:
-                        list_external_indexes = coord_matrix[:,0][mask]
-                        if len(list_external_indexes) > 1:
-                            for external_index in list_external_indexes:
-                                if len(self.neighbors[self.nodes[external_index]]) == 1:
-                                    list_node_ids.append(int(external_index))
-                    except Exception as _log_error:
-                        PrintMessageInput(["Error while checking mesh at the line edges", str(_log_error), window_title_1])
-        
-        if len(list_node_ids)>0:
-            title = "Problem detected in connectivity between neighbor nodes"
-            message = "At least one disconnected node has been detected at the edge of one line due "
-            message += "to the mismatch between the geometry 'keypoints' and the current mesh setup. " 
-            message += "We strongly recommend reducing the element size or correcting the problem "
-            message += "in the geometry file before proceeding with the model setup.\n\n"
-            message += f"List of disconnected node(s): \n{list_node_ids}"
-            PrintMessageInput([title, message, window_title_1])                
+        if self.nodal_coordinates_matrix_external is not None:
+            coord_matrix = self.nodal_coordinates_matrix_external
+            # self.list_edge_nodes = []
+            list_node_ids = []
+            for node, neigh_nodes in self.neighbors.items():
+                if len(neigh_nodes) == 1:
+                    # self.list_edge_nodes.append(node.external_index)
+                    coord = node.coordinates
+                    diff = np.linalg.norm(coord_matrix[:,1:] - np.array(coord), axis=1)
+                    mask = diff < ((size/2) + tolerance)
+                    if True in mask:
+                        try:
+                            list_external_indexes = coord_matrix[:,0][mask]
+                            if len(list_external_indexes) > 1:
+                                for external_index in list_external_indexes:
+                                    if len(self.neighbors[self.nodes[external_index]]) == 1:
+                                        list_node_ids.append(int(external_index))
+                        except Exception as _log_error:
+                            PrintMessageInput(["Error while checking mesh at the line edges", str(_log_error), window_title_1])
+            
+            if len(list_node_ids)>0:
+                title = "Problem detected in connectivity between neighbor nodes"
+                message = "At least one disconnected node has been detected at the edge of one line due "
+                message += "to the mismatch between the geometry 'keypoints' and the current mesh setup. " 
+                message += "We strongly recommend reducing the element size or correcting the problem "
+                message += "in the geometry file before proceeding with the model setup.\n\n"
+                message += f"List of disconnected node(s): \n{list_node_ids}"
+                PrintMessageInput([title, message, window_title_1])                
         
 
     def get_line_from_node_id(self, node_ids):
@@ -2832,7 +2836,7 @@ class Preprocessor:
         for index, element in enumerate(self.structural_elements.values()):
             rotation_data[index,:] = element.mean_rotations_at_local_coordinate_system()   
         
-        rotation_results_matrices = _transformation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
+        rotation_results_matrices = transformation_matrix_Nx3x3_by_angles(rotation_data[:, 0], rotation_data[:, 1], rotation_data[:, 2])  
         matrix_resultant = rotation_results_matrices@self.transformation_matrices 
         r = Rotation.from_matrix(matrix_resultant)
         angles = -r.as_euler('zxy', degrees=True)
@@ -2851,7 +2855,7 @@ class Preprocessor:
             delta_data[index,:] = element.delta_x, element.delta_y, element.delta_z
             xaxis_rotation_angle[index] = element.xaxis_beam_rotation 
 
-        self.transformation_matrices = _transformation_matrix_3x3xN(delta_data[:,0], 
+        self.transformation_matrices = transformation_matrix_3x3xN(delta_data[:,0], 
                                                                     delta_data[:,1], 
                                                                     delta_data[:,2], 
                                                                     gamma = xaxis_rotation_angle)
@@ -3232,6 +3236,127 @@ class Preprocessor:
     
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
+
+    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", built_in=False):
+        try:
+            
+            gmsh.initialize('', False)
+            gmsh.model.add("OpenPulse - geometry designer")
+
+            lc = 1e-2
+            # radius = 100
+            # P1 = np.array([0,0,1000])
+            # P2 = np.array([0,0,0])
+            # P3 = np.array([-1000,0,0])
+
+            points = entities_data["points_data"]
+            lines = entities_data["lines_data"]
+            fillet_data = entities_data["fillets_data"]
+
+            corner_points = []
+            list_lines = []
+            for point_id, coords in points.items():
+                if unit_length == "m":
+                    coords = m_to_mm(coords)
+                if built_in:
+                    gmsh.model.geo.addPoint(coords[0], coords[1], coords[2], tag=point_id)
+        
+                else:
+                    gmsh.model.occ.addPoint(coords[0], coords[1], coords[2], tag=point_id)
+        
+            teste = defaultdict(list)
+            for fillet_id, data in fillet_data.items():
+                corner_points.append(data[4])
+                
+                min_L1 = min([data[3],data[4]])
+                max_L1 = max([data[3],data[4]])
+                min_L2 = min([data[4],data[5]])
+                max_L2 = max([data[4],data[5]])
+                
+                key_1 = f"{min_L1}-{max_L1}"
+                key_2 = f"{min_L2}-{max_L2}"
+
+                teste[key_1].append(data[-2])
+                teste[key_2].append(data[-1])
+            print(teste)
+
+            for fillet_id, data in fillet_data.items():
+                if len(fillet_data) == 1:
+                    if built_in:
+                        seg1 = gmsh.model.geo.addLine(data[3], data[-2], tag=-1)
+                        seg2 = gmsh.model.geo.addCircleArc(data[-2], data[6], data[-1], tag=-1)
+                        seg3 = gmsh.model.geo.addLine(data[5], data[-1], tag=-1)
+                    else:
+                        seg1 = gmsh.model.occ.addLine(data[3], data[-2], tag=-1)
+                        seg2 = gmsh.model.occ.addCircleArc(data[-2], data[6], data[-1], tag=-1)
+                        seg3 = gmsh.model.occ.addLine(data[5], data[-1], tag=-1)
+                else:
+                    Q1, Q2, Q3 = data[7], data[8], data[6]
+                    # corner_point = data[4]
+                    if data[5] in corner_points:
+                        min_L2 = min([data[4],data[5]])
+                        max_L2 = max([data[4],data[5]])
+                        _key = f"{min_L2}-{max_L2}"
+                        for point in teste[_key]:
+                            if point != data[8]:
+                                P3 = point
+                        P1 = data[3]
+
+                    elif data[3] in corner_points:
+                        P1 = Q1
+                        # min_L1 = min([data[3],data[4]])
+                        # max_L1 = max([data[3],data[4]])
+                        # _key = f"{min_L1}-{max_L1}"
+                        # for point in teste[_key]:
+                        #     if point != data[7]:
+                        #         P1 = point
+                        P3 = data[5]
+                    else:
+                        P1, Q1, Q2, Q3, P3 = data[3], data[7], data[8], data[6], data[5]
+                    if built_in:
+                        if P1 != Q1:
+                            seg1 = gmsh.model.geo.addLine(P1, Q1, tag=-1)
+                        seg2 = gmsh.model.geo.addCircleArc(Q1, Q3, Q2, tag=-1)
+                        if Q2 != P3:
+                            seg3 = gmsh.model.geo.addLine(Q2, P3, tag=-1)
+                    else:
+                        if P1 != Q1:
+                            seg1 = gmsh.model.occ.addLine(P1, Q1, tag=-1)
+                        seg2 = gmsh.model.occ.addCircleArc(Q1, Q3, Q2, tag=-1)
+                        if Q2 != P3:
+                            seg3 = gmsh.model.occ.addLine(Q2, P3, tag=-1)
+                
+                for seg in [seg1,seg2,seg3]:
+                    list_lines.append(seg)
+            
+            for line_id, points in lines.items():
+                if (points[0] not in corner_points) and (points[1] not in corner_points):
+                    print(points, corner_points)
+                    if built_in:
+                        seg4 = gmsh.model.geo.addLine(points[0], points[1], tag=-1)
+                    else:
+                        seg4 = gmsh.model.occ.addLine(points[0], points[1], tag=-1)
+                    list_lines.append(seg4)
+
+            gmsh.model.addPhysicalGroup(1, list_lines, 1)
+
+            if built_in:
+                gmsh.model.geo.synchronize()
+            else:
+                gmsh.model.occ.synchronize()
+
+            # ... and save it to disk
+            if geometry_path != "":
+                gmsh.write(geometry_path)
+
+            if '-nopopup' not in sys.argv:
+                gmsh.option.setNumber('General.FltkColorScheme', 1)
+                gmsh.fltk.run()
+
+            # gmsh.finalize()
+
+        except Exception as _error:
+            print(str(_error))
 
     #TODO: remove the following methods if they are not necessary anymore
 

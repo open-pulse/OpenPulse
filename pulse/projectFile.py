@@ -18,6 +18,7 @@ class ProjectFile:
         self._reset()
         self.reset_frequency_setup()
         self._entity_file_name = "entity.dat"
+        self._geometry_entities_file_name = "geometry_entities.dat"
         self._node_structural_file_name = "structural_nodal_info.dat"
         self._node_acoustic_file_name = "acoustic_nodal_info.dat"
         self._elements_file_name = "elements_info.dat"
@@ -28,11 +29,13 @@ class ProjectFile:
         self._project_name = ""
         self._import_type = 0
         self._section = 0
-        self._element_size = 1e-8
+        self._element_size = 0.01
         self._project_path = ""
         self._material_list_path = ""
         self._fluid_list_path = ""
         self._geometry_path = ""
+        self._geometry_filename = ""
+        self._geometry_tolerance = 1e-8
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
@@ -67,6 +70,23 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+
+    def new_empty(self, project_path, project_name, import_type, material_list_path, fluid_list_path):
+        self._project_path = project_path
+        self._project_name = project_name
+        self._element_size = None
+        self._geometry_tolerance = None
+        self._import_type = import_type
+        self._material_list_path = material_list_path
+        self._fluid_list_path = fluid_list_path
+        self._geometry_path = ""
+        self._entity_path = get_new_path(self._project_path, self._entity_file_name)
+        self._node_structural_path = get_new_path(self._project_path, self._node_structural_file_name)
+        self._node_acoustic_path = get_new_path(self._project_path, self._node_acoustic_file_name)
+        self._element_info_path = get_new_path(self._project_path, self._elements_file_name)
+        self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
+        self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
+        self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")    
     
     def copy(self, project_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self._project_path = project_path
@@ -94,14 +114,16 @@ class ProjectFile:
         project_name = config['PROJECT']['Name']
         import_type = int(config['PROJECT']['Import type'])
 
-        if import_type == 0:
-            geometry_file = config['PROJECT']['Geometry file']
-            element_size = config['PROJECT']['Element size']
+        if import_type in [0,2]:
+            if 'geometry file' in list(config['PROJECT'].keys()):
+                geometry_file = config['PROJECT']['Geometry file']
+                self._geometry_path =  get_new_path(self._project_path, geometry_file)
+            if 'element size' in list(config['PROJECT'].keys()):
+                element_size = config['PROJECT']['Element size']
+                self._element_size = float(element_size)
             if 'geometry tolerance' in list(config['PROJECT'].keys()):
                 geometry_tolerance = config['PROJECT']['Geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
-            self._element_size = float(element_size)
-            self._geometry_path =  get_new_path(self._project_path, geometry_file)
 
         elif import_type == 1:
             coord_file = config['PROJECT']['Nodal coordinates file']
@@ -123,6 +145,57 @@ class ProjectFile:
         self._imported_data_folder_path = get_new_path(self._project_path, self._imported_data_folder_name)
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
+
+    def add_geometry_entities_to_file(self, entities_data):
+        
+        temp_geometry_file_path = get_new_path(self._geometry_path, self._geometry_entities_file_name)
+        config = configparser.ConfigParser()
+        config.read(temp_geometry_file_path)
+
+        config['Points'] = entities_data["points_data"]
+        config['Lines'] = entities_data["lines_data"]
+        
+        if len(entities_data["fillets_data"]) > 0:
+            config['Fillets'] = entities_data["fillets_data"]
+
+        self.write_data_in_file(temp_geometry_file_path, config)
+        
+    def load_geometry_entities_file(self):
+        
+        temp_geometry_file_path = get_new_path(self._geometry_path, self._geometry_entities_file_name)
+        if os.path.exists(temp_geometry_file_path):
+            config = configparser.ConfigParser()
+            config.read(temp_geometry_file_path)
+            sections = config.sections()
+            entities_data = {}
+
+            if 'Points' in sections:
+                points_data = {}
+                keys = list(config['Points'].keys())
+                for key in keys:
+                    points_data[int(key)] = self._get_list_of_values_from_string(config['Points'][key], are_values_int=False)
+                entities_data['points_data'] = points_data   
+                # print(entities_data['points_data']) 
+
+            if 'Lines' in sections:
+                lines_data = {}
+                keys = list(config['Lines'].keys())
+                for key in keys:
+                    lines_data[int(key)] = self._get_list_of_values_from_string(config['Lines'][key])
+                entities_data['lines_data'] = lines_data
+                # print(entities_data['lines_data'])   
+
+            if 'Fillets' in sections:
+                fillets_data = {}
+                keys = list(config['Fillets'].keys())
+                for key in keys:
+                    fillets_data[int(key)] = self._get_list_of_values_from_string(config['Fillets'][key], are_values_int=False)
+                entities_data['fillets_data'] = fillets_data
+                # print(entities_data['fillets_data'])  
+            
+            return entities_data
+        else:
+            return None
 
     #Frequency Setup Analysis
     def load_analysis_file(self):

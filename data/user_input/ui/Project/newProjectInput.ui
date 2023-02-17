@@ -304,6 +304,60 @@ color: rgb(0, 0, 255);</string>
     <property name="currentIndex">
      <number>0</number>
     </property>
+    <widget class="QWidget" name="tab_3">
+     <attribute name="title">
+      <string>Create an empty project</string>
+     </attribute>
+     <widget class="QToolButton" name="toolButton_create_empty_project">
+      <property name="geometry">
+       <rect>
+        <x>154</x>
+        <y>36</y>
+        <width>220</width>
+        <height>40</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>220</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>220</width>
+        <height>40</height>
+       </size>
+      </property>
+      <property name="sizeIncrement">
+       <size>
+        <width>0</width>
+        <height>1</height>
+       </size>
+      </property>
+      <property name="font">
+       <font>
+        <family>Arial</family>
+        <pointsize>12</pointsize>
+        <weight>75</weight>
+        <italic>true</italic>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-color: rgb(167, 255, 241);</string>
+      </property>
+      <property name="text">
+       <string>Create an empty project</string>
+      </property>
+     </widget>
+    </widget>
     <widget class="QWidget" name="tab">
      <attribute name="title">
       <string>Import geometry</string>

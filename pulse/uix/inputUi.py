@@ -3,6 +3,7 @@ from data.user_input.project.newProjectInput import NewProjectInput
 from data.user_input.project.loadProjectInput import LoadProjectInput
 from data.user_input.project.getStartedInput import GetStartedInput
 from data.user_input.project.resetProjectInput import ResetProjectInput
+from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from data.user_input.project.setProjectAttributesInput import SetProjectAttributesInput
 from data.user_input.project.setGeometryFileInput import SetGeometryFileInput
 from data.user_input.project.setMeshPropertiesInput import SetMeshPropertiesInput
@@ -99,7 +100,7 @@ class InputUi:
             # return read
 
     def new_project(self, config):
-        new_project_input = self.processInput(NewProjectInput, self.project, config)
+        new_project_input = self.processInput(NewProjectInput, self.project, self.opv, config)
         return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
@@ -107,19 +108,24 @@ class InputUi:
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
+        self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
         return self.initial_project_action(get_started.draw)          
     
     def initial_project_action(self, obj):
+        if self.project.empty_geometry:
+            self.parent.set_enable_menuBar(False)
+            self.parent.menuWidget.tree_widget.modify_create_geometry_item_access(False)
+            return True  
         if obj:
             self.project.none_project_action = False
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
             self.parent.set_enable_menuBar(True)
+            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
             return True
         else:
             self.project.none_project_action = True
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
             self.parent.set_enable_menuBar(False)
+            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
             return False                 
 
     def reset_project(self):
@@ -132,6 +138,10 @@ class InputUi:
 
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)
+
+    def call_geometry_designer(self):
+        read = self.processInput(GeometryDesignerInput, self.project, self.opv)
+        return read.complete
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)

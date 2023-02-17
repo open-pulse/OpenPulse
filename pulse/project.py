@@ -31,7 +31,7 @@ class Project:
         self.reset_info()
 
     def reset_info(self):
-
+        self.empty_geometry = True
         self.analysis_ID = None
         self.analysis_type_label = ""
         self.analysis_method_label = ""
@@ -85,9 +85,7 @@ class Project:
         return False
 
     def new_project(self, project_folder_path, project_name, element_size, geometry_tolerance, import_type, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
-        
         self.reset_info()
-    
         self.file.new(  project_folder_path, 
                         project_name, 
                         element_size, 
@@ -106,6 +104,17 @@ class Project:
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
 
+    def new_empty_project(self, project_folder_path, project_name, import_type, material_list_path, fluid_list_path,):
+        self.reset_info()
+        self.file.new_empty(project_folder_path, 
+                            project_name, 
+                            import_type, 
+                            material_list_path, 
+                            fluid_list_path  )
+        
+        self._project_name = project_name
+        self.project_folder_path = project_folder_path
+
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.file.copy( project_folder_path, 
                         project_name, 
@@ -118,23 +127,68 @@ class Project:
          
     def load_project(self, project_file_path):
         def callback():
-            self.initial_load_project_actions(project_file_path)
-            self.load_project_files()
+            if self.initial_load_project_actions(project_file_path):
+                self.load_project_files()
         LoadingScreen('Loading Project', target=callback)
         self.preprocessor.get_list_edge_nodes(self.file._element_size)
     
-    def initial_load_project_actions(self, project_file_path):
+    def initial_load_project_actions(self, project_file_path, force_mesh=False):
         try:
             self.reset_info()
             self.file.load(project_file_path)
             self._project_name = self.file._project_name
             self.project_folder_path = os.path.dirname(project_file_path)
-            self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-            self.entities = self.preprocessor.dict_tag_to_entity.values()
+            path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
+            if os.path.exists(path) and self.file._import_type == 2 and not force_mesh:
+                self.load_geometry_entities()
+                self.empty_geometry = False
+                return True
+            elif not os.path.exists(path) and self.file._import_type == 2:
+                # self.empty_geometry = True
+                return False
+            else:
+                self.empty_geometry = False
+                self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
+                self.entities = self.preprocessor.dict_tag_to_entity.values()
+                if force_mesh:
+                    self.file.create_entity_file(self.preprocessor.all_lines)
+                return True
         except Exception as log_error:
             title = "Error while processing initial load project actions"
             message = str(log_error)
             PrintMessageInput([title, message, window_title])
+            return False
+
+    def set_geometry_entities(self, entities_data, geometry_path, built_in):
+        self.file.add_geometry_entities_to_file(entities_data)
+        self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, built_in=built_in)
+    
+    def load_geometry_entities(self, built_in=True):
+
+        path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
+        if os.path.exists(path):
+            input_entities_data = self.file.load_geometry_entities_file()
+            if input_entities_data is None:
+                return
+            
+            points_data = input_entities_data['points_data']
+            lines_data = input_entities_data['lines_data']
+
+            fillets_data = {}
+            for fillet_id, data in input_entities_data['fillets_data'].items():
+                aux = []
+                for index, value in enumerate(data):
+                    if index == 2:
+                        aux.append(value)
+                    else:
+                        aux.append(int(value))
+
+                fillets_data[fillet_id] = aux
+                output_entities_data = {"points_data" : points_data,
+                                        "lines_data" : lines_data,
+                                        "fillets_data" : fillets_data}
+            
+            # self.preprocessor.generate_geometry_gmsh(output_entities_data, built_in=built_in)
 
     def load_project_files(self):
         self.load_structural_bc_file()
@@ -290,10 +344,13 @@ class Project:
                 rmtree(self.file._imported_data_folder_path)
 
     def process_geometry_and_mesh(self, tolerance=1e-6):
-        if self.file.get_import_type() == 0:
+        import_type = self.file.get_import_type()
+        if import_type == 0:
             self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
-        elif self.file.get_import_type() == 1:
+        elif import_type == 1:
             self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
+        elif import_type == 2:
+            self.preprocessor.generate("", self.file.element_size, tolerance=tolerance, gmsh_geometry=True)
 
     def add_user_preferences_to_file(self, preferences):
         self.file.add_user_preferences_to_file(preferences)
@@ -805,7 +862,7 @@ class Project:
 
     def set_cross_section_by_line(self, lines, cross_section):
         self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,2]:
             self.preprocessor.set_cross_section_by_line(lines, cross_section)
         elif self.file.get_import_type() == 1:
             self.preprocessor.set_cross_section_by_element('all', cross_section)

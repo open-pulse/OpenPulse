@@ -33,7 +33,8 @@ class SymbolsActorBase(vtkActorBase):
         self.project = project 
         self.preprocessor = project.preprocessor
         self.deformed = deformed
-        self.process_scaleFactor()
+        if self.process_scaleFactor():
+            self.scaleFactor = 1
 
         self._connections = self._createConnections()
         # self._sequence = self._createSequence()
@@ -70,9 +71,13 @@ class SymbolsActorBase(vtkActorBase):
     #     return []
 
     def process_scaleFactor(self):
-        self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
-        if 200*self.project.file._element_size < self.scaleFactor:
-            self.scaleFactor = 200*self.project.file._element_size
+        if self.project.preprocessor.structure_principal_diagonal is None:
+            return True
+        else:
+            self.scaleFactor = self.project.preprocessor.structure_principal_diagonal / 10
+            if 200*self.project.file._element_size < self.scaleFactor:
+                self.scaleFactor = 200*self.project.file._element_size
+                return False
 
     def source(self):
 

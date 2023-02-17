@@ -10,13 +10,14 @@ from time import time
 from pulse.project import Project
 from pulse.default_libraries import default_material_library, default_fluid_library
 from data.user_input.project.printMessageInput import PrintMessageInput
+from data.user_input.project.geometryDesignerInput import GeometryDesignerInput
 from pulse.utils import get_new_path
 
 window_title1 = "ERROR MESSAGE"
 window_title2 = "WARNING MESSAGE"
 
 class NewProjectInput(QDialog):
-    def __init__(self, project, config, *args, **kwargs):
+    def __init__(self, project, opv, config, *args, **kwargs):
         super().__init__(*args, **kwargs)
         uic.loadUi('data/user_input/ui/Project/newProjectInput.ui', self)
 
@@ -28,6 +29,7 @@ class NewProjectInput(QDialog):
         self.setWindowModality(Qt.WindowModal)
 
         self.project = project
+        self.opv = opv
         self.config = config
         self.create = False
         self.stop = False
@@ -60,6 +62,9 @@ class NewProjectInput(QDialog):
 
         self.toolButton_import_geometry = self.findChild(QToolButton, 'toolButton_import_geometry')
         self.toolButton_import_geometry.clicked.connect(self.import_geometry)
+        
+        self.toolButton_create_empty_project = self.findChild(QToolButton, 'toolButton_create_empty_project')
+        self.toolButton_create_empty_project.clicked.connect(self.accept_project)
 
         self.toolButton_import_cord = self.findChild(QToolButton, 'toolButton_import_cord')
         self.toolButton_import_cord.clicked.connect(self.import_cord)
@@ -117,7 +122,7 @@ class NewProjectInput(QDialog):
             PrintMessageInput([title, message, window_title1])
             return
 
-        if self.currentTab == 0: # .iges & .step
+        if self.currentTab == 1: # .iges & .step
             if self.lineEdit_import_geometry.text() == "":
                 title = 'Empty geometry at selection'
                 message = "Please, select a valid *.iges or *.step format geometry to continue."
@@ -151,7 +156,7 @@ class NewProjectInput(QDialog):
                     PrintMessageInput([title, message, window_title1])
                     return        
 
-        if self.currentTab == 1: #.dat
+        if self.currentTab == 2: #.dat
             if self.lineEdit_import_nodal_coordinates.text() == "":
                 title = 'None nodal coordinates matrix file selected'
                 message = "Please, select a valid nodal coordinates matrix file to continue."
@@ -196,6 +201,17 @@ class NewProjectInput(QDialog):
         self.createProjectFile()
         
         if self.currentTab == 0:
+            project_name = self.lineEdit_project_name.text()
+            import_type = 2
+            self.config.writeRecentProject(project_name, self.project_file_path)
+            self.project.new_empty_project( self.project_folder_path, 
+                                            project_name,
+                                            import_type, 
+                                            self.material_list_path, 
+                                            self.fluid_list_path )
+            return True
+
+        elif self.currentTab == 1:
             geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())
             new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_import_geometry.text(), new_geometry_path)
@@ -213,8 +229,8 @@ class NewProjectInput(QDialog):
                                         self.fluid_list_path, 
                                         geometry_path=new_geometry_path   )
             return True
-            
-        elif self.currentTab == 1:
+        
+        elif self.currentTab == 2:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             new_cord_path = get_new_path(self.project_folder_path, nodal_coordinates_filename)
@@ -244,6 +260,11 @@ class NewProjectInput(QDialog):
         config['PROJECT']['Name'] = self.lineEdit_project_name.text()
 
         if self.currentTab == 0:
+            config['PROJECT']['Import type'] = str(2)
+            config['PROJECT']['Geometry file'] = ""
+
+
+        if self.currentTab == 1:
             geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())
             element_size = self.lineEdit_element_size.text()
             geometry_tolerance = self.lineEdit_geometry_tolerance.text()
@@ -253,7 +274,7 @@ class NewProjectInput(QDialog):
             config['PROJECT']['Element size'] = element_size
             config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
-        elif self.currentTab == 1:
+        elif self.currentTab == 2:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             config['PROJECT']['Import type'] = str(1)

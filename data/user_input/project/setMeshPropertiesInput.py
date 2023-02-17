@@ -36,6 +36,13 @@ class SetMeshPropertiesInput(QDialog):
         self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
         self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()
   
+        self.dict_old_to_new_node_external_indexes = {}
+        self.dict_non_mapped_bcs = {}
+        self.dict_group_elements_to_update_entity_file = {}
+        self.dict_group_elements_to_update_element_info_file = {}
+        self.dict_non_mapped_subgroups_entity_file = {}
+        self.dict_non_mapped_subgroups_info_file = {}
+        self.dict_list_elements_to_subgroups = {}
         # self.config = config
         self.complete = False
         self.create = False
@@ -138,26 +145,29 @@ class SetMeshPropertiesInput(QDialog):
     def process_intermediate_actions(self, undo_remesh=False, mapping=True):
         self.t0 = time()
         self.update_project_attributes(undo_remesh=undo_remesh)
-        self.project.initial_load_project_actions(self.project_ini_file_path)
-        if mapping:
-            #
-            [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)  
-            #
-            self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
-            self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
-
+        self.project.initial_load_project_actions(self.project_ini_file_path, force_mesh=True)
+        if len(self.preprocessor.structural_elements) > 0:
+            if mapping:
+                #
+                [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)  
+                #
+                self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+                self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
         if undo_remesh:
             self.project.load_project_files()     
             self.opv.opvRenderer.plot()
             self.opv.changePlotToMesh() 
 
     def process_final_actions(self):
-        self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
-        self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
-                                                                    self.dict_non_mapped_subgroups_entity_file)
-        self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
-                                                                            self.dict_non_mapped_subgroups_info_file,
-                                                                            self.dict_list_elements_to_subgroups    )
+        if len(self.dict_old_to_new_node_external_indexes) > 0:
+            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
+        if len(self.dict_group_elements_to_update_entity_file) > 0:
+            self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
+                                                                        self.dict_non_mapped_subgroups_entity_file)
+        if len(self.dict_group_elements_to_update_element_info_file) > 0:
+            self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
+                                                                                self.dict_non_mapped_subgroups_info_file,
+                                                                                self.dict_list_elements_to_subgroups    )
         self.project.load_project_files()     
         self.opv.opvRenderer.plot()
         self.opv.opvAnalysisRenderer.plot()
