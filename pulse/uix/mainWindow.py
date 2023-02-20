@@ -678,13 +678,13 @@ class MainWindow(QMainWindow):
     def newProject_call(self):
         if self.inputWidget.new_project(self.config):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.get_project_name())
+            self.changeWindowTitle(self.project.file._project_name)
             self.draw()
 
     def importProject_call(self, path=None):
         if self.inputWidget.loadProject(self.config, path):
             self._loadProjectMenu()
-            self.changeWindowTitle(self.project.get_project_name())
+            self.changeWindowTitle(self.project.file._project_name)
             self.draw()
     
     def resetProject_call(self):
@@ -700,13 +700,12 @@ class MainWindow(QMainWindow):
         else:
             if self.inputWidget.getStarted(self.config):
                 self._loadProjectMenu()
-                self.changeWindowTitle(self.project.get_project_name())
+                self.changeWindowTitle(self.project.file._project_name)
                 if len(self.project.preprocessor.structural_elements) > 0:
                     self.draw()
 
     def savePNG_call(self):
-        userPath = expanduser('~')
-        project_path = "{}\\OpenPulse\\Projects".format(userPath)
+        project_path = self.project.file._project_path
         if not exists(project_path):
             project_path = ""
         path, _type = QFileDialog.getSaveFileName(None, 'Save file', project_path, 'PNG (*.png)')

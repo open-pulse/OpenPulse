@@ -123,6 +123,7 @@ class Preprocessor:
         element_size : float
             Element size to be used to build the preprocessor.
         """
+
         self.element_size = element_size
         self.reset_variables()
         if not gmsh_geometry:
@@ -130,6 +131,7 @@ class Preprocessor:
         self._set_gmsh_options(element_size, tolerance=tolerance)
         self._create_entities()
         self._map_lines_to_elements()
+        self._map_lines_to_nodes()
         self._finalize_gmsh()
 
         # t0 = time()
@@ -442,6 +444,18 @@ class Preprocessor:
         edge_nodes = [list_nodes[0], _node]
         return length, edge_nodes
 
+    def get_lines_edges_coordinates(self):
+        """
+        This method returns a dictionary of line IDs to edge nodes coordinates.
+        """
+        dict_line_coord_edges = defaultdict(list)
+        if len(self.dict_line_to_nodes) != 0:
+            for line_id in self.dict_tag_to_entity.keys():
+                _, nodes = self.get_line_length(line_id)
+                for node in nodes:
+                    dict_line_coord_edges[line_id].append(node.coordinates)
+        return dict_line_coord_edges
+
     def _finalize_gmsh(self):
         """
         This method finalize the mesher gmsh algorithm.
@@ -466,7 +480,9 @@ class Preprocessor:
             #     self.nodes_with_multiples_neighbors[element.last_node] = self.neighbors[element.last_node]
 
     def add_lids_to_variable_cross_sections(self):
-        """ This method adds lids to cross_section variations and terminations."""
+        """ 
+        This method adds lids to cross_section variations and terminations.
+        """
         if self.elements_connected_to_node is not None:
             for elements in self.elements_connected_to_node.values():
 
@@ -585,7 +601,6 @@ class Preprocessor:
                 message += f"List of disconnected node(s): \n{list_node_ids}"
                 PrintMessageInput([title, message, window_title_1])                
         
-
     def get_line_from_node_id(self, node_ids):
 
         if isinstance(node_ids, int):
@@ -605,7 +620,26 @@ class Preprocessor:
 
         return line_ids
  
+    def get_edge_nodes_from_lines(self):
+        """
+        This method returns line to coordinates.
 
+        Parameters
+        ----------
+
+        """
+        if self.nodal_coordinates_matrix_external is not None:
+            # coord_matrix = self.nodal_coordinates_matrix_external
+            dict_line_to_point_coordinates = defaultdict(list)
+            for node, neigh_nodes in self.neighbors.items():
+                if len(neigh_nodes) == 1:
+                    edge_node = neigh_nodes[0]
+                    for line_id, list_nodes in self.dict_line_to_nodes.items():
+                        if edge_node.external_index in list_nodes:
+                            dict_line_to_point_coordinates[line_id].append(edge_node.coordinates)
+        print(dict_line_to_point_coordinates)
+        return dict_line_to_point_coordinates
+        
     def _order_global_indexes(self):
         """
         This method updates the nodes global indexes numbering.
@@ -3237,7 +3271,7 @@ class Preprocessor:
     def get_unprescribed_pipe_indexes(self):
         return self.unprescribed_pipe_indexes
 
-    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", built_in=False):
+    def generate_geometry_gmsh(self, entities_data, geometry_path="", unit_length="m", kernel="built-in"):
         try:
             
             gmsh.initialize('', False)
@@ -3258,10 +3292,10 @@ class Preprocessor:
             for point_id, coords in points.items():
                 if unit_length == "m":
                     coords = m_to_mm(coords)
-                if built_in:
+                if kernel == "built-in":
                     gmsh.model.geo.addPoint(coords[0], coords[1], coords[2], tag=point_id)
         
-                else:
+                elif kernel == "Open Cascade":
                     gmsh.model.occ.addPoint(coords[0], coords[1], coords[2], tag=point_id)
         
             teste = defaultdict(list)
@@ -3278,15 +3312,14 @@ class Preprocessor:
 
                 teste[key_1].append(data[-2])
                 teste[key_2].append(data[-1])
-            print(teste)
 
             for fillet_id, data in fillet_data.items():
                 if len(fillet_data) == 1:
-                    if built_in:
+                    if kernel == "built-in":
                         seg1 = gmsh.model.geo.addLine(data[3], data[-2], tag=-1)
                         seg2 = gmsh.model.geo.addCircleArc(data[-2], data[6], data[-1], tag=-1)
                         seg3 = gmsh.model.geo.addLine(data[5], data[-1], tag=-1)
-                    else:
+                    elif kernel == "Open Cascade":
                         seg1 = gmsh.model.occ.addLine(data[3], data[-2], tag=-1)
                         seg2 = gmsh.model.occ.addCircleArc(data[-2], data[6], data[-1], tag=-1)
                         seg3 = gmsh.model.occ.addLine(data[5], data[-1], tag=-1)
@@ -3304,22 +3337,17 @@ class Preprocessor:
 
                     elif data[3] in corner_points:
                         P1 = Q1
-                        # min_L1 = min([data[3],data[4]])
-                        # max_L1 = max([data[3],data[4]])
-                        # _key = f"{min_L1}-{max_L1}"
-                        # for point in teste[_key]:
-                        #     if point != data[7]:
-                        #         P1 = point
                         P3 = data[5]
                     else:
                         P1, Q1, Q2, Q3, P3 = data[3], data[7], data[8], data[6], data[5]
-                    if built_in:
+
+                    if kernel == "built-in":
                         if P1 != Q1:
                             seg1 = gmsh.model.geo.addLine(P1, Q1, tag=-1)
                         seg2 = gmsh.model.geo.addCircleArc(Q1, Q3, Q2, tag=-1)
                         if Q2 != P3:
                             seg3 = gmsh.model.geo.addLine(Q2, P3, tag=-1)
-                    else:
+                    elif kernel == "Open Cascade":
                         if P1 != Q1:
                             seg1 = gmsh.model.occ.addLine(P1, Q1, tag=-1)
                         seg2 = gmsh.model.occ.addCircleArc(Q1, Q3, Q2, tag=-1)
@@ -3331,27 +3359,25 @@ class Preprocessor:
             
             for line_id, points in lines.items():
                 if (points[0] not in corner_points) and (points[1] not in corner_points):
-                    print(points, corner_points)
-                    if built_in:
+                    if kernel == "built-in":
                         seg4 = gmsh.model.geo.addLine(points[0], points[1], tag=-1)
-                    else:
+                    elif kernel == "Open Cascade":
                         seg4 = gmsh.model.occ.addLine(points[0], points[1], tag=-1)
                     list_lines.append(seg4)
 
             gmsh.model.addPhysicalGroup(1, list_lines, 1)
 
-            if built_in:
+            if kernel == "built-in":
                 gmsh.model.geo.synchronize()
-            else:
+            elif kernel == "Open Cascade":
                 gmsh.model.occ.synchronize()
 
-            # ... and save it to disk
             if geometry_path != "":
                 gmsh.write(geometry_path)
 
-            if '-nopopup' not in sys.argv:
-                gmsh.option.setNumber('General.FltkColorScheme', 1)
-                gmsh.fltk.run()
+            # if '-nopopup' not in sys.argv:
+            #     gmsh.option.setNumber('General.FltkColorScheme', 1)
+            #     gmsh.fltk.run()
 
             # gmsh.finalize()
 

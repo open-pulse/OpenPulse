@@ -1,13 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem
+from PyQt5.QtWidgets import QDialog, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QRadioButton
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
 import os
 import configparser
+import numpy as np
 from time import time
-# from collections import defaultdict
+from collections import defaultdict
 
-from pulse.utils import get_new_path, get_fillet_parameters, generate_geometry_gmsh
+from pulse.utils import get_new_path, get_fillet_parameters
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
@@ -26,10 +27,13 @@ class GeometryDesignerInput(QDialog):
         self.project = project
         self.preprocessor = project.preprocessor
         self.opv = opv
+        self.project_path = project.file._project_path
+        self.project_ini_path = get_new_path(self.project_path, "project.ini")
 
-        self.points = {}#defaultdict(list)
-        self.lines = {}#defaultdict(list)
-        self.fillets = {}#defaultdict(list)
+        self.points = {}
+        self.lines = {}
+        self.fillets = {}
+        self.dict_map_lines = {}
 
         # self.opv.setInputObject(self)
         self.setWindowFlags(Qt.WindowStaysOnTopHint)
@@ -39,6 +43,8 @@ class GeometryDesignerInput(QDialog):
         self._update_buttons()
         self._create_pushbutton_connections()
         self._create_checkbox_connections()
+        self.update_export_geometry_state()
+        self.update_process_geometry_and_mesh_state()
         self._create_onSingleClick_connections()
         self._create_onDoubleClick_connections()
         self.disable_fillet_line_points_lineEdits()
@@ -53,25 +59,35 @@ class GeometryDesignerInput(QDialog):
         if entities_data is None:
             return
         
-        self.points = entities_data['points_data']
-        self.lines = entities_data['lines_data']
+        self.points = {}
+        if 'points_data' in entities_data.keys():
+            self.points = entities_data['points_data']
 
+        self.lines = {}
+        if 'lines_data' in entities_data.keys():
+            self.lines = entities_data['lines_data']
+        
         self.fillets = {}
-        for fillet_id, data in entities_data['fillets_data'].items():
-            fillets_data = []
-            for index, value in enumerate(data):
-                if index == 2:
-                    fillets_data.append(value)
-                else:
-                    fillets_data.append(int(value))
-            self.fillets[fillet_id] = fillets_data
+        if 'fillets_data' in entities_data.keys():
+            for fillet_id, data in entities_data['fillets_data'].items():
+                fillets_data = []
+                for index, value in enumerate(data):
+                    if index == 2:
+                        fillets_data.append(value)
+                    else:
+                        fillets_data.append(int(value))
+                self.fillets[fillet_id] = fillets_data
 
         if len(self.points) > 0:
             self.load_points_info()
+
         if len(self.lines) > 0:
             self.load_lines_info()
+
         if len(self.fillets) > 0:
             self.load_fillets_info()
+
+        self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_edges_coordinates()
 
     def _define_Qt_variables(self):
         
@@ -103,11 +119,20 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_fillet_coord_y_point2 = self.findChild(QLineEdit, 'lineEdit_fillet_coord_y_point2')
         self.lineEdit_fillet_coord_z_point1 = self.findChild(QLineEdit, 'lineEdit_fillet_coord_z_point1')
         self.lineEdit_fillet_coord_z_point2 = self.findChild(QLineEdit, 'lineEdit_fillet_coord_z_point2')
+        self.lineEdit_geometry_name = self.findChild(QLineEdit,'lineEdit_geometry_name')
+        self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
+        self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
 
         self.checkBox_auto_point_ID = self.findChild(QCheckBox, 'checkBox_auto_point_ID')
         self.checkBox_auto_line_ID = self.findChild(QCheckBox, 'checkBox_auto_line_ID')
         self.checkBox_auto_fillet_ID = self.findChild(QCheckBox, 'checkBox_auto_fillet_ID')
+        self.checkBox_export_geometry = self.findChild(QCheckBox, 'checkBox_export_geometry')
+        self.checkBox_process_geometry_and_mesh = self.findChild(QCheckBox, 'checkBox_process_geometry_and_mesh')
 
+        self.radioButton_open_Cascade = self.findChild(QRadioButton, 'radioButton_open_Cascade')
+        self.radioButton_built_in = self.findChild(QRadioButton, 'radioButton_built_in')
+        self.radioButton_open_Cascade.setChecked(True)
+        
         self.pushButton_add_point = self.findChild(QPushButton, 'pushButton_add_point')
         self.pushButton_add_line = self.findChild(QPushButton, 'pushButton_add_line')
         self.pushButton_add_fillet = self.findChild(QPushButton, 'pushButton_add_fillet')
@@ -144,7 +169,29 @@ class GeometryDesignerInput(QDialog):
         self.checkBox_auto_point_ID.toggled.connect(self.update_auto_point_ID)
         self.checkBox_auto_line_ID.toggled.connect(self.update_auto_line_ID)
         self.checkBox_auto_fillet_ID.toggled.connect(self.update_auto_fillet_ID)
-    
+        self.checkBox_export_geometry.toggled.connect(self.update_export_geometry_state)
+        self.checkBox_process_geometry_and_mesh.toggled.connect(self.update_process_geometry_and_mesh_state)
+        self.radioButton_built_in.clicked.connect(self.update_radioButton_built_in)
+        self.radioButton_open_Cascade.clicked.connect(self.update_radioButton_open_Cascade)
+
+    def update_radioButton_built_in(self):
+        self.checkBox_export_geometry.setChecked(False)
+        self.lineEdit_geometry_name.setDisabled(True)
+
+    def update_radioButton_open_Cascade(self):
+        if self.checkBox_export_geometry.isChecked():
+            self.lineEdit_geometry_name.setDisabled(True)
+
+    def update_process_geometry_and_mesh_state(self):
+        _bool = self.checkBox_process_geometry_and_mesh.isChecked()
+        self.lineEdit_element_size.setDisabled(not _bool)
+        self.lineEdit_geometry_tolerance.setDisabled(not _bool)
+        
+    def update_export_geometry_state(self):
+        _bool = self.checkBox_export_geometry.isChecked()
+        self.radioButton_open_Cascade.setChecked(_bool)
+        self.lineEdit_geometry_name.setDisabled(not _bool)
+            
     def _create_pushbutton_connections(self):
         self.pushButton_add_point.clicked.connect(self.add_point)
         self.pushButton_add_line.clicked.connect(self.add_line)
@@ -382,7 +429,6 @@ class GeometryDesignerInput(QDialog):
 
     def load_fillets_info(self):
         self.update_auto_fillet_ID()
-        # return
         self.treeWidget_fillets.clear()
         for fillet_id, [line_id1, line_id2, radius, _, _, _, _, _, _] in self.fillets.items():
             new = QTreeWidgetItem([str(fillet_id), str(line_id1), str(line_id2), str(radius)])
@@ -542,7 +588,7 @@ class GeometryDesignerInput(QDialog):
                 title = "Invalid typed Line ID" 
                 message = "The typed Line ID 1 and Line ID 2 should have a commom Point. \nAs suggestion, we recommend you to verify all line Points \nto proceed."
                 PrintMessageInput([window_title_2, message, title])
-                # self.lineEdit_line_point_id_2.setText("")
+                
         else:
             title = "Invalid typed Line ID" 
             message = "The typed Line ID 1 and Line ID 2 should differs. As suggestion, we recommend you to change the typed Line ID 2 to proceed."
@@ -554,6 +600,7 @@ class GeometryDesignerInput(QDialog):
             point_id = int(self.lineEdit_point_id.text())
             if point_id in self.points.keys():
                 self.points.pop(point_id)
+                self.remove_line_by_point(point_id)
         self.clear_point_input_fields()
         self.load_points_info()
         self._update_buttons()
@@ -563,6 +610,7 @@ class GeometryDesignerInput(QDialog):
             line_id = int(self.lineEdit_line_id.text())
             if line_id in self.lines.keys():
                 self.lines.pop(line_id)
+                self.remove_fillet_by_line(line_id)
         self.clear_line_input_fields()
         self.load_lines_info()
         self._update_buttons()
@@ -575,31 +623,118 @@ class GeometryDesignerInput(QDialog):
         self.clear_fillet_input_fields()
         self.load_fillets_info()
         self._update_buttons()
-        
+
+    def remove_line_by_point(self, point_id):
+        cache_lines = self.lines.copy()
+        for line_id, line_points in cache_lines.items():
+            if point_id in line_points:
+                self.lines.pop(line_id)
+                self.remove_fillet_by_line(line_id)
+                self.load_fillets_info()
+        self.load_lines_info()
+
+    def remove_fillet_by_line(self, line_id):
+        for fillet_id, fillet_data in self.fillets.items():
+            fillet_lines = [fillet_data[0], fillet_data[1]]
+            if line_id in fillet_lines:
+                self.fillets.pop(fillet_id)
+        self.load_fillets_info()
+
     def generate_geometry(self):
-        save_geometry_file = True
-        built_in = False
-        self.close()
+        
         try:
             self.complete = False
             if len(self.points) > 0:
                 entities_data = {   "points_data" : self.points,
                                     "lines_data" : self.lines,
                                     "fillets_data" : self.fillets    }
-                
-                geometry_path = ""
-                if save_geometry_file:
-                    if False:
+                 
+                if self.radioButton_built_in.isChecked():
+                    kernel = "built-in"
+                elif self.radioButton_open_Cascade.isChecked():
+                    kernel = "Open Cascade"
+
+                if self.checkBox_export_geometry.isChecked():
+                    if self.radioButton_built_in.isChecked():
                         ext = "opt"
-                    else:
+                    elif self.radioButton_open_Cascade.isChecked():
                         ext = "step"
-                    filename = f"export_geometry.{ext}"
-                    geometry_path = get_new_path(self.project.file._project_path, filename)
-                self.project.set_geometry_entities(entities_data, geometry_path, built_in=built_in)
-                self.complete = True
+                    if self.lineEdit_geometry_name.text() != "":
+                        filename = f"{self.lineEdit_geometry_name.text()}.{ext}"
+                        geometry_path = get_new_path(self.project.file._project_path, filename)
+                    else:
+                        window_title = "ERROR"
+                        message_title = f"Invalid geometry name"
+                        message = "An empty entry was detecetd at 'Geometry name' input field. \nIt is necessary enter a valid geometry name to proceed."
+                        PrintMessageInput([message_title, message, window_title])  
+                        self.lineEdit_geometry_name.setFocus()
+                        return                  
+                else:                   
+                    geometry_path = ""
+ 
+                self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel)
                 
+                if self.checkBox_process_geometry_and_mesh.isChecked():
+                    self.process_mesh()
+                    self.complete = True
+                else:
+                    self.complete = None
+
+            self.close()
+
         except Exception as log_error:
             print(str(log_error))
+
+    def process_mesh(self):
+ 
+        if self.check_element_size_input_value():
+            return
+
+        if self.check_geometry_tolerance_input_value():
+            return
+
+        self.project.file.update_project_attributes(self.element_size, self.geometry_tolerance)
+        self.project.initial_load_project_actions(self.project_ini_path)
+        self.process_lines_mapping_and_final_actions()
+        self.opv.updatePlots()
+        self.opv.changePlotToMesh() 
+
+    def process_lines_mapping_and_final_actions(self):
+        dict_map_lines = {}
+        self.dict_lines_edge_coord = self.preprocessor.get_lines_edges_coordinates()
+        for cache_line_id, cache_coords in self.cache_dict_lines_to_edge_coord.items():
+            for line_id, coords in self.dict_lines_edge_coord.items():
+                if (np.array(cache_coords) == np.array(coords)).all() or (np.array(cache_coords) == np.flip(coords, axis=0)).all():
+                    dict_map_lines[line_id] = cache_line_id
+        self.project.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
+        self.project.load_project_files()
+        self.preprocessor.get_list_edge_nodes(self.element_size)
+
+    def check_element_size_input_value(self):
+        self.element_size = 0.01
+        try:
+            self.new_element_size = float(self.lineEdit_element_size.text())
+        except Exception as _error:
+            self.print_error_message('Element length', str(_error))
+            return True
+        return False
+
+    def check_geometry_tolerance_input_value(self):
+        self.geometry_tolerance = 1e-8
+        try:
+            self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
+        except Exception as _error:
+            self.print_error_message('Mesh tolerance', str(_error))
+            return True
+        return False
+
+    def print_error_message(self, label_1, label_2, text):
+        window_title = "ERROR"
+        message_title = f"Invalid {label_1}"
+        message = f"Please, inform a valid entry at '{label_1}' input field to continue."
+        message += "The input value should be a float or an integer number greater than zero."
+        message += f"\n\n{text}"
+        PrintMessageInput([message_title, message, window_title])
 
     def reset_points(self):
 
@@ -607,6 +742,7 @@ class GeometryDesignerInput(QDialog):
         message = "Do you really want to reset the all defined Points?\n\n\n"
         message += "Press the 'Proceed' button to proceed with resetting or press 'Cancel' or 'Close' buttons to abort the current operation."
         read = CallDoubleConfirmationInput(title, message, leftButton_label='Cancel', rightButton_label='Proceed')
+
         if read._doNotRun:
             return
 

@@ -26,7 +26,6 @@ class Project:
         
         self.preprocessor = Preprocessor()
         self.file = ProjectFile()
-        self._project_name = ""
         self.project_folder_path = ""    
         self.reset_info()
 
@@ -97,12 +96,11 @@ class Project:
                         coord_path, 
                         conn_path   )
         
-        self._project_name = project_name
         self.project_folder_path = project_folder_path
-
         self.process_geometry_and_mesh(tolerance=geometry_tolerance)
         self.entities = self.preprocessor.dict_tag_to_entity.values()
         self.file.create_entity_file(self.preprocessor.all_lines)
+        self.empty_geometry = False
 
     def new_empty_project(self, project_folder_path, project_name, import_type, material_list_path, fluid_list_path,):
         self.reset_info()
@@ -111,9 +109,8 @@ class Project:
                             import_type, 
                             material_list_path, 
                             fluid_list_path  )
-        
-        self._project_name = project_name
         self.project_folder_path = project_folder_path
+        self.empty_geometry = True
 
     def copy_project(self, project_folder_path, project_name, material_list_path, fluid_list_path, geometry_path = "", coord_path = "", conn_path = ""):
         self.file.copy( project_folder_path, 
@@ -123,35 +120,36 @@ class Project:
                         geometry_path, 
                         coord_path, 
                         conn_path)
-        self._project_name = project_name
          
     def load_project(self, project_file_path):
-        def callback():
-            if self.initial_load_project_actions(project_file_path):
-                self.load_project_files()
-        LoadingScreen('Loading Project', target=callback)
+        # def callback():
+        if self.initial_load_project_actions(project_file_path):
+            self.load_project_files()
+        # LoadingScreen('Loading Project', target=callback)
         self.preprocessor.get_list_edge_nodes(self.file._element_size)
     
-    def initial_load_project_actions(self, project_file_path, force_mesh=False):
+    def initial_load_project_actions(self, project_file_path):
         try:
             self.reset_info()
             self.file.load(project_file_path)
-            self._project_name = self.file._project_name
-            self.project_folder_path = os.path.dirname(project_file_path)
-            path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
-            if os.path.exists(path) and self.file._import_type == 2 and not force_mesh:
-                self.load_geometry_entities()
-                self.empty_geometry = False
-                return True
-            elif not os.path.exists(path) and self.file._import_type == 2:
-                # self.empty_geometry = True
-                return False
+            if self.file._import_type == 1:
+                path = self.file.get_geometry_path()
+                if os.path.exists(path):
+                    self.load_geometry_entities()
+                    self.empty_geometry = False
+                    if self.file.get_element_size_from_project_file() != "":
+                        self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
+                        self.entities = self.preprocessor.dict_tag_to_entity.values()
+                        if not os.path.exists(self.file._entity_path):
+                            self.file.create_entity_file(self.preprocessor.all_lines)
+                    return True
+                else:
+                    self.empty_geometry = True
+                    return False
             else:
                 self.empty_geometry = False
                 self.process_geometry_and_mesh(tolerance=self.file._geometry_tolerance)
-                self.entities = self.preprocessor.dict_tag_to_entity.values()
-                if force_mesh:
-                    self.file.create_entity_file(self.preprocessor.all_lines)
+                self.entities = self.preprocessor.dict_tag_to_entity.values()                    
                 return True
         except Exception as log_error:
             title = "Error while processing initial load project actions"
@@ -159,11 +157,11 @@ class Project:
             PrintMessageInput([title, message, window_title])
             return False
 
-    def set_geometry_entities(self, entities_data, geometry_path, built_in):
+    def set_geometry_entities(self, entities_data, geometry_path, kernel):
         self.file.add_geometry_entities_to_file(entities_data)
-        self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, built_in=built_in)
+        self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, kernel=kernel)
     
-    def load_geometry_entities(self, built_in=True):
+    def load_geometry_entities(self, kernel="built-in"):
 
         path = get_new_path(self.file._geometry_path, self.file._geometry_entities_file_name)
         if os.path.exists(path):
@@ -171,24 +169,31 @@ class Project:
             if input_entities_data is None:
                 return
             
-            points_data = input_entities_data['points_data']
-            lines_data = input_entities_data['lines_data']
+            points_data = {}
+            if 'points_data' in input_entities_data.keys():
+                points_data = input_entities_data['points_data']
 
-            fillets_data = {}
-            for fillet_id, data in input_entities_data['fillets_data'].items():
-                aux = []
-                for index, value in enumerate(data):
-                    if index == 2:
-                        aux.append(value)
-                    else:
-                        aux.append(int(value))
-
-                fillets_data[fillet_id] = aux
-                output_entities_data = {"points_data" : points_data,
-                                        "lines_data" : lines_data,
-                                        "fillets_data" : fillets_data}
+            lines_data = {}
+            if 'lines_data' in input_entities_data.keys():
+                lines_data = input_entities_data['lines_data']
             
-            # self.preprocessor.generate_geometry_gmsh(output_entities_data, built_in=built_in)
+            fillets_data = {}
+            if 'fillets_data' in input_entities_data.keys():
+                for fillet_id, data in input_entities_data['fillets_data'].items():
+                    aux = []
+                    for index, value in enumerate(data):
+                        if index == 2:
+                            aux.append(value)
+                        else:
+                            aux.append(int(value))
+
+                    fillets_data[fillet_id] = aux
+
+            output_entities_data = {"points_data" : points_data,
+                                    "lines_data" : lines_data,
+                                    "fillets_data" : fillets_data}
+
+            self.preprocessor.generate_geometry_gmsh(output_entities_data)
 
     def load_project_files(self):
         self.load_structural_bc_file()
@@ -348,9 +353,9 @@ class Project:
         if import_type == 0:
             self.preprocessor.generate(self.file.geometry_path, self.file.element_size, tolerance=tolerance)
         elif import_type == 1:
-            self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
-        elif import_type == 2:
             self.preprocessor.generate("", self.file.element_size, tolerance=tolerance, gmsh_geometry=True)
+        elif import_type == 2:
+            self.preprocessor.load_mesh(self.file.coord_path, self.file.conn_path)
 
     def add_user_preferences_to_file(self, preferences):
         self.file.add_user_preferences_to_file(preferences)
@@ -852,9 +857,9 @@ class Project:
         self.file.add_material_in_file(self.preprocessor.all_lines, material)
 
     def set_material_by_lines(self, lines, material):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_material_by_lines(lines, material)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_material_by_element('all', material)
 
         self._set_material_to_selected_lines(lines, material)
@@ -862,9 +867,9 @@ class Project:
 
     def set_cross_section_by_line(self, lines, cross_section):
         self.preprocessor.add_expansion_joint_by_line(lines, None, remove=True)
-        if self.file.get_import_type() in [0,2]:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_cross_section_by_line(lines, cross_section)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
         self._set_cross_section_to_selected_line(lines, cross_section)
         self.file.add_cross_section_in_file(lines, cross_section)
@@ -907,20 +912,20 @@ class Project:
         self.file.modify_structural_element_type_in_file(self.preprocessor.all_lines, element_type)
 
     def set_structural_element_type_by_lines(self, lines, element_type):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_structural_element_type_by_lines(lines, element_type)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_structural_element_type_by_element('all', element_type)
 
         self._set_structural_element_type_to_selected_lines(lines, element_type)
         self.file.modify_structural_element_type_in_file(lines, element_type)
         
     def set_acoustic_element_type_by_lines(self, lines, element_type, proportional_damping = None, vol_flow = None):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_acoustic_element_type_by_lines(lines, element_type, 
                                                                  proportional_damping = proportional_damping, 
                                                                  vol_flow = vol_flow)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, 
                                                                    proportional_damping = proportional_damping,
                                                                    vol_flow = vol_flow)
@@ -1271,9 +1276,9 @@ class Project:
         if isinstance(lines, int):
             lines = [lines]
         
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_stress_stiffening_by_line(lines, parameters, remove=remove)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_stress_stiffening_by_elements('all', parameters)
           
         if remove:
@@ -1284,9 +1289,9 @@ class Project:
             self.file.modify_stress_stiffnening_line_in_file(lines, parameters)
 
     def load_material_by_line(self, line_id, material):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_material_by_lines(line_id, material)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_material_by_element('all', material)
         self._set_material_to_selected_lines(line_id, material)
     
@@ -1294,16 +1299,16 @@ class Project:
         self.preprocessor.set_stress_stiffening_by_elements(elements_id, parameters, section=section)
 
     def load_stress_stiffening_by_line(self, line_id, parameters):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_stress_stiffening_by_line(line_id, parameters)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_fluid_by_element('all', parameters)
         self._set_stress_stiffening_to_selected_lines(line_id, parameters)
 
     def load_fluid_by_line(self, line_id, fluid):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_fluid_by_lines(line_id, fluid)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_selected_lines(line_id, fluid)
 
@@ -1314,9 +1319,9 @@ class Project:
         self.set_cross_section_by_elements(list_elements, cross_section)
 
     def load_cross_section_by_line(self, line_id, cross_section):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_cross_section_by_line(line_id, cross_section)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_cross_section_by_element('all', cross_section)
         self._set_cross_section_to_selected_line(line_id, cross_section)
 
@@ -1374,9 +1379,9 @@ class Project:
         self._set_beam_xaxis_rotation_to_selected_lines(line_id, angle)
 
     def load_structural_element_type_by_line(self, line_id, element_type):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_structural_element_type_by_lines(line_id, element_type)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_structural_element_type_by_element('all', element_type)
         self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
@@ -1385,9 +1390,9 @@ class Project:
         # self._set_structural_element_type_to_selected_lines(line_id, element_type)
 
     def load_structural_element_force_offset_by_line(self, line_id, force_offset):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_structural_element_force_offset_by_lines(line_id, force_offset)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             all_lines = self.preprocessor.all_lines
             self.preprocessor.set_structural_element_type_by_element(all_lines, force_offset)
         self._set_structural_element_force_offset_to_lines(line_id, force_offset)
@@ -1396,9 +1401,9 @@ class Project:
         self.preprocessor.set_structural_element_force_offset_by_elements(list_elements, force_offset)
 
     def load_structural_element_wall_formulation_by_line(self, line_id, formulation):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_structural_element_wall_formulation_by_lines(line_id, formulation)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             all_lines = self.preprocessor.all_lines
             self.preprocessor.set_structural_element_type_by_element(all_lines, formulation)
         self._set_structural_element_wall_formulation_to_lines(line_id, formulation)
@@ -1407,9 +1412,9 @@ class Project:
         self.preprocessor.set_structural_element_wall_formulation_by_elements(list_elements, wall_formulation)
 
     def load_acoustic_element_type_by_line(self, line_id, element_type, proportional_damping=None, vol_flow=None):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_acoustic_element_type_by_lines(line_id, element_type, proportional_damping=proportional_damping, vol_flow=vol_flow)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_acoustic_element_type_by_element('all', element_type, proportional_damping=proportional_damping, vol_flow=vol_flow)
         self._set_acoustic_element_type_to_selected_lines(line_id, element_type, proportional_damping=proportional_damping, vol_flow=vol_flow)
 
@@ -1438,9 +1443,9 @@ class Project:
         self.preprocessor.set_capped_end_by_elements(elements, value, selection)
 
     def load_capped_end_by_line(self, lines, value):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_capped_end_by_lines(lines, value)
-        # elif self.file.get_import_type() == 1:
+        # elif self.file.get_import_type() == 2:
         #     self.preprocessor.set_capped_end_by_element('all', value)
         self._set_capped_end_to_lines(lines, value)
 
@@ -1583,9 +1588,9 @@ class Project:
         return self.preprocessor.nodes_with_prescribed_dofs
 
     def set_fluid_by_lines(self, lines, fluid):
-        if self.file.get_import_type() == 0:
+        if self.file.get_import_type() in [0,1]:
             self.preprocessor.set_fluid_by_lines(lines, fluid)
-        elif self.file.get_import_type() == 1:
+        elif self.file.get_import_type() == 2:
             self.preprocessor.set_fluid_by_element('all', fluid)
         self._set_fluid_to_selected_lines(lines, fluid)
         self.file.add_fluid_in_file(lines, fluid)
@@ -1848,9 +1853,6 @@ class Project:
     
     def get_fluid_list_path(self):
         return self.file._fluid_list_path
-
-    def get_project_name(self):
-        return self._project_name
 
     def set_analysis_type(self, ID, analysis_text, method_text = ""):
         self.analysis_ID = ID

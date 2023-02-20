@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget
+from PyQt5.QtWidgets import QToolButton, QLineEdit, QDialogButtonBox, QFileDialog, QDialog, QMessageBox, QTabWidget, QWidget
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 from PyQt5 import uic
@@ -47,39 +47,43 @@ class NewProjectInput(QDialog):
         self.material_list_path = ""
         self.fluid_list_path = ""
 
-        self.button_create_project = self.findChild(QDialogButtonBox, 'button_create_project')
-        self.button_create_project.accepted.connect(self.accept_project)
-        self.button_create_project.rejected.connect(self.reject_project)
+        self._define_Qt_variables()
+        self._create_Qt_actions()
+        self.currentTab = self.tabWidget_new_project.currentIndex()
 
+        self.exec_()
+
+    def _define_Qt_variables(self):
         self.lineEdit_project_name = self.findChild(QLineEdit, 'lineEdit_project_name')
         self.lineEdit_project_folder = self.findChild(QLineEdit, 'lineEdit_project_folder')
         self.lineEdit_import_geometry = self.findChild(QLineEdit, 'lineEdit_import_geometry')
         self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
-
         self.lineEdit_import_nodal_coordinates = self.findChild(QLineEdit, 'lineEdit_import_nodal_coordinates')
         self.lineEdit_import_connectivity = self.findChild(QLineEdit, 'lineEdit_import_connectivity')
 
         self.toolButton_import_geometry = self.findChild(QToolButton, 'toolButton_import_geometry')
-        self.toolButton_import_geometry.clicked.connect(self.import_geometry)
-        
         self.toolButton_create_empty_project = self.findChild(QToolButton, 'toolButton_create_empty_project')
-        self.toolButton_create_empty_project.clicked.connect(self.accept_project)
-
         self.toolButton_import_cord = self.findChild(QToolButton, 'toolButton_import_cord')
-        self.toolButton_import_cord.clicked.connect(self.import_cord)
-
         self.toolButton_import_conn = self.findChild(QToolButton, 'toolButton_import_conn')
-        self.toolButton_import_conn.clicked.connect(self.import_conn)
-
         self.toolButton_search_project_folder = self.findChild(QToolButton, 'toolButton_search_project_folder')
+
+        self.button_create_project = self.findChild(QDialogButtonBox, 'button_create_project')
+        self.tabWidget_new_project = self.findChild(QTabWidget, 'tabWidget_new_project')
+        self.tab_import_geometry = self.tabWidget_new_project.findChild(QWidget, 'tab_import_geometry')
+        self.tab_import_mesh = self.tabWidget_new_project.findChild(QWidget, 'tab_import_mesh')
+        self.tab_create_empty_project = self.tabWidget_new_project.findChild(QWidget, 'tab_create_empty_project')
+        self.tabWidget_new_project.removeTab(2)
+
+    def _create_Qt_actions(self):    
+        self.button_create_project.accepted.connect(self.accept_project)
+        self.button_create_project.rejected.connect(self.reject_project)
+        self.toolButton_import_geometry.clicked.connect(self.import_geometry)
+        self.toolButton_create_empty_project.clicked.connect(self.accept_project)
+        self.toolButton_import_cord.clicked.connect(self.import_cord)
+        self.toolButton_import_conn.clicked.connect(self.import_conn)
         self.toolButton_search_project_folder.clicked.connect(self.search_project_folder)
-
-        self.tabWidget = self.findChild(QTabWidget, 'tabWidget')
-        self.tabWidget.currentChanged.connect(self.tabEvent)
-        self.currentTab = self.tabWidget.currentIndex()
-
-        self.exec_()
+        self.tabWidget_new_project.currentChanged.connect(self.tabEvent)
 
     def createProjectFolder(self):
         if self.lineEdit_project_name.text() == "":
@@ -102,7 +106,7 @@ class NewProjectInput(QDialog):
         self.stop = False
 
     def tabEvent(self):
-        self.currentTab = self.tabWidget.currentIndex()
+        self.currentTab = self.tabWidget_new_project.currentIndex()
 
     def search_project_folder(self):
 
@@ -200,18 +204,7 @@ class NewProjectInput(QDialog):
         self.createFluidFile()
         self.createProjectFile()
         
-        if self.currentTab == 0:
-            project_name = self.lineEdit_project_name.text()
-            import_type = 2
-            self.config.writeRecentProject(project_name, self.project_file_path)
-            self.project.new_empty_project( self.project_folder_path, 
-                                            project_name,
-                                            import_type, 
-                                            self.material_list_path, 
-                                            self.fluid_list_path )
-            return True
-
-        elif self.currentTab == 1:
+        if self.tabWidget_new_project.currentWidget() == self.tab_import_geometry:
             geometry_filename = os.path.basename(self.lineEdit_import_geometry.text())
             new_geometry_path = get_new_path(self.project_folder_path, geometry_filename)
             copyfile(self.lineEdit_import_geometry.text(), new_geometry_path)
@@ -219,7 +212,7 @@ class NewProjectInput(QDialog):
             element_size = float(self.lineEdit_element_size.text())
             geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
             import_type = 0
-            self.config.writeRecentProject(project_name, self.project_file_path)
+            self.config.writeRecentProject(self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
                                         project_name, 
                                         element_size,
@@ -230,7 +223,18 @@ class NewProjectInput(QDialog):
                                         geometry_path=new_geometry_path   )
             return True
         
-        elif self.currentTab == 2:
+        if self.tabWidget_new_project.currentWidget() == self.tab_create_empty_project:
+            project_name = self.lineEdit_project_name.text()
+            import_type = 1
+            self.config.writeRecentProject(self.project_file_path)
+            self.project.new_empty_project( self.project_folder_path, 
+                                            project_name,
+                                            import_type, 
+                                            self.material_list_path, 
+                                            self.fluid_list_path )
+            return True
+
+        elif self.tabWidget_new_project.currentWidget() == self.tab_import_mesh:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_filename = os.path.basename(self.lineEdit_import_connectivity.text())
             new_cord_path = get_new_path(self.project_folder_path, nodal_coordinates_filename)
@@ -239,8 +243,8 @@ class NewProjectInput(QDialog):
             copyfile(self.lineEdit_import_connectivity.text(), new_conn_path)
             project_name = self.lineEdit_project_name.text()
             element_size = 0
-            import_type = 1
-            self.config.writeRecentProject(project_name, self.project_file_path)
+            import_type = 2
+            self.config.writeRecentProject(self.project_file_path)
             self.project.new_project(   self.project_folder_path, 
                                         project_name, 
                                         element_size, import_type, 
@@ -259,12 +263,7 @@ class NewProjectInput(QDialog):
         config['PROJECT'] = {}
         config['PROJECT']['Name'] = self.lineEdit_project_name.text()
 
-        if self.currentTab == 0:
-            config['PROJECT']['Import type'] = str(2)
-            config['PROJECT']['Geometry file'] = ""
-
-
-        if self.currentTab == 1:
+        if self.tabWidget_new_project.currentWidget() == self.tab_import_geometry:
             geometry_file_name = os.path.basename(self.lineEdit_import_geometry.text())
             element_size = self.lineEdit_element_size.text()
             geometry_tolerance = self.lineEdit_geometry_tolerance.text()
@@ -274,10 +273,14 @@ class NewProjectInput(QDialog):
             config['PROJECT']['Element size'] = element_size
             config['PROJECT']['Geometry tolerance'] = geometry_tolerance
 
-        elif self.currentTab == 2:
+        if self.tabWidget_new_project.currentWidget() == self.tab_create_empty_project:
+            config['PROJECT']['Import type'] = str(1)
+            config['PROJECT']['Geometry file'] = ""
+
+        elif self.tabWidget_new_project.currentWidget() == self.tab_import_mesh:
             nodal_coordinates_filename = os.path.basename(self.lineEdit_import_nodal_coordinates.text())
             connectivity_matrix_filename = os.path.basename(self.lineEdit_import_connectivity.text())
-            config['PROJECT']['Import type'] = str(1)
+            config['PROJECT']['Import type'] = str(2)
             config['PROJECT']['Nodal coordinates file'] = nodal_coordinates_filename
             config['PROJECT']['Connectivity matrix file'] = connectivity_matrix_filename
         

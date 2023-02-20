@@ -141,7 +141,7 @@ class MenuItems(QTreeWidget):
         self.list_top_items = []
         self.list_child_items = []
         self.item_top_generalSettings = QTreeWidgetItem(['General Settings'])
-        self.item_top_createGeometry = QTreeWidgetItem(['Create a Geometry'])
+        self.item_child_createGeometry = QTreeWidgetItem(['Create a Geometry'])
         self.item_child_setProjectAttributes = QTreeWidgetItem(['Set Project Attributes'])
         self.item_child_setGeometryFile = QTreeWidgetItem(['Set Geometry File'])
         self.item_child_setMeshProperties = QTreeWidgetItem(['Set Mesh Properties'])
@@ -150,7 +150,7 @@ class MenuItems(QTreeWidget):
         self.item_child_set_crossSection = QTreeWidgetItem(['Set Cross-Section'])
         #
         self.list_top_items.append(self.item_top_generalSettings)
-        self.list_child_items.append(self.item_top_createGeometry)
+        self.list_child_items.append(self.item_child_createGeometry)
         self.list_child_items.append(self.item_child_setProjectAttributes)
         self.list_child_items.append(self.item_child_setGeometryFile)
         self.list_child_items.append(self.item_child_setGeometryFile)
@@ -251,7 +251,7 @@ class MenuItems(QTreeWidget):
     def _addItems(self):
         """Adds the Top Level Items and the Child Levels Items at the TreeWidget."""
         self.addTopLevelItem(self.item_top_generalSettings)
-        self.item_top_generalSettings.addChild(self.item_top_createGeometry)
+        self.item_top_generalSettings.addChild(self.item_child_createGeometry)
         self.item_top_generalSettings.addChild(self.item_child_setProjectAttributes)
         self.item_top_generalSettings.addChild(self.item_child_setMeshProperties)
         self.item_top_generalSettings.addChild(self.item_child_setGeometryFile)
@@ -375,11 +375,14 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setProjectAttributes.isDisabled():
                 self.mainWindow.getInputWidget().set_project_attributes()
         
-        elif item == self.item_top_createGeometry:
-            if not self.item_top_createGeometry.isDisabled():
-                if self.mainWindow.getInputWidget().call_geometry_designer():
+        elif item == self.item_child_createGeometry:
+            if not self.item_child_createGeometry.isDisabled():
+                read = self.mainWindow.getInputWidget().call_geometry_designer()
+                if read is None:
                     self.modify_general_settings_items_access(False)
-
+                elif read:
+                    self.modify_model_setup_items_access(False)
+                    
         elif item == self.item_child_setGeometryFile:
             if not self.item_child_setGeometryFile.isDisabled():
                 self.mainWindow.getInputWidget().set_geometry_file()
@@ -585,12 +588,12 @@ class MenuItems(QTreeWidget):
                 self.mainWindow.getInputWidget().plotPerforatedPlateConvergenceDataLog()
 
     def modify_create_geometry_item_access(self, bool_key):
-        self.item_top_createGeometry.setDisabled(bool_key)
+        self.item_child_createGeometry.setDisabled(bool_key)
 
     def modify_general_settings_items_access(self, bool_key):
         #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
-        self.item_top_createGeometry.setDisabled(bool_key)
+        self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)
@@ -600,7 +603,7 @@ class MenuItems(QTreeWidget):
     def modify_model_setup_items_access(self, bool_key):
         #
         self.item_child_setProjectAttributes.setDisabled(bool_key)
-        self.item_top_createGeometry.setDisabled(bool_key)
+        self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
         self.item_child_set_material.setDisabled(bool_key)

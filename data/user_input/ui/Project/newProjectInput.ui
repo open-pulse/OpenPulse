@@ -271,7 +271,7 @@ color: rgb(0, 0, 255);</string>
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QTabWidget" name="tabWidget">
+   <widget class="QTabWidget" name="tabWidget_new_project">
     <property name="geometry">
      <rect>
       <x>16</x>
@@ -304,7 +304,7 @@ color: rgb(0, 0, 255);</string>
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab_3">
+    <widget class="QWidget" name="tab_create_empty_project">
      <attribute name="title">
       <string>Create an empty project</string>
      </attribute>
@@ -358,7 +358,7 @@ color: rgb(0, 0, 255);</string>
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab">
+    <widget class="QWidget" name="tab_import_geometry">
      <attribute name="title">
       <string>Import geometry</string>
      </attribute>
@@ -613,7 +613,7 @@ color: rgb(0, 0, 255);</string>
       </property>
      </widget>
     </widget>
-    <widget class="QWidget" name="tab_2">
+    <widget class="QWidget" name="tab_import_mesh">
      <attribute name="title">
       <string>Import mesh</string>
      </attribute>
@@ -889,7 +889,7 @@ color: rgb(0, 0, 255);</string>
   </widget>
  </widget>
  <tabstops>
-  <tabstop>tabWidget</tabstop>
+  <tabstop>tabWidget_new_project</tabstop>
  </tabstops>
  <resources/>
  <connections/>

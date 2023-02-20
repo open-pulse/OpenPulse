@@ -134,7 +134,7 @@ class InputUi:
             
     def set_project_attributes(self):
         self.processInput(SetProjectAttributesInput, self.project, self.opv)
-        self.parent.changeWindowTitle(self.project._project_name)
+        self.parent.changeWindowTitle(self.project.file._project_name)
 
     def set_geometry_file(self):
         self.processInput(SetGeometryFileInput, self.project, self.opv)

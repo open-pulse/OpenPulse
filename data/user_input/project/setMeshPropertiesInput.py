@@ -76,18 +76,6 @@ class SetMeshPropertiesInput(QDialog):
 
         self.exec_()
 
-    def update_project_attributes(self, undo_remesh=False):
-        project_ini_file_path = get_new_path(self.project_file_path, self.project_ini)
-        config = configparser.ConfigParser()
-        config.read(project_ini_file_path)
-        if undo_remesh:
-            config['PROJECT']['element size'] = str(self.current_element_size)
-        else:
-            config['PROJECT']['element size'] = str(self.new_element_size)
-        config['PROJECT']['Geometry tolerance'] = str(self.geometry_tolerance)
-        with open(project_ini_file_path, 'w') as config_file:
-            config.write(config_file)
-
     def confirm_and_generate_mesh(self):
         
         if self.check_element_size_input_value():
@@ -144,8 +132,12 @@ class SetMeshPropertiesInput(QDialog):
 
     def process_intermediate_actions(self, undo_remesh=False, mapping=True):
         self.t0 = time()
-        self.update_project_attributes(undo_remesh=undo_remesh)
-        self.project.initial_load_project_actions(self.project_ini_file_path, force_mesh=True)
+        if undo_remesh:
+            element_size = self.current_element_size
+        else:
+            element_size = self.new_element_size    
+        self.project.file.update_project_attributes(element_size, self.geometry_tolerance)
+        self.project.initial_load_project_actions(self.project_ini_file_path)
         if len(self.preprocessor.structural_elements) > 0:
             if mapping:
                 #

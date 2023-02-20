@@ -104,7 +104,24 @@ class ProjectFile:
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
+    def get_element_size_from_project_file(self):
+
+        project_ini_file_path = get_new_path(self._project_path, "project.ini")
+        config = configparser.ConfigParser()
+        config.read(project_ini_file_path)
+        
+        if 'element size' in config['PROJECT'].keys():
+            element_size = config['PROJECT']['element size']
+            if element_size != "":
+                return float(element_size)
+        else:
+            return ""
+            
+    def get_geometry_path(self):
+        return get_new_path(self._project_path, self._geometry_entities_file_name)
+
     def load(self, project_file_path):
+
         self.project_file_path = project_file_path.replace('/', '\\')
         self._project_path = os.path.dirname(self.project_file_path)
                 
@@ -114,7 +131,7 @@ class ProjectFile:
         project_name = config['PROJECT']['Name']
         import_type = int(config['PROJECT']['Import type'])
 
-        if import_type in [0,2]:
+        if import_type in [0,1]:
             if 'geometry file' in list(config['PROJECT'].keys()):
                 geometry_file = config['PROJECT']['Geometry file']
                 self._geometry_path =  get_new_path(self._project_path, geometry_file)
@@ -124,8 +141,7 @@ class ProjectFile:
             if 'geometry tolerance' in list(config['PROJECT'].keys()):
                 geometry_tolerance = config['PROJECT']['Geometry tolerance']
                 self._geometry_tolerance = float(geometry_tolerance)
-
-        elif import_type == 1:
+        elif import_type == 2:
             coord_file = config['PROJECT']['Nodal coordinates file']
             conn_file = config['PROJECT']['Connectivity matrix file']
             self._conn_path =  get_new_path(self._project_path, conn_file)
@@ -146,9 +162,25 @@ class ProjectFile:
         self._structural_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "structural")
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
+    def update_project_attributes(self, element_size, geometry_tolerance):
+        project_ini_file_path = get_new_path(self._project_path, "project.ini")
+        config = configparser.ConfigParser()
+        config.read(project_ini_file_path)
+        
+        if 'element size' in config['PROJECT'].keys(): 
+            read_element_size = config['PROJECT']['element size']
+            if read_element_size != str(element_size):
+                config['PROJECT']['element size'] = str(element_size)
+        else:
+            config['PROJECT']['element size'] = str(element_size)
+
+        config['PROJECT']['Geometry tolerance'] = str(geometry_tolerance)
+        
+        self.write_data_in_file(project_ini_file_path, config)
+
     def add_geometry_entities_to_file(self, entities_data):
         
-        temp_geometry_file_path = get_new_path(self._geometry_path, self._geometry_entities_file_name)
+        temp_geometry_file_path = get_new_path(self._project_path, self._geometry_entities_file_name)
         config = configparser.ConfigParser()
         config.read(temp_geometry_file_path)
 
@@ -161,8 +193,8 @@ class ProjectFile:
         self.write_data_in_file(temp_geometry_file_path, config)
         
     def load_geometry_entities_file(self):
-        
-        temp_geometry_file_path = get_new_path(self._geometry_path, self._geometry_entities_file_name)
+
+        temp_geometry_file_path = get_new_path(self._project_path, self._geometry_entities_file_name)
         if os.path.exists(temp_geometry_file_path):
             config = configparser.ConfigParser()
             config.read(temp_geometry_file_path)
@@ -175,23 +207,20 @@ class ProjectFile:
                 for key in keys:
                     points_data[int(key)] = self._get_list_of_values_from_string(config['Points'][key], are_values_int=False)
                 entities_data['points_data'] = points_data   
-                # print(entities_data['points_data']) 
 
             if 'Lines' in sections:
                 lines_data = {}
                 keys = list(config['Lines'].keys())
                 for key in keys:
                     lines_data[int(key)] = self._get_list_of_values_from_string(config['Lines'][key])
-                entities_data['lines_data'] = lines_data
-                # print(entities_data['lines_data'])   
+                entities_data['lines_data'] = lines_data 
 
             if 'Fillets' in sections:
                 fillets_data = {}
                 keys = list(config['Fillets'].keys())
                 for key in keys:
                     fillets_data[int(key)] = self._get_list_of_values_from_string(config['Fillets'][key], are_values_int=False)
-                entities_data['fillets_data'] = fillets_data
-                # print(entities_data['fillets_data'])  
+                entities_data['fillets_data'] = fillets_data 
             
             return entities_data
         else:
@@ -308,12 +337,50 @@ class ProjectFile:
         self.write_data_in_file(temp_project_base_file_path, config)
         
     def create_entity_file(self, entities):
+
         config = configparser.ConfigParser()
         for entity_id in entities:
             config[str(entity_id)] = {}
         
         self.write_data_in_file(self._entity_path, config)
-    
+
+    def update_entity_file(self, entities, dict_map_lines={}):
+
+        try:
+            config = configparser.ConfigParser()
+            if os.path.exists(self._entity_path):
+                config2 = configparser.ConfigParser()
+                config2.read(self._entity_path)
+                for entity_id in entities:
+                    if len(dict_map_lines) == 0:
+                        config[str(entity_id)] = {}
+                    else:
+                        if entity_id in dict_map_lines.keys():
+                            config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+                        else:
+                            config[str(entity_id)] = {}            
+            self.write_data_in_file(self._entity_path, config)
+
+        except Exception as _error:
+            print(str(_error))
+
+    def get_entity_file_data(self):
+        
+        entity_data = {}
+        config = configparser.ConfigParser()
+        config.read(self._entity_path)
+
+        for entity in config.sections():
+            keys = config[entity].keys()
+            if len(config[entity].keys()) > 0:
+                dict_section = {}
+                for key in keys:
+                    dict_section[key] = config[entity][key]
+                
+                entity_data[entity] = dict_section
+
+        return entity_data
+
     def get_dict_of_entities_from_file(self):
 
         material_list = configparser.ConfigParser()
