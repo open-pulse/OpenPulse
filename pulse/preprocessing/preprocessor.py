@@ -3131,7 +3131,7 @@ class Preprocessor:
                 new_list_elements = list(np.arange(start_element_index, end_element_index+1, dtype=int))
                 dict_old_to_new_list_of_elements[str_subgroup_elements] = new_list_elements
 
-        return dict_old_to_new_list_of_elements, dict_non_mapped_subgroups
+        return [dict_old_to_new_list_of_elements, dict_non_mapped_subgroups]
 
 
     def get_distantest_nodes_from_elements(self, list_elements):

@@ -587,8 +587,9 @@ class MenuItems(QTreeWidget):
             if not self.item_child_plot_perforated_plate_convergence_data.isDisabled():
                 self.mainWindow.getInputWidget().plotPerforatedPlateConvergenceDataLog()
 
-    def modify_create_geometry_item_access(self, bool_key):
+    def modify_geometry_item_access(self, bool_key):
         self.item_child_createGeometry.setDisabled(bool_key)
+        self.item_child_setMeshProperties.setDisabled(bool_key)
 
     def modify_general_settings_items_access(self, bool_key):
         #

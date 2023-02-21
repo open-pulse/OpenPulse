@@ -115,7 +115,7 @@ class InputUi:
     def initial_project_action(self, obj):
         if self.project.empty_geometry:
             self.parent.set_enable_menuBar(False)
-            self.parent.menuWidget.tree_widget.modify_create_geometry_item_access(False)
+            self.parent.menuWidget.tree_widget.modify_geometry_item_access(False)
             return True  
         if obj:
             self.project.none_project_action = False

@@ -215,7 +215,7 @@ class Project:
                                                                    dict_list_elements_to_subgroups ):
         self.file.modify_element_ids_in_element_info_file(  dict_group_elements_to_update,
                                                             dict_non_mapped_subgroups,
-                                                            dict_list_elements_to_subgroups)
+                                                            dict_list_elements_to_subgroups  )
 
     def reset_project(self):
         self.reset_info()

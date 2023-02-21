@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QDialog, QLineEdit, QCheckBox, QPushButton, QTabWidget, QTreeWidget, QTreeWidgetItem, QRadioButton
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRect
 from PyQt5 import uic
 import os
 import configparser
@@ -29,6 +29,10 @@ class GeometryDesignerInput(QDialog):
         self.opv = opv
         self.project_path = project.file._project_path
         self.project_ini_path = get_new_path(self.project_path, "project.ini")
+        self.cache_dict_nodes = self.preprocessor.dict_coordinate_to_update_bc_after_remesh.copy()
+        self.cache_dict_update_entity_file = self.preprocessor.dict_element_info_to_update_indexes_in_entity_file.copy() 
+        self.cache_dict_update_element_info_file = self.preprocessor.dict_element_info_to_update_indexes_in_element_info_file.copy() 
+        self.dict_list_elements_to_subgroups = self.preprocessor.dict_list_elements_to_subgroups.copy()
 
         self.points = {}
         self.lines = {}
@@ -122,6 +126,8 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_geometry_name = self.findChild(QLineEdit,'lineEdit_geometry_name')
         self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
+        self.lineEdit_element_size.setText(str(self.project.file._element_size))
+        self.lineEdit_geometry_tolerance.setText(str(self.project.file._geometry_tolerance))
 
         self.checkBox_auto_point_ID = self.findChild(QCheckBox, 'checkBox_auto_point_ID')
         self.checkBox_auto_line_ID = self.findChild(QCheckBox, 'checkBox_auto_line_ID')
@@ -186,7 +192,13 @@ class GeometryDesignerInput(QDialog):
         _bool = self.checkBox_process_geometry_and_mesh.isChecked()
         self.lineEdit_element_size.setDisabled(not _bool)
         self.lineEdit_geometry_tolerance.setDisabled(not _bool)
-        
+        if _bool:
+            self.pushButton_generate_geometry.setGeometry(QRect(410, 508, 260, 36))
+            self.pushButton_generate_geometry.setText("Generate geometry and mesh")
+        else:
+            self.pushButton_generate_geometry.setGeometry(QRect(410, 508, 180, 36))
+            self.pushButton_generate_geometry.setText("Generate geometry")
+
     def update_export_geometry_state(self):
         _bool = self.checkBox_export_geometry.isChecked()
         self.radioButton_open_Cascade.setChecked(_bool)
@@ -699,6 +711,26 @@ class GeometryDesignerInput(QDialog):
         self.opv.updatePlots()
         self.opv.changePlotToMesh() 
 
+    def process_nodes_mapping(self):
+        #
+        data_1 = self.preprocessor.update_node_ids_after_remesh(self.cache_dict_nodes)
+        data_2 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_entity_file)
+        # data_3 = self.preprocessor.update_element_ids_after_remesh(self.cache_dict_update_element_info_file)
+        #
+        [self.dict_old_to_new_node_external_indexes, self.dict_non_mapped_bcs] = data_1
+        [self.dict_group_elements_to_update_entity_file, self.dict_non_mapped_subgroups_entity_file] = data_2
+        # [self.dict_group_elements_to_update_element_info_file, self.dict_non_mapped_subgroups_info_file] = data_3
+
+        if len(self.dict_old_to_new_node_external_indexes) > 0:
+            self.project.update_node_ids_in_file_after_remesh(self.dict_old_to_new_node_external_indexes)
+        if len(self.dict_group_elements_to_update_entity_file) > 0:
+            self.project.update_element_ids_in_entity_file_after_remesh(self.dict_group_elements_to_update_entity_file,
+                                                                        self.dict_non_mapped_subgroups_entity_file)
+        # if len(self.dict_group_elements_to_update_element_info_file) > 0:
+        #     self.project.update_element_ids_in_element_info_file_after_remesh(  self.dict_group_elements_to_update_element_info_file,
+        #                                                                         self.dict_non_mapped_subgroups_info_file,
+        #                                                                         self.dict_list_elements_to_subgroups    )
+
     def process_lines_mapping_and_final_actions(self):
         dict_map_lines = {}
         self.dict_lines_edge_coord = self.preprocessor.get_lines_edges_coordinates()
@@ -707,13 +739,14 @@ class GeometryDesignerInput(QDialog):
                 if (np.array(cache_coords) == np.array(coords)).all() or (np.array(cache_coords) == np.flip(coords, axis=0)).all():
                     dict_map_lines[line_id] = cache_line_id
         self.project.file.update_entity_file(self.preprocessor.all_lines, dict_map_lines=dict_map_lines)
+        self.process_nodes_mapping()
         self.project.load_project_files()
         self.preprocessor.get_list_edge_nodes(self.element_size)
 
     def check_element_size_input_value(self):
         self.element_size = 0.01
         try:
-            self.new_element_size = float(self.lineEdit_element_size.text())
+            self.element_size = float(self.lineEdit_element_size.text())
         except Exception as _error:
             self.print_error_message('Element length', str(_error))
             return True

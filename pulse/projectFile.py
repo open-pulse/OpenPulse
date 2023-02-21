@@ -351,12 +351,24 @@ class ProjectFile:
             if os.path.exists(self._entity_path):
                 config2 = configparser.ConfigParser()
                 config2.read(self._entity_path)
+                sections = config2.sections()
+                mapped_entities = []
                 for entity_id in entities:
                     if len(dict_map_lines) == 0:
                         config[str(entity_id)] = {}
                     else:
                         if entity_id in dict_map_lines.keys():
-                            config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+                            for section in sections:
+                                if "-" in section:
+                                    prefix = int(section.split("-")[0])
+                                    sufix = int(section.split("-")[1])
+                                    if dict_map_lines[entity_id] == prefix:
+                                        _key = f"{entity_id}-{sufix}"
+                                        config[_key] = config2[section]
+                                else:
+                                    if entity_id not in mapped_entities:
+                                        config[str(entity_id)] = config2[str(dict_map_lines[entity_id])]
+                                        mapped_entities.append(entity_id)
                         else:
                             config[str(entity_id)] = {}            
             self.write_data_in_file(self._entity_path, config)
@@ -365,7 +377,7 @@ class ProjectFile:
             print(str(_error))
 
     def get_entity_file_data(self):
-        
+
         entity_data = {}
         config = configparser.ConfigParser()
         config.read(self._entity_path)
@@ -2170,66 +2182,70 @@ class ProjectFile:
 
 
     def modify_node_ids_in_acoustic_bc_file(self, dict_old_to_new_indexes, remove_non_mapped_bcs=False):
-        config = configparser.ConfigParser()
-        config.read(self._node_acoustic_path)
-
-        for node_id in list(config.sections()):
-            try:
-                config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
-                config.remove_section(node_id)
-            except Exception as log_error:
-                config.remove_section(node_id)
-
-        self.write_data_in_file(self._node_acoustic_path, config)
+        if os.path.exists(self._node_acoustic_path):
+            config = configparser.ConfigParser()
+            config.read(self._node_acoustic_path)
+            for node_id in list(config.sections()):
+                try:
+                    new_key = str(dict_old_to_new_indexes[node_id])
+                    if node_id != new_key:
+                        config[new_key] = config[node_id]
+                        config.remove_section(node_id)
+                except Exception as log_error:
+                    config.remove_section(node_id)
+            self.write_data_in_file(self._node_acoustic_path, config)
 
 
     def modify_node_ids_in_structural_bc_file(self, dict_old_to_new_indexes):
-        config = configparser.ConfigParser()
-        config.read(self._node_structural_path)
-
-        for node_id in list(config.sections()):
-            try:
-                if "-" in node_id:
-                    [_node_id1, _node_id2]  = node_id.split("-")
-                    key_id1 = str(dict_old_to_new_indexes[_node_id1])
-                    key_id2 = str(dict_old_to_new_indexes[_node_id2])
-                    new_key = f"{key_id1}-{key_id2}"
-                    config[new_key] = config[node_id] 
-                else:
-                    config[str(dict_old_to_new_indexes[node_id])] = config[node_id]
-                config.remove_section(node_id)
-            except Exception as log_error:
-                config.remove_section(node_id)
-
-        self.write_data_in_file(self._node_structural_path, config)
+        if os.path.exists(self._node_structural_path):
+            config = configparser.ConfigParser()
+            config.read(self._node_structural_path)
+            for node_id in list(config.sections()):
+                try:
+                    if "-" in node_id:
+                        [_node_id1, _node_id2]  = node_id.split("-")
+                        key_id1 = str(dict_old_to_new_indexes[_node_id1])
+                        key_id2 = str(dict_old_to_new_indexes[_node_id2])
+                        new_key = f"{key_id1}-{key_id2}"
+                        if node_id != new_key:
+                            config[new_key] = config[node_id]
+                            config.remove_section(node_id)
+                    else:
+                        new_key = str(dict_old_to_new_indexes[node_id])
+                        if node_id != new_key:
+                            config[new_key] = config[node_id]
+                            config.remove_section(node_id)                        
+                except Exception as log_error:
+                    config.remove_section(node_id)
+            self.write_data_in_file(self._node_structural_path, config)
 
 
     def modify_list_of_element_ids_in_entity_file(self, dict_group_elements_to_update_after_remesh, dict_non_mapped_subgroups_entity_file):
-        config = configparser.ConfigParser()
-        config.read(self._entity_path)
-        sections = config.sections()
-
-        for section in sections:
-            if section in config.sections():
-                if 'list of elements' in config[section].keys():
+        
+        if os.path.exists(self._entity_path):
+            config = configparser.ConfigParser()
+            config.read(self._entity_path)
+            sections = config.sections()
+            
+            for section in sections:
                 
+                if 'list of elements' in config[section].keys():
                     str_list_elements = config[section]['list of elements']
                     list_elements = self._get_list_of_values_from_string(str_list_elements)
                     list_subgroup_elements = check_is_there_a_group_of_elements_inside_list_elements(list_elements)
-
                     temp_list = []
                     try:
 
                         for subgroup_elements in list_subgroup_elements:
                             str_subgroup_elements = str(subgroup_elements)
-                            # if str_subgroup_elements not in dict_non_mapped_subgroups_entity_file.keys():
-                            temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
-                   
-                        # if temp_list != []:
+                            if str_subgroup_elements in dict_group_elements_to_update_after_remesh.keys():
+                                temp_list.append(dict_group_elements_to_update_after_remesh[str_subgroup_elements])
+                
+                        if temp_list != []:
                             new_list_elements = [value for group in temp_list for value in group]
                             config[section]['list of elements'] =  str(new_list_elements)
-                        # else:
-                        #     config.remove_section()
+                        else:
+                            config.remove_section()
 
                     except Exception as log_error:
                         
@@ -2239,13 +2255,13 @@ class ProjectFile:
                             config.remove_section(section)
                             if line_id in sections:
                                 for key in config[line_id].keys():                                                     
-                                    for key in config[line_id].keys():
-                                        config.remove_option(section=line_id, option=key)
+                                    # for key in config[line_id].keys():
+                                    config.remove_option(section=line_id, option=key)
                             for _section in sections:
                                 if subkey in _section:
                                     config.remove_section(_section)           
 
-        self.write_data_in_file(self._entity_path, config)
+            self.write_data_in_file(self._entity_path, config)
 
 
     def modify_element_ids_in_element_info_file(self, dict_old_to_new_subgroups_elements, dict_non_mapped_subgroups, dict_list_elements_to_subgroups):
