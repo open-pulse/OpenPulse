@@ -61,6 +61,7 @@ class NewProjectInput(QDialog):
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
         self.lineEdit_import_nodal_coordinates = self.findChild(QLineEdit, 'lineEdit_import_nodal_coordinates')
         self.lineEdit_import_connectivity = self.findChild(QLineEdit, 'lineEdit_import_connectivity')
+        self.focus_lineEdit_project_name_if_blank()
 
         self.toolButton_import_geometry = self.findChild(QToolButton, 'toolButton_import_geometry')
         self.toolButton_create_empty_project = self.findChild(QToolButton, 'toolButton_create_empty_project')
@@ -107,6 +108,11 @@ class NewProjectInput(QDialog):
 
     def tabEvent(self):
         self.currentTab = self.tabWidget_new_project.currentIndex()
+        self.focus_lineEdit_project_name_if_blank()
+
+    def focus_lineEdit_project_name_if_blank(self):
+        if self.lineEdit_project_name.text() == "":
+            self.lineEdit_project_name.setFocus()
 
     def search_project_folder(self):
 

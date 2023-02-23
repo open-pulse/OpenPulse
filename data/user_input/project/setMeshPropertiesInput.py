@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QLineEdit, QDialog, QPushButton, QLabel
+from PyQt5.QtWidgets import QLineEdit, QDialog, QPushButton, QLabel, QFrame
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QRect, QSize
 from PyQt5 import uic
 import os
 import configparser
@@ -10,8 +10,8 @@ from pulse.utils import get_new_path
 from data.user_input.project.printMessageInput import PrintMessageInput
 from data.user_input.project.callDoubleConfirmationInput import CallDoubleConfirmationInput
 
-window_title_1 = "ERROR MESSAGE"
-window_title_2 = "WARNING MESSAGE"
+window_title_1 = "ERROR"
+window_title_2 = "WARNING"
 
 class SetMeshPropertiesInput(QDialog):
     def __init__(self, project, opv, *args, **kwargs):
@@ -52,10 +52,12 @@ class SetMeshPropertiesInput(QDialog):
     def _define_Qt_variables(self):
         self.label_new_element_size = self.findChild(QLabel, 'label_new_element_size')
         self.label_current_element_size = self.findChild(QLabel, 'label_current_element_size')
+        self.label_geometry_tolerance = self.findChild(QLabel, 'label_geometry_tolerance')
         self.lineEdit_current_element_size = self.findChild(QLineEdit, 'lineEdit_current_element_size')
         self.lineEdit_new_element_size = self.findChild(QLineEdit, 'lineEdit_new_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
         self.pushButton_confirm_and_generate_mesh = self.findChild(QPushButton, 'pushButton_confirm_and_generate_mesh')
+        self.frame_current_element_size = self.findChild(QFrame, 'frame_current_element_size')
         self.lineEdit_current_element_size.setDisabled(True)
         self.lineEdit_new_element_size.setDisabled(False)
         self.lineEdit_geometry_tolerance.setDisabled(False)
@@ -83,39 +85,52 @@ class SetMeshPropertiesInput(QDialog):
         self.t0 = 0
 
     def check_geometry_and_mesh_before(self):
-        if self.project.empty_geometry:
-            # title = "Empty geometry"
-            # message = "Escrever algo aqui!"
-            # PrintMessageInput([title, message, window_title_2])
-            self.label_new_element_size.setText("Element size:")
-            # self.label_current_element_size.setText("Element size:")
-            self.pushButton_confirm_and_generate_mesh.setText("Confirm mesh setup")
-
+        if self.project.empty_geometry or len(self.project.preprocessor.structural_elements) == 0:
+                y, dy = 75, 55
+                self.lineEdit_current_element_size.setText("")
+                self.frame_current_element_size.setVisible(False)
+                self.label_new_element_size.setText("Element size:")
+                self.label_new_element_size.setGeometry(QRect(42, y, 150, 25))
+                self.label_geometry_tolerance.setGeometry(QRect(42, y+dy, 150, 25))
+                self.lineEdit_new_element_size.setGeometry(QRect(200, y, 100, 25))
+                self.lineEdit_geometry_tolerance.setGeometry(QRect(200, y+dy, 100, 25))
+                self.pushButton_confirm_and_generate_mesh.setText("Confirm mesh setup")
+                self.pushButton_confirm_and_generate_mesh.setMinimumSize(QSize(250, 32))
+                self.pushButton_confirm_and_generate_mesh.setMaximumSize(QSize(250, 32))
+                self.pushButton_confirm_and_generate_mesh.setGeometry(QRect(50,y+2*dy,250,30))
+            
     def confirm_and_generate_mesh(self):
         
         if self.check_element_size_input_value():
+            self.lineEdit_new_element_size.setFocus()
             return
-
+        
         if self.check_geometry_tolerance_input_value():
+            self.lineEdit_geometry_tolerance.setFocus()
+            return
+         
+        if self.lineEdit_current_element_size.text() == self.lineEdit_new_element_size.text():
+            title = "Same element size"
+            message = "Please, you should to insert a different value at the "
+            message += "'New element size' input field to update the model."
+            PrintMessageInput([title, message, window_title_1])
             return
 
-        if self.new_element_size > 0:
-            if self.lineEdit_current_element_size.text() == self.lineEdit_new_element_size.text():
-                title = "Same element size"
-                message = "Please, you should to insert a different value at the "
-                message += "'New element size' input field to update the model."
-                PrintMessageInput([title, message, window_title_1])
-                return
-        else:
-            self.print_error_message("element size", 'New element size')
-
-        if self.geometry_tolerance > 0:
-            pass
-        else:
-            self.print_error_message("geometry tolerance", 'Mesh tolerance') 
+        if self.new_element_size <= 1e-5:
+            title = "Too small element size"
+            message = f"The attributed element size can be small enough to lead to rounding errors. \n"
+            message += "It is recommended to consider this information while checking the model results."
+            PrintMessageInput([title, message, window_title_2])
+    
+        if self.geometry_tolerance >= 1e-3:
+            title = "Too big geometry tolerance"
+            message = f"The attributed geometry tolerance can be big enough to lead to rounding errors in geometry construction. "
+            message += "As a suggestion, we recommend reducing the geometry tolerance to values less or equal to 1e-6."
+            PrintMessageInput([title, message, window_title_2])
+            return
 
         if self.project.empty_geometry:
-            self.process_intermediate_actions(undo_remesh=False, mapping=False)
+            self.process_intermediate_actions(undo_remesh=False, mapping=False) 
             self.complete = True
             self.close()
             return
@@ -193,26 +208,43 @@ class SetMeshPropertiesInput(QDialog):
         self.complete = True
 
     def check_element_size_input_value(self):
+
+        title = "Invalid element size input"
+        message = f"Please, inform a valid element size at the input field to continue. The input value should be, "
+        message += "preferabley, a small positive float number. Remember that the element size units are in meters.\n\n"
+
         self.new_element_size = 0
         try:
             self.new_element_size = float(self.lineEdit_new_element_size.text())
-        except Exception as error:
-            self.print_error_message("element size", 'New element size')
+            if self.new_element_size <= 0:
+                PrintMessageInput([title, message, window_title_1])
+                return True 
+        except Exception as _error:
+            message += str(_error)
+            PrintMessageInput([title, message, window_title_1])
             return True
         return False
 
     def check_geometry_tolerance_input_value(self):
+        
+        title = "Invalid geometry tolerance input"
+        message = f"Please, inform a valid geometry tolerance to continue. The input value"
+        message += " should be a float or an integer number greater than zero.\n\n"
+            
         self.geometry_tolerance = 0
         try:
             self.geometry_tolerance = float(self.lineEdit_geometry_tolerance.text())
-        except Exception as error:
-            self.print_error_message("geometry tolerance", 'Mesh tolerance')
+            if self.geometry_tolerance <= 0:
+                PrintMessageInput([title, message, window_title_1])
+                return True 
+        except Exception as _error:
+            message += str(_error)
+            PrintMessageInput([title, message, window_title_1])
             return True
         return False
 
-    def print_error_message(self, label_1, label_2):
-        window_title = "ERROR"
-        message_title = f"Invalid {label_1}"
-        message = f"Please, inform a valid {label_1} at '{label_2}' input field to continue."
-        message += "The input value should be a float or an integer number greater than zero."
-        PrintMessageInput([message_title, message, window_title])
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
+            self.confirm_and_generate_mesh()
+        elif event.key() == Qt.Key_Escape:
+            self.close()

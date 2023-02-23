@@ -57,42 +57,6 @@ class GeometryDesignerInput(QDialog):
         self.complete = False
         self.exec_()
 
-    def load_geometry_entities_from_file(self):
-        
-        entities_data = self.project.file.load_geometry_entities_file()
-        if entities_data is None:
-            return
-        
-        self.points = {}
-        if 'points_data' in entities_data.keys():
-            self.points = entities_data['points_data']
-
-        self.lines = {}
-        if 'lines_data' in entities_data.keys():
-            self.lines = entities_data['lines_data']
-        
-        self.fillets = {}
-        if 'fillets_data' in entities_data.keys():
-            for fillet_id, data in entities_data['fillets_data'].items():
-                fillets_data = []
-                for index, value in enumerate(data):
-                    if index == 2:
-                        fillets_data.append(value)
-                    else:
-                        fillets_data.append(int(value))
-                self.fillets[fillet_id] = fillets_data
-
-        if len(self.points) > 0:
-            self.load_points_info()
-
-        if len(self.lines) > 0:
-            self.load_lines_info()
-
-        if len(self.fillets) > 0:
-            self.load_fillets_info()
-
-        self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_edges_coordinates()
-
     def _define_Qt_variables(self):
         
         self.tabWidget_geometry_designer = self.findChild(QTabWidget, 'tabWidget_geometry_designer')
@@ -126,8 +90,16 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_geometry_name = self.findChild(QLineEdit,'lineEdit_geometry_name')
         self.lineEdit_element_size = self.findChild(QLineEdit, 'lineEdit_element_size')
         self.lineEdit_geometry_tolerance = self.findChild(QLineEdit, 'lineEdit_geometry_tolerance')
-        self.lineEdit_element_size.setText(str(self.project.file._element_size))
-        self.lineEdit_geometry_tolerance.setText(str(self.project.file._geometry_tolerance))
+        
+        if self.project.file._element_size is None:
+            self.lineEdit_element_size.setText("")
+        else:
+            self.lineEdit_element_size.setText(str(self.project.file._element_size))
+        
+        if self.project.file._geometry_tolerance is None:
+            self.lineEdit_geometry_tolerance.setText("")
+        else:
+            self.lineEdit_geometry_tolerance.setText(str(self.project.file._geometry_tolerance))
 
         self.checkBox_auto_point_ID = self.findChild(QCheckBox, 'checkBox_auto_point_ID')
         self.checkBox_auto_line_ID = self.findChild(QCheckBox, 'checkBox_auto_line_ID')
@@ -156,7 +128,7 @@ class GeometryDesignerInput(QDialog):
         
     def keyPressEvent(self, event):
         if event.key() == Qt.Key_Enter or event.key() == Qt.Key_Return:
-            print("Enter pressed")
+            self.generate_geometry()
         elif event.key() == Qt.Key_Escape:
             self.close()
 
@@ -192,7 +164,7 @@ class GeometryDesignerInput(QDialog):
         _bool = self.checkBox_process_geometry_and_mesh.isChecked()
         self.lineEdit_element_size.setDisabled(not _bool)
         self.lineEdit_geometry_tolerance.setDisabled(not _bool)
-        if _bool:
+        if _bool or self.project.file.get_element_size_from_project_file() != "":
             self.pushButton_generate_geometry.setGeometry(QRect(410, 508, 260, 36))
             self.pushButton_generate_geometry.setText("Generate geometry and mesh")
         else:
@@ -375,6 +347,42 @@ class GeometryDesignerInput(QDialog):
         self.lineEdit_fillet_line_id_2.setText("")
         self.lineEdit_fillet_radius.setText("")         
 
+    def load_geometry_entities_from_file(self):
+
+        self.cache_dict_lines_to_edge_coord = self.preprocessor.get_lines_edges_coordinates()
+        entities_data = self.project.file.load_geometry_entities_file()
+        self.update_process_geometry_and_mesh_state()
+        if entities_data is None:
+            return
+        
+        self.points = {}
+        if 'points_data' in entities_data.keys():
+            self.points = entities_data['points_data']
+
+        self.lines = {}
+        if 'lines_data' in entities_data.keys():
+            self.lines = entities_data['lines_data']
+        
+        self.fillets = {}
+        if 'fillets_data' in entities_data.keys():
+            for fillet_id, data in entities_data['fillets_data'].items():
+                fillets_data = []
+                for index, value in enumerate(data):
+                    if index == 2:
+                        fillets_data.append(value)
+                    else:
+                        fillets_data.append(int(value))
+                self.fillets[fillet_id] = fillets_data
+
+        if len(self.points) > 0:
+            self.load_points_info()
+
+        if len(self.lines) > 0:
+            self.load_lines_info()
+
+        if len(self.fillets) > 0:
+            self.load_fillets_info()
+
     def update_auto_point_ID(self):
         _checked = self.checkBox_auto_point_ID.isChecked()
         if _checked:
@@ -474,7 +482,7 @@ class GeometryDesignerInput(QDialog):
                 title = "Invalid point coordinates" 
                 message = f"The typed coordinates {coords} are the same coordinates of the \nalready existing Point ID {point_id}. "
                 message += "You should to modify the current Point \ncoordinates to proceed."
-                PrintMessageInput([window_title_2, message, title])
+                PrintMessageInput([title, message, window_title_2])
                 self.lineEdit_coord_x.setFocus()
                 return
 
@@ -496,7 +504,7 @@ class GeometryDesignerInput(QDialog):
         if point_id1_typed not in self.points.keys():
             title = "Invalid typed point ID" 
             message = "The typed point ID 1 did not defined yet. Please, you should to add \nthis point before or type an alread defined point to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_line_point_id_1.setText("")
             return
 
@@ -508,21 +516,40 @@ class GeometryDesignerInput(QDialog):
         if point_id2_typed not in self.points.keys():
             title = "Invalid typed point ID" 
             message = "The typed point ID 2 did not defined yet. Please, you should to add \nthis point before or type an alread defined point to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_line_point_id_2.setText("")
             return
         
         if point_id1_typed != point_id2_typed:
-            self.lines[line_typed] = [point_id1_typed, point_id2_typed]
-            self.clear_line_input_fields()
-            self.load_lines_info()
+            if len(self.lines) == 0:
+                self.lines[line_typed] = [point_id1_typed, point_id2_typed]
+                self.clear_line_input_fields()
+                self.load_lines_info()
+            else:
+                cache_dict_lines = self.lines.copy()
+                for _line_id, _line_points in cache_dict_lines.items():
+                    if _line_points != [point_id1_typed, point_id2_typed] and _line_points != [point_id2_typed, point_id1_typed]:
+                        self.lines[line_typed] = [point_id1_typed, point_id2_typed]
+                    elif _line_id == int(self.lineEdit_line_id.text()):
+                        self.lines[line_typed] = [point_id1_typed, point_id2_typed]
+                    else:
+                        title = "Lines: invalid inputs for point IDs" 
+                        message = f"The typed point ID 1 and point ID 2 has alread been attributed to the \nline ID #{_line_id}. "
+                        message += "As suggestion, we recommend you to check all existent \nlines to proceed."
+                        PrintMessageInput([title, message, window_title_2])
+                        self.lineEdit_line_point_id_1.setText("")
+                        self.lineEdit_line_point_id_2.setText("")
+                        return
+                self.clear_line_input_fields()
+                self.load_lines_info()
         else:
             title = "Invalid typed point ID" 
             message = "The typed point ID 1 and point ID 2 should differs. As suggestion, \nwe recommend you to change the typed point ID 2 to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_line_point_id_2.setText("")
 
     def add_fillet(self):
+
         _stop, fillet_typed = self.check_input_ID(self.lineEdit_fillet_id, label="Fillet")
         if _stop:
             self.lineEdit_fillet_id.setFocus()
@@ -536,7 +563,7 @@ class GeometryDesignerInput(QDialog):
         if line_id1_typed not in self.lines.keys():
             title = "Invalid typed Line ID" 
             message = "The typed Line ID 1 did not defined yet. Please, you should to add \nthis line previously or type an alread defined line to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_fillet_line_id_1.setText("")
             return
 
@@ -548,7 +575,7 @@ class GeometryDesignerInput(QDialog):
         if line_id2_typed not in self.lines.keys():
             title = "Invalid typed point ID" 
             message = "The typed Line ID 2 did not defined yet. Please, you should to add \nthis line previously or type an alread defined line to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_fillet_line_id_2.setText("")
             return
 
@@ -570,41 +597,63 @@ class GeometryDesignerInput(QDialog):
         
         list_points.remove(corner_point)
         set_points = [list_points[0], corner_point, list_points[1]]
-
-        # print(f"Line 1 points: {self.lines[line_id1_typed]}")
-        # print(f"Line 2 points: {self.lines[line_id2_typed]}")
-        # print(f"Corner point: {corner_point}")
         
         if line_id1_typed != line_id2_typed:
             if len(set_points) == 3:  
+                
                 P1 = self.points[set_points[0]]
                 P2 = self.points[set_points[1]]
                 P3 = self.points[set_points[2]]
+
                 fillet_parameters, stop = get_fillet_parameters(P1, P2, P3, radius=fillet_radius, unit_length="m")
-                fillet_points = []
-                for index in range(3,6):
-                    point_id = len(self.points)+1
-                    fillet_points.append(point_id)
-                    if point_id not in self.points.keys():
-                        self.points[point_id] = list(fillet_parameters[index]) 
-                # call_gmsh(P1, P2, P3, fillet_radius, unit_length="m")
                 if stop:
-                    return     
-                else:
-                    self.fillets[fillet_typed] = [  line_id1_typed, line_id2_typed, fillet_radius, set_points[0], set_points[1], 
-                                                    set_points[2], fillet_points[0], fillet_points[1], fillet_points[2]  ]
-                    self.clear_fillet_input_fields()
-                    self.load_fillets_info()
                     return
+                   
+                _point_id = 0
+                fillet_points = []
+                while len(fillet_points) <= 2:
+                    _point_id += 1
+                    if _point_id not in self.points.keys():
+                        fillet_points.append(_point_id)
+
+                if len(self.fillets) == 0:
+                    self.fillets[fillet_typed] = [  line_id1_typed, line_id2_typed, fillet_radius, set_points[0], set_points[1], 
+                                                        set_points[2], fillet_points[0], fillet_points[1], fillet_points[2]  ]
+                else:
+                    cache_dict_fillets = self.fillets.copy()
+                    for _fillet_id, data in cache_dict_fillets.items():
+                        _fillet_lines = [data[0], data[1]]
+                        if _fillet_lines != [line_id1_typed, line_id2_typed] and _fillet_lines != [line_id2_typed, line_id1_typed]:
+                            self.fillets[fillet_typed] = [  line_id1_typed, line_id2_typed, fillet_radius, set_points[0], set_points[1], 
+                                                            set_points[2], fillet_points[0], fillet_points[1], fillet_points[2]  ]
+                        elif _fillet_id == int(self.lineEdit_fillet_id.text()):
+                            fillet_points = [data[6], data[7], data[8]]
+                            self.fillets[fillet_typed] = [  line_id1_typed, line_id2_typed, fillet_radius, set_points[0], set_points[1], 
+                                                            set_points[2], fillet_points[0], fillet_points[1], fillet_points[2]  ]
+                        else:
+                            title = "Fillets: invalid inputs for line IDs" 
+                            message = f"The typed line ID 1 and line ID 2 has alread been attributed to the \nfillet ID #{_fillet_id}. "
+                            message += "As suggestion, we recommend you to check all existent \nfillets to proceed."
+                            PrintMessageInput([title, message, window_title_2])
+                            self.lineEdit_fillet_line_id_1.setText("")
+                            self.lineEdit_fillet_line_id_2.setText("")
+                            return
+        
+                for index, data in enumerate(fillet_parameters[3:]):
+                    self.points[fillet_points[index]] = list(data)
+
+                self.clear_fillet_input_fields()
+                self.load_fillets_info()
+
             else:
                 title = "Invalid typed Line ID" 
                 message = "The typed Line ID 1 and Line ID 2 should have a commom Point. \nAs suggestion, we recommend you to verify all line Points \nto proceed."
-                PrintMessageInput([window_title_2, message, title])
+                PrintMessageInput([title, message, window_title_2])
                 
         else:
             title = "Invalid typed Line ID" 
             message = "The typed Line ID 1 and Line ID 2 should differs. As suggestion, we recommend you to change the typed Line ID 2 to proceed."
-            PrintMessageInput([window_title_2, message, title])
+            PrintMessageInput([title, message, window_title_2])
             self.lineEdit_line_point_id_2.setText("")
 
     def remove_point(self):
@@ -630,32 +679,50 @@ class GeometryDesignerInput(QDialog):
     def remove_fillet(self):
         if self.lineEdit_fillet_id.text() != "":
             fillet_id = int(self.lineEdit_fillet_id.text())
-            if fillet_id in self.lines.keys():
-                self.lines.pop(fillet_id)
+            fillet_data = self.fillets[fillet_id]
+            if fillet_id in self.fillets.keys():
+                self.fillets.pop(fillet_id)
+            for point_id in [fillet_data[6], fillet_data[7], fillet_data[8]]:
+                if point_id in self.points.keys():
+                    self.points.pop(point_id)
         self.clear_fillet_input_fields()
         self.load_fillets_info()
+        self.load_lines_info()
+        self.load_points_info()
         self._update_buttons()
 
     def remove_line_by_point(self, point_id):
         cache_lines = self.lines.copy()
         for line_id, line_points in cache_lines.items():
             if point_id in line_points:
-                self.lines.pop(line_id)
+                if line_id in self.lines.keys():
+                    self.lines.pop(line_id)
                 self.remove_fillet_by_line(line_id)
-                self.load_fillets_info()
+        self.load_fillets_info()
         self.load_lines_info()
 
     def remove_fillet_by_line(self, line_id):
-        for fillet_id, fillet_data in self.fillets.items():
-            fillet_lines = [fillet_data[0], fillet_data[1]]
-            if line_id in fillet_lines:
+        cache_fillets = self.fillets.copy()
+        for fillet_id, fillet_data in cache_fillets.items(): 
+            if line_id in [fillet_data[0], fillet_data[1]]:
                 self.fillets.pop(fillet_id)
+            for point_id in [fillet_data[6], fillet_data[7], fillet_data[8]]:
+                self.points.pop(point_id)
         self.load_fillets_info()
+        self.load_points_info()
 
     def generate_geometry(self):
         
         try:
+
             self.complete = False
+            if len(self.lines) == 0:
+                title = "None lines detected in geometry"
+                message = "There is no lines connecting points in geometry design. Please, it is necessary " 
+                message += "to define at least one line to proceed with the geometry and mesh processing."
+                PrintMessageInput([title, message, window_title_2])
+                return True
+
             if len(self.points) > 0:
                 entities_data = {   "points_data" : self.points,
                                     "lines_data" : self.lines,
@@ -685,9 +752,9 @@ class GeometryDesignerInput(QDialog):
                     geometry_path = ""
  
                 self.project.set_geometry_entities(entities_data, geometry_path, kernel=kernel)
-                
-                if self.checkBox_process_geometry_and_mesh.isChecked():
-                    self.process_mesh()
+                if self.checkBox_process_geometry_and_mesh.isChecked() or self.project.file.get_element_size_from_project_file() != "":
+                    if self.process_mesh():
+                        return
                     self.complete = True
                 else:
                     self.complete = None
@@ -700,16 +767,17 @@ class GeometryDesignerInput(QDialog):
     def process_mesh(self):
  
         if self.check_element_size_input_value():
-            return
+            return True
 
         if self.check_geometry_tolerance_input_value():
-            return
+            return True
 
         self.project.file.update_project_attributes(self.element_size, self.geometry_tolerance)
         self.project.initial_load_project_actions(self.project_ini_path)
         self.process_lines_mapping_and_final_actions()
         self.opv.updatePlots()
-        self.opv.changePlotToMesh() 
+        self.opv.changePlotToMesh()
+        return False
 
     def process_nodes_mapping(self):
         #

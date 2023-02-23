@@ -1,6 +1,6 @@
 from PyQt5.QtGui import QIcon, QFont
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel
+from PyQt5.QtWidgets import QAction, QToolBar, QSplitter, QFileDialog, QMessageBox, QMainWindow, QMenu, QWidget, QCheckBox, QRadioButton, QLabel, QStatusBar, QSizeGrip
 
 from pulse.uix.menu.Menu import Menu
 from pulse.uix.inputUi import InputUi
@@ -33,6 +33,7 @@ class MainWindow(QMainWindow):
         self._createProjectToolBar()
         self._createAnimationToolBar()
         self._createHideShowToolBar()
+        self._createStatusBar()
         self.show()
         self.loadRecentProject()
 
@@ -567,6 +568,46 @@ class MainWindow(QMainWindow):
         self.toolbar.addSeparator()
         self.toolbar.addAction(self.saveAsPng_action)
 
+    def _createStatusBar(self):
+        self.status_bar = QStatusBar()
+        self.setStatusBar(self.status_bar)
+        #
+        label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
+        self.label_geometry_state = QLabel("", self)
+        self.label_geometry_state.setFont(label_font)
+        self.status_bar.addPermanentWidget(self.label_geometry_state)
+        #
+        self.label_mesh_state = QLabel("", self)
+        self.label_mesh_state.setFont(label_font)
+        self.status_bar.addPermanentWidget(self.label_mesh_state)
+
+    def _updateGeometryState(self, label):
+        _state = ""
+        if label != "":
+            _state = f" Geometry: {label} "            
+        self.label_geometry_state.setText(_state)
+
+    def _updateMeshState(self, label):
+        _state = ""
+        if label != "":
+            _state = f" Mesh: {label} "           
+        self.label_mesh_state.setText(_state)
+
+    def _updateStatusBar(self):
+        # Check and update geometry state
+        if self.project.empty_geometry:
+            self._updateGeometryState("pending")
+        else:
+            self._updateGeometryState("ok")
+        # Check and update mesh state
+        if len(self.project.preprocessor.structural_elements) == 0:
+            if self.project.check_mesh_setup():
+                self._updateMeshState("setup complete but not generated")
+            else:
+                self._updateMeshState("pending")
+        else:
+            self._updateMeshState("ok")
+
     def _createHideShowToolBar(self):
 
         label_font = self._getFont(10, bold=True, italic=False, family_type="Arial")
@@ -701,8 +742,7 @@ class MainWindow(QMainWindow):
             if self.inputWidget.getStarted(self.config):
                 self._loadProjectMenu()
                 self.changeWindowTitle(self.project.file._project_name)
-                if len(self.project.preprocessor.structural_elements) > 0:
-                    self.draw()
+                self.draw()
 
     def savePNG_call(self):
         project_path = self.project.file._project_path
@@ -769,7 +809,7 @@ class MainWindow(QMainWindow):
     def draw(self):
         self.opv_widget.updatePlots()
         self.plot_entities_with_cross_section()
-        self.opv_widget.setCameraView(0)
+        self.opv_widget.setCameraView(5)
 
     def closeEvent(self, event):
         title = "OpenPulse stop execution requested"

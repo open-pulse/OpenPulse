@@ -609,76 +609,6 @@ def check_is_there_a_group_of_elements_inside_list_elements(input_list):
     list_of_lists.append(list_i)
     return list_of_lists
 
-def generate_geometry_gmsh(P1, P2, P3, radius, unit_length="m"):
-    try:
-        # Before using any functions in the Python API, Gmsh must be initialized:
-        gmsh.initialize()
-        gmsh.model.add("teste_linha")
-
-        lc = 1e-2
-        # radius = 100
-        # # length = 1000
-        # P1 = np.array([0,0,1000])
-        # P2 = np.array([0,0,0])
-        # P3 = np.array([-1000,0,0])
-
-        fillet_data, stop = get_fillet_parameters(P1, P2, P3, radius, unit_length=unit_length)
-        if stop:
-            gmsh.clear()
-            gmsh.finalize()
-            return
-        else:
-            [P1, P2, P3, Pc, Q1, Q2] = fillet_data
-
-        gmsh.model.geo.addPoint(P1[0], P1[1], P1[2], tag=1)
-        gmsh.model.geo.addPoint(Q1[0], Q1[1], Q1[2], tag=2)
-        gmsh.model.geo.addPoint(Q2[0], Q2[1], Q2[2], tag=3)
-        gmsh.model.geo.addPoint(P3[0], P3[1], P3[2], tag=4)
-        gmsh.model.geo.addPoint(Pc[0], Pc[1], Pc[2], tag=5)
-        gmsh.model.geo.addPoint(P2[0], P2[1], P2[2], tag=6)
-        
-        # gmsh.model.geo.addPoint(length, 0, 0, tag=2)
-        # gmsh.model.geo.addPoint(length-radius, 0, 0, tag=2)
-        # gmsh.model.geo.addPoint(length, radius, 0, tag=3)
-        # gmsh.model.geo.addPoint(length, length, 0, tag=4)
-        # gmsh.model.geo.addPoint(length-radius, radius, 0, tag=5)
-
-        gmsh.model.geo.addLine(1, 2, tag=1)
-        gmsh.model.geo.addLine(3, 4, tag=2)
-        gmsh.model.geo.addCircleArc(2, 5, 3, tag=3)
-
-        gmsh.model.addPhysicalGroup(1, [1, 2, 3], 1)
-        gmsh.model.geo.synchronize()
-
-        tolerance = 1e-8
-        element_size_mm = 10
-
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMin', element_size_mm)
-        gmsh.option.setNumber('Mesh.CharacteristicLengthMax', element_size_mm)
-        gmsh.option.setNumber('Mesh.Optimize', 1)
-        gmsh.option.setNumber('Mesh.OptimizeNetgen', 0)
-        gmsh.option.setNumber('Mesh.HighOrderOptimize', 0)
-        gmsh.option.setNumber('Mesh.ElementOrder', 1)
-        gmsh.option.setNumber('Mesh.Algorithm', 2)
-        gmsh.option.setNumber('Mesh.Algorithm3D', 1)
-        gmsh.option.setNumber('Geometry.Tolerance', tolerance)
-
-        # We can then generate a 3D mesh...
-        # gmsh.model.mesh.generate(3)
-        # gmsh.model.mesh.removeDuplicateNodes()
-
-        # ... and save it to disk
-        gmsh.write("teste_linha.msh")
-
-        if '-nopopup' not in sys.argv:
-            gmsh.fltk.run()
-
-        gmsh.finalize()
-
-    except Exception as _error:
-        print(str(_error))
-
-
 def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
     """
     This method process the fillet parameters, respectiveliy, start point, center point and end point of the arc circle.
@@ -727,7 +657,6 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
             print(f"The fillet radius must be less than {round(allowable_radius,2)} [mm].")
             return None, True
 
-
         if np.linalg.norm(np.cross(u,v)) == 0:
             print("The input points belong to the same line. Please, check the point coordinates to proceed!")
             return None, True
@@ -738,7 +667,6 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
         if np.linalg.norm(np.cross(n_plane,n_z)) == 0:
             r = Rotation.from_rotvec([0,0,0])
         else:
-
             rot_axis = np.cross(n_plane,n_z)/np.linalg.norm(np.cross(n_plane,n_z))
             rot_axis_norm = rot_axis/np.linalg.norm(rot_axis)
             ang_rot = np.arccos(np.dot(n_plane,n_z)/(np.linalg.norm(n_plane)*np.linalg.norm(n_z)))
@@ -746,7 +674,6 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
             r = Rotation.from_rotvec(rot_vect)
 
         rot_matrix = r.as_matrix()
-        # euler_angles = r.as_euler('zxy', degrees=True)
 
         # This operation rotates the plane containing the lines P1P2 and P2P3 aligning it with the xy plane.
         Points = Points@rot_matrix.T
@@ -804,7 +731,7 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
         if round(np.linalg.norm(np.cross(Q1-P2, P2-P1)),6) != 0:
             Q1 = Pc + n1*radius
 
-        # Define a normal vetor to the line P1P2 
+        # Define a normal vetor to the line P2P3 
         # equation: (nx_2,ny_2).(x3-x2,y3-y2) = 0
         nx_2 = 1
         ny_2 = 1
@@ -830,9 +757,9 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
         P1 = Points_f[0,:]
         P2 = Points_f[1,:]
         P3 = Points_f[2,:]
-        Pc = Points_f[3,:]
-        Q1 = Points_f[4,:]
-        Q2 = Points_f[5,:]
+        Pc = np.round(Points_f[3,:],8)
+        Q1 = np.round(Points_f[4,:],8)
+        Q2 = np.round(Points_f[5,:],8)
         # print(f"output data:\n\n P1: {P1}\n P2: {P2}\n P3: {P3}\n Pc: {Pc}\n Q1: {Q1}\n Q2: {Q2}")
 
        # Checks if P1Q1P2 and P2Q2P3 are colinear 
@@ -840,7 +767,7 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
         cross_P2Q2_P2P3 =  round(np.linalg.norm(np.cross(Q2-P2, P3-P2)),6)
         if [cross_P1Q1_P1P2,cross_P2Q2_P2P3] != [0,0]:
             print(f"The P1-Q1-P2 and P2Q2-P3 are colinear: {cross_P1Q1_P1P2, cross_P2Q2_P2P3}")
-            return [], True
+            return None, True
 
     except Exception as error:
         print(str(error))
@@ -850,17 +777,3 @@ def get_fillet_parameters(P1, P2, P3, radius, unit_length="m"):
 
 def get_angle_between_vectors(vect_1, vect_2):
     return np.arccos(np.linalg.norm(np.dot(vect_1,vect_2))/(np.linalg.norm(vect_1)*np.linalg.norm(vect_2)))
-
-if __name__ == "__main__":
-    # for i in range(1000):
-    #     # P1 = np.array([983,-769,-348])
-    #     # P2 = np.array([-956,-632,-764])
-    #     # P3 = np.array([263,148,63])
-    #     data = np.random.randint(-1000,1000,size=(3,3))
-    #     P1 = data[0,:]
-    #     P2 = data[1,:]
-    #     P3 = data[2,:]
-    #     fillet_data, flag = get_fillet_parameters(P1,P2,P3)
-    #     if flag and fillet_data==[]:
-    #         print(data)
-    generate_geometry_gmsh()

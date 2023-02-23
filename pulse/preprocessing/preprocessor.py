@@ -3278,10 +3278,6 @@ class Preprocessor:
             gmsh.model.add("OpenPulse - geometry designer")
 
             lc = 1e-2
-            # radius = 100
-            # P1 = np.array([0,0,1000])
-            # P2 = np.array([0,0,0])
-            # P3 = np.array([-1000,0,0])
 
             points = entities_data["points_data"]
             lines = entities_data["lines_data"]

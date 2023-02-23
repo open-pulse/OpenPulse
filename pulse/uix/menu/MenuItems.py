@@ -378,8 +378,10 @@ class MenuItems(QTreeWidget):
         elif item == self.item_child_createGeometry:
             if not self.item_child_createGeometry.isDisabled():
                 read = self.mainWindow.getInputWidget().call_geometry_designer()
+                self.mainWindow._updateStatusBar()
                 if read is None:
                     self.modify_general_settings_items_access(False)
+                    
                 elif read:
                     self.modify_model_setup_items_access(False)
                     
@@ -391,6 +393,7 @@ class MenuItems(QTreeWidget):
             if not self.item_child_setMeshProperties.isDisabled():
                 if self.mainWindow.getInputWidget().set_mesh_properties():
                     self._updateItems()
+                    self.mainWindow._updateStatusBar()
 
         elif item == self.item_child_set_material:
             if not self.item_child_set_material.isDisabled():
@@ -597,9 +600,9 @@ class MenuItems(QTreeWidget):
         self.item_child_createGeometry.setDisabled(bool_key)
         self.item_child_setGeometryFile.setDisabled(bool_key)
         self.item_child_setMeshProperties.setDisabled(bool_key)
-        self.item_child_set_material.setDisabled(bool_key)
-        self.item_child_set_fluid.setDisabled(bool_key)
-        self.item_child_set_crossSection.setDisabled(bool_key)
+        # self.item_child_set_material.setDisabled(bool_key)
+        # self.item_child_set_fluid.setDisabled(bool_key)
+        # self.item_child_set_crossSection.setDisabled(bool_key)
 
     def modify_model_setup_items_access(self, bool_key):
         #
@@ -637,6 +640,7 @@ class MenuItems(QTreeWidget):
 
     def _updateItems(self):
         """Enables and disables the Child Items on the menu after the solution is done."""
+        self.modify_model_setup_items_access(False)
         if True:
             self.item_child_plotStructuralModeShapes.setDisabled(True)
             self.item_child_plotDisplacementField.setDisabled(True)

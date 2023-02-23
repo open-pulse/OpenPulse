@@ -29,13 +29,13 @@ class ProjectFile:
         self._project_name = ""
         self._import_type = 0
         self._section = 0
-        self._element_size = 0.01
+        self._element_size = 0.01 # default value to the element size (in meters)
         self._project_path = ""
         self._material_list_path = ""
         self._fluid_list_path = ""
         self._geometry_path = ""
         self._geometry_filename = ""
-        self._geometry_tolerance = 1e-8
+        self._geometry_tolerance = 1e-8 # default value to gmsh geometry tolerance (in milimeters)
         self._conn_path = ""
         self._coord_path = ""
         self._entity_path = ""
@@ -74,8 +74,6 @@ class ProjectFile:
     def new_empty(self, project_path, project_name, import_type, material_list_path, fluid_list_path):
         self._project_path = project_path
         self._project_name = project_name
-        self._element_size = None
-        self._geometry_tolerance = None
         self._import_type = import_type
         self._material_list_path = material_list_path
         self._fluid_list_path = fluid_list_path
@@ -105,17 +103,16 @@ class ProjectFile:
         self._acoustic_imported_data_folder_path = get_new_path(self._imported_data_folder_path, "acoustic")
 
     def get_element_size_from_project_file(self):
-
-        project_ini_file_path = get_new_path(self._project_path, "project.ini")
-        config = configparser.ConfigParser()
-        config.read(project_ini_file_path)
-        
-        if 'element size' in config['PROJECT'].keys():
-            element_size = config['PROJECT']['element size']
-            if element_size != "":
-                return float(element_size)
-        else:
-            return ""
+        if self._project_path != "":
+            project_ini_file_path = get_new_path(self._project_path, "project.ini")
+            config = configparser.ConfigParser()
+            config.read(project_ini_file_path)
+            if 'element size' in config['PROJECT'].keys():
+                element_size = config['PROJECT']['element size']
+                if element_size != "":
+                    return float(element_size)
+            else:
+                return ""
             
     def get_geometry_path(self):
         return get_new_path(self._project_path, self._geometry_entities_file_name)
@@ -184,11 +181,23 @@ class ProjectFile:
         config = configparser.ConfigParser()
         config.read(temp_geometry_file_path)
 
-        config['Points'] = entities_data["points_data"]
-        config['Lines'] = entities_data["lines_data"]
+        if len(entities_data["points_data"]) > 0:
+            config['Points'] = entities_data["points_data"]
+        else:
+            if 'Points' in config.sections():
+                config.remove_section('Points')
         
+        if len(entities_data["lines_data"]) > 0:
+            config['Lines'] = entities_data["lines_data"]
+        else:
+            if 'Lines' in config.sections():
+                config.remove_section('Lines')
+
         if len(entities_data["fillets_data"]) > 0:
             config['Fillets'] = entities_data["fillets_data"]
+        else:
+            if 'Fillets' in config.sections():
+                config.remove_section('Fillets')
 
         self.write_data_in_file(temp_geometry_file_path, config)
         

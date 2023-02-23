@@ -23,7 +23,6 @@ window_title = "ERROR"
 
 class Project:
     def __init__(self):
-        
         self.preprocessor = Preprocessor()
         self.file = ProjectFile()
         self.project_folder_path = ""    
@@ -122,12 +121,15 @@ class Project:
                         conn_path)
          
     def load_project(self, project_file_path):
-        # def callback():
-        if self.initial_load_project_actions(project_file_path):
-            self.load_project_files()
-        # LoadingScreen('Loading Project', target=callback)
-        self.preprocessor.get_list_edge_nodes(self.file._element_size)
-    
+        try:
+            def callback():
+                if self.initial_load_project_actions(project_file_path):
+                    self.load_project_files()
+            LoadingScreen('Loading Project', target=callback)
+            self.preprocessor.get_list_edge_nodes(self.file._element_size)
+        except Exception as log_error:
+            print(str(log_error))
+
     def initial_load_project_actions(self, project_file_path):
         try:
             self.reset_info()
@@ -157,9 +159,16 @@ class Project:
             PrintMessageInput([title, message, window_title])
             return False
 
+    def check_mesh_setup(self):
+        if self.file.get_element_size_from_project_file() != "":
+            return True
+        else:
+            return False
+
     def set_geometry_entities(self, entities_data, geometry_path, kernel):
         self.file.add_geometry_entities_to_file(entities_data)
         self.preprocessor.generate_geometry_gmsh(entities_data, geometry_path=geometry_path, kernel=kernel)
+        self.empty_geometry = False
     
     def load_geometry_entities(self, kernel="built-in"):
 
@@ -679,8 +688,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_prescribed_dofs_bc_by_node(key, [prescribed_dofs, dofs_tables])
-                except Exception:
-                    message = "There is some error while loading prescribed dofs data." 
+                except Exception as log_error:
+                    message = "An error has occurred while loading prescribed dofs data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title])
 
         for key, [nodal_loads, nodal_loads_tables, nodal_loads_list_freq] in external_loads.items():
@@ -694,8 +704,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_structural_loads_by_node(key, [nodal_loads, nodal_loads_tables])
-                except Exception:
-                    message = "There is some error while loading nodal loads data." 
+                except Exception as log_error:
+                    message = "An error has occurred while loading nodal loads data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title])
 
         for key, [lumped_inertia, lumped_inertia_tables, lumped_inertia_list_freq] in mass.items():
@@ -709,8 +720,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_mass_by_node(key, [lumped_inertia, lumped_inertia_tables])
-                except Exception:
-                    message = "There is some error while loading lumped masses/moments of inertia data."
+                except Exception as log_error:
+                    message = "An error has occurred while loading lumped masses/moments of inertia data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title])
                 
         for key, [lumped_stiffness, lumped_stiffness_tables, lumped_stiffness_list_freq] in spring.items():
@@ -724,8 +736,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_spring_by_node(key, [lumped_stiffness, lumped_stiffness_tables])
-                except Exception:
-                    message = "There is some error while loading lumped stiffness data." 
+                except Exception as log_error:
+                    message = "An error has occurred while loading lumped stiffness data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title])  
 
         for key, [lumped_dampings, lumped_damping_tables, lumped_damping_list_freq] in damper.items():
@@ -739,8 +752,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_damper_by_node(key, [lumped_dampings, lumped_damping_tables])
-                except Exception:
-                    message = "There is some error while loading lumped damping data." 
+                except Exception as log_error:
+                    message = "An error has occurred while loading lumped damping data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title]) 
 
         for key, [stiffness_data, elastic_link_stiffness_tables, connecting_stiffness_list_freq] in elastic_link_stiffness.items():
@@ -755,8 +769,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_elastic_nodal_link_stiffness(nodes, [stiffness_data, elastic_link_stiffness_tables])
-                except Exception:
-                    message = "There is some error while loading elastic nodal link stiffness data." 
+                except Exception as log_error:
+                    message = "An error has occurred while loading elastic nodal link stiffness data."
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title]) 
 
         for key, [damping_data, elastic_link_damping_tables, connecting_damping_list_freq] in elastic_link_damping.items():
@@ -771,9 +786,9 @@ class Project:
                                 break
                     if frequency_setup_pass:
                         self.load_elastic_nodal_link_damping(nodes, [damping_data, elastic_link_damping_tables])
-                except Exception as _log_error:
-                    message = "There is some error while loading elastic nodal link damping data." 
-                    message += f"\n\n{str(_log_error)}"
+                except Exception as log_error:
+                    message = "An error has occurred while loading elastic nodal link damping data." 
+                    # message += str(log_error)
                     PrintMessageInput([title, message, window_title]) 
 
     def load_acoustic_bc_file(self):

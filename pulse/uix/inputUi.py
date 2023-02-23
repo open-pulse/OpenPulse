@@ -101,27 +101,36 @@ class InputUi:
 
     def new_project(self, config):
         new_project_input = self.processInput(NewProjectInput, self.project, self.opv, config)
+        self.parent._updateStatusBar()
         return self.initial_project_action(new_project_input.create)
 
     def loadProject(self, config, path=None):
         load_project = self.processInput(LoadProjectInput, self.project, self.opv, config, path)
+        self.parent._updateStatusBar()
         return self.initial_project_action(load_project.complete) 
 
     def getStarted(self, config):
         self.parent.menuWidget.tree_widget.modify_model_setup_items_access(True)
         get_started = self.processInput(GetStartedInput, self.project, self.opv, config, self)
+        self.parent._updateStatusBar()
         return self.initial_project_action(get_started.draw)          
     
-    def initial_project_action(self, obj):
-        if self.project.empty_geometry:
-            self.parent.set_enable_menuBar(False)
-            self.parent.menuWidget.tree_widget.modify_geometry_item_access(False)
-            return True  
-        if obj:
-            self.project.none_project_action = False
-            self.parent.set_enable_menuBar(True)
-            self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
-            return True
+    def initial_project_action(self, finalized):
+        mesh_setup = self.project.check_mesh_setup()
+        if finalized:
+            if self.project.empty_geometry:
+                self.parent.set_enable_menuBar(False)
+                self.parent.menuWidget.tree_widget.modify_geometry_item_access(False)
+                return True
+            elif not mesh_setup:
+                self.parent.set_enable_menuBar(False)
+                self.parent.menuWidget.tree_widget.modify_general_settings_items_access(False)
+                return True   
+            else:
+                self.project.none_project_action = False
+                self.parent.set_enable_menuBar(True)
+                self.parent.menuWidget.tree_widget.modify_model_setup_items_access(False) 
+                return True
         else:
             self.project.none_project_action = True
             self.parent.set_enable_menuBar(False)
@@ -145,6 +154,8 @@ class InputUi:
 
     def set_mesh_properties(self):
         read = self.processInput(SetMeshPropertiesInput, self.project, self.opv)
+        if read.complete:
+            self.initial_project_action(True)
         return read.complete
 
     def set_material(self):
